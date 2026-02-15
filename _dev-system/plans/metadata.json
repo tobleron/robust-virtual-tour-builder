@@ -1,5 +1,161 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.05, Coupling: 0.10] | Drag: 4.05 | LOC: 384/300  🎯 Target: Function: `getConfigForStyle` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.446875,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserLogic.res",
+              "functions": [
+                {
+                  "name": "canvasWidth",
+                  "signature": "canvasWidth = Constants.Teaser.canvasWidth",
+                  "line": 8
+                },
+                {
+                  "name": "canvasHeight",
+                  "signature": "canvasHeight = Constants.Teaser.canvasHeight",
+                  "line": 9
+                },
+                {
+                  "name": "wait",
+                  "signature": "wait = (ms: int) =>",
+                  "line": 18
+                },
+                {
+                  "name": "fastConfig",
+                  "signature": "fastConfig = {clipDuration: 2500.0, transitionDuration: 1000.0, cameraPanOffset: 20.0}",
+                  "line": 31
+                },
+                {
+                  "name": "slowConfig",
+                  "signature": "slowConfig = {clipDuration: 4000.0, transitionDuration: 1500.0, cameraPanOffset: 30.0}",
+                  "line": 32
+                },
+                {
+                  "name": "punchyConfig",
+                  "signature": "punchyConfig = {clipDuration: 1800.0, transitionDuration: 600.0, cameraPanOffset: 0.0}",
+                  "line": 33
+                },
+                {
+                  "name": "getConfigForStyle",
+                  "signature": "getConfigForStyle = (style: string) => {",
+                  "line": 34
+                },
+                {
+                  "name": "waitForViewerReady",
+                  "signature": "waitForViewerReady = async (sceneId: string) => {",
+                  "line": 45
+                },
+                {
+                  "name": "animatePan",
+                  "signature": "animatePan = async (fromYaw, toYaw, pitch, duration) => {",
+                  "line": 76
+                },
+                {
+                  "name": "prepareFirstScene",
+                  "signature": "prepareFirstScene = async (",
+                  "line": 101
+                },
+                {
+                  "name": "recordShot",
+                  "signature": "recordShot = async (_i, step: Pathfinder.step, style, config: State.teaserConfig) => {",
+                  "line": 132
+                },
+                {
+                  "name": "transitionToNextShot",
+                  "signature": "transitionToNextShot = async (",
+                  "line": 144
+                },
+                {
+                  "name": "signalIsAborted",
+                  "signature": "signalIsAborted = signal =>",
+                  "line": 199
+                },
+                {
+                  "name": "throwIfCancelled",
+                  "signature": "throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>",
+                  "line": 205
+                },
+                {
+                  "name": "finalizeTeaser",
+                  "signature": "finalizeTeaser = async (format, baseName) => {",
+                  "line": 212
+                },
+                {
+                  "name": "startCinematicTeaser",
+                  "signature": "startCinematicTeaser = async (",
+                  "line": 240
+                },
+                {
+                  "name": "startAutoTeaser",
+                  "signature": "startAutoTeaser = async (",
+                  "line": 266
+                }
+              ],
+              "fingerprint": "ea7b9a17bc8669a89940630dd5886f485067e108ab5efacb8d95ae473461e0f9"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.07, Coupling: 0.02] | Drag: 3.79 | LOC: 387/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 12.490439276485787,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video_logic.rs",
+              "functions": [
+                {
+                  "name": "headless_backend_origin",
+                  "signature": "fn headless_backend_origin() -> String {",
+                  "line": 73
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
+                  "line": 77
+                },
+                {
+                  "name": "generate_teaser_sync",
+                  "signature": "pub fn generate_teaser_sync(",
+                  "line": 123
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 252
+                },
+                {
+                  "name": "get_ffmpeg_command",
+                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
+                  "line": 377
+                }
+              ],
+              "fingerprint": "be4149fb2b7db2c9f5277cc679726c03e4384b26747ff7c7f4aa30cdfe7f7543"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/models.rs",
@@ -100,218 +256,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project_logic.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/utils.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/core/ReducerModules.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.31, Coupling: 0.08] | Drag: 6.71 | LOC: 378/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.506878306878306,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/core/ReducerModules.res`",
-          "snapshots": [
-            {
-              "path": "src/core/ReducerModules.res",
-              "functions": [
-                {
-                  "name": "updateInteractive",
-                  "signature": "updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {",
-                  "line": 7
-                },
-                {
-                  "name": "updateUiMode",
-                  "signature": "updateUiMode = (state: state, mode: uiMode): state => {",
-                  "line": 14
-                },
-                {
-                  "name": "updateNavigation",
-                  "signature": "updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {",
-                  "line": 18
-                },
-                {
-                  "name": "updateBackgroundTask",
-                  "signature": "updateBackgroundTask = (state: state, task: option<backgroundTask>): state => {",
-                  "line": 22
-                },
-                {
-                  "name": "handleAddScenes",
-                  "signature": "handleAddScenes = (state: state, scenesData): state => {",
-                  "line": 28
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = (state: state, index: int): state => {",
-                  "line": 32
-                },
-                {
-                  "name": "handleReorderScenes",
-                  "signature": "handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {",
-                  "line": 36
-                },
-                {
-                  "name": "handleSetActiveScene",
-                  "signature": "handleSetActiveScene = (",
-                  "line": 40
-                },
-                {
-                  "name": "handleUpdateSceneMetadata",
-                  "signature": "handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {",
-                  "line": 50
-                },
-                {
-                  "name": "handleSyncSceneNames",
-                  "signature": "handleSyncSceneNames = (state: state): state => {",
-                  "line": 54
-                },
-                {
-                  "name": "handleApplyLazyRename",
-                  "signature": "handleApplyLazyRename = (state: state, index: int, name: string): state => {",
-                  "line": 58
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 62
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 79
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 122
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 159
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 189
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 259
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 312
-                },
-                {
-                  "name": "reduce",
-                  "signature": "reduce = (state: state, action: action): option<state> => {",
-                  "line": 346
-                }
-              ],
-              "fingerprint": "3754ee13e6cb99ee7b3bd930493e64da3945d934077ac074aafd06e2f3813c85"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipelineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.06, Coupling: 0.05] | Drag: 5.88 | LOC: 384/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.278125,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipelineLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipelineLogic.res",
-              "functions": [
-                {
-                  "name": "handleDragStart",
-                  "signature": "handleDragStart = (pipeline: t, e) => {",
-                  "line": 13
-                },
-                {
-                  "name": "handleDragEnd",
-                  "signature": "handleDragEnd = (pipeline: t, e) => {",
-                  "line": 21
-                },
-                {
-                  "name": "handleDragOver",
-                  "signature": "handleDragOver = e => {",
-                  "line": 28
-                },
-                {
-                  "name": "handleDragEnter",
-                  "signature": "handleDragEnter = e => {",
-                  "line": 32
-                },
-                {
-                  "name": "handleDragLeave",
-                  "signature": "handleDragLeave = e => {",
-                  "line": 37
-                },
-                {
-                  "name": "handleDrop",
-                  "signature": "handleDrop = (",
-                  "line": 42
-                },
-                {
-                  "name": "createDropZone",
-                  "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
-                  "line": 84
-                },
-                {
-                  "name": "nodeSize",
-                  "signature": "nodeSize = 22",
-                  "line": 100
-                },
-                {
-                  "name": "styles",
-                  "signature": "styles =",
-                  "line": 102
-                },
-                {
-                  "name": "render",
-                  "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
-                  "line": 260
-                }
-              ],
-              "fingerprint": "f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
       }
     }
   ],

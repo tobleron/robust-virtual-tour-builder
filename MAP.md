@@ -51,6 +51,7 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Extracted logic for performance thresholds and error data enrichment. `#logging` `#logic`
 *   [src/Hooks.res](src/Hooks.res): Common React hooks for throttled actions and interaction permissions. `#react` `#hooks`
 *   [src/hooks/UseInteraction.res](src/hooks/UseInteraction.res): Specialized hook for managing interaction policies and feedback. `#react` `#hooks` `#interaction`
+*   [src/utils/PerfUtils.res](src/utils/PerfUtils.res): React hook for monitoring component render budget and performance metrics. `#performance` `#react` `#hooks` `#telemetry`
 
 
 ### 🛡️ State Management & Logic
@@ -69,6 +70,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/NavigationState.res](src/core/NavigationState.res): Navigation domain state slice reducer (FSM/status/journey/auto-forward chain). `#state` `#navigation` `#reducer`
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
+    *   [src/core/ReducerModules.res](src/core/ReducerModules.res): Domain-specific reducer sub-modules for Scene, Hotspot, Ui, AppFsm, Simulation, and Timeline. `#reducer` `#logic` `#modular`
+    *   [src/core/NavigationProjectReducer.res](src/core/NavigationProjectReducer.res): Cross-domain coordination reducers for Navigation and Project state handling. `#reducer` `#navigation` `#project`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
     *   [src/core/SceneInventory.res](src/core/SceneInventory.res): Internal logic for scene collection and inventory management. `#state` `#inventory`
     *   [src/core/SceneNaming.res](src/core/SceneNaming.res): Specialized logic for unique scene name generation and collision detection. `#logic` `#naming`
@@ -107,11 +110,13 @@ This map provides a semantic overview of the project structure to optimize conte
 
 *   [src/systems/Scene.res](src/systems/Scene.res): Orchestrator for scene management, transitions, and loading. `#scene` `#orchestration`
     *   [src/systems/Scene/SceneLoader.res](src/systems/Scene/SceneLoader.res): Scene transition logic and viewer loading coordination. `#scene-loading` `#lifecycle`
+    *   [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): Scene configuration and Pannellum setup logic for viewer initialization. `#scene-loading` `#logic`
     *   [src/systems/Scene/Loader/SceneLoaderConfig.res](src/systems/Scene/Loader/SceneLoaderConfig.res): Configuration factory for viewer instances and blank panoramas. `#scene-loading` `#config`
     *   [src/systems/Scene/Loader/SceneLoaderEvents.res](src/systems/Scene/Loader/SceneLoaderEvents.res): Handling of stage-level load/error events and task status. `#scene-loading` `#events`
     *   [src/systems/Scene/Loader/SceneLoaderReuse.res](src/systems/Scene/Loader/SceneLoaderReuse.res): Optimization logic for reusing existing viewer instances across transitions. `#scene-loading` `#performance`
     *   [src/systems/Scene/SceneTransition.res](src/systems/Scene/SceneTransition.res): DOM transitions and viewport swapping management. `#transition` `#dom`
     *   [src/systems/Scene/SceneSwitcher.res](src/systems/Scene/SceneSwitcher.res): High-level scene switching, journey initialization, and auto-forwarding. `#scene-switching`
+*   [src/systems/ProjectSystem.res](src/systems/ProjectSystem.res): Project validation, loading, and post-processing orchestration. `#project` `#loading` `#validation`
 *   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Orchestrator for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#orchestration`
 *   [src/core/interfaces/ViewerDriver.res](src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
 *   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter`
@@ -156,7 +161,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): Handling of large image uploads via multipart/form-data. `#api` `#upload`
     *   [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): Specialized multipart handling for project ZIP imports. `#api` `#project`
 
-    *   [src/systems/Api/ProjectApi.res](src/systems/Api/ProjectApi.res): Logic for project-related API operations (load, save, validate). `#api` `#project`
+    *   [src/systems/Api/ProjectApi.res](src/systems/Api/ProjectApi.res): Logic for project-related API operations (import, save, pathfinding, geocode). `#api` `#project`
     *   [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): Shared helper functions and types for the API system. `#api` `#helpers`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
@@ -205,6 +210,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
     *   [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): Functional React component for the visualizer pipeline. `#ui` `#visual-pipeline`
     *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
+    *   [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): Logic and utility functions for timeline item reordering and visual pipeline styling. `#logic` `#ui` `#timeline`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator (Custom ReScript implementation). `#ui` `#notifications` `#custom-system`
 *   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`
@@ -360,8 +366,4 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
-* [src/utils/PerfUtils.res](src/utils/PerfUtils.res): New module detected. Please classify. #new
-* [src/systems/ProjectSystem.res](src/systems/ProjectSystem.res): New module detected. Please classify. #new
-* [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): New module detected. Please classify. #new
-* [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): New module detected. Please classify. #new
-* [src/core/ReducerModules.res](src/core/ReducerModules.res): New module detected. Please classify. #new
+*(None currently - all detected modules have been classified and integrated.)*

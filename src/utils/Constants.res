@@ -245,10 +245,12 @@ let sceneLoadTimeout = 30000
 
 module Telemetry = {
   // --- CONFIGURATION ---
-  // User: "I want to be able to make it an option in constants"
-  // User: "All goes to backend by default" -> Set this to true
-  // User: "Micro management when needed" -> Set this to false, then use traceFilterModules
-  let startInDiagnosticMode = true
+  // Allow the env to override diagnostics while keeping production off by default
+  let mode = getEnv("MODE", "production")
+  let isDevStr = getEnv("DEV", "false")
+  let debugBuild = mode == "development" || isDevStr == "true"
+  let diagnosticEnvOverride = getEnv("VITE_TELEMETRY_DIAGNOSTIC", "false") == "true"
+  let startInDiagnosticMode = debugBuild || diagnosticEnvOverride
 
   let enabled = getEnv("VITE_TELEMETRY_ENABLED", "true") == "true"
 
@@ -265,6 +267,31 @@ module Telemetry = {
   let retryBackoffMs = 1000
   let diagnosticMode = ref(startInDiagnosticMode)
   let suspendDurationMs = 30000.0
+
+  // --- BACKPRESSURE CONFIG ---
+  let transportMaxConcurrent = 2
+  let transportMaxQueued = 32
+  let lowPrioritySamplingThreshold = 0.75
+  let lowPriorityDropThreshold = 0.95
+  let lowPrioritySamplingRate = 0.35
+
+  // Keys that should be stripped from telemetry payloads
+  let sensitiveFields: array<string> = [
+    "password",
+    "pwd",
+    "token",
+    "authToken",
+    "authorization",
+    "apiKey",
+    "api_key",
+    "accessToken",
+    "refreshToken",
+    "sessionToken",
+    "secret",
+    "credentials",
+    "privateKey",
+    "ssn",
+  ]
 }
 
 // ============================================

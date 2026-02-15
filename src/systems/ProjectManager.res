@@ -36,8 +36,12 @@ module Logic = {
     ProjectSystem.processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress?)
   }
 
-  let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
-    ProjectSystem.loadProjectZip(zipFile, ~onProgress?)
+  let loadProjectZip = (
+    zipFile: File.t,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+    ~onProgress: option<onProgress>=?,
+  ) => {
+    ProjectSystem.loadProjectZip(zipFile, ~signal?, ~onProgress?)
   }
 }
 
@@ -235,8 +239,10 @@ let recoverSaveProject = (
     })
   }
 
-let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<
-  BackendApi.apiResult<(string, JSON.t)>,
-> => {
-  Logic.loadProjectZip(zipFile, ~onProgress?)
+let loadProject = (
+  zipFile: File.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~onProgress: option<onProgress>=?,
+): Promise.t<BackendApi.apiResult<(string, JSON.t)>> => {
+  Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?)
 }

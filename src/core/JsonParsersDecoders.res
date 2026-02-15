@@ -117,11 +117,15 @@ let timelineItem = object(field => {
 let sceneStatus = map(id, json => {
   let isString = %raw("(t => typeof t === 'string')")(json)
   if isString {
-    let s = Obj.magic(json)
-    if s == "Active" {
-      Types.Active
-    } else {
-      Types.Deleted(0.0)
+    // Safe decoder for string type instead of Obj.magic
+    switch JsonCombinators.Json.decode(json, string) {
+    | Ok(s) =>
+      if s == "Active" {
+        Types.Active
+      } else {
+        Types.Deleted(0.0)
+      }
+    | Error(_) => Types.Active
     }
   } else {
     let raw = JsonCombinators.Json.decode(

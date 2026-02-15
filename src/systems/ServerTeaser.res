@@ -5,7 +5,11 @@ open Types
 
 external anyToUnknown: 'a => 'b = "%identity"
 
-let generateServerTeaser = (state: state, onProgress) => {
+let generateServerTeaser = (
+  state: state,
+  onProgress,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
   let progress = (p, m) => onProgress->Option.forEach(cb => cb(p, m))
   progress(0, "Preparing Project Data...")
   let project: Types.project = {
@@ -43,7 +47,7 @@ let generateServerTeaser = (state: state, onProgress) => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/generate-teaser",
-      Fetch.requestInit(~method="POST", ~body=formData, ()),
+      Fetch.requestInit(~method="POST", ~body=formData, ~signal?, ()),
     )
     ->Promise.then(BackendApi.handleResponse)
     ->Promise.then(resResult => {

@@ -9,10 +9,10 @@ module Scene = ReducerModules.Scene
 module Hotspot = ReducerModules.Hotspot
 module Ui = ReducerModules.Ui
 module AppFsm = ReducerModules.AppFsm
-module Navigation = ReducerModules.Navigation
+module Navigation = NavigationProjectReducer.Navigation
 module Simulation = ReducerModules.Simulation
 module Timeline = ReducerModules.Timeline
-module Project = ReducerModules.Project
+module Project = NavigationProjectReducer.Project
 
 let apply = (
   state: state,

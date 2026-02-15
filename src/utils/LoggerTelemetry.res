@@ -30,6 +30,99 @@ let suspendTelemetry = () =>
 
 let canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()
 
+type transportTask = {
+  task: unit => Promise.t<unit>,
+  resolve: unit => unit,
+  reject: exn => unit,
+}
+
+let transportQueue: array<transportTask> = []
+let transportActive = ref(0)
+let transportQueueOverflowReason = "TelemetryTransportQueueOverflow"
+
+let rec processTransportQueue = () => {
+  if (
+    transportActive.contents < Constants.Telemetry.transportMaxConcurrent &&
+      Array.length(transportQueue) > 0
+  ) {
+    switch Array.shift(transportQueue) {
+    | Some(entry) =>
+      transportActive := transportActive.contents + 1
+      let _ =
+        entry.task()
+        ->Promise.then(_ => {
+          transportActive := transportActive.contents - 1
+          entry.resolve()
+          processTransportQueue()
+          Promise.resolve()
+        })
+        ->Promise.catch(err => {
+          transportActive := transportActive.contents - 1
+          entry.reject(err)
+          processTransportQueue()
+          Promise.resolve()
+        })
+        ->ignore
+    | None => ()
+    }
+  }
+}
+
+let scheduleTransport = (task: unit => Promise.t<unit>): Promise.t<unit> =>
+  Promise.make((resolve, reject) => {
+    if Array.length(transportQueue) >= Constants.Telemetry.transportMaxQueued {
+      reject(Failure(transportQueueOverflowReason))
+    } else {
+      let entry = {task, resolve: _ => resolve(), reject}
+      let _ = Array.push(transportQueue, entry)
+      processTransportQueue()
+    }
+  })
+
+let queueFillRatio = () => {
+  let maxSize = Constants.Telemetry.queueMaxSize
+  if maxSize <= 0 {
+    0.0
+  } else {
+    Belt.Int.toFloat(Array.length(telemetryQueue)) /. Belt.Int.toFloat(maxSize)
+  }
+}
+
+let shouldSendLowPriority = () => {
+  let fill = queueFillRatio()
+  if fill >= Constants.Telemetry.lowPriorityDropThreshold {
+    false
+  } else if fill >= Constants.Telemetry.lowPrioritySamplingThreshold {
+    Math.random() < Constants.Telemetry.lowPrioritySamplingRate
+  } else {
+    true
+  }
+}
+
+let shouldQueueForPriority = p =>
+  switch p {
+  | Low => shouldSendLowPriority()
+  | _ => true
+  }
+
+let sanitizeJson = (_entry: JSON.t, _fields: array<string>): JSON.t =>
+  %raw(`(function(_entry, _fields) {
+    if (!_entry || typeof _entry !== 'object') {
+      return _entry;
+    }
+    const sanitized = {..._entry};
+    for (let idx = 0; idx < _fields.length; idx++) {
+      const key = _fields[idx];
+      if (Object.prototype.hasOwnProperty.call(sanitized, key)) {
+        sanitized[key] = '[REDACTED]';
+      }
+    }
+    return sanitized;
+  })(_entry, _fields)`)
+
+let sanitizePayload = (data: option<JSON.t>): option<JSON.t> =>
+  data->Option.map(json => sanitizeJson(json, Constants.Telemetry.sensitiveFields))
+
 let encodeLogEntry = (entry: logEntry) => {
   let encode = JsonCombinators.Json.Encode.object
   let float = JsonCombinators.Json.Encode.float
@@ -58,12 +151,14 @@ let encodeTelemetryBatch = (batch: telemetryBatch) => {
   encode([("entries", array(encodeLogEntry)(batch.entries))])
 }
 
+let isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason
+
 let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   if !canUseTelemetryNetwork() {
     false
   } else {
     try {
-      let _ = await RequestQueue.schedule(() =>
+      let _ = await scheduleTransport(() =>
         Fetch.fetch(
           Constants.backendUrl ++ "/api/telemetry/batch",
           Fetch.requestInit(
@@ -72,10 +167,11 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
             ~body=JsonCombinators.Json.stringify(encodeTelemetryBatch(payload)),
             (),
           ),
-        )
+        )->Promise.then(_ => Promise.resolve())
       )
       true
     } catch {
+    | err if isTransportQueueOverflow(err) => false
     | _ if retries < Constants.Telemetry.retryMaxAttempts => {
         let delay = Belt.Float.toInt(
           Belt.Int.toFloat(Constants.Telemetry.retryBackoffMs) *.
@@ -141,25 +237,29 @@ let sendTelemetry = async entry => {
   } else if Constants.isTestEnvironment() && !bypassTestEnvCheck.contents {
     ()
   } else {
-    let p = stringToLevel(entry.level)->levelToTelemetryPriority
+    let sanitizedEntry = {...entry, data: sanitizePayload(entry.data)}
+    let p = stringToLevel(sanitizedEntry.level)->levelToTelemetryPriority
+
     switch p {
     | Critical =>
       try {
-        let _ = await RequestQueue.schedule(() =>
+        let _ = await scheduleTransport(() =>
           Fetch.fetch(
             Constants.backendUrl ++ "/api/telemetry/error",
             Fetch.requestInit(
               ~method="POST",
               ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              ~body=JsonCombinators.Json.stringify(encodeLogEntry(entry)),
+              ~body=JsonCombinators.Json.stringify(encodeLogEntry(sanitizedEntry)),
               (),
             ),
-          )
+          )->Promise.then(_ => Promise.resolve())
         )
       } catch {
-      | e =>
-        Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
-        suspendTelemetry()
+      | err if isTransportQueueOverflow(err) => ()
+      | err => {
+          Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(err)}`)
+          suspendTelemetry()
+        }
       }
 
     | High | Medium | Low =>
@@ -169,7 +269,7 @@ let sendTelemetry = async entry => {
         true
       } else {
         let filters = Constants.Telemetry.traceFilterModules
-        let moduleName = entry.module_
+        let moduleName = sanitizedEntry.module_
         if Array.length(filters) == 0 {
           false
         } else {
@@ -177,12 +277,13 @@ let sendTelemetry = async entry => {
         }
       }
 
-      if shouldSend {
+      let shouldQueue = shouldSend && shouldQueueForPriority(p)
+      if shouldQueue {
         if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-          let _ = Array.push(telemetryQueue, entry)
-        }
-        if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-          let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+          let _ = Array.push(telemetryQueue, sanitizedEntry)
+          if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+            let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+          }
         }
       }
     }

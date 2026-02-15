@@ -1,6 +1,5 @@
 // @efficiency: service-orchestrator
 use super::validate::validate_and_clean_project;
-use crate::models::ValidationReport;
 use std::collections::HashSet;
 use std::io::{Read, Write};
 use zip::write::FileOptions;
@@ -114,43 +113,4 @@ pub fn process_uploaded_project_zip(
         .map_err(|e| format!("Failed to rewind output file: {}", e))?;
 
     Ok(result_file)
-}
-
-/// Validates a project ZIP's internal consistency without modifying its content.
-///
-/// # Arguments
-/// * `zip_data` - The binary content of the ZIP file to validate.
-///
-/// # Returns
-/// A `ValidationReport` detailing any issues found.
-///
-/// # Errors
-/// * Returns a `String` error if the ZIP cannot be read or is missing `project.json`.
-#[allow(dead_code)]
-pub fn validate_project_zip(zip_file: std::fs::File) -> Result<ValidationReport, String> {
-    let mut archive =
-        zip::ZipArchive::new(zip_file).map_err(|e| format!("Failed to read ZIP: {}", e))?;
-
-    // Collect list of files in ZIP for validation
-    let mut available_files = HashSet::new();
-    for i in 0..archive.len() {
-        if let Ok(file) = archive.by_index(i) {
-            available_files.insert(file.name().to_string());
-        }
-    }
-
-    let mut project_file = archive
-        .by_name("project.json")
-        .map_err(|e| format!("Missing project.json: {}", e))?;
-    let mut project_json = String::new();
-    project_file
-        .read_to_string(&mut project_json)
-        .map_err(|e| format!("Failed to read project.json: {}", e))?;
-    drop(project_file);
-
-    let project_data: serde_json::Value =
-        serde_json::from_str(&project_json).map_err(|e| format!("Invalid project.json: {}", e))?;
-
-    let (_validated_project, report) = validate_and_clean_project(project_data, &available_files)?;
-    Ok(report)
 }

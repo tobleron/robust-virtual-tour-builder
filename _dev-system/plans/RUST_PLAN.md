@@ -8,7 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (1)
+## 🛠️ SURGICAL REFACTOR TASKS (2)
+- [ ] **../../backend/src/api/media/video_logic.rs**
+  - *Reason:* [Nesting: 2.40, Density: 0.07, Coupling: 0.02] | Drag: 3.79 | LOC: 387/300
 - [ ] **../../backend/src/models.rs**
   - *Reason:* [Nesting: 1.80, Density: 0.01, Coupling: 0.01] | Drag: 2.81 | LOC: 546/335
 

@@ -157,8 +157,11 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
     try {
       switch FileList.item(files, 0) {
       | Some(file) =>
+        let controller = BrowserBindings.AbortController.make()
+        let signal = BrowserBindings.AbortController.signal(controller)
+        let onCancel = () => BrowserBindings.AbortController.abort(controller)
         dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
-        updateProgress(~dispatch, 0.0, "Loading Project...", true, "Loading")
+        updateProgress(~dispatch, ~onCancel, 0.0, "Loading Project...", true, "Loading")
 
         Logger.startOperation(
           ~module_="Sidebar",
@@ -169,7 +172,7 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
           },
           (),
         )
-        let projectDataResult = await ProjectManager.loadProject(file, ~onProgress=(
+        let projectDataResult = await ProjectManager.loadProject(file, ~signal, ~onProgress=(
           pct,
           _t,
           msg,

@@ -11,9 +11,7 @@ pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 pub const WEBP_QUALITY: f32 = 85.0;
 pub const TEMP_DIR: &str = "/tmp/vt_backend";
 pub const MAX_UPLOAD_SIZE: usize = 60 * 1024 * 1024; // 60MB limit
-#[allow(dead_code)]
 pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
-#[allow(dead_code)]
 pub const MAX_LOG_FILES: usize = 5;
 pub const LOG_RETENTION_DAYS: u64 = 7;
 
@@ -205,7 +203,10 @@ mod tests {
 
     #[test]
     fn test_sanitize_id() {
-        assert_eq!(sanitize_id("valid-id_123").unwrap(), "valid-id_123");
+        assert_eq!(
+            sanitize_id("valid-id_123").expect("valid id should not fail"),
+            "valid-id_123"
+        );
         assert!(sanitize_id("path/traversal").is_err());
         assert!(sanitize_id("../hidden").is_err());
         assert!(sanitize_id("").is_err());
@@ -217,10 +218,10 @@ mod tests {
 
     #[test]
     fn test_validate_path_safe() {
-        let temp = tempfile::tempdir().unwrap();
+        let temp = tempfile::tempdir().expect("failed to create temp directory");
         let base = temp.path().to_path_buf();
         let safe_child = base.join("safe.txt");
-        fs::write(&safe_child, "data").unwrap();
+        fs::write(&safe_child, "data").expect("failed to write test file");
 
         assert!(validate_path_safe(&base, &safe_child).is_ok());
 
