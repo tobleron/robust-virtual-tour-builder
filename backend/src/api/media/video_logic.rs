@@ -1,77 +1,36 @@
+use super::video_logic_support::{
+    HeadlessControl, inject_headless_control, wait_for_headless_ready,
+};
 use headless_chrome::{Browser, LaunchOptions};
-use serde::Serialize;
 use serde_json::Value;
 use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 use std::time::Duration;
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct HeadlessControl {
-    project: Value,
-    backend_origin: String,
-    session_id: String,
-    auth_token: Option<String>,
+struct KillOnDrop(Option<std::process::Child>);
+
+impl KillOnDrop {
+    fn new(child: std::process::Child) -> Self {
+        Self(Some(child))
+    }
+
+    fn take(&mut self) -> Option<std::process::Child> {
+        self.0.take()
+    }
 }
 
-const HEADLESS_CONTROL_SCRIPT: &str = r#"
-(function() {
-  const control = window.__VTB_HEADLESS_CONTROL__;
-  if (!control || !control.project) {
-    window.HEADLESS_ERROR = "Missing headless control payload";
-    return;
-  }
-  const project = control.project;
-  const scenes = Array.isArray(project.scenes) ? project.scenes : [];
-  const projectSessionId = project.sessionId || control.sessionId || "";
-  const backendOrigin = control.backendOrigin || "";
-  const authToken = control.authToken;
-  if (!backendOrigin) {
-    window.HEADLESS_ERROR = "Missing backend origin";
-    return;
-  }
-  if (!projectSessionId && scenes.length > 0) {
-    window.HEADLESS_ERROR = "Missing project/session id for resource hydration";
-    return;
-  }
-  const buildUrl = (scene) => {
-    if (typeof scene.file === "string" && scene.file.startsWith("http")) {
-      return scene.file;
+impl Drop for KillOnDrop {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.0.take() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
     }
-    if (!projectSessionId) {
-      throw new Error("Project/session id missing while building fallback URL");
-    }
-    return `${backendOrigin}/api/project/${encodeURIComponent(projectSessionId)}/file/${encodeURIComponent(scene.name)}`;
-  };
-  const fetchScene = async (scene) => {
-    const url = buildUrl(scene);
-    const headers = {};
-    if (authToken) {
-      headers.Authorization = "Bearer " + authToken;
-    }
-    const response = await fetch(url, { headers });
-    if (!response.ok) {
-      throw new Error(`Hydration fetch failed ${response.status} for ${scene.name}`);
-    }
-    const blob = await response.blob();
-    const file = new File([blob], scene.name, { type: "image/webp" });
-    scene.file = file;
-    scene.originalFile = file;
-    scene.tinyFile = file;
-  };
-  (async () => {
-    await Promise.all(scenes.map(fetchScene));
-    await window.store.loadProject(project);
-    window.HEADLESS_READY = true;
-  })().catch((err) => {
-    window.HEADLESS_ERROR = (err && err.message) || err.toString();
-  });
-})();
-"#;
+}
 
 fn headless_backend_origin() -> String {
-    env::var("BACKEND_ORIGIN").unwrap_or_else(|_| "http://localhost:8080".to_string())
+    super::video_logic_support::headless_backend_origin()
 }
 
 pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {
@@ -140,9 +99,6 @@ pub fn generate_teaser_sync(
     })
     .map_err(|e| format!("Failed to launch browser: {}", e))?;
 
-    // We used to use map_err with drop(browser), but that moves browser into closure.
-    // We use match/if let instead.
-
     let tab = match browser.new_tab() {
         Ok(t) => t,
         Err(e) => {
@@ -174,40 +130,14 @@ pub fn generate_teaser_sync(
         auth_token: env::var("HEADLESS_API_TOKEN").ok(),
     };
 
-    let control_json = serde_json::to_string(&control)
-        .map_err(|e| format!("Failed to serialize headless control payload: {}", e))?;
-    let assign_control = format!("window.__VTB_HEADLESS_CONTROL__ = {};", control_json);
-
-    if let Err(e) = tab.evaluate(&assign_control, false) {
+    if let Err(e) = inject_headless_control(&tab, &control) {
         drop(browser);
-        return Err(format!("Failed to inject headless control payload: {}", e));
+        return Err(e);
     }
 
-    if let Err(e) = tab.evaluate(HEADLESS_CONTROL_SCRIPT, false) {
+    if let Err(e) = wait_for_headless_ready(&tab, &session_id_clone, Duration::from_secs(60)) {
         drop(browser);
-        return Err(format!("Failed to run headless hydration script: {}", e));
-    }
-
-    let start_wait = std::time::Instant::now();
-    loop {
-        if std::time::Instant::now() - start_wait > Duration::from_secs(60) {
-            tracing::error!(session_id=%session_id_clone, stage="hydration", "Timeout waiting for project load");
-            drop(browser);
-            return Err("Timeout waiting for project load".to_string());
-        }
-        if let Ok(v) = tab.evaluate("window.HEADLESS_READY", false)
-            && v.value.and_then(|x| x.as_bool()).unwrap_or(false)
-        {
-            break;
-        }
-        if let Ok(v) = tab.evaluate("window.HEADLESS_ERROR", false)
-            && let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string()))
-        {
-            tracing::error!(session_id=%session_id_clone, stage="hydration", error=%msg, "Headless client error");
-            drop(browser);
-            return Err(format!("Headless Client Error: {}", msg));
-        }
-        std::thread::sleep(Duration::from_millis(500));
+        return Err(e);
     }
 
     let ffmpeg_cmd = get_ffmpeg_command()?;
@@ -246,17 +176,6 @@ pub fn generate_teaser_sync(
         }
     };
 
-    // Helper to ensure child is killed on error
-    struct KillOnDrop(Option<std::process::Child>);
-    impl Drop for KillOnDrop {
-        fn drop(&mut self) {
-            if let Some(mut child) = self.0.take() {
-                let _ = child.kill();
-                let _ = child.wait();
-            }
-        }
-    }
-
     let mut stdin = match child.stdin.take() {
         Some(s) => s,
         None => {
@@ -267,7 +186,7 @@ pub fn generate_teaser_sync(
         }
     };
 
-    let mut guard = KillOnDrop(Some(child));
+    let mut guard = KillOnDrop::new(child);
 
     if let Err(e) = tab.evaluate("window.startCinematicTeaser(true, 'mp4', true)", false) {
         drop(guard);
@@ -304,9 +223,6 @@ pub fn generate_teaser_sync(
             }
             Err(e) => {
                 tracing::error!(session_id=%session_id_clone, stage="frame_capture", error=%e, "Screenshot capture failed");
-                // If screenshot fails repeatedly, we should abort?
-                // Or maybe just break loop and try to finalize?
-                // Let's abort to be safe.
                 screenshot_failed = true;
                 break;
             }
@@ -325,7 +241,7 @@ pub fn generate_teaser_sync(
 
     // Now wait for ffmpeg to finish
     // We take child out of guard so guard doesn't kill it
-    let mut child = match guard.0.take() {
+    let mut child = match guard.take() {
         Some(c) => c,
         None => {
             drop(browser);
@@ -375,13 +291,5 @@ pub fn generate_teaser_sync(
 }
 
 fn get_ffmpeg_command() -> Result<String, String> {
-    let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
-    if local_ffmpeg.exists() {
-        local_ffmpeg
-            .to_str()
-            .ok_or_else(|| "Invalid ffmpeg path encoding".to_string())
-            .map(|s| s.to_string())
-    } else {
-        Ok("ffmpeg".to_string())
-    }
+    super::video_logic_support::get_ffmpeg_command()
 }

@@ -2,6 +2,12 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-02-16 Archive Consolidation
+- **1401-1403: Security Hardening** — Stabilized backend error handling, hardened token/auth transport, and enforced path canonicalization safeguards.
+- **1369-1375: UX/Test Quality Pass** — Tightened upload sorting and filename ordering, improved scene tooltip UX, and completed focused unit test audit/cleanup across core/systems/UI.
+- **1358-1364: Delivery Pipeline Reliability** — Hardened backend startup and CI budget environments, updated E2E catalog workflow, and reduced sidebar state subscription overhead.
+- **D001-D009: Dev-System Governance Cycle** — Applied map/data-flow classification, surgical frontend/backend refactors, violations cleanup, deferred one backend refactor, and performed completed-task aggregation maintenance.
+
 ## 🏗️ Core Architecture & Migration
 - **001 (was 307): Enable Dependabot** — Configured automated security scanning and dependency updates for npm, Cargo, and GitHub Actions.
 - **018: Offload Image Similarity** — Migrated pano similarity calculations to Rust (Rayon) for massive parallel performance gains.

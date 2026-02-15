@@ -152,7 +152,7 @@ User clicks "Start Simulation"
       → [src/core/SimHelpers.res] and [src/core/SimulationHelpers.res] provide core simulation algorithms
   → [src/systems/Navigation/NavigationFSM.res] drives scene transitions
   → [src/systems/TeaserManager.res] manages recording sessions
-      → [src/systems/Teaser.res], [src/systems/TeaserLogic.res], and [src/systems/TeaserState.res] handle playback and movement logic
+      → [src/systems/Teaser.res], [src/systems/TeaserLogic.res], [src/systems/TeaserPlayback.res], [src/systems/TeaserStyleConfig.res], and [src/systems/TeaserState.res] handle playback and movement logic
       → [src/systems/TeaserPathfinder.res] specialized cinematic pathfinding
   → [src/systems/TeaserRecorder.res] captures viewports (using [src/components/SnapshotOverlay.res], [src/components/ViewerSnapshot.res])
   → [src/systems/ServerTeaser.res] (Optional) requests backend high-quality render
@@ -305,7 +305,7 @@ CI job
 
 ### Logical Data Models & State
 **Purpose:** Canonical definitions for core domain objects.
-- Frontend: [src/core/SharedTypes.res], [src/core/State.res], [src/core/StateSnapshot.res], [src/core/OptimisticAction.res], [src/core/interfaces/ViewerDriver.res]
+- Frontend: [src/core/SharedTypes.res], [src/core/State.res], [src/core/StateSnapshot.res], [src/core/OptimisticAction.res], [src/core/interfaces/ViewerDriver.res], [src/core/ReducerModules.res], [src/core/NavigationProjectReducer.res]
 - Backend: [backend/src/models.rs]
 
 ### Components & UI Foundation (Common)
@@ -325,7 +325,7 @@ CI job
 - [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
-- [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res]
+- [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res], [src/utils/PerfUtils.res], [src/utils/StateDensityMonitor.res]
 
 ### Geometric & Projection Math
 **Purpose:** 3D viewport calculations and coordinate mapping.
@@ -345,12 +345,13 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
-### 📂 src/core
-- `[src/core/NavigationProjectReducer.res]`
-- `[src/core/ReducerModules.res]`
+### 📂 backend/src
+- `[backend/src/models_common.rs]`
+- `[backend/src/models_identity.rs]`
+- `[backend/src/models_project_session.rs]`
 
-### 📂 src/utils
-- `[src/utils/PerfUtils.res]`
+### 📂 backend/src/api/media
+- `[backend/src/api/media/video_logic_support.rs]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
