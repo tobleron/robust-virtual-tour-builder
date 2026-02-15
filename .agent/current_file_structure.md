@@ -18557,6 +18557,8 @@
 │   │   ├── 1412_dead_code_and_api_contract_alignment_DONE.md
 │   │   ├── 1413_decommission_transition_lock.md
 │   │   ├── 1414_state_density_monitoring_and_optimization_DONE.md
+│   │   ├── D001_Classify_Map_Entries_DONE.md
+│   │   ├── D002_Integrate_DataFlow_Modules_DONE.md
 │   │   ├── D004_Integrate_DataFlow_Modules_DONE.md
 │   │   ├── D005_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── DEV_TASKS_COMPREHENSIVE_SUMMARY.md
@@ -18571,8 +18573,6 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   └── dev_tasks
-│   │       ├── D001_Classify_Map_Entries.md
-│   │       └── D002_Integrate_DataFlow_Modules.md
 │   └── postponed
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
 │       ├── 1299_ERR_Performance_LoadTimeAndMemory.md
