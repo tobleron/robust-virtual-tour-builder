@@ -324,6 +324,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/metrics.rs](backend/src/metrics.rs): Prometheus metrics collection and instrumentation. `#monitoring` `#telemetry`
 *   [backend/src/middleware.rs](backend/src/middleware.rs): Centralized Actix-web middleware collection (Auth, Quota, Request Tracker). `#mw`
 *   [backend/src/models.rs](backend/src/models.rs): Aggregated model facade for shared backend types and error contracts. `#types` `#models` `#facade`
+*   [backend/src/models_common.rs](backend/src/models_common.rs): Shared backend DTO/data structs for geocoding, metadata, similarity, and telemetry payloads. `#types` `#models` `#shared`
 *   [backend/src/models_identity.rs](backend/src/models_identity.rs): User and auth persistence models with query helpers. `#types` `#models` `#auth`
 *   [backend/src/models_project_session.rs](backend/src/models_project_session.rs): Project/session persistence models and create helpers. `#types` `#models` `#project`
 
@@ -372,5 +373,4 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
-* [backend/src/models_common.rs](backend/src/models_common.rs): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

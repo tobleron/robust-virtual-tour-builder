@@ -197,7 +197,7 @@ Trigger Event
 ```
 [backend/src/api/media/image_multipart.rs] receives multipart upload
   → [backend/src/api/media/image_logic.rs] coordinates processing tasks
-  → [backend/src/api/media/mod.rs], [backend/src/services/media/mod.rs] route requests
+  → [backend/src/api/media/mod.rs], [backend/src/api/media/video_logic_support.rs], [backend/src/services/media/mod.rs] route requests
   → [backend/src/api/media/image_tasks.rs] background worker tasks
   → [backend/src/services/media/analysis_exif.rs] extracts metadata
   → [backend/src/services/media/resizing.rs] generates multi-resolution (512px, 4K)
@@ -306,7 +306,7 @@ CI job
 ### Logical Data Models & State
 **Purpose:** Canonical definitions for core domain objects.
 - Frontend: [src/core/SharedTypes.res], [src/core/State.res], [src/core/StateSnapshot.res], [src/core/OptimisticAction.res], [src/core/interfaces/ViewerDriver.res], [src/core/ReducerModules.res], [src/core/NavigationProjectReducer.res]
-- Backend: [backend/src/models.rs]
+- Backend: [backend/src/models.rs], [backend/src/models_common.rs], [backend/src/models_identity.rs], [backend/src/models_project_session.rs]
 
 ### Components & UI Foundation (Common)
 **Purpose:** Shared presentation components and style primitives.
@@ -344,14 +344,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src
-- `[backend/src/models_common.rs]`
-- `[backend/src/models_identity.rs]`
-- `[backend/src/models_project_session.rs]`
-
-### 📂 backend/src/api/media
-- `[backend/src/api/media/video_logic_support.rs]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
