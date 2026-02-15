@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Complete D001-D005 dev tasks: teaser/backend surgical refactors, AST-accurate spec_diff verification, data-flow integration, and completed-task archive consolidation
 - Complete D001-D005 dev tasks: teaser/backend surgical refactors, AST-accurate spec_diff verification, data-flow integration, and completed-task archive consolidation
+- Finalize regenerated dev tasks: classify backend models_common and integrate backend model/support modules into data flows
+- Finalize regenerated dev tasks: classify backend models_common and integrate backend model/support modules into data flows
 
 ## [4.12.0] - 2026-02-15
 
