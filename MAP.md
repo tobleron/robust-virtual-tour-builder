@@ -144,6 +144,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): Core logic for navigation state transitions. `#navigation` `#logic`
 *   [src/systems/Teaser.res](src/systems/Teaser.res): Teaser generation system. `#teaser` `#video`
 *   [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Core playback, recording orchestration, and cinematic movement logic for teasers. `#teaser` `#playback` `#logic`
+*   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Extracted playback helpers for viewer readiness waits, pan animation, and shot transitions. `#teaser` `#playback` `#helpers`
+*   [src/systems/TeaserStyleConfig.res](src/systems/TeaserStyleConfig.res): Style-specific teaser timing and camera offset configuration. `#teaser` `#config`
 
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
@@ -270,6 +272,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/Easing.res](src/utils/Easing.res): Premium easing functions for smooth cinematic transitions. `#utils` `#math` `#animation`
 *   [src/utils/ProgressBar.res](src/utils/ProgressBar.res): Logic for managing multi-step progress indicators. `#utils` `#ui`
 *   [src/utils/StateInspector.res](src/utils/StateInspector.res): Debug utilities for inspecting the application state tree. `#utils` `#debug`
+*   [src/utils/StateDensityMonitor.res](src/utils/StateDensityMonitor.res): Development-time state density scoring and threshold telemetry for architecture guardrails. `#utils` `#state` `#telemetry`
 *   [src/utils/TourLogic.res](src/utils/TourLogic.res): Core domain logic for tour structure and state validation. `#utils` `#logic`
 *   [src/utils/UrlUtils.res](src/utils/UrlUtils.res): Utilities for parsing and generating tour URLs. `#utils` `#url`
 *   [src/utils/Version.res](src/utils/Version.res): Semantic versioning and build manifest utilities. `#utils` `#version`
@@ -293,7 +296,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/media/video.rs](backend/src/api/media/video.rs): Consolidated video transcoding and teaser generation endpoints. `#video` `#api` `#teaser`
 *   [backend/src/api/project_logic.rs](backend/src/api/project_logic.rs): Detailed logic for project packaging and import. `#logic`
 *   [backend/src/api/media/image_logic.rs](backend/src/api/media/image_logic.rs): Logic for image processing operations. `#image` `#logic`
-*   [backend/src/api/media/video_logic.rs](backend/src/api/media/video_logic.rs): Logic for video transcoding and processing. `#video` `#logic`
+*   [backend/src/api/media/video_logic.rs](backend/src/api/media/video_logic.rs): Orchestrator for teaser generation and transcoding flows. `#video` `#logic` `#orchestration`
+*   [backend/src/api/media/video_logic_support.rs](backend/src/api/media/video_logic_support.rs): Extracted helper module for headless hydration payloads, readiness polling, and ffmpeg process guards. `#video` `#helpers`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 *   [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): Aggregated media analysis functionality. `#media` `#analysis`
 *   [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): Image quality assessment logic. `#media` `#quality`
@@ -319,7 +323,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/lib.rs](backend/src/lib.rs): Shared library code and trait definitions for the backend. `#rust` `#core`
 *   [backend/src/metrics.rs](backend/src/metrics.rs): Prometheus metrics collection and instrumentation. `#monitoring` `#telemetry`
 *   [backend/src/middleware.rs](backend/src/middleware.rs): Centralized Actix-web middleware collection (Auth, Quota, Request Tracker). `#mw`
-*   [backend/src/models.rs](backend/src/models.rs): Aggregated data models and shared type definitions. `#types` `#models`
+*   [backend/src/models.rs](backend/src/models.rs): Aggregated model facade for shared backend types and error contracts. `#types` `#models` `#facade`
+*   [backend/src/models_identity.rs](backend/src/models_identity.rs): User and auth persistence models with query helpers. `#types` `#models` `#auth`
+*   [backend/src/models_project_session.rs](backend/src/models_project_session.rs): Project/session persistence models and create helpers. `#types` `#models` `#project`
 
 *   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Orchestrator for high-performance navigation pathfinding logic. `#navigation` `#orchestration`
     *   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Data models and types for the pathfinding graph. `#navigation` `#models`
@@ -366,4 +372,5 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
+* [backend/src/models_common.rs](backend/src/models_common.rs): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

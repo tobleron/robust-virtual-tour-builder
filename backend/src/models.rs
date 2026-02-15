@@ -1,10 +1,27 @@
 // backend/src/models.rs - Consolidated Backend Models
 
 use actix_web::{HttpResponse, ResponseError};
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
 use std::fmt;
+
+#[path = "models_common.rs"]
+mod models_common;
+#[path = "models_identity.rs"]
+mod models_identity;
+#[path = "models_project_session.rs"]
+mod models_project_session;
+
+#[allow(unused_imports)]
+pub use models_common::{
+    CacheStats, CachedGeocode, ColorHist, ColorHistogram, ExifMetadata, GeocodeKey, GeocodeRequest,
+    GeocodeResponse, GpsData, HistogramData, MetadataResponse, QualityAnalysis, QualityStats,
+    SimilarityPair, SimilarityRequest, SimilarityResponse, SimilarityResult, TelemetryBatch,
+    TelemetryEntry, TelemetryPriority,
+};
+#[allow(unused_imports)]
+pub use models_identity::{AuthResponse, User};
+#[allow(unused_imports)]
+pub use models_project_session::{Project, ProjectStatus, ProjectSyncRequest, Session};
 
 // --- ERROR MODELS ---
 
@@ -128,115 +145,6 @@ impl From<String> for AppError {
     }
 }
 
-// --- GEOCODING MODELS ---
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GeocodeRequest {
-    pub lat: f64,
-    pub lon: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GeocodeResponse {
-    pub address: String,
-}
-
-pub type GeocodeKey = (i32, i32);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CachedGeocode {
-    pub address: String,
-    pub last_accessed: u64,
-    pub access_count: u32,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct CacheStats {
-    pub hits: u64,
-    pub misses: u64,
-    pub evictions: u64,
-    pub last_save: Option<u64>,
-}
-
-// --- METADATA MODELS ---
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct GpsData {
-    pub lat: f64,
-    pub lon: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ExifMetadata {
-    pub make: Option<String>,
-    pub model: Option<String>,
-    pub date_time: Option<String>,
-    pub gps: Option<GpsData>,
-    pub width: u32,
-    pub height: u32,
-    pub focal_length: Option<f32>,
-    pub aperture: Option<f32>,
-    pub iso: Option<u32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct QualityStats {
-    pub avg_luminance: u32,
-    pub black_clipping: f32,
-    pub white_clipping: f32,
-    pub sharpness_variance: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ColorHist {
-    pub r: Vec<u32>,
-    pub g: Vec<u32>,
-    pub b: Vec<u32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct QualityAnalysis {
-    pub score: f32,
-    pub histogram: Vec<u32>,
-    pub color_hist: ColorHist,
-    pub stats: QualityStats,
-    pub is_blurry: bool,
-    pub is_soft: bool,
-    pub is_severely_dark: bool,
-    pub is_severely_bright: bool,
-    pub is_dim: bool,
-    pub has_black_clipping: bool,
-    pub has_white_clipping: bool,
-    pub issues: u32,
-    pub warnings: u32,
-    pub analysis: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct MetadataResponse {
-    pub exif: ExifMetadata,
-    pub quality: QualityAnalysis,
-    pub is_optimized: bool,
-    pub checksum: String,
-    pub suggested_name: Option<String>,
-}
-
-// --- PROJECT MODELS ---
-
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize, Clone, sqlx::Type)]
-#[serde(rename_all = "lowercase")]
-pub enum ProjectStatus {
-    Draft,
-    Published,
-    Archived,
-}
-
 impl From<String> for ProjectStatus {
     fn from(s: String) -> Self {
         match s.as_str() {
@@ -257,32 +165,6 @@ impl ToString for ProjectStatus {
     }
 }
 
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
-#[serde(rename_all = "camelCase")]
-pub struct Project {
-    pub id: String,
-    pub user_id: String,
-    pub name: String,
-    pub data: String,
-    pub status: String,
-    pub scene_count: i64,
-    pub hotspot_count: i64,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProjectSyncRequest {
-    pub project_id: Option<String>,
-    pub name: String,
-    pub status: String,
-    pub data: serde_json::Value,
-    pub scene_count: Option<i64>,
-    pub hotspot_count: Option<i64>,
-}
-
 impl Project {
     #[allow(dead_code)]
     pub async fn create(
@@ -294,36 +176,17 @@ impl Project {
         scene_count: i64,
         hotspot_count: i64,
     ) -> Result<Project, sqlx::Error> {
-        let id = uuid::Uuid::new_v4().to_string();
-        let project = sqlx::query_as::<_, Project>(
-            r#"
-            INSERT INTO projects (id, user_id, name, data, status, scene_count, hotspot_count)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING id, user_id, name, data, status, scene_count, hotspot_count, updated_at
-            "#,
+        models_project_session::create_project(
+            pool,
+            user_id,
+            name,
+            data,
+            status,
+            scene_count,
+            hotspot_count,
         )
-        .bind(&id)
-        .bind(user_id)
-        .bind(name)
-        .bind(data)
-        .bind(status)
-        .bind(scene_count)
-        .bind(hotspot_count)
-        .fetch_one(pool)
-        .await?;
-        Ok(project)
+        .await
     }
-}
-
-// --- SESSION MODELS ---
-
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
-#[serde(rename_all = "camelCase")]
-pub struct Session {
-    pub id: String,
-    pub user_id: String,
-    pub expires_at: DateTime<Utc>,
 }
 
 impl Session {
@@ -331,128 +194,10 @@ impl Session {
     pub async fn create(
         pool: &sqlx::SqlitePool,
         user_id: &str,
-        expires_at: DateTime<Utc>,
+        expires_at: chrono::DateTime<chrono::Utc>,
     ) -> Result<Session, sqlx::Error> {
-        let id = uuid::Uuid::new_v4().to_string();
-        let session = sqlx::query_as::<_, Session>(
-            r#"
-            INSERT INTO sessions (id, user_id, expires_at)
-            VALUES (?, ?, ?)
-            RETURNING id, user_id, expires_at
-            "#,
-        )
-        .bind(&id)
-        .bind(user_id)
-        .bind(expires_at)
-        .fetch_one(pool)
-        .await?;
-        Ok(session)
+        models_project_session::create_session(pool, user_id, expires_at).await
     }
-}
-
-// --- SIMILARITY MODELS ---
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ColorHistogram {
-    pub r: Vec<f32>,
-    pub g: Vec<f32>,
-    pub b: Vec<f32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct HistogramData {
-    pub histogram: Option<Vec<f32>>,
-    pub color_hist: Option<ColorHistogram>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityPair {
-    pub id_a: String,
-    pub id_b: String,
-    pub histogram_a: HistogramData,
-    pub histogram_b: HistogramData,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityRequest {
-    pub pairs: Vec<SimilarityPair>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityResult {
-    pub id_a: String,
-    pub id_b: String,
-    pub similarity: f32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityResponse {
-    pub results: Vec<SimilarityResult>,
-    pub duration_ms: u128,
-}
-
-// --- TELEMETRY MODELS ---
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
-pub enum TelemetryPriority {
-    Critical,
-    High,
-    Medium,
-    Low,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct TelemetryEntry {
-    pub level: String,
-    pub module: String,
-    pub message: String,
-    pub data: Option<serde_json::Value>,
-    pub timestamp: String,
-    pub priority: TelemetryPriority,
-    #[serde(default)]
-    pub request_id: Option<String>,
-    #[serde(default)]
-    pub operation_id: Option<String>,
-    #[serde(default)]
-    pub session_id: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TelemetryBatch {
-    pub entries: Vec<TelemetryEntry>,
-}
-
-// --- USER MODELS ---
-
-#[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
-#[serde(rename_all = "camelCase")]
-pub struct User {
-    pub id: String,
-    pub email: String,
-    #[serde(skip)]
-    #[allow(dead_code)]
-    pub password_hash: String,
-    pub name: String,
-    pub role: String,
-    pub theme_preference: Option<String>,
-    pub language_preference: Option<String>,
-    pub created_at: DateTime<Utc>,
-}
-
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AuthResponse {
-    pub token: String,
-    pub user: User,
 }
 
 impl User {
@@ -464,23 +209,7 @@ impl User {
         name: &str,
         role: &str,
     ) -> Result<User, sqlx::Error> {
-        let id = uuid::Uuid::new_v4().to_string();
-        let user = sqlx::query_as::<_, User>(
-            r#"
-            INSERT INTO users (id, email, password_hash, name, role)
-            VALUES (?, ?, ?, ?, ?)
-            RETURNING id, email, password_hash, name, role, theme_preference, language_preference, created_at
-            "#
-        )
-        .bind(&id)
-        .bind(email)
-        .bind(password_hash)
-        .bind(name)
-        .bind(role)
-        .fetch_one(pool)
-        .await?;
-
-        Ok(user)
+        models_identity::create_user(pool, email, password_hash, name, role).await
     }
 
     #[allow(dead_code)]
@@ -488,10 +217,7 @@ impl User {
         pool: &sqlx::SqlitePool,
         email: &str,
     ) -> Result<Option<User>, sqlx::Error> {
-        sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ?")
-            .bind(email)
-            .fetch_optional(pool)
-            .await
+        models_identity::find_user_by_email(pool, email).await
     }
 }
 

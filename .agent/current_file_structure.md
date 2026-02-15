@@ -12240,7 +12240,8 @@
 │   │   │   │   ├── serve.rs
 │   │   │   │   ├── similarity.rs
 │   │   │   │   ├── video.rs
-│   │   │   │   └── video_logic.rs
+│   │   │   │   ├── video_logic.rs
+│   │   │   │   └── video_logic_support.rs
 │   │   │   ├── mod.rs
 │   │   │   ├── project.rs
 │   │   │   ├── project_logic.rs
@@ -12253,6 +12254,9 @@
 │   │   ├── metrics.rs
 │   │   ├── middleware.rs
 │   │   ├── models.rs
+│   │   ├── models_common.rs
+│   │   ├── models_identity.rs
+│   │   ├── models_project_session.rs
 │   │   ├── pathfinder
 │   │   │   ├── algorithms.rs
 │   │   │   ├── graph.rs
@@ -13374,6 +13378,12 @@
 │   │   │   │   ├── TeaserPathfinder.cmj
 │   │   │   │   ├── TeaserPathfinder.cmt
 │   │   │   │   ├── TeaserPathfinder.res
+│   │   │   │   ├── TeaserPlayback.ast
+│   │   │   │   ├── TeaserPlayback.bs.js
+│   │   │   │   ├── TeaserPlayback.cmi
+│   │   │   │   ├── TeaserPlayback.cmj
+│   │   │   │   ├── TeaserPlayback.cmt
+│   │   │   │   ├── TeaserPlayback.res
 │   │   │   │   ├── TeaserRecorder.ast
 │   │   │   │   ├── TeaserRecorder.bs.js
 │   │   │   │   ├── TeaserRecorder.cmi
@@ -13386,6 +13396,12 @@
 │   │   │   │   ├── TeaserState.cmj
 │   │   │   │   ├── TeaserState.cmt
 │   │   │   │   ├── TeaserState.res
+│   │   │   │   ├── TeaserStyleConfig.ast
+│   │   │   │   ├── TeaserStyleConfig.bs.js
+│   │   │   │   ├── TeaserStyleConfig.cmi
+│   │   │   │   ├── TeaserStyleConfig.cmj
+│   │   │   │   ├── TeaserStyleConfig.cmt
+│   │   │   │   ├── TeaserStyleConfig.res
 │   │   │   │   ├── TourTemplates.ast
 │   │   │   │   ├── TourTemplates.bs.js
 │   │   │   │   ├── TourTemplates.cmi
@@ -13666,6 +13682,12 @@
 │   │   │       ├── SessionStore.cmj
 │   │   │       ├── SessionStore.cmt
 │   │   │       ├── SessionStore.res
+│   │   │       ├── StateDensityMonitor.ast
+│   │   │       ├── StateDensityMonitor.bs.js
+│   │   │       ├── StateDensityMonitor.cmi
+│   │   │       ├── StateDensityMonitor.cmj
+│   │   │       ├── StateDensityMonitor.cmt
+│   │   │       ├── StateDensityMonitor.res
 │   │   │       ├── StateInspector.ast
 │   │   │       ├── StateInspector.bs.js
 │   │   │       ├── StateInspector.cmi
@@ -14424,6 +14446,12 @@
 │   │           ├── SnapshotOverlay_v.test.cmj
 │   │           ├── SnapshotOverlay_v.test.cmt
 │   │           ├── SnapshotOverlay_v.test.res
+│   │           ├── StateDensityMonitor_v.test.ast
+│   │           ├── StateDensityMonitor_v.test.bs.js
+│   │           ├── StateDensityMonitor_v.test.cmi
+│   │           ├── StateDensityMonitor_v.test.cmj
+│   │           ├── StateDensityMonitor_v.test.cmt
+│   │           ├── StateDensityMonitor_v.test.res
 │   │           ├── StateInspector_v.test.ast
 │   │           ├── StateInspector_v.test.bs.js
 │   │           ├── StateInspector_v.test.cmi
@@ -16113,6 +16141,16 @@
 │   │   ├── State.cmj
 │   │   ├── State.cmt
 │   │   ├── State.res
+│   │   ├── StateDensityMonitor.ast
+│   │   ├── StateDensityMonitor.cmi
+│   │   ├── StateDensityMonitor.cmj
+│   │   ├── StateDensityMonitor.cmt
+│   │   ├── StateDensityMonitor.res
+│   │   ├── StateDensityMonitor_v.test.ast
+│   │   ├── StateDensityMonitor_v.test.cmi
+│   │   ├── StateDensityMonitor_v.test.cmj
+│   │   ├── StateDensityMonitor_v.test.cmt
+│   │   ├── StateDensityMonitor_v.test.res
 │   │   ├── StateInspector.ast
 │   │   ├── StateInspector.cmi
 │   │   ├── StateInspector.cmj
@@ -16181,6 +16219,11 @@
 │   │   ├── TeaserPathfinder_v.test.cmj
 │   │   ├── TeaserPathfinder_v.test.cmt
 │   │   ├── TeaserPathfinder_v.test.res
+│   │   ├── TeaserPlayback.ast
+│   │   ├── TeaserPlayback.cmi
+│   │   ├── TeaserPlayback.cmj
+│   │   ├── TeaserPlayback.cmt
+│   │   ├── TeaserPlayback.res
 │   │   ├── TeaserPlayback_v.test.ast
 │   │   ├── TeaserPlayback_v.test.cmi
 │   │   ├── TeaserPlayback_v.test.cmj
@@ -16206,6 +16249,11 @@
 │   │   ├── TeaserState_v.test.cmj
 │   │   ├── TeaserState_v.test.cmt
 │   │   ├── TeaserState_v.test.res
+│   │   ├── TeaserStyleConfig.ast
+│   │   ├── TeaserStyleConfig.cmi
+│   │   ├── TeaserStyleConfig.cmj
+│   │   ├── TeaserStyleConfig.cmt
+│   │   ├── TeaserStyleConfig.res
 │   │   ├── Teaser_v.test.ast
 │   │   ├── Teaser_v.test.cmi
 │   │   ├── Teaser_v.test.cmj
@@ -18379,10 +18427,14 @@
 │   │   ├── TeaserManager.res
 │   │   ├── TeaserPathfinder.bs.js
 │   │   ├── TeaserPathfinder.res
+│   │   ├── TeaserPlayback.bs.js
+│   │   ├── TeaserPlayback.res
 │   │   ├── TeaserRecorder.bs.js
 │   │   ├── TeaserRecorder.res
 │   │   ├── TeaserState.bs.js
 │   │   ├── TeaserState.res
+│   │   ├── TeaserStyleConfig.bs.js
+│   │   ├── TeaserStyleConfig.res
 │   │   ├── TourTemplates.bs.js
 │   │   ├── TourTemplates.res
 │   │   ├── Upload
@@ -18479,6 +18531,8 @@
 │       ├── Retry.resi
 │       ├── SessionStore.bs.js
 │       ├── SessionStore.res
+│       ├── StateDensityMonitor.bs.js
+│       ├── StateDensityMonitor.res
 │       ├── StateInspector.bs.js
 │       ├── StateInspector.res
 │       ├── TourLogic.bs.js
@@ -18492,25 +18546,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── TASKS.md
-│   ├── active
 │   ├── completed
-│   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
-│   │   ├── 1359_FIX_Backend_Service_Startup_Robustness_DONE.md
-│   │   ├── 1360_FIX_CI_Environment_Budget_Thresholds_DONE.md
-│   │   ├── 1361_FIX_E2E_Browser_Provisioning_DONE.md
-│   │   ├── 1362_Update_E2E_Test_Catalog_and_Tasks_DONE.md
-│   │   ├── 1363_restore_tour_naming_and_filename_sanitization_DONE.md
-│   │   ├── 1364_refactor_sidebar_state_subscriptions_DONE.md
-│   │   ├── 1369_refine_upload_sorting_fallbacks_DONE.md
-│   │   ├── 1370_filename_order_uploads_DONE.md
-│   │   ├── 1371_scene_item_token_tooltip_DONE.md
-│   │   ├── 1372_Unit_Test_Coverage_Core_Logic_DONE.md
-│   │   ├── 1373_Unit_Test_Coverage_Systems_API_DONE.md
-│   │   ├── 1374_Unit_Test_Coverage_UI_Hooks_DONE.md
-│   │   ├── 1375_Test_Suite_Cleanup_Alignment_DONE.md
-│   │   ├── 1401_harden_backend_error_handling.md
-│   │   ├── 1402_auth_and_token_transport_hardening_DONE.md
-│   │   ├── 1403_path_canonicalization_and_project_id_sanitization_DONE.md
 │   │   ├── 1404_export_pipeline_streaming_and_quota_coverage_DONE.md
 │   │   ├── 1405_frontend_state_subscription_and_persistence_budget_RESOLVED.md
 │   │   ├── 1406_visual_pipeline_render_path_optimization_DONE.md
@@ -18520,13 +18556,9 @@
 │   │   ├── 1410_telemetry_backpressure_and_observability_governance_DONE.md
 │   │   ├── 1412_dead_code_and_api_contract_alignment_DONE.md
 │   │   ├── 1413_decommission_transition_lock.md
-│   │   ├── D001_Fix_Violations_FRONTEND_DONE.md
-│   │   ├── D003_Classify_Map_Entries_DONE.md
+│   │   ├── 1414_state_density_monitoring_and_optimization_DONE.md
 │   │   ├── D004_Integrate_DataFlow_Modules_DONE.md
-│   │   ├── D005_Surgical_Refactor_CORE_FRONTEND_DONE.md
-│   │   ├── D007_Fix_Violations_BACKEND_DONE.md
-│   │   ├── D008_Surgical_Refactor_SRC_BACKEND_DEFERRED.md
-│   │   ├── D009_Aggregate_Completed_Tasks_DONE.md
+│   │   ├── D005_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── DEV_TASKS_COMPREHENSIVE_SUMMARY.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
@@ -18538,18 +18570,14 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1411_E2E_Test_Editor_Features.md
-│   │   ├── 1412_Unit_Test_Audit_Maintenance.md
-│   │   ├── 1414_state_density_monitoring_and_optimization.md
 │   │   └── dev_tasks
-│   │       ├── D001_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │       ├── D002_Surgical_Refactor_MEDIA_BACKEND.md
-│   │       ├── D003_Surgical_Refactor_SRC_BACKEND.md
-│   │       ├── D004_Integrate_DataFlow_Modules.md
-│   │       └── D005_Aggregate_Completed_Tasks.md
+│   │       ├── D001_Classify_Map_Entries.md
+│   │       └── D002_Integrate_DataFlow_Modules.md
 │   └── postponed
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
-│       └── 1299_ERR_Performance_LoadTimeAndMemory.md
+│       ├── 1299_ERR_Performance_LoadTimeAndMemory.md
+│       ├── 1411_E2E_Test_Editor_Features.md
+│       └── 1412_Unit_Test_Audit_Maintenance.md
 ├── test-results
 ├── tests
 │   ├── TestRunner.bs.js
@@ -18837,6 +18865,8 @@
 │   │   ├── Simulation_v.test.res
 │   │   ├── SnapshotOverlay_v.test.bs.js
 │   │   ├── SnapshotOverlay_v.test.res
+│   │   ├── StateDensityMonitor_v.test.bs.js
+│   │   ├── StateDensityMonitor_v.test.res
 │   │   ├── StateInspectorTest.bs.js
 │   │   ├── StateInspector_v.test.bs.js
 │   │   ├── StateInspector_v.test.res
@@ -18947,4 +18977,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-934 directories, 18014 files
+933 directories, 18045 files
