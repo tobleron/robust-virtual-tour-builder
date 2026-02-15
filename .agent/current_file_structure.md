@@ -69,9 +69,18 @@
 │   │   └── metadata.json
 │   └── tmp
 │       ├── D001
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── systems
+│       │   │           └── TeaserLogic.res
 │       │   └── verification.json
 │       ├── D002
 │       │   ├── files
+│       │   │   ├── backend
+│       │   │   │   └── src
+│       │   │   │       └── api
+│       │   │   │           └── media
+│       │   │   │               └── video_logic.rs
 │       │   │   └── src
 │       │   │       └── core
 │       │   │           ├── Reducer.res
@@ -80,6 +89,9 @@
 │       │   └── verification.json
 │       ├── D003
 │       │   ├── files
+│       │   │   ├── backend
+│       │   │   │   └── src
+│       │   │   │       └── models.rs
 │       │   │   └── src
 │       │   │       └── systems
 │       │   │           ├── ProjectManager.res
@@ -12799,6 +12811,12 @@
 │   │   │   │   ├── NavigationHelpers.cmj
 │   │   │   │   ├── NavigationHelpers.cmt
 │   │   │   │   ├── NavigationHelpers.res
+│   │   │   │   ├── NavigationProjectReducer.ast
+│   │   │   │   ├── NavigationProjectReducer.bs.js
+│   │   │   │   ├── NavigationProjectReducer.cmi
+│   │   │   │   ├── NavigationProjectReducer.cmj
+│   │   │   │   ├── NavigationProjectReducer.cmt
+│   │   │   │   ├── NavigationProjectReducer.res
 │   │   │   │   ├── NavigationState.ast
 │   │   │   │   ├── NavigationState.bs.js
 │   │   │   │   ├── NavigationState.cmi
@@ -15416,6 +15434,11 @@
 │   │   ├── NavigationLogic_v.test.cmj
 │   │   ├── NavigationLogic_v.test.cmt
 │   │   ├── NavigationLogic_v.test.res
+│   │   ├── NavigationProjectReducer.ast
+│   │   ├── NavigationProjectReducer.cmi
+│   │   ├── NavigationProjectReducer.cmj
+│   │   ├── NavigationProjectReducer.cmt
+│   │   ├── NavigationProjectReducer.res
 │   │   ├── NavigationReducer_v.test.ast
 │   │   ├── NavigationReducer_v.test.cmi
 │   │   ├── NavigationReducer_v.test.cmj
@@ -16560,6 +16583,7 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
+│   └── log_changes.txt
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -18149,6 +18173,8 @@
 │   │   ├── JsonParsersShared.res
 │   │   ├── NavigationHelpers.bs.js
 │   │   ├── NavigationHelpers.res
+│   │   ├── NavigationProjectReducer.bs.js
+│   │   ├── NavigationProjectReducer.res
 │   │   ├── NavigationState.bs.js
 │   │   ├── NavigationState.res
 │   │   ├── NotificationManager.bs.js
@@ -18467,7 +18493,6 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1405_frontend_state_subscription_and_persistence_budget.md
 │   ├── completed
 │   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
 │   │   ├── 1359_FIX_Backend_Service_Startup_Robustness_DONE.md
@@ -18484,8 +18509,25 @@
 │   │   ├── 1374_Unit_Test_Coverage_UI_Hooks_DONE.md
 │   │   ├── 1375_Test_Suite_Cleanup_Alignment_DONE.md
 │   │   ├── 1401_harden_backend_error_handling.md
+│   │   ├── 1402_auth_and_token_transport_hardening_DONE.md
 │   │   ├── 1403_path_canonicalization_and_project_id_sanitization_DONE.md
 │   │   ├── 1404_export_pipeline_streaming_and_quota_coverage_DONE.md
+│   │   ├── 1405_frontend_state_subscription_and_persistence_budget_RESOLVED.md
+│   │   ├── 1406_visual_pipeline_render_path_optimization_DONE.md
+│   │   ├── 1407_troubleshoot_teaser_encoding_DONE.md
+│   │   ├── 1408_server_teaser_headless_pipeline_alignment_DONE.md
+│   │   ├── 1409_unify_async_cancellation_abortsignal_DONE.md
+│   │   ├── 1410_telemetry_backpressure_and_observability_governance_DONE.md
+│   │   ├── 1412_dead_code_and_api_contract_alignment_DONE.md
+│   │   ├── 1413_decommission_transition_lock.md
+│   │   ├── D001_Fix_Violations_FRONTEND_DONE.md
+│   │   ├── D003_Classify_Map_Entries_DONE.md
+│   │   ├── D004_Integrate_DataFlow_Modules_DONE.md
+│   │   ├── D005_Surgical_Refactor_CORE_FRONTEND_DONE.md
+│   │   ├── D007_Fix_Violations_BACKEND_DONE.md
+│   │   ├── D008_Surgical_Refactor_SRC_BACKEND_DEFERRED.md
+│   │   ├── D009_Aggregate_Completed_Tasks_DONE.md
+│   │   ├── DEV_TASKS_COMPREHENSIVE_SUMMARY.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -18496,41 +18538,19 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1402_auth_and_token_transport_hardening.md
-│   │   ├── 1406_visual_pipeline_render_path_optimization.md
-│   │   ├── 1407_troubleshoot_teaser_encoding.md
-│   │   ├── 1408_server_teaser_headless_pipeline_alignment.md
-│   │   ├── 1409_unify_async_cancellation_abortsignal.md
-│   │   ├── 1410_telemetry_backpressure_and_observability_governance.md
 │   │   ├── 1411_E2E_Test_Editor_Features.md
-│   │   ├── 1412_dead_code_and_api_contract_alignment.md
-│   │   ├── 1413_decommission_transition_lock.md
+│   │   ├── 1412_Unit_Test_Audit_Maintenance.md
 │   │   ├── 1414_state_density_monitoring_and_optimization.md
 │   │   └── dev_tasks
-│   │       ├── D001_Fix_Violations_FRONTEND.md
-│   │       ├── D002_Evaluate_Automated_Tasks.md
-│   │       ├── D003_Classify_Map_Entries.md
+│   │       ├── D001_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │       ├── D002_Surgical_Refactor_MEDIA_BACKEND.md
+│   │       ├── D003_Surgical_Refactor_SRC_BACKEND.md
 │   │       ├── D004_Integrate_DataFlow_Modules.md
-│   │       ├── D005_Surgical_Refactor_CORE_FRONTEND.md
-│   │       ├── D006_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │       ├── D007_Fix_Violations_BACKEND.md
-│   │       └── D008_Surgical_Refactor_SRC_BACKEND.md
+│   │       └── D005_Aggregate_Completed_Tasks.md
 │   └── postponed
-│       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
 │       └── 1299_ERR_Performance_LoadTimeAndMemory.md
 ├── test-results
-├── test_log.txt
-├── test_log_2.txt
-├── test_log_3.txt
-├── test_log_final.txt
-├── test_output.log
-├── test_output.txt
-├── test_output_2.txt
-├── test_run.log
-├── test_run_2.log
-├── test_run_rapid.log
-├── test_run_rapid_2.log
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -18927,4 +18947,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-925 directories, 18003 files
+934 directories, 18014 files

@@ -298,24 +298,25 @@ mod tests {
 
     #[test]
     fn test_extract_zip_path_traversal() {
-        let tmp = tempdir().unwrap();
+        let tmp = tempdir().expect("failed to create temp directory");
         let zip_path = tmp.path().join("malicious.zip");
         let project_dir = tmp.path().join("project");
-        fs::create_dir_all(&project_dir).unwrap();
+        fs::create_dir_all(&project_dir).expect("failed to create project directory");
 
         // Create malicious ZIP
-        let file = fs::File::create(&zip_path).unwrap();
+        let file = fs::File::create(&zip_path).expect("failed to create zip file");
         let mut zip = zip::ZipWriter::new(file);
         let options = zip::write::FileOptions::default();
 
         // This name is malicious
-        zip.start_file("../outside.txt", options).unwrap();
-        zip.write_all(b"malicious").unwrap();
-        zip.finish().unwrap();
+        zip.start_file("../outside.txt", options)
+            .expect("failed to start zip file");
+        zip.write_all(b"malicious").expect("failed to write to zip");
+        zip.finish().expect("failed to finish zip writing");
 
         // Extractions should ignore outside.txt or sanitize it to project/outside.txt
         // enclosed_name() actually returns None for "..", so it's skipped.
-        extract_zip_to_project_dir(&zip_path, &project_dir).unwrap();
+        extract_zip_to_project_dir(&zip_path, &project_dir).expect("failed to extract zip");
 
         assert!(!tmp.path().join("outside.txt").exists());
         // Since it's skipped by enclosed_name, it shouldn't even exist in project_dir
@@ -324,25 +325,27 @@ mod tests {
 
     #[test]
     fn test_extract_zip_sanitizes_components() {
-        let tmp = tempdir().unwrap();
+        let tmp = tempdir().expect("failed to create temp directory");
         let zip_path = tmp.path().join("dodgy.zip");
         let project_dir = tmp.path().join("project");
-        fs::create_dir_all(&project_dir).unwrap();
+        fs::create_dir_all(&project_dir).expect("failed to create project directory");
 
-        let file = fs::File::create(&zip_path).unwrap();
+        let file = fs::File::create(&zip_path).expect("failed to create zip file");
         let mut zip = zip::ZipWriter::new(file);
         let options = zip::write::FileOptions::default();
 
-        zip.start_file("images/safe.webp", options).unwrap();
-        zip.write_all(b"safe").unwrap();
+        zip.start_file("images/safe.webp", options)
+            .expect("failed to start zip file");
+        zip.write_all(b"safe").expect("failed to write to zip");
 
         // Use backslash which sanitize_filename replaces on all platforms
-        zip.start_file("images/dodgy\\file.webp", options).unwrap();
-        zip.write_all(b"dodgy").unwrap();
+        zip.start_file("images/dodgy\\file.webp", options)
+            .expect("failed to start zip file");
+        zip.write_all(b"dodgy").expect("failed to write to zip");
 
-        zip.finish().unwrap();
+        zip.finish().expect("failed to finish zip writing");
 
-        extract_zip_to_project_dir(&zip_path, &project_dir).unwrap();
+        extract_zip_to_project_dir(&zip_path, &project_dir).expect("failed to extract zip");
 
         assert!(project_dir.join("images").is_dir());
         assert!(project_dir.join("images").join("safe.webp").exists());

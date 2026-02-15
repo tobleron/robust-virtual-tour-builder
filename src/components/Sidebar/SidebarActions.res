@@ -7,7 +7,7 @@ let make = React.memo((
   ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onAbout: unit => unit,
   ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
-  ~onTeaser: unit => unit,
+  ~onTeaser: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~exportReady: bool,
   ~teaserReady: bool,
   ~isLinking: bool,
@@ -72,6 +72,29 @@ let make = React.memo((
       }
       await onExport(~signal, ~onCancel)
       exportAbortRef.current = None
+    },
+  )
+
+  let teaserAbortRef = React.useRef(None)
+  let (
+    teaserExecute,
+    teaserPending,
+    _teaserThrottled,
+  ) = UseInteraction.useInteraction(
+    ~id="project_teaser",
+    ~policy=InteractionPolicies.projectMutation,
+    ~action=async () => {
+      let ctrl = BrowserBindings.AbortController.make()
+      teaserAbortRef.current = Some(ctrl)
+      let signal = BrowserBindings.AbortController.signal(ctrl)
+      let onCancel = () => {
+        switch teaserAbortRef.current {
+        | Some(c) => BrowserBindings.AbortController.abort(c)
+        | None => ()
+        }
+      }
+      await onTeaser(~signal, ~onCancel)
+      teaserAbortRef.current = None
     },
   )
 
@@ -149,15 +172,19 @@ let make = React.memo((
       </button>
 
       <button
-        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={!teaserReady || !isPermitted || isLinking}
-        onClick={_ => onTeaser()}
+        className={`sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed ${teaserPending
+            ? "btn-loading"
+            : ""}`}
+        disabled={!teaserReady || !isPermitted || isLinking || teaserPending}
+        onClick={_ => {
+          let _ = teaserExecute()
+        }}
         ariaLabel="Create Teaser"
       >
         <LucideIcons.Film
           className="text-white transition-all duration-300" size=20 strokeWidth=1.0
         />
-        <span> {React.string("Teaser")} </span>
+        <span> {React.string(teaserPending ? "Teasing" : "Teaser")} </span>
       </button>
     </div>
   </div>

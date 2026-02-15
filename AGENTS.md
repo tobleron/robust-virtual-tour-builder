@@ -24,6 +24,27 @@ This file provides universal guidelines for agents working with code in this rep
 - **IF** debugging/instrumenting: Read `.agent/workflows/debug-standards.md`
 - **IF** creating **NEW** modules: Read `.agent/workflows/new-module-standards.md`
 
+## 🛠️ Workflow Automation
+
+### PHASE 0: Troubleshooting
+- **Trigger**: When asked to "troubleshoot", "debug", "fix", or investigate a bug.
+- **Action**: Create `tasks/active/T###_troubleshoot_[context].md` immediately (Sequential numbering with project tasks).
+- **Mandatory Content**:
+  - [ ] **Hypothesis**: Initial assumption.
+  - [ ] **Activity Log**: Checkbox list of experiments/edits.
+  - [ ] **Rollback Check**: [ ] (Confirmed CLEAN or REVERTED non-working changes).
+  - [ ] **Context Handoff**: 3-sentence summary for the next session if the window fills up.
+
+### PHASE 1: Execution
+- Follow the task protocol and conditional context loading steps above.
+
+### PHASE 2: Commit & Push
+- **Explicit Permission**: Only commit when the user provides a message or instruction.
+- **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
+- **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push. Note: Tests are currently Bypassed/Manual).
+- **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/testing/dev).
+- **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.
+
 ## 🚨 Coding Vitals (PRIORITY 0)
 
 These are non-negotiable requirements for all code:

@@ -31,6 +31,7 @@ User Click Event
   → [src/systems/Navigation/NavigationController.res] subscribes to FSM changes
       → Calls SceneLoader with taskId and AbortSignal from Supervisor
   → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
+      → [src/systems/SceneLoaderLogic.res] constructs scene configuration and Pannellum setup parameters
       → [src/systems/Scene/Loader/SceneLoaderConfig.res], [src/systems/Scene/Loader/SceneLoaderEvents.res], and [src/systems/Scene/Loader/SceneLoaderReuse.res] handle configuration, events, and instance reuse
       → [src/core/SceneCache.res] manages preloaded scene state
       → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], and [src/components/ViewerManager/ViewerManagerLifecycle.res] manage active viewers
@@ -55,7 +56,7 @@ User file selection
   → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res], and [src/components/Sidebar/SidebarAbout.res])
     → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res], and [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
-  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res] and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
+  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
   → [src/systems/FingerprintService.res] calculates unique image hashes
@@ -239,6 +240,7 @@ Load Trigger:
   → [backend/src/services/project/load.rs] fetches project data
   → [backend/src/services/project/validate.rs] performs deep structural validation
   → Returns metadata to client
+  → [src/systems/ProjectSystem.res] validates project structure and processes loaded data
   → [src/systems/Project/ProjectLoader.res] patches and initializes project state
   → [src/systems/Project/ProjectValidator.res] validates integrity on the client side
 ```
@@ -343,15 +345,9 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
-### 📂 src/components
-- `[src/components/VisualPipelineLogic.res]`
-
 ### 📂 src/core
+- `[src/core/NavigationProjectReducer.res]`
 - `[src/core/ReducerModules.res]`
-
-### 📂 src/systems
-- `[src/systems/ProjectSystem.res]`
-- `[src/systems/SceneLoaderLogic.res]`
 
 ### 📂 src/utils
 - `[src/utils/PerfUtils.res]`

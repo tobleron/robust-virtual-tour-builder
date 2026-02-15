@@ -19,6 +19,7 @@ use sqlx::SqlitePool;
 use std::env;
 use std::future::{Ready, ready};
 use std::rc::Rc;
+use uuid::Uuid;
 
 // ==========================================
 // Handlers & Client
@@ -106,7 +107,7 @@ pub struct Claims {
     pub iat: usize,
 }
 
-#[allow(dead_code)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn encode_token(sub: &str) -> Result<String, AppError> {
     let secret = env::var("JWT_SECRET")
         .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
@@ -252,6 +253,43 @@ async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(
     Ok(())
 }
 
+fn headless_token() -> Option<String> {
+    std::env::var("HEADLESS_API_TOKEN").ok()
+}
+
+fn headless_user_metadata() -> (String, String, String, String) {
+    let id = std::env::var("HEADLESS_USER_ID").unwrap_or_else(|_| Uuid::new_v4().to_string());
+    let email = std::env::var("HEADLESS_USER_EMAIL")
+        .unwrap_or_else(|_| "headless@vtb.internal".to_string());
+    let name =
+        std::env::var("HEADLESS_USER_NAME").unwrap_or_else(|_| "Headless Teaser".to_string());
+    let role = std::env::var("HEADLESS_USER_ROLE").unwrap_or_else(|_| "system".to_string());
+    (id, email, name, role)
+}
+
+fn is_headless_token(token: &str) -> bool {
+    match headless_token() {
+        Some(expected) => expected == token,
+        None => false,
+    }
+}
+
+async fn attach_headless_user(req: &ServiceRequest) -> Result<(), HttpResponse> {
+    let (id, email, name, role) = headless_user_metadata();
+    let user = User {
+        id,
+        email,
+        password_hash: String::new(),
+        name,
+        role,
+        theme_preference: None,
+        language_preference: None,
+        created_at: Utc::now(),
+    };
+    req.extensions_mut().insert(user);
+    Ok(())
+}
+
 async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse> {
     let token = extract_token(req).ok_or_else(|| {
         HttpResponse::Unauthorized().json(serde_json::json!({
@@ -264,6 +302,11 @@ async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse
         && std::env::var("BYPASS_AUTH")
             .map(|v| v == "true")
             .unwrap_or(false);
+
+    if is_headless_token(&token) {
+        tracing::info!(target: "auth", "HEADLESS_TEASER_AUTHENTICATED");
+        return attach_headless_user(req).await;
+    }
 
     if bypass_allowed && token.trim() == "dev-token" {
         tracing::warn!(

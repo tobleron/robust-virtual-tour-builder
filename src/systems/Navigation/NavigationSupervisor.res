@@ -1,7 +1,7 @@
 /* src/systems/Navigation/NavigationSupervisor.res
  *
  * Centralized Navigation Supervisor
- * Replaces distributed TransitionLock pattern with intent-based auto-cancel model.
+ * Uses intent-based auto-cancel model.
  * Uses AbortController/AbortSignal for structured concurrency.
  */
 

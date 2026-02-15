@@ -319,12 +319,13 @@ let fetchFromOsm = async (lat, lon) => {
   try {
     let res = await Fetch.fetchSimple(url)
     let json = await Fetch.json(res)
-    // Simple manual decode or use JsonCombinators if preferred.
-    // Assuming simple dict access for robustness without strict schema here
-    let d = (Obj.magic(json): {..})
-    switch Nullable.toOption(d["display_name"]) {
-    | Some(addr) => Ok({address: addr})
-    | None => Error("OSM response missing display_name")
+    // Safe decoder for OSM response
+    let osmDecoder = JsonCombinators.Json.Decode.object(field => {
+      field.required("display_name", JsonCombinators.Json.Decode.string)
+    })
+    switch JsonCombinators.Json.decode(json, osmDecoder) {
+    | Ok(addr) => Ok({address: addr})
+    | Error(_) => Error("OSM response missing display_name")
     }
   } catch {
   | exn =>

@@ -138,7 +138,11 @@ let processLoadedProjectData = (
   }
 }
 
-let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
+let loadProjectZip = (
+  zipFile: File.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~onProgress: option<onProgress>=?,
+) => {
   let progress = (curr, total, msg) => {
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
@@ -154,7 +158,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
     (),
   )
 
-  BackendApi.importProject(zipFile)
+  BackendApi.importProject(zipFile, ~signal?)
   ->Promise.then(resultRes => {
     switch resultRes {
     | Ok(response) =>
