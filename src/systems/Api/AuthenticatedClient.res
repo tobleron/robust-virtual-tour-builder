@@ -112,17 +112,17 @@ let request = async (
   if Dict.get(headers, "Authorization") == None {
     let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
 
-    // Sync token to cookie for media requests (GET triggers for images)
-    token->Option.forEach(t => {
-      let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
-      let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
-    })
-
     let finalToken = switch token {
     | Some(t) => Some(t)
     | None if Constants.isDebugBuild() => Some("dev-token") // Only allowed in debug builds
     | None => None
     }
+
+    // Sync the effective token to cookie for media requests (image GETs cannot send custom headers).
+    finalToken->Option.forEach(t => {
+      let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
+      let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
+    })
 
     finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
   }
