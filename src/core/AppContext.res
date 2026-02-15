@@ -196,6 +196,11 @@ module Provider = {
     }, [state])
 
     React.useEffect1(() => {
+      StateDensityMonitor.observe(state)
+      None
+    }, [state.structuralRevision])
+
+    React.useEffect1(() => {
       dispatchBridgeRef := dispatch
       None
     }, [dispatch])

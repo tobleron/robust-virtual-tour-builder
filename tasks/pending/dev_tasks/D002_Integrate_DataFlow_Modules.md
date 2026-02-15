@@ -1,4 +1,4 @@
-# Task D004: Integrate Modules into Data Flows
+# Task D002: Integrate Modules into Data Flows
 
 ## 🚨 Trigger
 New modules were detected that are not represented in `DATA_FLOW.md`.
@@ -11,6 +11,7 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation
 
 ## Unmapped Modules
-- [ ] [src/core/NavigationProjectReducer.res]
-- [ ] [src/core/ReducerModules.res]
-- [ ] [src/utils/PerfUtils.res]
+- [ ] [backend/src/models_common.rs]
+- [ ] [backend/src/models_identity.rs]
+- [ ] [backend/src/models_project_session.rs]
+- [ ] [backend/src/api/media/video_logic_support.rs]
