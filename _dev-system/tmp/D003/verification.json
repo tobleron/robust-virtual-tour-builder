@@ -1,338 +1,99 @@
 {
-  "headline": "Verification Snapshot",
-  "snapshots": [
+  "task": "D003",
+  "category": "Surgical_Refactor_SRC_BACKEND",
+  "baseline_dir": "_dev-system/tmp/D003",
+  "bundles": [
     {
-      "path": "src/systems/ProjectManager.res",
-      "functions": [
+      "headline": "Pre-split snapshot for `backend/src/models.rs`",
+      "snapshots": [
         {
-          "name": "validationReportWrapperDecoder",
-          "signature": "let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-          "line": 16
-        },
-        {
-          "name": "validateProjectStructure",
-          "signature": "let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-          "line": 20
-        },
-        {
-          "name": "createSavePackage",
-          "signature": "let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-          "line": 27
-        },
-        {
-          "name": "processLoadedProjectData",
-          "signature": "let processLoadedProjectData = (",
-          "line": 94
-        },
-        {
-          "name": "loadProjectZip",
-          "signature": "let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
-          "line": 223
-        },
-        {
-          "name": "saveProject",
-          "signature": "let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
-          "line": 258
-        },
-        {
-          "name": "recoverSaveProject",
-          "signature": "let recoverSaveProject = (",
-          "line": 396
-        },
-        {
-          "name": "loadProject",
-          "signature": "let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<",
-          "line": 447
+          "path": "backend/src/models.rs",
+          "functions": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {",
+              "line": 31
+            },
+            {
+              "name": "error_response",
+              "signature": "fn error_response(&self) -> HttpResponse {",
+              "line": 48
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: std::io::Error) -> Self {",
+              "line": 111
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: actix_multipart::MultipartError) -> Self {",
+              "line": 116
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: zip::result::ZipError) -> Self {",
+              "line": 121
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: String) -> Self {",
+              "line": 126
+            },
+            {
+              "name": "from",
+              "signature": "fn from(s: String) -> Self {",
+              "line": 241
+            },
+            {
+              "name": "to_string",
+              "signature": "fn to_string(&self) -> String {",
+              "line": 251
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 288
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 331
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 460
+            },
+            {
+              "name": "find_by_email",
+              "signature": "pub async fn find_by_email(",
+              "line": 487
+            },
+            {
+              "name": "default",
+              "signature": "fn default() -> Self {",
+              "line": 511
+            },
+            {
+              "name": "new",
+              "signature": "pub fn new() -> Self {",
+              "line": 517
+            },
+            {
+              "name": "has_issues",
+              "signature": "pub fn has_issues(&self) -> bool {",
+              "line": 527
+            },
+            {
+              "name": "test_app_error_response_format",
+              "signature": "fn test_app_error_response_format() {",
+              "line": 541
+            }
+          ],
+          "fingerprint": "3f59a286fa8a359f00d79824a53e2514ec37f5a95df0284d5b99ec6a3b495902"
         }
-      ],
-      "fingerprint": "fd358e6cbed562ab366cc9ea2357f439c446f3ef53520e4d79d6ec45e01c53ed"
-    },
-    {
-      "path": "src/systems/UploadProcessorLogic.res",
-      "functions": [
-        {
-          "name": "getNotificationType",
-          "signature": "let getNotificationType = (typeStr: string) => {",
-          "line": 19
-        },
-        {
-          "name": "notify",
-          "signature": "let notify = (msg, typeStr) => {",
-          "line": 29
-        },
-        {
-          "name": "handleProcessSuccess",
-          "signature": "let handleProcessSuccess = (res: Resizer.processResult, item: uploadItem) => {",
-          "line": 51
-        },
-        {
-          "name": "handleProcessError",
-          "signature": "let handleProcessError = (msg, item: uploadItem) => {",
-          "line": 71
-        },
-        {
-          "name": "processItem",
-          "signature": "let processItem = (i, item: uploadItem, onStatus: string => unit) => {",
-          "line": 81
-        },
-        {
-          "name": "createScenePayload",
-          "signature": "let createScenePayload = (items: array<UploadTypes.uploadItem>) => {",
-          "line": 119
-        },
-        {
-          "name": "handleExifReport",
-          "signature": "let handleExifReport = (",
-          "line": 140
-        },
-        {
-          "name": "finalizeUploads",
-          "signature": "let finalizeUploads = (",
-          "line": 177
-        },
-        {
-          "name": "recoverUpload",
-          "signature": "let recoverUpload = (entry: OperationJournal.journalEntry) => {",
-          "line": 264
-        },
-        {
-          "name": "executeProcessingChain",
-          "signature": "let executeProcessingChain = (",
-          "line": 303
-        },
-        {
-          "name": "handleFingerprinting",
-          "signature": "let handleFingerprinting = (",
-          "line": 426
-        }
-      ],
-      "fingerprint": "ea13c5289b6e23f851c6de714e58f48bbeb434108b3abbccd5913b7515b24b58"
-    },
-    {
-      "path": "src/systems/ViewerSystem.res",
-      "functions": [
-        {
-          "name": "name",
-          "signature": "let name = \"Pannellum\"",
-          "line": 21
-        },
-        {
-          "name": "initialize",
-          "signature": "let initialize = (id, config) => {",
-          "line": 23
-        },
-        {
-          "name": "initializeViewer",
-          "signature": "let initializeViewer = initialize",
-          "line": 87
-        },
-        {
-          "name": "destroy",
-          "signature": "let destroy = v => {",
-          "line": 89
-        },
-        {
-          "name": "getPitch",
-          "signature": "let getPitch = v => Viewer.getPitch(v)",
-          "line": 109
-        },
-        {
-          "name": "getYaw",
-          "signature": "let getYaw = v => Viewer.getYaw(v)",
-          "line": 110
-        },
-        {
-          "name": "getHfov",
-          "signature": "let getHfov = v => Viewer.getHfov(v)",
-          "line": 111
-        },
-        {
-          "name": "setPitch",
-          "signature": "let setPitch = (v, p, a) => Viewer.setPitch(v, p, a)",
-          "line": 112
-        },
-        {
-          "name": "setYaw",
-          "signature": "let setYaw = (v, y, a) => Viewer.setYaw(v, y, a)",
-          "line": 113
-        },
-        {
-          "name": "setHfov",
-          "signature": "let setHfov = (v, h, a) => Viewer.setHfov(v, h, a)",
-          "line": 114
-        },
-        {
-          "name": "setView",
-          "signature": "let setView = (v, ~pitch=?, ~yaw=?, ~hfov=?, ~animated=false, ()) => {",
-          "line": 115
-        },
-        {
-          "name": "addHotSpot",
-          "signature": "let addHotSpot = (v, config) => Viewer.addHotSpot(v, config)",
-          "line": 120
-        },
-        {
-          "name": "removeHotSpot",
-          "signature": "let removeHotSpot = (v, id) => Viewer.removeHotSpot(v, id)",
-          "line": 121
-        },
-        {
-          "name": "getScene",
-          "signature": "let getScene = v => Viewer.getScene(v)",
-          "line": 122
-        },
-        {
-          "name": "loadScene",
-          "signature": "let loadScene = (v, sceneId, ~pitch=?, ~yaw=?, ~hfov=?, ()) => {",
-          "line": 123
-        },
-        {
-          "name": "addScene",
-          "signature": "let addScene = (v, id, config) => Viewer.addScene(v, id, config)",
-          "line": 129
-        },
-        {
-          "name": "on",
-          "signature": "let on = (v, ev, cb) => Viewer.on(v, ev, cb)",
-          "line": 130
-        },
-        {
-          "name": "isLoaded",
-          "signature": "let isLoaded = v => Viewer.isLoaded(v)",
-          "line": 131
-        },
-        {
-          "name": "setMetaData",
-          "signature": "let setMetaData = (v, key, value) => {",
-          "line": 132
-        },
-        {
-          "name": "getMetaData",
-          "signature": "let getMetaData = (v, key) => {",
-          "line": 140
-        },
-        {
-          "name": "pool",
-          "signature": "let pool = ref([",
-          "line": 163
-        },
-        {
-          "name": "getViewport",
-          "signature": "let getViewport = id => pool.contents->Belt.Array.getBy(v => v.id == id)",
-          "line": 179
-        },
-        {
-          "name": "getViewportByContainer",
-          "signature": "let getViewportByContainer = cId => pool.contents->Belt.Array.getBy(v => v.containerId == cId)",
-          "line": 180
-        },
-        {
-          "name": "getActive",
-          "signature": "let getActive = () => pool.contents->Belt.Array.getBy(v => v.status == #Active)",
-          "line": 181
-        },
-        {
-          "name": "getActiveViewer",
-          "signature": "let getActiveViewer = () => getActive()->Option.flatMap(v => v.instance)",
-          "line": 182
-        },
-        {
-          "name": "getInactive",
-          "signature": "let getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)",
-          "line": 183
-        },
-        {
-          "name": "getInactiveViewer",
-          "signature": "let getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)",
-          "line": 184
-        },
-        {
-          "name": "swapActive",
-          "signature": "let swapActive = () =>",
-          "line": 185
-        },
-        {
-          "name": "registerInstance",
-          "signature": "let registerInstance = (cId, inst) =>",
-          "line": 195
-        },
-        {
-          "name": "clearInstance",
-          "signature": "let clearInstance = cId =>",
-          "line": 204
-        },
-        {
-          "name": "setCleanupTimeout",
-          "signature": "let setCleanupTimeout = (id, t) =>",
-          "line": 213
-        },
-        {
-          "name": "clearCleanupTimeout",
-          "signature": "let clearCleanupTimeout = id =>",
-          "line": 223
-        },
-        {
-          "name": "reset",
-          "signature": "let reset = () => {",
-          "line": 234
-        },
-        {
-          "name": "isInsideDeadZone",
-          "signature": "let isInsideDeadZone = (startPt, lastMouse) => {",
-          "line": 259
-        },
-        {
-          "name": "updateFollowLoop",
-          "signature": "let rec updateFollowLoop = (~getState: unit => state) => {",
-          "line": 276
-        },
-        {
-          "name": "getActiveViewer",
-          "signature": "let getActiveViewer = () => Pool.getActiveViewer()->Nullable.fromOption",
-          "line": 364
-        },
-        {
-          "name": "getInactiveViewer",
-          "signature": "let getInactiveViewer = () => Pool.getInactiveViewer()->Nullable.fromOption",
-          "line": 365
-        },
-        {
-          "name": "getActiveContainerId",
-          "signature": "let getActiveContainerId = () =>",
-          "line": 366
-        },
-        {
-          "name": "getInactiveContainerId",
-          "signature": "let getInactiveContainerId = () =>",
-          "line": 371
-        },
-        {
-          "name": "resetState",
-          "signature": "let resetState = () => {",
-          "line": 377
-        },
-        {
-          "name": "isViewerValid",
-          "signature": "let isViewerValid = (viewer: Viewer.t): bool => {",
-          "line": 387
-        },
-        {
-          "name": "isActiveViewer",
-          "signature": "let isActiveViewer = (viewer: Viewer.t): bool => {",
-          "line": 399
-        },
-        {
-          "name": "isViewerReady",
-          "signature": "let isViewerReady = (viewer: Viewer.t): bool => {",
-          "line": 407
-        },
-        {
-          "name": "destroyViewer",
-          "signature": "let destroyViewer = Adapter.destroy",
-          "line": 417
-        }
-      ],
-      "fingerprint": "009c4bd66fdf618ccfe1e296065c8b175b81cbd7c987b9a7688012cb6243fb1d"
+      ]
     }
-  ]
+  ],
+  "timestamp": "2026-02-15T22:26:24.192157Z"
 }

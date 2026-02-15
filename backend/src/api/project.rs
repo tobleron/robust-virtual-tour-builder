@@ -96,11 +96,13 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
 
 /// Loads a project ZIP file into memory.
 pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {
-    let _user = req
+    let user = req
         .extensions()
         .get::<User>()
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    tracing::info!(module = "ProjectManager", user_id = %user.id, "LOAD_PROJECT_START");
 
     let mut temp_upload = project_multipart::save_multipart_to_tempfile(payload).await?;
 
@@ -112,6 +114,9 @@ pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
         .map_err(|e| AppError::InternalError(e.to_string()))??;
     let file = result_zip_file.reopen().map_err(AppError::IoError)?;
     let named_file = actix_files::NamedFile::from_file(file, "project.zip")?;
+
+    tracing::info!(module = "ProjectManager", user_id = %user.id, "LOAD_PROJECT_COMPLETE");
+
     Ok(named_file.into_response(&req))
 }
 
@@ -125,6 +130,8 @@ pub async fn import_project(
         .get::<User>()
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    tracing::info!(module = "ProjectManager", user_id = %user.id, "IMPORT_PROJECT_START");
 
     // Extract file from payload
     let tmp_path = project_multipart::extract_file_from_multipart(payload, "zip").await?;
@@ -150,6 +157,9 @@ pub async fn import_project(
     .map_err(AppError::InternalError)?;
 
     let _ = tokio::fs::remove_file(tmp_path).await;
+
+    tracing::info!(module = "ProjectManager", user_id = %user.id, session_id = %project_id, "IMPORT_PROJECT_COMPLETE");
+
     return Ok(HttpResponse::Ok().json(ImportResponse {
         session_id: project_id,
         project_data,
@@ -207,9 +217,18 @@ pub async fn validate_project(
 // --- EXPORT HANDLERS ---
 
 /// Packages the project into a deployment-ready static structure.
-#[tracing::instrument(skip(payload), name = "create_tour_package")]
-pub async fn create_tour_package(payload: Multipart) -> Result<HttpResponse, AppError> {
-    tracing::info!(module = "Exporter", "CREATE_PACKAGE_START");
+#[tracing::instrument(skip(payload, req), name = "create_tour_package")]
+pub async fn create_tour_package(
+    req: HttpRequest,
+    payload: Multipart,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    tracing::info!(module = "Exporter", user_id = %user.id, "CREATE_PACKAGE_START");
 
     let zip_path = get_temp_path("zip");
     let zip_path_clone = zip_path.clone();
@@ -251,16 +270,19 @@ pub async fn create_tour_package(payload: Multipart) -> Result<HttpResponse, App
                 .await
                 .map_err(AppError::IoError)?;
             let _ = tokio::fs::remove_file(&zip_path).await;
+            tracing::info!(module = "Exporter", user_id = %user.id, "CREATE_PACKAGE_COMPLETE");
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(file_bytes))
         }
         Ok(Err(e)) => {
             let _ = tokio::fs::remove_file(&zip_path).await;
+            tracing::error!(module = "Exporter", user_id = %user.id, error = ?e, "CREATE_PACKAGE_FAILED");
             Err(e)
         }
         Err(_) => {
             let _ = tokio::fs::remove_file(&zip_path).await;
+            tracing::error!(module = "Exporter", user_id = %user.id, "CREATE_PACKAGE_TIMEOUT");
             Err(AppError::InternalError(
                 "Export timed out after 10 minutes".into(),
             ))

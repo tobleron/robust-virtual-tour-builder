@@ -28,7 +28,9 @@ let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
   }
 }
 
-let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
+let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
+  apiResult<importResponse>,
+> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()
     // Backend expects 'file' field for multipart imports
@@ -38,6 +40,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
       Constants.backendUrl ++ "/api/project/import",
       ~method="POST",
       ~formData,
+      ~signal?,
       (),
     )
     ->Promise.then(resultResponse => {
@@ -55,66 +58,6 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
       }
     })
     ->Promise.catch(e => handleError(e, "Project import failed", "IMPORT_ERROR"))
-  })
-}
-
-let loadProject = (sessionId: string): Promise.t<apiResult<importResponse>> => {
-  RequestQueue.schedule(() => {
-    AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/project/load/" ++ sessionId,
-      ~method="GET",
-      (),
-    )
-    ->Promise.then(resultResponse => {
-      switch resultResponse {
-      | Retry.Success(response, _) =>
-        response.json()
-        ->Promise.then(
-          json => handleJsonDecode(json, decodeImportResponse, "LOAD", "Project load failed"),
-        )
-        ->Promise.catch(
-          e => handleError(e, "Project load failed: JSON parsing error", "LOAD_ERROR_JSON_DECODE"),
-        )
-      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-      }
-    })
-    ->Promise.catch(e => handleError(e, "Project load failed", "LOAD_ERROR"))
-  })
-}
-
-let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
-  apiResult<SharedTypes.validationReport>,
-> => {
-  RequestQueue.schedule(() => {
-    AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
-      ~method="POST",
-      ~body=projectData,
-      (),
-    )
-    ->Promise.then(resultResponse => {
-      switch resultResponse {
-      | Retry.Success(response, _) =>
-        response.json()
-        ->Promise.then(
-          json =>
-            handleJsonDecode(
-              json,
-              decodeValidationReport,
-              "VALIDATION",
-              "Project validation failed",
-            ),
-        )
-        ->Promise.catch(
-          e => {
-            let (msg, _) = Logger.getErrorDetails(e)
-            Promise.resolve(Error("Decoding validation report failed: " ++ msg))
-          },
-        )
-      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-      }
-    })
-    ->Promise.catch(e => handleError(e, "Project validation failed", "VALIDATION_ERROR"))
   })
 }
 
@@ -140,7 +83,9 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
   })
 }
 
-let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
+let calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathRequest): Promise.t<
+  apiResult<array<step>>,
+> => {
   RequestQueue.schedule(() => {
     let body = AuthenticatedClient.castBody(JsonParsers.Encoders.pathRequest(payload))
 
@@ -148,6 +93,7 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
       Constants.backendUrl ++ "/api/project/calculate-path",
       ~method="POST",
       ~body,
+      ~signal?,
       (),
     )
     ->Promise.then(resultResponse => {

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.13.0] - 2026-02-15
+
+### Added
+- Complete tasks 1402 1405 1406 1407 1408 1409 1410 1412 and archive 1413; deliver D001 D003 D004 D005 D007 D009 with D008 deferred, including auth hardening, visual pipeline optimization, teaser/headless + abort unification, telemetry governance, and API/dead-code alignment
+
+## [4.12.0] - 2026-02-15
+
+### Added
+- Complete tasks 1402 1405 1406 1407 1408 1409 1410 1412 and archive 1413; deliver D001 D003 D004 D005 D007 D009 with D008 deferred, including auth hardening, visual pipeline optimization, teaser/headless + abort unification, telemetry governance, and API/dead-code alignment
+
 ## [4.11.0] - 2026-02-15
 
 ### Changed

@@ -111,8 +111,9 @@ let make = React.memo(() => {
             ~onCancel,
           )
         }}
-        onTeaser={() => {
-          Teaser.startAutoTeaser("fast", false, "mp4", false, ~getState, ~dispatch)->ignore
+        onTeaser={(~signal, ~onCancel) => {
+          let _ = onCancel
+          Teaser.startAutoTeaser("fast", false, "webm", false, ~getState, ~dispatch, ~signal)
         }}
       />
 

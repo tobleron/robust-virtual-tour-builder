@@ -263,11 +263,6 @@ let useSimSlice = () => React.useContext(simContext)
 let useNavigationSlice = () => React.useContext(navigationContext)
 let usePipelineSlice = () => React.useContext(pipelineContext)
 
-// Legacy compatibility hooks - return global state but encouraged to use slices
-let useSceneState = () => React.useContext(globalContext) // Temporary fallback
-let useUiState = () => React.useContext(globalContext) // Temporary fallback
-let useSimState = () => React.useContext(globalContext) // Temporary fallback
-
 // Phase 1: Navigation State Slice
 let useNavigationState = useNavigationSlice
 

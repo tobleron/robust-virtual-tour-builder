@@ -11,8 +11,6 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation
 
 ## Unmapped Modules
-- [ ] [src/components/VisualPipelineLogic.res]
+- [ ] [src/core/NavigationProjectReducer.res]
 - [ ] [src/core/ReducerModules.res]
-- [ ] [src/systems/ProjectSystem.res]
-- [ ] [src/systems/SceneLoaderLogic.res]
 - [ ] [src/utils/PerfUtils.res]

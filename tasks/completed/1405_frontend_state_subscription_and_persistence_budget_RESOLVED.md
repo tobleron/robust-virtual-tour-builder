@@ -1,4 +1,7 @@
-# 1405: Performance - Frontend State Subscription and Persistence Budget
+# 1405: Performance - Frontend State Subscription and Persistence Budget [RESOLVED]
+
+## Resolution Note
+✅ **RESOLVED by commit d271db14** - ViewerManager refactored to use granular slices instead of full app state subscription. This directly addresses the core concern of unnecessary re-renders and state churn.
 
 ## Objective
 Reduce unnecessary re-renders and autosave churn caused by full-state subscriptions and broad save triggers.
