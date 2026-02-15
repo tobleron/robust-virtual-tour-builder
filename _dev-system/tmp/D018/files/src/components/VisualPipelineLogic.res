@@ -6,7 +6,8 @@ type t = {
   container: Dom.element,
   wrapper: Dom.element,
   dragSourceId: ref<Nullable.t<string>>,
-  thumbCache: Dict.t<string>,
+  mutable thumbCache: Dict.t<string>,
+  mutable lastSessionId: option<string>,
 }
 
 module Logic = {
@@ -263,6 +264,14 @@ module Render = {
       ~message="RENDER_CALLED_TIMELINE_" ++ Array.length(state.timeline)->Int.toString,
       (),
     )
+
+    // Clear cache if session changed
+    if pipeline.lastSessionId != state.sessionId {
+      Logger.info(~module_="VisualPipeline", ~message="SESSION_CHANGED_CLEARING_CACHE", ())
+      pipeline.thumbCache = Dict.make()
+      pipeline.lastSessionId = state.sessionId
+    }
+
     if Belt.Array.length(state.timeline) == 0 {
       Logger.debug(~module_="VisualPipeline", ~message="DISPLAY_NONE", ())
       Dom.setDisplay(pipeline.wrapper, "none")
@@ -313,9 +322,19 @@ module Render = {
             }
           }
 
-          let scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
+          let sourceScene = state.scenes->Belt.Array.getBy(s => {
+            s.id == item.sceneId || s.id == "legacy_" ++ item.sceneId
+          })
+
+          let targetScene = state.scenes->Belt.Array.getBy(s => {
+            s.name == item.targetScene ||
+            UrlUtils.stripExtension(s.name) == UrlUtils.stripExtension(item.targetScene) ||
+            s.id == item.targetScene ||
+            s.id == "legacy_" ++ item.targetScene
+          })
+
           let color = ref("var(--success-dark)")
-          switch scene {
+          switch sourceScene {
           | Some(s) =>
             color := ColorPalette.getGroupColor(s.colorGroup)
             Dom.setProperty(node, "--node-color", color.contents)
@@ -370,26 +389,32 @@ module Render = {
             }
           })
 
+          // Use target scene for thumbnail/name in pipeline as it's the destination
           let thumbUrl = ref("")
-          let thumbName = ref("Unknown Scene")
-          switch scene {
+          let thumbName = ref(item.targetScene)
+
+          let effectiveThumbScene = switch targetScene {
+          | Some(ts) => Some(ts)
+          | None => sourceScene // Fallback to source if target not found
+          }
+
+          switch effectiveThumbScene {
           | Some(sc) =>
             thumbName := sc.name
-            switch Dict.get(pipeline.thumbCache, sc.id) {
-            | Some(url) => thumbUrl := url
-            | None =>
-              let file = switch sc.tinyFile {
-              | Some(tf) => tf
-              | None => sc.file
+            thumbUrl :=
+              switch sc.tinyFile {
+              | Some(tf) =>
+                let url = SceneCache.getThumbUrl(sc.id ++ "_tiny", tf)
+                if url == "" {
+                  SceneCache.getThumbUrl(sc.id, sc.file)
+                } else {
+                  url
+                }
+              | None => SceneCache.getThumbUrl(sc.id, sc.file)
               }
-              let url = UrlUtils.fileToUrl(file)
-              Dict.set(pipeline.thumbCache, sc.id, url)
-              thumbUrl := url
-            }
           | None => ()
           }
 
-          let targetScene = state.scenes->Belt.Array.getBy(s => s.name == item.targetScene)
           let isAutoForward = switch targetScene {
           | Some(ts) => ts.isAutoForward
           | None => false
@@ -400,7 +425,7 @@ module Render = {
 
           let linkIdSpan = Dom.createElement("span")
           Dom.setClassName(linkIdSpan, "tooltip-link-id")
-          Dom.setTextContent(linkIdSpan, "Link: " ++ item.linkId)
+          Dom.setTextContent(linkIdSpan, "Link: " ++ item.linkId) // Using linkId (e.g., A01) for user friendliness
           Dom.appendChild(tooltip, linkIdSpan)
 
           if thumbUrl.contents != "" {

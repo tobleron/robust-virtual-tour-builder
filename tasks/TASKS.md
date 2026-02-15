@@ -25,6 +25,12 @@
   - NOT moved to active/completed folders
   - Safe to ignore if architectural changes are not needed
 
+### Troubleshooting Tasks (Prefixed with T: T001, T002, etc.) 🛠️
+- **Trigger**: Created manually when starting a "Phase 0" troubleshooting session as defined in `GEMINI.md`.
+- **Numbering**: Follows the **Main Project Task** sequence but uses the `T` prefix. If the next main task is 1261, use `T1261`.
+- **Workflow**: Follows the active→completed workflow.
+- **Cleanup**: Mandatory completion of the "Rollback Check" before moving to `completed/`.
+
 
 ## Workflow Instructions (Must be followed sequentially)
 

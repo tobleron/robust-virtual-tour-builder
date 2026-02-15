@@ -220,6 +220,47 @@ describe("ViewerManager", () => {
     Dom.appendChild(body, svg)
   })
 
+  let renderWrappedViewerManager = (root, mockState: Types.state, mockDispatch) => {
+    let sceneSlice: AppContext.sceneSlice = {
+      scenes: mockState.scenes,
+      activeIndex: mockState.activeIndex,
+      tourName: mockState.tourName,
+      activeYaw: mockState.activeYaw,
+      activePitch: mockState.activePitch,
+    }
+    let uiSlice: AppContext.uiSlice = {
+      isLinking: mockState.isLinking,
+      isTeasing: mockState.isTeasing,
+      linkDraft: mockState.linkDraft,
+      appMode: mockState.appMode,
+      logo: mockState.logo,
+      preloadingSceneIndex: mockState.preloadingSceneIndex,
+    }
+    let simSlice: AppContext.simSlice = {
+      simulation: mockState.simulation,
+      navigation: mockState.navigationState.navigation, // navigationState has navigation field
+      currentJourneyId: mockState.navigationState.currentJourneyId,
+      incomingLink: mockState.navigationState.incomingLink,
+    }
+
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.GlobalProvider value=mockState>
+          <AppContext.SceneSliceProvider value=sceneSlice>
+            <AppContext.UiSliceProvider value=uiSlice>
+              <AppContext.SimSliceProvider value=simSlice>
+                <AppContext.NavigationSliceProvider value=mockState.navigationState>
+                  <ViewerManager />
+                </AppContext.NavigationSliceProvider>
+              </AppContext.SimSliceProvider>
+            </AppContext.UiSliceProvider>
+          </AppContext.SceneSliceProvider>
+        </AppContext.GlobalProvider>
+      </AppContext.DispatchProvider>,
+    )
+  }
+
   testAsync("should handle cleanup when no scenes exist", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
@@ -234,14 +275,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 
@@ -274,14 +308,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 
@@ -301,14 +328,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=_mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, _mockDispatch)
 
     await wait(50)
 
@@ -360,14 +380,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 
@@ -400,14 +413,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 
@@ -430,14 +436,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 
@@ -462,14 +461,7 @@ describe("ViewerManager", () => {
     AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.GlobalProvider value=mockState>
-          <ViewerManager />
-        </AppContext.GlobalProvider>
-      </AppContext.DispatchProvider>,
-    )
+    renderWrappedViewerManager(root, mockState, mockDispatch)
 
     await wait(50)
 

@@ -54,6 +54,50 @@ pub async fn get_temp_path_async(extension: &str) -> PathBuf {
     path
 }
 
+/// Sanitize ID (project_id, session_id) to prevent potential injections or path traversal
+pub fn sanitize_id(id: &str) -> Result<String, String> {
+    if id.is_empty() {
+        return Err("ID cannot be empty".to_string());
+    }
+
+    // Strictly allow only alphanumeric, hyphen, and underscore
+    if !id
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err("ID contains invalid characters".to_string());
+    }
+
+    // Limit length to prevent extreme paths
+    if id.len() > 64 {
+        return Err("ID too long".to_string());
+    }
+
+    Ok(id.to_string())
+}
+
+/// Validates that a resolved path is strictly within a base directory
+pub fn validate_path_safe(base: &Path, resolved: &Path) -> Result<(), AppError> {
+    let canonical_base = base
+        .canonicalize()
+        .map_err(|_| AppError::InternalError("Failed to canonicalize base path".into()))?;
+    let canonical_resolved = resolved
+        .canonicalize()
+        .map_err(|_| AppError::InternalError("Failed to canonicalize resolved path".into()))?;
+
+    if !canonical_resolved.starts_with(&canonical_base) {
+        tracing::error!(
+            "Path escape detected: {:?} is not within {:?}",
+            canonical_resolved,
+            canonical_base
+        );
+        return Err(AppError::ValidationError(
+            "Security violation: Path escape detected".into(),
+        ));
+    }
+    Ok(())
+}
+
 /// Sanitize filename to prevent path traversal attacks
 /// Returns only the filename component, rejecting any directory traversal attempts
 pub fn sanitize_filename(fname: &str) -> Result<String, String> {
@@ -94,17 +138,44 @@ pub fn sanitize_filename(fname: &str) -> Result<String, String> {
         .ok_or_else(|| "Invalid filename".to_string())
 }
 
-/// Trigger graceful shutdown (admin only in production)
-pub async fn trigger_shutdown(shutdown_manager: web::Data<ShutdownManager>) -> HttpResponse {
-    tracing::warn!("Shutdown triggered via API");
+/// Trigger graceful shutdown (admin only)
+pub async fn trigger_shutdown(
+    req: actix_web::HttpRequest,
+    shutdown_manager: web::Data<ShutdownManager>,
+) -> Result<HttpResponse, AppError> {
+    use crate::models::User;
+    use actix_web::HttpMessage;
+
+    let user = req.extensions().get::<User>().cloned().ok_or_else(|| {
+        AppError::Unauthorized("Authentication required for this operation".into())
+    })?;
+
+    if user.role != "admin" {
+        tracing::error!(
+            target: "audit",
+            user_id = %user.id,
+            user_email = %user.email,
+            "🛑 UNAUTHORIZED SHUTDOWN ATTEMPT rejected"
+        );
+        return Err(AppError::Unauthorized("Admin role required".into()));
+    }
+
+    tracing::warn!(
+        target: "audit",
+        user_id = %user.id,
+        user_email = %user.email,
+        "⚠️ SERVER SHUTDOWN INITIATED via API"
+    );
+
     shutdown_manager.begin_shutdown();
 
     let active = shutdown_manager.active_count().await;
 
-    HttpResponse::Ok().json(serde_json::json!({
+    Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Shutdown initiated",
-        "active_requests": active
-    }))
+        "active_requests": active,
+        "operator": user.email
+    })))
 }
 
 pub fn json_error_response(
@@ -130,17 +201,30 @@ pub async fn quota_stats(
 
 #[cfg(test)]
 mod tests {
-
-    use crate::services::upload_quota::QuotaStats;
+    use super::*;
 
     #[test]
-    fn test_quota_stats_struct() {
-        let stats = QuotaStats {
-            active_uploads: 5,
-            total_active_size: 1000,
-            max_total_size: 5000,
-            utilization_percent: 20,
-        };
-        assert_eq!(stats.active_uploads, 5);
+    fn test_sanitize_id() {
+        assert_eq!(sanitize_id("valid-id_123").unwrap(), "valid-id_123");
+        assert!(sanitize_id("path/traversal").is_err());
+        assert!(sanitize_id("../hidden").is_err());
+        assert!(sanitize_id("").is_err());
+        assert!(sanitize_id("with spaces").is_err());
+        assert!(sanitize_id("special!@#").is_err());
+        assert!(sanitize_id(&"a".repeat(65)).is_err());
+        assert!(sanitize_id(&"a".repeat(64)).is_ok());
+    }
+
+    #[test]
+    fn test_validate_path_safe() {
+        let temp = tempfile::tempdir().unwrap();
+        let base = temp.path().to_path_buf();
+        let safe_child = base.join("safe.txt");
+        fs::write(&safe_child, "data").unwrap();
+
+        assert!(validate_path_safe(&base, &safe_child).is_ok());
+
+        // Note: canonicalize() requires file exists for some OS,
+        // and ALWAYS requires the file exists for the full path to be canonicalized reliably in this context.
     }
 }

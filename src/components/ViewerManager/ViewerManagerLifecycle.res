@@ -67,12 +67,21 @@ let useInitialization = (~getState, ~dispatch) => {
   })
 }
 
-let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
+let useLinkingAndSimUI = (
+  ~isLinking: bool,
+  ~simulation: simulationState,
+  ~navigationState: navigationState,
+  ~scenes: array<scene>,
+  ~activeIndex: int,
+  ~getState: unit => state,
+  ~dispatch: action => unit,
+) => {
   React.useEffect3(() => {
     let body = Dom.documentBody
     let guide = Dom.getElementById("cursor-guide")
+    let currentState = getState()
 
-    if state.isLinking {
+    if isLinking {
       Logger.debug(~module_="ViewerManagerLogic", ~message="LINKING_MODE_ON", ())
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
       switch Nullable.toOption(guide) {
@@ -95,34 +104,34 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
-      if !state.isLinking {
+      if !isLinking {
         Logger.info(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
       }
-      HotspotLine.updateLines(viewer, state, ())
+      HotspotLine.updateLines(viewer, currentState, ())
     | None => ()
     }
 
-    let isSimulationActive = state.simulation.status != Idle
+    let isSimulationActive = simulation.status != Idle
 
     if isSimulationActive {
       Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
 
       // Sync Hotspots immediately to apply hidden-in-sim class
       let v = ViewerSystem.getActiveViewer()
-      switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
+      switch (Nullable.toOption(v), Belt.Array.get(scenes, activeIndex)) {
       | (Some(viewer), Some(scene)) if NavigationSupervisor.isIdle() =>
         Logger.debug(
           ~module_="ViewerManagerLogic",
           ~message="SIMULATION_STATE_SYNC",
-          ~data=Some({"status": state.simulation.status, "sceneId": scene.id}),
+          ~data=Some({"status": simulation.status, "sceneId": scene.id}),
           (),
         )
-        HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+        HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
       | _ => ()
       }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
     None
-  }, (state.isLinking, state.simulation.status, state.navigationState.navigation))
+  }, (isLinking, simulation.status, navigationState.navigation))
 }

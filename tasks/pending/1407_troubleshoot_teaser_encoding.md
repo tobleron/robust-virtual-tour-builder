@@ -1,4 +1,4 @@
-# Task: Troubleshoot Teaser Video Encoding Failure
+# 1407: Troubleshoot Teaser Video Encoding Failure
 
 ## Problem
 E2E tests for Teaser Workflow (Task 1323) fail with a 500 Internal Server Error when attempting to transcode recorded WebM chunks to MP4.

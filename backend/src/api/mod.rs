@@ -13,7 +13,9 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .service(
-                web::scope("/admin").route("/shutdown", web::post().to(utils::trigger_shutdown)),
+                web::scope("/admin")
+                    .wrap(auth::AuthMiddleware)
+                    .route("/shutdown", web::post().to(utils::trigger_shutdown)),
             )
             .service(
                 web::scope("/telemetry")

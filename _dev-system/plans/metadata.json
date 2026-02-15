@@ -1,85 +1,123 @@
 {
-  "system": [],
-  "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
+  "rust": [
     {
       "Surgical": {
-        "file": "../../src/components/VisualPipelineLogic.res",
+        "file": "../../backend/src/models.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.06, Coupling: 0.05] | Drag: 5.88 | LOC: 384/300",
+        "reason": "[Nesting: 1.80, Density: 0.01, Coupling: 0.01] | Drag: 2.81 | LOC: 546/335",
         "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.278125,
+        "platform": "backend",
+        "complexity": 23.90915750915751,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipelineLogic.res`",
+          "headline": "Pre-split snapshot for `backend/src/models.rs`",
           "snapshots": [
             {
-              "path": "src/components/VisualPipelineLogic.res",
+              "path": "backend/src/models.rs",
               "functions": [
                 {
-                  "name": "handleDragStart",
-                  "signature": "handleDragStart = (pipeline: t, e) => {",
-                  "line": 13
+                  "name": "fmt",
+                  "signature": "fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {",
+                  "line": 31
                 },
                 {
-                  "name": "handleDragEnd",
-                  "signature": "handleDragEnd = (pipeline: t, e) => {",
-                  "line": 21
+                  "name": "error_response",
+                  "signature": "fn error_response(&self) -> HttpResponse {",
+                  "line": 48
                 },
                 {
-                  "name": "handleDragOver",
-                  "signature": "handleDragOver = e => {",
-                  "line": 28
+                  "name": "from",
+                  "signature": "fn from(err: std::io::Error) -> Self {",
+                  "line": 111
                 },
                 {
-                  "name": "handleDragEnter",
-                  "signature": "handleDragEnter = e => {",
-                  "line": 32
+                  "name": "from",
+                  "signature": "fn from(err: actix_multipart::MultipartError) -> Self {",
+                  "line": 116
                 },
                 {
-                  "name": "handleDragLeave",
-                  "signature": "handleDragLeave = e => {",
-                  "line": 37
+                  "name": "from",
+                  "signature": "fn from(err: zip::result::ZipError) -> Self {",
+                  "line": 121
                 },
                 {
-                  "name": "handleDrop",
-                  "signature": "handleDrop = (",
-                  "line": 42
+                  "name": "from",
+                  "signature": "fn from(err: String) -> Self {",
+                  "line": 126
                 },
                 {
-                  "name": "createDropZone",
-                  "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
-                  "line": 84
+                  "name": "from",
+                  "signature": "fn from(s: String) -> Self {",
+                  "line": 241
                 },
                 {
-                  "name": "nodeSize",
-                  "signature": "nodeSize = 22",
-                  "line": 100
+                  "name": "to_string",
+                  "signature": "fn to_string(&self) -> String {",
+                  "line": 251
                 },
                 {
-                  "name": "styles",
-                  "signature": "styles =",
-                  "line": 102
+                  "name": "create",
+                  "signature": "pub async fn create(",
+                  "line": 288
                 },
                 {
-                  "name": "render",
-                  "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
-                  "line": 260
+                  "name": "create",
+                  "signature": "pub async fn create(",
+                  "line": 331
+                },
+                {
+                  "name": "create",
+                  "signature": "pub async fn create(",
+                  "line": 460
+                },
+                {
+                  "name": "find_by_email",
+                  "signature": "pub async fn find_by_email(",
+                  "line": 487
+                },
+                {
+                  "name": "default",
+                  "signature": "fn default() -> Self {",
+                  "line": 511
+                },
+                {
+                  "name": "new",
+                  "signature": "pub fn new() -> Self {",
+                  "line": 517
+                },
+                {
+                  "name": "has_issues",
+                  "signature": "pub fn has_issues(&self) -> bool {",
+                  "line": 527
+                },
+                {
+                  "name": "test_app_error_response_format",
+                  "signature": "fn test_app_error_response_format() {",
+                  "line": 541
                 }
               ],
-              "fingerprint": "f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7"
+              "fingerprint": "3f59a286fa8a359f00d79824a53e2514ec37f5a95df0284d5b99ec6a3b495902"
             }
           ]
         }
       }
     },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/utils.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "rescript": [
     {
       "Surgical": {
         "file": "../../src/core/ReducerModules.res",
@@ -196,6 +234,86 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipelineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.06, Coupling: 0.05] | Drag: 5.88 | LOC: 384/300",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.278125,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipelineLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipelineLogic.res",
+              "functions": [
+                {
+                  "name": "handleDragStart",
+                  "signature": "handleDragStart = (pipeline: t, e) => {",
+                  "line": 13
+                },
+                {
+                  "name": "handleDragEnd",
+                  "signature": "handleDragEnd = (pipeline: t, e) => {",
+                  "line": 21
+                },
+                {
+                  "name": "handleDragOver",
+                  "signature": "handleDragOver = e => {",
+                  "line": 28
+                },
+                {
+                  "name": "handleDragEnter",
+                  "signature": "handleDragEnter = e => {",
+                  "line": 32
+                },
+                {
+                  "name": "handleDragLeave",
+                  "signature": "handleDragLeave = e => {",
+                  "line": 37
+                },
+                {
+                  "name": "handleDrop",
+                  "signature": "handleDrop = (",
+                  "line": 42
+                },
+                {
+                  "name": "createDropZone",
+                  "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
+                  "line": 84
+                },
+                {
+                  "name": "nodeSize",
+                  "signature": "nodeSize = 22",
+                  "line": 100
+                },
+                {
+                  "name": "styles",
+                  "signature": "styles =",
+                  "line": 102
+                },
+                {
+                  "name": "render",
+                  "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
+                  "line": 260
+                }
+              ],
+              "fingerprint": "f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
     }
-  ]
+  ],
+  "system": []
 }

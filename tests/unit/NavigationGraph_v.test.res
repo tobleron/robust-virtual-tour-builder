@@ -94,6 +94,7 @@ describe("NavigationGraph", () => {
       lastUsedCategory: "indoor",
       sessionId: None,
       logo: None,
+      structuralRevision: 0,
     }
   }
 

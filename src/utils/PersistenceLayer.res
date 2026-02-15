@@ -20,6 +20,7 @@ external asJson: unknown => JSON.t = "%identity"
 
 let stateGetterRef: ref<unit => state> = ref(() => State.initialState)
 let lastSaveTimeout = ref(None)
+let lastSavedRevision = ref(-1)
 let beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)
 let subscriberRef: ref<option<unit => unit>> = ref(None)
 
@@ -68,6 +69,7 @@ let performSave = (state: Types.state) => {
     let _ =
       set(key, payload)
       ->Promise.then(_ => {
+        lastSavedRevision := state.structuralRevision
         Logger.debug(
           ~module_="Persistence",
           ~message="Auto-saved session via IndexedDB",
@@ -99,18 +101,20 @@ let performSave = (state: Types.state) => {
 }
 
 let handleStateChange = (state: state) => {
-  switch lastSaveTimeout.contents {
-  | Some(id) => clearTimeout(id)
-  | None => ()
-  }
+  if state.structuralRevision > lastSavedRevision.contents {
+    switch lastSaveTimeout.contents {
+    | Some(id) => clearTimeout(id)
+    | None => ()
+    }
 
-  lastSaveTimeout := Some(setTimeout(() => {
-        try {
-          ignore(requestIdleCallback(() => performSave(state)))
-        } catch {
-        | _ => performSave(state)
-        }
-      }, debounceMs))
+    lastSaveTimeout := Some(setTimeout(() => {
+          try {
+            ignore(requestIdleCallback(() => performSave(state)))
+          } catch {
+          | _ => performSave(state)
+          }
+        }, debounceMs))
+  }
 }
 
 let notifyStateChange = (state: state) => handleStateChange(state)

@@ -6,10 +6,17 @@ open React
 @@warning("-45")
 
 module ControllerHooks = {
-  let useNavigationFSM = (state: state, dispatch, getState) => {
+  let useNavigationFSM = (
+    ~scenes: array<scene>,
+    ~activeIndex,
+    ~navigationState,
+    ~transition,
+    ~dispatch,
+    ~getState,
+  ) => {
     React.useEffect2(() => {
       let taskInfo = NavigationSupervisor.getCurrentTask()
-      switch state.navigationState.navigationFsm {
+      switch navigationState.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
         Logger.debug(
           ~module_="NavigationController",
@@ -20,10 +27,19 @@ module ControllerHooks = {
           }),
           (),
         )
-        let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
+        let sourceSceneId = scenes->Belt.Array.get(activeIndex)->Option.map(s => s.id)
+
+        // Mock state for Scene.Loader (it expects state record)
+        // TODO: Refactor Scene.Loader to take granular dependencies
+        let mockState: state = {
+          ...State.initialState,
+          scenes,
+          activeIndex,
+          navigationState,
+        }
 
         Scene.Loader.loadNewScene(
-          ~state,
+          ~state=mockState,
           ~dispatch,
           ~sourceSceneId?,
           ~targetSceneId,
@@ -45,7 +61,7 @@ module ControllerHooks = {
         }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
       | Transitioning({progress, isPreview: _isPreview}) if progress == 0.0 =>
-        let shouldFinalize = switch state.navigationState.navigation {
+        let shouldFinalize = switch navigationState.navigation {
         | Idle => true
         | Navigating(j) if j.pathData == None => true
         | _ => false
@@ -62,7 +78,7 @@ module ControllerHooks = {
           (),
         )
         let _ = Window.requestAnimationFrame(() => {
-          let sceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
+          let sceneOpt = scenes->Belt.Array.getBy(s => s.id == targetSceneId)
           switch sceneOpt {
           | Some(ts) =>
             Logger.debug(
@@ -80,7 +96,7 @@ module ControllerHooks = {
                 ~taskId=?Some(t.token.id),
                 ~getState,
                 ~dispatch,
-                ~transition=state.transition,
+                ~transition,
               )
             | _ =>
               // Failsafe: Perform swap even if no task exists (e.g., initial load or recovery)
@@ -91,13 +107,7 @@ module ControllerHooks = {
                 ~data=Some({"targetSceneId": targetSceneId}),
                 (),
               )
-              Scene.Transition.performSwap(
-                ts,
-                0.0,
-                ~getState,
-                ~dispatch,
-                ~transition=state.transition,
-              )
+              Scene.Transition.performSwap(ts, 0.0, ~getState, ~dispatch, ~transition)
             }
           | None =>
             Logger.error(
@@ -105,7 +115,7 @@ module ControllerHooks = {
               ~message="STABILIZING_SCENE_NOT_FOUND",
               ~data=Some({
                 "targetSceneId": targetSceneId,
-                "availableScenes": state.scenes->Belt.Array.map(s => s.id),
+                "availableScenes": scenes->Belt.Array.map(s => s.id),
               }),
               (),
             )
@@ -120,7 +130,7 @@ module ControllerHooks = {
         })
         None
       | IdleFsm =>
-        switch state.navigationState.navigation {
+        switch navigationState.navigation {
         | Navigating(j) =>
           Logger.info(
             ~module_="NavigationController",
@@ -141,15 +151,15 @@ module ControllerHooks = {
         None
       | _ => None
       }
-    }, (state.navigationState.navigationFsm, state.activeIndex))
+    }, (navigationState.navigationFsm, activeIndex))
   }
 
-  let useNavigationAnimation = (state: state, dispatch, getState) => {
+  let useNavigationAnimation = (~navigationStatus, ~dispatch, ~getState) => {
     let ajid = React.useRef(None)
     let req = React.useRef(None)
 
     React.useEffect1(() => {
-      switch state.navigationState.navigation {
+      switch navigationStatus {
       | Navigating(j) =>
         if ajid.current != Some(j.journeyId) {
           // NEW JOURNEY DETECTED: Cancel previous and start new
@@ -212,7 +222,7 @@ module ControllerHooks = {
       | _ => ()
       }
       None
-    }, [state.navigationState.navigation])
+    }, [navigationStatus])
 
     // Cleanup ONLY on unmount to prevent ghost animations
     React.useEffect0(() => {
@@ -235,7 +245,9 @@ module ControllerHooks = {
 
 @react.component
 let make = () => {
-  let state = AppContext.useAppState()
+  let sceneSlice = AppContext.useSceneSlice()
+  let navSlice = AppContext.useNavigationSlice()
+  let state = AppContext.useAppState() // Still need state for Transition and some helpers
   let dispatch = AppContext.useAppDispatch()
   let stateRef = React.useRef(state)
   React.useEffect1(() => {
@@ -243,7 +255,18 @@ let make = () => {
     None
   }, [state])
   let getState = () => stateRef.current
-  ControllerHooks.useNavigationFSM(state, dispatch, getState)
-  ControllerHooks.useNavigationAnimation(state, dispatch, getState)
+  ControllerHooks.useNavigationFSM(
+    ~scenes=sceneSlice.scenes,
+    ~activeIndex=sceneSlice.activeIndex,
+    ~navigationState=navSlice,
+    ~transition=state.transition,
+    ~dispatch,
+    ~getState,
+  )
+  ControllerHooks.useNavigationAnimation(
+    ~navigationStatus=navSlice.navigation,
+    ~dispatch,
+    ~getState,
+  )
   React.null
 }

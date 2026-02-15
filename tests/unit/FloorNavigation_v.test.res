@@ -10,6 +10,8 @@ module WrappedFloorNavigation = {
       scenes,
       activeIndex,
       tourName: "Test Tour",
+      activeYaw: 0.0,
+      activePitch: 0.0,
     }
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.SceneSliceProvider value=sceneSlice>

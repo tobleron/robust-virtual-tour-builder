@@ -116,7 +116,32 @@ open Vitest
           appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } }
         })),
         useAppDispatch: vi.fn(() => vi.fn()),
-        useIsSystemLocked: vi.fn(() => false)
+        useIsSystemLocked: vi.fn(() => false),
+        useSceneSlice: vi.fn(() => ({
+          scenes: [],
+          activeIndex: 0,
+          tourName: "Test",
+          activeYaw: 0,
+          activePitch: 0
+        })),
+        useSimSlice: vi.fn(() => ({
+          simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 },
+          navigation: "Idle",
+          currentJourneyId: 0,
+          incomingLink: undefined
+        })),
+        useNavigationSlice: vi.fn(() => ({
+          navigation: "IdleFsm",
+          incomingLink: undefined,
+          autoForwardChain: undefined,
+          currentJourneyId: undefined
+        })),
+        usePipelineSlice: vi.fn(() => ({
+          timeline: [],
+          scenes: [],
+          activeIndex: 0,
+          activeTimelineStepId: undefined
+        }))
       };
     })
 

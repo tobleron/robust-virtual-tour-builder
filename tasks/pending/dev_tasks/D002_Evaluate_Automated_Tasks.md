@@ -1,4 +1,4 @@
-# Task D017: Evaluate and Consolidate Automated Tasks
+# Task D002: Evaluate and Consolidate Automated Tasks
 
 ## 🚨 Trigger
 Manual evaluation of `dev_tasks` post-v4.5.7 architectural shifts.
