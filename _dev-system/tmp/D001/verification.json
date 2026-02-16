@@ -4,101 +4,86 @@
   "baseline_dir": "_dev-system/tmp/D001",
   "bundles": [
     {
-      "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+      "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
       "snapshots": [
         {
-          "path": "src/systems/TeaserLogic.res",
+          "path": "src/systems/Exporter.res",
           "functions": [
             {
-              "name": "canvasWidth",
-              "signature": "canvasWidth = Constants.Teaser.canvasWidth",
-              "line": 8
+              "name": "apiErrorDecoder",
+              "signature": "apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {",
+              "line": 11
             },
             {
-              "name": "canvasHeight",
-              "signature": "canvasHeight = Constants.Teaser.canvasHeight",
-              "line": 9
+              "name": "fetchLib",
+              "signature": "fetchLib = async filename => {",
+              "line": 21
             },
             {
-              "name": "wait",
-              "signature": "wait = (ms: int) =>",
-              "line": 18
+              "name": "uploadAndProcessRaw",
+              "signature": "uploadAndProcessRaw: (",
+              "line": 40
             },
             {
-              "name": "fastConfig",
-              "signature": "fastConfig = {clipDuration: 2500.0, transitionDuration: 1000.0, cameraPanOffset: 20.0}",
-              "line": 31
+              "name": "throwableMessageRaw",
+              "signature": "throwableMessageRaw: 'a => string = %raw(`",
+              "line": 114
             },
             {
-              "name": "slowConfig",
-              "signature": "slowConfig = {clipDuration: 4000.0, transitionDuration: 1500.0, cameraPanOffset: 30.0}",
-              "line": 32
+              "name": "normalizeThrowableMessage",
+              "signature": "normalizeThrowableMessage = (exn: exn): string => {",
+              "line": 135
             },
             {
-              "name": "punchyConfig",
-              "signature": "punchyConfig = {clipDuration: 1800.0, transitionDuration: 600.0, cameraPanOffset: 0.0}",
-              "line": 33
+              "name": "isUnauthorizedHttpError",
+              "signature": "isUnauthorizedHttpError = (msg: string): bool => {",
+              "line": 149
             },
             {
-              "name": "getConfigForStyle",
-              "signature": "getConfigForStyle = (style: string) => {",
-              "line": 34
+              "name": "extractHttpErrorBody",
+              "signature": "extractHttpErrorBody = (msg: string): string => {",
+              "line": 153
             },
             {
-              "name": "waitForViewerReady",
-              "signature": "waitForViewerReady = async (sceneId: string) => {",
-              "line": 45
+              "name": "fetchSceneUrlBlob",
+              "signature": "fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<",
+              "line": 162
             },
             {
-              "name": "animatePan",
-              "signature": "animatePan = async (fromYaw, toYaw, pitch, duration) => {",
-              "line": 76
+              "name": "progress",
+              "signature": "progress = (p, t, m) => {",
+              "line": 192
             },
             {
-              "name": "prepareFirstScene",
-              "signature": "prepareFirstScene = async (",
-              "line": 101
-            },
-            {
-              "name": "recordShot",
-              "signature": "recordShot = async (_i, step: Pathfinder.step, style, config: State.teaserConfig) => {",
-              "line": 132
-            },
-            {
-              "name": "transitionToNextShot",
-              "signature": "transitionToNextShot = async (",
-              "line": 144
-            },
-            {
-              "name": "signalIsAborted",
-              "signature": "signalIsAborted = signal =>",
+              "name": "tourName",
+              "signature": "tourName = if tourName == \"\" {",
               "line": 199
             },
             {
-              "name": "throwIfCancelled",
-              "signature": "throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>",
-              "line": 205
+              "name": "msg",
+              "signature": "msg = normalizeThrowableMessage(exn)",
+              "line": 446
             },
             {
-              "name": "finalizeTeaser",
-              "signature": "finalizeTeaser = async (format, baseName) => {",
-              "line": 212
+              "name": "normalizedStack",
+              "signature": "normalizedStack = if stack != \"\" {",
+              "line": 447
             },
             {
-              "name": "startCinematicTeaser",
-              "signature": "startCinematicTeaser = async (",
-              "line": 240
+              "name": "payload",
+              "signature": "payload = extractHttpErrorBody(msg)",
+              "line": 458
             },
             {
-              "name": "startAutoTeaser",
-              "signature": "startAutoTeaser = async (",
-              "line": 266
+              "name": "finalMsg",
+              "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
+              "line": 459
             }
           ],
-          "fingerprint": "ea7b9a17bc8669a89940630dd5886f485067e108ab5efacb8d95ae473461e0f9"
+          "fingerprint": "43ccb5b4bf4d0a82a37f208c488e10ae0211d41754160e1990b02185b0e05a9e"
         }
       ]
     }
   ],
-  "timestamp": "2026-02-15T22:39:21.025733Z"
+  "timestamp": "2026-02-16T18:35:12.809982Z"
 }

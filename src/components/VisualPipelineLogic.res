@@ -26,7 +26,7 @@ module Logic = {
 }
 
 module Styles = {
-  let nodeSize = 22
+  let nodeSize = 14
 
   let styles =
     "
@@ -40,8 +40,8 @@ module Styles = {
   /* Responsive padding */
   @media (min-width: 768px) {
     #visual-pipeline-container {
-      padding-left: 80px;
-      padding-right: 80px;
+      padding-left: 160px;
+      padding-right: 160px;
     }
   }
 
@@ -50,33 +50,31 @@ module Styles = {
     margin-bottom: 24px;
     display: flex; justify-content: center; align-items: center;
     width: auto; max-width: 90%;
-    padding: 12px 24px;
-    background: rgba(15, 23, 42, 0.7); /* Slate-900 with opacity */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     user-select: none;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 0;
     transition: all 0.3s ease;
   }
 
   .pipeline-track {
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    position: relative; width: 100%; gap: 4px;
+    position: relative; width: 100%; gap: 0;
   }
 
   .drop-zone {
-    width: 14px; height: 32px; display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 32px; display: flex; align-items: center; justify-content: center;
     position: relative; z-index: 10;
     transition: width 0.3s cubic-bezier(0.2, 1, 0.2, 1); will-change: width;
   }
 
   .drop-zone::before {
     content: ''; position: absolute; top: 50%; left: 0; transform: translateY(-50%);
-    width: 100%; height: 4px; background: rgba(255, 255, 255, 0.2); z-index: 10;
+    width: 100%; height: 6px; background: var(--primary-navy); opacity: 1; z-index: 10;
     border-radius: 2px; pointer-events: none;
   }
 
@@ -93,7 +91,7 @@ module Styles = {
   }
 
   .drop-zone.drag-over::after { opacity: 1; transform: scale(1); border-color: white; }
-  .drop-zone.drag-over { width: 36px; }
+  .drop-zone.drag-over { width: 48px; }
   .dragging-active .drop-zone { z-index: 100; cursor: copy; }
 
   .pipeline-node {
@@ -114,7 +112,7 @@ module Styles = {
 
   .pipeline-node::after {
     content: ''; position: absolute; inset: 2px;
-    background: var(--node-color, var(--success-dark));
+    background: var(--danger);
     border-radius: 50%; z-index: 20;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     border: 2px solid rgba(255,255,255,0.1);
@@ -127,8 +125,9 @@ module Styles = {
   }
 
   .pipeline-node.active::after {
-    box-shadow: 0 0 0 2px white, 0 0 12px var(--node-color);
+    box-shadow: 0 0 0 2px white, 0 0 10px var(--danger);
     border-color: white;
+    transform: scale(1.2);
   }
 
   .pipeline-node:focus-visible {

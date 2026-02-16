@@ -323,7 +323,13 @@ let handleExport = async (
         dispatch(DispatchAppFsmEvent(ExportComplete))
       }
     | Error(msg) => {
-        dispatch(DispatchAppFsmEvent(ExportError(msg)))
+        Logger.error(
+          ~module_="SidebarLogic",
+          ~message="EXPORT_FAILED",
+          ~data=Some({"error": msg}),
+          (),
+        )
+        dispatch(DispatchAppFsmEvent(ExportComplete))
         NotificationManager.dispatch({
           id: "",
           importance: Error,
@@ -339,8 +345,29 @@ let handleExport = async (
       }
     }
   } catch {
+  | JsExn(exn) =>
+    let msg = exn->JsExn.message->Option.getOr("Unexpected Error")
+    Logger.error(
+      ~module_="SidebarLogic",
+      ~message="EXPORT_FAILED_UNCAUGHT",
+      ~data=Some({"error": msg}),
+      (),
+    )
+    dispatch(DispatchAppFsmEvent(ExportComplete))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Error,
+      context: Operation("sidebar_export"),
+      message: "Export failed: " ++ msg,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Error),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+    updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
   | _ =>
-    dispatch(DispatchAppFsmEvent(ExportError("Unexpected Error")))
-    updateProgress(~dispatch, 0.0, "Error", false, "")
+    dispatch(DispatchAppFsmEvent(ExportComplete))
+    updateProgress(~dispatch, 0.0, "Error: Unexpected Error", false, "")
   }
 }

@@ -53,6 +53,7 @@ let isStructuralMutation = (action: Actions.action): bool => {
   | Actions.UpdateHotspotReturnView(_, _, _, _, _)
   | Actions.ToggleHotspotReturnLink(_, _)
   | Actions.AddToTimeline(_)
+  | Actions.SetTimeline(_)
   | Actions.RemoveFromTimeline(_)
   | Actions.ReorderTimeline(_, _)
   | Actions.UpdateTimelineStep(_, _)
