@@ -73,6 +73,7 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
           yaw: 10.0,
           pitch: 10.0,
           target: "somewhere",
+          targetSceneId: None,
           targetYaw: None,
           targetPitch: None,
           targetHfov: None,

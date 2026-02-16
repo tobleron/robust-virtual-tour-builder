@@ -9,6 +9,7 @@ describe("SimulationLogic", () => {
     yaw: 0.0,
     pitch: 0.0,
     target,
+    targetSceneId: Some(target),
     targetYaw: Some(10.0),
     targetPitch: Some(20.0),
     targetHfov: Some(90.0),

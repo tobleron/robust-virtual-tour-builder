@@ -6,7 +6,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
-  let targetSceneOpt = Belt.Array.getBy(state.scenes, s => s.name == hotspot.target)
+  let targetSceneOpt = HotspotTarget.resolveScene(state.scenes, hotspot)
   let isAutoForward = switch targetSceneOpt {
   | Some(ts) => ts.isAutoForward
   | None => false
@@ -58,10 +58,10 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
 
   let handleToggleAutoForward = () => {
     let currentState = AppContext.getBridgeState()
-    let currentTargetSceneOpt = Belt.Array.getBy(currentState.scenes, s => s.name == hotspot.target)
+    let currentTargetSceneOpt = HotspotTarget.resolveScene(currentState.scenes, hotspot)
     switch currentTargetSceneOpt {
     | Some(ts) =>
-      switch Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target) {
+      switch currentState.scenes->Belt.Array.getIndexBy(s => s.id == ts.id) {
       | Some(idx) =>
         let newVal = !ts.isAutoForward
         HotspotManager.handleUpdateSceneMetadata(
@@ -91,7 +91,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleNavigate = () => {
-    let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
+    let targetIdx = HotspotTarget.resolveSceneIndex(state.scenes, hotspot)
     switch targetIdx {
     | Some(idx) =>
       let navYaw = ref(0.0)

@@ -138,6 +138,7 @@ type hotspot = {
   yaw: float,
   pitch: float,
   target: string,
+  targetSceneId: option<string>,
   targetYaw: option<float>,
   targetPitch: option<float>,
   targetHfov: option<float>,

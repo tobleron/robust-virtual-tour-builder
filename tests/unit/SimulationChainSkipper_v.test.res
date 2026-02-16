@@ -30,6 +30,7 @@ describe("SimulationChainSkipper", () => {
       yaw: 0.0,
       pitch: 0.0,
       target,
+      targetSceneId: Some(target),
       isReturnLink: Some(false),
       startYaw: None,
       startPitch: None,

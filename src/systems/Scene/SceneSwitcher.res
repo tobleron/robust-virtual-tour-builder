@@ -139,9 +139,7 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
       currentScene.hotspots
       ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
       ->Option.forEach(h => {
-        state.scenes
-        ->Belt.Array.getIndexBy(s => s.name == h.target)
-        ->Option.forEach(tIdx => {
+        HotspotTarget.resolveSceneIndex(state.scenes, h)->Option.forEach(tIdx => {
           let hIdx =
             currentScene.hotspots
             ->Belt.Array.getIndexBy(hh => hh.linkId == h.linkId)

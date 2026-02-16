@@ -83,6 +83,7 @@ describe("Reducer (Root Re-export)", () => {
       yaw: 100.0,
       pitch: 0.0,
       target: "scene2.webp",
+      targetSceneId: None,
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,

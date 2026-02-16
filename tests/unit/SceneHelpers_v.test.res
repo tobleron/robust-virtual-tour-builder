@@ -12,6 +12,7 @@ describe("SceneHelpers", () => {
       yaw: 0.0,
       pitch: 0.0,
       target,
+      targetSceneId: Some(target),
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,

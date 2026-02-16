@@ -85,7 +85,7 @@ let getNextMove = (state: state): nextMove => {
         switch Belt.Array.get(state.scenes, 0) {
         | Some(startScene) =>
           !Belt.Array.some(startScene.hotspots, h => {
-            Belt.Array.getIndexBy(state.scenes, s => s.name == h.target)
+            HotspotTarget.resolveSceneIndex(state.scenes, h)
             ->Option.map(i => !Array.includes(visitedScenes, i))
             ->Option.getOr(false)
           })

@@ -293,7 +293,7 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           | Some(hIdx) =>
             switch currentScene.hotspots[hIdx] {
             | Some(hotspot) =>
-              switch Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target) {
+              switch HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot) {
               | Some(tIdx) =>
                 let (ny, np, nh) = PreviewArrow.Logic.calculateNavParams(hotspot)
                 Scene.Switcher.navigateToScene(

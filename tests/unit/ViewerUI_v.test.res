@@ -8,6 +8,7 @@ let defaultHotspot: hotspot = {
   yaw: 0.0,
   pitch: 0.0,
   target: "",
+  targetSceneId: None,
   targetYaw: None,
   targetPitch: None,
   targetHfov: None,
@@ -295,6 +296,7 @@ describe("ViewerUI", () => {
       ...defaultHotspot,
       linkId: "hs1",
       target: "s2",
+      targetSceneId: None,
     }
 
     EventBus.dispatch(
