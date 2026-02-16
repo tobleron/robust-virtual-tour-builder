@@ -39,6 +39,7 @@ describe("NavigationGraph", () => {
       yaw,
       pitch,
       target,
+      targetSceneId: Some(target),
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,

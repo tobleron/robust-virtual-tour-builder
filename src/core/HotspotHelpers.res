@@ -49,7 +49,7 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
         let sourceScene = entry.scene
         switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
         | Some(hotspotToDelete) =>
-          let targetName = hotspotToDelete.target
+          let targetSceneId = HotspotTarget.resolveSceneId(state.scenes, hotspotToDelete)
 
           // 1. Remove the hotspot
           let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
@@ -63,16 +63,23 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
 
           // 2. Check if anything else still points to targetName
           let stillReferenced = updatedInventory->Belt.Map.String.some((_id, e) => {
-            e.status == Active && Belt.Array.some(e.scene.hotspots, h => h.target == targetName)
+            switch (e.status, targetSceneId) {
+            | (Active, Some(tid)) =>
+              Belt.Array.some(e.scene.hotspots, h =>
+                HotspotTarget.resolveSceneId(state.scenes, h)
+                ->Option.map(id => id == tid)
+                ->Option.getOr(false)
+              )
+            | _ => false
+            }
           })
 
           // 3. If no longer referenced, reset target scene's isAutoForward in inventory
           let finalInventory = if !stillReferenced {
             updatedInventory->Belt.Map.String.map(e => {
-              if e.scene.name == targetName {
-                {...e, scene: {...e.scene, isAutoForward: false}}
-              } else {
-                e
+              switch targetSceneId {
+              | Some(tid) if e.scene.id == tid => {...e, scene: {...e.scene, isAutoForward: false}}
+              | _ => e
               }
             })
           } else {

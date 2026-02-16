@@ -71,6 +71,14 @@ module Styles = {
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 3px; border-radius: 8px; border: 1px solid rgba(249, 115, 22, 1); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; border-radius: 5px; }
+    #viewer-floor-nav-export { position: absolute; bottom: 24px; left: 20px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 8px; align-items: center; pointer-events: none; }
+    #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 15px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
+    #viewer-floor-nav-export .floor-nav-btn.state-active { border: 2px solid #ea580c; background: #ea580c; color: #fff; }
+    #viewer-floor-nav-export .floor-nav-btn.state-idle { border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(14, 45, 82, 0.8); color: #fff; }
+    #viewer-floor-nav-export .floor-nav-btn sup { font-size: 10px; margin-left: -1px; }
+    .viewer-persistent-label-export { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); z-index: 6005; background-color: rgba(0, 61, 165, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; padding: 0 0.5rem; height: 27px; border-radius: 6px; font-family: var(--font-family); font-size: 11px; font-weight: 600; text-transform: uppercase; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; border: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 0.1em; white-space: nowrap; }
+    .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); visibility: visible; }
+    .viewer-persistent-label-export.state-hidden { opacity: 0; transform: translateX(-50%) translateY(-1rem) scale(0.9); visibility: hidden; pointer-events: none; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
@@ -119,6 +127,16 @@ module Styles = {
 module Scripts = {
   let renderScriptTemplate = `
     const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const EXPORT_FLOOR_LEVELS = [
+      { id: "b2", label: "Basement 2", short: "B", suffix: "-2" },
+      { id: "b1", label: "Basement 1", short: "B", suffix: "-1" },
+      { id: "ground", label: "Ground Floor", short: "G", suffix: "" },
+      { id: "first", label: "First Floor", short: "+1", suffix: "" },
+      { id: "second", label: "Second Floor", short: "+2", suffix: "" },
+      { id: "third", label: "Third Floor", short: "+3", suffix: "" },
+      { id: "fourth", label: "Fourth Floor", short: "+4", suffix: "" },
+      { id: "roof", label: "Roof Top", short: "R", suffix: "" }
+    ];
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;
     const PAN_MAX_DURATION = 20000.0;
@@ -172,13 +190,110 @@ module Scripts = {
       else { if (args.targetYaw !== undefined && args.targetYaw !== null) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
       return { yaw: y, pitch: p };
     }
-    function resolveTargetSceneId(args) {
-      return args.targetSceneId ?? args.target;
+    function normalizeSceneId(candidate) {
+      if (typeof candidate !== "string") return null;
+      let value = candidate.trim();
+      if (!value) return null;
+      try { value = decodeURIComponent(value); } catch (_) {}
+      value = value.replaceAll("\\\\", "/");
+      if (value.startsWith("./")) value = value.slice(2);
+      if (value.startsWith("/")) value = value.slice(1);
+      if (value.startsWith("assets/images/")) value = value.slice("assets/images/".length);
+      value = value.trim();
+      return value.length > 0 ? value : null;
+    }
+    function stripSceneExtension(sceneId) {
+      const lower = sceneId.toLowerCase();
+      const exts = [".jpeg", ".jpg", ".png", ".webp", ".avif"];
+      for (const ext of exts) {
+        if (lower.endsWith(ext)) return sceneId.slice(0, sceneId.length - ext.length);
+      }
+      return sceneId;
+    }
+    function getExportSceneIds() {
+      if (scenesData && typeof scenesData === "object") {
+        const sceneIds = Object.keys(scenesData);
+        if (sceneIds.length > 0) return sceneIds;
+      }
+      if (config && config.scenes && typeof config.scenes === "object") {
+        return Object.keys(config.scenes);
+      }
+      return [];
+    }
+    function resolveExistingSceneId(candidate) {
+      const normalized = normalizeSceneId(candidate);
+      if (!normalized) return null;
+      const sceneIds = getExportSceneIds();
+      if (sceneIds.length === 0) return normalized;
+      if (sceneIds.includes(normalized)) return normalized;
+      const normalizedNoExt = stripSceneExtension(normalized).toLowerCase();
+      for (const sceneId of sceneIds) {
+        if (sceneId.toLowerCase() === normalized.toLowerCase()) return sceneId;
+      }
+      for (const sceneId of sceneIds) {
+        if (stripSceneExtension(sceneId).toLowerCase() === normalizedNoExt) return sceneId;
+      }
+      const normalizedBase = normalized.split("/").pop();
+      const normalizedBaseNoExt = stripSceneExtension(normalizedBase ?? normalized).toLowerCase();
+      if (normalizedBase && normalizedBase !== normalized) {
+        for (const sceneId of sceneIds) {
+          if (sceneId.toLowerCase() === normalizedBase.toLowerCase()) return sceneId;
+          if (stripSceneExtension(sceneId).toLowerCase() === stripSceneExtension(normalizedBase).toLowerCase()) return sceneId;
+        }
+      }
+      for (const sceneId of sceneIds) {
+        const sceneNameRaw = scenesData?.[sceneId]?.name;
+        const sceneName = normalizeSceneId(typeof sceneNameRaw === "string" ? sceneNameRaw : "");
+        if (!sceneName) continue;
+        const sceneNameNoExt = stripSceneExtension(sceneName).toLowerCase();
+        const sceneNameBase = sceneName.split("/").pop() ?? sceneName;
+        const sceneNameBaseNoExt = stripSceneExtension(sceneNameBase).toLowerCase();
+        if (sceneName === normalized) return sceneId;
+        if (sceneName.toLowerCase() === normalized.toLowerCase()) return sceneId;
+        if (sceneNameNoExt === normalizedNoExt) return sceneId;
+        if (sceneNameBase.toLowerCase() === (normalizedBase ?? normalized).toLowerCase()) return sceneId;
+        if (sceneNameBaseNoExt === normalizedBaseNoExt) return sceneId;
+      }
+      return null;
+    }
+    function hasExportScene(sceneId) {
+      return resolveExistingSceneId(sceneId) !== null;
+    }
+    function resolveTargetSceneId(args, forceTargetSceneId) {
+      const ownerSceneId = resolveExistingSceneId(args?.sourceSceneId) ?? normalizeSceneId(args?.sourceSceneId);
+      const hotspotIndex = Number.isInteger(args?.i) ? args.i : null;
+      const ownerHotspot = ownerSceneId !== null && hotspotIndex !== null && hotspotIndex >= 0
+        ? scenesData?.[ownerSceneId]?.hotSpots?.[hotspotIndex]
+        : null;
+      const ownerTarget = ownerSceneId !== null && hotspotIndex !== null && hotspotIndex >= 0
+        ? ownerHotspot?.targetSceneId ?? ownerHotspot?.target
+        : null;
+      const candidates = [
+        forceTargetSceneId,
+        ownerTarget,
+        args?.targetSceneId,
+        args?.target,
+        args?.targetName,
+        args?.targetId
+      ];
+      for (const candidate of candidates) {
+        const resolved = resolveExistingSceneId(candidate);
+        if (resolved) return resolved;
+      }
+      return null;
     }
     function navigateToNextScene(args, forceTargetSceneId) {
       const destination = resolveDestinationView(args);
+      const targetSceneId = resolveTargetSceneId(args, forceTargetSceneId);
+      if (!targetSceneId) return;
       transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
-      setTimeout(() => { window.viewer.loadScene(forceTargetSceneId ?? resolveTargetSceneId(args), destination.pitch, destination.yaw, 90); }, 450);
+      setTimeout(() => {
+        const verifiedTarget = resolveExistingSceneId(targetSceneId);
+        if (!verifiedTarget) return;
+        const targetConfig = config?.scenes?.[verifiedTarget];
+        if (!targetConfig || typeof targetConfig.panorama !== "string" || targetConfig.panorama.trim() === "") return;
+        window.viewer.loadScene(verifiedTarget, destination.pitch, destination.yaw, 90);
+      }, 450);
     }
     function setSceneHotspotsReadyWithRetry(sceneId, retries) {
       const hotspots = getSceneHotspots(sceneId);
@@ -191,6 +306,44 @@ module Scripts = {
       const needsRetry = hotspots.length === 0 || hotspots.some(el => el.dataset.ready !== 'true');
       if (!needsRetry || retries <= 0) return;
       waypointRuntime.readyTimeoutId = setTimeout(() => setSceneHotspotsReadyWithRetry(sceneId, retries - 1), 80);
+    }
+    function normalizeSceneFloor(sceneData) {
+      const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
+      return floor === "" ? "ground" : floor;
+    }
+    function updateExportFloorNav(sceneId) {
+      const nav = document.getElementById("viewer-floor-nav-export");
+      if (!nav) return;
+      const sceneData = scenesData[sceneId];
+      const currentFloor = normalizeSceneFloor(sceneData);
+      while (nav.firstChild) nav.removeChild(nav.firstChild);
+      for (const level of EXPORT_FLOOR_LEVELS) {
+        const btn = document.createElement("div");
+        btn.className = "floor-nav-btn " + (level.id === currentFloor ? "state-active" : "state-idle");
+        btn.setAttribute("title", level.label);
+        btn.setAttribute("aria-label", level.label);
+        btn.textContent = level.short;
+        if (level.suffix) {
+          const suffix = document.createElement("sup");
+          suffix.textContent = level.suffix;
+          btn.appendChild(suffix);
+        }
+        nav.appendChild(btn);
+      }
+    }
+    function updateExportRoomLabel(sceneId) {
+      const labelEl = document.getElementById("viewer-room-label-export");
+      if (!labelEl) return;
+      const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
+      if (rawLabel !== "") {
+        labelEl.textContent = "# " + rawLabel;
+        labelEl.classList.remove("state-hidden");
+        labelEl.classList.add("state-visible");
+        return;
+      }
+      labelEl.textContent = "";
+      labelEl.classList.remove("state-visible");
+      labelEl.classList.add("state-hidden");
     }
     function toPoint(yaw, pitch) {
       return { yaw, pitch };
@@ -391,6 +544,7 @@ module Scripts = {
       hotSpotDiv.style.pointerEvents = "auto";
       hotSpotDiv.style.cursor = "pointer";
       hotSpotDiv.dataset.ownerScene = ownerScene;
+      hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
       hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);
       hotSpotDiv.dataset.ready = "false";
       hotSpotDiv.classList.remove("waypoint-ready");
@@ -401,6 +555,30 @@ module Scripts = {
         hotSpotDiv.classList.add("waypoint-ready");
       }
       const ns = "http://www.w3.org/2000/svg";
+      const bindNavigateHandlers = function(trigger, root) {
+        if (!trigger) return;
+        trigger.style.pointerEvents = "auto";
+        trigger.style.cursor = "pointer";
+        if (trigger.__exportNavClickHandler) {
+          trigger.removeEventListener("click", trigger.__exportNavClickHandler);
+        }
+        if (trigger.__exportNavPointerUpHandler) {
+          trigger.removeEventListener("pointerup", trigger.__exportNavPointerUpHandler);
+        }
+        const handleNavigate = function(e) {
+          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+          if (e && typeof e.preventDefault === "function") e.preventDefault();
+          if (typeof root.__navigateNext !== "function") return;
+          if (root.__navInFlight === true) return;
+          root.__navInFlight = true;
+          setTimeout(function() { root.__navInFlight = false; }, 700);
+          root.__navigateNext();
+        };
+        trigger.__exportNavClickHandler = handleNavigate;
+        trigger.__exportNavPointerUpHandler = handleNavigate;
+        trigger.addEventListener("click", trigger.__exportNavClickHandler);
+        trigger.addEventListener("pointerup", trigger.__exportNavPointerUpHandler);
+      };
       const svg = document.createElementNS(ns, "svg");
       svg.setAttribute("class", "custom-arrow-svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.overflow = "visible";
       
@@ -434,30 +612,19 @@ module Scripts = {
         root.appendChild(btn);
         while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
         hotSpotDiv.appendChild(root);
-        const triggerNavigate = function(e) {
-          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
-          hotSpotDiv.__navigateNext();
-        };
+        hotSpotDiv.__navInFlight = false;
         hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
-        hotSpotDiv.onclick = function() {
-          triggerNavigate();
-        };
-        btn.onclick = triggerNavigate;
-        btn.onpointerup = triggerNavigate;
+        bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
+        bindNavigateHandlers(root, hotSpotDiv);
+        bindNavigateHandlers(btn, hotSpotDiv);
         return;
       }
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(svg);
-      const triggerNavigate = function(e) {
-        if (e && typeof e.stopPropagation === "function") e.stopPropagation();
-        hotSpotDiv.__navigateNext();
-      };
+      hotSpotDiv.__navInFlight = false;
       hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, hotSpotDiv.getAttribute('data-target-home') === 'true' ? firstSceneId : null); };
-      hotSpotDiv.onclick = function() {
-        triggerNavigate();
-      };
-      svg.onclick = triggerNavigate;
-      svg.onpointerup = triggerNavigate;
+      bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
+      bindNavigateHandlers(svg, hotSpotDiv);
     }
   `
 
@@ -467,6 +634,8 @@ module Scripts = {
       if (!transitionFrom && !isFirstLoad) return;
       if (sd?.hotSpots?.length > 0) window.viewer.setHfov(90);
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
+      updateExportFloorNav(sid);
+      updateExportRoomLabel(sid);
       clearWaypointRuntime();
       waypointRuntime.sceneId = sid;
       animateSceneToPrimaryHotspot(sid, 20);
@@ -486,6 +655,7 @@ type hotspotData = {
   "pitch": float,
   "yaw": float,
   "target": string,
+  "targetSceneId": string,
   "targetIsAutoForward": bool,
   "startYaw": Nullable.t<float>,
   "startPitch": Nullable.t<float>,
@@ -499,6 +669,7 @@ type hotspotData = {
 }
 
 type sceneData = {
+  "name": string,
   "panorama": string,
   "autoLoad": bool,
   "floor": string,
@@ -513,6 +684,7 @@ let encodeHotspot = (h: hotspotData) => {
     ("pitch", JsonCombinators.Json.Encode.float(h["pitch"])),
     ("yaw", JsonCombinators.Json.Encode.float(h["yaw"])),
     ("target", JsonCombinators.Json.Encode.string(h["target"])),
+    ("targetSceneId", JsonCombinators.Json.Encode.string(h["targetSceneId"])),
     ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(h["targetIsAutoForward"])),
     (
       "startYaw",
@@ -563,6 +735,7 @@ let encodeHotspot = (h: hotspotData) => {
 
 let encodeSceneData = (s: sceneData) => {
   JsonCombinators.Json.Encode.object([
+    ("name", JsonCombinators.Json.Encode.string(s["name"])),
     ("panorama", JsonCombinators.Json.Encode.string(s["panorama"])),
     ("autoLoad", JsonCombinators.Json.Encode.bool(s["autoLoad"])),
     ("floor", JsonCombinators.Json.Encode.string(s["floor"])),
@@ -571,6 +744,66 @@ let encodeSceneData = (s: sceneData) => {
     ("isAutoForward", JsonCombinators.Json.Encode.bool(s["isAutoForward"])),
     ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"])),
   ])
+}
+
+let normalizeSceneRefForExport = (value: string): string =>
+  value
+  ->String.trim
+  ->String.replaceRegExp(/\\/g, "/")
+  ->String.replaceRegExp(/^\.\//, "")
+  ->String.replaceRegExp(/^\//, "")
+  ->String.replaceRegExp(/^assets\/images\//, "")
+
+let extractScenePrefix = (value: string): option<string> => {
+  if String.length(value) >= 3 {
+    let prefix = String.substring(value, ~start=0, ~end=3)
+    if RegExp.test(/^\d{3}$/, prefix) {
+      Some(prefix)
+    } else {
+      None
+    }
+  } else {
+    None
+  }
+}
+
+let resolveSceneIdFromTargetRef = (targetRef: string, scenes: array<scene>): option<string> => {
+  let normalizedTarget = normalizeSceneRefForExport(targetRef)
+  if normalizedTarget == "" {
+    None
+  } else {
+    let targetNoExt = UrlUtils.stripExtension(normalizedTarget)
+    let byId =
+      scenes
+      ->Belt.Array.getBy(s => normalizeSceneRefForExport(s.id) == normalizedTarget)
+      ->Option.map(s => s.id)
+    switch byId {
+    | Some(id) => Some(id)
+    | None =>
+      let byName =
+        scenes
+        ->Belt.Array.getBy(s => {
+          let sceneName = normalizeSceneRefForExport(s.name)
+          let sceneNameNoExt = UrlUtils.stripExtension(sceneName)
+          sceneName == normalizedTarget || sceneNameNoExt == targetNoExt
+        })
+        ->Option.map(s => s.id)
+      switch byName {
+      | Some(id) => Some(id)
+      | None =>
+        switch extractScenePrefix(targetNoExt) {
+        | Some(prefix) =>
+          scenes
+          ->Belt.Array.getBy(s => {
+            let sceneNoExt = normalizeSceneRefForExport(s.name)->UrlUtils.stripExtension
+            sceneNoExt == prefix || String.startsWith(sceneNoExt, prefix ++ "_")
+          })
+          ->Option.map(s => s.id)
+        | None => None
+        }
+      }
+    }
+  }
 }
 
 let generateTourHTML = (
@@ -583,18 +816,31 @@ let generateTourHTML = (
   _version,
 ) => {
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
+  let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
   let rawScenesData = Dict.make()
 
   scenes->Belt.Array.forEach(s => {
-    let rawHotspots = s.hotspots->Belt.Array.mapWithIndex((_, h) =>
+    let rawHotspots = s.hotspots->Belt.Array.mapWithIndex((_, h) => {
+      let resolvedTargetId = switch h.targetSceneId {
+      | Some(targetSceneId) => targetSceneId
+      | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr(h.target)
+      }
+      let targetIsAutoForward = switch scenes->Belt.Array.getBy(ts => ts.id == resolvedTargetId) {
+      | Some(ts) => ts.isAutoForward
+      | None =>
+        scenes
+        ->Belt.Array.getBy(
+          ts => normalizeSceneRefForExport(ts.name) == normalizeSceneRefForExport(h.target),
+        )
+        ->Option.map(ts => ts.isAutoForward)
+        ->Option.getOr(false)
+      }
       {
         "pitch": h.displayPitch->Option.getOr(h.pitch),
         "yaw": h.yaw,
         "target": h.target,
-        "targetIsAutoForward": scenes
-        ->Belt.Array.getBy(ts => ts.name == h.target)
-        ->Option.map(ts => ts.isAutoForward)
-        ->Option.getOr(false),
+        "targetSceneId": resolvedTargetId,
+        "targetIsAutoForward": targetIsAutoForward,
         "startYaw": h.startYaw->Nullable.fromOption,
         "startPitch": h.startPitch->Nullable.fromOption,
         "waypoints": h.waypoints->Nullable.fromOption,
@@ -605,11 +851,12 @@ let generateTourHTML = (
         "targetYaw": h.targetYaw->Nullable.fromOption,
         "targetPitch": h.targetPitch->Nullable.fromOption,
       }
-    )
+    })
     Dict.set(
       rawScenesData,
-      s.name,
+      s.id,
       {
+        "name": s.name,
         "panorama": `assets/images/${s.name}`,
         "autoLoad": true,
         "floor": s.floor,
@@ -641,17 +888,17 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div>${logoDiv}</div><script>
-    const firstSceneId = "${firstSceneName}"; ${renderScript}
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
+    const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
-    const config = { "default": { "firstScene": "${firstSceneName}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
+    const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
       defPitch,
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
-    for (const [name, data] of Object.entries(scenesData)) {
-      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: name, targetSceneId: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+    for (const [sceneId, data] of Object.entries(scenesData)) {
+      config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     window.viewer = pannellum.viewer('panorama', config); window.viewer.resize();
     window.addEventListener('resize', () => window.viewer?.resize());

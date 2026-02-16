@@ -15,6 +15,7 @@ let createMockHotspot = (~id="h1", ~target="scene2", ()) => {
     yaw: 0.0,
     pitch: 0.0,
     target,
+    targetSceneId: Some(target),
     targetYaw: Some(0.0),
     targetPitch: Some(0.0),
     targetHfov: None,

@@ -151,7 +151,7 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
     let allLinks =
       hotspots
       ->Belt.Array.mapWithIndex((i, hotspot) => {
-        let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
+        let targetIdx = HotspotTarget.resolveSceneIndex(state.scenes, hotspot)
         switch targetIdx {
         | Some(idx) =>
           switch Belt.Array.get(state.scenes, idx) {

@@ -24,13 +24,13 @@ let createHotspotConfig = (
 ) => {
   let isSimulationMode = state.simulation.status != Idle
   let incomingLink = state.navigationState.incomingLink
-  let targetSceneOpt = Belt.Array.getBy(state.scenes, s => s.name == hotspot.target)
+  let targetSceneOpt = HotspotTarget.resolveScene(state.scenes, hotspot)
 
   // NAVIGATION LOGIC
   let isReturnLink = switch incomingLink {
   | Some(inc) =>
     switch Belt.Array.get(state.scenes, inc.sceneIndex) {
-    | Some(prevScene) => prevScene.name == hotspot.target
+    | Some(prevScene) => HotspotTarget.pointsToScene(hotspot, prevScene)
     | None => false
     }
   | None => false

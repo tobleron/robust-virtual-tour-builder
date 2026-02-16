@@ -7,7 +7,7 @@ let handleDeleteScene = (state: state, index: int): state => {
     | Some(idToDelete) =>
       switch state.inventory->Belt.Map.String.get(idToDelete) {
       | Some(entry) =>
-        let targetName = entry.scene.name
+        let sceneToDelete = entry.scene
 
         // 1. Mark as deleted in inventory
         let updatedInventory =
@@ -19,7 +19,8 @@ let handleDeleteScene = (state: state, index: int): state => {
         // 3. Remove hotspots pointing to deleted scene in ALL active scenes
         let inventoryWithCleanHotspots = updatedInventory->Belt.Map.String.map(e => {
           let s = e.scene
-          let newHotspots = s.hotspots->Belt.Array.keep(h => h.target != targetName)
+          let newHotspots =
+            s.hotspots->Belt.Array.keep(h => !HotspotTarget.pointsToScene(h, sceneToDelete))
           {...e, scene: {...s, hotspots: newHotspots}}
         })
 

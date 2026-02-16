@@ -156,6 +156,7 @@ describe("Types", () => {
       yaw: 0.0,
       pitch: 0.0,
       target: "scene-2",
+      targetSceneId: None,
       targetYaw: Some(10.0),
       targetPitch: None,
       targetHfov: None,

@@ -32,6 +32,7 @@ describe("HotspotActionMenu", () => {
     yaw: 0.0,
     pitch: 0.0,
     target: "",
+    targetSceneId: None,
     targetYaw: None,
     targetPitch: None,
     targetHfov: None,
@@ -59,6 +60,7 @@ describe("HotspotActionMenu", () => {
       yaw: 0.0,
       pitch: 0.0,
       target: "Target",
+      targetSceneId: None,
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,
@@ -123,6 +125,7 @@ describe("HotspotActionMenu", () => {
       ...defaultHotspot,
       linkId: "hs1",
       target: "Target",
+      targetSceneId: None,
     }
 
     let root = ReactDOMClient.createRoot(container)

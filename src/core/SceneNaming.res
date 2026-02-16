@@ -24,13 +24,31 @@ let syncInventoryNames = (inventory, sceneOrder) => {
     }
   })
 
+  let sceneNameById =
+    updatedRef.contents
+    ->Belt.Map.String.toArray
+    ->Belt.Array.reduce(Belt.Map.String.empty, (acc, (id, entry)) =>
+      switch entry.status {
+      | Active => acc->Belt.Map.String.set(id, entry.scene.name)
+      | Deleted(_) => acc
+      }
+    )
+
   let inventoryWithRenames = if Belt.MutableMap.String.size(renameMap) > 0 {
     updatedRef.contents->Belt.Map.String.map(entry => {
       let s = entry.scene
       let updatedHotspots = s.hotspots->Belt.Array.map(h => {
-        switch renameMap->Belt.MutableMap.String.get(h.target) {
-        | Some(newName) => {...h, target: newName}
+        let hydratedFromId = switch h.targetSceneId {
+        | Some(targetSceneId) =>
+          switch sceneNameById->Belt.Map.String.get(targetSceneId) {
+          | Some(currentName) => {...h, target: currentName}
+          | None => h
+          }
         | None => h
+        }
+        switch renameMap->Belt.MutableMap.String.get(hydratedFromId.target) {
+        | Some(newName) => {...hydratedFromId, target: newName}
+        | None => hydratedFromId
         }
       })
       {...entry, scene: {...s, hotspots: updatedHotspots}}
