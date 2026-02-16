@@ -57,22 +57,23 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleToggleAutoForward = () => {
-    switch targetSceneOpt {
+    let currentState = AppContext.getBridgeState()
+    let currentTargetSceneOpt = Belt.Array.getBy(currentState.scenes, s => s.name == hotspot.target)
+    switch currentTargetSceneOpt {
     | Some(ts) =>
-      let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
-      switch targetIdx {
+      switch Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target) {
       | Some(idx) =>
-        let currentVal = ts.isAutoForward
+        let newVal = !ts.isAutoForward
         HotspotManager.handleUpdateSceneMetadata(
           idx,
-          Logger.castToJson({"isAutoForward": !currentVal}),
-          ~getState=() => state,
+          Logger.castToJson({"isAutoForward": newVal}),
         )->ignore
+        EventBus.dispatch(ForceHotspotSync)
         NotificationManager.dispatch({
           id: "",
           importance: Success,
           context: Operation("hotspot_action"),
-          message: "Auto-forward: " ++ if !currentVal {
+          message: "Auto-forward: " ++ if newVal {
             "ENABLED"
           } else {
             "DISABLED"

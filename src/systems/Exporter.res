@@ -182,6 +182,47 @@ let fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result
   }
 }
 
+let normalizeLogoExtension = (name: string): string => {
+  let parts = name->String.toLowerCase->String.split(".")
+  let ext = parts->Belt.Array.get(Array.length(parts) - 1)->Option.getOr("png")
+  switch ext {
+  | "png" | "jpg" | "jpeg" | "webp" | "svg" => ext
+  | _ => "png"
+  }
+}
+
+let filenameFromUrl = (url: string): option<string> => {
+  let cleaned = url->String.split("?")->Belt.Array.get(0)->Option.getOr(url)
+  let segments = cleaned->String.split("/")
+  let fileName = segments->Belt.Array.get(Array.length(segments) - 1)->Option.getOr("")
+  if fileName == "" {
+    None
+  } else {
+    Some(fileName)
+  }
+}
+
+let isLikelyImageUrl = (url: string): bool => {
+  let lowered = url->String.toLowerCase
+  String.includes(lowered, ".png") ||
+  String.includes(lowered, ".jpg") ||
+  String.includes(lowered, ".jpeg") ||
+  String.includes(lowered, ".webp") ||
+  String.includes(lowered, ".svg")
+}
+
+let isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {
+  let mime = blob->Blob.type_->String.toLowerCase
+  if String.startsWith(mime, "image/") {
+    true
+  } else {
+    switch (mime, urlHint) {
+    | ("", Some(url)) => isLikelyImageUrl(url)
+    | _ => false
+    }
+  }
+}
+
 let exportTour = async (
   scenes: array<scene>,
   ~tourName: string,
@@ -234,8 +275,7 @@ let exportTour = async (
 
     switch logo {
     | Some(File(f)) => {
-        let name =
-          "logo." ++ f->File.name->String.split(".")->Belt.Array.get(1)->Option.getOr("png")
+        let name = "logo." ++ normalizeLogoExtension(f->File.name)
         FormData.appendWithFilename(formData, name, f, name)
         logoFilename := Some(name)
       }
@@ -244,8 +284,46 @@ let exportTour = async (
         FormData.appendWithFilename(formData, name, b, name)
         logoFilename := Some(name)
       }
-    | Some(Url(_u)) => () // Url logos are currently assumed to be external or already handled
-    | None =>
+    | Some(Url(url)) =>
+      if url == "" || !isLikelyImageUrl(url) {
+        Logger.warn(
+          ~module_="Exporter",
+          ~message="LOGO_URL_SKIPPED_INVALID",
+          ~data=Some({"url": url}),
+          (),
+        )
+      } else {
+        switch await fetchSceneUrlBlob(~url, ~authToken=finalToken) {
+        | Ok(logoBlob) =>
+          if isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(url)) {
+            let ext = switch filenameFromUrl(url) {
+            | Some(fileName) => normalizeLogoExtension(fileName)
+            | None => "png"
+            }
+            let name = "logo." ++ ext
+            FormData.appendWithFilename(formData, name, logoBlob, name)
+            logoFilename := Some(name)
+          } else {
+            Logger.warn(
+              ~module_="Exporter",
+              ~message="LOGO_URL_NOT_IMAGE",
+              ~data=Some({"url": url, "blobType": logoBlob->Blob.type_}),
+              (),
+            )
+          }
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="Exporter",
+            ~message="LOGO_URL_FETCH_FAILED",
+            ~data=Some({"url": url, "error": msg}),
+            (),
+          )
+        }
+      }
+    | None => ()
+    }
+
+    if logoFilename.contents == None {
       try {
         let extensions = ["png", "jpg", "jpeg", "webp"]
         let rec findLogo = async exts => {
@@ -253,11 +331,16 @@ let exportTour = async (
           | list{} => ()
           | list{ext, ...rest} => {
               let filename = "logo." ++ ext
-              let res = await Fetch.fetchSimple("images/" ++ filename)
+              let path = "/images/" ++ filename
+              let res = await Fetch.fetchSimple(path)
               if Fetch.ok(res) {
                 let logoBlob = await Fetch.blob(res)
-                FormData.appendWithFilename(formData, filename, logoBlob, filename)
-                logoFilename := Some(filename)
+                if isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
+                  FormData.appendWithFilename(formData, filename, logoBlob, filename)
+                  logoFilename := Some(filename)
+                } else {
+                  await findLogo(rest)
+                }
               } else {
                 await findLogo(rest)
               }
@@ -278,7 +361,7 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "4k",
-      120,
+      36,
       60,
       version,
     )
@@ -287,7 +370,7 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "2k",
-      90,
+      36,
       50,
       version,
     )
@@ -296,11 +379,11 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "hd",
-      60,
+      36,
       40,
       version,
     )
-    let htmlIndex = TourTemplates.generateExportIndex(tourName, version)
+    let htmlIndex = TourTemplates.generateExportIndex(tourName, version, logoFilename.contents)
     let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)
 
     FormData.append(formData, "html_4k", html4k)

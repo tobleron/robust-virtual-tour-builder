@@ -7,7 +7,7 @@ describe("TourTemplateAssets", () => {
   test("generateExportIndex: performs all replacements", t => {
     let tourName = "My_Office_Tour"
     let version = "5.6.7"
-    let index = generateExportIndex(tourName, version)
+    let index = generateExportIndex(tourName, version, None)
 
     // Check __TOUR_NAME__
     t->expect(String.includes(index, "My_Office_Tour"))->Expect.toBe(true)
