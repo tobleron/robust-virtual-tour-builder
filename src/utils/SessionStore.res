@@ -36,6 +36,8 @@ let saveState = (state: state) => {
     activePitch: state.activePitch,
     isLinking: state.isLinking,
     isTeasing: state.isTeasing,
+    timeline: Some(state.timeline),
+    activeTimelineStepId: state.activeTimelineStepId,
   }
 
   save(sessionState)

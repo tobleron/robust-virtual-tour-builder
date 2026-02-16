@@ -25,8 +25,9 @@ type persistedSessionEnvelope = {
 }
 
 // Helper for cleaner optional fields
-let opt = (field: Decode.fieldDecoders, key, decoder, default) => {
-  field.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
+// Helper for cleaner optional fields
+let opt = (f: Decode.fieldDecoders, key, decoder, default) => {
+  f.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
 }
 
 external unsafeCastToFile: JSON.t => ReBindings.File.t = "%identity"
@@ -46,68 +47,68 @@ let file = id->map(json => {
   }
 })
 
-let viewFrame = object(field => {
+let viewFrame = object(f => {
   {
-    Types.yaw: field->opt("yaw", float, 0.0),
-    pitch: field->opt("pitch", float, 0.0),
-    hfov: field->opt("hfov", float, 0.0),
+    Types.yaw: f->opt("yaw", float, 0.0),
+    pitch: f->opt("pitch", float, 0.0),
+    hfov: f->opt("hfov", float, 0.0),
   }
 })
 
-let hotspot = object(field => {
+let hotspot = object(f => {
   {
-    Types.linkId: field->opt("linkId", string, ""),
-    yaw: field->opt("yaw", float, 0.0),
-    pitch: field->opt("pitch", float, 0.0),
-    target: field->opt("target", string, ""),
-    targetYaw: field.optional("targetYaw", option(float))->Option.flatMap(x => x),
-    targetPitch: field.optional("targetPitch", option(float))->Option.flatMap(x => x),
-    targetHfov: field.optional("targetHfov", option(float))->Option.flatMap(x => x),
-    startYaw: field.optional("startYaw", option(float))->Option.flatMap(x => x),
-    startPitch: field.optional("startPitch", option(float))->Option.flatMap(x => x),
-    startHfov: field.optional("startHfov", option(float))->Option.flatMap(x => x),
-    isReturnLink: field.optional("isReturnLink", option(bool))->Option.flatMap(x => x),
-    viewFrame: field.optional("viewFrame", option(viewFrame))->Option.flatMap(x => x),
-    returnViewFrame: field.optional("returnViewFrame", option(viewFrame))->Option.flatMap(x => x),
-    waypoints: field.optional("waypoints", option(array(viewFrame)))->Option.flatMap(x => x),
-    displayPitch: field.optional("displayPitch", option(float))->Option.flatMap(x => x),
-    transition: field.optional("transition", option(string))->Option.flatMap(x => x),
-    duration: field.optional("duration", option(float))
+    Types.linkId: f->opt("linkId", string, ""),
+    yaw: f->opt("yaw", float, 0.0),
+    pitch: f->opt("pitch", float, 0.0),
+    target: f->opt("target", string, ""),
+    targetYaw: f.optional("targetYaw", option(float))->Option.flatMap(x => x),
+    targetPitch: f.optional("targetPitch", option(float))->Option.flatMap(x => x),
+    targetHfov: f.optional("targetHfov", option(float))->Option.flatMap(x => x),
+    startYaw: f.optional("startYaw", option(float))->Option.flatMap(x => x),
+    startPitch: f.optional("startPitch", option(float))->Option.flatMap(x => x),
+    startHfov: f.optional("startHfov", option(float))->Option.flatMap(x => x),
+    isReturnLink: f.optional("isReturnLink", option(bool))->Option.flatMap(x => x),
+    viewFrame: f.optional("viewFrame", option(viewFrame))->Option.flatMap(x => x),
+    returnViewFrame: f.optional("returnViewFrame", option(viewFrame))->Option.flatMap(x => x),
+    waypoints: f.optional("waypoints", option(array(viewFrame)))->Option.flatMap(x => x),
+    displayPitch: f.optional("displayPitch", option(float))->Option.flatMap(x => x),
+    transition: f.optional("transition", option(string))->Option.flatMap(x => x),
+    duration: f.optional("duration", option(float))
     ->Option.flatMap(x => x)
     ->Option.map(Belt.Float.toInt),
   }
 })
 
-let scene = object(field => {
-  let cat = field.optional("category", string)
-  let lbl = field.optional("label", string)
+let scene = object(f => {
+  let cat = f.optional("category", string)
+  let lbl = f.optional("label", string)
   {
-    Types.id: field->opt("id", string, ""),
-    name: field.required("name", string),
-    file: field->opt("file", file, Types.Url("")),
-    tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
-    originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),
-    hotspots: field->opt("hotspots", array(hotspot), []),
+    Types.id: f->opt("id", string, ""),
+    name: f.required("name", string),
+    file: f->opt("file", file, Types.Url("")),
+    tinyFile: f.optional("tinyFile", option(file))->Option.flatMap(x => x),
+    originalFile: f.optional("originalFile", option(file))->Option.flatMap(x => x),
+    hotspots: f->opt("hotspots", array(hotspot), []),
     category: cat->Option.getOr("outdoor"),
-    floor: field->opt("floor", string, "ground"),
+    floor: f->opt("floor", string, "ground"),
     label: lbl->Option.getOr(""),
-    quality: field.optional("quality", id),
-    colorGroup: field.optional("colorGroup", option(string))->Option.flatMap(x => x),
-    _metadataSource: field->opt("_metadataSource", string, "user"),
-    categorySet: field.optional("categorySet", bool)->Option.getOr(cat->Option.isSome),
-    labelSet: field.optional("labelSet", bool)->Option.getOr(lbl->Option.isSome),
-    isAutoForward: field->opt("isAutoForward", bool, false),
+    quality: f.optional("quality", id),
+    colorGroup: f.optional("colorGroup", option(string))->Option.flatMap(x => x),
+    _metadataSource: f->opt("_metadataSource", string, "user"),
+    categorySet: f.optional("categorySet", bool)->Option.getOr(cat->Option.isSome),
+    labelSet: f.optional("labelSet", bool)->Option.getOr(lbl->Option.isSome),
+    isAutoForward: f->opt("isAutoForward", bool, false),
   }
 })
 
-let timelineItem = object(field => {
+let timelineItem = object(f => {
   {
-    Types.id: field->opt("id", string, ""),
-    linkId: field->opt("linkId", string, ""),
-    sceneId: field->opt("sceneId", string, ""),
-    targetScene: field->opt("targetScene", string, ""),
-    transition: field->opt("transition", string, ""),
-    duration: field.optional("duration", option(float))
+    Types.id: f->opt("id", string, ""),
+    linkId: f->opt("linkId", string, ""),
+    sceneId: f->opt("sceneId", string, ""),
+    targetScene: f->opt("targetScene", string, ""),
+    transition: f->opt("transition", string, ""),
+    duration: f.optional("duration", option(float))
     ->Option.flatMap(x => x)
     ->Option.map(Belt.Float.toInt)
     ->Option.getOr(0),
@@ -163,7 +164,7 @@ let inventory = array(id)->map(items => {
   })
 })
 
-let project = object(field => {
+let project = object(f => {
   let robustScenes = map(array(id), items => {
     items->Belt.Array.keepMap(
       item => {
@@ -174,9 +175,9 @@ let project = object(field => {
       },
     )
   })
-  let scenes = field->opt("scenes", robustScenes, [])
-  let inventoryOpt = field->opt("inventory", inventory, Belt.Map.String.empty)
-  let sceneOrderOpt = field->opt("sceneOrder", array(string), [])
+  let scenes = f->opt("scenes", robustScenes, [])
+  let inventoryOpt = f->opt("inventory", inventory, Belt.Map.String.empty)
+  let sceneOrderOpt = f->opt("sceneOrder", array(string), [])
 
   let (finalInventory, finalOrder) = if (
     !Belt.Map.String.isEmpty(inventoryOpt) && Array.length(sceneOrderOpt) > 0
@@ -203,18 +204,18 @@ let project = object(field => {
   }
 
   {
-    Types.tourName: field
+    Types.tourName: f
     ->opt("tourName", string, "Untitled Tour")
     ->(s => s == "" ? "Untitled Tour" : s),
     scenes,
     inventory: finalInventory,
     sceneOrder: finalOrder,
-    lastUsedCategory: field->opt("lastUsedCategory", string, "outdoor"),
-    exifReport: field.optional("exifReport", id),
-    sessionId: field.optional("sessionId", option(string))->Option.flatMap(x => x),
-    deletedSceneIds: field->opt("deletedSceneIds", array(string), []),
-    timeline: field->opt("timeline", array(timelineItem), []),
-    logo: field.optional("logo", option(file))->Option.flatMap(x => x),
+    lastUsedCategory: f->opt("lastUsedCategory", string, "outdoor"),
+    exifReport: f.optional("exifReport", id),
+    sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
+    deletedSceneIds: f->opt("deletedSceneIds", array(string), []),
+    timeline: f->opt("timeline", array(timelineItem), []),
+    logo: f.optional("logo", option(file))->Option.flatMap(x => x),
   }
 })
 
@@ -285,14 +286,18 @@ let updateMetadata = object(field => {
 })
 
 module SessionState = {
-  let decode = object(field => {
+  let decode = object(f => {
     {
-      Types.tourName: field.required("tourName", string),
-      activeIndex: field.required("activeIndex", int),
-      activeYaw: field.required("activeYaw", float),
-      activePitch: field.required("activePitch", float),
-      isLinking: field.required("isLinking", bool),
-      isTeasing: field.required("isTeasing", bool),
+      Types.tourName: f.required("tourName", string),
+      activeIndex: f.required("activeIndex", int),
+      activeYaw: f.required("activeYaw", float),
+      activePitch: f.required("activePitch", float),
+      isLinking: f.required("isLinking", bool),
+      isTeasing: f.required("isTeasing", bool),
+      timeline: f->opt("timeline", array(timelineItem), [])->Some,
+      activeTimelineStepId: f.optional("activeTimelineStepId", option(string))->Option.flatMap(x =>
+        x
+      ),
     }
   })
 

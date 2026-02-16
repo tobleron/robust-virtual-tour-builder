@@ -23,6 +23,7 @@ type rec action =
   | UpdateHotspotReturnView(int, int, float, float, float)
   | ToggleHotspotReturnLink(int, int)
   | AddToTimeline(JSON.t)
+  | SetTimeline(array<timelineItem>)
   | SetActiveTimelineStep(option<string>)
   | RemoveFromTimeline(string)
   | ReorderTimeline(int, int)
@@ -88,6 +89,7 @@ let hotspotActionToString = (action: action): option<string> =>
 let timelineActionToString = (action: action): option<string> =>
   switch action {
   | AddToTimeline(_) => Some("AddToTimeline")
+  | SetTimeline(_) => Some("SetTimeline")
   | SetActiveTimelineStep(opt) => Some(`SetActiveTimelineStep(${opt->Option.getOr("None")})`)
   | RemoveFromTimeline(id) => Some(`RemoveFromTimeline(${id})`)
   | ReorderTimeline(i1, i2) =>
