@@ -9,8 +9,8 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (1)
-- [ ] **../../src/systems/TeaserLogic.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.05, Coupling: 0.10] | Drag: 4.05 | LOC: 384/300  🎯 Target: Function: `getConfigForStyle` (High Local Complexity (3.5). Logic heavy.)
+- [ ] **../../src/systems/Exporter.res**
+  - *Reason:* [Nesting: 1.80, Density: 0.08, Coupling: 0.07] | Drag: 2.89 | LOC: 436/300  🎯 Target: Function: `normalizeThrowableMessage` (High Local Complexity (3.0). Logic heavy.)
 
 ---
 

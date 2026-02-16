@@ -354,6 +354,8 @@ type sessionState = {
   activePitch: float,
   isLinking: bool,
   isTeasing: bool,
+  timeline: option<array<timelineItem>>,
+  activeTimelineStepId: option<string>,
 }
 
 let fileToUrl = (f: file): string => {

@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "4.13.0",
-  "buildNumber": 7,
+  "buildNumber": 9,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -38,7 +38,7 @@
     "dev:system": "./scripts/dev-system.sh",
     "dev:all": "concurrently --kill-others -n \"RES,SW,BACK,FRONT,GOV\" -c \"yellow,cyan,blue,green,magenta\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:system\"",
     "dev:frontend": "rsbuild dev",
-    "dev:backend": "cd backend && cargo watch -x run"
+    "dev:backend": "cd backend && cargo watch -w src -w Cargo.toml -w Cargo.lock -w migrations -x run"
   },
   "repository": {
     "type": "git",

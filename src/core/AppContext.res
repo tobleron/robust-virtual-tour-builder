@@ -135,6 +135,23 @@ module Provider = {
 
     let (state, dispatch) = React.useReducer(Reducer.reducer, loadedState)
 
+    // Load timeline from session if available
+    React.useEffect0(() => {
+      switch SessionStore.loadState() {
+      | Some(s) =>
+        switch s.timeline {
+        | Some(t) if Array.length(t) > 0 => dispatch(Actions.SetTimeline(t))
+        | _ => ()
+        }
+        switch s.activeTimelineStepId {
+        | Some(id) => dispatch(Actions.SetActiveTimelineStep(Some(id)))
+        | _ => ()
+        }
+      | None => ()
+      }
+      None
+    })
+
     // Domain-Specific Slices
     let sceneSlice = React.useMemo5(() => {
       {
@@ -210,16 +227,15 @@ module Provider = {
       None
     })
 
-    let sessionSlice = React.useMemo6(() => {
-      let s: Types.sessionState = {
-        tourName: state.tourName,
-        activeIndex: state.activeIndex,
-        activeYaw: state.activeYaw,
-        activePitch: state.activePitch,
-        isLinking: state.isLinking,
-        isTeasing: state.isTeasing,
-      }
-      s
+    let sessionCore = React.useMemo6(() => {
+      (
+        state.tourName,
+        state.activeIndex,
+        state.activeYaw,
+        state.activePitch,
+        state.isLinking,
+        state.isTeasing,
+      )
     }, (
       state.tourName,
       state.activeIndex,
@@ -228,6 +244,27 @@ module Provider = {
       state.isLinking,
       state.isTeasing,
     ))
+
+    let sessionPipeline = React.useMemo2(() => {
+      (state.timeline, state.activeTimelineStepId)
+    }, (state.timeline, state.activeTimelineStepId))
+
+    let sessionSlice = React.useMemo2(() => {
+      let (tourName, activeIndex, activeYaw, activePitch, isLinking, isTeasing) = sessionCore
+      let (timeline, activeTimelineStepId) = sessionPipeline
+
+      let s: Types.sessionState = {
+        tourName,
+        activeIndex,
+        activeYaw,
+        activePitch,
+        isLinking,
+        isTeasing,
+        timeline: Some(timeline),
+        activeTimelineStepId,
+      }
+      s
+    }, (sessionCore, sessionPipeline))
 
     React.useEffect1(() => {
       let timerId = setTimeout(() => {

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - V4.13.0+7 [TRIPLE]: Unit test audit and maintenance (Task 1412); consolidated reducers, updated adapter naming, added missing core tests, and aligned regressions
+- Stabilize export flow and add dual web_only + standalone package output
 
 ## [4.13.0] - 2026-02-15
 

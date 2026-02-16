@@ -245,6 +245,7 @@ module Timeline = {
       let item = SimHelpers.parseTimelineItem(json)
       Some({...state, timeline: Belt.Array.concat(state.timeline, [item])})
 
+    | SetTimeline(timeline) => Some({...state, timeline})
     | SetActiveTimelineStep(idOpt) => Some({...state, activeTimelineStepId: idOpt})
 
     | RemoveFromTimeline(id) =>

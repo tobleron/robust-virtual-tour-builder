@@ -1110,20 +1110,13 @@ window.pannellum = (function (E, g, p) {
           };
           var e = new XMLHttpRequest();
           e.onloadend = function () {
-            var localFileRequest = 0 === e.status && "file:" === E.location.protocol;
-            var localFileSuccess = localFileRequest && !!this.response;
-            var requestSucceeded = 200 === e.status || localFileSuccess;
-            if (!requestSucceeded) {
-              if (localFileRequest) {
-                P.src = I(f);
-                return;
-              }
+            if (200 != e.status) {
               var a = g.createElement("a");
               a.href = f;
               a.textContent = a.href;
               K(b.strings.fileAccessError.replace("%s", a.outerHTML));
             }
-            if (requestSucceeded) Ba(this.response);
+            if (200 == e.status) Ba(this.response);
             q.load.msg.innerHTML = "";
           };
           e.onprogress = function (a) {
