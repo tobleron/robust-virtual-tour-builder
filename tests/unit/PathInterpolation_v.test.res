@@ -20,7 +20,7 @@ describe("PathInterpolation", _ => {
     )
   })
 
-  describe("interpolateCatmullRom", _ => {
+  describe("interpolateBSpline", _ => {
     let p0 = {yaw: 0.0, pitch: 0.0}
     let p1 = {yaw: 10.0, pitch: 10.0}
     let p2 = {yaw: 20.0, pitch: 20.0}
@@ -29,7 +29,7 @@ describe("PathInterpolation", _ => {
     test(
       "interpolates correctly at t=0",
       t => {
-        let res = interpolateCatmullRom(p0, p1, p2, p3, 0.0)
+        let res = interpolateBSpline(p0, p1, p2, p3, 0.0)
         t->expect(res.yaw)->toBe(10.0)
         t->expect(res.pitch)->toBe(10.0)
       },
@@ -38,7 +38,7 @@ describe("PathInterpolation", _ => {
     test(
       "interpolates correctly at t=1",
       t => {
-        let res = interpolateCatmullRom(p0, p1, p2, p3, 1.0)
+        let res = interpolateBSpline(p0, p1, p2, p3, 1.0)
         t->expect(res.yaw)->toBe(20.0)
         t->expect(res.pitch)->toBe(20.0)
       },
@@ -47,19 +47,19 @@ describe("PathInterpolation", _ => {
     test(
       "interpolates midway",
       t => {
-        let res = interpolateCatmullRom(p0, p1, p2, p3, 0.5)
+        let res = interpolateBSpline(p0, p1, p2, p3, 0.5)
         t->expect(res.yaw)->toBe(15.0)
         t->expect(res.pitch)->toBe(15.0)
       },
     )
   })
 
-  describe("getCatmullRomSpline", _ => {
+  describe("getBSplinePath", _ => {
     test(
       "returns same points if fewer than 2 provided",
       t => {
         let points = [{yaw: 0.0, pitch: 0.0}]
-        let res = getCatmullRomSpline(points, 10)
+        let res = getBSplinePath(points, 10)
         t->expect(res)->toEqual(points)
       },
     )
@@ -69,15 +69,21 @@ describe("PathInterpolation", _ => {
       t => {
         // 350 -> 10 should go through 0 (distance 20), not -170 (distance 340)
         let points = [{yaw: 350.0, pitch: 0.0}, {yaw: 10.0, pitch: 0.0}]
-        let spline = getCatmullRomSpline(points, 2)
+        let spline = getBSplinePath(points, 2)
 
-        // We expect the spline to contain points that are "close" to 0/360
-        // Check middle point
-        let midIndex = Belt.Array.length(spline) / 2
-        let midPoint = Belt.Array.getExn(spline, midIndex)
-
-        // Normalized, it should be around 0
-        t->expect(Math.abs(normalizeYaw(midPoint.yaw) -. 0.0) < 0.1)->toBe(true)
+        // Verify continuity: no step should jump across the long arc.
+        let hasLargeJump = ref(false)
+        if Belt.Array.length(spline) >= 2 {
+          for i in 0 to Belt.Array.length(spline) - 2 {
+            let p1 = Belt.Array.getExn(spline, i)
+            let p2 = Belt.Array.getExn(spline, i + 1)
+            let delta = Math.abs(normalizeYaw(p2.yaw -. p1.yaw))
+            if delta > 40.0 {
+              hasLargeJump := true
+            }
+          }
+        }
+        t->expect(hasLargeJump.contents)->toBe(false)
       },
     )
   })

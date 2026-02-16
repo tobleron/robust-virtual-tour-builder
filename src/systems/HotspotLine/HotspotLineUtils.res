@@ -12,11 +12,7 @@ let getCachedSplinePath = (h: Types.hotspot, controlPoints, segments) => {
   switch Nullable.toOption(JSWeakMap.get(pathCache, h)) {
   | Some(p) => p
   | None =>
-    let p = if Constants.useBSplineSmoothing {
-      PathInterpolation.getBSplinePath(controlPoints, segments)
-    } else {
-      PathInterpolation.getCatmullRomSpline(controlPoints, segments)
-    }
+    let p = PathInterpolation.getBSplinePath(controlPoints, segments)
     JSWeakMap.set(pathCache, h, p)
     p
   }

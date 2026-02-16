@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stabilize export flow and add dual web_only + standalone package output
 - Stabilize export parity: fix logo packaging, hotspot visual parity, and single-toggle state sync
 - Stabilize export parity: fix logo packaging, hotspot visual parity, and single-toggle state sync
+- Progress checkpoint: export waypoint autoplay flow, hotspot clickability, and b-spline-only spline policy
+- Progress checkpoint: export waypoint autoplay flow, hotspot clickability, and b-spline-only spline policy
 
 ## [4.13.0] - 2026-02-15
 
