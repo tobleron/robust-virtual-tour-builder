@@ -79,7 +79,7 @@ let make = (
     | Some(currentScene) =>
       switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        let targetIdx = Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target)
+        let targetIdx = HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot)
         switch targetIdx {
         | Some(tIdx) =>
           let (ny, np, nh) = Logic.calculateNavParams(hotspot)
@@ -110,7 +110,7 @@ let make = (
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        let tIdx = Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target)
+        let tIdx = HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot)
         switch tIdx {
         | Some(idx) =>
           switch Belt.Array.get(currentState.scenes, idx) {
@@ -156,8 +156,7 @@ let make = (
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        currentState.scenes
-        ->Belt.Array.getBy(s => s.name == hotspot.target)
+        HotspotTarget.resolveScene(currentState.scenes, hotspot)
         ->Option.map(s => s.isAutoForward)
         ->Option.getOr(localIsAF)
       | None => localIsAF

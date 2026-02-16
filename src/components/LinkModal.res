@@ -83,6 +83,8 @@ let showLinkModal = (
     switch Nullable.toOption(element) {
     | Some(el) =>
       let targetName = Dom.getValue(el)
+      let targetSceneOpt = scenes->Belt.Array.getBy(s => s.name == targetName)
+      let targetSceneId = targetSceneOpt->Option.map(s => s.id)
       if targetName == "" {
         NotificationManager.dispatch({
           id: "",
@@ -99,7 +101,13 @@ let showLinkModal = (
         // Check for existing link to same target
         let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
         let exists = switch currentScene {
-        | Some(scene) => Belt.Array.some(scene.hotspots, h => h.target == targetName)
+        | Some(scene) =>
+          Belt.Array.some(scene.hotspots, h =>
+            switch (h.targetSceneId, targetSceneId) {
+            | (Some(existingId), Some(newId)) => existingId == newId
+            | _ => h.target == targetName
+            }
+          )
         | None => false
         }
 
@@ -146,6 +154,7 @@ let showLinkModal = (
             yaw,
             pitch,
             target: targetName,
+            targetSceneId,
             targetYaw: None,
             targetPitch: None,
             targetHfov: None,
@@ -210,7 +219,7 @@ let showLinkModal = (
             | Some(s) => s.id
             | None => ""
             },
-            targetScene: targetName,
+            targetScene: targetSceneId->Option.getOr(targetName),
             transition: "fade",
             duration: 1000,
           })

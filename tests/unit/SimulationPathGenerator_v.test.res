@@ -30,6 +30,7 @@ describe("Simulation.PathGenerator", () => {
       yaw: 10.0,
       pitch: 20.0,
       target,
+      targetSceneId: Some(target),
       targetYaw: Some(30.0),
       targetPitch: Some(40.0),
       targetHfov: None,

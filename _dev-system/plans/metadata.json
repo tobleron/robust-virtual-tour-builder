@@ -2,48 +2,6 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.09, Coupling: 0.04] | Drag: 2.89 | LOC: 636/300  🎯 Target: Function: `logoBlock` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 36.49276729559749,
-        "recommended_splits": 3,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates.res",
-              "functions": [
-                {
-                  "name": "indexTemplate",
-                  "signature": "indexTemplate = `<!DOCTYPE html>",
-                  "line": 9
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
-                  "line": 41
-                },
-                {
-                  "name": "generateEmbedCodes",
-                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 668
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 669
-                }
-              ],
-              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/Exporter.res",
         "action": "De-bloat",
         "reason": "[Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)",
@@ -149,6 +107,48 @@
                 }
               ],
               "fingerprint": "9bc25854425bc359d2921bbb5923e43101e5412ec3c3a9dcc188fa485219276e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 880/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 62.72159090909091,
+        "recommended_splits": 3,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates.res",
+              "functions": [
+                {
+                  "name": "indexTemplate",
+                  "signature": "indexTemplate = `<!DOCTYPE html>",
+                  "line": 9
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
+                  "line": 41
+                },
+                {
+                  "name": "generateEmbedCodes",
+                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
+                  "line": 915
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = Assets.generateExportIndex",
+                  "line": 916
+                }
+              ],
+              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
             }
           ]
         }

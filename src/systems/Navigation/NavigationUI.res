@@ -16,7 +16,7 @@ let updateReturnPrompt = (state: state, scene: scene) => {
         state.scenes[inc.sceneIndex]->Option.forEach(src => {
           let has = Array.some(
             scene.hotspots,
-            h => h.target == src.name && h.isReturnLink == Some(true),
+            h => HotspotTarget.pointsToScene(h, src) && h.isReturnLink == Some(true),
           )
           if has {
             Dom.add(p, "hidden")

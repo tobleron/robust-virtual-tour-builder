@@ -34,6 +34,7 @@ let hotspot = (h: Types.hotspot) => {
     ("yaw", Encode.float(h.yaw)),
     ("pitch", Encode.float(h.pitch)),
     ("target", Encode.string(h.target)),
+    ("targetSceneId", Encode.option(Encode.string)(h.targetSceneId)),
     ("targetYaw", Encode.option(Encode.float)(h.targetYaw)),
     ("targetPitch", Encode.option(Encode.float)(h.targetPitch)),
     ("targetHfov", Encode.option(Encode.float)(h.targetHfov)),

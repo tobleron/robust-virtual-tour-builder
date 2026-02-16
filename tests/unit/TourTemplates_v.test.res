@@ -16,6 +16,7 @@ let _ = describe("TourTemplates", () => {
     yaw: 10.0,
     pitch: 5.0,
     target: "scene2",
+    targetSceneId: None,
     targetYaw: Some(0.0),
     targetPitch: Some(0.0),
     targetHfov: Some(90.0),

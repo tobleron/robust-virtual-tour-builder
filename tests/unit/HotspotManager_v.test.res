@@ -28,6 +28,7 @@ describe("HotspotManager", () => {
       yaw: 10.0,
       pitch: 20.0,
       target,
+      targetSceneId: Some(target),
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,

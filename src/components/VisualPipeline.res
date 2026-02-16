@@ -297,7 +297,11 @@ let make = () => {
 
             let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
             let targetScene =
-              pipelineSlice.scenes->Belt.Array.getBy(s => s.name == item.targetScene)
+              pipelineSlice.scenes
+              ->Belt.Array.getBy(s => s.id == item.targetScene)
+              ->Option.orElse(
+                pipelineSlice.scenes->Belt.Array.getBy(s => s.name == item.targetScene),
+              )
             let color = switch scene {
             | Some(s) => ColorPalette.getGroupColor(s.colorGroup)
             | None => "var(--success-dark)"

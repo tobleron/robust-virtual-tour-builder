@@ -68,6 +68,7 @@ let hotspot = object(f => {
     yaw: f->opt("yaw", float, 0.0),
     pitch: f->opt("pitch", float, 0.0),
     target: f->opt("target", string, ""),
+    targetSceneId: f.optional("targetSceneId", option(string))->Option.flatMap(x => x),
     targetYaw: f.optional("targetYaw", option(float))->Option.flatMap(x => x),
     targetPitch: f.optional("targetPitch", option(float))->Option.flatMap(x => x),
     targetHfov: f.optional("targetHfov", option(float))->Option.flatMap(x => x),

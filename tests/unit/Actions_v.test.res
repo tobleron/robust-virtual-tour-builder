@@ -57,6 +57,7 @@ describe("Actions", _ => {
       yaw: 0.0,
       pitch: 0.0,
       target: "target",
+      targetSceneId: None,
       targetYaw: None,
       targetPitch: None,
       targetHfov: None,

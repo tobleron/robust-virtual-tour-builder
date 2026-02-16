@@ -21,6 +21,7 @@ describe("PreviewArrow", () => {
           yaw: 0.0,
           pitch: 0.0,
           target: targetName,
+          targetSceneId: None,
           targetYaw: None,
           targetPitch: None,
           targetHfov: None,
