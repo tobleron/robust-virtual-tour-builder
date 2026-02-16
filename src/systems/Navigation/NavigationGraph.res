@@ -73,9 +73,7 @@ let calculatePathData = (state: state, sIdx, sHIdx, tIdx, tYaw, tPitch, _tHfov, 
       let cp = Array.length(wp) > 0 ? Array.concat([p0], Array.concat(wp, [pe])) : [p0, pe]
       let path =
         Array.length(wp) > 0
-          ? Constants.useBSplineSmoothing
-              ? PathInterpolation.getBSplinePath(cp, 100)
-              : PathInterpolation.getCatmullRomSpline(cp, 100)
+          ? PathInterpolation.getBSplinePath(cp, 100)
           : PathInterpolation.getFloorProjectedPath(p0, pe, 100)
       let (tdist, segs) = (ref(0.0), [])
       if Array.length(path) >= 2 {

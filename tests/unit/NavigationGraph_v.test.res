@@ -234,8 +234,8 @@ describe("NavigationGraph", () => {
     | Some(pd) =>
       t->expect(Array.length(pd.waypoints))->Expect.toBe(2)
       // Check that segments go through waypoints vaguely (complex to test exact path interpolation)
-      // But we can check segment count. With 2 waypoints + start + end = 4 control points.
-      // CatmullRom usually generates many points.
+      // But we can check segment count. With 2 waypoints + start + end = 4 control points,
+      // B-spline generation should produce many interpolated segments.
       t->expect(Array.length(pd.segments) > 10)->Expect.toBe(true)
     | None => t->expect(true)->Expect.toBe(false)
     }

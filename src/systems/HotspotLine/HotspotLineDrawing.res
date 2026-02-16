@@ -220,11 +220,7 @@ let drawLinkingDraft = (
     | _ => ()
     }
   } else if Array.length(allRedPoints) > 2 {
-    let redSpline = if Constants.useBSplineSmoothing {
-      PathInterpolation.getBSplinePath(allRedPoints, 40)
-    } else {
-      PathInterpolation.getCatmullRomSpline(allRedPoints, 40)
-    }
+    let redSpline = PathInterpolation.getBSplinePath(allRedPoints, 40)
     updatePolyLine(
       draftId,
       cam,
@@ -290,11 +286,7 @@ let drawLinkingDraft = (
     | _ => ()
     }
   } else if Array.length(allYellowPoints) > 2 {
-    let yellowSpline = if Constants.useBSplineSmoothing {
-      PathInterpolation.getBSplinePath(allYellowPoints, 40)
-    } else {
-      PathInterpolation.getCatmullRomSpline(allYellowPoints, 40)
-    }
+    let yellowSpline = PathInterpolation.getBSplinePath(allYellowPoints, 40)
     updatePolyLine(
       yellowId,
       cam,

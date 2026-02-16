@@ -8,7 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (1)
+## 🛠️ SURGICAL REFACTOR TASKS (2)
+- [ ] **../../src/systems/TourTemplates.res**
+  - *Reason:* [Nesting: 1.80, Density: 0.09, Coupling: 0.04] | Drag: 2.89 | LOC: 636/300  🎯 Target: Function: `logoBlock` (High Local Complexity (2.0). Logic heavy.)
 - [ ] **../../src/systems/Exporter.res**
   - *Reason:* [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)
 

@@ -231,7 +231,6 @@ let blinkDurationSimulation = 1200
 let blinkRatePreview = 300
 let blinkRateSimulation = 600
 let idleSnapshotDelay = 2000
-let useBSplineSmoothing = true // "Human-like" corner cutting for camera
 let waypointSmoothingFactor = 0.3 // 0.0 (raw) to 1.0 (max smoothing)
 
 module Simulation = {
