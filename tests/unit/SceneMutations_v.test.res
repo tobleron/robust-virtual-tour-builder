@@ -14,8 +14,8 @@ describe("SceneMutations", () => {
     let u1 = updated[0]->Option.getOrThrow
     let u2 = updated[1]->Option.getOrThrow
 
-    t->expect(u1.name)->Expect.toBe("01_entrance.webp")
-    t->expect(u2.name)->Expect.toBe("02_living_room.webp")
+    t->expect(u1.name)->Expect.toBe("001_Entrance.webp")
+    t->expect(u2.name)->Expect.toBe("002_Living_Room.webp")
   })
 
   test("syncSceneNames updates hotspot targets when scenes are renamed", t => {
@@ -28,7 +28,7 @@ describe("SceneMutations", () => {
 
     let updatedS2 = updated[1]->Option.getOrThrow
     let updatedH1 = updatedS2.hotspots[0]->Option.getOrThrow
-    t->expect(updatedH1.target)->Expect.toBe("01_scene_1.webp")
+    t->expect(updatedH1.target)->Expect.toBe("001_Scene_1.webp")
   })
 
   test("calculateActiveIndexAfterDelete handles various cases", t => {

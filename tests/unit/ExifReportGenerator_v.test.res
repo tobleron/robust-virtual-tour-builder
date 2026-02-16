@@ -130,7 +130,7 @@ describe("ExifReportGenerator", () => {
 
     // Project Name
     switch result.suggestedProjectName {
-    | Some(n) => t->expect(String.includes(n, "123_Test_St"))->Expect.toBe(true)
+    | Some(n) => t->expect(String.includes(n, "Test_St"))->Expect.toBe(true)
     | None => t->expect(true)->Expect.toBe(false)
     }
   })

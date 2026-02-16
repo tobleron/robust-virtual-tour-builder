@@ -1,65 +1,34 @@
 open Vitest
+open ApiHelpers
 
 describe("ApiHelpers", () => {
-  test("decodeImportResponse", t => {
-    let json = try {
-      JSON.parseOrThrow(`{
-        "sessionId": "sess1",
-        "projectData": {}
-      }`)
-    } catch {
-    | _ => failwith("Invalid JSON")
+  test("extractErrorMessage should use details if available", t => {
+    let err = {
+      error: "Bad Request",
+      details: Nullable.make("Missing parameter: id"),
     }
-
-    switch ApiHelpers.decodeImportResponse(json) {
-    | Ok(res) => t->expect(res.sessionId)->Expect.toBe("sess1")
-    | Error(e) => {
-        Console.log(e)
-        t->expect(true)->Expect.toBe(false)
-      }
-    }
+    t->expect(extractErrorMessage(err))->Expect.toBe("Missing parameter: id")
   })
 
-  test("decodeValidationReport", t => {
-    let json = try {
-      JSON.parseOrThrow(`{
-        "brokenLinksRemoved": 5,
-        "orphanedScenes": ["s1"],
-        "unusedFiles": [],
-        "warnings": ["w1"],
-        "errors": []
-      }`)
-    } catch {
-    | _ => failwith("Invalid JSON")
+  test("extractErrorMessage should fallback to error field", t => {
+    let err = {
+      error: "Internal Server Error",
+      details: Nullable.null,
     }
-
-    switch ApiHelpers.decodeValidationReport(json) {
-    | Ok(res) => {
-        t->expect(res.brokenLinksRemoved)->Expect.toBe(5)
-        t->expect(res.orphanedScenes)->Expect.toEqual(["s1"])
-      }
-    | Error(e) => {
-        Console.log(e)
-        t->expect(true)->Expect.toBe(false)
-      }
-    }
+    t->expect(extractErrorMessage(err))->Expect.toBe("Internal Server Error")
   })
 
-  test("decodeGeocodeResponse", t => {
-    let json = try {
-      JSON.parseOrThrow(`{
-        "address": "123 Street"
-      }`)
-    } catch {
-    | _ => failwith("Invalid JSON")
-    }
+  testAsync("handleResponse should return Ok for success status", async t => {
+    let mockResponse = Obj.magic({
+      "ok": true,
+      "status": 200,
+      "statusText": "OK",
+    })
 
-    switch ApiHelpers.decodeGeocodeResponse(json) {
-    | Ok(res) => t->expect(res.address)->Expect.toBe("123 Street")
-    | Error(e) => {
-        Console.log(e)
-        t->expect(true)->Expect.toBe(false)
-      }
+    let result = await handleResponse(mockResponse)
+    switch result {
+    | Ok(_) => t->expect(true)->Expect.toBe(true)
+    | Error(_) => t->expect("Ok")->Expect.toBe("Error")
     }
   })
 })

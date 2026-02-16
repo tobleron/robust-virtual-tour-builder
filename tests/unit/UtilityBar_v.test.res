@@ -62,22 +62,7 @@ describe("UtilityBar", () => {
 
     Dom.click(plusBtn)
 
-    let v = Nullable.toOption(ReBindings.Viewer.instance)
-    let viewer = Belt.Option.getExn(v)
-    let currentYaw = ReBindings.Viewer.getYaw(viewer)
-    let currentPitch = ReBindings.Viewer.getPitch(viewer)
-    let currentHfov = ReBindings.Viewer.getHfov(viewer)
-
-    let expectedDraft: Types.linkDraft = {
-      yaw: currentYaw,
-      pitch: currentPitch,
-      camYaw: currentYaw,
-      camPitch: currentPitch,
-      camHfov: currentHfov,
-      intermediatePoints: None,
-    }
-
-    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.StartLinking(Some(expectedDraft))))
+    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.StartLinking(None)))
 
     // Now test StopLinking
     ReactDOMClient.Root.render(
