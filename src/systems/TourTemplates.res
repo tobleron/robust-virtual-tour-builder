@@ -74,9 +74,11 @@ module Styles = {
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
+    .pnlm-hotspot.flat-arrow.waypoint-pending { opacity: 0 !important; pointer-events: auto !important; cursor: pointer !important; transform: scale(0.82); }
+    .pnlm-hotspot.flat-arrow.waypoint-ready { opacity: 1 !important; pointer-events: auto !important; transform: scale(1); transition: opacity 0.24s ease, transform 0.24s ease; }
     .custom-arrow-svg { width: 100% !important; height: 100% !important; display: block; pointer-events: none; transform: none; transform-origin: center center; transition: transform 0.2s ease; filter: drop-shadow(0 8px 4px rgba(0,0,0,0.35)); }
     .export-hotspot-root { position: relative; width: 32px; height: 32px; }
-    .export-hotspot-btn { position: absolute; inset: 0; background: #ea580c; border-radius: 6px; box-shadow: 0 10px 16px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background-color 0.2s ease, transform 0.2s ease, filter 0.2s ease; pointer-events: auto; }
+    .export-hotspot-btn { position: absolute; inset: 0; background: #ea580c; border-radius: 6px; box-shadow: 0 10px 16px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background-color 0.2s ease, transform 0.2s ease, filter 0.2s ease; pointer-events: auto; cursor: pointer; }
     .export-hotspot-btn:hover { background: #f97316; transform: scale(1.03); filter: brightness(1.04); }
     .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }
     .export-hotspot-root.auto-forward .export-hotspot-btn-sweep { --sweep-duration: 1.5s; }
@@ -116,11 +118,288 @@ module Styles = {
 
 module Scripts = {
   let renderScriptTemplate = `
+    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const PAN_VELOCITY = 25.0;
+    const PAN_MIN_DURATION = 1000.0;
+    const PAN_MAX_DURATION = 20000.0;
+    const TRAPEZOID_FACTOR = 0.12;
+    const WAYPOINT_SMOOTHING_FACTOR = 0.3;
+    const SPLINE_SEGMENTS = 100;
+    function clearWaypointRuntime() {
+      if (waypointRuntime.animationId !== null) cancelAnimationFrame(waypointRuntime.animationId);
+      if (waypointRuntime.readyTimeoutId !== null) clearTimeout(waypointRuntime.readyTimeoutId);
+      if (waypointRuntime.autoForwardTimeoutId !== null) clearTimeout(waypointRuntime.autoForwardTimeoutId);
+      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.arrivedSceneId = null;
+    }
+    function normalizeYawDelta(fromYaw, toYaw) {
+      let delta = toYaw - fromYaw;
+      while (delta > 180) delta -= 360;
+      while (delta < -180) delta += 360;
+      return delta;
+    }
+    function normalizeYaw(yaw) {
+      let y = yaw % 360;
+      if (y > 180) y -= 360;
+      if (y < -180) y += 360;
+      return y;
+    }
+    function trapezoidal(t, factor) {
+      const vmax = 1.0 / (1.0 - factor);
+      if (t < factor) return 0.5 * (vmax / factor) * t * t;
+      if (t > 1.0 - factor) return 1.0 - 0.5 * (vmax / factor) * (1.0 - t) * (1.0 - t);
+      return vmax * (t - 0.5 * factor);
+    }
+    function getSceneHotspots(sceneId) {
+      return Array.from(document.querySelectorAll('.pnlm-hotspot.flat-arrow')).filter(el => el.dataset.ownerScene === sceneId);
+    }
+    function setSceneHotspotsPending(sceneId) {
+      getSceneHotspots(sceneId).forEach(el => {
+        el.classList.remove('waypoint-ready');
+        el.classList.add('waypoint-pending');
+        el.dataset.ready = 'false';
+      });
+    }
+    function setSceneHotspotsReady(sceneId) {
+      getSceneHotspots(sceneId).forEach(el => {
+        el.classList.remove('waypoint-pending');
+        el.classList.add('waypoint-ready');
+        el.dataset.ready = 'true';
+      });
+    }
+    function resolveDestinationView(args) {
+      let y = 90, p = 0;
+      if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
+      else { if (args.targetYaw !== undefined && args.targetYaw !== null) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
+      return { yaw: y, pitch: p };
+    }
+    function resolveTargetSceneId(args) {
+      return args.targetSceneId ?? args.target;
+    }
+    function navigateToNextScene(args, forceTargetSceneId) {
+      const destination = resolveDestinationView(args);
+      transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
+      setTimeout(() => { window.viewer.loadScene(forceTargetSceneId ?? resolveTargetSceneId(args), destination.pitch, destination.yaw, 90); }, 450);
+    }
+    function setSceneHotspotsReadyWithRetry(sceneId, retries) {
+      const hotspots = getSceneHotspots(sceneId);
+      hotspots.forEach(el => {
+        el.classList.remove('waypoint-pending');
+        el.classList.add('waypoint-ready');
+        el.dataset.ready = 'true';
+      });
+      if (window.viewer.getScene() !== sceneId) return;
+      const needsRetry = hotspots.length === 0 || hotspots.some(el => el.dataset.ready !== 'true');
+      if (!needsRetry || retries <= 0) return;
+      waypointRuntime.readyTimeoutId = setTimeout(() => setSceneHotspotsReadyWithRetry(sceneId, retries - 1), 80);
+    }
+    function toPoint(yaw, pitch) {
+      return { yaw, pitch };
+    }
+    function interpolateBSpline(p0, p1, p2, p3, t) {
+      const t2 = t * t;
+      const t3 = t2 * t;
+      const b0 = ((1.0 - t) * (1.0 - t) * (1.0 - t)) / 6.0;
+      const b1 = (3.0 * t3 - 6.0 * t2 + 4.0) / 6.0;
+      const b2 = (-3.0 * t3 + 3.0 * t2 + 3.0 * t + 1.0) / 6.0;
+      const b3 = t3 / 6.0;
+      return {
+        yaw: p0.yaw * b0 + p1.yaw * b1 + p2.yaw * b2 + p3.yaw * b3,
+        pitch: p0.pitch * b0 + p1.pitch * b1 + p2.pitch * b2 + p3.pitch * b3,
+      };
+    }
+    function getBSplinePath(points, totalSegments) {
+      if (!Array.isArray(points) || points.length < 2) return points || [];
+      const first = points[0];
+      const last = points[points.length - 1];
+      let smoothed = points.slice();
+      if (WAYPOINT_SMOOTHING_FACTOR > 0.0 && smoothed.length > 3) {
+        const s = WAYPOINT_SMOOTHING_FACTOR * 0.5;
+        for (let pass = 0; pass < 2; pass += 1) {
+          for (let i = 1; i < smoothed.length - 1; i += 1) {
+            const prev = smoothed[i - 1];
+            const curr = smoothed[i];
+            const next = smoothed[i + 1];
+            const weighting = (i === 1 || i === smoothed.length - 2) ? s * 0.5 : s;
+            let dy1 = next.yaw - curr.yaw;
+            while (dy1 > 180) dy1 -= 360;
+            while (dy1 < -180) dy1 += 360;
+            let dy2 = prev.yaw - curr.yaw;
+            while (dy2 > 180) dy2 -= 360;
+            while (dy2 < -180) dy2 += 360;
+            smoothed[i] = {
+              yaw: curr.yaw + (dy1 + dy2) * weighting,
+              pitch: curr.pitch + (next.pitch + prev.pitch - 2.0 * curr.pitch) * weighting,
+            };
+          }
+        }
+      }
+      const rawPoints = [first, first, ...smoothed, last, last];
+      const unrolled = [];
+      let prevYaw = first.yaw;
+      for (const p of rawPoints) {
+        let diff = p.yaw - prevYaw;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+        const absYaw = prevYaw + diff;
+        unrolled.push({ yaw: absYaw, pitch: p.pitch });
+        prevYaw = absYaw;
+      }
+      const sections = unrolled.length - 3;
+      if (sections < 1) return points;
+      const segmentsPerSection = Math.ceil(totalSegments / sections);
+      const spline = [];
+      for (let i = 0; i < sections; i += 1) {
+        const p0 = unrolled[i];
+        const p1 = unrolled[i + 1];
+        const p2 = unrolled[i + 2];
+        const p3 = unrolled[i + 3];
+        for (let j = 0; j < segmentsPerSection; j += 1) {
+          const t = j / segmentsPerSection;
+          spline.push(interpolateBSpline(p0, p1, p2, p3, t));
+        }
+      }
+      spline.push({ yaw: last.yaw, pitch: last.pitch });
+      return spline.map(p => ({ yaw: normalizeYaw(p.yaw), pitch: p.pitch }));
+    }
+    function getFloorProjectedPath(start, end, segments) {
+      const toRad = deg => deg * Math.PI / 180.0;
+      const toDeg = rad => rad * 180.0 / Math.PI;
+      const project = p => {
+        const yRad = toRad(p.yaw);
+        const pRad = toRad(p.pitch);
+        if (pRad >= -0.001) return null;
+        const r = -1.0 / Math.tan(pRad);
+        return { x: r * Math.sin(yRad), z: r * Math.cos(yRad) };
+      };
+      const unproject = (x, z) => {
+        const r = Math.sqrt(x * x + z * z);
+        return { yaw: toDeg(Math.atan2(x, z)), pitch: toDeg(Math.atan(-1.0 / r)) };
+      };
+      const p1 = project(start);
+      const p2 = project(end);
+      if (!p1 || !p2) return [start, end];
+      const path = [];
+      for (let i = 0; i <= segments; i += 1) {
+        const t = i / segments;
+        const x = p1.x + (p2.x - p1.x) * t;
+        const z = p1.z + (p2.z - p1.z) * t;
+        path.push(unproject(x, z));
+      }
+      return path;
+    }
+    function buildPath(primary, currentPitch, currentYaw) {
+      const startYaw = Number.isFinite(primary.startYaw) ? primary.startYaw : currentYaw;
+      const startPitch = Number.isFinite(primary.startPitch) ? primary.startPitch : currentPitch;
+      const endYaw = primary.yaw;
+      const endPitch = Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch;
+      const waypoints = Array.isArray(primary.waypoints) ? primary.waypoints : [];
+      const controls = [toPoint(startYaw, startPitch)];
+      for (const w of waypoints) {
+        if (w && Number.isFinite(w.yaw) && Number.isFinite(w.pitch)) {
+          controls.push(toPoint(w.yaw, w.pitch));
+        }
+      }
+      controls.push(toPoint(endYaw, endPitch));
+      if (waypoints.length > 0) {
+        return getBSplinePath(controls, SPLINE_SEGMENTS);
+      }
+      return getFloorProjectedPath(controls[0], controls[controls.length - 1], SPLINE_SEGMENTS);
+    }
+    function buildSegments(path) {
+      const segments = [];
+      let total = 0;
+      for (let i = 0; i < path.length - 1; i += 1) {
+        const a = path[i]; const b = path[i + 1];
+        const dy = normalizeYawDelta(a.yaw, b.yaw);
+        const dp = b.pitch - a.pitch;
+        const dist = Math.max(0.0001, Math.sqrt(dy * dy + dp * dp));
+        segments.push({ a, dy, dp, dist });
+        total += dist;
+      }
+      return { segments, total };
+    }
+    function samplePath(segments, total, t) {
+      const target = total * t;
+      let traversed = 0;
+      for (const seg of segments) {
+        if (traversed + seg.dist >= target) {
+          const local = (target - traversed) / seg.dist;
+          return {
+            yaw: seg.a.yaw + seg.dy * local,
+            pitch: seg.a.pitch + seg.dp * local,
+          };
+        }
+        traversed += seg.dist;
+      }
+      const last = segments[segments.length - 1];
+      return {
+        yaw: last.a.yaw + last.dy,
+        pitch: last.a.pitch + last.dp,
+      };
+    }
+    function animateSceneToPrimaryHotspot(sceneId, retries) {
+      if (window.viewer.getScene() !== sceneId) return;
+      const sd = scenesData[sceneId];
+      if (!sd?.hotSpots?.length) return;
+      const primary = sd.hotSpots[0];
+      waypointRuntime.arrivedSceneId = null;
+      setSceneHotspotsPending(sceneId);
+      let durationMs = PAN_MIN_DURATION;
+      const startPitch = typeof window.viewer.getPitch === 'function' ? window.viewer.getPitch() : 0;
+      const startYaw = typeof window.viewer.getYaw === 'function' ? window.viewer.getYaw() : 0;
+      const path = buildPath(primary, startPitch, startYaw);
+      const pathInfo = buildSegments(path);
+      if (!pathInfo.segments.length || pathInfo.total <= 0) {
+        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        return;
+      }
+      durationMs = Math.min(Math.max((pathInfo.total / PAN_VELOCITY) * 1000.0, PAN_MIN_DURATION), PAN_MAX_DURATION);
+      window.viewer.lookAt(path[0].pitch, path[0].yaw, 90, false);
+      const startAt = performance.now();
+      const tick = now => {
+        if (window.viewer.getScene() !== sceneId) return;
+        const linear = Math.min(1, (now - startAt) / durationMs);
+        const progress = trapezoidal(linear, TRAPEZOID_FACTOR);
+        const current = samplePath(pathInfo.segments, pathInfo.total, progress);
+        window.viewer.lookAt(current.pitch, current.yaw, 90, false);
+        if (linear < 1) {
+          waypointRuntime.animationId = requestAnimationFrame(tick);
+          return;
+        }
+        waypointRuntime.animationId = null;
+        waypointRuntime.arrivedSceneId = sceneId;
+        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        const autoForward = primary.targetIsAutoForward === true;
+        if (autoForward) {
+          waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
+            if (window.viewer.getScene() !== sceneId) return;
+            const hotspotsNow = getSceneHotspots(sceneId);
+            const primaryEl = hotspotsNow.find(el => el.dataset.hotspotIndex === '0') ?? hotspotsNow[0];
+            if (primaryEl && typeof primaryEl.__navigateNext === 'function') primaryEl.__navigateNext();
+            else navigateToNextScene(primary, null);
+          }, 360);
+        }
+      };
+      waypointRuntime.animationId = requestAnimationFrame(tick);
+    }
     function renderOrangeHotspot(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
       const isHome = currentSceneData && currentSceneData.hotSpots.length === 1 && persistentFrom && args.targetSceneId === persistentFrom;
+      const ownerScene = args.sourceSceneId ?? currentSceneId;
       hotSpotDiv.style.width = "__BASE_SIZE__px"; hotSpotDiv.style.height = "__BASE_SIZE__px";
+      hotSpotDiv.style.pointerEvents = "auto";
+      hotSpotDiv.style.cursor = "pointer";
+      hotSpotDiv.dataset.ownerScene = ownerScene;
+      hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);
+      hotSpotDiv.dataset.ready = "false";
+      hotSpotDiv.classList.remove("waypoint-ready");
+      hotSpotDiv.classList.add("waypoint-pending");
+      if (waypointRuntime.arrivedSceneId === ownerScene) {
+        hotSpotDiv.dataset.ready = "true";
+        hotSpotDiv.classList.remove("waypoint-pending");
+        hotSpotDiv.classList.add("waypoint-ready");
+      }
       const ns = "http://www.w3.org/2000/svg";
       const svg = document.createElementNS(ns, "svg");
       svg.setAttribute("class", "custom-arrow-svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.overflow = "visible";
@@ -155,37 +434,42 @@ module Scripts = {
         root.appendChild(btn);
         while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
         hotSpotDiv.appendChild(root);
-        hotSpotDiv.onclick = function() {
-          let y = 90, p = 0;
-          if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
-          else { if (args.targetYaw !== undefined) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
-          transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
-          setTimeout(() => { window.viewer.loadScene(args.targetSceneId, p, y, 90); }, 450);
+        const triggerNavigate = function(e) {
+          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+          hotSpotDiv.__navigateNext();
         };
+        hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
+        hotSpotDiv.onclick = function() {
+          triggerNavigate();
+        };
+        btn.onclick = triggerNavigate;
+        btn.onpointerup = triggerNavigate;
         return;
       }
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(svg);
-      hotSpotDiv.onclick = function() {
-        let y = 90, p = 0;
-        if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
-        else { if (args.targetYaw !== undefined) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
-        transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
-        setTimeout(() => { window.viewer.loadScene(hotSpotDiv.getAttribute('data-target-home') === 'true' ? firstSceneId : args.targetSceneId, p, y, 90); }, 450);
+      const triggerNavigate = function(e) {
+        if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+        hotSpotDiv.__navigateNext();
       };
+      hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, hotSpotDiv.getAttribute('data-target-home') === 'true' ? firstSceneId : null); };
+      hotSpotDiv.onclick = function() {
+        triggerNavigate();
+      };
+      svg.onclick = triggerNavigate;
+      svg.onpointerup = triggerNavigate;
     }
   `
 
   let loadEventScript = `
     window.viewer.on('load', function() {
       const sid = window.viewer.getScene(); const sd = scenesData[sid];
-      if (sd?.isAutoForward && sd.hotSpots?.length > 0) {
-        setTimeout(() => { transitionFrom = sid; persistentFrom = sid; window.viewer.loadScene(sd.hotSpots[0].target, "same", "same", 90); }, 1000);
-        return;
-      }
       if (!transitionFrom && !isFirstLoad) return;
       if (sd?.hotSpots?.length > 0) window.viewer.setHfov(90);
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
+      clearWaypointRuntime();
+      waypointRuntime.sceneId = sid;
+      animateSceneToPrimaryHotspot(sid, 20);
     });
   `
 
@@ -203,6 +487,9 @@ type hotspotData = {
   "yaw": float,
   "target": string,
   "targetIsAutoForward": bool,
+  "startYaw": Nullable.t<float>,
+  "startPitch": Nullable.t<float>,
+  "waypoints": Nullable.t<array<viewFrame>>,
   "truePitch": float,
   "viewFrame": Nullable.t<viewFrame>,
   "returnViewFrame": Nullable.t<viewFrame>,
@@ -227,6 +514,24 @@ let encodeHotspot = (h: hotspotData) => {
     ("yaw", JsonCombinators.Json.Encode.float(h["yaw"])),
     ("target", JsonCombinators.Json.Encode.string(h["target"])),
     ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(h["targetIsAutoForward"])),
+    (
+      "startYaw",
+      JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(
+        Nullable.toOption(h["startYaw"]),
+      ),
+    ),
+    (
+      "startPitch",
+      JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(
+        Nullable.toOption(h["startPitch"]),
+      ),
+    ),
+    (
+      "waypoints",
+      JsonCombinators.Json.Encode.option(
+        JsonCombinators.Json.Encode.array(JsonParsers.Encoders.viewFrame),
+      )(Nullable.toOption(h["waypoints"])),
+    ),
     ("truePitch", JsonCombinators.Json.Encode.float(h["truePitch"])),
     (
       "viewFrame",
@@ -290,6 +595,9 @@ let generateTourHTML = (
         ->Belt.Array.getBy(ts => ts.name == h.target)
         ->Option.map(ts => ts.isAutoForward)
         ->Option.getOr(false),
+        "startYaw": h.startYaw->Nullable.fromOption,
+        "startPitch": h.startPitch->Nullable.fromOption,
+        "waypoints": h.waypoints->Nullable.fromOption,
         "truePitch": h.pitch,
         "viewFrame": h.viewFrame->Nullable.fromOption,
         "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
@@ -343,7 +651,7 @@ let generateTourHTML = (
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [name, data] of Object.entries(scenesData)) {
-      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, targetSceneId: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: name, targetSceneId: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     window.viewer = pannellum.viewer('panorama', config); window.viewer.resize();
     window.addEventListener('resize', () => window.viewer?.resize());
