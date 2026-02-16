@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Progress checkpoint: export waypoint autoplay flow, hotspot clickability, and b-spline-only spline policy
 - Export stability hardening and app-wide scene.id hotspot targeting migration
 - Export stability hardening and app-wide scene.id hotspot targeting migration
+- Export waypoint parity fix and close T1426
 
 ## [4.13.0] - 2026-02-15
 
