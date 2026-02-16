@@ -47,6 +47,13 @@ let file = id->map(json => {
   }
 })
 
+let normalizeLogo = (logoOpt: option<Types.file>): option<Types.file> => {
+  switch logoOpt {
+  | Some(Types.Url(u)) if u == "" => None
+  | _ => logoOpt
+  }
+}
+
 let viewFrame = object(f => {
   {
     Types.yaw: f->opt("yaw", float, 0.0),
@@ -215,7 +222,7 @@ let project = object(f => {
     sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
     deletedSceneIds: f->opt("deletedSceneIds", array(string), []),
     timeline: f->opt("timeline", array(timelineItem), []),
-    logo: f.optional("logo", option(file))->Option.flatMap(x => x),
+    logo: f.optional("logo", option(file))->Option.flatMap(x => x)->normalizeLogo,
   }
 })
 

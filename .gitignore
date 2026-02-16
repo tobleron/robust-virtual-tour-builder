@@ -60,3 +60,9 @@ playwright/.cache/
 
 # Temporary reports
 docs/_tmp_test_reports/
+
+# Generated local artifacts (never commit)
+backend/temp/
+backend/logs/
+.agent/current_file_structure.md
+_dev-system/tmp/

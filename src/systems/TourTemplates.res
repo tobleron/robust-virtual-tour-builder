@@ -31,21 +31,27 @@ h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .card:hover .btn { background: white; color: #0f172a; }
 .footer { margin-top: 80px; font-size: 13px; color: var(--slate-600); }
 </style></head><body><div class="background-blob blob-1"></div><div class="background-blob blob-2"></div><div class="container"><div class="header">
-<div class="logo-container"><img src="tour_4k/assets/logo.png" onerror="this.parentElement.style.display='none'"></div>
+__LOGO_BLOCK__
 <h1>__TOUR_NAME_PRETTY__</h1><div class="version-badge">Virtual Tour v__VERSION__</div></div><div class="grid">
 <a href="tour_4k/index.html" class="card card-4k"><i data-lucide="sparkles" class="icon"></i><span class="res-label">4K Ultra HD</span><span class="description">Best for high-end displays.</span><span class="btn">Launch Tour</span></a>
 <a href="tour_2k/index.html" class="card card-2k"><i data-lucide="monitor" class="icon"></i><span class="res-label">2K Desktop</span><span class="description">Optimized for laptops.</span><span class="btn">Launch Tour</span></a>
 <a href="tour_hd/index.html" class="card card-hd"><i data-lucide="smartphone" class="icon"></i><span class="res-label">HD Mobile</span><span class="description">Portrait layout for phones.</span><span class="btn">Launch Tour</span></a>
 </div><div class="footer">&copy; __YEAR__ Virtual Tour Platform.</div></div><script>lucide.createIcons();</script></body></html>`
 
-  let generateExportIndex = (tourName, version) => {
+  let generateExportIndex = (tourName, version, logoFilename: option<string>) => {
     let prettyName = String.replaceRegExp(tourName, /_/g, " ")
     let year = Date.make()->Date.getFullYear->Belt.Int.toString
+    let logoBlock = switch logoFilename {
+    | Some(filename) =>
+      `<div class="logo-container"><img src="tour_4k/assets/${filename}" onerror="this.parentElement.style.display='none'"></div>`
+    | None => ""
+    }
     indexTemplate
     ->String.replaceRegExp(/__TOUR_NAME__/g, tourName)
     ->String.replaceRegExp(/__TOUR_NAME_PRETTY__/g, prettyName)
     ->String.replaceRegExp(/__VERSION__/g, version)
     ->String.replaceRegExp(/__YEAR__/g, year)
+    ->String.replaceRegExp(/__LOGO_BLOCK__/g, logoBlock)
   }
 
   let generateEmbedCodes = (tourName, version) => {
@@ -66,12 +72,20 @@ module Styles = {
     .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 3px; border-radius: 8px; border: 1px solid rgba(249, 115, 22, 1); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; border-radius: 5px; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
-    .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; perspective: 1500px; z-index: 2000 !important; transform-style: preserve-3d; }
-    .custom-arrow-svg { width: 100% !important; height: 100% !important; display: block; pointer-events: none; transform: rotateX(65deg); transform-origin: center center; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 8px 4px rgba(0,0,0,0.4)); }
+    @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
+    .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
+    .custom-arrow-svg { width: 100% !important; height: 100% !important; display: block; pointer-events: none; transform: none; transform-origin: center center; transition: transform 0.2s ease; filter: drop-shadow(0 8px 4px rgba(0,0,0,0.35)); }
+    .export-hotspot-root { position: relative; width: 32px; height: 32px; }
+    .export-hotspot-btn { position: absolute; inset: 0; background: #ea580c; border-radius: 6px; box-shadow: 0 10px 16px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background-color 0.2s ease, transform 0.2s ease, filter 0.2s ease; pointer-events: auto; }
+    .export-hotspot-btn:hover { background: #f97316; transform: scale(1.03); filter: brightness(1.04); }
+    .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }
+    .export-hotspot-root.auto-forward .export-hotspot-btn-sweep { --sweep-duration: 1.5s; }
+    .export-hotspot-icon { position: relative; z-index: 2; width: 20px; height: 20px; overflow: visible; }
+    .export-hotspot-icon path { stroke: white; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .glow-unit { fill-opacity: 0; fill: var(--glow-color); }
     .glow-bottom { animation: glow-sequence 1.8s infinite; }
     .glow-top { animation: glow-sequence 1.8s infinite; animation-delay: 0.4s; }
-    .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg { animation: none; transform: rotateX(65deg) translateY(-20px) scale(1.15); filter: drop-shadow(0 25px 15px rgba(0,0,0,0.25)); }
+    .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg { animation: none; transform: scale(1.08); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.35)); }
     .pnlm-load-box, .pnlm-lbox, .pnlm-lmsg, .pnlm-lbar, .pnlm-ltext, .pnlm-loading-container, [class^="pnlm-l"], [class*="loading"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] { perspective: none !important; transform-style: flat !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
@@ -121,15 +135,34 @@ module Scripts = {
         const rect = document.createElementNS(ns, "rect"); rect.setAttribute("x", "5"); rect.setAttribute("y", "5"); rect.setAttribute("width", "90"); rect.setAttribute("height", "90"); rect.setAttribute("rx", "12"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")"); svg.appendChild(rect);
         const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "52"); text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle"); text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "22px"; text.setAttribute("fill", "var(--gold-text)"); text.textContent = "HOME"; svg.appendChild(text);
       } else {
-        const defs = document.createElementNS(ns, "defs");
-        const grad = document.createElementNS(ns, "linearGradient");
-        grad.setAttribute("id", "arrowGradExport_" + args.i); grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
-        [{o:"0%",c:"var(--gold-1)"},{o:"50%",c:"var(--gold-2)"},{o:"100%",c:"var(--gold-3)"}].forEach(s=>{ const stop=document.createElementNS(ns,"stop"); stop.setAttribute("offset",s.o); stop.style.stopColor=s.c; grad.appendChild(stop); });
-        defs.appendChild(grad); svg.appendChild(defs);
-        // Single Chevron SVG
-        const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M10 50 L50 20 L90 50 L90 65 L50 35 L10 65 Z"); p1.setAttribute("fill", "var(--gold-border)"); svg.appendChild(p1);
-        const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M10 47 L50 17 L90 47 L90 62 L50 32 L10 62 Z"); p2.setAttribute("fill", "url(#arrowGradExport_" + args.i + ")"); svg.appendChild(p2);
-        const p3 = document.createElementNS(ns, "path"); p3.setAttribute("d", "M10 47 L50 17 L90 47 L50 18 Z"); p3.setAttribute("fill", "var(--arrow-white)"); svg.appendChild(p3);
+        const root = document.createElement("div");
+        root.className = "export-hotspot-root" + (args.targetIsAutoForward ? " auto-forward" : "");
+        const btn = document.createElement("div");
+        btn.className = "export-hotspot-btn";
+        const sweep = document.createElement("div");
+        sweep.className = "export-hotspot-btn-sweep";
+        const icon = document.createElementNS(ns, "svg");
+        icon.setAttribute("class", "export-hotspot-icon");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        if (args.targetIsAutoForward) {
+          const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 15 L12 9 L18 15"); icon.appendChild(p1);
+          const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M6 10 L12 4 L18 10"); icon.appendChild(p2);
+        } else {
+          const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
+        }
+        btn.appendChild(sweep);
+        btn.appendChild(icon);
+        root.appendChild(btn);
+        while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
+        hotSpotDiv.appendChild(root);
+        hotSpotDiv.onclick = function() {
+          let y = 90, p = 0;
+          if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
+          else { if (args.targetYaw !== undefined) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
+          transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
+          setTimeout(() => { window.viewer.loadScene(args.targetSceneId, p, y, 90); }, 450);
+        };
+        return;
       }
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(svg);
@@ -169,6 +202,7 @@ type hotspotData = {
   "pitch": float,
   "yaw": float,
   "target": string,
+  "targetIsAutoForward": bool,
   "truePitch": float,
   "viewFrame": Nullable.t<viewFrame>,
   "returnViewFrame": Nullable.t<viewFrame>,
@@ -192,6 +226,7 @@ let encodeHotspot = (h: hotspotData) => {
     ("pitch", JsonCombinators.Json.Encode.float(h["pitch"])),
     ("yaw", JsonCombinators.Json.Encode.float(h["yaw"])),
     ("target", JsonCombinators.Json.Encode.string(h["target"])),
+    ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(h["targetIsAutoForward"])),
     ("truePitch", JsonCombinators.Json.Encode.float(h["truePitch"])),
     (
       "viewFrame",
@@ -251,6 +286,10 @@ let generateTourHTML = (
         "pitch": h.displayPitch->Option.getOr(h.pitch),
         "yaw": h.yaw,
         "target": h.target,
+        "targetIsAutoForward": scenes
+        ->Belt.Array.getBy(ts => ts.name == h.target)
+        ->Option.map(ts => ts.isAutoForward)
+        ->Option.getOr(false),
         "truePitch": h.pitch,
         "viewFrame": h.viewFrame->Nullable.fromOption,
         "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
@@ -304,7 +343,7 @@ let generateTourHTML = (
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [name, data] of Object.entries(scenesData)) {
-      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, targetSceneId: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     window.viewer = pannellum.viewer('panorama', config); window.viewer.resize();
     window.addEventListener('resize', () => window.viewer?.resize());

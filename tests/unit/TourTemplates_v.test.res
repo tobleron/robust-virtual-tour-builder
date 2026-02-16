@@ -119,7 +119,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(embed, "iframe")
     t->expectToContain(embed, "MyTour")
 
-    let index = generateExportIndex("MyTour", "1.0")
+    let index = generateExportIndex("MyTour", "1.0", None)
     t->expectToContain(index, "MyTour")
     t->expectToContain(index, "viewport")
   })

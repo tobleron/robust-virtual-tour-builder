@@ -49,37 +49,16 @@ let make = (
   ~dispatch: Actions.action => unit,
   ~elementId: string,
   ~isTargetAutoForward as initialAF: bool,
-  ~scenes: array<Types.scene>,
+  ~scenes as _scenes: array<Types.scene>,
   ~state: Types.state,
 ) => {
-  // 1. Reactive calculation of Target Scene (use passed scenes)
-  let targetSceneRef = React.useMemo3(() => {
-    switch Belt.Array.get(scenes, sceneIndex) {
-    | Some(scene) =>
-      switch Belt.Array.get(scene.hotspots, hotspotIndex) {
-      | Some(h) => Belt.Array.getBy(scenes, s => s.name == h.target)
-      | None => None
-      }
-    | None => None
-    }
-  }, (scenes, sceneIndex, hotspotIndex))
-
-  // 2. Local state for instant feedback & animations
+  // 1. Local state for instant feedback & animations
   let (localIsAF, setLocalIsAF) = React.useState(_ => initialAF)
   let (flickerRed, setFlickerRed) = React.useState(_ => false)
   let (flickerYellow, setFlickerYellow) = React.useState(_ => false)
   let (isSwapping, setIsSwapping) = React.useState(_ => false)
 
-  // 3. Sync with global state if it changes externally
-  React.useEffect1(() => {
-    switch targetSceneRef {
-    | Some(ts) => setLocalIsAF(_ => ts.isAutoForward)
-    | None => ()
-    }
-    None
-  }, [targetSceneRef])
-
-  // 4. Button Swap Logic (Uses localIsAF for instant feedback)
+  // 2. Button Swap Logic (Uses localIsAF for instant feedback)
   let (centerIcon, rightIcon) = if localIsAF {
     (
       <LucideIcons.ChevronsUp.make className="text-white" size=20 strokeWidth=3.0 />,
@@ -95,18 +74,19 @@ let make = (
   // 3. Handlers
   let handleMainClick = e => {
     e->JsxEvent.Mouse.stopPropagation
-    switch Belt.Array.get(state.scenes, sceneIndex) {
+    let currentState = AppContext.getBridgeState()
+    switch Belt.Array.get(currentState.scenes, sceneIndex) {
     | Some(currentScene) =>
       switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        let targetIdx = Belt.Array.getIndexBy(scenes, s => s.name == hotspot.target)
+        let targetIdx = Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target)
         switch targetIdx {
         | Some(tIdx) =>
           let (ny, np, nh) = Logic.calculateNavParams(hotspot)
 
           SceneSwitcher.navigateToScene(
             dispatch,
-            state,
+            currentState,
             tIdx,
             sceneIndex,
             hotspotIndex,
@@ -125,38 +105,68 @@ let make = (
 
   let handleRightClick = e => {
     e->JsxEvent.Mouse.stopPropagation
-    switch targetSceneRef {
-    | Some(ts) =>
-      let tIdx = Belt.Array.getIndexBy(scenes, s => s.name == ts.name)
-      switch tIdx {
-      | Some(idx) =>
-        // Start Yellow Flicker
-        setFlickerYellow(_ => true)
-        let _ = setTimeout(() => {
-          setFlickerYellow(_ => false)
-          // Start Swap Animation & Logic
-          setIsSwapping(_ => true)
-          let newVal = !localIsAF
-          setLocalIsAF(_ => newVal)
-          dispatch(Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": newVal})))
-          NotificationManager.dispatch({
-            id: "",
-            importance: Info,
-            context: Operation("preview_arrow"),
-            message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-            details: None,
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Info),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-          let _ = setTimeout(() => setIsSwapping(_ => false), 600)
-        }, 800)
+    let currentState = AppContext.getBridgeState()
+    switch Belt.Array.get(currentState.scenes, sceneIndex) {
+    | Some(scene) =>
+      switch Belt.Array.get(scene.hotspots, hotspotIndex) {
+      | Some(hotspot) =>
+        let tIdx = Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target)
+        switch tIdx {
+        | Some(idx) =>
+          switch Belt.Array.get(currentState.scenes, idx) {
+          | Some(targetScene) =>
+            // Start Yellow Flicker
+            setFlickerYellow(_ => true)
+            let _ = setTimeout(() => {
+              setFlickerYellow(_ => false)
+              // Start Swap Animation & Logic
+              setIsSwapping(_ => true)
+              let newVal = !targetScene.isAutoForward
+              setLocalIsAF(_ => newVal)
+              dispatch(
+                Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": newVal})),
+              )
+              EventBus.dispatch(ForceHotspotSync)
+              NotificationManager.dispatch({
+                id: "",
+                importance: Info,
+                context: Operation("preview_arrow"),
+                message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
+                details: None,
+                action: None,
+                duration: NotificationTypes.defaultTimeoutMs(Info),
+                dismissible: true,
+                createdAt: Date.now(),
+              })
+              let _ = setTimeout(() => setIsSwapping(_ => false), 600)
+            }, 800)
+          | None => ()
+          }
+        | None => ()
+        }
       | None => ()
       }
     | None => ()
     }
   }
+
+  React.useEffect1(() => {
+    let currentState = AppContext.getBridgeState()
+    let nextIsAF = switch Belt.Array.get(currentState.scenes, sceneIndex) {
+    | Some(scene) =>
+      switch Belt.Array.get(scene.hotspots, hotspotIndex) {
+      | Some(hotspot) =>
+        currentState.scenes
+        ->Belt.Array.getBy(s => s.name == hotspot.target)
+        ->Option.map(s => s.isAutoForward)
+        ->Option.getOr(localIsAF)
+      | None => localIsAF
+      }
+    | None => localIsAF
+    }
+    setLocalIsAF(_ => nextIsAF)
+    None
+  }, [state.structuralRevision])
 
   let handleDeleteClick = e => {
     e->JsxEvent.Mouse.stopPropagation

@@ -10,7 +10,7 @@
 
 ## 🛠️ SURGICAL REFACTOR TASKS (1)
 - [ ] **../../src/systems/Exporter.res**
-  - *Reason:* [Nesting: 1.80, Density: 0.08, Coupling: 0.07] | Drag: 2.89 | LOC: 436/300  🎯 Target: Function: `normalizeThrowableMessage` (High Local Complexity (3.0). Logic heavy.)
+  - *Reason:* [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)
 
 ---
 
