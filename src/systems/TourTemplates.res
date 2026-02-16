@@ -443,8 +443,14 @@ module Scripts = {
     function buildPath(primary, currentPitch, currentYaw) {
       const startYaw = Number.isFinite(primary.startYaw) ? primary.startYaw : currentYaw;
       const startPitch = Number.isFinite(primary.startPitch) ? primary.startPitch : currentPitch;
-      const endYaw = primary.yaw;
-      const endPitch = Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch;
+      const endYaw = Number.isFinite(primary?.viewFrame?.yaw)
+        ? primary.viewFrame.yaw
+        : (Number.isFinite(primary.targetYaw) ? primary.targetYaw : primary.yaw);
+      const endPitch = Number.isFinite(primary?.viewFrame?.pitch)
+        ? primary.viewFrame.pitch
+        : (Number.isFinite(primary.targetPitch)
+            ? primary.targetPitch
+            : (Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch));
       const waypoints = Array.isArray(primary.waypoints) ? primary.waypoints : [];
       const controls = [toPoint(startYaw, startPitch)];
       for (const w of waypoints) {
