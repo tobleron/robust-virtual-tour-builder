@@ -157,7 +157,7 @@ let make = React.memo((
     onDrop={e => onItemDrop(index, e)}
     onClick={_ => {
       if !isActive {
-        let _ = handleSceneClick()
+        handleSceneClick()->Promise.catch(_ => Promise.resolve())->ignore
       }
     }}
     tabIndex=0
@@ -165,7 +165,7 @@ let make = React.memo((
       if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
         JsxEvent.Keyboard.preventDefault(e)
         if !isActive {
-          let _ = handleSceneClick()
+          handleSceneClick()->Promise.catch(_ => Promise.resolve())->ignore
         }
       }
     }}

@@ -9,6 +9,7 @@ type mockFn
 type expectation
 @val external expectCall: 'a => expectation = "expect"
 @send external toHaveBeenCalledWith: (expectation, 'a) => unit = "toHaveBeenCalledWith"
+@send external toHaveBeenCalledWith2: (expectation, 'a, 'b) => unit = "toHaveBeenCalledWith"
 
 /* Mocks */
 %%raw(`
@@ -35,12 +36,15 @@ describe("Teaser.Pathfinder", () => {
 
     let _ = await getWalkPath(scenes, skipAutoForward)
 
-    expectCall(mockCalculatePath)->toHaveBeenCalledWith({
-      "type": "walk",
-      "scenes": scenes,
-      "skipAutoForward": skipAutoForward,
-      "timeline": undefined,
-    })
+    expectCall(mockCalculatePath)->toHaveBeenCalledWith2(
+      undefined,
+      {
+        "type": "walk",
+        "scenes": scenes,
+        "skipAutoForward": skipAutoForward,
+        "timeline": undefined,
+      },
+    )
     t->expect(true)->Expect.toBe(true)
   })
 
@@ -51,12 +55,15 @@ describe("Teaser.Pathfinder", () => {
 
     let _ = await getTimelinePath(timeline, scenes, skipAutoForward)
 
-    expectCall(mockCalculatePath)->toHaveBeenCalledWith({
-      "type": "timeline",
-      "timeline": timeline,
-      "scenes": scenes,
-      "skipAutoForward": skipAutoForward,
-    })
+    expectCall(mockCalculatePath)->toHaveBeenCalledWith2(
+      undefined,
+      {
+        "type": "timeline",
+        "timeline": timeline,
+        "scenes": scenes,
+        "skipAutoForward": skipAutoForward,
+      },
+    )
     t->expect(true)->Expect.toBe(true)
   })
 

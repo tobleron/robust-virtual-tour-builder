@@ -14,6 +14,7 @@ type expectation
 @send external toHaveBeenCalled: (expectation, unit) => unit = "toHaveBeenCalled"
 @send external toHaveBeenCalledWith: (expectation, 'a) => unit = "toHaveBeenCalledWith"
 @send external toHaveBeenCalledWith2: (expectation, 'a, 'b) => unit = "toHaveBeenCalledWith"
+@send external toHaveBeenCalledWith3: (expectation, 'a, 'b, 'c) => unit = "toHaveBeenCalledWith"
 
 /* Mocks */
 @module("../../src/systems/TeaserPathfinder.bs.js") external mockGetWalkPath: mockFn = "getWalkPath"
@@ -170,9 +171,10 @@ describe("TeaserManager", () => {
       ~dispatch=AppStateBridge.dispatch,
     )
 
-    expectCall(mockGetWalkPath)->toHaveBeenCalledWith2(
+    expectCall(mockGetWalkPath)->toHaveBeenCalledWith3(
       [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
       skipAutoForward,
+      undefined,
     )
 
     expectCall(mockLoadLogo)->toHaveBeenCalled()

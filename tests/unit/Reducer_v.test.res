@@ -149,6 +149,6 @@ describe("Reducer (Root Re-export)", () => {
     let action8 = SyncSceneNames
     let state8 = Reducer.reducer(stateWithLabel, action8)
     let updatedScene = Array.getUnsafe(state8.scenes, 0)
-    t->expect(updatedScene.name)->Expect.toEqual("01_living_room.webp")
+    t->expect(updatedScene.name)->Expect.toEqual("001_Living_Room.webp")
   })
 })
