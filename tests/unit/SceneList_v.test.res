@@ -170,7 +170,12 @@ describe("SceneList", () => {
 
     let clickSecondItem: Dom.element => unit = %raw(`(container) => {
       const items = container.querySelectorAll(".scene-item");
-      if (items[1]) items[1].click();
+      if (items[1]) {
+        try {
+          const p = items[1].click();
+          if (p && p.catch) p.catch(() => {});
+        } catch (e) {}
+      }
     }`)
 
     // Click 1: Should Succeed

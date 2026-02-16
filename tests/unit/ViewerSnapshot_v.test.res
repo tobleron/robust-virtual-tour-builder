@@ -204,7 +204,7 @@ describe("ViewerSnapshot", () => {
         Belt.Array.forEach(
           queueState.pending,
           notif => {
-            if notif.message->String.includes("Please wait") {
+            if notif.message->String.includes("Rendering") {
               notificationReceived := true
             }
           },
@@ -212,7 +212,7 @@ describe("ViewerSnapshot", () => {
         Belt.Array.forEach(
           queueState.active,
           notif => {
-            if notif.message->String.includes("Please wait") {
+            if notif.message->String.includes("Rendering") {
               notificationReceived := true
             }
           },
@@ -225,7 +225,7 @@ describe("ViewerSnapshot", () => {
 
     // Call 12 times to hit rate limit (limit is 10)
     for _ in 1 to 12 {
-      ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
+      let _ = %raw(`ViewerSnapshot.debouncedSnapshot.call()`)
       let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
     }
 

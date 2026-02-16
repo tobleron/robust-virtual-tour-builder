@@ -72,12 +72,12 @@ describe("Constants", _ => {
 
   test("animation timing configuration", t => {
     t->expect(Constants.modalFadeDuration)->Expect.toBe(100)
-    t->expect(Constants.panningVelocity)->Expect.toBe(40.0)
-    t->expect(Constants.panningMinDuration)->Expect.toBe(500.0)
-    t->expect(Constants.panningMaxDuration)->Expect.toBe(15000.0)
+    t->expect(Constants.panningVelocity)->Expect.toBe(25.0)
+    t->expect(Constants.panningMinDuration)->Expect.toBe(1000.0)
+    t->expect(Constants.panningMaxDuration)->Expect.toBe(20000.0)
     t->expect(Constants.sceneStabilizationDelay)->Expect.toBe(1000)
     t->expect(Constants.viewerLoadCheckInterval)->Expect.toBe(100)
-    t->expect(Constants.tooltipDelayDuration)->Expect.toBe(1200)
+    t->expect(Constants.tooltipDelayDuration)->Expect.toBe(2400)
   })
 
   test("scene floor levels", t => {

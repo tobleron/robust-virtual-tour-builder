@@ -354,7 +354,6 @@ This map provides a semantic overview of the project structure to optimize conte
 ## 🧪 Test Suite
 
 ### 🧩 Unit Tests (Key Examples)
-* [tests/unit/Timeline_v.test.res](tests/unit/Timeline_v.test.res): Unit tests for the timeline reducer and actions. `#testing` `#unit` `#timeline`
 * [tests/unit/ExifUtils_v.test.res](tests/unit/ExifUtils_v.test.res): Tests for EXIF utilities and report generation helpers. `#testing` `#unit` `#exif`
 * [tests/unit/Simulation_v.test.res](tests/unit/Simulation_v.test.res): Tests for the simulation component and logic. `#testing` `#unit` `#simulation`
 * [tests/unit/SvgManager_v.test.res](tests/unit/SvgManager_v.test.res): Tests for SVG rendering and management. `#testing` `#unit` `#svg`

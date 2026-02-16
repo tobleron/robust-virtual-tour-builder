@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open ViewerSystem.PannellumAdapter
+open ViewerAdapter
 
 type expectation
 @val external expectCall: 'a => expectation = "expect"
@@ -14,7 +14,7 @@ external toHaveBeenCalledWith5: (expectation, 'a, 'b, 'c, 'd, 'e) => unit = "toH
 type mockFn
 @send external mockReturnValue: (mockFn, 'a) => unit = "mockReturnValue"
 
-describe("PannellumAdapter", () => {
+describe("ViewerAdapter", () => {
   let mockViewer = Obj.magic({
     "getPitch": %raw(`vi.fn().mockReturnValue(10.0)`),
     "getYaw": %raw(`vi.fn().mockReturnValue(20.0)`),
@@ -28,6 +28,7 @@ describe("PannellumAdapter", () => {
     "loadScene": %raw(`vi.fn()`),
     "destroy": %raw(`vi.fn()`),
     "on": %raw(`vi.fn()`),
+    "isLoaded": %raw(`vi.fn().mockReturnValue(true)`),
     "_sceneId": "initial-id",
     "_isLoaded": false,
   })
