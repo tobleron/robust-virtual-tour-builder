@@ -25,8 +25,9 @@
 - **Trigger**: When asked to "troubleshoot", "debug", "fix", or investigate a bug.
 - **Action**: Create `tasks/active/T###_troubleshoot_[context].md` immediately (Sequential numbering with project tasks).
 - **Mandatory Content**:
-  - [ ] **Hypothesis**: Initial assumption.
+  - [ ] **Hypothesis (Ordered Expected Solutions)**: Checkbox list ordered by highest probability first. Each item must be an expected fix path, not just a symptom.
   - [ ] **Activity Log**: Checkbox list of experiments/edits.
+  - [ ] **Code Change Ledger**: During troubleshooting, record every code change as it happens (file path + short change summary + revert note) so individual edits can be rolled back surgically.
   - [ ] **Rollback Check**: [ ] (Confirmed CLEAN or REVERTED non-working changes).
   - [ ] **Context Handoff**: 3-sentence summary for the next session if the window fills up.
 

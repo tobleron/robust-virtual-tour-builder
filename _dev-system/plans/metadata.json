@@ -5,10 +5,10 @@
       "Surgical": {
         "file": "../../src/systems/Exporter.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.08, Coupling: 0.07] | Drag: 2.89 | LOC: 436/300  🎯 Target: Function: `normalizeThrowableMessage` (High Local Complexity (3.0). Logic heavy.)",
+        "reason": "[Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.494036697247704,
+        "complexity": 24.332295719844357,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
@@ -57,37 +57,57 @@
                   "line": 162
                 },
                 {
+                  "name": "normalizeLogoExtension",
+                  "signature": "normalizeLogoExtension = (name: string): string => {",
+                  "line": 185
+                },
+                {
+                  "name": "filenameFromUrl",
+                  "signature": "filenameFromUrl = (url: string): option<string> => {",
+                  "line": 194
+                },
+                {
+                  "name": "isLikelyImageUrl",
+                  "signature": "isLikelyImageUrl = (url: string): bool => {",
+                  "line": 205
+                },
+                {
+                  "name": "isLikelyImageBlob",
+                  "signature": "isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {",
+                  "line": 214
+                },
+                {
                   "name": "progress",
                   "signature": "progress = (p, t, m) => {",
-                  "line": 192
+                  "line": 233
                 },
                 {
                   "name": "tourName",
                   "signature": "tourName = if tourName == \"\" {",
-                  "line": 199
+                  "line": 240
                 },
                 {
                   "name": "msg",
                   "signature": "msg = normalizeThrowableMessage(exn)",
-                  "line": 446
+                  "line": 529
                 },
                 {
                   "name": "normalizedStack",
                   "signature": "normalizedStack = if stack != \"\" {",
-                  "line": 447
+                  "line": 530
                 },
                 {
                   "name": "payload",
                   "signature": "payload = extractHttpErrorBody(msg)",
-                  "line": 458
+                  "line": 541
                 },
                 {
                   "name": "finalMsg",
                   "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
-                  "line": 459
+                  "line": 542
                 }
               ],
-              "fingerprint": "43ccb5b4bf4d0a82a37f208c488e10ae0211d41754160e1990b02185b0e05a9e"
+              "fingerprint": "9bc25854425bc359d2921bbb5923e43101e5412ec3c3a9dcc188fa485219276e"
             }
           ]
         }
