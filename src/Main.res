@@ -154,7 +154,10 @@ let init = async () => {
       // SimulationSystem.initSimulationKeyHandler() - Deprecated
       ImageOptimizer.init()
 
-      // 8. Service Worker (for offline capability and caching)
+      // 8. Network Status
+      NetworkStatus.initialize()
+
+      // 9. Service Worker (for offline capability and caching)
       try {
         if Constants.isDebugBuild() {
           ServiceWorker.unregisterServiceWorker()

@@ -52,6 +52,7 @@ type event =
   | ForceHotspotSync
   | TriggerUpload
   | PreviewLinkId(string)
+  | NetworkStatusChanged(bool)
 
 type subscription = unit => unit
 
