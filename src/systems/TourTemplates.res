@@ -94,6 +94,8 @@ module Styles = {
     .export-hotspot-btn:hover { background: #f97316; transform: scale(1.03); filter: brightness(1.04); }
     .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }
     .export-hotspot-root.auto-forward .export-hotspot-btn-sweep { --sweep-duration: 1.5s; }
+    .export-hotspot-root.auto-forward .export-hotspot-btn { background: #4B0082; }
+    .export-hotspot-root.auto-forward .export-hotspot-btn:hover { background: #5D3FD3; }
     .export-hotspot-icon { position: relative; z-index: 2; width: 20px; height: 20px; overflow: visible; }
     .export-hotspot-icon path { stroke: white; stroke-width: 3.0; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .glow-unit { fill-opacity: 0; fill: var(--glow-color); }
