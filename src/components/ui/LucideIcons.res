@@ -395,3 +395,13 @@ module Upload = {
     ~fill: string=?,
   ) => React.element = "Upload"
 }
+
+module WifiOff = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "WifiOff"
+}
