@@ -4,6 +4,12 @@ open Vitest
 open RequestQueue
 
 describe("RequestQueue", () => {
+  afterEach(() => {
+    let _ = drain()
+    paused := false
+    activeCount := 0
+  })
+
   test("Module exists and can schedule tasks", t => {
     // Synchronous trigger
     let _ = schedule(() => Promise.resolve())
@@ -83,5 +89,75 @@ describe("RequestQueue", () => {
     ->Promise.catch(_ => Promise.resolve("rejected"))
 
     t->expect(overflowResult)->Expect.toBe("rejected")
+  })
+
+  testAsync("pause stops processing new tasks", async t => {
+    pause()
+    let executed = ref(false)
+    let _ = schedule(async () => {
+      executed := true
+    })
+
+    // Wait a bit to ensure it doesn't run
+    let _ = await Promise.make((resolve, _) => {
+      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
+    })
+
+    t->expect(executed.contents)->Expect.toBe(false)
+    t->expect(length())->Expect.toBe(1)
+
+    // Cleanup
+    let _ = drain()
+    resume()
+  })
+
+  testAsync("resume restarts processing", async t => {
+    pause()
+    let executed = ref(false)
+    let _ = schedule(async () => {
+      executed := true
+    })
+
+    t->expect(executed.contents)->Expect.toBe(false)
+
+    resume()
+
+    // Wait for execution
+    let _ = await Promise.make((resolve, _) => {
+      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
+    })
+
+    t->expect(executed.contents)->Expect.toBe(true)
+    t->expect(length())->Expect.toBe(0)
+  })
+
+  testAsync("drain clears the queue", async t => {
+    pause()
+    let _ = schedule(async () => {ignore()})
+    let _ = schedule(async () => {ignore()})
+    let _ = schedule(async () => {ignore()})
+
+    t->expect(length())->Expect.toBe(3)
+
+    let count = drain()
+    t->expect(count)->Expect.toBe(3)
+    t->expect(length())->Expect.toBe(0)
+
+    resume()
+  })
+
+  testAsync("drain rejects pending tasks", async t => {
+    pause()
+    let p = schedule(async () => {ignore()})
+
+    let rejection = p
+    ->Promise.then(_ => Promise.resolve("resolved"))
+    ->Promise.catch(_ => Promise.resolve("rejected"))
+
+    let _ = drain()
+
+    let result = await rejection
+    t->expect(result)->Expect.toBe("rejected")
+    resume()
   })
 })

@@ -156,6 +156,7 @@ let init = async () => {
 
       // 8. Network Status
       NetworkStatus.initialize()
+      RequestQueue.initializeNetworkListener()
 
       // 9. Service Worker (for offline capability and caching)
       try {
