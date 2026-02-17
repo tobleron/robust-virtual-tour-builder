@@ -48,31 +48,51 @@ let prepareRequestSignal = (
   let requestSignal = ReBindings.AbortController.signal(controller)
   let timedOut = ref(false)
   let cleaned = ref(false)
+  let timeoutId = ref(None)
 
-  let timeoutId = ReBindings.Window.setTimeout(() => {
-    timedOut := true
+  let onParentAbort = () => {
+    // Do not set cleaned := true here to allow cleanup() to run fully
+    switch timeoutId.contents {
+    | Some(id) => ReBindings.Window.clearTimeout(id)
+    | None => ()
+    }
     ReBindings.AbortController.abort(controller)
-  }, timeoutMs)
+  }
 
-  let detachParentAbort = ref(None)
   switch parentSignal {
   | Some(s) =>
     if ReBindings.AbortSignal.aborted(s) {
       ReBindings.AbortController.abort(controller)
     } else {
-      let onAbort = () => ReBindings.AbortController.abort(controller)
-      s->ReBindings.AbortSignal.addEventListener("abort", onAbort)
-      detachParentAbort :=
-        Some(() => s->ReBindings.AbortSignal.removeEventListener("abort", onAbort))
+      s->ReBindings.AbortSignal.addEventListener("abort", onParentAbort)
     }
   | None => ()
   }
 
+  timeoutId := Some(
+    ReBindings.Window.setTimeout(() => {
+      if !cleaned.contents {
+        timedOut := true
+        cleaned := true
+        ReBindings.AbortController.abort(controller)
+        // Remove parent listener on timeout too
+        Option.forEach(parentSignal, s =>
+          s->ReBindings.AbortSignal.removeEventListener("abort", onParentAbort)
+        )
+      }
+    }, timeoutMs),
+  )
+
   let cleanup = () => {
     if !cleaned.contents {
       cleaned := true
-      ReBindings.Window.clearTimeout(timeoutId)
-      detachParentAbort.contents->Option.forEach(fn => fn())
+      switch timeoutId.contents {
+      | Some(id) => ReBindings.Window.clearTimeout(id)
+      | None => ()
+      }
+      Option.forEach(parentSignal, s =>
+        s->ReBindings.AbortSignal.removeEventListener("abort", onParentAbort)
+      )
     }
   }
 
