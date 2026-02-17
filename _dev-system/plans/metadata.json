@@ -1,5 +1,4 @@
 {
-  "system": [],
   "rescript": [
     {
       "Surgical": {
@@ -155,5 +154,6 @@
         }
       }
     }
-  ]
+  ],
+  "system": []
 }
