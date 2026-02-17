@@ -110,6 +110,16 @@ module ChevronsUp = {
   ) => React.element = "ChevronsUp"
 }
 
+module ChevronsRight = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "ChevronsRight"
+}
+
 module Plus = {
   @module("lucide-react") @react.component
   external make: (

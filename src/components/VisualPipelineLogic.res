@@ -180,7 +180,8 @@ module Styles = {
 
   /* Inner Selection Marker */
   .node-marker {
-    width: var(--vp-marker-size); height: var(--vp-marker-size);
+    width: calc(var(--vp-marker-size) + 4px); 
+    height: calc(var(--vp-marker-size) + 4px);
     background: var(--orange-brand);
     border-radius: 50%;
     position: absolute;
@@ -239,12 +240,23 @@ module Styles = {
   }
 
   .auto-forward-indicator {
-    position: absolute; top: -6px; right: -6px;
-    background: var(--primary); color: white;
-    width: 14px; height: 14px; border-radius: 50%;
-    font-size: 9px; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    z-index: 30; pointer-events: none;
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    background: transparent; 
+    color: white !important;
+    width: 20px; 
+    height: 20px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    z-index: 9999; 
+    pointer-events: none;
+  }
+  
+  .auto-forward-indicator svg {
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
   }
 
   .drop-zone.is-endpoint { width: 0; display: none; overflow: hidden; }
