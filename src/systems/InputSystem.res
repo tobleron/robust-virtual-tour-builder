@@ -100,11 +100,7 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
 
     // 0d. Handle Teaser Recording Interruption
     if storeState.isTeasing {
-      Logger.info(
-        ~module_="InputSystem",
-        ~message="ESC_ABORT_TEASER",
-        (),
-      )
+      Logger.info(~module_="InputSystem", ~message="ESC_ABORT_TEASER", ())
       dispatch(SetIsTeasing(false))
       dispatch(StopAutoPilot)
     }
