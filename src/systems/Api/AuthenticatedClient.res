@@ -147,10 +147,19 @@ let request = async (
     finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
   }
 
-  let lastState = CircuitBreaker.getState(circuitBreaker)
-  if lastState === CircuitBreaker.Open {
-    NotificationManager.dispatch({
-      id: "cb-open-notification",
+  if !NetworkStatus.isOnline() {
+    Logger.warn(
+      ~module_="AuthenticatedClient",
+      ~message="REQUEST_SKIPPED_OFFLINE",
+      ~data=Some(Logger.castToJson({"url": url, "method": method})),
+      (),
+    )
+    Error("NetworkOffline")
+  } else {
+    let lastState = CircuitBreaker.getState(circuitBreaker)
+    if lastState === CircuitBreaker.Open {
+      NotificationManager.dispatch({
+        id: "cb-open-notification",
       importance: Warning,
       context: Operation("api"),
       message: "Connection issues: Circuit breaker is open. Please wait 30 seconds.",
@@ -258,6 +267,7 @@ let request = async (
     }
   }
 }
+}
 
 let requestWithRetry = (
   url,
@@ -302,6 +312,13 @@ let requestWithRetry = (
       ),
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
+    ~shouldRetry=error => {
+      if error == "NetworkOffline" {
+        false
+      } else {
+        Retry.defaultShouldRetry(error)
+      }
+    },
     ~onRetry=(attempt, error, delay) => {
       Logger.warn(
         ~module_="AuthenticatedClient",
@@ -347,6 +364,7 @@ let requestWithRetry = (
         createdAt: Date.now(),
       })
     | Retry.Exhausted("AbortError") => NotificationManager.dismiss(incidentNotificationId)
+    | Retry.Exhausted("NetworkOffline") => () // Handled by offline banner
     | Retry.Exhausted(error) =>
       NotificationManager.dispatch({
         id: incidentNotificationId,

@@ -14,6 +14,8 @@ type retryResult<'a> =
 
 let defaultConfig: config
 
+let defaultShouldRetry: string => bool
+
 let execute: (
   ~fn: (~signal: ReBindings.AbortSignal.t) => Promise.t<result<'a, string>>,
   ~signal: ReBindings.AbortSignal.t,
