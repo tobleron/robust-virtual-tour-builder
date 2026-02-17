@@ -1,4 +1,5 @@
 {
+  "system": [],
   "rust": [
     {
       "Surgical": {
@@ -91,41 +92,81 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
+        "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.13, Coupling: 0.02] | Drag: 5.33 | LOC: 1109/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (7.9). Logic heavy.)",
+        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 86.23435527502255,
-        "recommended_splits": 4,
+        "complexity": 13.485,
+        "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
+          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
           "snapshots": [
             {
-              "path": "src/systems/TourTemplates.res",
+              "path": "src/systems/ProjectManager.res",
               "functions": [
                 {
-                  "name": "indexTemplate",
-                  "signature": "indexTemplate = `<!DOCTYPE html>",
-                  "line": 9
+                  "name": "validationReportWrapperDecoder",
+                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 21
                 },
                 {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
+                  "name": "validateProjectStructure",
+                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+                  "line": 25
+                },
+                {
+                  "name": "createSavePackage",
+                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+                  "line": 29
+                },
+                {
+                  "name": "processLoadedProjectData",
+                  "signature": "processLoadedProjectData = (",
+                  "line": 35
+                },
+                {
+                  "name": "loadProjectZip",
+                  "signature": "loadProjectZip = (",
                   "line": 43
                 },
                 {
-                  "name": "generateEmbedCodes",
-                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1145
+                  "name": "saveRecoveryContextDecoder",
+                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
+                  "line": 56
                 },
                 {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1146
+                  "name": "updateSaveContext",
+                  "signature": "updateSaveContext = (",
+                  "line": 65
+                },
+                {
+                  "name": "classifySaveError",
+                  "signature": "classifySaveError = (msg: string) => {",
+                  "line": 85
+                },
+                {
+                  "name": "notifySaveFailure",
+                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
+                  "line": 113
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
+                  "line": 127
+                },
+                {
+                  "name": "recoverSaveProject",
+                  "signature": "recoverSaveProject = (",
+                  "line": 324
+                },
+                {
+                  "name": "loadProject",
+                  "signature": "loadProject = (",
+                  "line": 433
                 }
               ],
-              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
+              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
             }
           ]
         }
@@ -245,86 +286,45 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/TourTemplates.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.13, Coupling: 0.02] | Drag: 5.33 | LOC: 1109/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (7.9). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.485,
-        "recommended_splits": 2,
+        "complexity": 86.23435527502255,
+        "recommended_splits": 4,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
           "snapshots": [
             {
-              "path": "src/systems/ProjectManager.res",
+              "path": "src/systems/TourTemplates.res",
               "functions": [
                 {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 21
+                  "name": "indexTemplate",
+                  "signature": "indexTemplate = `<!DOCTYPE html>",
+                  "line": 9
                 },
                 {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 25
-                },
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 29
-                },
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 35
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (",
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
                   "line": 43
                 },
                 {
-                  "name": "saveRecoveryContextDecoder",
-                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
-                  "line": 56
+                  "name": "generateEmbedCodes",
+                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
+                  "line": 1145
                 },
                 {
-                  "name": "updateSaveContext",
-                  "signature": "updateSaveContext = (",
-                  "line": 65
-                },
-                {
-                  "name": "classifySaveError",
-                  "signature": "classifySaveError = (msg: string) => {",
-                  "line": 85
-                },
-                {
-                  "name": "notifySaveFailure",
-                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
-                  "line": 113
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
-                  "line": 127
-                },
-                {
-                  "name": "recoverSaveProject",
-                  "signature": "recoverSaveProject = (",
-                  "line": 324
-                },
-                {
-                  "name": "loadProject",
-                  "signature": "loadProject = (",
-                  "line": 433
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = Assets.generateExportIndex",
+                  "line": 1146
                 }
               ],
-              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
+              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
             }
           ]
         }
       }
     }
-  ],
-  "system": []
+  ]
 }
