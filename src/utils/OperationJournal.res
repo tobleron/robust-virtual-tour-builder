@@ -92,13 +92,24 @@ let updateStatus = (id: string, status: operationStatus): Promise.t<unit> => {
   }
 }
 
+let mergeContexts = (oldCtx: JSON.t, newCtx: JSON.t): JSON.t => {
+  switch (JSON.Decode.object(oldCtx), JSON.Decode.object(newCtx)) {
+  | (Some(o), Some(n)) =>
+    let merged = Dict.fromArray(Dict.toArray(o))
+    Dict.toArray(n)->Belt.Array.forEach(((k, v)) => Dict.set(merged, k, v))
+    JSON.Encode.object(merged)
+  | _ => newCtx
+  }
+}
+
 let updateContext = (id: string, context: JSON.t): Promise.t<unit> => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
       if JournalTypes.isTerminalStatus(entry.status) {
         entry
       } else {
-        {...entry, context}
+        let mergedContext = mergeContexts(entry.context, context)
+        {...entry, context: mergedContext}
       }
     } else {
       entry
