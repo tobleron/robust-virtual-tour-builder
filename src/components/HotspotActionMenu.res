@@ -171,7 +171,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         onClick={_ => handleToggleAutoForward()}
         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all border
           ${isAutoForward
-            ? "bg-accent/10 border-accent/20 text-accent-light"
+            ? "bg-[#4B0082]/20 border-[#4B0082]/30 text-[#a78bfa]"
             : "bg-white/10 border-white/5 text-slate-400 hover:text-slate-200"}`}
         title="Toggle Auto-Forward"
       >

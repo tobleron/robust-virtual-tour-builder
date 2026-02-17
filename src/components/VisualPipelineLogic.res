@@ -244,7 +244,8 @@ module Styles = {
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%);
-    background: transparent; 
+    background: #4B0082; 
+    border-radius: 50%;
     color: white !important;
     width: 20px; 
     height: 20px;
@@ -253,6 +254,7 @@ module Styles = {
     justify-content: center;
     z-index: 9999; 
     pointer-events: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   }
   
   .auto-forward-indicator svg {

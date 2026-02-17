@@ -188,8 +188,11 @@ let make = (
     }, 800)
   }
 
-  let baseColor = "bg-[#ea580c]"
-  let hoverColor = "hover:bg-[#f97316]"
+  let centerBaseColor = if localIsAF { "bg-[#4B0082]" } else { "bg-[#ea580c]" }
+  let centerHoverColor = if localIsAF { "hover:bg-[#5D3FD3]" } else { "hover:bg-[#f97316]" }
+  
+  let rightBaseColor = if !localIsAF { "bg-[#4B0082]" } else { "bg-[#ea580c]" }
+  let rightHoverColor = if !localIsAF { "hover:bg-[#5D3FD3]" } else { "hover:bg-[#f97316]" }
 
   let swapClass = isSwapping ? "animate-swap-icon" : ""
 
@@ -205,7 +208,7 @@ let make = (
     <div className="relative flex items-center justify-center w-8 h-8">
       // CENTER BUTTON
       <div
-        className={`absolute inset-0 ${baseColor} ${hoverColor} rounded-md shadow-lg flex items-center justify-center z-20 cursor-pointer transition-colors overflow-hidden ${swapClass}`}
+        className={`absolute inset-0 ${centerBaseColor} ${centerHoverColor} rounded-md shadow-lg flex items-center justify-center z-20 cursor-pointer transition-colors overflow-hidden ${swapClass}`}
         onClick={handleMainClick}
       >
         <div
@@ -216,7 +219,7 @@ let make = (
 
       // RIGHT BUTTON (Toggle)
       <div
-        className={`absolute inset-0 ${baseColor} ${hoverColor} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+        className={`absolute inset-0 ${rightBaseColor} ${rightHoverColor} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
                    transition-all duration-300 ease-out 
                    delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                    opacity-0 translate-x-0
