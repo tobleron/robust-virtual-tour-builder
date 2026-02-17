@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.))
 
-- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 1025/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.))
+- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 973/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.))
 
 
 ## 🔎 Programmatic Verification
@@ -49,7 +49,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TourTemplates.res`
 - `src/systems/TourTemplates.res` (4 functions, fingerprint 304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c)
     - Grouped summary:
-        - generateEmbedCodes × 1 (lines: 1060)
-        - generateExportIndex × 2 (lines: 42, 1061)
+        - generateEmbedCodes × 1 (lines: 1009)
+        - generateExportIndex × 2 (lines: 42, 1010)
         - indexTemplate × 1 (lines: 9)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

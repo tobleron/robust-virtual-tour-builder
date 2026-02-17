@@ -103,34 +103,22 @@ module Styles = {
     .pnlm-hotspot.flat-arrow[data-target-home] { perspective: none !important; transform-style: flat !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    @media (max-width: 760px), (max-height: 620px) {
-      #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
-      body { padding: var(--export-fallback-padding); box-sizing: border-box; }
-      #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
-      #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
-      #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
-      .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
-      .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
-      .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
-      .export-hotspot-root { width: 26px; height: 26px; }
-      .export-hotspot-icon { width: 15px; height: 15px; }
-    }
-    body.export-force-fallback { padding: var(--export-fallback-padding); box-sizing: border-box; }
-    body.export-force-fallback #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
-    body.export-force-fallback #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
-    body.export-force-fallback #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
-    body.export-force-fallback #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
-    body.export-force-fallback .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
-    body.export-force-fallback .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
-    body.export-force-fallback .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
-    body.export-force-fallback .export-hotspot-root { width: 26px; height: 26px; }
-    body.export-force-fallback .export-hotspot-icon { width: 15px; height: 15px; }
+    body.export-state-portrait { padding: var(--export-fallback-padding); box-sizing: border-box; }
+    body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
+    body.export-state-tablet #viewer-floor-nav-export, body.export-state-portrait #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
+    body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
+    body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
+    body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
+    body.export-state-tablet .watermark img, body.export-state-portrait .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
+    body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
+    body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
     let mediaQuery = switch exportType {
-    | "4k" => ` #stage { position: relative; margin: 0 auto; width: 100%; min-width: 640px; max-width: 1024px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } @media (max-width: 1100px) { #stage { width: 95vw; } } `
-    | _ => ` #stage { position: relative; margin: 0 auto; width: clamp(375px, 95vw, 640px); min-width: 375px; max-width: 640px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
+    | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
+    | _ => ` #stage { position: relative; margin: 0 auto; width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
     }
     cssTemplate
     ->String.replaceRegExp(/__FIRST_SCENE_NAME__/g, firstSceneName)
@@ -155,9 +143,8 @@ module Scripts = {
     const STAGE_MIN_WIDTH = __STAGE_MIN_WIDTH__;
     const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
-    let exportForceFallback = false;
-    let exportResizeSettled = true;
-    let exportSettleTimeoutId = null;
+    const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
+    let exportViewportState = "";
     const EXPORT_FLOOR_LEVELS = [
       { id: "b2", label: "Basement 2", short: "B", suffix: "-2" },
       { id: "b1", label: "Basement 1", short: "B", suffix: "-1" },
@@ -198,70 +185,33 @@ module Scripts = {
       if (t > 1.0 - factor) return 1.0 - 0.5 * (vmax / factor) * (1.0 - t) * (1.0 - t);
       return vmax * (t - 0.5 * factor);
     }
-    function clamp(value, min, max) {
-      return Math.min(max, Math.max(min, value));
+    function resolveExportViewportState() {
+      const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
+      if (portraitViewport) return "portrait";
+      if (IS_4K_EXPORT && window.innerWidth >= 1180) return "desktop";
+      return "tablet";
     }
-    function getStageWidth() {
-      const stage = document.getElementById("stage");
-      const width = stage && typeof stage.getBoundingClientRect === "function"
-        ? stage.getBoundingClientRect().width
-        : STAGE_MAX_WIDTH;
-      if (!Number.isFinite(width) || width <= 0) return STAGE_MAX_WIDTH;
-      return clamp(width, STAGE_MIN_WIDTH, STAGE_MAX_WIDTH);
+    function updateExportStateClasses() {
+      const nextState = resolveExportViewportState();
+      exportViewportState = nextState;
+      if (!document || !document.body) return nextState;
+      document.body.classList.remove("export-state-desktop");
+      document.body.classList.remove("export-state-tablet");
+      document.body.classList.remove("export-state-portrait");
+      document.body.classList.add("export-state-" + nextState);
+      return nextState;
     }
     function getCurrentHfov() {
-      if (!DYNAMIC_HFOV_ENABLED || STAGE_MAX_WIDTH <= STAGE_MIN_WIDTH) return DEFAULT_HFOV;
-      const t = (getStageWidth() - STAGE_MIN_WIDTH) / (STAGE_MAX_WIDTH - STAGE_MIN_WIDTH);
-      return MIN_HFOV + (MAX_HFOV - MIN_HFOV) * clamp(t, 0, 1);
+      const state = exportViewportState === "" ? updateExportStateClasses() : exportViewportState;
+      return state === "portrait" ? MIN_HFOV : MAX_HFOV;
     }
     function applyCurrentHfov() {
+      updateExportStateClasses();
       if (!window.viewer || typeof window.viewer.setHfov !== "function") return;
+      if (typeof window.viewer.resize === "function") window.viewer.resize();
       window.viewer.setHfov(getCurrentHfov(), false);
-    }
-    function updateExportFallbackMode() {
-      const label = document.getElementById("viewer-room-label-export");
-      const floor = document.getElementById("viewer-floor-nav-export");
-      const smallViewport = window.innerWidth <= 760 || window.innerHeight <= 620;
-      const stage = document.getElementById("stage");
-      const stageWidth = stage && typeof stage.getBoundingClientRect === "function"
-        ? stage.getBoundingClientRect().width
-        : STAGE_MAX_WIDTH;
-      const nearPortraitWidth = Number.isFinite(stageWidth) && stageWidth <= 420;
-      if (!smallViewport || !nearPortraitWidth) {
-        if (exportForceFallback && document && document.body) {
-          exportForceFallback = false;
-          document.body.classList.remove("export-force-fallback");
-        }
-        return;
-      }
-      if (!label || !floor || !document || !document.body) {
-        if (exportForceFallback) {
-          exportForceFallback = false;
-          document.body.classList.remove("export-force-fallback");
-        }
-        return;
-      }
-      const labelRect = label.getBoundingClientRect();
-      const floorRect = floor.getBoundingClientRect();
-      const gap = floorRect.top - labelRect.bottom;
-      const shouldEnter = gap <= 36;
-      const canExit = exportResizeSettled && gap > 60;
-      if (shouldEnter && !exportForceFallback) {
-        exportForceFallback = true;
-        document.body.classList.add("export-force-fallback");
-      } else if (exportForceFallback && canExit) {
-        exportForceFallback = false;
-        document.body.classList.remove("export-force-fallback");
-      }
-    }
-    function startExportSettleWindow() {
-      exportResizeSettled = false;
-      if (exportSettleTimeoutId !== null) clearTimeout(exportSettleTimeoutId);
-      exportSettleTimeoutId = setTimeout(() => {
-        exportResizeSettled = true;
-        exportSettleTimeoutId = null;
-        updateExportFallbackMode();
-      }, 220);
+      // Double trigger to catch late layout paint
+      setTimeout(() => { if (window.viewer && window.viewer.resize) window.viewer.resize(); }, 50);
     }
     function getSceneHotspots(sceneId) {
       return Array.from(document.querySelectorAll('.pnlm-hotspot.flat-arrow')).filter(el => el.dataset.ownerScene === sceneId);
@@ -743,7 +693,7 @@ module Scripts = {
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);
       updateExportRoomLabel(sid);
-      updateExportFallbackMode();
+      updateExportStateClasses();
       clearWaypointRuntime();
       waypointRuntime.sceneId = sid;
       animateSceneToPrimaryHotspot(sid, 20);
@@ -1036,17 +986,20 @@ let generateTourHTML = (
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
       defPitch,
-    )}, "yaw": ${Belt.Float.toString(defYaw)}, "hfov": ${Belt.Float.toString(
-      defaultHfov,
-    )}, "minHfov": ${Belt.Float.toString(minHfov)}, "maxHfov": ${Belt.Float.toString(
+    )}, "yaw": ${Belt.Float.toString(
+      defYaw,
+    )}, "hfov": getCurrentHfov(), "minHfov": ${Belt.Float.toString(
+      minHfov,
+    )}, "maxHfov": ${Belt.Float.toString(
       maxHfov,
     )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
-    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov(); updateExportFallbackMode();
-    window.addEventListener('resize', () => { startExportSettleWindow(); window.viewer?.resize(); applyCurrentHfov(); updateExportFallbackMode(); });
+    updateExportStateClasses();
+    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
+    window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); });
     ${Scripts.loadEventScript}
   </script></body></html>`
   html

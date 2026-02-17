@@ -61,6 +61,30 @@ module Styles = {
     transition: all 0.3s ease;
   }
 
+  body.viewer-state-tablet #visual-pipeline-container,
+  body.viewer-state-2k #visual-pipeline-container,
+  body.viewer-force-fallback #visual-pipeline-container {
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+  }
+
+  body.viewer-state-tablet .visual-pipeline-wrapper,
+  body.viewer-state-2k .visual-pipeline-wrapper,
+  body.viewer-force-fallback .visual-pipeline-wrapper {
+    margin-bottom: 12px;
+    transform: scale(0.86);
+    transform-origin: bottom center;
+  }
+
+  body.viewer-state-portrait #visual-pipeline-container {
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+
+  body.viewer-state-portrait .visual-pipeline-wrapper {
+    margin-bottom: 8px;
+    transform: scale(0.78);
+    transform-origin: bottom center;
+  }
+
   .pipeline-track {
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
     position: relative; width: 100%; gap: 0;
