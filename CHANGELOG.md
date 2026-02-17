@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix label menu keyboard interception, improve empty label naming logic, and add Unicode/Arabic support for scene filenames
 - Fix export auto-forward by scene double-chevron route and runtime reliability
 - Fix export auto-forward by scene double-chevron route and runtime reliability
+- Refine visual pipeline connector rendering and start/end node styling
 
 ## [4.13.0] - 2026-02-17
 
