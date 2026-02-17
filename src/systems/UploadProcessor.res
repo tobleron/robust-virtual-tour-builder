@@ -32,7 +32,11 @@ let processUploads = (
 
   OperationJournal.startOperation(
     ~operation="UploadImages",
-    ~context=UploadProcessorLogic.castToJson({"fileCount": Belt.Array.length(files)}),
+    ~context=UploadProcessorLogic.castToJson({
+      "fileCount": Belt.Array.length(files),
+      "fileNames": files->Belt.Array.map(f => BrowserBindings.File.name(f))->Belt.Array.slice(~offset=0, ~len=20),
+      "totalSizeBytes": files->Belt.Array.reduce(0.0, (acc, f) => acc +. BrowserBindings.File.size(f)),
+    }),
     ~retryable=true,
   )->Promise.then(journalId => {
     Resizer.checkBackendHealth()->Promise.then(isUp => {
