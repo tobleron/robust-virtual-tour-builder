@@ -95,7 +95,7 @@ module Styles = {
     .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }
     .export-hotspot-root.auto-forward .export-hotspot-btn-sweep { --sweep-duration: 1.5s; }
     .export-hotspot-icon { position: relative; z-index: 2; width: 20px; height: 20px; overflow: visible; }
-    .export-hotspot-icon path { stroke: white; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .export-hotspot-icon path { stroke: white; stroke-width: 3.0; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .glow-unit { fill-opacity: 0; fill: var(--glow-color); }
     .glow-bottom { animation: glow-sequence 1.8s infinite; }
     .glow-top { animation: glow-sequence 1.8s infinite; animation-delay: 0.4s; }
@@ -739,8 +739,8 @@ module Scripts = {
         icon.setAttribute("class", "export-hotspot-icon");
         icon.setAttribute("viewBox", "0 0 24 24");
         if (args.targetIsAutoForward) {
-          const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 15 L12 9 L18 15"); icon.appendChild(p1);
-          const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M6 10 L12 4 L18 10"); icon.appendChild(p2);
+          const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
+          const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
         } else {
           const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
         }

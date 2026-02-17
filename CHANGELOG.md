@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Perfect combo of visual pipeline auto-forward look and feel
 - Refining Visual Pipeline Appearance: Centered Right Chevron for Auto Forward Scens
 - Task 1448: Network Stability Masterplan + 13 sub-tasks (1449-1461)
+- Match auto-forward chevron in exported tours to app styles
 
 ## [4.13.0] - 2026-02-17
 
