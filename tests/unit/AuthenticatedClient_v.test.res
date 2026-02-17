@@ -188,4 +188,40 @@ describe("AuthenticatedClient", () => {
     | Retry.Exhausted(msg) => t->expect(msg)->Expect.toBe("AbortError")
     }
   })
+
+  testAsync("fails immediately when offline", async t => {
+    // Mock offline
+    let _ = %raw(`Object.defineProperty(navigator, 'onLine', {value: false, configurable: true})`)
+    NetworkStatus.initialize()
+
+    let result = await AuthenticatedClient.request("/test-offline", ())
+
+    switch result {
+    | Error(msg) => t->expect(msg)->Expect.toBe("NetworkOffline")
+    | Ok(_) => t->expect(true)->Expect.toBe(false)
+    }
+
+    // Cleanup
+    let _ = %raw(`Object.defineProperty(navigator, 'onLine', {value: true, configurable: true})`)
+    NetworkStatus.cleanup()
+    NetworkStatus.initialize()
+  })
+
+  testAsync("requestWithRetry does not retry offline error", async t => {
+    // Mock offline
+    let _ = %raw(`Object.defineProperty(navigator, 'onLine', {value: false, configurable: true})`)
+    NetworkStatus.initialize()
+
+    let result = await AuthenticatedClient.requestWithRetry("/test-retry-offline", ())
+
+    switch result {
+    | Retry.Exhausted("NetworkOffline") => t->expect(true)->Expect.toBe(true)
+    | _ => t->expect(true)->Expect.toBe(false)
+    }
+
+    // Cleanup
+    let _ = %raw(`Object.defineProperty(navigator, 'onLine', {value: true, configurable: true})`)
+    NetworkStatus.cleanup()
+    NetworkStatus.initialize()
+  })
 })
