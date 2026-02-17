@@ -88,7 +88,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav"
+  "/sounds/click.wav",
 ]
 
 let fetchWithTimeout = (request, timeoutMs) => {
@@ -221,20 +221,26 @@ addEventListener("fetch", (event: FetchEvent.t) => {
           switch cachedResponse->Nullable.toOption {
           | Some(res) => Promise.resolve(res)
           | None =>
-             // Cache miss: try network
-             fetchAndCache->Promise.catch(err => {
-               if isNavigation {
-                 // Navigation fallback
-                 caches->CacheStorage.matchUrl("/index.html")->Promise.then(fallback => {
-                   switch fallback->Nullable.toOption {
-                   | Some(res) => Promise.resolve(res)
-                   | None => Promise.reject(err)
-                   }
-                 })
-               } else {
-                 Promise.reject(err)
-               }
-             })
+            // Cache miss: try network
+            fetchAndCache->Promise.catch(
+              err => {
+                if isNavigation {
+                  // Navigation fallback
+                  caches
+                  ->CacheStorage.matchUrl("/index.html")
+                  ->Promise.then(
+                    fallback => {
+                      switch fallback->Nullable.toOption {
+                      | Some(res) => Promise.resolve(res)
+                      | None => Promise.reject(err)
+                      }
+                    },
+                  )
+                } else {
+                  Promise.reject(err)
+                }
+              },
+            )
           }
         }),
       )

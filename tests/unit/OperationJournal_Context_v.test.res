@@ -29,12 +29,14 @@ describe("OperationJournal Context Merging", () => {
     let entry = found->Belt.Option.getExn
 
     // Decode and verify merged result {foo: "bar", baz: "qux"}
-    let decoder = JsonCombinators.Json.Decode.object(field => {
-      (
-        field.optional("foo", JsonCombinators.Json.Decode.string),
-        field.optional("baz", JsonCombinators.Json.Decode.string),
-      )
-    })
+    let decoder = JsonCombinators.Json.Decode.object(
+      field => {
+        (
+          field.optional("foo", JsonCombinators.Json.Decode.string),
+          field.optional("baz", JsonCombinators.Json.Decode.string),
+        )
+      },
+    )
 
     switch JsonCombinators.Json.decode(entry.context, decoder) {
     | Ok((foo, baz)) =>
@@ -66,8 +68,8 @@ describe("OperationJournal Context Merging", () => {
 
     // Verify it is null
     let isNull = switch entry.context {
-      | Null => true
-      | _ => false
+    | Null => true
+    | _ => false
     }
     t->expect(isNull)->Expect.toBe(true)
   })
@@ -90,9 +92,11 @@ describe("OperationJournal Context Merging", () => {
     let entry = found->Belt.Option.getExn
 
     // Verify it is {foo: "bar"}
-    let decoder = JsonCombinators.Json.Decode.object(field => {
-      field.optional("foo", JsonCombinators.Json.Decode.string)
-    })
+    let decoder = JsonCombinators.Json.Decode.object(
+      field => {
+        field.optional("foo", JsonCombinators.Json.Decode.string)
+      },
+    )
 
     switch JsonCombinators.Json.decode(entry.context, decoder) {
     | Ok(foo) => t->expect(foo)->Expect.toBe(Some("bar"))
@@ -125,12 +129,14 @@ describe("OperationJournal Context Merging", () => {
     let entry = found->Belt.Option.getExn
 
     // Verify result {count: 2, name: "test"}
-    let decoder = JsonCombinators.Json.Decode.object(field => {
-      (
-        field.optional("count", JsonCombinators.Json.Decode.int),
-        field.optional("name", JsonCombinators.Json.Decode.string),
-      )
-    })
+    let decoder = JsonCombinators.Json.Decode.object(
+      field => {
+        (
+          field.optional("count", JsonCombinators.Json.Decode.int),
+          field.optional("name", JsonCombinators.Json.Decode.string),
+        )
+      },
+    )
 
     switch JsonCombinators.Json.decode(entry.context, decoder) {
     | Ok((count, name)) =>

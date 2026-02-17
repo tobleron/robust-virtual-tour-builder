@@ -193,10 +193,7 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
 
 let flushTelemetry = async () => {
   if !NetworkStatus.isOnline() {
-    Console.info2(
-      "[LoggerTelemetry] FLUSH_SKIPPED_OFFLINE. Queued:",
-      Array.length(telemetryQueue),
-    )
+    Console.info2("[LoggerTelemetry] FLUSH_SKIPPED_OFFLINE. Queued:", Array.length(telemetryQueue))
     // Don't reset the timer, just skip this flush cycle
   } else if Array.length(telemetryQueue) > 0 && !isFlushing.contents && canUseTelemetryNetwork() {
     isFlushing := true
