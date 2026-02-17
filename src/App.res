@@ -38,7 +38,7 @@ module InnerApp = {
       <main
         id="viewer-container"
         role="main"
-        className={`viewer-main-container relative w-full h-full bg-black overflow-hidden select-none touch-none ${state.isLinking
+        className={`viewer-main-container relative w-full h-full overflow-hidden select-none touch-none ${state.isLinking
             ? "linking-mode"
             : ""}`}
       >

@@ -133,8 +133,8 @@ let _ = describe("TourTemplates", () => {
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
     let html = generateTourHTML([mockScene1], "HD Tour", None, "hd", 32, 40, "1.0")
-    // hd mobile width is 375px
-    t->expectToContain(html, "width: 375px")
-    t->expectToContain(html, "height: 667px")
+    t->expectToContain(html, "width: clamp(375px, 95vw, 640px)")
+    t->expectToContain(html, "\"minHfov\":65")
+    t->expectToContain(html, "\"maxHfov\":90")
   })
 })

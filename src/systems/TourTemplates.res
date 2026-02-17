@@ -8,13 +8,14 @@ open Types
 module Assets = {
   let indexTemplate = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>__TOUR_NAME__ - Virtual Tour Hub</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><script src="https://unpkg.com/lucide@latest"></script><style>
-:root { --primary: #003da5; --primary-dark: #002a70; --slate-900: #020617; --slate-800: #0f172a; --slate-700: #1e293b; --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08); --warning: #f59e0b; --info: #3b82f6; --success: #10b981; --slate-600: #475569; --slate-400: #94a3b8; --slate-200: #e2e8f0; }
+:root { --primary: #003da5; --primary-dark: #002a70; --slate-900: #020617; --slate-800: #0f172a; --slate-700: #1e293b; --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08); --warning: #f59e0b; --info: #3b82f6; --success: #10b981; --slate-600: #475569; --slate-400: #94a3b8; --slate-200: #e2e8f0; --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; font-family: 'Outfit', sans-serif; background: var(--slate-900); color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-x: hidden; }
+body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 1; filter: contrast(120%) brightness(100%); }
 .background-blob { position: fixed; width: 800px; height: 800px; background: radial-gradient(circle, rgba(0, 61, 165, 0.1) 0%, rgba(0, 0, 0, 0) 70%); z-index: -1; filter: blur(80px); pointer-events: none; }
 .blob-1 { top: -200px; left: -200px; }
 .blob-2 { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(15, 23, 42, 0.3) 0%, rgba(0, 0, 0, 0) 70%); }
-.container { width: 90%; max-width: 1000px; text-align: center; padding: 60px 0; animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1); }
+.container { position: relative; width: 90%; max-width: 1000px; text-align: center; padding: 60px 0; animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 .logo-container { display: inline-flex; align-items: center; justify-content: center; background: white; padding: 4px; border-radius: 12px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 120px; max-height: 60px; overflow: hidden; }
 .logo-container img { width: 100%; height: auto; display: block; object-fit: contain; }
@@ -63,9 +64,11 @@ __LOGO_BLOCK__
 
 module Styles = {
   let cssTemplate = `
-    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); }
+    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
     body { margin: 0; padding: 0; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: auto; background-color: var(--viewer-bg); font-family: var(--font-family); }
     body::before { content: ""; position: fixed; top: -20px; left: -20px; right: -20px; bottom: -20px; background: url('assets/images/__FIRST_SCENE_NAME__') no-repeat center center fixed; background-size: cover; filter: blur(25px) brightness(0.4); z-index: -1; }
+    body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 0; filter: contrast(120%) brightness(100%); }
+    #stage { z-index: 1; }
     __MEDIA_QUERY_CSS__
     #panorama { width: 100%; height: 100%; border-radius: inherit; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
@@ -100,15 +103,23 @@ module Styles = {
     .pnlm-hotspot.flat-arrow[data-target-home] { perspective: none !important; transform-style: flat !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    @media (max-width: 430px), (max-height: 560px) {
+      #stage { width: min(94vw, 375px) !important; min-width: 0 !important; max-width: 375px !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100vh - 16px) !important; }
+      #viewer-floor-nav-export { bottom: 14px; left: 12px; gap: 6px; }
+      #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 11px; }
+      #viewer-floor-nav-export .floor-nav-btn sup { font-size: 8px; }
+      .viewer-persistent-label-export { top: 14px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+      .export-hotspot-root { width: 26px; height: 26px; }
+      .export-hotspot-icon { width: 15px; height: 15px; }
+    }
   `
 
-  let generateCSS = (firstSceneName, isMobile, exportType, baseSize, logoSize) => {
-    let mediaQuery = if isMobile {
-      ` #stage { position: relative; width: 375px; height: 667px; background: #000; border-radius: 20px; border: 4px solid var(--stage-border); box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
-    } else {
-      let maxWidth = exportType == "4k" ? "1024px" : "640px"
-      let mediaWidth = exportType == "4k" ? "1100px" : "700px"
-      ` #stage { position: relative; margin: 0 auto; width: 100%; max-width: ${maxWidth}; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } @media (max-width: ${mediaWidth}) { #stage { max-width: 95vw; } } `
+  let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
+    let mediaQuery = switch exportType {
+    | "4k" =>
+      ` #stage { position: relative; margin: 0 auto; width: 100%; min-width: 640px; max-width: 1024px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } @media (max-width: 1100px) { #stage { width: 95vw; } } `
+    | _ =>
+      ` #stage { position: relative; margin: 0 auto; width: clamp(375px, 95vw, 640px); min-width: 375px; max-width: 640px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
     }
     cssTemplate
     ->String.replaceRegExp(/__FIRST_SCENE_NAME__/g, firstSceneName)
@@ -127,6 +138,12 @@ module Styles = {
 module Scripts = {
   let renderScriptTemplate = `
     const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const DEFAULT_HFOV = __DEFAULT_HFOV__;
+    const MIN_HFOV = __MIN_HFOV__;
+    const MAX_HFOV = __MAX_HFOV__;
+    const STAGE_MIN_WIDTH = __STAGE_MIN_WIDTH__;
+    const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
+    const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
     const EXPORT_FLOOR_LEVELS = [
       { id: "b2", label: "Basement 2", short: "B", suffix: "-2" },
       { id: "b1", label: "Basement 1", short: "B", suffix: "-1" },
@@ -166,6 +183,26 @@ module Scripts = {
       if (t < factor) return 0.5 * (vmax / factor) * t * t;
       if (t > 1.0 - factor) return 1.0 - 0.5 * (vmax / factor) * (1.0 - t) * (1.0 - t);
       return vmax * (t - 0.5 * factor);
+    }
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+    function getStageWidth() {
+      const stage = document.getElementById("stage");
+      const width = stage && typeof stage.getBoundingClientRect === "function"
+        ? stage.getBoundingClientRect().width
+        : STAGE_MAX_WIDTH;
+      if (!Number.isFinite(width) || width <= 0) return STAGE_MAX_WIDTH;
+      return clamp(width, STAGE_MIN_WIDTH, STAGE_MAX_WIDTH);
+    }
+    function getCurrentHfov() {
+      if (!DYNAMIC_HFOV_ENABLED || STAGE_MAX_WIDTH <= STAGE_MIN_WIDTH) return DEFAULT_HFOV;
+      const t = (getStageWidth() - STAGE_MIN_WIDTH) / (STAGE_MAX_WIDTH - STAGE_MIN_WIDTH);
+      return MIN_HFOV + (MAX_HFOV - MIN_HFOV) * clamp(t, 0, 1);
+    }
+    function applyCurrentHfov() {
+      if (!window.viewer || typeof window.viewer.setHfov !== "function") return;
+      window.viewer.setHfov(getCurrentHfov(), false);
     }
     function getSceneHotspots(sceneId) {
       return Array.from(document.querySelectorAll('.pnlm-hotspot.flat-arrow')).filter(el => el.dataset.ownerScene === sceneId);
@@ -292,7 +329,12 @@ module Scripts = {
         if (!verifiedTarget) return;
         const targetConfig = config?.scenes?.[verifiedTarget];
         if (!targetConfig || typeof targetConfig.panorama !== "string" || targetConfig.panorama.trim() === "") return;
-        window.viewer.loadScene(verifiedTarget, destination.pitch, destination.yaw, 90);
+        window.viewer.loadScene(
+          verifiedTarget,
+          destination.pitch,
+          destination.yaw,
+          getCurrentHfov(),
+        );
       }, 450);
     }
     function setSceneHotspotsReadyWithRetry(sceneId, retries) {
@@ -513,14 +555,14 @@ module Scripts = {
         return;
       }
       durationMs = Math.min(Math.max((pathInfo.total / PAN_VELOCITY) * 1000.0, PAN_MIN_DURATION), PAN_MAX_DURATION);
-      window.viewer.lookAt(path[0].pitch, path[0].yaw, 90, false);
+      window.viewer.lookAt(path[0].pitch, path[0].yaw, getCurrentHfov(), false);
       const startAt = performance.now();
       const tick = now => {
         if (window.viewer.getScene() !== sceneId) return;
         const linear = Math.min(1, (now - startAt) / durationMs);
         const progress = trapezoidal(linear, TRAPEZOID_FACTOR);
         const current = samplePath(pathInfo.segments, pathInfo.total, progress);
-        window.viewer.lookAt(current.pitch, current.yaw, 90, false);
+        window.viewer.lookAt(current.pitch, current.yaw, getCurrentHfov(), false);
         if (linear < 1) {
           waypointRuntime.animationId = requestAnimationFrame(tick);
           return;
@@ -638,7 +680,7 @@ module Scripts = {
     window.viewer.on('load', function() {
       const sid = window.viewer.getScene(); const sd = scenesData[sid];
       if (!transitionFrom && !isFirstLoad) return;
-      if (sd?.hotSpots?.length > 0) window.viewer.setHfov(90);
+      if (sd?.hotSpots?.length > 0) applyCurrentHfov();
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);
       updateExportRoomLabel(sid);
@@ -648,8 +690,26 @@ module Scripts = {
     });
   `
 
-  let generateRenderScript = baseSize =>
-    renderScriptTemplate->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
+  let generateRenderScript = (
+    baseSize,
+    defaultHfov,
+    minHfov,
+    maxHfov,
+    stageMinWidth,
+    stageMaxWidth,
+    dynamicHfovEnabled,
+  ) =>
+    renderScriptTemplate
+    ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
+    ->String.replaceRegExp(/__DEFAULT_HFOV__/g, Belt.Float.toString(defaultHfov))
+    ->String.replaceRegExp(/__MIN_HFOV__/g, Belt.Float.toString(minHfov))
+    ->String.replaceRegExp(/__MAX_HFOV__/g, Belt.Float.toString(maxHfov))
+    ->String.replaceRegExp(/__STAGE_MIN_WIDTH__/g, Belt.Int.toString(stageMinWidth))
+    ->String.replaceRegExp(/__STAGE_MAX_WIDTH__/g, Belt.Int.toString(stageMaxWidth))
+    ->String.replaceRegExp(
+      /__DYNAMIC_HFOV_ENABLED__/g,
+      dynamicHfovEnabled ? "true" : "false",
+    )
 }
 
 // --- MAIN ---
@@ -874,9 +934,24 @@ let generateTourHTML = (
     )
   })
 
-  let isMobile = exportType == "hd"
-  let css = Styles.generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize)
-  let renderScript = Scripts.generateRenderScript(baseSize)
+  let (defaultHfov, minHfov, maxHfov, stageMinWidth, stageMaxWidth, dynamicHfovEnabled) =
+    switch exportType {
+    | "4k" => (90.0, 65.0, 90.0, 375, 1024, true)
+    | "2k" => (90.0, 65.0, 90.0, 375, 640, true)
+    | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
+    | _ => (90.0, 65.0, 90.0, 375, 640, true)
+    }
+  let css = Styles.generateCSS(firstSceneName, exportType, baseSize, logoSize)
+  let renderScript =
+    Scripts.generateRenderScript(
+      baseSize,
+      defaultHfov,
+      minHfov,
+      maxHfov,
+      stageMinWidth,
+      stageMaxWidth,
+      dynamicHfovEnabled,
+    )
   let logoDiv = switch logoFilename {
   | Some(filename) => `<div class="watermark"><img src="assets/${filename}"></div>`
   | None => ""
@@ -901,13 +976,15 @@ let generateTourHTML = (
       defPitch,
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
-    )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
+    )}, "hfov": ${Belt.Float.toString(defaultHfov)}, "minHfov": ${Belt.Float.toString(
+      minHfov,
+    )}, "maxHfov": ${Belt.Float.toString(maxHfov)}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
-    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize();
-    window.addEventListener('resize', () => window.viewer?.resize());
+    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
+    window.addEventListener('resize', () => { window.viewer?.resize(); applyCurrentHfov(); });
     ${Scripts.loadEventScript}
   </script></body></html>`
   html

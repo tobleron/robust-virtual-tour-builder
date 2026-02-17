@@ -4,12 +4,57 @@ open ReBindings
 open Types
 open Actions
 
+let clamp = (value: float, minValue: float, maxValue: float): float => {
+  if value < minValue {
+    minValue
+  } else if value > maxValue {
+    maxValue
+  } else {
+    value
+  }
+}
+
+let getStageWidth = (): float => {
+  switch Nullable.toOption(Dom.getElementById("viewer-stage")) {
+  | Some(stageEl) =>
+    let rect = Dom.getBoundingClientRect(stageEl)
+    if rect.width > 0.0 {
+      rect.width
+    } else {
+      Constants.builderLandscapeMaxWidth
+    }
+  | None => Constants.builderLandscapeMaxWidth
+  }
+}
+
+let computeDynamicStageHfov = (): float => {
+  let minWidth = Constants.builderLandscapeMinWidth
+  let maxWidth = Constants.builderLandscapeMaxWidth
+  let width = clamp(getStageWidth(), minWidth, maxWidth)
+  let span = maxWidth -. minWidth
+  if span <= 0.0 {
+    Constants.globalMaxHfov
+  } else {
+    let progress = (width -. minWidth) /. span
+    Constants.globalMinHfov +. (Constants.globalMaxHfov -. Constants.globalMinHfov) *. progress
+  }
+}
+
+let applyDynamicStageHfov = () => {
+  let v = ViewerSystem.getActiveViewer()
+  switch Nullable.toOption(v) {
+  | Some(viewer) => ViewerSystem.Adapter.setHfov(viewer, computeDynamicStageHfov(), false)
+  | None => ()
+  }
+}
+
 let useInitialization = (~getState, ~dispatch) => {
   React.useEffect0(() => {
     LinkEditorLogic.configure(~getState, ~dispatch)
     let cleanupInput = InputSystem.initInputSystem(~getState, ~dispatch)
 
     let handleResize = _ => {
+      applyDynamicStageHfov()
       let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) => HotspotLine.updateLines(viewer, getState(), ())
@@ -34,6 +79,7 @@ let useInitialization = (~getState, ~dispatch) => {
       Dom.addEventListener(el, "mousemove", moveHandler)
       Dom.addEventListenerCapture(el, "pointerdown", LinkEditorLogic.handleStagePointerDown, true)
       Dom.addEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
+      applyDynamicStageHfov()
     | None => Logger.error(~module_="ViewerManagerLogic", ~message="STAGE_NOT_FOUND", ())
     }
 
@@ -104,6 +150,7 @@ let useLinkingAndSimUI = (
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
+      applyDynamicStageHfov()
       if !isLinking {
         Logger.info(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
       }

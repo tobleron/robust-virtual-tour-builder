@@ -186,6 +186,25 @@
     margin-left: 1px;
 }
 
+/* Keep floor buttons visually identical across states */
+#viewer-floor-nav button {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+    font-size: 15px !important;
+}
+
+#viewer-floor-nav button sup {
+    font-size: 10px !important;
+}
+
 /* --- Persistent Room Label --- */
 .viewer-persistent-label {
     position: absolute;
@@ -228,4 +247,18 @@
     transform: translateX(-50%) translateY(-1rem) scale(0.9);
     visibility: hidden;
     pointer-events: none;
+}
+
+@media (max-width: 760px), (max-height: 620px) {
+    #viewer-floor-nav button {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        font-size: 11px !important;
+    }
+
+    #viewer-floor-nav button sup {
+        font-size: 8px !important;
+    }
 }
