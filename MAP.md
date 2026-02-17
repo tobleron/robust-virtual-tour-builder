@@ -372,5 +372,6 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
+* [src/utils/NetworkStatus.res](src/utils/NetworkStatus.res): New module detected. Please classify. #new
 * [src/core/HotspotTarget.res](src/core/HotspotTarget.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

@@ -141,7 +141,11 @@ describe("JournalLogic", () => {
     t->expect(stored->Belt.Option.isSome)->Expect.toBe(true) // Should still exist for entry2
 
     let json = JsonCombinators.Json.parse(stored->Belt.Option.getExn)->Belt.Result.getExn
-    let snapshots = JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(emergencySnapshotDecoder))->Belt.Result.getExn
+    let snapshots =
+      JsonCombinators.Json.decode(
+        json,
+        JsonCombinators.Json.Decode.array(emergencySnapshotDecoder),
+      )->Belt.Result.getExn
 
     t->expect(Array.length(snapshots))->Expect.toBe(1)
     let s = snapshots->Belt.Array.get(0)->Belt.Option.getExn

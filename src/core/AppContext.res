@@ -9,6 +9,7 @@ let stateBridgeRef: ref<state> = ref(State.initialState)
 let dispatchBridgeRef: ref<dispatch> = ref(defaultDispatch)
 
 let getBridgeState = () => stateBridgeRef.contents
+let setBridgeState = (s: state) => stateBridgeRef.contents = s
 let getBridgeDispatch = () => dispatchBridgeRef.contents
 let restoreState = (nextState: state) => dispatchBridgeRef.contents(Actions.RestoreState(nextState))
 

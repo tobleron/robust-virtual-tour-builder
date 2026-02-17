@@ -509,8 +509,7 @@ let exportTour = async (
         | Some(t) => t == "dev-token"
         | None => false
         }
-        let shouldRetryWithDevToken =
-          Constants.isDebugBuild() && !usingDevToken && isUnauthorized
+        let shouldRetryWithDevToken = Constants.isDebugBuild() && !usingDevToken && isUnauthorized
 
         if shouldRetryWithDevToken {
           Logger.warn(
@@ -529,7 +528,7 @@ let exportTour = async (
           )
           progress(0.0, 100.0, "Retrying export upload...")
           let _ = await Promise.make((resolve, _) => {
-            let _ = ReBindings.Window.setTimeout(() => resolve(.), 2000)
+            let _ = ReBindings.Window.setTimeout(() => resolve(), 2000)
           })
           await uploadWithRetry(retryCount + 1, token)
         } else {

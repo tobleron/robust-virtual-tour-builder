@@ -67,6 +67,8 @@ describe("PreviewArrow", () => {
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 
+    AppContext.setBridgeState(mockState)
+
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
@@ -157,6 +159,8 @@ describe("PreviewArrow", () => {
     let mockState = {...State.initialState, scenes: mockScenes}
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
+
+    AppContext.setBridgeState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(

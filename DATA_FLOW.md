@@ -348,5 +348,8 @@ CI job
 ### 📂 src/core
 - `[src/core/HotspotTarget.res]`
 
+### 📂 src/utils
+- `[src/utils/NetworkStatus.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
