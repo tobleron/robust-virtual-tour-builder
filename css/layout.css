@@ -8,6 +8,10 @@
     border-top: 1px solid var(--border-accent);
 }
 
+:root {
+    --viewer-fallback-padding: 5px;
+}
+
 #viewer-container {
     flex-grow: 1;
     position: relative;
@@ -59,17 +63,30 @@
 
 @media (max-width: 760px), (max-height: 620px) {
     #viewer-container {
-        padding: 5px;
+        padding: var(--viewer-fallback-padding);
     }
 
     #viewer-stage {
         min-width: 0;
-        width: min(calc((100dvh - 10px) * 9 / 16), calc(100vw - 10px), 375px);
-        max-width: calc(100vw - 10px);
+        width: min(calc((100dvh - (var(--viewer-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--viewer-fallback-padding) * 2)), 375px);
+        max-width: calc(100vw - (var(--viewer-fallback-padding) * 2));
         aspect-ratio: 9 / 16;
-        max-height: calc(100dvh - 10px);
+        max-height: calc(100dvh - (var(--viewer-fallback-padding) * 2));
         --viewer-ui-scale: clamp(0.56, calc((100vw - 260px) / 360), 0.8);
     }
+}
+
+body.viewer-force-fallback #viewer-container {
+    padding: var(--viewer-fallback-padding);
+}
+
+body.viewer-force-fallback #viewer-stage {
+    min-width: 0;
+    width: min(calc((100dvh - (var(--viewer-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--viewer-fallback-padding) * 2)), 375px);
+    max-width: calc(100vw - (var(--viewer-fallback-padding) * 2));
+    aspect-ratio: 9 / 16;
+    max-height: calc(100dvh - (var(--viewer-fallback-padding) * 2));
+    --viewer-ui-scale: clamp(0.56, calc((100vw - 260px) / 360), 0.8);
 }
 
 body.auto-pilot-active #sidebar {

@@ -112,7 +112,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
       ""
     }
 
-  <div id="viewer-utility-bar" className={utilBarClass}>
+  let renderUtilityButtons = () => <>
     <Tooltip
       alignment=#Right
       content={if isLinking {
@@ -181,5 +181,9 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
     </Tooltip>
 
     <ViewerLabelMenu scenesLoaded isLinking />
-  </div>
+  </>
+
+  <>
+    <div id="viewer-utility-bar" className={utilBarClass}> {renderUtilityButtons()} </div>
+  </>
 })

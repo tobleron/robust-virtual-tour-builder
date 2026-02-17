@@ -47,12 +47,12 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
       ""
     }
 
-  <div id="viewer-floor-nav" className={floorNavClass}>
-    {Constants.Scene.floorLevels
+  let renderFloorButtons = (~keySuffix: string) =>
+    Constants.Scene.floorLevels
     ->Belt.Array.map(f => {
       let isSelected = (scenesLoaded || simActive) && f.id == currentFloor
 
-      <Tooltip key={f.id} content={f.label} alignment=#Right disabled={isLinking}>
+      <Tooltip key={f.id ++ keySuffix} content={f.label} alignment=#Right disabled={isLinking}>
         <Shadcn.Button
           size="icon"
           variant="ghost"
@@ -66,14 +66,21 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
           onClick={e => handleFloorClick(f.id, f.label, e)}
           disabled={isLinking}
         >
-          {React.string(f.short)}
-          {switch f.suffix {
-          | Some(s) if s != "" => <sup className="text-[10px] -ml-1"> {React.string(s)} </sup>
-          | _ => React.null
-          }}
+          <span className="floor-combo">
+            <span className="floor-main"> {React.string(f.short)} </span>
+            {switch f.suffix {
+            | Some(s) if s != "" => <sup className="floor-suffix"> {React.string(s)} </sup>
+            | _ => React.null
+            }}
+          </span>
         </Shadcn.Button>
       </Tooltip>
     })
-    ->React.array}
-  </div>
+    ->React.array
+
+  <>
+    <div id="viewer-floor-nav" className={floorNavClass}>
+      {renderFloorButtons(~keySuffix="-primary")}
+    </div>
+  </>
 })
