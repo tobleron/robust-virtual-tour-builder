@@ -370,6 +370,41 @@ let init = () => {
     info(~module_="Performance", ~message="LONG_TASK_DETECTED", ~data=Some(castToJson(detail)), ())
   })
 
+  /* EventBus Logging */
+  let _ = EventBus.subscribe(evt => {
+    switch evt {
+    | EventBus.ShowModal(config) =>
+      info(
+        ~module_="Modal",
+        ~message=`Opening Modal: ${config.title}`,
+        ~data=Some(castToJson(config.description)),
+        (),
+      )
+    | EventBus.UpdateProcessing(status) =>
+      if status["error"] {
+        error(
+          ~module_="Processing",
+          ~message=`Processing Error: ${status["message"]}`,
+          ~data=Some(castToJson(status)),
+          (),
+        )
+      }
+    | EventBus.NavStart(payload) =>
+      info(
+        ~module_="Navigation",
+        ~message=`Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`,
+        (),
+      )
+    | EventBus.NetworkStatusChanged(online) =>
+      if online {
+        info(~module_="NetworkStatus", ~message="NETWORK_ONLINE", ())
+      } else {
+        warn(~module_="NetworkStatus", ~message="NETWORK_OFFLINE", ())
+      }
+    | _ => ()
+    }
+  })
+
   initialized(~module_="Logger")
 
   /* Start Telemetry Batch Timer */
