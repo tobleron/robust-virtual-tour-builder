@@ -3,15 +3,27 @@
 let maxConcurrent = 6
 let maxQueued = 256
 let activeCount = ref(0)
-let queue: array<unit => Promise.t<unit>> = []
+
+type queuedItem = {
+  task: unit => Promise.t<unit>,
+  reject: Obj.t => unit,
+}
+
+let queue: array<queuedItem> = []
+
+let paused = ref(false)
+
+let length = (): int => Array.length(queue)
 
 let rec process = () => {
-  if activeCount.contents < maxConcurrent && Array.length(queue) > 0 {
+  if paused.contents {
+    ()
+  } else if activeCount.contents < maxConcurrent && Array.length(queue) > 0 {
     switch Array.shift(queue) {
-    | Some(run) =>
+    | Some(item) =>
       activeCount := activeCount.contents + 1
       try {
-        run()
+        item.task()
         ->Promise.then(_ => {
           activeCount := activeCount.contents - 1
           process()
@@ -34,6 +46,55 @@ let rec process = () => {
     | None => ()
     }
   }
+}
+
+let pause = () => {
+  paused := true
+  Logger.debug(
+    ~module_="RequestQueue",
+    ~message="PAUSED",
+    ~data=Some(Logger.castToJson({"queued": Array.length(queue)})),
+    (),
+  )
+}
+
+let resume = () => {
+  paused := false
+  Logger.debug(
+    ~module_="RequestQueue",
+    ~message="RESUMED",
+    ~data=Some(Logger.castToJson({"queued": Array.length(queue)})),
+    (),
+  )
+  process()
+}
+
+let drain = (): int => {
+  let count = Array.length(queue)
+  let removed = Array.slice(queue, ~start=0, ~end=count)
+  let _ = Array.splice(queue, ~start=0, ~remove=count, ~insert=[])
+
+  removed->Belt.Array.forEach(item => {
+    item.reject(Obj.magic("RequestQueueDrained"))
+  })
+
+  Logger.info(
+    ~module_="RequestQueue",
+    ~message="DRAINED",
+    ~data=Some(Logger.castToJson({"drainedCount": count})),
+    (),
+  )
+  count
+}
+
+let initializeNetworkListener = () => {
+  let _unsubscribe = NetworkStatus.subscribe(online => {
+    if online {
+      resume()
+    } else {
+      pause()
+    }
+  })
 }
 
 let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
@@ -60,7 +121,7 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
         }
       }
 
-      let _ = Array.push(queue, run)
+      let _ = Array.push(queue, {task: run, reject: Obj.magic(reject)})
       process()
     }
   })
