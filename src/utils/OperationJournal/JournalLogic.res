@@ -9,7 +9,35 @@ let saveToEmergencyQueue = (entry: journalEntry) => {
       startTime: entry.startTime,
       retryable: entry.retryable,
     }
-    let raw = JsonCombinators.Json.stringify(emergencySnapshotEncoder(snapshot))
+
+    let existingSnapshots = switch Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey) {
+    | Some(raw) =>
+      switch JsonCombinators.Json.parse(raw) {
+      | Ok(json) =>
+        switch JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(emergencySnapshotDecoder)) {
+        | Ok(arr) => arr
+        | Error(_) =>
+          // Backwards compat: try single snapshot format
+          switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
+          | Ok(single) => [single]
+          | Error(_) => []
+          }
+        }
+      | Error(_) => []
+      }
+    | None => []
+    }
+
+    let alreadyExists = existingSnapshots->Belt.Array.some(s => s.id == snapshot.id)
+    let updatedSnapshots = if alreadyExists {
+      existingSnapshots
+    } else {
+      Belt.Array.concat(existingSnapshots, [snapshot])
+    }
+
+    let raw = JsonCombinators.Json.stringify(
+      JsonCombinators.Json.Encode.array(emergencySnapshotEncoder)(updatedSnapshots)
+    )
     Dom.Storage2.localStorage->Dom.Storage2.setItem(emergencyQueueKey, raw)
   } catch {
   | exn =>
@@ -29,13 +57,26 @@ let clearEmergencyQueueForId = (id: string) => {
     | Some(raw) =>
       switch JsonCombinators.Json.parse(raw) {
       | Ok(json) =>
-        switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
-        | Ok(snapshot) =>
-          if snapshot.id == id {
-            Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+        let existingSnapshots = switch JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(emergencySnapshotDecoder)) {
+        | Ok(arr) => arr
+        | Error(_) =>
+          switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
+          | Ok(single) => [single]
+          | Error(_) => []
           }
-        | Error(_) => Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
         }
+
+        let updatedSnapshots = existingSnapshots->Belt.Array.keep(s => s.id != id)
+
+        if Array.length(updatedSnapshots) == 0 {
+          Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+        } else {
+          let raw = JsonCombinators.Json.stringify(
+            JsonCombinators.Json.Encode.array(emergencySnapshotEncoder)(updatedSnapshots)
+          )
+          Dom.Storage2.localStorage->Dom.Storage2.setItem(emergencyQueueKey, raw)
+        }
+
       | Error(_) => Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
       }
     | None => ()
@@ -52,33 +93,35 @@ let checkEmergencyQueue = (journal: t): t => {
       Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
       switch JsonCombinators.Json.parse(raw) {
       | Ok(json) =>
-        switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
-        | Ok(snapshot) =>
-          let hasEntry = journal.entries->Belt.Array.some(entry => entry.id == snapshot.id)
-          if hasEntry {
-            journal
-          } else {
-            let syntheticEntry: journalEntry = {
-              id: snapshot.id,
-              operation: snapshot.operation,
-              status: Interrupted,
-              startTime: snapshot.startTime,
-              endTime: Some(Date.now()),
-              context: Encode.object([]),
-              retryable: snapshot.retryable,
-            }
-            let newEntries = Belt.Array.concat(journal.entries, [syntheticEntry])
-            {...journal, entries: newEntries}
+        let snapshots = switch JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(emergencySnapshotDecoder)) {
+        | Ok(arr) => arr
+        | Error(_) =>
+          switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
+          | Ok(single) => [single]
+          | Error(_) => []
           }
-        | Error(e) =>
-          Logger.warn(
-            ~module_="OperationJournal",
-            ~message="Failed to decode emergency snapshot",
-            ~data={"error": e},
-            (),
-          )
-          journal
         }
+
+        let newEntries = snapshots->Belt.Array.reduce(journal.entries, (acc, snapshot) => {
+           let hasEntry = acc->Belt.Array.some(entry => entry.id == snapshot.id)
+           if hasEntry {
+             acc
+           } else {
+             let syntheticEntry: journalEntry = {
+               id: snapshot.id,
+               operation: snapshot.operation,
+               status: Interrupted,
+               startTime: snapshot.startTime,
+               endTime: Some(Date.now()),
+               context: Encode.object([]),
+               retryable: snapshot.retryable,
+             }
+             Belt.Array.concat(acc, [syntheticEntry])
+           }
+        })
+
+        {...journal, entries: newEntries}
+
       | Error(_) =>
         Logger.warn(~module_="OperationJournal", ~message="Failed to parse emergency snapshot", ())
         journal
