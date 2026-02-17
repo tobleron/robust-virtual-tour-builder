@@ -1,4 +1,5 @@
 {
+  "system": [],
   "rescript": [
     {
       "Surgical": {
@@ -116,10 +117,10 @@
       "Surgical": {
         "file": "../../src/systems/TourTemplates.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 973/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 978/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 72.02230215827338,
+        "complexity": 72.52167689161554,
         "recommended_splits": 4,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
@@ -135,17 +136,17 @@
                 {
                   "name": "generateExportIndex",
                   "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
-                  "line": 42
+                  "line": 43
                 },
                 {
                   "name": "generateEmbedCodes",
                   "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1009
+                  "line": 1014
                 },
                 {
                   "name": "generateExportIndex",
                   "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1010
+                  "line": 1015
                 }
               ],
               "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
@@ -154,6 +155,5 @@
         }
       }
     }
-  ],
-  "system": []
+  ]
 }

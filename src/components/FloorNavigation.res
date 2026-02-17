@@ -51,18 +51,18 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
     Constants.Scene.floorLevels
     ->Belt.Array.map(f => {
       let isSelected = (scenesLoaded || simActive) && f.id == currentFloor
+      let buttonStateClass = if isSelected {
+        "state-active border-2 border-[#ea580c] bg-[#ea580c] text-white hover:bg-[#ea580c] hover:text-white"
+      } else {
+        "state-idle border border-white/20 hover:border-[#ea580c] bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
+      }
 
       <Tooltip key={f.id ++ keySuffix} content={f.label} alignment=#Right disabled={isLinking}>
         <Shadcn.Button
           size="icon"
           variant="ghost"
-          className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++ if (
-            isSelected
-          ) {
-            "border-2 border-[#ea580c] bg-[#ea580c] text-white hover:bg-[#ea580c] hover:text-white"
-          } else {
-            "border border-white/20 hover:border-[#ea580c] bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
-          }}
+          className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++
+          buttonStateClass}
           onClick={e => handleFloorClick(f.id, f.label, e)}
           disabled={isLinking}
         >

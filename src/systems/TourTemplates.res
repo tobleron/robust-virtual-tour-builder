@@ -17,8 +17,8 @@ body::after { content: ""; position: fixed; inset: 0; background-image: var(--te
 .blob-2 { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(15, 23, 42, 0.3) 0%, rgba(0, 0, 0, 0) 70%); }
 .container { position: relative; width: 90%; max-width: 1000px; text-align: center; padding: 60px 0; animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.logo-container { display: inline-flex; align-items: center; justify-content: center; background: white; padding: 4px; border-radius: 12px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 120px; max-height: 60px; overflow: hidden; }
-.logo-container img { width: 100%; height: auto; display: block; object-fit: contain; }
+.logo-container { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(249,115,22,1); padding: 3px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); width: 126px; height: 66px; overflow: hidden; }
+.logo-container img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 5px; }
 h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .version-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--glass); padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--slate-400); }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-top: 20px; }
@@ -31,6 +31,7 @@ h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .btn { margin-top: 10px; background: rgba(255, 255, 255, 0.05); color: var(--slate-200); padding: 12px 32px; border-radius: 100px; font-size: 14px; font-weight: 600; }
 .card:hover .btn { background: white; color: #0f172a; }
 .footer { margin-top: 80px; font-size: 13px; color: var(--slate-600); }
+@media (max-width: 768px) { .logo-container { right: 10px; bottom: 10px; width: 98px; height: 52px; padding: 2px; border-radius: 6px; } }
 </style></head><body><div class="background-blob blob-1"></div><div class="background-blob blob-2"></div><div class="container"><div class="header">
 __LOGO_BLOCK__
 <h1>__TOUR_NAME_PRETTY__</h1><div class="version-badge">Virtual Tour v__VERSION__</div></div><div class="grid">
@@ -44,7 +45,7 @@ __LOGO_BLOCK__
     let year = Date.make()->Date.getFullYear->Belt.Int.toString
     let logoBlock = switch logoFilename {
     | Some(filename) =>
-      `<div class="logo-container"><img src="tour_4k/assets/${filename}" onerror="this.parentElement.style.display='none'"></div>`
+      `<div class="logo-container"><img src="../assets/logo/${filename}" onerror="this.parentElement.style.display='none'"></div>`
     | None => ""
     }
     indexTemplate
@@ -77,7 +78,7 @@ module Styles = {
     #viewer-floor-nav-export { position: absolute; bottom: 24px; left: 20px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 8px; align-items: center; pointer-events: none; }
     #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 15px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
     #viewer-floor-nav-export .floor-nav-btn.state-active { border: 2px solid #ea580c; background: #ea580c; color: #fff; }
-    #viewer-floor-nav-export .floor-nav-btn.state-idle { border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(14, 45, 82, 0.8); color: #fff; }
+    #viewer-floor-nav-export .floor-nav-btn.state-idle { border: 1px solid rgba(255, 255, 255, 0.28); background: rgba(128, 128, 128, 0.22); color: #fff; }
     #viewer-floor-nav-export .floor-nav-btn sup { font-size: 10px; margin-left: -1px; }
     .viewer-persistent-label-export { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); z-index: 6005; background-color: rgba(0, 61, 165, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; padding: 0 0.5rem; height: 27px; border-radius: 6px; font-family: var(--font-family); font-size: 11px; font-weight: 600; text-transform: uppercase; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; border: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 0.1em; white-space: nowrap; }
     .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); visibility: visible; }
@@ -965,7 +966,7 @@ let generateTourHTML = (
     dynamicHfovEnabled,
   )
   let logoDiv = switch logoFilename {
-  | Some(filename) => `<div class="watermark"><img src="assets/${filename}"></div>`
+  | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`
   | None => ""
   }
 
@@ -981,7 +982,7 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
