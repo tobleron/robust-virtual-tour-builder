@@ -548,11 +548,93 @@ module Scripts = {
         pitch: last.a.pitch + last.dp,
       };
     }
+    function resolveScenePlaybackHotspot(sceneId, sceneData) {
+      const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
+      if (!hotspots.length) return null;
+      const resolvedHotspots = hotspots.map((hotspot, hotspotIndex) => {
+        const directTarget = resolveExistingSceneId(hotspot?.targetSceneId);
+        const resolvedTarget = resolveTargetSceneId({
+          sourceSceneId: sceneId,
+          i: hotspotIndex,
+          targetSceneId: hotspot?.targetSceneId,
+          target: hotspot?.target,
+          targetName: hotspot?.target,
+        }, null) ?? directTarget;
+        return { hotspot, hotspotIndex, resolvedTarget };
+      });
+      const routeIndex = Number.isInteger(sceneData?.autoForwardHotspotIndex)
+        ? sceneData.autoForwardHotspotIndex
+        : -1;
+      const routeTarget = resolveExistingSceneId(sceneData?.autoForwardTargetSceneId);
+      if (routeIndex >= 0 && routeIndex < resolvedHotspots.length && routeTarget) {
+        const routeHotspot = resolvedHotspots[routeIndex]?.hotspot ?? hotspots[routeIndex];
+        return {
+          hotspot: routeHotspot,
+          hotspotIndex: routeIndex,
+          autoForward: true,
+          targetSceneId: routeTarget,
+        };
+      }
+      const sceneAutoForward = sceneData?.isAutoForward === true;
+      if (!sceneAutoForward) {
+        return {
+          hotspot: hotspots[0],
+          hotspotIndex: 0,
+          autoForward: false,
+          targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
+        };
+      }
+      const preferred = resolvedHotspots.find(item => item.hotspot?.isReturnLink !== true && item.resolvedTarget);
+      if (preferred) {
+        return {
+          hotspot: preferred.hotspot,
+          hotspotIndex: preferred.hotspotIndex,
+          autoForward: true,
+          targetSceneId: preferred.resolvedTarget,
+        };
+      }
+      const fallback = resolvedHotspots.find(item => item.resolvedTarget);
+      if (fallback) {
+        return {
+          hotspot: fallback.hotspot,
+          hotspotIndex: fallback.hotspotIndex,
+          autoForward: true,
+          targetSceneId: fallback.resolvedTarget,
+        };
+      }
+      return {
+        hotspot: hotspots[0],
+        hotspotIndex: 0,
+        autoForward: false,
+        targetSceneId: null,
+      };
+    }
+    function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
+      if (window.viewer.getScene() !== sceneId) return;
+      if (playbackTarget.targetSceneId) {
+        navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId);
+        return;
+      }
+      const hotspotsNow = getSceneHotspots(sceneId);
+      const preferred = hotspotsNow.find(el => el.dataset.hotspotIndex === String(playbackTarget.hotspotIndex));
+      const anyReady = preferred ?? hotspotsNow.find(el => typeof el.__navigateNext === 'function');
+      if (anyReady && typeof anyReady.__navigateNext === 'function') {
+        anyReady.__navigateNext();
+        return;
+      }
+      if (retriesLeft <= 0) return;
+      waypointRuntime.autoForwardTimeoutId = setTimeout(
+        () => attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft - 1),
+        120,
+      );
+    }
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
       const sd = scenesData[sceneId];
-      if (!sd?.hotSpots?.length) return;
-      const primary = sd.hotSpots[0];
+      const playbackTarget = resolveScenePlaybackHotspot(sceneId, sd);
+      if (!playbackTarget) return;
+      const primary = playbackTarget.hotspot;
+      const primaryIndex = playbackTarget.hotspotIndex;
       waypointRuntime.arrivedSceneId = null;
       setSceneHotspotsPending(sceneId);
       let durationMs = PAN_MIN_DURATION;
@@ -580,14 +662,11 @@ module Scripts = {
         waypointRuntime.animationId = null;
         waypointRuntime.arrivedSceneId = sceneId;
         setSceneHotspotsReadyWithRetry(sceneId, retries);
-        const autoForward = primary.targetIsAutoForward === true;
+        const autoForward = playbackTarget.autoForward === true;
         if (autoForward) {
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
             if (window.viewer.getScene() !== sceneId) return;
-            const hotspotsNow = getSceneHotspots(sceneId);
-            const primaryEl = hotspotsNow.find(el => el.dataset.hotspotIndex === '0') ?? hotspotsNow[0];
-            if (primaryEl && typeof primaryEl.__navigateNext === 'function') primaryEl.__navigateNext();
-            else navigateToNextScene(primary, null);
+            attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
           }, 360);
         }
       };
@@ -750,6 +829,8 @@ type sceneData = {
   "category": string,
   "label": string,
   "isAutoForward": bool,
+  "autoForwardHotspotIndex": int,
+  "autoForwardTargetSceneId": string,
   "hotSpots": array<hotspotData>,
 }
 
@@ -816,6 +897,8 @@ let encodeSceneData = (s: sceneData) => {
     ("category", JsonCombinators.Json.Encode.string(s["category"])),
     ("label", JsonCombinators.Json.Encode.string(s["label"])),
     ("isAutoForward", JsonCombinators.Json.Encode.bool(s["isAutoForward"])),
+    ("autoForwardHotspotIndex", JsonCombinators.Json.Encode.int(s["autoForwardHotspotIndex"])),
+    ("autoForwardTargetSceneId", JsonCombinators.Json.Encode.string(s["autoForwardTargetSceneId"])),
     ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"])),
   ])
 }
@@ -892,22 +975,25 @@ let generateTourHTML = (
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
   let rawScenesData = Dict.make()
+  let hasSceneId = (sceneId: string) => scenes->Belt.Array.some(ts => ts.id == sceneId)
 
   scenes->Belt.Array.forEach(s => {
     let rawHotspots = s.hotspots->Belt.Array.mapWithIndex((_, h) => {
       let resolvedTargetId = switch h.targetSceneId {
-      | Some(targetSceneId) => targetSceneId
-      | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr(h.target)
+      | Some(targetSceneId) =>
+        if hasSceneId(targetSceneId) {
+          targetSceneId
+        } else {
+          switch resolveSceneIdFromTargetRef(targetSceneId, scenes) {
+          | Some(id) => id
+          | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
+          }
+        }
+      | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
       }
       let targetIsAutoForward = switch scenes->Belt.Array.getBy(ts => ts.id == resolvedTargetId) {
       | Some(ts) => ts.isAutoForward
-      | None =>
-        scenes
-        ->Belt.Array.getBy(
-          ts => normalizeSceneRefForExport(ts.name) == normalizeSceneRefForExport(h.target),
-        )
-        ->Option.map(ts => ts.isAutoForward)
-        ->Option.getOr(false)
+      | None => false
       }
       {
         "pitch": h.displayPitch->Option.getOr(h.pitch),
@@ -926,6 +1012,49 @@ let generateTourHTML = (
         "targetPitch": h.targetPitch->Nullable.fromOption,
       }
     })
+    let autoForwardHotspotIndex = {
+      let routeFromDoubleChevron =
+        rawHotspots->Belt.Array.getIndexBy(h =>
+          h["targetIsAutoForward"] == true &&
+          h["isReturnLink"] == false &&
+          hasSceneId(h["targetSceneId"])
+        )
+      switch routeFromDoubleChevron {
+      | Some(idx) => idx
+      | None =>
+        let routeFromAnyDoubleChevron =
+          rawHotspots->Belt.Array.getIndexBy(h =>
+            h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
+          )
+        switch routeFromAnyDoubleChevron {
+        | Some(idx) => idx
+        | None =>
+          if s.isAutoForward {
+            let fallbackBySceneFlag =
+              rawHotspots->Belt.Array.getIndexBy(h =>
+                h["isReturnLink"] == false && hasSceneId(h["targetSceneId"])
+              )
+            switch fallbackBySceneFlag {
+            | Some(idx) => idx
+            | None =>
+              rawHotspots
+              ->Belt.Array.getIndexBy(h => hasSceneId(h["targetSceneId"]))
+              ->Option.getOr(-1)
+            }
+          } else {
+            -1
+          }
+        }
+      }
+    }
+    let autoForwardTargetSceneId = if autoForwardHotspotIndex >= 0 {
+      rawHotspots
+      ->Belt.Array.get(autoForwardHotspotIndex)
+      ->Option.map(h => h["targetSceneId"])
+      ->Option.getOr("")
+    } else {
+      ""
+    }
     Dict.set(
       rawScenesData,
       s.id,
@@ -937,6 +1066,8 @@ let generateTourHTML = (
         "category": s.category,
         "label": s.label,
         "isAutoForward": s.isAutoForward,
+        "autoForwardHotspotIndex": autoForwardHotspotIndex,
+        "autoForwardTargetSceneId": autoForwardTargetSceneId,
         "hotSpots": rawHotspots,
       },
     )
