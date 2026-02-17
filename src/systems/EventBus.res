@@ -66,45 +66,15 @@ let subscribe = (callback: event => unit): subscription => {
 }
 
 let dispatch = (evt: event) => {
-  // --- Auto-Logging Interceptor ---
-  // Ensures UI feedback is mirrored in backend telemetry
-  switch evt {
-  | ShowModal(config) =>
-    Logger.info(
-      ~module_="Modal",
-      ~message=`Opening Modal: ${config.title}`,
-      ~data=Logger.castToJson(config.description),
-      (),
-    )
-  | UpdateProcessing(status) =>
-    if status["error"] {
-      Logger.error(
-        ~module_="Processing",
-        ~message=`Processing Error: ${status["message"]}`,
-        ~data=Logger.castToJson(status),
-        (),
-      )
-    }
-  | NavStart(payload) =>
-    Logger.info(
-      ~module_="Navigation",
-      ~message=`Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`,
-      (),
-    )
-  | _ => () // Ignore high-frequency events like NavProgress
-  }
+  // --- Auto-Logging Moved to Logger via Subscription ---
 
   listeners.contents->Belt.Array.forEach(cb => {
     try {
       cb(evt)
     } catch {
     | JsExn(e) =>
-      Logger.error(
-        ~module_="EventBus",
-        ~message=`EventBus Error: ${JsExn.message(e)->Option.getOr("Unknown")}`,
-        (),
-      )
-    | _ => Logger.error(~module_="EventBus", ~message="Unknown EventBus Error", ())
+      Console.error2("EventBus Error: ", JsExn.message(e)->Option.getOr("Unknown"))
+    | _ => Console.error("Unknown EventBus Error")
     }
   })
 }
