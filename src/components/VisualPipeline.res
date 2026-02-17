@@ -55,9 +55,7 @@ module DropZone = {
     }
 
     let className =
-      "drop-zone" ++
-      (isDragOver ? " drag-over" : "") ++
-      (isEndpoint ? " is-endpoint" : "")
+      "drop-zone" ++ (isDragOver ? " drag-over" : "") ++ (isEndpoint ? " is-endpoint" : "")
 
     // Use ReBindings.makeStyle for custom properties
     let style = ReBindings.makeStyle({"--pipe-color": color})

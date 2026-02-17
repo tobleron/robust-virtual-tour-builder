@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix export auto-forward by scene double-chevron route and runtime reliability
 - Refine visual pipeline connector rendering and start/end node styling
 - Perfect combo of visual pipeline auto-forward look and feel
+- Refining Visual Pipeline Appearance: Centered Right Chevron for Auto Forward Scens
 
 ## [4.13.0] - 2026-02-17
 
