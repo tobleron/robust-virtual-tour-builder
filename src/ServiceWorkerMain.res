@@ -13,6 +13,7 @@ module Request = {
   type t
   @get external method: t => string = "method"
   @get external url: t => string = "url"
+  @get external mode: t => string = "mode"
 }
 
 module Cache = {
@@ -28,6 +29,7 @@ module CacheStorage = {
   @send external keys: (t, unit) => Promise.t<array<string>> = "keys"
   @send external delete: (t, string) => Promise.t<bool> = "delete"
   @send external match: (t, Request.t) => Promise.t<Nullable.t<Response.t>> = "match"
+  @send external matchUrl: (t, string) => Promise.t<Nullable.t<Response.t>> = "match"
 }
 
 module Clients = {
@@ -56,6 +58,13 @@ module ExtendableEvent = {
 @val external fetch: Request.t => Promise.t<Response.t> = "fetch"
 @val external fetchUrl: string => Promise.t<Response.t> = "fetch"
 
+@val external setTimeout: (unit => unit, int) => int = "setTimeout"
+@val external clearTimeout: int => unit = "clearTimeout"
+@new external makeError: string => exn = "Error"
+
+/* Promise helpers */
+@val @scope("Promise") external race: array<Promise.t<'a>> => Promise.t<'a> = "race"
+
 module URL = {
   type t
   @new external make: string => t = "URL"
@@ -79,8 +88,18 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
+
+let fetchWithTimeout = (request, timeoutMs) => {
+  let timeoutPromise = Promise.make((_, reject) => {
+    let _ = setTimeout(() => {
+      reject(makeError("ServiceWorkerFetchTimeout"))
+    }, timeoutMs)
+  })
+
+  race([fetch(request), timeoutPromise])
+}
 
 addEventListener("install", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="INSTALL_START", ())
@@ -151,12 +170,29 @@ addEventListener("fetch", (event: FetchEvent.t) => {
   if request->Request.method == "GET" {
     let url = URL.make(request->Request.url)
     let pathname = URL.pathname(url)
+    let mode = request->Request.mode
 
     let isApi = pathname->String.startsWith("/api/") || pathname == "/health"
+    let isNavigation = mode == "navigate"
 
-    if !isApi {
+    let timeoutMs = if isNavigation {
+      10000
+    } else if isApi {
+      30000
+    } else {
+      15000
+    }
+
+    let performFetch = () => fetchWithTimeout(request, timeoutMs)
+
+    if isApi {
+      // API requests: enforce timeout, no caching
+      event->FetchEvent.respondWith(performFetch())
+    } else {
+      // Assets & Navigation: Cache first, then stale-while-revalidate with timeout
+
       let fetchAndCache =
-        fetch(request)
+        performFetch()
         ->Promise.then(response => {
           if response->Response.status == 200 && response->Response.type_ == "basic" {
             let responseToCache = response->Response.clone
@@ -184,7 +220,21 @@ addEventListener("fetch", (event: FetchEvent.t) => {
         ->Promise.then(cachedResponse => {
           switch cachedResponse->Nullable.toOption {
           | Some(res) => Promise.resolve(res)
-          | None => fetchAndCache
+          | None =>
+             // Cache miss: try network
+             fetchAndCache->Promise.catch(err => {
+               if isNavigation {
+                 // Navigation fallback
+                 caches->CacheStorage.matchUrl("/index.html")->Promise.then(fallback => {
+                   switch fallback->Nullable.toOption {
+                   | Some(res) => Promise.resolve(res)
+                   | None => Promise.reject(err)
+                   }
+                 })
+               } else {
+                 Promise.reject(err)
+               }
+             })
           }
         }),
       )
