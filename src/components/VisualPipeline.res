@@ -181,7 +181,9 @@ module PipelineNode = {
         </span>
       </div>
       {if isAutoForward {
-        <span className="auto-forward-indicator"> {React.string("\u00BB")} </span>
+        <div className="auto-forward-indicator">
+          <LucideIcons.ChevronsRight.make className="text-white" size=12 strokeWidth=3.0 />
+        </div>
       } else {
         React.null
       }}

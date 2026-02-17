@@ -61,13 +61,13 @@ let make = (
   // 2. Button Swap Logic (Uses localIsAF for instant feedback)
   let (centerIcon, rightIcon) = if localIsAF {
     (
-      <LucideIcons.ChevronsUp.make className="text-white" size=20 strokeWidth=3.0 />,
+      <LucideIcons.ChevronsRight.make className="text-white" size=20 strokeWidth=3.0 />,
       <LucideIcons.ChevronUp.make className="text-white" size=18 strokeWidth=3.0 />,
     )
   } else {
     (
       <LucideIcons.ChevronUp.make className="text-white" size=20 strokeWidth=3.0 />,
-      <LucideIcons.ChevronsUp.make className="text-white" size=18 strokeWidth=3.0 />,
+      <LucideIcons.ChevronsRight.make className="text-white" size=18 strokeWidth=3.0 />,
     )
   }
 
