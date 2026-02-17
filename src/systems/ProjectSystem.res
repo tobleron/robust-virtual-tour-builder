@@ -5,6 +5,25 @@ open Types
 type onProgress = (int, int, string) => unit
 type apiError = string
 
+let projectFromState = (state: state): Types.project => {
+  {
+    tourName: state.tourName,
+    scenes: state.scenes,
+    inventory: state.inventory,
+    sceneOrder: state.sceneOrder,
+    lastUsedCategory: state.lastUsedCategory,
+    exifReport: state.exifReport,
+    sessionId: state.sessionId,
+    deletedSceneIds: state.deletedSceneIds,
+    timeline: state.timeline,
+    logo: state.logo,
+  }
+}
+
+let encodeProjectFromState = (state: state): JSON.t => {
+  JsonParsers.Encoders.project(projectFromState(state))
+}
+
 /* --- Validator --- */
 
 let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
@@ -187,20 +206,7 @@ let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress
   }
   progress(0, 100, "Preparing metadata...")
 
-  let project: Types.project = {
-    tourName: state.tourName,
-    scenes: state.scenes,
-    inventory: state.inventory,
-    sceneOrder: state.sceneOrder,
-    lastUsedCategory: state.lastUsedCategory,
-    exifReport: state.exifReport,
-    sessionId: state.sessionId,
-    deletedSceneIds: state.deletedSceneIds,
-    timeline: state.timeline,
-    logo: state.logo,
-  }
-
-  let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
+  let jsonStr = JsonCombinators.Json.stringify(encodeProjectFromState(state))
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
 

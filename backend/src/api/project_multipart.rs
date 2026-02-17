@@ -61,14 +61,48 @@ pub async fn parse_save_project_multipart(
     let mut session_id: Option<String> = None;
     let mut temp_images: Vec<(String, PathBuf)> = Vec::new();
 
-    while let Some(mut field) = payload.try_next().await? {
-        match field.name().unwrap_or("") {
-            "project_data" => project_json = Some(read_string_field(&mut field).await?),
-            "files" => temp_images.push(save_temp_file_field(&mut field).await?),
-            "session_id" => session_id = Some(read_string_field(&mut field).await?),
+    let cleanup_temp_images = |images: &Vec<(String, PathBuf)>| {
+        for (_, path) in images {
+            let _ = fs::remove_file(path);
+        }
+    };
+
+    loop {
+        let next_field = payload.try_next().await;
+        let maybe_field = match next_field {
+            Ok(next) => next,
+            Err(e) => {
+                cleanup_temp_images(&temp_images);
+                return Err(e.into());
+            }
+        };
+
+        let Some(mut field) = maybe_field else {
+            break;
+        };
+
+        let parse_result: Result<(), AppError> = match field.name().unwrap_or("") {
+            "project_data" => {
+                project_json = Some(read_string_field(&mut field).await?);
+                Ok(())
+            }
+            "files" => {
+                temp_images.push(save_temp_file_field(&mut field).await?);
+                Ok(())
+            }
+            "session_id" => {
+                session_id = Some(read_string_field(&mut field).await?);
+                Ok(())
+            }
             _ => {
                 let _ = read_string_field(&mut field).await?;
+                Ok(())
             }
+        };
+
+        if let Err(e) = parse_result {
+            cleanup_temp_images(&temp_images);
+            return Err(e);
         }
     }
     Ok((project_json, session_id, temp_images))
@@ -101,7 +135,16 @@ pub async fn parse_tour_package_multipart(
     while let Some(mut field) = payload.try_next().await? {
         let name = field.name().unwrap_or("unknown").to_string();
 
-        if ["html_4k", "html_2k", "html_hd", "html_index", "embed_codes"].contains(&name.as_str()) {
+        if [
+            "html_4k",
+            "html_2k",
+            "html_hd",
+            "html_index",
+            "embed_codes",
+            "project_data",
+        ]
+        .contains(&name.as_str())
+        {
             fields.insert(name, read_string_field(&mut field).await?);
         } else {
             // Use existing helper to stream to file

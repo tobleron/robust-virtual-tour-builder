@@ -227,6 +227,7 @@ let exportTour = async (
   scenes: array<scene>,
   ~tourName: string,
   ~logo: option<file>,
+  ~projectData: option<JSON.t>=?,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
@@ -391,6 +392,9 @@ let exportTour = async (
     FormData.append(formData, "html_hd", htmlHd)
     FormData.append(formData, "html_index", htmlIndex)
     FormData.append(formData, "embed_codes", embed)
+    projectData->Option.forEach(data =>
+      FormData.append(formData, "project_data", JsonCombinators.Json.stringify(data))
+    )
 
     /* 3. Append Libraries */
     currentPhase := "LIBRARIES"
