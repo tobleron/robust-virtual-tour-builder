@@ -91,3 +91,14 @@ test("StateSnapshot: commit removes specific snapshot", t => {
   | None => t->expect(false)->Expect.toBe(true)
   }
 })
+
+test("StateSnapshot: generated ID format check", t => {
+  StateSnapshot.clear()
+  let state = createMockState(~tourName="Test", ())
+  let action = SetTourName("A")
+
+  let id = StateSnapshot.capture(state, action)
+
+  // Assert it's a string with sufficient length (UUID is 36, fallback is > 20)
+  t->expect(String.length(id) > 10)->Expect.toBe(true)
+})
