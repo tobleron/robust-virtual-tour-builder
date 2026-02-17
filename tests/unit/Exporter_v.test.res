@@ -8,6 +8,7 @@ open Types
 type expectation
 @val external expectCall: 'a => expectation = "expect"
 @send external toHaveBeenCalled: expectation => unit = "toHaveBeenCalled"
+@send external toHaveBeenCalledTimes: (expectation, int) => unit = "toHaveBeenCalledTimes"
 @send external toHaveBeenCalledWith: (expectation, 'a, 'b) => unit = "toHaveBeenCalledWith"
 @send external toHaveBeenCalledWith3: (expectation, 'a, 'b, 'c) => unit = "toHaveBeenCalledWith"
 
@@ -288,5 +289,91 @@ describe("Exporter", () => {
 
     // Check if abortSpy was called
     expectCall(abortSpy)->toHaveBeenCalled
+  })
+
+  testAsync("exportTour: fails immediately when offline", async t => {
+    let scene1 = createScene("s1", "Scene 1")
+
+    // Mock offline
+    let _ = %raw(`
+      Object.defineProperty(navigator, "onLine", {
+        value: false,
+        configurable: true
+      })
+    `)
+
+    let controller = AbortController.make()
+    let signal = AbortController.signal(controller)
+
+    let result = await exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None)
+
+    // Reset online
+    let _ = %raw(`
+      Object.defineProperty(navigator, "onLine", {
+        value: true,
+        configurable: true
+      })
+    `)
+
+    switch result {
+    | Error(msg) =>
+      t->expect(msg)->Expect.String.toContain("NetworkOffline")
+    | Ok(_) => t->expect(false)->Expect.toBe(true)
+    }
+  })
+
+  testAsync("exportTour: retries on network error and succeeds", async t => {
+    let scene1 = createScene("s1", "Scene 1")
+
+    // Mock Fetch for assets
+    let _ = %raw(`
+      globalThis.fetch = vi.fn((u) => Promise.resolve({
+          ok: true,
+          status: 200,
+          blob: () => Promise.resolve(new Blob(["content"], {type: "text/plain"}))
+      }))
+    `)
+
+    let openSpy = Vi.fn()
+    // Mock XHR with retry logic
+    let _ = %raw(`
+      (() => {
+        let attempts = 0;
+        globalThis.XMLHttpRequest = vi.fn(function() {
+          attempts++;
+          let x = {
+            open: openSpy,
+            send: vi.fn(),
+            setRequestHeader: vi.fn(),
+            upload: { onprogress: null, onload: null },
+            status: attempts < 3 ? 0 : 200,
+            response: attempts < 3 ? null : new Blob(["zip"], {type: "application/zip"})
+          };
+
+          setTimeout(() => {
+             if (attempts < 3) {
+                if (x.onerror) x.onerror();
+             } else {
+                if (x.onload) x.onload();
+             }
+          }, 100); // Fast response
+          return x;
+        })
+      })()
+    `)
+
+    let controller = AbortController.make()
+    let signal = AbortController.signal(controller)
+
+    // We rely on real timers, so this will take ~4 seconds due to backoff/wait in Exporter.res
+    let result = await exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None)
+
+    switch result {
+    | Ok(_) => t->expect(true)->Expect.toBe(true)
+    | Error(msg) => t->expect(msg)->Expect.toBe("Should have succeeded")
+    }
+
+    // Verify openSpy called 3 times (2 failures + 1 success)
+    expectCall(openSpy)->toHaveBeenCalledTimes(3)
   })
 })
