@@ -95,9 +95,11 @@ describe("LoggerTelemetry Offline Awareness", () => {
 
     setOnline(true)
 
-    await Promise.make((resolve, _) => {
-      let _ = setTimeout(() => resolve(ignore()), 50)
-    })
+    await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(() => resolve(ignore()), 50)
+      },
+    )
 
     let calls = %raw(`globalThis.fetch.mock.calls.length`)
     t->expect(calls)->Expect.toBe(1)

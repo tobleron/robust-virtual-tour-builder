@@ -28,12 +28,8 @@ describe("AsyncQueue Order", () => {
     // Expected: ["100", "50", "10", "200", "30"]
     // Actual (buggy): ["10", "30", "50", "100", "200"] (ordered by completion)
 
-    t->expect(results)->Expect.toEqual([
-      Success("100"),
-      Success("50"),
-      Success("10"),
-      Success("200"),
-      Success("30"),
-    ])
+    t
+    ->expect(results)
+    ->Expect.toEqual([Success("100"), Success("50"), Success("10"), Success("200"), Success("30")])
   })
 })

@@ -35,23 +35,21 @@ describe("AsyncQueue", () => {
     t->expect(Array.length(results))->Expect.toBe(5)
     t->expect(Array.length(processed))->Expect.toBe(5)
 
-    t->expect(results)->Expect.toEqual([
-      Success(2),
-      Success(4),
-      Success(6),
-      Success(8),
-      Success(10),
-    ])
+    t
+    ->expect(results)
+    ->Expect.toEqual([Success(2), Success(4), Success(6), Success(8), Success(10)])
   })
 
   testAsync("execute captures worker errors", async t => {
     let items = [10, 20, 30]
     let worker = (_index, item, _updateStatus) => {
       if item == 20 {
-        Promise.resolve()->Promise.then(_ => {
-             let _ = Js.Exn.raiseError("Test Failure")
-             Promise.resolve(0)
-        })
+        Promise.resolve()->Promise.then(
+          _ => {
+            let _ = Js.Exn.raiseError("Test Failure")
+            Promise.resolve(0)
+          },
+        )
       } else {
         Promise.resolve(item * 2)
       }
@@ -62,11 +60,7 @@ describe("AsyncQueue", () => {
 
     t->expect(Array.length(results))->Expect.toBe(3)
 
-    t->expect(results)->Expect.toEqual([
-      Success(20),
-      Failed(1, "Test Failure"),
-      Success(60),
-    ])
+    t->expect(results)->Expect.toEqual([Success(20), Failed(1, "Test Failure"), Success(60)])
   })
 
   testAsync("execute handles empty list", async t => {

@@ -2,6 +2,118 @@
   "rescript": [
     {
       "Surgical": {
+        "file": "../../src/systems/Exporter.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.11, Coupling: 0.06] | Drag: 2.92 | LOC: 545/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 27.424770642201835,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Exporter.res",
+              "functions": [
+                {
+                  "name": "apiErrorDecoder",
+                  "signature": "apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 11
+                },
+                {
+                  "name": "fetchLib",
+                  "signature": "fetchLib = async filename => {",
+                  "line": 21
+                },
+                {
+                  "name": "uploadAndProcessRaw",
+                  "signature": "uploadAndProcessRaw: (",
+                  "line": 40
+                },
+                {
+                  "name": "throwableMessageRaw",
+                  "signature": "throwableMessageRaw: 'a => string = %raw(`",
+                  "line": 125
+                },
+                {
+                  "name": "normalizeThrowableMessage",
+                  "signature": "normalizeThrowableMessage = (exn: exn): string => {",
+                  "line": 146
+                },
+                {
+                  "name": "isUnauthorizedHttpError",
+                  "signature": "isUnauthorizedHttpError = (msg: string): bool => {",
+                  "line": 160
+                },
+                {
+                  "name": "extractHttpErrorBody",
+                  "signature": "extractHttpErrorBody = (msg: string): string => {",
+                  "line": 164
+                },
+                {
+                  "name": "fetchSceneUrlBlob",
+                  "signature": "fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<",
+                  "line": 173
+                },
+                {
+                  "name": "normalizeLogoExtension",
+                  "signature": "normalizeLogoExtension = (name: string): string => {",
+                  "line": 196
+                },
+                {
+                  "name": "filenameFromUrl",
+                  "signature": "filenameFromUrl = (url: string): option<string> => {",
+                  "line": 205
+                },
+                {
+                  "name": "isLikelyImageUrl",
+                  "signature": "isLikelyImageUrl = (url: string): bool => {",
+                  "line": 216
+                },
+                {
+                  "name": "isLikelyImageBlob",
+                  "signature": "isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {",
+                  "line": 225
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (p, t, m) => {",
+                  "line": 245
+                },
+                {
+                  "name": "tourName",
+                  "signature": "tourName = if tourName == \"\" {",
+                  "line": 252
+                },
+                {
+                  "name": "msg",
+                  "signature": "msg = normalizeThrowableMessage(exn)",
+                  "line": 562
+                },
+                {
+                  "name": "normalizedStack",
+                  "signature": "normalizedStack = if stack != \"\" {",
+                  "line": 563
+                },
+                {
+                  "name": "payload",
+                  "signature": "payload = extractHttpErrorBody(msg)",
+                  "line": 574
+                },
+                {
+                  "name": "finalMsg",
+                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
+                  "line": 575
+                }
+              ],
+              "fingerprint": "9bc25854425bc359d2921bbb5923e43101e5412ec3c3a9dcc188fa485219276e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/TourTemplates.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.13, Coupling: 0.02] | Drag: 5.33 | LOC: 1111/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (7.9). Logic heavy.)",
@@ -125,118 +237,6 @@
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/systems/Exporter.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.11, Coupling: 0.06] | Drag: 2.92 | LOC: 546/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 27.524542124542126,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter.res",
-              "functions": [
-                {
-                  "name": "apiErrorDecoder",
-                  "signature": "apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 11
-                },
-                {
-                  "name": "fetchLib",
-                  "signature": "fetchLib = async filename => {",
-                  "line": 21
-                },
-                {
-                  "name": "uploadAndProcessRaw",
-                  "signature": "uploadAndProcessRaw: (",
-                  "line": 40
-                },
-                {
-                  "name": "throwableMessageRaw",
-                  "signature": "throwableMessageRaw: 'a => string = %raw(`",
-                  "line": 125
-                },
-                {
-                  "name": "normalizeThrowableMessage",
-                  "signature": "normalizeThrowableMessage = (exn: exn): string => {",
-                  "line": 146
-                },
-                {
-                  "name": "isUnauthorizedHttpError",
-                  "signature": "isUnauthorizedHttpError = (msg: string): bool => {",
-                  "line": 160
-                },
-                {
-                  "name": "extractHttpErrorBody",
-                  "signature": "extractHttpErrorBody = (msg: string): string => {",
-                  "line": 164
-                },
-                {
-                  "name": "fetchSceneUrlBlob",
-                  "signature": "fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<",
-                  "line": 173
-                },
-                {
-                  "name": "normalizeLogoExtension",
-                  "signature": "normalizeLogoExtension = (name: string): string => {",
-                  "line": 196
-                },
-                {
-                  "name": "filenameFromUrl",
-                  "signature": "filenameFromUrl = (url: string): option<string> => {",
-                  "line": 205
-                },
-                {
-                  "name": "isLikelyImageUrl",
-                  "signature": "isLikelyImageUrl = (url: string): bool => {",
-                  "line": 216
-                },
-                {
-                  "name": "isLikelyImageBlob",
-                  "signature": "isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {",
-                  "line": 225
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (p, t, m) => {",
-                  "line": 245
-                },
-                {
-                  "name": "tourName",
-                  "signature": "tourName = if tourName == \"\" {",
-                  "line": 252
-                },
-                {
-                  "name": "msg",
-                  "signature": "msg = normalizeThrowableMessage(exn)",
-                  "line": 563
-                },
-                {
-                  "name": "normalizedStack",
-                  "signature": "normalizedStack = if stack != \"\" {",
-                  "line": 564
-                },
-                {
-                  "name": "payload",
-                  "signature": "payload = extractHttpErrorBody(msg)",
-                  "line": 575
-                },
-                {
-                  "name": "finalMsg",
-                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
-                  "line": 576
-                }
-              ],
-              "fingerprint": "9bc25854425bc359d2921bbb5923e43101e5412ec3c3a9dcc188fa485219276e"
-            }
-          ]
-        }
-      }
-    },
-    {
       "Violation": {
         "file": "../../src/utils/RequestQueue.res",
         "pattern": "Obj.magic",
@@ -244,6 +244,7 @@
       }
     }
   ],
+  "system": [],
   "rust": [
     {
       "Surgical": {
@@ -332,6 +333,5 @@
         }
       }
     }
-  ],
-  "system": []
+  ]
 }
