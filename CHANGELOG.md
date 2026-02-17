@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Task 1448: Network Stability Masterplan + 13 sub-tasks (1449-1461)
 - Match auto-forward chevron in exported tours to app styles
 - Apply Indigo (#4B0082) styling to auto-forward buttons and indicators
+- Indigo Export Auto-Forward, Confident Build
 
 ## [4.13.0] - 2026-02-17
 
