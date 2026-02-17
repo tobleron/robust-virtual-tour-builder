@@ -186,6 +186,18 @@
     margin-left: 1px;
 }
 
+.floor-combo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.floor-main {
+    line-height: 1;
+}
+
 /* Keep floor buttons visually identical across states */
 #viewer-floor-nav button {
     width: 32px !important;
@@ -203,6 +215,16 @@
 
 #viewer-floor-nav button sup {
     font-size: 10px !important;
+}
+
+#viewer-floor-nav button .floor-combo .floor-suffix {
+    position: absolute;
+    top: -0.42em;
+    right: -0.52em;
+    margin-left: 0 !important;
+    font-size: 0.55em !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
 }
 
 /* --- Persistent Room Label --- */
@@ -250,15 +272,75 @@
 }
 
 @media (max-width: 760px), (max-height: 620px) {
+    #viewer-utility-bar {
+        top: 10px !important;
+        left: 8px !important;
+        gap: 8px !important;
+    }
+
+    #viewer-utility-bar button {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+
+    #viewer-utility-bar button svg {
+        width: 58% !important;
+        height: 58% !important;
+    }
+
     #viewer-floor-nav button {
         width: 24px !important;
         height: 24px !important;
         min-width: 24px !important;
         min-height: 24px !important;
-        font-size: 11px !important;
+        font-size: 9.36px !important;
     }
 
     #viewer-floor-nav button sup {
-        font-size: 8px !important;
+        font-size: 5.8px !important;
     }
+
+    #viewer-floor-nav button .floor-combo .floor-suffix {
+        top: -0.40em;
+        right: -0.46em;
+        font-size: 0.52em !important;
+    }
+}
+
+body.viewer-force-fallback #viewer-utility-bar {
+    top: 10px !important;
+    left: 8px !important;
+    gap: 8px !important;
+}
+
+body.viewer-force-fallback #viewer-utility-bar button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+}
+
+body.viewer-force-fallback #viewer-utility-bar button svg {
+    width: 58% !important;
+    height: 58% !important;
+}
+
+body.viewer-force-fallback #viewer-floor-nav button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    font-size: 9.36px !important;
+}
+
+body.viewer-force-fallback #viewer-floor-nav button sup {
+    font-size: 5.8px !important;
+}
+
+body.viewer-force-fallback #viewer-floor-nav button .floor-combo .floor-suffix {
+    top: -0.40em;
+    right: -0.46em;
+    font-size: 0.52em !important;
 }

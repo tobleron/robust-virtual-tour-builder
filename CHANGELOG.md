@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Viewer responsive hfov + portrait fallback + ui sizing fixes
 - Viewer responsive hfov + portrait fallback + ui sizing fixes
+- Responsive fallback policies for builder and export tours
+- Responsive fallback policies for builder and export tours
 
 ## [4.13.0] - 2026-02-16
 

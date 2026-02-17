@@ -64,7 +64,7 @@ __LOGO_BLOCK__
 
 module Styles = {
   let cssTemplate = `
-    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); --export-fallback-padding: 5px; }
     body { margin: 0; padding: 0; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: auto; background-color: var(--viewer-bg); font-family: var(--font-family); }
     body::before { content: ""; position: fixed; top: -20px; left: -20px; right: -20px; bottom: -20px; background: url('assets/images/__FIRST_SCENE_NAME__') no-repeat center center fixed; background-size: cover; filter: blur(25px) brightness(0.4); z-index: -1; }
     body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 0; filter: contrast(120%) brightness(100%); }
@@ -103,23 +103,34 @@ module Styles = {
     .pnlm-hotspot.flat-arrow[data-target-home] { perspective: none !important; transform-style: flat !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    @media (max-width: 430px), (max-height: 560px) {
-      #stage { width: min(94vw, 375px) !important; min-width: 0 !important; max-width: 375px !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100vh - 16px) !important; }
-      #viewer-floor-nav-export { bottom: 14px; left: 12px; gap: 6px; }
-      #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 11px; }
-      #viewer-floor-nav-export .floor-nav-btn sup { font-size: 8px; }
-      .viewer-persistent-label-export { top: 14px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    @media (max-width: 760px), (max-height: 620px) {
+      #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
+      body { padding: var(--export-fallback-padding); box-sizing: border-box; }
+      #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
+      #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
+      #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
+      .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+      .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
+      .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
       .export-hotspot-root { width: 26px; height: 26px; }
       .export-hotspot-icon { width: 15px; height: 15px; }
     }
+    body.export-force-fallback { padding: var(--export-fallback-padding); box-sizing: border-box; }
+    body.export-force-fallback #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
+    body.export-force-fallback #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
+    body.export-force-fallback #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
+    body.export-force-fallback #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
+    body.export-force-fallback .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    body.export-force-fallback .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
+    body.export-force-fallback .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
+    body.export-force-fallback .export-hotspot-root { width: 26px; height: 26px; }
+    body.export-force-fallback .export-hotspot-icon { width: 15px; height: 15px; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
     let mediaQuery = switch exportType {
-    | "4k" =>
-      ` #stage { position: relative; margin: 0 auto; width: 100%; min-width: 640px; max-width: 1024px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } @media (max-width: 1100px) { #stage { width: 95vw; } } `
-    | _ =>
-      ` #stage { position: relative; margin: 0 auto; width: clamp(375px, 95vw, 640px); min-width: 375px; max-width: 640px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
+    | "4k" => ` #stage { position: relative; margin: 0 auto; width: 100%; min-width: 640px; max-width: 1024px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } @media (max-width: 1100px) { #stage { width: 95vw; } } `
+    | _ => ` #stage { position: relative; margin: 0 auto; width: clamp(375px, 95vw, 640px); min-width: 375px; max-width: 640px; height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
     }
     cssTemplate
     ->String.replaceRegExp(/__FIRST_SCENE_NAME__/g, firstSceneName)
@@ -144,6 +155,9 @@ module Scripts = {
     const STAGE_MIN_WIDTH = __STAGE_MIN_WIDTH__;
     const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
+    let exportForceFallback = false;
+    let exportResizeSettled = true;
+    let exportSettleTimeoutId = null;
     const EXPORT_FLOOR_LEVELS = [
       { id: "b2", label: "Basement 2", short: "B", suffix: "-2" },
       { id: "b1", label: "Basement 1", short: "B", suffix: "-1" },
@@ -203,6 +217,51 @@ module Scripts = {
     function applyCurrentHfov() {
       if (!window.viewer || typeof window.viewer.setHfov !== "function") return;
       window.viewer.setHfov(getCurrentHfov(), false);
+    }
+    function updateExportFallbackMode() {
+      const label = document.getElementById("viewer-room-label-export");
+      const floor = document.getElementById("viewer-floor-nav-export");
+      const smallViewport = window.innerWidth <= 760 || window.innerHeight <= 620;
+      const stage = document.getElementById("stage");
+      const stageWidth = stage && typeof stage.getBoundingClientRect === "function"
+        ? stage.getBoundingClientRect().width
+        : STAGE_MAX_WIDTH;
+      const nearPortraitWidth = Number.isFinite(stageWidth) && stageWidth <= 420;
+      if (!smallViewport || !nearPortraitWidth) {
+        if (exportForceFallback && document && document.body) {
+          exportForceFallback = false;
+          document.body.classList.remove("export-force-fallback");
+        }
+        return;
+      }
+      if (!label || !floor || !document || !document.body) {
+        if (exportForceFallback) {
+          exportForceFallback = false;
+          document.body.classList.remove("export-force-fallback");
+        }
+        return;
+      }
+      const labelRect = label.getBoundingClientRect();
+      const floorRect = floor.getBoundingClientRect();
+      const gap = floorRect.top - labelRect.bottom;
+      const shouldEnter = gap <= 36;
+      const canExit = exportResizeSettled && gap > 60;
+      if (shouldEnter && !exportForceFallback) {
+        exportForceFallback = true;
+        document.body.classList.add("export-force-fallback");
+      } else if (exportForceFallback && canExit) {
+        exportForceFallback = false;
+        document.body.classList.remove("export-force-fallback");
+      }
+    }
+    function startExportSettleWindow() {
+      exportResizeSettled = false;
+      if (exportSettleTimeoutId !== null) clearTimeout(exportSettleTimeoutId);
+      exportSettleTimeoutId = setTimeout(() => {
+        exportResizeSettled = true;
+        exportSettleTimeoutId = null;
+        updateExportFallbackMode();
+      }, 220);
     }
     function getSceneHotspots(sceneId) {
       return Array.from(document.querySelectorAll('.pnlm-hotspot.flat-arrow')).filter(el => el.dataset.ownerScene === sceneId);
@@ -684,6 +743,7 @@ module Scripts = {
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);
       updateExportRoomLabel(sid);
+      updateExportFallbackMode();
       clearWaypointRuntime();
       waypointRuntime.sceneId = sid;
       animateSceneToPrimaryHotspot(sid, 20);
@@ -706,10 +766,7 @@ module Scripts = {
     ->String.replaceRegExp(/__MAX_HFOV__/g, Belt.Float.toString(maxHfov))
     ->String.replaceRegExp(/__STAGE_MIN_WIDTH__/g, Belt.Int.toString(stageMinWidth))
     ->String.replaceRegExp(/__STAGE_MAX_WIDTH__/g, Belt.Int.toString(stageMaxWidth))
-    ->String.replaceRegExp(
-      /__DYNAMIC_HFOV_ENABLED__/g,
-      dynamicHfovEnabled ? "true" : "false",
-    )
+    ->String.replaceRegExp(/__DYNAMIC_HFOV_ENABLED__/g, dynamicHfovEnabled ? "true" : "false")
 }
 
 // --- MAIN ---
@@ -934,24 +991,29 @@ let generateTourHTML = (
     )
   })
 
-  let (defaultHfov, minHfov, maxHfov, stageMinWidth, stageMaxWidth, dynamicHfovEnabled) =
-    switch exportType {
-    | "4k" => (90.0, 65.0, 90.0, 375, 1024, true)
-    | "2k" => (90.0, 65.0, 90.0, 375, 640, true)
-    | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
-    | _ => (90.0, 65.0, 90.0, 375, 640, true)
-    }
+  let (
+    defaultHfov,
+    minHfov,
+    maxHfov,
+    stageMinWidth,
+    stageMaxWidth,
+    dynamicHfovEnabled,
+  ) = switch exportType {
+  | "4k" => (90.0, 65.0, 90.0, 375, 1024, true)
+  | "2k" => (90.0, 65.0, 90.0, 375, 640, true)
+  | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
+  | _ => (90.0, 65.0, 90.0, 375, 640, true)
+  }
   let css = Styles.generateCSS(firstSceneName, exportType, baseSize, logoSize)
-  let renderScript =
-    Scripts.generateRenderScript(
-      baseSize,
-      defaultHfov,
-      minHfov,
-      maxHfov,
-      stageMinWidth,
-      stageMaxWidth,
-      dynamicHfovEnabled,
-    )
+  let renderScript = Scripts.generateRenderScript(
+    baseSize,
+    defaultHfov,
+    minHfov,
+    maxHfov,
+    stageMinWidth,
+    stageMaxWidth,
+    dynamicHfovEnabled,
+  )
   let logoDiv = switch logoFilename {
   | Some(filename) => `<div class="watermark"><img src="assets/${filename}"></div>`
   | None => ""
@@ -974,17 +1036,17 @@ let generateTourHTML = (
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
       defPitch,
-    )}, "yaw": ${Belt.Float.toString(
-      defYaw,
-    )}, "hfov": ${Belt.Float.toString(defaultHfov)}, "minHfov": ${Belt.Float.toString(
-      minHfov,
-    )}, "maxHfov": ${Belt.Float.toString(maxHfov)}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
+    )}, "yaw": ${Belt.Float.toString(defYaw)}, "hfov": ${Belt.Float.toString(
+      defaultHfov,
+    )}, "minHfov": ${Belt.Float.toString(minHfov)}, "maxHfov": ${Belt.Float.toString(
+      maxHfov,
+    )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
-    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
-    window.addEventListener('resize', () => { window.viewer?.resize(); applyCurrentHfov(); });
+    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov(); updateExportFallbackMode();
+    window.addEventListener('resize', () => { startExportSettleWindow(); window.viewer?.resize(); applyCurrentHfov(); updateExportFallbackMode(); });
     ${Scripts.loadEventScript}
   </script></body></html>`
   html
