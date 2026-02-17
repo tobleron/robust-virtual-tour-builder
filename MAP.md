@@ -276,9 +276,11 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/TourLogic.res](src/utils/TourLogic.res): Core domain logic for tour structure and state validation. `#utils` `#logic`
 *   [src/utils/UrlUtils.res](src/utils/UrlUtils.res): Utilities for parsing and generating tour URLs. `#utils` `#url`
 *   [src/utils/Version.res](src/utils/Version.res): Semantic versioning and build manifest utilities. `#utils` `#version`
+*   [src/utils/NetworkStatus.res](src/utils/NetworkStatus.res): Centralized authority for monitoring online/offline state and dispatching connectivity events. `#utils` `#network` `#resilience`
 
 ### 🧪 Performance Governance
 *   [tests/e2e/perf-budgets.spec.ts](tests/e2e/perf-budgets.spec.ts): CI budget gate suite for rapid navigation latency, bulk upload throughput, long-task counts, and memory growth during long simulation sessions. `#e2e` `#performance` `#budgets`
+*   [docs/NETWORK_RESILIENCE.md](docs/NETWORK_RESILIENCE.md): Architectural guide for network hardening, offline handling, and crash recovery. `#docs` `#architecture` `#resilience`
 *   [scripts/check-bundle-budgets.mjs](scripts/check-bundle-budgets.mjs): Enforces production bundle budgets (total JS, gzip size, and largest chunk). `#ci` `#performance` `#bundle-budget`
 *   [scripts/check-runtime-budgets.mjs](scripts/check-runtime-budgets.mjs): Enforces runtime budgets from Playwright perf metrics artifacts. `#ci` `#performance` `#runtime-budget`
 *   [docs/_pending_integration/enterprise_reliability_performance_runbook.md](docs/_pending_integration/enterprise_reliability_performance_runbook.md): Operational runbook with budget thresholds, verification commands, and SLO alignment evidence against Task 1349 baseline. `#docs` `#runbook` `#performance`
