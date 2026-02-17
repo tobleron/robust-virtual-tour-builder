@@ -8,7 +8,7 @@ type state =
 type internalState =
   | ClosedState({failureCount: int})
   | OpenState({startTime: float})
-  | HalfOpenState({successCount: int, probing: bool})
+  | HalfOpenState({successCount: int, failureCount: int, probing: bool})
 
 type config = {
   failureThreshold: int,
@@ -54,16 +54,16 @@ let canExecute = t => {
   | ClosedState(_) => true
   | OpenState({startTime}) =>
     if Date.now() -. startTime >= Int.toFloat(t.config.timeout) {
-      t.internalState = HalfOpenState({successCount: 0, probing: true})
+      t.internalState = HalfOpenState({successCount: 0, failureCount: 0, probing: true})
       true
     } else {
       false
     }
-  | HalfOpenState({probing, successCount}) =>
+  | HalfOpenState({probing, successCount, failureCount}) =>
     if probing {
       false
     } else {
-      t.internalState = HalfOpenState({successCount, probing: true})
+      t.internalState = HalfOpenState({successCount, failureCount, probing: true})
       true
     }
   }
@@ -71,12 +71,16 @@ let canExecute = t => {
 
 let recordSuccess = t => {
   switch t.internalState {
-  | HalfOpenState({successCount}) =>
+  | HalfOpenState({successCount, failureCount}) =>
     let newSuccessCount = successCount + 1
     if newSuccessCount >= t.config.successThreshold {
       t.internalState = ClosedState({failureCount: 0})
     } else {
-      t.internalState = HalfOpenState({successCount: newSuccessCount, probing: false})
+      t.internalState = HalfOpenState({
+        successCount: newSuccessCount,
+        failureCount,
+        probing: false,
+      })
     }
   | ClosedState(_) => t.internalState = ClosedState({failureCount: 0})
   | OpenState(_) => () // Should not happen usually, but ignore
@@ -86,7 +90,17 @@ let recordSuccess = t => {
 let recordFailure = t => {
   let now = Date.now()
   switch t.internalState {
-  | HalfOpenState(_) => t.internalState = OpenState({startTime: now})
+  | HalfOpenState({failureCount}) =>
+    let newFailureCount = failureCount + 1
+    if newFailureCount >= 2 {
+      t.internalState = OpenState({startTime: now})
+    } else {
+      t.internalState = HalfOpenState({
+        successCount: 0,
+        failureCount: newFailureCount,
+        probing: false,
+      })
+    }
   | ClosedState({failureCount}) =>
     let newFailureCount = failureCount + 1
     if newFailureCount >= t.config.failureThreshold {
