@@ -28,60 +28,62 @@ module Logic = {
 module Styles = {
   let nodeSize = 14
 
-  let styles =
-    "
+  let styles = "
+  /* --- Sizing & Scaling (T1430) --- */
+  :root {
+    --vp-pipe-height: 12px;
+    --vp-node-base: 18px;
+    --vp-marker-size: 10px;
+    --vp-bottom-margin: 24px;
+  }
+
+  /* Compact Mode for smaller viewports */
+  body.viewer-state-tablet,
+  body.viewer-state-portrait,
+  body.viewer-state-2k,
+  body.viewer-force-fallback,
+  body.stage-size-small {
+    --vp-pipe-height: 10px;
+    --vp-node-base: 14px;
+    --vp-marker-size: 8px;
+    --vp-bottom-margin: 12px;
+  }
+
   #visual-pipeline-container {
     position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 9000;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
     padding-bottom: env(safe-area-inset-bottom, 20px);
+    /* Safe Zone: Explicitly avoid Floor Nav (Left) and Logo (Right) */
+    padding-left: 70px;
+    padding-right: 150px;
     box-sizing: border-box;
-  }
-
-  /* Responsive padding */
-  @media (min-width: 768px) {
-    #visual-pipeline-container {
-      padding-left: 160px;
-      padding-right: 160px;
-    }
   }
 
   .visual-pipeline-wrapper {
     pointer-events: auto;
-    margin-bottom: 24px;
+    margin-bottom: var(--vp-bottom-margin);
     display: flex; justify-content: center; align-items: center;
-    width: auto; max-width: 90%;
+    width: 100%;
+    max-width: 1200px; /* Cap expansion on ultra-wide */
     padding: 0;
     background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
     user-select: none;
     flex-wrap: wrap;
-    gap: 0;
+    row-gap: 18px; /* Vertical space for wrapping */
+    column-gap: 0;
     transition: all 0.3s ease;
   }
 
-  body.viewer-state-tablet #visual-pipeline-container,
-  body.viewer-state-2k #visual-pipeline-container,
-  body.viewer-force-fallback #visual-pipeline-container {
+  body.viewer-state-portrait #visual-pipeline-container {
+    /* More aggressive padding for narrow portrait screens */
+    padding-left: 60px;
+    padding-right: 140px;
     padding-bottom: env(safe-area-inset-bottom, 10px);
   }
 
-  body.viewer-state-tablet .visual-pipeline-wrapper,
-  body.viewer-state-2k .visual-pipeline-wrapper,
-  body.viewer-force-fallback .visual-pipeline-wrapper {
-    margin-bottom: 12px;
-    transform: scale(0.86);
-    transform-origin: bottom center;
-  }
-
-  body.viewer-state-portrait #visual-pipeline-container {
-    padding-bottom: env(safe-area-inset-bottom, 8px);
-  }
-
   body.viewer-state-portrait .visual-pipeline-wrapper {
-    margin-bottom: 8px;
-    transform: scale(0.78);
+    row-gap: 12px;
+    transform: scale(0.85);
     transform-origin: bottom center;
   }
 
@@ -90,6 +92,7 @@ module Styles = {
     position: relative; width: 100%; gap: 0;
   }
 
+  /* Connector (Pipe) */
   .drop-zone {
     width: 30px; height: 32px; display: flex; align-items: center; justify-content: center;
     position: relative; z-index: 10;
@@ -97,18 +100,26 @@ module Styles = {
   }
 
   .drop-zone::before {
-    content: ''; position: absolute; top: 50%; left: 0; transform: translateY(-50%);
-    width: 100%; height: 6px; background: var(--primary-navy); opacity: 1; z-index: 10;
-    border-radius: 2px; pointer-events: none;
+    content: ''; position: absolute; top: 50%; 
+    left: -1px; width: calc(100% + 2px); /* Overlap to prevent gaps */
+    height: var(--vp-pipe-height); transform: translateY(-50%);
+    /* Synchronized Blue with Orange line in Golden Minor Ratio */
+    background: linear-gradient(
+      to bottom,
+      var(--primary-ui-blue) 0%,
+      var(--primary-ui-blue) 38.2%,
+      var(--orange-brand) 38.2%,
+      var(--orange-brand) 61.8%,
+      var(--primary-ui-blue) 61.8%,
+      var(--primary-ui-blue) 100%
+    );
+    opacity: 1; z-index: 10;
+    border-radius: 0; pointer-events: none;
   }
 
   .drop-zone::after {
-    content: ''; position: absolute; width: " ++
-    Int.toString(nodeSize) ++
-    "px;
-    height: " ++
-    Int.toString(nodeSize) ++
-    "px; border-radius: 50%;
+    content: ''; position: absolute; width: var(--vp-node-base);
+    height: var(--vp-node-base); border-radius: 50%;
     background: rgba(255, 255, 255, 0.1); border: 2px dashed rgba(255, 255, 255, 0.5); opacity: 0;
     box-shadow: 0 0 12px rgba(255, 255, 255, 0.4); z-index: 15; pointer-events: none;
     transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1); transform: scale(0.7);
@@ -118,46 +129,60 @@ module Styles = {
   .drop-zone.drag-over { width: 48px; }
   .dragging-active .drop-zone { z-index: 100; cursor: copy; }
 
+  /* Node (Circle) */
   .pipeline-node {
-    width: " ++
-    Int.toString(nodeSize + 4) ++
-    "px; height: " ++
-    Int.toString(nodeSize + 4) ++ "px;
+    width: calc(var(--vp-node-base) + 4px); 
+    height: calc(var(--vp-node-base) + 4px);
     display: flex; align-items: center; justify-content: center; cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative; flex-shrink: 0;
     z-index: 20;
+    border-radius: 50%;
+    margin: 0 -0.5px;
+    
+    /* Solid Synchronized Blue Circle Base */
+    background-color: var(--primary-ui-blue);
+    
+    /* Overlay Orange Stripe passing through */
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 38.2%,
+      var(--orange-brand) 38.2%,
+      var(--orange-brand) 61.8%,
+      transparent 61.8%,
+      transparent 100%
+    );
+    background-size: 100% var(--vp-pipe-height);
+    background-position: center center;
+    background-repeat: no-repeat;
   }
 
-  .pipeline-node:hover { transform: translateY(-2px); }
-  .pipeline-node:active { transform: translateY(0) scale(0.95); }
+  .pipeline-node:hover { transform: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); }
+  .pipeline-node:active { transform: scale(0.95); }
 
   .pipeline-node.is-dragging { opacity: 0.4; transform: scale(0.9); }
 
-  .pipeline-node::after {
-    content: ''; position: absolute; inset: 2px;
-    background: var(--danger);
-    border-radius: 50%; z-index: 20;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    border: 2px solid rgba(255,255,255,0.1);
-    transition: all 0.3s ease;
+  /* Inner Selection Marker */
+  .node-marker {
+    width: var(--vp-marker-size); height: var(--vp-marker-size);
+    background: var(--orange-brand);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 25;
+    pointer-events: none;
   }
 
-  .pipeline-node:hover::after {
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 0 4px 8px rgba(0,0,0,0.4);
-    border-color: rgba(255,255,255,0.8);
-  }
-
-  .pipeline-node.active::after {
-    box-shadow: 0 0 0 2px white, 0 0 10px var(--danger);
-    border-color: white;
-    transform: scale(1.2);
+  .pipeline-node.active .node-marker {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .pipeline-node:focus-visible {
     outline: none;
-  }
-  .pipeline-node:focus-visible::after {
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
   }
 
@@ -165,9 +190,9 @@ module Styles = {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px; padding: 6px;
+    border-radius: 8px; padding: 8px;
     opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 100;
+    display: flex; flex-direction: column; align-items: center; width: 160px; z-index: 100;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     margin-bottom: 12px;
@@ -183,9 +208,14 @@ module Styles = {
   }
 
   .tooltip-text {
-    font-size: 11px; color: white; font-weight: 600; text-align: center;
-    width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    line-height: 1.4;
+    font-size: 9px; color: white; font-weight: 500; text-align: center;
+    width: 100%; 
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    padding: 0 2px;
   }
 
   .tooltip-link-id {

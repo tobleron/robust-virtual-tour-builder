@@ -176,6 +176,7 @@ module PipelineNode = {
       } else {
         React.null
       }}
+      <div className="node-marker" />
     </div>
   }
 }
