@@ -297,6 +297,17 @@ pub fn create_tour_package(
                 )?;
             }
         }
+
+        // 8. Canonical project metadata for parity with .vt.zip saves
+        if let Some(project_data) = fields.get("project_data") {
+            write_zip_file(
+                &mut zip,
+                options,
+                "project_metadata.vt.json",
+                project_data.as_bytes(),
+            )?;
+        }
+
         let deploy_readme = create_web_only_deployment_readme();
         write_zip_file(
             &mut zip,

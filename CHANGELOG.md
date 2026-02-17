@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stabilize 3-state viewer modes, compact HUD alignment, and postpone visual pipeline calibration
 - Finalize export UX with standalone-first launcher, shared assets, and deployment guidance
 - Update exported hotspot styling: 28px size, 10px radius
+- Fix project load validation truthfulness and harden save/load asset consistency
+- Fix project load validation truthfulness and harden save/load asset consistency
 
 ## [4.13.0] - 2026-02-16
 

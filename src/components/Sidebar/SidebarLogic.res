@@ -246,19 +246,7 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
 }
 
 let getProjectData = (state: Types.state) => {
-  let project: Types.project = {
-    tourName: state.tourName,
-    scenes: state.scenes,
-    inventory: state.inventory,
-    sceneOrder: state.sceneOrder,
-    lastUsedCategory: state.lastUsedCategory,
-    exifReport: state.exifReport,
-    sessionId: state.sessionId,
-    deletedSceneIds: state.deletedSceneIds,
-    timeline: state.timeline,
-    logo: state.logo,
-  }
-  JsonParsers.Encoders.project(project)
+  ProjectSystem.encodeProjectFromState(state)
 }
 
 let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
@@ -276,6 +264,7 @@ let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
 let handleExport = async (
   scenes,
   ~tourName: string,
+  ~projectData: option<JSON.t>=?,
   ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
   ~signal,
   ~onCancel,
@@ -298,6 +287,7 @@ let handleExport = async (
       scenes,
       ~tourName,
       ~logo=AppContext.getBridgeState().logo,
+      ~projectData?,
       ~signal,
       Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
     )

@@ -11,6 +11,92 @@ use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use crate::models::{AppError, ValidationReport};
 use crate::services::project;
 
+fn extract_sanitized_filename(raw_value: &str) -> Option<String> {
+    let trimmed = raw_value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let from_file_segment = if let Some((_, after_file)) = trimmed.rsplit_once("/file/") {
+        after_file
+    } else {
+        trimmed
+    };
+
+    let without_query = from_file_segment
+        .split('?')
+        .next()
+        .unwrap_or(from_file_segment)
+        .split('#')
+        .next()
+        .unwrap_or(from_file_segment);
+
+    let last_segment = without_query.rsplit('/').next().unwrap_or(without_query);
+
+    if last_segment.is_empty() {
+        return None;
+    }
+
+    let decoded = percent_decode_str(last_segment)
+        .decode_utf8()
+        .ok()?
+        .to_string();
+    crate::api::utils::sanitize_filename(&decoded).ok()
+}
+
+fn is_active_inventory_entry(entry: &Value) -> bool {
+    match entry
+        .get("status")
+        .and_then(|status| status.as_object())
+        .and_then(|obj| obj.get("status"))
+        .and_then(|status| status.as_str())
+    {
+        Some("Deleted") => false,
+        _ => true,
+    }
+}
+
+fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {
+    if let Some(name) = scene.get("name").and_then(|v| v.as_str())
+        && let Some(file) = extract_sanitized_filename(name)
+    {
+        acc.insert(file);
+    }
+
+    for prop in ["file", "tinyFile", "originalFile"] {
+        if let Some(raw) = scene.get(prop).and_then(|v| v.as_str())
+            && let Some(file) = extract_sanitized_filename(raw)
+        {
+            acc.insert(file);
+        }
+    }
+}
+
+fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {
+    let mut referenced = HashSet::new();
+
+    if let Some(scenes) = project_val.get("scenes").and_then(|v| v.as_array()) {
+        for scene in scenes {
+            collect_scene_file_references(scene, &mut referenced);
+        }
+    }
+
+    if let Some(inventory) = project_val.get("inventory").and_then(|v| v.as_array()) {
+        for item in inventory {
+            if let Some(entry) = item.get("entry") {
+                if !is_active_inventory_entry(entry) {
+                    continue;
+                }
+                if let Some(scene) = entry.get("scene") {
+                    collect_scene_file_references(scene, &mut referenced);
+                }
+            }
+        }
+    }
+
+    referenced
+}
+
 pub fn extract_project_metadata_from_zip(
     path: &PathBuf,
 ) -> Result<(String, serde_json::Value), AppError> {
@@ -204,57 +290,34 @@ pub fn create_project_zip_sync(
         let _ = fs::remove_file(path);
     }
     if let Some(session_path) = project_path {
-        let project_val: Value = serde_json::from_str(&project_json).unwrap_or(Value::Null);
-        if let Some(scenes) = project_val["scenes"].as_array() {
-            for scene in scenes {
-                if let Some(_name) = scene["name"].as_str() {
-                    // Collect all possible file references in a scene
-                    let file_props = ["file", "tinyFile", "originalFile"];
-                    for prop in file_props {
-                        if let Some(file_url) = scene[prop].as_str() {
-                            if file_url.contains("/file/") {
-                                if let Some(filename_segment) = file_url
-                                    .split("/file/")
-                                    .nth(1)
-                                    .and_then(|s| s.split('?').next())
-                                {
-                                    if let Ok(decoded_filename) =
-                                        percent_decode_str(filename_segment).decode_utf8()
-                                    {
-                                        let decoded_filename = decoded_filename.to_string();
-                                        if let Ok(safe_filename) =
-                                            crate::api::utils::sanitize_filename(&decoded_filename)
-                                        {
-                                            if !written_files.contains(&safe_filename) {
-                                                let img_subdir = session_path
-                                                    .join("images")
-                                                    .join(&safe_filename);
-                                                let root_path = session_path.join(&safe_filename);
-                                                let source_path = if img_subdir.exists() {
-                                                    Some(img_subdir)
-                                                } else if root_path.exists() {
-                                                    Some(root_path)
-                                                } else {
-                                                    None
-                                                };
+        let project_val: Value = serde_json::from_str(&project_json).map_err(|e| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("Invalid project JSON while packaging zip: {}", e),
+            )
+        })?;
 
-                                                if let Some(path) = source_path {
-                                                    zip.start_file(
-                                                        format!("images/{}", safe_filename),
-                                                        options,
-                                                    )?;
-                                                    let mut f = fs::File::open(path)?;
-                                                    std::io::copy(&mut f, &mut zip)?;
-                                                    written_files.insert(safe_filename);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        let referenced_files = collect_referenced_project_files(&project_val);
+        for safe_filename in referenced_files {
+            if written_files.contains(&safe_filename) {
+                continue;
+            }
+
+            let img_subdir = session_path.join("images").join(&safe_filename);
+            let root_path = session_path.join(&safe_filename);
+            let source_path = if img_subdir.exists() {
+                Some(img_subdir)
+            } else if root_path.exists() {
+                Some(root_path)
+            } else {
+                None
+            };
+
+            if let Some(path) = source_path {
+                zip.start_file(format!("images/{}", safe_filename), options)?;
+                let mut f = fs::File::open(path)?;
+                std::io::copy(&mut f, &mut zip)?;
+                written_files.insert(safe_filename);
             }
         }
     }
@@ -293,6 +356,7 @@ pub fn validate_project_full_sync(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
     use std::io::Write;
     use tempfile::tempdir;
 
@@ -356,5 +420,76 @@ mod tests {
             "Sanitized dodgy path should exist at {:?}",
             dodgy_path
         );
+    }
+
+    #[test]
+    fn test_create_project_zip_sync_includes_inventory_active_scene_files() {
+        let tmp = tempdir().expect("failed to create temp directory");
+        let zip_path = tmp.path().join("saved.vt.zip");
+        let session_path = tmp.path().join("session-a");
+        let images_path = session_path.join("images");
+        fs::create_dir_all(&images_path).expect("failed to create images directory");
+
+        fs::write(images_path.join("001.webp"), b"scene-001").expect("failed to write first image");
+        fs::write(images_path.join("002.webp"), b"scene-002")
+            .expect("failed to write second image");
+
+        // Simulate backend-validated JSON where legacy scenes[] lost one scene,
+        // while inventory still has both active entries (frontend load path relies on inventory+order).
+        let project_json = json!({
+            "tourName": "Test",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "001.webp",
+                    "file": "/api/project/old/file/001.webp"
+                }
+            ],
+            "inventory": [
+                {
+                    "id": "s1",
+                    "entry": {
+                        "scene": {
+                            "id": "s1",
+                            "name": "001.webp",
+                            "file": "/api/project/old/file/001.webp"
+                        },
+                        "status": "Active"
+                    }
+                },
+                {
+                    "id": "s2",
+                    "entry": {
+                        "scene": {
+                            "id": "s2",
+                            "name": "002.webp",
+                            "file": "/api/project/old/file/002.webp"
+                        },
+                        "status": "Active"
+                    }
+                }
+            ],
+            "sceneOrder": ["s1", "s2"]
+        });
+
+        create_project_zip_sync(
+            zip_path.clone(),
+            serde_json::to_string(&project_json).expect("failed to serialize project json"),
+            "summary".to_string(),
+            vec![],
+            Some(session_path),
+        )
+        .expect("failed to create project zip");
+
+        let file = fs::File::open(zip_path).expect("failed to open output zip");
+        let mut archive = zip::ZipArchive::new(file).expect("failed to parse output zip");
+        let mut entries = HashSet::new();
+        for i in 0..archive.len() {
+            let entry = archive.by_index(i).expect("failed to read zip entry");
+            entries.insert(entry.name().to_string());
+        }
+
+        assert!(entries.contains("images/001.webp"));
+        assert!(entries.contains("images/002.webp"));
     }
 }

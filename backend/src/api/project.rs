@@ -36,6 +36,43 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let (project_json, session_id, temp_images) =
         project_multipart::parse_save_project_multipart(payload).await?;
 
+    struct TempImagesCleanupGuard {
+        paths: Vec<std::path::PathBuf>,
+    }
+    impl Drop for TempImagesCleanupGuard {
+        fn drop(&mut self) {
+            for path in &self.paths {
+                let _ = std::fs::remove_file(path);
+            }
+        }
+    }
+
+    struct ZipCleanupGuard {
+        path: std::path::PathBuf,
+        keep: bool,
+    }
+    impl ZipCleanupGuard {
+        fn new(path: std::path::PathBuf) -> Self {
+            Self { path, keep: false }
+        }
+
+        fn keep(&mut self) {
+            self.keep = true;
+        }
+    }
+    impl Drop for ZipCleanupGuard {
+        fn drop(&mut self) {
+            if !self.keep {
+                let _ = std::fs::remove_file(&self.path);
+            }
+        }
+    }
+
+    let _temp_images_guard = TempImagesCleanupGuard {
+        paths: temp_images.iter().map(|(_, path)| path.clone()).collect(),
+    };
+    let mut zip_cleanup_guard = ZipCleanupGuard::new(zip_path.clone());
+
     let json_content = project_json.ok_or_else(|| {
         AppError::MultipartError(actix_multipart::MultipartError::Incomplete.to_string())
     })?;
@@ -77,7 +114,8 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
             let file_bytes = tokio::fs::read(&zip_path)
                 .await
                 .map_err(AppError::IoError)?;
-            let _ = tokio::fs::remove_file(&zip_path).await;
+            zip_cleanup_guard.keep();
+            let _ = std::fs::remove_file(&zip_path);
             tracing::info!(
                 module = "ProjectManager",
                 duration_ms = duration,
@@ -87,10 +125,7 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
                 .content_type("application/zip")
                 .body(file_bytes))
         }
-        Err(e) => {
-            let _ = tokio::fs::remove_file(&zip_path).await;
-            Err(e.into())
-        }
+        Err(e) => Err(e.into()),
     }
 }
 
@@ -135,6 +170,17 @@ pub async fn import_project(
 
     // Extract file from payload
     let tmp_path = project_multipart::extract_file_from_multipart(payload, "zip").await?;
+    struct TempUploadCleanupGuard {
+        path: std::path::PathBuf,
+    }
+    impl Drop for TempUploadCleanupGuard {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.path);
+        }
+    }
+    let _tmp_upload_cleanup = TempUploadCleanupGuard {
+        path: tmp_path.clone(),
+    };
 
     // Extract metadata
     let tmp_path_clone = tmp_path.clone();
@@ -156,13 +202,34 @@ pub async fn import_project(
     .map_err(|e| AppError::InternalError(e.to_string()))?
     .map_err(AppError::InternalError)?;
 
-    let _ = tokio::fs::remove_file(tmp_path).await;
+    let validated_project = web::block({
+        let project_dir = project_dir.clone();
+        let project_data = project_data.clone();
+        move || -> Result<serde_json::Value, AppError> {
+            let available_files = project_logic::list_available_files(&project_dir);
+            let (mut cleaned_project, report) =
+                project::validate_and_clean_project(project_data, &available_files)
+                    .map_err(AppError::InternalError)?;
+
+            cleaned_project["validationReport"] = serde_json::to_value(&report)
+                .map_err(|e| AppError::InternalError(e.to_string()))?;
+
+            let persisted = serde_json::to_string_pretty(&cleaned_project)
+                .map_err(|e| AppError::InternalError(e.to_string()))?;
+            std::fs::write(project_dir.join("project.json"), persisted)
+                .map_err(AppError::IoError)?;
+
+            Ok(cleaned_project)
+        }
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))??;
 
     tracing::info!(module = "ProjectManager", user_id = %user.id, session_id = %project_id, "IMPORT_PROJECT_COMPLETE");
 
     return Ok(HttpResponse::Ok().json(ImportResponse {
         session_id: project_id,
-        project_data,
+        project_data: validated_project,
     }));
 }
 
