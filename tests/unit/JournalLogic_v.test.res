@@ -73,4 +73,85 @@ describe("JournalLogic", () => {
     t->expect(entry.id)->Expect.toBe("emergency-1")
     t->expect(entry.status)->Expect.toBe(Interrupted)
   })
+
+  test("saveToEmergencyQueue should persist multiple entries without overwriting", t => {
+    // Mock localStorage
+    let _ = %raw(`
+      (() => {
+        let store = {};
+        globalThis.localStorage = {
+          getItem: (key) => store[key] || null,
+          setItem: (key, value) => { store[key] = value.toString(); },
+          removeItem: (key) => { delete store[key]; },
+          clear: () => { store = {}; }
+        };
+      })()
+    `)
+
+    let entry1 = mockEntry("1", InProgress)
+    let entry2 = mockEntry("2", InProgress)
+
+    // Save first entry
+    saveToEmergencyQueue(entry1)
+
+    // Save second entry
+    saveToEmergencyQueue(entry2)
+
+    // Check what's in localStorage directly
+    let stored = Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey)
+    t->expect(stored->Belt.Option.isSome)->Expect.toBe(true)
+
+    // Check if both are restored
+    let emptyJournal: JournalTypes.t = {entries: [], version: 1}
+    let restoredJournal = checkEmergencyQueue(emptyJournal)
+
+    t->expect(restoredJournal.entries->Array.length)->Expect.toBe(2)
+
+    let ids = restoredJournal.entries->Belt.Array.map(e => e.id)
+    t->expect(ids)->Expect.toContain("1")
+    t->expect(ids)->Expect.toContain("2")
+  })
+
+  test("clearEmergencyQueueForId should remove specific entry from array", t => {
+    // Mock localStorage
+    let _ = %raw(`
+      (() => {
+        let store = {};
+        globalThis.localStorage = {
+          getItem: (key) => store[key] || null,
+          setItem: (key, value) => { store[key] = value.toString(); },
+          removeItem: (key) => { delete store[key]; },
+          clear: () => { store = {}; }
+        };
+      })()
+    `)
+
+    let entry1 = mockEntry("1", InProgress)
+    let entry2 = mockEntry("2", InProgress)
+
+    // Save both
+    saveToEmergencyQueue(entry1)
+    saveToEmergencyQueue(entry2)
+
+    // Clear one
+    clearEmergencyQueueForId("1")
+
+    // Check localStorage
+    let stored = Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey)
+    t->expect(stored->Belt.Option.isSome)->Expect.toBe(true) // Should still exist for entry2
+
+    let json = JsonCombinators.Json.parse(stored->Belt.Option.getExn)->Belt.Result.getExn
+    let snapshots = JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(emergencySnapshotDecoder))->Belt.Result.getExn
+
+    t->expect(Array.length(snapshots))->Expect.toBe(1)
+    let s = snapshots->Belt.Array.get(0)->Belt.Option.getExn
+    t->expect(s.id)->Expect.toBe("2")
+
+    // Clear the other
+    clearEmergencyQueueForId("2")
+
+    // Should be empty/removed now
+    let storedFinal = Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey)
+    t->expect(storedFinal->Belt.Option.isNone)->Expect.toBe(true)
+  })
 })
