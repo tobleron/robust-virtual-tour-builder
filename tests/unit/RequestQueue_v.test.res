@@ -94,14 +94,18 @@ describe("RequestQueue", () => {
   testAsync("pause stops processing new tasks", async t => {
     pause()
     let executed = ref(false)
-    let _ = schedule(async () => {
-      executed := true
-    })
+    let _ = schedule(
+      async () => {
+        executed := true
+      },
+    )
 
     // Wait a bit to ensure it doesn't run
-    let _ = await Promise.make((resolve, _) => {
-      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
-    })
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
+      },
+    )
 
     t->expect(executed.contents)->Expect.toBe(false)
     t->expect(length())->Expect.toBe(1)
@@ -114,18 +118,22 @@ describe("RequestQueue", () => {
   testAsync("resume restarts processing", async t => {
     pause()
     let executed = ref(false)
-    let _ = schedule(async () => {
-      executed := true
-    })
+    let _ = schedule(
+      async () => {
+        executed := true
+      },
+    )
 
     t->expect(executed.contents)->Expect.toBe(false)
 
     resume()
 
     // Wait for execution
-    let _ = await Promise.make((resolve, _) => {
-      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
-    })
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 50)
+      },
+    )
 
     t->expect(executed.contents)->Expect.toBe(true)
     t->expect(length())->Expect.toBe(0)
@@ -150,9 +158,10 @@ describe("RequestQueue", () => {
     pause()
     let p = schedule(async () => {ignore()})
 
-    let rejection = p
-    ->Promise.then(_ => Promise.resolve("resolved"))
-    ->Promise.catch(_ => Promise.resolve("rejected"))
+    let rejection =
+      p
+      ->Promise.then(_ => Promise.resolve("resolved"))
+      ->Promise.catch(_ => Promise.resolve("rejected"))
 
     let _ = drain()
 

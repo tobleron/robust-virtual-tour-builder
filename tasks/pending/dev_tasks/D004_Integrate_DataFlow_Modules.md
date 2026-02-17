@@ -12,3 +12,4 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 
 ## Unmapped Modules
 - [ ] [src/core/HotspotTarget.res]
+- [ ] [src/utils/NetworkStatus.res]

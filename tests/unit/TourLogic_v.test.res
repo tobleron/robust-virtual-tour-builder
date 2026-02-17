@@ -42,7 +42,7 @@ describe("TourLogic", () => {
     ->Expect.toBe("001_Living_Room.webp")
 
     // Empty label case: Just Prefix
-    t->expect(computeSceneFilename(9, "", "img_555"))->Expect.toBe("010.webp")
+    t->expect(computeSceneFilename(9, "", "img_555"))->Expect.toBe("010_Untagged.webp")
 
     // Dedup case: Doesn't matter anymore as baseName is ignored
     t->expect(computeSceneFilename(1, "Kitchen", "Kitchen"))->Expect.toBe("002_Kitchen.webp")

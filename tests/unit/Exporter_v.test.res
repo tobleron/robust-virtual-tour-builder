@@ -316,8 +316,7 @@ describe("Exporter", () => {
     `)
 
     switch result {
-    | Error(msg) =>
-      t->expect(msg)->Expect.String.toContain("NetworkOffline")
+    | Error(msg) => t->expect(msg)->Expect.String.toContain("NetworkOffline")
     | Ok(_) => t->expect(false)->Expect.toBe(true)
     }
   })

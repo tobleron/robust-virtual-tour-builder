@@ -127,7 +127,11 @@ describe("OperationJournal", () => {
     t->expect(rawFinal->Belt.Option.isSome)->Expect.toBe(true)
 
     let json = JsonCombinators.Json.parse(rawFinal->Belt.Option.getExn)->Belt.Result.getExn
-    let snapshots = JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(JournalTypes.emergencySnapshotDecoder))->Belt.Result.getExn
+    let snapshots =
+      JsonCombinators.Json.decode(
+        json,
+        JsonCombinators.Json.Decode.array(JournalTypes.emergencySnapshotDecoder),
+      )->Belt.Result.getExn
 
     t->expect(Array.length(snapshots))->Expect.toBe(2)
     let ids = snapshots->Belt.Array.map(s => s.id)
