@@ -3,6 +3,10 @@
 
 open Logger
 
+type queueResult<'result> =
+  | Success('result)
+  | Failed(int, string)
+
 let computeStatus = (activeStatuses, completedCount, total) => {
   let counts = Dict.make()
   Dict.toArray(activeStatuses)->Belt.Array.forEach(((_k, status)) => {
@@ -73,7 +77,7 @@ let execute = (
             report()
           })
           ->Promise.then(res => {
-            let _ = Belt.Array.set(results, i, Some(res))
+            let _ = Belt.Array.set(results, i, Some(Success(res)))
             completedCount := completedCount.contents + 1
             Dict.set(activeStatuses, Belt.Int.toString(i), "__DONE__")
             report()
@@ -88,6 +92,7 @@ let execute = (
               ~data=castToJson({"index": i, "error": msg}),
               (),
             )
+            let _ = Belt.Array.set(results, i, Some(Failed(i, msg)))
             completedCount := completedCount.contents + 1
             Dict.set(activeStatuses, Belt.Int.toString(i), "__Error__")
             report()
