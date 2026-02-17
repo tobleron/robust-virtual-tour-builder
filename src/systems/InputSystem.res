@@ -86,6 +86,29 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
       }
     }
 
+    // 0c. Handle Simulation (AutoPilot) Interruption
+    if storeState.simulation.status == Running {
+      Logger.info(
+        ~module_="InputSystem",
+        ~message="ESC_ABORT_SIMULATION",
+        ~data=Some({"journeyId": storeState.simulation.autoPilotJourneyId}),
+        (),
+      )
+      Scene.Switcher.cancelNavigation()
+      dispatch(StopAutoPilot)
+    }
+
+    // 0d. Handle Teaser Recording Interruption
+    if storeState.isTeasing {
+      Logger.info(
+        ~module_="InputSystem",
+        ~message="ESC_ABORT_TEASER",
+        (),
+      )
+      dispatch(SetIsTeasing(false))
+      dispatch(StopAutoPilot)
+    }
+
     // 1. Close Modals
     let closeBtn = Dom.getElementById("btn-close-style")
     switch Nullable.toOption(closeBtn) {
