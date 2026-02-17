@@ -18,13 +18,14 @@ let recoverUpload = (entry: OperationJournal.journalEntry) => {
   }
 
   let description = if processedCount > 0 && totalCount > 0 {
-    Belt.Int.toString(processedCount) ++ " of " ++ Belt.Int.toString(totalCount) ++
-    " files were successfully processed before the interruption. " ++
-    "To complete the upload, please select the remaining files."
+    Belt.Int.toString(processedCount) ++
+    " of " ++
+    Belt.Int.toString(totalCount) ++
+    " files were successfully processed before the interruption. " ++ "To complete the upload, please select the remaining files."
   } else if totalCount > 0 {
-    "An upload of " ++ Belt.Int.toString(totalCount) ++
-    " files was interrupted before any could be processed. " ++
-    "Please select the files again to restart the upload."
+    "An upload of " ++
+    Belt.Int.toString(totalCount) ++
+    " files was interrupted before any could be processed. " ++ "Please select the files again to restart the upload."
   } else {
     "An upload was interrupted. Please select the files again to continue."
   }

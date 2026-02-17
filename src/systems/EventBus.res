@@ -72,8 +72,7 @@ let dispatch = (evt: event) => {
     try {
       cb(evt)
     } catch {
-    | JsExn(e) =>
-      Console.error2("EventBus Error: ", JsExn.message(e)->Option.getOr("Unknown"))
+    | JsExn(e) => Console.error2("EventBus Error: ", JsExn.message(e)->Option.getOr("Unknown"))
     | _ => Console.error("Unknown EventBus Error")
     }
   })

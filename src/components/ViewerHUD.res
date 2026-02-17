@@ -64,7 +64,7 @@ let make = React.memo(() => {
     /* Permanent Branding with Perfect Masking & Editable Support */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg border border-orange-500 shadow-xl overflow-hidden cursor-pointer hover:border-orange-400 transition-all active:scale-95 group pointer-events-auto p-[6px]"
+      className="absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden cursor-pointer transition-all active:scale-95 group pointer-events-auto p-[6px]"
       onClick=handleLogoClick
       title="Click to change logo"
     >
