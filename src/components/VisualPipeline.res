@@ -8,20 +8,26 @@ external toDomEvent: ReactEvent.Mouse.t => Dom.event = "%identity"
 
 let injectStyles = () => {
   let existing = Dom.getElementById("visual-pipeline-styles")
-  switch Nullable.toOption(existing) {
-  | Some(_) => ()
+  let style = switch Nullable.toOption(existing) {
+  | Some(el) => el
   | None =>
-    Logger.info(~module_="VisualPipelineStyles", ~message="INJECT_STYLES", ())
-    let style = Dom.createElement("style")
-    Dom.setId(style, "visual-pipeline-styles")
-    Dom.setTextContent(style, Styles.styles)
-    Dom.appendChild(Dom.head, style)
+    let el = Dom.createElement("style")
+    Dom.setId(el, "visual-pipeline-styles")
+    Dom.appendChild(Dom.head, el)
+    el
   }
+  Dom.setTextContent(style, Styles.styles)
 }
 
 module DropZone = {
   @react.component
-  let make = (~index: int, ~onDrop: int => unit, ~isDragging: bool, ~color: string) => {
+  let make = (
+    ~index: int,
+    ~onDrop: int => unit,
+    ~isDragging: bool,
+    ~color: string,
+    ~isEndpoint: bool=false,
+  ) => {
     let (isDragOver, setIsDragOver) = React.useState(_ => false)
 
     let handleDragOver = (e: ReactEvent.Mouse.t) => {
@@ -48,7 +54,10 @@ module DropZone = {
       }
     }
 
-    let className = "drop-zone" ++ (isDragOver ? " drag-over" : "")
+    let className =
+      "drop-zone" ++
+      (isDragOver ? " drag-over" : "") ++
+      (isEndpoint ? " is-endpoint" : "")
 
     // Use ReBindings.makeStyle for custom properties
     let style = ReBindings.makeStyle({"--pipe-color": color})
@@ -269,6 +278,7 @@ let make = () => {
             index=0
             onDrop=handleDrop
             isDragging={Option.isSome(dragSourceId)}
+            isEndpoint=true
             color={switch Belt.Array.get(pipelineSlice.timeline, 0) {
             | Some(firstItem) =>
               let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == firstItem.sceneId)
@@ -325,7 +335,11 @@ let make = () => {
                 onDragEnd=handleDragEnd
               />
               <DropZone
-                index={index + 1} onDrop=handleDrop isDragging={Option.isSome(dragSourceId)} color
+                index={index + 1}
+                onDrop=handleDrop
+                isDragging={Option.isSome(dragSourceId)}
+                color
+                isEndpoint={index == Belt.Array.length(pipelineSlice.timeline) - 1}
               />
             </React.Fragment>
           })

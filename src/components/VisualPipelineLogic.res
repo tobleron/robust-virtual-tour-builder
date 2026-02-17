@@ -160,6 +160,21 @@ module Styles = {
 
   .pipeline-node:hover { transform: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); }
   .pipeline-node:active { transform: scale(0.95); }
+  
+  /* Start/End Node Truncation (T1430) */
+  /* Start/End Node Truncation (T1430) */
+  .pipeline-track > .pipeline-node:nth-child(2) {
+    background-position: right center;
+    background-size: 50% var(--vp-pipe-height);
+  }
+  .pipeline-track > .pipeline-node:nth-last-child(2) {
+    background-position: left center;
+    background-size: 50% var(--vp-pipe-height);
+  }
+  /* Single node has no connectors */
+  .pipeline-track > .pipeline-node:nth-child(2):nth-last-child(2) {
+    background-image: none;
+  }
 
   .pipeline-node.is-dragging { opacity: 0.4; transform: scale(0.9); }
 
@@ -232,7 +247,9 @@ module Styles = {
     z-index: 30; pointer-events: none;
   }
 
-  .drop-zone.is-endpoint { width: 4px; }
-  .drop-zone.is-endpoint.drag-over { width: 36px; }
+  .drop-zone.is-endpoint { width: 0; display: none; overflow: hidden; }
+  .drop-zone.is-endpoint::before { display: none !important; }
+  .dragging-active .drop-zone.is-endpoint { display: flex; width: 30px; }
+  .drop-zone.is-endpoint.drag-over { width: 48px; }
 "
 }
