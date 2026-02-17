@@ -22,7 +22,11 @@ let snapshotEncoder = (snapshot: snapshot) => {
 }
 
 let generateId = () => {
-  Math.random()->Float.toString ++ "_" ++ Date.now()->Float.toString
+  try {
+    ReBindings.Crypto.randomUUID()
+  } catch {
+  | _ => "snap_" ++ Float.toString(Date.now()) ++ "_" ++ Float.toString(Math.random())
+  }
 }
 
 let capture = (state: Types.state, action: Actions.action): string => {
