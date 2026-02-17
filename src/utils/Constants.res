@@ -28,6 +28,10 @@ let hotspotMenuExitDelay = 600
 // ============================================
 
 let globalHfov = 90.0
+let globalMinHfov = 65.0
+let globalMaxHfov = 90.0
+let builderLandscapeMinWidth = 640.0
+let builderLandscapeMaxWidth = 1024.0
 
 // ============================================
 // TEASER SYSTEM CONFIGURATION
