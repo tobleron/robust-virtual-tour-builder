@@ -131,4 +131,68 @@ mod tests {
         assert_eq!(report.unused_files[0], "unused.webp");
         Ok(())
     }
+
+    #[test]
+    fn test_validate_and_clean_keeps_id_based_link_when_target_name_is_stale()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "hotspots": [
+                        { "target": "old_name.webp", "targetSceneId": "s2" }
+                    ]
+                },
+                {
+                    "id": "s2",
+                    "name": "img2.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string(), "img2.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.broken_links_removed, 0);
+        assert_eq!(report.orphaned_scenes.len(), 0);
+        assert_eq!(
+            project["scenes"][0]["hotspots"]
+                .as_array()
+                .ok_or("Hotspots array missing")?
+                .len(),
+            1
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_and_clean_backfills_target_scene_id_from_name()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "hotspots": [
+                        { "target": "img2.webp" }
+                    ]
+                },
+                {
+                    "id": "s2",
+                    "name": "img2.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string(), "img2.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.broken_links_removed, 0);
+        assert_eq!(
+            project["scenes"][0]["hotspots"][0]["targetSceneId"].as_str(),
+            Some("s2")
+        );
+        Ok(())
+    }
 }

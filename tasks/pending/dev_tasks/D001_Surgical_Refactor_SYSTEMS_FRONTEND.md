@@ -15,7 +15,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions. 🏗️ ARCHITECTURAL TARGET: Split into exactly 2 cohesive modules to respect the Read Tax (avg 300 LOC/module).
 
-- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.))
+- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 518/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.))
+
+- [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.))
 
 - [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 978/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.))
 
@@ -32,19 +34,35 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - fetchLib × 1 (lines: 21)
         - fetchSceneUrlBlob × 1 (lines: 162)
         - filenameFromUrl × 1 (lines: 194)
-        - finalMsg × 1 (lines: 542)
+        - finalMsg × 1 (lines: 546)
         - isLikelyImageBlob × 1 (lines: 214)
         - isLikelyImageUrl × 1 (lines: 205)
         - isUnauthorizedHttpError × 1 (lines: 149)
-        - msg × 1 (lines: 529)
+        - msg × 1 (lines: 533)
         - normalizeLogoExtension × 1 (lines: 185)
         - normalizeThrowableMessage × 1 (lines: 135)
-        - normalizedStack × 1 (lines: 530)
-        - payload × 1 (lines: 541)
-        - progress × 1 (lines: 233)
+        - normalizedStack × 1 (lines: 534)
+        - payload × 1 (lines: 545)
+        - progress × 1 (lines: 234)
         - throwableMessageRaw × 1 (lines: 114)
-        - tourName × 1 (lines: 240)
+        - tourName × 1 (lines: 241)
         - uploadAndProcessRaw × 1 (lines: 40)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/systems/ProjectManager.res`
+- `src/systems/ProjectManager.res` (12 functions, fingerprint 9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6)
+    - Grouped summary:
+        - classifySaveError × 1 (lines: 85)
+        - createSavePackage × 1 (lines: 29)
+        - loadProject × 1 (lines: 433)
+        - loadProjectZip × 1 (lines: 43)
+        - notifySaveFailure × 1 (lines: 113)
+        - processLoadedProjectData × 1 (lines: 35)
+        - recoverSaveProject × 1 (lines: 324)
+        - saveProject × 1 (lines: 127)
+        - saveRecoveryContextDecoder × 1 (lines: 56)
+        - updateSaveContext × 1 (lines: 65)
+        - validateProjectStructure × 1 (lines: 25)
+        - validationReportWrapperDecoder × 1 (lines: 21)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TourTemplates.res`
 - `src/systems/TourTemplates.res` (4 functions, fingerprint 304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c)

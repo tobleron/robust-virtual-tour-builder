@@ -8,11 +8,13 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (2)
+## 🛠️ SURGICAL REFACTOR TASKS (3)
 - [ ] **../../src/systems/Exporter.res**
-  - *Reason:* [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 514/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)
+  - *Reason:* [Nesting: 1.80, Density: 0.12, Coupling: 0.06] | Drag: 2.93 | LOC: 518/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)
 - [ ] **../../src/systems/TourTemplates.res**
   - *Reason:* [Nesting: 3.60, Density: 0.12, Coupling: 0.03] | Drag: 4.72 | LOC: 978/300  🎯 Target: Function: `extractScenePrefix` (High Local Complexity (3.0). Logic heavy.)
+- [ ] **../../src/systems/ProjectManager.res**
+  - *Reason:* [Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)
 
 ---
 
