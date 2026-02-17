@@ -5,7 +5,7 @@ open Types
 open ReBindings
 
 let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
-  let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(Constants.globalHfov))
+  let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(ViewerSystem.getCorrectHfov()))
   if targetIndex >= 0 && targetIndex < Array.length(scenes) {
     scenes[targetIndex]->Option.forEach(ns => {
       let t = switch ns.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true)) {
@@ -21,7 +21,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
           // then the intro-pan hook will gently move us to the exact waypoint center.
           ay := hotspot.yaw -. 35.0
           ap := 0.0
-          hotspot.startHfov->Option.forEach(sh => ah := sh)
+        // ah := hotspot.startHfov->Option.getOr(ah.contents) // DISABLED: Force binary HFOV
         | _ =>
           ay := hotspot.yaw -. 35.0
           ap := 0.0
@@ -36,7 +36,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
 let getCurrentView = () => {
   switch ViewerSystem.getActiveViewer()->Nullable.toOption {
   | Some(v) => (Viewer.getYaw(v), Viewer.getPitch(v), Viewer.getHfov(v))
-  | None => (0.0, 0.0, Constants.globalHfov)
+  | None => (0.0, 0.0, ViewerSystem.getCorrectHfov())
   }
 }
 

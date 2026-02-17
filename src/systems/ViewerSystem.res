@@ -35,6 +35,7 @@ module Adapter = {
   let setPitch = (v, p, a) => Viewer.setPitch(v, p, a)
   let setYaw = (v, y, a) => Viewer.setYaw(v, y, a)
   let setHfov = (v, h, a) => Viewer.setHfov(v, h, a)
+  let resize = v => Viewer.resize(v)
   let setView = (v, ~pitch=?, ~yaw=?, ~hfov=?, ~animated=false, ()) => {
     ViewerAdapter.setView(v, ~pitch?, ~yaw?, ~hfov?, ~animated, ())
   }
@@ -147,6 +148,14 @@ let isViewerReady = (viewer: Viewer.t): bool => {
   } else {
     Viewer.getHfov(viewer) > 1.0
   }
+}
+
+let getCorrectHfov = () => {
+  let classes = Dom.classList(Dom.documentBody)
+  let isPortrait =
+    classes->Dom.ClassList.contains("viewer-state-portrait") ||
+      classes->Dom.ClassList.contains("viewer-force-fallback")
+  isPortrait ? Constants.globalMinHfov : Constants.globalMaxHfov
 }
 
 let destroyViewer = Adapter.destroy

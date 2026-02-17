@@ -127,14 +127,16 @@ let _ = describe("TourTemplates", () => {
 
   test("generateTourHTML integrates correct CSS for 4k", t => {
     let html = generateTourHTML([mockScene1], "4k Tour", None, "4k", 32, 40, "1.0")
-    // 4k max-width is 1024px
-    t->expectToContain(html, "max-width: 1024px")
+    t->expectToContain(html, "width: 1024px")
+    t->expectToContain(html, "body.export-state-tablet #stage { width: 640px")
   })
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
     let html = generateTourHTML([mockScene1], "HD Tour", None, "hd", 32, 40, "1.0")
-    t->expectToContain(html, "width: clamp(375px, 95vw, 640px)")
-    t->expectToContain(html, "\"minHfov\":65")
-    t->expectToContain(html, "\"maxHfov\":90")
+    t->expectToContain(html, "width: 640px")
+    t->expectToContain(html, "body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn")
+    t->expectToContain(html, "body.export-state-portrait #stage")
+    t->expectToContain(html, "\"minHfov\": 65")
+    t->expectToContain(html, "\"maxHfov\": 90")
   })
 })

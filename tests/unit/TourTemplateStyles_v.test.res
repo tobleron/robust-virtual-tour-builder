@@ -8,8 +8,10 @@ let _ = describe("TourTemplateStyles", () => {
     let css = generateCSS("scene1.jpg", "4k", 32, 40)
 
     t->expect(String.includes(css, "scene1.jpg"))->Expect.toBe(true)
-    t->expect(String.includes(css, "max-width: 1024px"))->Expect.toBe(true)
-    t->expect(String.includes(css, "min-width: 640px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "width: 1024px"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "body.export-state-tablet #stage { width: 640px"))
+    ->Expect.toBe(true)
     t->expect(String.includes(css, "height: 32px"))->Expect.toBe(true) // Base size
     t->expect(String.includes(css, "height: 40px"))->Expect.toBe(true) // Logo size
     t->expect(String.includes(css, "margin-left: -16px"))->Expect.toBe(true) // Half base size
@@ -19,9 +21,13 @@ let _ = describe("TourTemplateStyles", () => {
     let css = generateCSS("mob.jpg", "hd", 24, 30)
 
     t->expect(String.includes(css, "mob.jpg"))->Expect.toBe(true)
-    t->expect(String.includes(css, "width: clamp(375px, 95vw, 640px)"))->Expect.toBe(true)
-    t->expect(String.includes(css, "min-width: 375px"))->Expect.toBe(true)
-    t->expect(String.includes(css, "max-width: 640px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "width: 640px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "body.export-state-portrait #stage"))->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(css, "body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn"),
+    )
+    ->Expect.toBe(true)
     t->expect(String.includes(css, "height: 24px"))->Expect.toBe(true)
     t->expect(String.includes(css, "margin-left: -12px"))->Expect.toBe(true)
   })

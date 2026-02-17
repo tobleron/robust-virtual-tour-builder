@@ -32,6 +32,7 @@ module Viewer = {
   @send external loadScene: (t, string, float, float, float) => unit = "loadScene"
   @send external addScene: (t, string, {..}) => unit = "addScene"
   @send external isLoaded: t => bool = "isLoaded"
+  @send external resize: t => unit = "resize"
 }
 
 module Pannellum = {

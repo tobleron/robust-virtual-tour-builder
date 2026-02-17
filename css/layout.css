@@ -46,9 +46,8 @@
 
 #viewer-stage {
     position: relative;
-    width: 100%;
-    min-width: 640px;
-    max-width: 1024px;
+    width: 1024px;
+    max-width: calc((90dvh - 80px) * 16 / 10);
     height: auto;
     aspect-ratio: 16 / 10;
     max-height: 90vh;
@@ -58,29 +57,28 @@
     overflow: hidden;
     background: var(--viewer-stage-bg);
     touch-action: none;
-    --viewer-ui-scale: clamp(0.62, calc((100vw - 320px) / 700), 1);
+    --viewer-ui-scale: 1;
 }
 
-@media (max-width: 760px), (max-height: 620px) {
-    #viewer-container {
-        padding: var(--viewer-fallback-padding);
-    }
-
-    #viewer-stage {
-        min-width: 0;
-        width: min(calc((100dvh - (var(--viewer-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--viewer-fallback-padding) * 2)), 375px);
-        max-width: calc(100vw - (var(--viewer-fallback-padding) * 2));
-        aspect-ratio: 9 / 16;
-        max-height: calc(100dvh - (var(--viewer-fallback-padding) * 2));
-        --viewer-ui-scale: clamp(0.56, calc((100vw - 260px) / 360), 0.8);
-    }
+body.viewer-state-desktop #viewer-stage,
+body.viewer-state-4k #viewer-stage {
+    width: 1024px;
+    --viewer-ui-scale: 1;
 }
 
-body.viewer-force-fallback #viewer-container {
+body.viewer-state-tablet #viewer-stage,
+body.viewer-state-2k #viewer-stage {
+    width: 640px;
+    --viewer-ui-scale: 0.8;
+}
+
+body.viewer-force-fallback #viewer-container,
+body.viewer-state-portrait #viewer-container {
     padding: var(--viewer-fallback-padding);
 }
 
-body.viewer-force-fallback #viewer-stage {
+body.viewer-force-fallback #viewer-stage,
+body.viewer-state-portrait #viewer-stage {
     min-width: 0;
     width: min(calc((100dvh - (var(--viewer-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--viewer-fallback-padding) * 2)), 375px);
     max-width: calc(100vw - (var(--viewer-fallback-padding) * 2));
