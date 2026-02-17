@@ -46,6 +46,11 @@ let uploadAndProcessRaw: (
 ) => Promise.t<Blob.t> = %raw(`
   function(formData, onProgress, backendUrl, signal, token) {
     return new Promise((resolve, reject) => {
+        if (!navigator.onLine) {
+            reject(new Error("NetworkOffline: You appear to be offline. Please check your connection."));
+            return;
+        }
+
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
         xhr.timeout = 300000; // 5 minutes
@@ -98,8 +103,14 @@ let uploadAndProcessRaw: (
             }
         };
 
-        xhr.onerror = () => reject(new Error("Network Error - Check Backend Connection"));
-        xhr.ontimeout = () => reject(new Error("Request Timed Out (5m limit)"));
+        xhr.onerror = () => {
+            if (!navigator.onLine) {
+                reject(new Error("NetworkOffline: You appear to be offline. Please check your connection and try again."));
+            } else {
+                reject(new Error("NetworkError: Export upload failed. The backend may be unreachable."));
+            }
+        };
+        xhr.ontimeout = () => reject(new Error("TimeoutError: Export upload timed out after 5 minutes. Try with fewer scenes or a faster connection."));
 
         xhr.upload.onload = () => {
             if (onProgress) onProgress(50, 100, "Processing on Server (Please Wait)...");
@@ -482,20 +493,24 @@ let exportTour = async (
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
 
-    let requestUpload = token =>
-      uploadAndProcessRaw(formData, progress, backendUrl, ~signal, ~token)
-
-    let zipBlob = try {
-      await requestUpload(finalToken)
-    } catch {
-    | exn => {
+    let rec uploadWithRetry = async (retryCount, token) => {
+      try {
+        let result = await uploadAndProcessRaw(formData, progress, backendUrl, ~signal, ~token)
+        CircuitBreaker.recordSuccess(AuthenticatedClient.circuitBreaker)
+        result
+      } catch {
+      | exn =>
         let msg = normalizeThrowableMessage(exn)
-        let usingDevToken = switch finalToken {
+        let isOffline = String.includes(msg, "NetworkOffline")
+        let isAbort = String.includes(msg, "AbortError")
+        let isUnauthorized = isUnauthorizedHttpError(msg)
+
+        let usingDevToken = switch token {
         | Some(t) => t == "dev-token"
         | None => false
         }
         let shouldRetryWithDevToken =
-          Constants.isDebugBuild() && !usingDevToken && isUnauthorizedHttpError(msg)
+          Constants.isDebugBuild() && !usingDevToken && isUnauthorized
 
         if shouldRetryWithDevToken {
           Logger.warn(
@@ -504,12 +519,27 @@ let exportTour = async (
             ~data=Some({"reason": "401 Unauthorized", "hadAuthToken": token != None}),
             (),
           )
-          await requestUpload(Some("dev-token"))
+          await uploadWithRetry(0, Some("dev-token"))
+        } else if retryCount < 2 && !isOffline && !isAbort && !isUnauthorized {
+          Logger.warn(
+            ~module_="Exporter",
+            ~message="EXPORT_RETRY",
+            ~data=Some(Logger.castToJson({"attempt": retryCount + 1, "error": msg})),
+            (),
+          )
+          progress(0.0, 100.0, "Retrying export upload...")
+          let _ = await Promise.make((resolve, _) => {
+            let _ = ReBindings.Window.setTimeout(() => resolve(.), 2000)
+          })
+          await uploadWithRetry(retryCount + 1, token)
         } else {
+          CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
           JsError.throwWithMessage(msg)
         }
       }
     }
+
+    let zipBlob = await uploadWithRetry(0, finalToken)
 
     progress(100.0, 100.0, "Saving...")
     let filename = `Export_RMX_${safeName}_v${version}.zip`
