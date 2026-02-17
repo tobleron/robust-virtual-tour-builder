@@ -30,3 +30,4 @@ let updateContext: (string, JSON.t) => Promise.t<unit>
 let getInterrupted: t => array<journalEntry>
 let getPending: t => array<journalEntry>
 let load: unit => Promise.t<t>
+let flushAllInFlight: unit => unit
