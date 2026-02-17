@@ -31,7 +31,7 @@ let notifySubscribers = (online: bool) => {
 let handleOnline = () => {
   if !currentStatus.contents {
     currentStatus := true
-    Logger.info(~module_="NetworkStatus", ~message="NETWORK_ONLINE", ())
+    Console.info("NetworkStatus: NETWORK_ONLINE")
     EventBus.dispatch(NetworkStatusChanged(true))
     notifySubscribers(true)
   }
@@ -40,7 +40,7 @@ let handleOnline = () => {
 let handleOffline = () => {
   if currentStatus.contents {
     currentStatus := false
-    Logger.warn(~module_="NetworkStatus", ~message="NETWORK_OFFLINE", ())
+    Console.warn("NetworkStatus: NETWORK_OFFLINE")
     EventBus.dispatch(NetworkStatusChanged(false))
     notifySubscribers(false)
   }
@@ -50,12 +50,7 @@ let initialize = () => {
   currentStatus := navigatorOnLine
   addEventListener("online", handleOnline)
   addEventListener("offline", handleOffline)
-  Logger.info(
-    ~module_="NetworkStatus",
-    ~message="INITIALIZED",
-    ~data=Some(Logger.castToJson({"online": navigatorOnLine})),
-    (),
-  )
+  Console.info2("NetworkStatus: INITIALIZED", {"online": navigatorOnLine})
 }
 
 let cleanup = () => {
