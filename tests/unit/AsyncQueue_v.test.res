@@ -1,3 +1,4 @@
+@@warning("-3")
 open Vitest
 open AsyncQueue
 
@@ -11,13 +12,12 @@ describe("AsyncQueue", () => {
     let msg = computeStatus(activeStatuses, 1, 3)
 
     t->expect(String.includes(msg, "Processing 1/3"))->Expect.toBe(true)
-    // Order of dictionary keys is not guaranteed, checking parts
     t->expect(String.includes(msg, "Processing: 1"))->Expect.toBe(true)
     t->expect(String.includes(msg, "Pending: 1"))->Expect.toBe(true)
     t->expect(String.includes(msg, "__DONE__"))->Expect.toBe(false)
   })
 
-  testAsync("execute processes all items", async t => {
+  testAsync("execute processes all items successfully", async t => {
     let items = [1, 2, 3, 4, 5]
     let maxConcurrency = 2
     let processed = []
@@ -35,11 +35,38 @@ describe("AsyncQueue", () => {
     t->expect(Array.length(results))->Expect.toBe(5)
     t->expect(Array.length(processed))->Expect.toBe(5)
 
-    t->expect(results)->Expect.toContain(2)
-    t->expect(results)->Expect.toContain(4)
-    t->expect(results)->Expect.toContain(6)
-    t->expect(results)->Expect.toContain(8)
-    t->expect(results)->Expect.toContain(10)
+    t->expect(results)->Expect.toEqual([
+      Success(2),
+      Success(4),
+      Success(6),
+      Success(8),
+      Success(10),
+    ])
+  })
+
+  testAsync("execute captures worker errors", async t => {
+    let items = [10, 20, 30]
+    let worker = (_index, item, _updateStatus) => {
+      if item == 20 {
+        Promise.resolve()->Promise.then(_ => {
+             let _ = Js.Exn.raiseError("Test Failure")
+             Promise.resolve(0)
+        })
+      } else {
+        Promise.resolve(item * 2)
+      }
+    }
+    let onProgress = (_pct, _msg) => ()
+
+    let results = await execute(items, 2, worker, onProgress)
+
+    t->expect(Array.length(results))->Expect.toBe(3)
+
+    t->expect(results)->Expect.toEqual([
+      Success(20),
+      Failed(1, "Test Failure"),
+      Success(60),
+    ])
   })
 
   testAsync("execute handles empty list", async t => {
