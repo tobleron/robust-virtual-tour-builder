@@ -21,6 +21,25 @@ describe("UploadProcessor", () => {
       }
     `)
     AppStateBridge.updateState(State.initialState)
+    // Ensure network status is initialized and online by default
+    let _ = %raw(`
+      Object.defineProperty(navigator, 'onLine', {
+        configurable: true,
+        value: true
+      })
+    `)
+    NetworkStatus.initialize()
+  })
+
+  afterEach(() => {
+    // Restore online status and cleanup
+    let _ = %raw(`
+      Object.defineProperty(navigator, 'onLine', {
+        configurable: true,
+        value: true
+      })
+    `)
+    NetworkStatus.cleanup()
   })
 
   let mockFile = (name): File.t => {
@@ -88,4 +107,42 @@ describe("UploadProcessor", () => {
     t->expect(firstPct)->Expect.toBe(0.0)
     t->expect(firstPhase)->Expect.toBe("Health Check")
   })
+
+  testAsync(
+    "processUploads: should handle browser offline differently from backend offline",
+    async t => {
+      // Mock navigator.onLine to be false
+      let _ = %raw(`
+      Object.defineProperty(navigator, 'onLine', {
+        configurable: true,
+        value: false
+      })
+    `)
+      // Mock fetch to fail (simulating offline)
+      let _ = %raw(`
+      globalThis.fetch = (url) => Promise.reject(new Error("Network Error"))
+    `)
+
+      // Also need to re-initialize NetworkStatus because it might have cached the initial value
+      NetworkStatus.initialize()
+
+      let progressLog = []
+      let cb = (pct, msg, isProc, phase) => {
+        let _ = Array.push(progressLog, (pct, msg, isProc, phase))
+      }
+
+      let f1 = mockFile("test.jpg")
+      let _ = await UploadProcessor.processUploads(
+        [f1],
+        Some(cb),
+        ~getState=AppStateBridge.getState,
+        ~dispatch=AppStateBridge.dispatch,
+      )
+
+      // Check if we get the "Error: No Internet Connection" message
+      let foundOfflineError =
+        progressLog->Belt.Array.some(((_, msg, _, _)) => msg == "Error: No Internet Connection")
+      t->expect(foundOfflineError)->Expect.toBe(true)
+    },
+  )
 })
