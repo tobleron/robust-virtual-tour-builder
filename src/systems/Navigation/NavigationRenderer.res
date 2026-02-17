@@ -75,7 +75,7 @@ module AnimationLoop = {
           if ViewerSystem.isViewerReady(v) {
             Viewer.setPitch(v, pd.targetPitchForPan, false)
             Viewer.setYaw(v, pd.targetYawForPan, false)
-            Viewer.setHfov(v, pd.targetHfovForPan, false)
+            Viewer.setHfov(v, ViewerSystem.getCorrectHfov(), false)
 
             HotspotLine.updateLines(v, state, ())
             let arrowId = switch state.scenes[j.sourceIndex] {
@@ -183,7 +183,7 @@ module AnimationLoop = {
           if ViewerSystem.isViewerReady(v) {
             Viewer.setPitch(v, cp, false)
             Viewer.setYaw(v, cy, false)
-            Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
+            Viewer.setHfov(v, ViewerSystem.getCorrectHfov(), false)
             HotspotLine.updateLines(v, state, ())
             let arrowId = switch state.scenes[j.sourceIndex] {
             | Some(s) =>
