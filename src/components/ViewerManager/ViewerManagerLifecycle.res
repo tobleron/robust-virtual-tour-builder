@@ -14,6 +14,51 @@ let clamp = (value: float, minValue: float, maxValue: float): float => {
   }
 }
 
+let forceViewerFallback = ref(false)
+let resizeSettled = ref(true)
+let fallbackSettleTimeoutId: ref<option<int>> = ref(None)
+
+let updateForcedViewerFallbackMode = () => {
+  let body = Dom.documentBody
+  switch (
+    Nullable.toOption(Dom.getElementById("viewer-utility-bar")),
+    Nullable.toOption(Dom.getElementById("viewer-floor-nav")),
+  ) {
+  | (Some(utilityBar), Some(floorNav)) =>
+    let utilRect = Dom.getBoundingClientRect(utilityBar)
+    let floorRect = Dom.getBoundingClientRect(floorNav)
+    let gap = floorRect.top -. utilRect.bottom
+
+    // Enter early before overlap; only exit after resize settles to avoid flicker.
+    let shouldEnter = gap <= 36.0
+    let canExit = resizeSettled.contents && gap > 60.0
+
+    if shouldEnter && !forceViewerFallback.contents {
+      forceViewerFallback := true
+      Dom.classList(body)->Dom.ClassList.add("viewer-force-fallback")
+    } else if forceViewerFallback.contents && canExit {
+      forceViewerFallback := false
+      Dom.classList(body)->Dom.ClassList.remove("viewer-force-fallback")
+    }
+  | _ =>
+    if forceViewerFallback.contents {
+      forceViewerFallback := false
+      Dom.classList(body)->Dom.ClassList.remove("viewer-force-fallback")
+    }
+  }
+}
+
+let startFallbackSettleWindow = () => {
+  resizeSettled := false
+  fallbackSettleTimeoutId.contents->Option.forEach(id => Window.clearTimeout(id))
+  let timeoutId = Window.setTimeout(() => {
+    resizeSettled := true
+    fallbackSettleTimeoutId := None
+    updateForcedViewerFallbackMode()
+  }, 220)
+  fallbackSettleTimeoutId := Some(timeoutId)
+}
+
 let getStageWidth = (): float => {
   switch Nullable.toOption(Dom.getElementById("viewer-stage")) {
   | Some(stageEl) =>
@@ -46,6 +91,7 @@ let applyDynamicStageHfov = () => {
   | Some(viewer) => ViewerSystem.Adapter.setHfov(viewer, computeDynamicStageHfov(), false)
   | None => ()
   }
+  updateForcedViewerFallbackMode()
 }
 
 let useInitialization = (~getState, ~dispatch) => {
@@ -54,6 +100,7 @@ let useInitialization = (~getState, ~dispatch) => {
     let cleanupInput = InputSystem.initInputSystem(~getState, ~dispatch)
 
     let handleResize = _ => {
+      startFallbackSettleWindow()
       applyDynamicStageHfov()
       let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
@@ -80,6 +127,7 @@ let useInitialization = (~getState, ~dispatch) => {
       Dom.addEventListenerCapture(el, "pointerdown", LinkEditorLogic.handleStagePointerDown, true)
       Dom.addEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
       applyDynamicStageHfov()
+      updateForcedViewerFallbackMode()
     | None => Logger.error(~module_="ViewerManagerLogic", ~message="STAGE_NOT_FOUND", ())
     }
 
@@ -108,6 +156,13 @@ let useInitialization = (~getState, ~dispatch) => {
           Dom.removeEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
         | None => ()
         }
+        if forceViewerFallback.contents {
+          forceViewerFallback := false
+          Dom.classList(Dom.documentBody)->Dom.ClassList.remove("viewer-force-fallback")
+        }
+        fallbackSettleTimeoutId.contents->Option.forEach(id => Window.clearTimeout(id))
+        fallbackSettleTimeoutId := None
+        resizeSettled := true
       },
     )
   })
@@ -151,6 +206,7 @@ let useLinkingAndSimUI = (
     switch Nullable.toOption(v) {
     | Some(viewer) =>
       applyDynamicStageHfov()
+      updateForcedViewerFallbackMode()
       if !isLinking {
         Logger.info(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
       }
