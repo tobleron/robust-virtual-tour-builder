@@ -91,4 +91,47 @@ describe("OperationJournal", () => {
     t->expect(found1->Option.isSome)->Expect.toBe(true)
     t->expect(found2->Option.isSome)->Expect.toBe(true)
   })
+
+  testAsync("flushAllInFlight should persist all in-flight operations", async t => {
+    await setup()
+
+    // Mock localStorage
+    let _ = %raw(`
+      (() => {
+        let store = {};
+        globalThis.localStorage = {
+          getItem: (key) => store[key] || null,
+          setItem: (key, value) => { store[key] = value.toString(); },
+          removeItem: (key) => { delete store[key]; },
+          clear: () => { store = {}; }
+        };
+      })()
+    `)
+
+    let context = JsonCombinators.Json.Encode.null
+
+    // Start multiple operations
+    let id1 = await startOperation(~operation="Op1", ~context, ~retryable=true)
+    let id2 = await startOperation(~operation="Op2", ~context, ~retryable=true)
+
+    let emergencyQueueKey = JournalTypes.emergencyQueueKey
+
+    // Clear localStorage to simulate need for flush
+    Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+
+    // Call flushAllInFlight
+    flushAllInFlight()
+
+    // Verify they are back
+    let rawFinal = Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey)
+    t->expect(rawFinal->Belt.Option.isSome)->Expect.toBe(true)
+
+    let json = JsonCombinators.Json.parse(rawFinal->Belt.Option.getExn)->Belt.Result.getExn
+    let snapshots = JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(JournalTypes.emergencySnapshotDecoder))->Belt.Result.getExn
+
+    t->expect(Array.length(snapshots))->Expect.toBe(2)
+    let ids = snapshots->Belt.Array.map(s => s.id)
+    t->expect(ids)->Expect.toContain(id1)
+    t->expect(ids)->Expect.toContain(id2)
+  })
 })

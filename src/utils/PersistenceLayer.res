@@ -133,6 +133,9 @@ let initSubscriber = (
   )
 
   let listener = _event => {
+    // Ensure all in-flight operations are flushed to emergency queue
+    OperationJournal.flushAllInFlight()
+
     switch lastSaveTimeout.contents {
     | Some(_) => performSave(stateGetterRef.contents())
     | None => ()

@@ -138,3 +138,17 @@ let getPending = (journal: t) => {
 let load = () => {
   JournalPersistence.load(currentJournal)
 }
+
+let flushAllInFlight = () => {
+  let journal = currentJournal.contents
+  journal.entries
+  ->Belt.Array.keep(e =>
+    switch e.status {
+    | Pending | InProgress => true
+    | _ => false
+    }
+  )
+  ->Belt.Array.forEach(entry => {
+    JournalLogic.saveToEmergencyQueue(entry)
+  })
+}
