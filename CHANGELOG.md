@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Match auto-forward chevron in exported tours to app styles
 - Apply Indigo (#4B0082) styling to auto-forward buttons and indicators
 - Indigo Export Auto-Forward, Confident Build
+- Network Stability Masterplan: Batch 2 Merged. Foundation for request queue, auth client, and persistence hardened.
 
 ## [4.13.0] - 2026-02-17
 
