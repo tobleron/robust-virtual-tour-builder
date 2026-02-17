@@ -361,7 +361,7 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "4k",
-      36,
+      28,
       60,
       version,
     )
@@ -370,7 +370,7 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "2k",
-      36,
+      28,
       50,
       version,
     )
@@ -379,7 +379,7 @@ let exportTour = async (
       tourName,
       logoFilename.contents,
       "hd",
-      36,
+      28,
       40,
       version,
     )
