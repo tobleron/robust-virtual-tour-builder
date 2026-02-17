@@ -61,17 +61,44 @@ describe("CircuitBreaker", () => {
     let _ = Vitest.Vi.useRealTimers()
   })
 
-  test("HalfOpen transitions to Open on failure", t => {
+  test("HalfOpen transitions to Open on repeated failure", t => {
     let _ = Vitest.Vi.useFakeTimers()
     let cb = CircuitBreaker.make(~config={failureThreshold: 1, successThreshold: 2, timeout: 1000})
     CircuitBreaker.recordFailure(cb)
     let _ = Vitest.Vi.advanceTimersByTime(1100)
 
     let _ = CircuitBreaker.canExecute(cb) // Trigger HalfOpen
-    CircuitBreaker.recordFailure(cb)
+    CircuitBreaker.recordFailure(cb) // 1st failure
+
+    // Should still be HalfOpen
+    t->expect(CircuitBreaker.getState(cb))->Expect.toBe(HalfOpen)
+
+    // Trigger another probe
+    let _ = CircuitBreaker.canExecute(cb)
+    CircuitBreaker.recordFailure(cb) // 2nd failure
 
     t->expect(CircuitBreaker.getState(cb))->Expect.toBe(Open)
     t->expect(CircuitBreaker.canExecute(cb))->Expect.toBe(false)
+
+    let _ = Vitest.Vi.useRealTimers()
+  })
+
+  test("HalfOpen tolerates one failure and remains HalfOpen", t => {
+    let _ = Vitest.Vi.useFakeTimers()
+    let cb = CircuitBreaker.make(~config={failureThreshold: 1, successThreshold: 2, timeout: 1000})
+    CircuitBreaker.recordFailure(cb)
+    let _ = Vitest.Vi.advanceTimersByTime(1100)
+
+    let _ = CircuitBreaker.canExecute(cb) // Trigger HalfOpen, sets probing=true
+
+    // First failure
+    CircuitBreaker.recordFailure(cb)
+
+    // Should still be HalfOpen (not Open yet)
+    t->expect(CircuitBreaker.getState(cb))->Expect.toBe(HalfOpen)
+
+    // Next execution should be allowed (since we are back to probing=false in HalfOpen)
+    t->expect(CircuitBreaker.canExecute(cb))->Expect.toBe(true)
 
     let _ = Vitest.Vi.useRealTimers()
   })
