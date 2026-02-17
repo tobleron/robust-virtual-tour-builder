@@ -73,7 +73,20 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   let handleApplyCustom = () => {
     let val = customLabel->String.trim
     if val != "" {
-      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": val})))
+      // Recover base name using current state (before label change)
+      let baseName = switch currentScene {
+      | Some(s) => TourLogic.recoverBaseName(s.name, s.label)
+      | None => ""
+      }
+      dispatch(
+        UpdateSceneMetadata(
+          targetIndex,
+          Logger.castToJson({
+            "label": val,
+            "_baseName": baseName,
+          }),
+        ),
+      )
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET_CUSTOM",
@@ -96,7 +109,21 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }
 
   let handleClear = () => {
-    dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": ""})))
+    // Recover base name using current state (before label change)
+    let baseName = switch currentScene {
+    | Some(s) => TourLogic.recoverBaseName(s.name, s.label)
+    | None => ""
+    }
+
+    dispatch(
+      UpdateSceneMetadata(
+        targetIndex,
+        Logger.castToJson({
+          "label": "",
+          "_baseName": baseName,
+        }),
+      ),
+    )
     NotificationManager.dispatch({
       id: "",
       importance: Warning,
@@ -206,6 +233,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
             setCustomLabel(_ => val)
           }}
           onKeyDown={e => {
+            JsxEvent.Keyboard.stopPropagation(e)
             if JsxEvent.Keyboard.key(e) == "Enter" {
               handleApplyCustom()
             }
