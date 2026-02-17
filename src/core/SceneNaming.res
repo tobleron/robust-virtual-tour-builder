@@ -7,18 +7,13 @@ let syncInventoryNames = (inventory, sceneOrder) => {
   sceneOrder->Belt.Array.forEachWithIndex((index, id) => {
     switch inventory->Belt.Map.String.get(id) {
     | Some({scene, status: Active} as entry) =>
-      if scene.label != "" {
-        let oldName = scene.name
-        let baseName = TourLogic.recoverBaseName(scene.name, scene.label)
-        let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
-        if newName != oldName {
-          let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
-          updatedRef.contents =
-            updatedRef.contents->Belt.Map.String.set(
-              id,
-              {...entry, scene: {...scene, name: newName}},
-            )
-        }
+      let oldName = scene.name
+      let baseName = TourLogic.recoverBaseName(scene.name, scene.label)
+      let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
+      if newName != oldName {
+        let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
+        updatedRef.contents =
+          updatedRef.contents->Belt.Map.String.set(id, {...entry, scene: {...scene, name: newName}})
       }
     | _ => ()
     }

@@ -92,11 +92,24 @@ let generateLinkId = (usedIds: Belt.Set.String.t) => {
 /**
  * Calculate the standardized filename for a scene based on its index and label.
  */
-let // Helper to generate consistent slugs
-toSlug = (label, maxLength) => {
-  sanitizeName(label, ~maxLength)
-  ->String.replaceRegExp(/[\s-]+/g, "_")
-  ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
+let toSlug = (label, maxLength) => {
+  let initial = sanitizeName(label, ~maxLength)->String.replaceRegExp(/[\s-]+/g, "_")
+  // Use a Unicode-aware regex to preserve letters and numbers from any script while stripping dangerous symbols.
+  // \p{L} matches any Unicode letter, \p{N} any Unicode number.
+  let slug = %raw(`(str) => {
+    try {
+      return str.normalize('NFKC').replace(/[^\p{L}\p{N}_]/gu, '');
+    } catch (e) {
+      // Fallback for environments without Unicode property escape support (extremely rare in modern browsers)
+      return str.replace(/[^a-zA-Z0-9_]/g, '');
+    }
+  }`)(initial)
+
+  if slug == "" {
+    "Untagged"
+  } else {
+    slug
+  }
 }
 
 /**
@@ -157,7 +170,7 @@ let getBaseNameFromId = id => {
 let computeSceneFilename = (index, label, _baseName) => {
   let prefix = Belt.Int.toString(index + 1)->padStart(3, "0")
   if label == "" {
-    prefix ++ ".webp"
+    prefix ++ "_Untagged.webp"
   } else {
     let slug = toSlug(label, 200)
     prefix ++ "_" ++ slug ++ ".webp"
