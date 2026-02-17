@@ -13,11 +13,15 @@ body.auto-pilot-active #viewer-floor-nav {
 }
 
 body.auto-pilot-active #viewer-floor-nav button {
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+body.auto-pilot-active #viewer-floor-nav button.state-idle {
     opacity: 0.6;
     filter: grayscale(100%);
 }
 
-body.auto-pilot-active #viewer-floor-nav button.border-danger {
+body.auto-pilot-active #viewer-floor-nav button.state-active {
     opacity: 1;
     filter: none;
 }

@@ -42,25 +42,27 @@ fn create_root_index() -> String {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Virtual Tour Export Package</title>
+  <title>Virtual Tour</title>
   <style>
     :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 0; min-height: 100vh; background: #0b1220; color: #e5e7eb; display: grid; place-items: center; }
-    .wrap { width: min(760px, 92vw); background: #101a2f; border: 1px solid #24304a; border-radius: 16px; padding: 28px; }
-    h1 { margin: 0 0 10px; font-size: 1.5rem; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(1200px 600px at 10% 10%, rgba(30,64,175,0.18), transparent), radial-gradient(1200px 600px at 90% 90%, rgba(22,78,99,0.18), transparent), #0b1220; color: #e5e7eb; display: grid; place-items: center; }
+    .wrap { width: min(980px, 92vw); background: rgba(16,26,47,0.86); border: 1px solid #24304a; border-radius: 18px; padding: 28px; backdrop-filter: blur(6px); }
+    h1 { margin: 0 0 10px; font-size: 1.65rem; }
     p { margin: 0 0 20px; line-height: 1.5; color: #cbd5e1; }
-    .grid { display: grid; gap: 12px; }
-    a { display: block; text-decoration: none; background: #1a2a4a; border: 1px solid #33486b; border-radius: 12px; padding: 14px 16px; color: #f8fafc; font-weight: 600; }
-    a span { display: block; margin-top: 4px; color: #93c5fd; font-weight: 400; font-size: 0.92rem; }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    a { display: block; text-decoration: none; background: #162544; border: 1px solid #33486b; border-radius: 12px; padding: 16px 18px; color: #f8fafc; font-weight: 700; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+    a:hover { transform: translateY(-2px); border-color: #f97316; background: #1a2f55; }
+    a span { display: block; margin-top: 6px; color: #93c5fd; font-weight: 500; font-size: 0.92rem; }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <h1>Virtual Tour Export</h1>
-    <p>This package contains two complete outputs. Use <strong>web_only</strong> for hosting on a web server, or <strong>standalone</strong> to open directly from extracted files.</p>
+    <h1>Choose Tour Resolution</h1>
+    <p>Select the resolution you want to open.</p>
     <div class="grid">
-      <a href="web_only/index.html">Open Web-Only Package<span>For HTTP/HTTPS hosting and embedding.</span></a>
-      <a href="standalone/index.html">Open Standalone Package<span>For direct local file opening after extraction.</span></a>
+      <a href="standalone/tour_4k/index.html">Open 4K Tour<span>Best quality for large displays.</span></a>
+      <a href="standalone/tour_2k/index.html">Open 2K Tour<span>Balanced quality for desktop/laptop.</span></a>
+      <a href="standalone/tour_hd/index.html">Open HD Tour<span>Lightweight option for mobile or slower devices.</span></a>
     </div>
   </main>
 </body>
@@ -68,7 +70,40 @@ fn create_root_index() -> String {
     )
 }
 
-fn build_standalone_html(web_html: &str, assets: &[(String, Vec<u8>)]) -> String {
+fn create_web_only_deployment_readme() -> String {
+    String::from(
+        r#"WEB-ONLY DEPLOYMENT INSTRUCTIONS
+
+This folder is intended for website hosting (HTTP/HTTPS), not direct file:// opening.
+
+Required upload structure (same parent directory level):
+- web_only/
+- assets/
+- libs/
+
+Embed URLs:
+- web_only/tour_4k/index.html
+- web_only/tour_2k/index.html
+- web_only/tour_hd/index.html
+
+Example iframe:
+<iframe src="/virtual-tour/web_only/tour_4k/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
+
+Checklist:
+1) Upload web_only, assets, and libs together.
+2) Keep folder structure unchanged.
+3) Serve from HTTP/HTTPS (not file://).
+4) Ensure static serving allows .webp, .js, and .css files.
+"#,
+    )
+}
+
+fn rewrite_html_with_shared_assets(web_html: &str, resolution_key: &str) -> String {
+    let prefix = format!("../../assets/images/{}/", resolution_key);
+    web_html.replace("assets/images/", &prefix)
+}
+
+fn build_standalone_html_with_data_uris(web_html: &str, assets: &[(String, Vec<u8>)]) -> String {
     let mut standalone_html = web_html.to_owned();
     let mut replacements: Vec<(String, String)> = assets
         .iter()
@@ -117,39 +152,26 @@ pub fn create_tour_package(
         let root_index = create_root_index();
         write_zip_file(&mut zip, options, "index.html", root_index.as_bytes())?;
 
-        // 2. Add Static Assets (Logo)
+        // 2. Add shared root logo asset
         if let Some((name, logo_path)) = image_files
             .iter()
             .find(|(name, _)| name.starts_with("logo."))
         {
             let logo_bytes = std::fs::read(logo_path).map_err(|e| e.to_string())?;
-            for variant in VARIANTS {
-                for (_, folder, _) in TARGETS {
-                    write_zip_file(
-                        &mut zip,
-                        options,
-                        &format!("{}/{}/assets/{}", variant, folder, name),
-                        &logo_bytes,
-                    )?;
-                }
-            }
+            write_zip_file(
+                &mut zip,
+                options,
+                &format!("assets/logo/{}", name),
+                &logo_bytes,
+            )?;
         }
 
-        // 3. Add Libraries
+        // 3. Add shared root libraries
         let lib_files = ["pannellum.js", "pannellum.css"];
         for lib in lib_files {
             if let Some((_, lib_path)) = image_files.iter().find(|(name, _)| name == lib) {
                 let lib_bytes = std::fs::read(lib_path).map_err(|e| e.to_string())?;
-                for variant in VARIANTS {
-                    for (_, folder, _) in TARGETS {
-                        write_zip_file(
-                            &mut zip,
-                            options,
-                            &format!("{}/{}/libs/{}", variant, folder, lib),
-                            &lib_bytes,
-                        )?;
-                    }
-                }
+                write_zip_file(&mut zip, options, &format!("libs/{}", lib), &lib_bytes)?;
             }
         }
 
@@ -210,14 +232,14 @@ pub fn create_tour_package(
             }
         }
 
-        // 5. Write web-only scene images
-        for (resolution_key, folder, _) in TARGETS {
+        // 5. Write shared root scene images for both variants
+        for (resolution_key, _, _) in TARGETS {
             if let Some(artifacts) = artifacts_by_resolution.get(resolution_key) {
                 for (file_name, data) in artifacts {
                     write_zip_file(
                         &mut zip,
                         options,
-                        &format!("web_only/{}/assets/images/{}", folder, file_name),
+                        &format!("assets/images/{}/{}", resolution_key, file_name),
                         data,
                     )?;
                 }
@@ -233,15 +255,16 @@ pub fn create_tour_package(
 
         for (field_name, resolution_key, folder) in html_targets {
             if let Some(web_html) = fields.get(field_name) {
+                let web_only_html = rewrite_html_with_shared_assets(web_html, resolution_key);
                 write_zip_file(
                     &mut zip,
                     options,
                     &format!("web_only/{}/index.html", folder),
-                    web_html.as_bytes(),
+                    web_only_html.as_bytes(),
                 )?;
 
                 let standalone_html = match artifacts_by_resolution.get(resolution_key) {
-                    Some(artifacts) => build_standalone_html(web_html, artifacts),
+                    Some(artifacts) => build_standalone_html_with_data_uris(web_html, artifacts),
                     None => web_html.to_owned(),
                 };
                 write_zip_file(
@@ -274,6 +297,13 @@ pub fn create_tour_package(
                 )?;
             }
         }
+        let deploy_readme = create_web_only_deployment_readme();
+        write_zip_file(
+            &mut zip,
+            options,
+            "web_only/DEPLOYMENT_README.txt",
+            deploy_readme.as_bytes(),
+        )?;
 
         zip.finish().map_err(|e| e.to_string())?;
     }
