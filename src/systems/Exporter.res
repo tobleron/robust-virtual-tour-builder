@@ -46,11 +46,6 @@ let uploadAndProcessRaw: (
 ) => Promise.t<Blob.t> = %raw(`
   function(formData, onProgress, backendUrl, signal, token) {
     return new Promise((resolve, reject) => {
-        if (!navigator.onLine) {
-            reject(new Error("NetworkOffline: You appear to be offline. Please check your connection."));
-            return;
-        }
-
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
         xhr.timeout = 300000; // 5 minutes
@@ -104,11 +99,7 @@ let uploadAndProcessRaw: (
         };
 
         xhr.onerror = () => {
-            if (!navigator.onLine) {
-                reject(new Error("NetworkOffline: You appear to be offline. Please check your connection and try again."));
-            } else {
-                reject(new Error("NetworkError: Export upload failed. The backend may be unreachable."));
-            }
+            reject(new Error("NetworkError: Export upload failed to " + backendUrl + "/api/project/create-tour-package. The backend may be unreachable."));
         };
         xhr.ontimeout = () => reject(new Error("TimeoutError: Export upload timed out after 5 minutes. Try with fewer scenes or a faster connection."));
 
@@ -169,6 +160,11 @@ let extractHttpErrorBody = (msg: string): string => {
     msg
   }
 }
+
+let backendOfflineExportMessage = () =>
+  "Export backend is unreachable at " ++
+  Constants.backendUrl ++
+  ". Start backend server (`npm run dev:backend`) and retry."
 
 let fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<
   Blob.t,
@@ -242,6 +238,8 @@ let exportTour = async (
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
+  let exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != "")
+
   let progress = (p, t, m) => {
     switch onProgress {
     | Some(cb) => cb(p, t, m)
@@ -265,11 +263,40 @@ let exportTour = async (
   Logger.startOperation(
     ~module_="Exporter",
     ~operation="EXPORT",
-    ~data=Some({"sceneCount": Belt.Array.length(scenes), "tourName": tourName}),
+    ~data=Some({
+      "sceneCount": Belt.Array.length(exportScenes),
+      "originalSceneCount": Belt.Array.length(scenes),
+      "tourName": tourName,
+    }),
     (),
   )
 
   try {
+    if Belt.Array.length(exportScenes) == 0 {
+      let msg = "No scenes with a floor set were found. Set a floor on at least one scene and export again."
+      Logger.warn(
+        ~module_="Exporter",
+        ~message="EXPORT_BLOCKED_NO_FLOOR_SCENES",
+        ~data=Some({"originalSceneCount": Belt.Array.length(scenes)}),
+        (),
+      )
+      JsError.throwWithMessage(msg)
+    }
+
+    currentPhase := "HEALTH_CHECK"
+    progress(1.0, 100.0, "Checking backend...")
+    let backendHealthy = await Resizer.checkBackendHealth()
+    if !backendHealthy {
+      let msg = backendOfflineExportMessage()
+      Logger.warn(
+        ~module_="Exporter",
+        ~message="EXPORT_BACKEND_UNREACHABLE_PRECHECK",
+        ~data=Some({"backendUrl": Constants.backendUrl}),
+        (),
+      )
+      JsError.throwWithMessage(msg)
+    }
+
     let formData = FormData.newFormData()
     let version = Version.version
     let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
@@ -369,7 +396,7 @@ let exportTour = async (
     currentPhase := "TEMPLATES"
     Logger.debug(~module_="Exporter", ~message="PHASE_TEMPLATES", ())
     let html4k = TourTemplates.generateTourHTML(
-      scenes,
+      exportScenes,
       tourName,
       logoFilename.contents,
       "4k",
@@ -378,7 +405,7 @@ let exportTour = async (
       version,
     )
     let html2k = TourTemplates.generateTourHTML(
-      scenes,
+      exportScenes,
       tourName,
       logoFilename.contents,
       "2k",
@@ -387,7 +414,7 @@ let exportTour = async (
       version,
     )
     let htmlHd = TourTemplates.generateTourHTML(
-      scenes,
+      exportScenes,
       tourName,
       logoFilename.contents,
       "hd",
@@ -437,7 +464,7 @@ let exportTour = async (
     Logger.debug(
       ~module_="Exporter",
       ~message="PHASE_SCENES",
-      ~data=Some({"count": Belt.Array.length(scenes)}),
+      ~data=Some({"count": Belt.Array.length(exportScenes)}),
       (),
     )
     let rec appendScenes = async (sceneList, idx) => {
@@ -483,7 +510,7 @@ let exportTour = async (
         }
       }
     }
-    switch await appendScenes(Belt.List.fromArray(scenes), 0) {
+    switch await appendScenes(Belt.List.fromArray(exportScenes), 0) {
     | Ok() => ()
     | Error(msg) => JsError.throwWithMessage(msg)
     }
@@ -501,9 +528,16 @@ let exportTour = async (
       } catch {
       | exn =>
         let msg = normalizeThrowableMessage(exn)
-        let isOffline = String.includes(msg, "NetworkOffline")
+        let isLegacyNetworkOffline = String.includes(msg, "NetworkOffline")
         let isAbort = String.includes(msg, "AbortError")
         let isUnauthorized = isUnauthorizedHttpError(msg)
+        let isTransportNetworkError =
+          String.includes(msg, "NetworkError") || isLegacyNetworkOffline
+        let backendStillReachable = if isTransportNetworkError {
+          await Resizer.checkBackendHealth()
+        } else {
+          true
+        }
 
         let usingDevToken = switch token {
         | Some(t) => t == "dev-token"
@@ -519,7 +553,17 @@ let exportTour = async (
             (),
           )
           await uploadWithRetry(0, Some("dev-token"))
-        } else if retryCount < 2 && !isOffline && !isAbort && !isUnauthorized {
+        } else if isTransportNetworkError && !backendStillReachable {
+          let message = backendOfflineExportMessage()
+          Logger.warn(
+            ~module_="Exporter",
+            ~message="EXPORT_BACKEND_UNREACHABLE_DURING_UPLOAD",
+            ~data=Some({"backendUrl": Constants.backendUrl, "error": msg}),
+            (),
+          )
+          CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
+          JsError.throwWithMessage(message)
+        } else if retryCount < 2 && !isAbort && !isUnauthorized {
           Logger.warn(
             ~module_="Exporter",
             ~message="EXPORT_RETRY",
@@ -533,7 +577,13 @@ let exportTour = async (
           await uploadWithRetry(retryCount + 1, token)
         } else {
           CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
-          JsError.throwWithMessage(msg)
+          if isLegacyNetworkOffline {
+            JsError.throwWithMessage(
+              "NetworkError: Export upload was interrupted. Please retry export.",
+            )
+          } else {
+            JsError.throwWithMessage(msg)
+          }
         }
       }
     }
