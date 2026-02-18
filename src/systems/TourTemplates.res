@@ -683,7 +683,7 @@ module Scripts = {
 
       if (isOutside) {
          // Premium feel: Significant slow down + fade out over distance
-         const FADE_DISTANCE = 300; 
+         const FADE_DISTANCE = 50; 
          const START_DAMPING = 0.2; // Drop to 20% speed immediately at edge
 
          const distX = Math.max(0, rect.left - e.clientX, e.clientX - rect.right);
