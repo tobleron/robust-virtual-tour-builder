@@ -112,7 +112,7 @@ module Styles = {
     body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
     body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
     body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
-    body.export-state-tablet .watermark img, body.export-state-portrait .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
+
     body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
     body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
     
@@ -163,6 +163,7 @@ module Scripts = {
     const STAGE_MIN_WIDTH = __STAGE_MIN_WIDTH__;
     const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
+    const IS_HD_EXPORT = __IS_HD_EXPORT__;
     const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
     let exportViewportState = "";
     const EXPORT_FLOOR_LEVELS = [
@@ -206,6 +207,7 @@ module Scripts = {
       return vmax * (t - 0.5 * factor);
     }
     function resolveExportViewportState() {
+      if (typeof IS_HD_EXPORT === 'boolean' && IS_HD_EXPORT) return "portrait";
       const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
       if (portraitViewport) return "portrait";
       // Allow desktop mode if viewport is at least 60px wider than the stage max width
@@ -922,6 +924,7 @@ module Scripts = {
     stageMinWidth,
     stageMaxWidth,
     dynamicHfovEnabled,
+    isHdExport,
   ) =>
     renderScriptTemplate
     ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
@@ -931,6 +934,7 @@ module Scripts = {
     ->String.replaceRegExp(/__STAGE_MIN_WIDTH__/g, Belt.Int.toString(stageMinWidth))
     ->String.replaceRegExp(/__STAGE_MAX_WIDTH__/g, Belt.Int.toString(stageMaxWidth))
     ->String.replaceRegExp(/__DYNAMIC_HFOV_ENABLED__/g, dynamicHfovEnabled ? "true" : "false")
+    ->String.replaceRegExp(/__IS_HD_EXPORT__/g, isHdExport ? "true" : "false")
 }
 
 // --- MAIN ---
@@ -1214,6 +1218,7 @@ let generateTourHTML = (
     stageMinWidth,
     stageMaxWidth,
     dynamicHfovEnabled,
+    exportType == "hd",
   )
   let logoDiv = switch logoFilename {
   | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`
