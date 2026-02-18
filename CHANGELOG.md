@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fix(network): Active probing for offline detection on LAN (Task T1465)
+- Export: fix network failure handling and floor-filtered export nav
+- Export: fix network failure handling and floor-filtered export nav
+- Export: fix network failure handling and floor-filtered export nav
 
 ## [4.16.1] - 2026-02-18
 
