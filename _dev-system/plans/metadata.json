@@ -1,103 +1,15 @@
 {
+  "system": [],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.485,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/ProjectManager.res",
-              "functions": [
-                {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 21
-                },
-                {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 25
-                },
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 29
-                },
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 35
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (",
-                  "line": 43
-                },
-                {
-                  "name": "saveRecoveryContextDecoder",
-                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
-                  "line": 56
-                },
-                {
-                  "name": "updateSaveContext",
-                  "signature": "updateSaveContext = (",
-                  "line": 65
-                },
-                {
-                  "name": "classifySaveError",
-                  "signature": "classifySaveError = (msg: string) => {",
-                  "line": 85
-                },
-                {
-                  "name": "notifySaveFailure",
-                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
-                  "line": 113
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
-                  "line": 127
-                },
-                {
-                  "name": "recoverSaveProject",
-                  "signature": "recoverSaveProject = (",
-                  "line": 324
-                },
-                {
-                  "name": "loadProject",
-                  "signature": "loadProject = (",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
-            }
-          ]
-        }
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/systems/TourTemplates.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1199/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1208/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 94.61592994161802,
-        "recommended_splits": 4,
+        "complexity": 95.51506622516555,
+        "recommended_splits": 5,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
           "snapshots": [
@@ -117,82 +29,15 @@
                 {
                   "name": "generateEmbedCodes",
                   "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1273
+                  "line": 1286
                 },
                 {
                   "name": "generateExportIndex",
                   "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1274
+                  "line": 1287
                 }
               ],
               "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ViewerManagerLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.12 | LOC: 377/300  🎯 Target: Function: `isLastIdValid` (High Local Complexity (3.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 11.816710875331566,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/ViewerManagerLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/components/ViewerManagerLogic.res",
-              "functions": [
-                {
-                  "name": "useSceneCleanup",
-                  "signature": "useSceneCleanup = (~scenes: array<scene>) => {",
-                  "line": 11
-                },
-                {
-                  "name": "usePreloading",
-                  "signature": "usePreloading = (",
-                  "line": 40
-                },
-                {
-                  "name": "handleMainSceneLoad",
-                  "signature": "handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action => unit) => {",
-                  "line": 66
-                },
-                {
-                  "name": "useMainSceneLoading",
-                  "signature": "useMainSceneLoading = (",
-                  "line": 145
-                },
-                {
-                  "name": "useHotspotSync",
-                  "signature": "useHotspotSync = (",
-                  "line": 172
-                },
-                {
-                  "name": "useRatchetState",
-                  "signature": "useRatchetState = (~isLinking: bool) => {",
-                  "line": 212
-                },
-                {
-                  "name": "useSimulationArrival",
-                  "signature": "useSimulationArrival = (~activeIndex: int, ~simulationStatus: simulationStatus) => {",
-                  "line": 237
-                },
-                {
-                  "name": "useHotspotLineLoop",
-                  "signature": "useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) => {",
-                  "line": 247
-                },
-                {
-                  "name": "useIntroPan",
-                  "signature": "useIntroPan = (",
-                  "line": 375
-                }
-              ],
-              "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
             }
           ]
         }
@@ -309,9 +154,164 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.12 | LOC: 377/300  🎯 Target: Function: `isLastIdValid` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.816710875331566,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/ViewerManagerLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/components/ViewerManagerLogic.res",
+              "functions": [
+                {
+                  "name": "useSceneCleanup",
+                  "signature": "useSceneCleanup = (~scenes: array<scene>) => {",
+                  "line": 11
+                },
+                {
+                  "name": "usePreloading",
+                  "signature": "usePreloading = (",
+                  "line": 40
+                },
+                {
+                  "name": "handleMainSceneLoad",
+                  "signature": "handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action => unit) => {",
+                  "line": 66
+                },
+                {
+                  "name": "useMainSceneLoading",
+                  "signature": "useMainSceneLoading = (",
+                  "line": 145
+                },
+                {
+                  "name": "useHotspotSync",
+                  "signature": "useHotspotSync = (",
+                  "line": 172
+                },
+                {
+                  "name": "useRatchetState",
+                  "signature": "useRatchetState = (~isLinking: bool) => {",
+                  "line": 212
+                },
+                {
+                  "name": "useSimulationArrival",
+                  "signature": "useSimulationArrival = (~activeIndex: int, ~simulationStatus: simulationStatus) => {",
+                  "line": 237
+                },
+                {
+                  "name": "useHotspotLineLoop",
+                  "signature": "useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) => {",
+                  "line": 247
+                },
+                {
+                  "name": "useIntroPan",
+                  "signature": "useIntroPan = (",
+                  "line": 375
+                }
+              ],
+              "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.485,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/ProjectManager.res",
+              "functions": [
+                {
+                  "name": "validationReportWrapperDecoder",
+                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 21
+                },
+                {
+                  "name": "validateProjectStructure",
+                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+                  "line": 25
+                },
+                {
+                  "name": "createSavePackage",
+                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+                  "line": 29
+                },
+                {
+                  "name": "processLoadedProjectData",
+                  "signature": "processLoadedProjectData = (",
+                  "line": 35
+                },
+                {
+                  "name": "loadProjectZip",
+                  "signature": "loadProjectZip = (",
+                  "line": 43
+                },
+                {
+                  "name": "saveRecoveryContextDecoder",
+                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
+                  "line": 56
+                },
+                {
+                  "name": "updateSaveContext",
+                  "signature": "updateSaveContext = (",
+                  "line": 65
+                },
+                {
+                  "name": "classifySaveError",
+                  "signature": "classifySaveError = (msg: string) => {",
+                  "line": 85
+                },
+                {
+                  "name": "notifySaveFailure",
+                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
+                  "line": 113
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
+                  "line": 127
+                },
+                {
+                  "name": "recoverSaveProject",
+                  "signature": "recoverSaveProject = (",
+                  "line": 324
+                },
+                {
+                  "name": "loadProject",
+                  "signature": "loadProject = (",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
+            }
+          ]
+        }
+      }
     }
   ],
-  "system": [],
   "rust": [
     {
       "Surgical": {
