@@ -57,7 +57,7 @@ __LOGO_BLOCK__
   }
 
   let generateEmbedCodes = (tourName, version) => {
-    `VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n2. 2K (Desktop):\n   <iframe src="tour_2k/index.html" width="100%" height="400" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`
+    `VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n2. 2K (Deskop/Laptop):\n   <iframe src="tour_2k/index.html" width="100%" height="520" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`
   }
 }
 
@@ -72,7 +72,7 @@ module Styles = {
     __MEDIA_QUERY_CSS__
     #panorama { width: 100%; height: 100%; border-radius: inherit; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 3px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; border-radius: 5px; }
     #viewer-floor-nav-export { position: absolute; bottom: 24px; left: 20px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 8px; align-items: center; pointer-events: none; }
     #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 15px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
@@ -101,7 +101,7 @@ module Styles = {
     .glow-bottom { animation: glow-sequence 1.8s infinite; }
     .glow-top { animation: glow-sequence 1.8s infinite; animation-delay: 0.4s; }
     .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg { animation: none; transform: scale(1.08); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.35)); }
-    .pnlm-load-box, .pnlm-lbox, .pnlm-lmsg, .pnlm-lbar, .pnlm-ltext, .pnlm-loading-container, [class^="pnlm-l"], [class*="loading"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    .pnlm-lmsg, .pnlm-ltext { display: none !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] { perspective: none !important; transform-style: flat !important; }
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -120,11 +120,24 @@ module Styles = {
     .pnlm-container { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l-3 3 3 3M9 5l3-3 3 3M19 9l3 3-3 3M9 19l3 3 3-3M2 12h20M12 2v20'/%3E%3C/svg%3E") 12 12, move; }
     .pnlm-grab { cursor: inherit !important; }
     .pnlm-grabbing { cursor: grabbing !important; }
+    /* Looking Mode Indicator */
+    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: center; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; }
+    .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); transition: background-color 0.3s ease, box-shadow 0.3s ease; margin-top: 1px; }
+    .mode-dot.paused { background-color: #f97316; box-shadow: 0 0 8px rgba(249, 115, 22, 0.4); }
+    .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+    .mode-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
+    .mode-subtitle { font-size: 10px; font-weight: 500; opacity: 0.8; line-height: 1.2; }
+    .pnlm-container.mode-paused { cursor: default !important; }
+    .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
+    body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; }
+    body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
+    body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 9px; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
     let mediaQuery = switch exportType {
     | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
+    | "2k" => ` #stage { position: relative; margin: 0 auto; width: 832px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
     | _ => ` #stage { position: relative; margin: 0 auto; width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } `
     }
     cssTemplate
@@ -195,7 +208,8 @@ module Scripts = {
     function resolveExportViewportState() {
       const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
       if (portraitViewport) return "portrait";
-      if (IS_4K_EXPORT && window.innerWidth >= 1180) return "desktop";
+      // Allow desktop mode if viewport is at least 60px wider than the stage max width
+      if (window.innerWidth >= (STAGE_MAX_WIDTH + 60)) return "desktop";
       return "tablet";
     }
     function updateExportStateClasses() {
@@ -652,12 +666,29 @@ module Scripts = {
       waypointRuntime.animationId = requestAnimationFrame(tick);
     }
 
+    /* --- LOOKING MODE & LAZY DRIFT LOGIC --- */
+    let lookingMode = true;
+    function updateLookingModeUI() {
+      const titleEl = document.getElementById('looking-mode-title');
+      const dotEl = document.getElementById('looking-mode-dot');
+      const container = document.querySelector('.pnlm-container');
+      if (titleEl) titleEl.textContent = lookingMode ? "Looking mode: ON" : "Looking mode: OFF";
+      if (dotEl) { if (lookingMode) { dotEl.classList.remove('paused'); } else { dotEl.classList.add('paused'); } }
+      if (container) { if (lookingMode) { container.classList.remove('mode-paused'); } else { container.classList.add('mode-paused'); } }
+      if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.active = false; }
+    }
+    function toggleLookingMode() { lookingMode = !lookingMode; updateLookingModeUI(); }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('keydown', (e) => { if (e.key === 'l' || e.key === 'L') toggleLookingMode(); });
+    }
+    
     /* --- LAZY DRIFT LOGIC --- */
     const DRIFT_SPEED_FACTOR = 2.2; 
     const DRIFT_DEADZONE = 0.1;
     let driftRuntime = { active: false, rafId: null, vector: { x: 0, y: 0 } };
 
     function updateDriftVector(e) {
+      if (!lookingMode) return;
       if (waypointRuntime.animationId !== null) return; // Busy navigating
       // If mouse is down, user is dragging, so pause drift
       if (e.buttons > 0) return;
@@ -779,6 +810,9 @@ module Scripts = {
       hotSpotDiv.style.width = "__BASE_SIZE__px"; hotSpotDiv.style.height = "__BASE_SIZE__px";
       hotSpotDiv.style.pointerEvents = "auto";
       hotSpotDiv.style.cursor = "pointer";
+      if (args.targetIsAutoForward) {
+        hotSpotDiv.style.setProperty("display", "none", "important");
+      }
       hotSpotDiv.dataset.ownerScene = ownerScene;
       hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
       hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);
@@ -873,6 +907,7 @@ module Scripts = {
       updateExportFloorNav(sid);
       updateExportRoomLabel(sid);
       updateExportStateClasses();
+      updateLookingModeUI();
       clearWaypointRuntime();
       waypointRuntime.sceneId = sid;
       animateSceneToPrimaryHotspot(sid, 20);
@@ -1166,7 +1201,7 @@ let generateTourHTML = (
     dynamicHfovEnabled,
   ) = switch exportType {
   | "4k" => (90.0, 65.0, 90.0, 375, 1024, true)
-  | "2k" => (90.0, 65.0, 90.0, 375, 640, true)
+  | "2k" => (90.0, 65.0, 90.0, 375, 832, true)
   | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
@@ -1197,7 +1232,7 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle">(Click L to toggle)</div></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(

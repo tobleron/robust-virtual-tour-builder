@@ -29,7 +29,9 @@ module InnerApp = {
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       <OfflineBanner />
       {if isSystemLocked {
-        <div className="interaction-lock-overlay" />
+        <div className="interaction-lock-overlay">
+          <div className="spinner" />
+        </div>
       } else {
         React.null
       }}

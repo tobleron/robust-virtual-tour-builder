@@ -374,7 +374,7 @@ let exportTour = async (
       logoFilename.contents,
       "4k",
       28,
-      60,
+      54,
       version,
     )
     let html2k = TourTemplates.generateTourHTML(
