@@ -48,62 +48,63 @@ let make = React.memo(() => {
       currentJourneyId={simSlice.currentJourneyId}
     />
 
-    /* Information Overlays */
-    <PersistentLabel activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
-    <QualityIndicator activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
+    {if !uiSlice.isLinking {
+      <>
+        /* Information Overlays */
+        <PersistentLabel activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
+        <QualityIndicator activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
 
-    {if uiSlice.isLinking {
+        <FloorNavigation
+          scenesLoaded activeIndex={sceneSlice.activeIndex} isLinking={uiSlice.isLinking} simActive
+        />
+
+        /* Return Prompt Banner */
+        <ReturnPrompt incomingLink={simSlice.incomingLink} scenes={sceneSlice.scenes} />
+
+        /* Permanent Branding with Perfect Masking & Editable Support */
+        <div
+          id="viewer-logo"
+          className="absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden cursor-pointer transition-all active:scale-95 group pointer-events-auto p-[6px]"
+          onClick=handleLogoClick
+          title="Click to change logo"
+        >
+          <div className="w-full h-full relative group">
+            <img
+              src=logoSrc
+              alt="Logo"
+              className="w-full h-full object-contain block"
+              onError={_ => {
+                if uiSlice.logo == None && extIndex < Array.length(extensions) - 1 {
+                  setExtIndex(prev => prev + 1)
+                }
+              }}
+            />
+            <div
+              className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <LucideIcons.Upload size=20 className="text-white" />
+            </div>
+          </div>
+          <input
+            type_="file"
+            ref={fileInputRef->ReactDOM.Ref.domRef}
+            onChange=handleFileChange
+            className="hidden"
+            accept="image/*"
+          />
+        </div>
+      </>
+    } else {
+      /* Top Yellow Linking Hint Bar */
       <div
-        className="absolute top-[64px] left-1/2 -translate-x-1/2 z-[5003] pointer-events-none flex flex-col items-center gap-1"
+        className="absolute top-0 left-1/2 -translate-x-1/2 z-[5003] pointer-events-none w-fit bg-[var(--accent)] text-black py-1 px-8 shadow-md rounded-b-lg flex items-center justify-center text-center border-x border-b border-black/10"
       >
-        <span className="linking-hint-text">
-          {React.string("Click ENTER to save hotspot, ESC to cancel")}
+        <span className="font-bold text-[13px] tracking-wide whitespace-nowrap">
+          {React.string("Click to set waypoint, then ENTER to save hotspot button. ESC to cancel")}
         </span>
       </div>
-    } else {
-      React.null
     }}
 
-    <FloorNavigation
-      scenesLoaded activeIndex={sceneSlice.activeIndex} isLinking={uiSlice.isLinking} simActive
-    />
-
-    /* Return Prompt Banner */
-    <ReturnPrompt incomingLink={simSlice.incomingLink} scenes={sceneSlice.scenes} />
-
     <NotificationCenter />
-
-    /* Permanent Branding with Perfect Masking & Editable Support */
-    <div
-      id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden cursor-pointer transition-all active:scale-95 group pointer-events-auto p-[6px]"
-      onClick=handleLogoClick
-      title="Click to change logo"
-    >
-      <div className="w-full h-full relative group">
-        <img
-          src=logoSrc
-          alt="Logo"
-          className="w-full h-full object-contain block"
-          onError={_ => {
-            if uiSlice.logo == None && extIndex < Array.length(extensions) - 1 {
-              setExtIndex(prev => prev + 1)
-            }
-          }}
-        />
-        <div
-          className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <LucideIcons.Upload size=20 className="text-white" />
-        </div>
-      </div>
-      <input
-        type_="file"
-        ref={fileInputRef->ReactDOM.Ref.domRef}
-        onChange=handleFileChange
-        className="hidden"
-        accept="image/*"
-      />
-    </div>
   </>
 })
