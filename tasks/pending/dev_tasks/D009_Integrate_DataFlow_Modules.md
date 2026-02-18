@@ -12,3 +12,12 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 
 ## Unmapped Modules
 - [ ] [backend/src/api/health.rs]
+- [ ] [src/systems/Exporter/ExporterUpload.res]
+- [ ] [src/systems/Exporter/ExporterUtils.res]
+- [ ] [src/systems/ProjectManager/ProjectRecovery.res]
+- [ ] [src/systems/ProjectManager/ProjectSave.res]
+- [ ] [src/systems/ProjectManager/ProjectUtils.res]
+- [ ] [src/systems/TourTemplates/TourAssets.res]
+- [ ] [src/systems/TourTemplates/TourData.res]
+- [ ] [src/systems/TourTemplates/TourScripts.res]
+- [ ] [src/systems/TourTemplates/TourStyles.res]
