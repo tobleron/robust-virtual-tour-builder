@@ -72,7 +72,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.14.0"
+let cacheName = "vtb-cache-v4.15.0"
 let manualAssets = [
   "/",
   "/index.html",
@@ -88,7 +88,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
 
 let fetchWithTimeout = (request, timeoutMs) => {
