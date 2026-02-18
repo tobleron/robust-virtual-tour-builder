@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refine export visuals: 4k logo sizing, 2k window support, and pannellum spinner color
 - Refine room label visuals: remove shadows from builder and export persistent labels
 - Refine HD export UI: Force compact navigation, keep original logo size
+- Fix build: update unit tests for TourTemplateScripts signature change
 
 ## [4.14.0] - 2026-02-17
 
