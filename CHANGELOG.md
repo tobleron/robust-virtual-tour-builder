@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Exports**: Added visual "Move" cursor (Lucide icon) to exported tours.
 - **Builder**: Added "Move" icon to internal Lucide library.
 - Exports: Tune lazy drift responsiveness and dampening
+- Exports: Lazy Drift navigation with premium damping
 
 ## [4.14.0] - 2026-02-17
 
