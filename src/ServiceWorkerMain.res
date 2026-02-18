@@ -79,7 +79,7 @@ let manualAssets = [
   "/early-boot.js",
   "/images/icon-192.png",
   "/images/icon-512.png",
-  "/images/logo.jpeg",
+  "/images/logo.png",
   "/images/logo_old.png",
   "/images/og-preview.png",
   "/libs/FileSaver.min.js",
@@ -88,7 +88,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
 
 let fetchWithTimeout = (request, timeoutMs) => {

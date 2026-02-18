@@ -387,15 +387,26 @@ module Scripts = {
     }
     function normalizeSceneFloor(sceneData) {
       const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
-      return floor === "" ? "ground" : floor;
+      return floor === "" ? null : floor;
+    }
+    function getExportFloorLevelsInUse() {
+      const activeFloorIds = new Set();
+      if (scenesData && typeof scenesData === "object") {
+        for (const sceneData of Object.values(scenesData)) {
+          const floorId = normalizeSceneFloor(sceneData);
+          if (floorId) activeFloorIds.add(floorId);
+        }
+      }
+      return EXPORT_FLOOR_LEVELS.filter(level => activeFloorIds.has(level.id));
     }
     function updateExportFloorNav(sceneId) {
       const nav = document.getElementById("viewer-floor-nav-export");
       if (!nav) return;
       const sceneData = scenesData[sceneId];
       const currentFloor = normalizeSceneFloor(sceneData);
+      const visibleFloorLevels = getExportFloorLevelsInUse();
       while (nav.firstChild) nav.removeChild(nav.firstChild);
-      for (const level of EXPORT_FLOOR_LEVELS) {
+      for (const level of visibleFloorLevels) {
         const btn = document.createElement("div");
         btn.className = "floor-nav-btn " + (level.id === currentFloor ? "state-active" : "state-idle");
         btn.setAttribute("title", level.label);
@@ -1133,40 +1144,47 @@ let generateTourHTML = (
   let hasSceneId = (sceneId: string) => scenes->Belt.Array.some(ts => ts.id == sceneId)
 
   scenes->Belt.Array.forEach(s => {
-    let rawHotspots = s.hotspots->Belt.Array.mapWithIndex((_, h) => {
-      let resolvedTargetId = switch h.targetSceneId {
-      | Some(targetSceneId) =>
-        if hasSceneId(targetSceneId) {
-          targetSceneId
-        } else {
-          switch resolveSceneIdFromTargetRef(targetSceneId, scenes) {
-          | Some(id) => id
-          | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
+    let rawHotspots =
+      s.hotspots
+      ->Belt.Array.mapWithIndex((_, h) => {
+        let resolvedTargetId = switch h.targetSceneId {
+        | Some(targetSceneId) =>
+          if hasSceneId(targetSceneId) {
+            targetSceneId
+          } else {
+            switch resolveSceneIdFromTargetRef(targetSceneId, scenes) {
+            | Some(id) => id
+            | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
+            }
           }
+        | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
         }
-      | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
-      }
-      let targetIsAutoForward = switch h.isAutoForward {
-      | Some(true) => true
-      | _ => false
-      }
-      {
-        "pitch": h.displayPitch->Option.getOr(h.pitch),
-        "yaw": h.yaw,
-        "target": h.target,
-        "targetSceneId": resolvedTargetId,
-        "targetIsAutoForward": targetIsAutoForward,
-        "startYaw": h.startYaw->Nullable.fromOption,
-        "startPitch": h.startPitch->Nullable.fromOption,
-        "waypoints": h.waypoints->Nullable.fromOption,
-        "truePitch": h.pitch,
-        "viewFrame": h.viewFrame->Nullable.fromOption,
-        "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
-        "isReturnLink": h.isReturnLink->Option.getOr(false),
-        "targetYaw": h.targetYaw->Nullable.fromOption,
-        "targetPitch": h.targetPitch->Nullable.fromOption,
-      }
-    })
+        let targetIsAutoForward = switch h.isAutoForward {
+        | Some(true) => true
+        | _ => false
+        }
+        if hasSceneId(resolvedTargetId) {
+          Some({
+            "pitch": h.displayPitch->Option.getOr(h.pitch),
+            "yaw": h.yaw,
+            "target": h.target,
+            "targetSceneId": resolvedTargetId,
+            "targetIsAutoForward": targetIsAutoForward,
+            "startYaw": h.startYaw->Nullable.fromOption,
+            "startPitch": h.startPitch->Nullable.fromOption,
+            "waypoints": h.waypoints->Nullable.fromOption,
+            "truePitch": h.pitch,
+            "viewFrame": h.viewFrame->Nullable.fromOption,
+            "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
+            "isReturnLink": h.isReturnLink->Option.getOr(false),
+            "targetYaw": h.targetYaw->Nullable.fromOption,
+            "targetPitch": h.targetPitch->Nullable.fromOption,
+          })
+        } else {
+          None
+        }
+      })
+      ->Belt.Array.keepMap(x => x)
     let autoForwardHotspotIndex = {
       let routeFromDoubleChevron =
         rawHotspots->Belt.Array.getIndexBy(h =>
