@@ -1,13 +1,6 @@
 {
   "rescript": [
     {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/components/ViewerManagerLogic.res",
         "action": "De-bloat",
@@ -69,48 +62,6 @@
                 }
               ],
               "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1197/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 94.41612364243943,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates.res",
-              "functions": [
-                {
-                  "name": "indexTemplate",
-                  "signature": "indexTemplate = `<!DOCTYPE html>",
-                  "line": 9
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
-                  "line": 43
-                },
-                {
-                  "name": "generateEmbedCodes",
-                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1269
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1270
-                }
-              ],
-              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
             }
           ]
         }
@@ -229,6 +180,13 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
@@ -309,9 +267,50 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1199/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 94.61592994161802,
+        "recommended_splits": 4,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates.res",
+              "functions": [
+                {
+                  "name": "indexTemplate",
+                  "signature": "indexTemplate = `<!DOCTYPE html>",
+                  "line": 9
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
+                  "line": 43
+                },
+                {
+                  "name": "generateEmbedCodes",
+                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
+                  "line": 1273
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = Assets.generateExportIndex",
+                  "line": 1274
+                }
+              ],
+              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
+            }
+          ]
+        }
+      }
     }
   ],
-  "system": [],
   "rust": [
     {
       "Surgical": {
@@ -400,5 +399,6 @@
         }
       }
     }
-  ]
+  ],
+  "system": []
 }

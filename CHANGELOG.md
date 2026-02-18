@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.14.0] - 2026-02-18
 
 ### Changed
+- **Exports**: Restored default HD export window dimensions (landscape) while maintaining compact UI elements.
+- **Exports**: Implemented `is-hd-export` specific styling for floor buttons and room labels.
 - Stabilize hotspot auto-forward toggle reliability and export consistency
 - **Exports**: Implemented "Lazy Drift" navigation mode with Move cursor.
 - **Exports**: Snappier drift (2.2x speed) with premium fade-out damping when leaving viewer stage bounds (20% -> 0% over 50px) (not just window).
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refine room label visuals: remove shadows from builder and export persistent labels
 - Refine HD export UI: Force compact navigation, keep original logo size
 - Fix build: update unit tests for TourTemplateScripts signature change
+- Pretty Polished and Stable
 
 ## [4.14.0] - 2026-02-17
 
