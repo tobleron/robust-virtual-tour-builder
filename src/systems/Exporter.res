@@ -1,233 +1,27 @@
-/* src/systems/Exporter.res */
-
 open ReBindings
 open Types
 
-type apiError = {
+/* --- Re-exports to maintain public API --- */
+type apiError = ExporterUtils.apiError = {
   error: string,
   details: option<string>,
 }
 
-let apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {
-  {
-    error: field.required("error", JsonCombinators.Json.Decode.string),
-    details: field.optional("details", JsonCombinators.Json.Decode.string),
-  }
-})
+let apiErrorDecoder = ExporterUtils.apiErrorDecoder
+let fetchLib = ExporterUtils.fetchLib
+let uploadAndProcessRaw = ExporterUpload.uploadAndProcessRaw
+let throwableMessageRaw = ExporterUtils.throwableMessageRaw
+let normalizeThrowableMessage = ExporterUtils.normalizeThrowableMessage
+let isUnauthorizedHttpError = ExporterUtils.isUnauthorizedHttpError
+let extractHttpErrorBody = ExporterUtils.extractHttpErrorBody
+let backendOfflineExportMessage = ExporterUtils.backendOfflineExportMessage
+let fetchSceneUrlBlob = ExporterUtils.fetchSceneUrlBlob
+let normalizeLogoExtension = ExporterUtils.normalizeLogoExtension
+let filenameFromUrl = ExporterUtils.filenameFromUrl
+let isLikelyImageUrl = ExporterUtils.isLikelyImageUrl
+let isLikelyImageBlob = ExporterUtils.isLikelyImageBlob
 
-// Version is accessed natively
-
-/* Helper to fetch library files */
-let fetchLib = async filename => {
-  try {
-    let response = await Fetch.fetch("/libs/" ++ filename, Fetch.requestInit(~method="GET", ()))
-
-    if !Fetch.ok(response) {
-      Error("Missing Library: " ++ filename)
-    } else {
-      let b = await Fetch.blob(response)
-      Ok(b)
-    }
-  } catch {
-  | exn =>
-    let (msg, _stack) = Logger.getErrorDetails(exn)
-    Error(msg)
-  }
-}
-
-/* XHR Upload Logic via Raw JS (for progress events) */
-/* XHR Upload Logic via Raw JS (for progress events) with Abort Support */
-let uploadAndProcessRaw: (
-  FormData.t,
-  (float, float, string) => unit,
-  string,
-  ~signal: BrowserBindings.AbortSignal.t,
-  ~token: option<string>,
-) => Promise.t<Blob.t> = %raw(`
-  function(formData, onProgress, backendUrl, signal, token) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", backendUrl + "/api/project/create-tour-package");
-        xhr.timeout = 300000; // 5 minutes
-
-        if (token) {
-          xhr.setRequestHeader("Authorization", "Bearer " + token);
-        }
-
-        if (signal) {
-          signal.addEventListener('abort', () => {
-            xhr.abort();
-            reject(new Error("AbortError: Export cancelled by user"));
-          });
-          if (signal.aborted) {
-            xhr.abort();
-            reject(new Error("AbortError: Export cancelled by user"));
-            return;
-          }
-        }
-
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const percent = Math.round((e.loaded / e.total) * 50);
-                if (onProgress) onProgress(percent, 100, "Uploading: " + Math.round((e.loaded / 1024 / 1024)) + "MB sent");
-            }
-        };
-
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                if (onProgress) onProgress(100, 100, "Download Ready");
-                resolve(xhr.response);
-            } else {
-                const rejectWithStatus = (payload) => {
-                    const bodyText = String(payload ?? "");
-                    reject(new Error("HttpError: Status " + xhr.status + " - " + bodyText));
-                };
-                try {
-                    if (xhr.responseType === "blob") {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            rejectWithStatus(reader.result);
-                        };
-                        reader.readAsText(xhr.response);
-                    } else {
-                        rejectWithStatus(xhr.responseText);
-                    }
-                } catch (e) {
-                    reject(new Error("HttpError: Status " + xhr.status + " - Backend returned status"));
-                }
-            }
-        };
-
-        xhr.onerror = () => {
-            reject(new Error("NetworkError: Export upload failed to " + backendUrl + "/api/project/create-tour-package. The backend may be unreachable."));
-        };
-        xhr.ontimeout = () => reject(new Error("TimeoutError: Export upload timed out after 5 minutes. Try with fewer scenes or a faster connection."));
-
-        xhr.upload.onload = () => {
-            if (onProgress) onProgress(50, 100, "Processing on Server (Please Wait)...");
-        };
-
-        xhr.responseType = "blob";
-        xhr.send(formData);
-    });
-  }
-`)
-
-let throwableMessageRaw: 'a => string = %raw(`
-  function(e) {
-    try {
-      if (e == null) return "";
-      if (typeof e === "string") return e;
-      if (e instanceof Error) return e.message || String(e);
-      if (typeof e.message === "string" && e.message.length > 0) return e.message;
-      if (typeof e === "object") {
-        try {
-          return JSON.stringify(e);
-        } catch (_) {
-          return String(e);
-        }
-      }
-      return String(e);
-    } catch (_) {
-      return "";
-    }
-  }
-`)
-
-let normalizeThrowableMessage = (exn: exn): string => {
-  let (msg, _) = Logger.getErrorDetails(exn)
-  if msg != "" && msg != "Unknown JS Error" && msg != "Unknown Error" {
-    msg
-  } else {
-    let fallback = throwableMessageRaw(exn)
-    if fallback != "" {
-      fallback
-    } else {
-      "Unexpected export error"
-    }
-  }
-}
-
-let isUnauthorizedHttpError = (msg: string): bool => {
-  String.includes(msg, "HttpError: Status 401")
-}
-
-let extractHttpErrorBody = (msg: string): string => {
-  let parts = String.split(msg, " - ")
-  if Belt.Array.length(parts) > 1 {
-    Belt.Array.get(parts, 1)->Option.getOr(msg)
-  } else {
-    msg
-  }
-}
-
-let backendOfflineExportMessage = () =>
-  "Export backend is unreachable at " ++
-  Constants.backendUrl ++ ". Start backend server (`npm run dev:backend`) and retry."
-
-let fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<
-  Blob.t,
-  string,
-> => {
-  try {
-    let headers = Dict.make()
-    authToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
-    let response = await Fetch.fetch(url, Fetch.requestInit(~method="GET", ~headers, ()))
-    if Fetch.ok(response) {
-      let b = await Fetch.blob(response)
-      Ok(b)
-    } else {
-      let body = await Fetch.text(response)
-      Error("HttpError: Status " ++ Belt.Int.toString(Fetch.status(response)) ++ " - " ++ body)
-    }
-  } catch {
-  | exn => {
-      let msg = normalizeThrowableMessage(exn)
-      Error("Failed to fetch scene asset: " ++ msg)
-    }
-  }
-}
-
-let normalizeLogoExtension = (name: string): string => {
-  let parts = name->String.toLowerCase->String.split(".")
-  let ext = parts->Belt.Array.get(Array.length(parts) - 1)->Option.getOr("png")
-  switch ext {
-  | "png" | "jpg" | "jpeg" | "webp" | "svg" => ext
-  | _ => "png"
-  }
-}
-
-let filenameFromUrl = (url: string): option<string> => {
-  let cleaned = url->String.split("?")->Belt.Array.get(0)->Option.getOr(url)
-  let segments = cleaned->String.split("/")
-  let fileName = segments->Belt.Array.get(Array.length(segments) - 1)->Option.getOr("")
-  if fileName == "" {
-    None
-  } else {
-    Some(fileName)
-  }
-}
-
-let isLikelyImageUrl = (url: string): bool => {
-  let lowered = url->String.toLowerCase
-  String.includes(lowered, ".png") ||
-  String.includes(lowered, ".jpg") ||
-  String.includes(lowered, ".jpeg") ||
-  String.includes(lowered, ".webp") ||
-  String.includes(lowered, ".svg")
-}
-
-let isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {
-  let mime = blob->Blob.type_->String.toLowerCase
-  if String.startsWith(mime, "image/") {
-    true
-  } else {
-    switch (mime, urlHint) {
-    | ("", Some(url)) => isLikelyImageUrl(url)
-    | _ => false
-    }
-  }
-}
+/* --- Main Logic --- */
 
 let exportTour = async (
   scenes: array<scene>,
@@ -253,8 +47,6 @@ let exportTour = async (
   }
   let safeName = tourName->String.replaceRegExp(/[^a-z0-9]/gi, "_")->String.toLowerCase
 
-  // Progress starts after confirmation in higher level?
-  // For Export it starts immediately because there is no file picker BEFORE upload.
   progress(0.0, 100.0, "Preparing assets...")
   let exportStartTime = Date.now()
   let currentPhase = ref("INITIAL")
