@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exports: Tune lazy drift responsiveness and dampening
 - Exports: Lazy Drift navigation with premium damping
 - Exports: Tweak lazy drift stop distance to 50px
+- Refine export visuals: 4k logo sizing, 2k window support, and pannellum spinner color
 
 ## [4.14.0] - 2026-02-17
 
