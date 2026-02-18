@@ -1,6 +1,12 @@
 {
-  "system": [],
   "rescript": [
+    {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
     {
       "Surgical": {
         "file": "../../src/systems/TourTemplates.res",
@@ -38,6 +44,88 @@
                 }
               ],
               "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.485,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/ProjectManager.res",
+              "functions": [
+                {
+                  "name": "validationReportWrapperDecoder",
+                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 21
+                },
+                {
+                  "name": "validateProjectStructure",
+                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+                  "line": 25
+                },
+                {
+                  "name": "createSavePackage",
+                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+                  "line": 29
+                },
+                {
+                  "name": "processLoadedProjectData",
+                  "signature": "processLoadedProjectData = (",
+                  "line": 35
+                },
+                {
+                  "name": "loadProjectZip",
+                  "signature": "loadProjectZip = (",
+                  "line": 43
+                },
+                {
+                  "name": "saveRecoveryContextDecoder",
+                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
+                  "line": 56
+                },
+                {
+                  "name": "updateSaveContext",
+                  "signature": "updateSaveContext = (",
+                  "line": 65
+                },
+                {
+                  "name": "classifySaveError",
+                  "signature": "classifySaveError = (msg: string) => {",
+                  "line": 85
+                },
+                {
+                  "name": "notifySaveFailure",
+                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
+                  "line": 113
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
+                  "line": 127
+                },
+                {
+                  "name": "recoverSaveProject",
+                  "signature": "recoverSaveProject = (",
+                  "line": 324
+                },
+                {
+                  "name": "loadProject",
+                  "signature": "loadProject = (",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
             }
           ]
         }
@@ -221,95 +309,6 @@
           ]
         }
       }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.485,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/ProjectManager.res",
-              "functions": [
-                {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 21
-                },
-                {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 25
-                },
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 29
-                },
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 35
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (",
-                  "line": 43
-                },
-                {
-                  "name": "saveRecoveryContextDecoder",
-                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
-                  "line": 56
-                },
-                {
-                  "name": "updateSaveContext",
-                  "signature": "updateSaveContext = (",
-                  "line": 65
-                },
-                {
-                  "name": "classifySaveError",
-                  "signature": "classifySaveError = (msg: string) => {",
-                  "line": 85
-                },
-                {
-                  "name": "notifySaveFailure",
-                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
-                  "line": 113
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
-                  "line": 127
-                },
-                {
-                  "name": "recoverSaveProject",
-                  "signature": "recoverSaveProject = (",
-                  "line": 324
-                },
-                {
-                  "name": "loadProject",
-                  "signature": "loadProject = (",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
-            }
-          ]
-        }
-      }
     }
   ],
   "rust": [
@@ -400,5 +399,6 @@
         }
       }
     }
-  ]
+  ],
+  "system": []
 }

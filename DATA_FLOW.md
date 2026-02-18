@@ -350,5 +350,8 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 backend/src/api
+- `[backend/src/api/health.rs]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
