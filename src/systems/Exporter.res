@@ -163,8 +163,7 @@ let extractHttpErrorBody = (msg: string): string => {
 
 let backendOfflineExportMessage = () =>
   "Export backend is unreachable at " ++
-  Constants.backendUrl ++
-  ". Start backend server (`npm run dev:backend`) and retry."
+  Constants.backendUrl ++ ". Start backend server (`npm run dev:backend`) and retry."
 
 let fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<
   Blob.t,
@@ -531,8 +530,7 @@ let exportTour = async (
         let isLegacyNetworkOffline = String.includes(msg, "NetworkOffline")
         let isAbort = String.includes(msg, "AbortError")
         let isUnauthorized = isUnauthorizedHttpError(msg)
-        let isTransportNetworkError =
-          String.includes(msg, "NetworkError") || isLegacyNetworkOffline
+        let isTransportNetworkError = String.includes(msg, "NetworkError") || isLegacyNetworkOffline
         let backendStillReachable = if isTransportNetworkError {
           await Resizer.checkBackendHealth()
         } else {
