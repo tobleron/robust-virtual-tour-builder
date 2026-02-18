@@ -1,226 +1,6 @@
 {
   "system": [],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.07, Coupling: 0.03] | Drag: 4.72 | LOC: 495/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 24.21919191919192,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/project_logic.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/project_logic.rs",
-              "functions": [
-                {
-                  "name": "extract_sanitized_filename",
-                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
-                  "line": 14
-                },
-                {
-                  "name": "is_active_inventory_entry",
-                  "signature": "fn is_active_inventory_entry(entry: &Value) -> bool {",
-                  "line": 47
-                },
-                {
-                  "name": "collect_scene_file_references",
-                  "signature": "fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {",
-                  "line": 59
-                },
-                {
-                  "name": "collect_referenced_project_files",
-                  "signature": "fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {",
-                  "line": 75
-                },
-                {
-                  "name": "extract_project_metadata_from_zip",
-                  "signature": "pub fn extract_project_metadata_from_zip(",
-                  "line": 100
-                },
-                {
-                  "name": "list_available_files",
-                  "signature": "pub fn list_available_files(project_path: &Path) -> HashSet<String> {",
-                  "line": 126
-                },
-                {
-                  "name": "extract_zip_to_project_dir",
-                  "signature": "pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), String> {",
-                  "line": 147
-                },
-                {
-                  "name": "generate_project_summary",
-                  "signature": "pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {",
-                  "line": 188
-                },
-                {
-                  "name": "create_project_zip_sync",
-                  "signature": "pub fn create_project_zip_sync(",
-                  "line": 268
-                },
-                {
-                  "name": "validate_project_full_sync",
-                  "signature": "pub fn validate_project_full_sync(",
-                  "line": 328
-                },
-                {
-                  "name": "test_extract_zip_path_traversal",
-                  "signature": "fn test_extract_zip_path_traversal() {",
-                  "line": 364
-                },
-                {
-                  "name": "test_extract_zip_sanitizes_components",
-                  "signature": "fn test_extract_zip_sanitizes_components() {",
-                  "line": 391
-                },
-                {
-                  "name": "test_create_project_zip_sync_includes_inventory_active_scene_files",
-                  "signature": "fn test_create_project_zip_sync_includes_inventory_active_scene_files() {",
-                  "line": 426
-                }
-              ],
-              "fingerprint": "3ade8537449931c38700d825f76779b33158d675ba88a35f894311bdef96913d"
-            }
-          ]
-        }
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.485,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/ProjectManager.res",
-              "functions": [
-                {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 21
-                },
-                {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 25
-                },
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 29
-                },
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 35
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (",
-                  "line": 43
-                },
-                {
-                  "name": "saveRecoveryContextDecoder",
-                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
-                  "line": 56
-                },
-                {
-                  "name": "updateSaveContext",
-                  "signature": "updateSaveContext = (",
-                  "line": 65
-                },
-                {
-                  "name": "classifySaveError",
-                  "signature": "classifySaveError = (msg: string) => {",
-                  "line": 85
-                },
-                {
-                  "name": "notifySaveFailure",
-                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
-                  "line": 113
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
-                  "line": 127
-                },
-                {
-                  "name": "recoverSaveProject",
-                  "signature": "recoverSaveProject = (",
-                  "line": 324
-                },
-                {
-                  "name": "loadProject",
-                  "signature": "loadProject = (",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1226/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 97.31663947797716,
-        "recommended_splits": 5,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates.res",
-              "functions": [
-                {
-                  "name": "indexTemplate",
-                  "signature": "indexTemplate = `<!DOCTYPE html>",
-                  "line": 9
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
-                  "line": 43
-                },
-                {
-                  "name": "generateEmbedCodes",
-                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1304
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1305
-                }
-              ],
-              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
-            }
-          ]
-        }
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/systems/Exporter.res",
@@ -405,6 +185,226 @@
                 }
               ],
               "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.02] | Drag: 4.69 | LOC: 1603/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 134.98920773549597,
+        "recommended_splits": 6,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates.res",
+              "functions": [
+                {
+                  "name": "indexTemplate",
+                  "signature": "indexTemplate = `<!DOCTYPE html>",
+                  "line": 9
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
+                  "line": 43
+                },
+                {
+                  "name": "generateEmbedCodes",
+                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
+                  "line": 1681
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = Assets.generateExportIndex",
+                  "line": 1682
+                }
+              ],
+              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.485,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/ProjectManager.res",
+              "functions": [
+                {
+                  "name": "validationReportWrapperDecoder",
+                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 21
+                },
+                {
+                  "name": "validateProjectStructure",
+                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+                  "line": 25
+                },
+                {
+                  "name": "createSavePackage",
+                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+                  "line": 29
+                },
+                {
+                  "name": "processLoadedProjectData",
+                  "signature": "processLoadedProjectData = (",
+                  "line": 35
+                },
+                {
+                  "name": "loadProjectZip",
+                  "signature": "loadProjectZip = (",
+                  "line": 43
+                },
+                {
+                  "name": "saveRecoveryContextDecoder",
+                  "signature": "saveRecoveryContextDecoder = JsonCombinators.Json.Decode.object((",
+                  "line": 56
+                },
+                {
+                  "name": "updateSaveContext",
+                  "signature": "updateSaveContext = (",
+                  "line": 65
+                },
+                {
+                  "name": "classifySaveError",
+                  "signature": "classifySaveError = (msg: string) => {",
+                  "line": 85
+                },
+                {
+                  "name": "notifySaveFailure",
+                  "signature": "notifySaveFailure = (~message: string, ~details: string) => {",
+                  "line": 113
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
+                  "line": 127
+                },
+                {
+                  "name": "recoverSaveProject",
+                  "signature": "recoverSaveProject = (",
+                  "line": 324
+                },
+                {
+                  "name": "loadProject",
+                  "signature": "loadProject = (",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "9b4e84d0baee8f570fe024565bde5d4a0fe2ff4844ccf48261a72e528f2643d6"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.07, Coupling: 0.03] | Drag: 4.72 | LOC: 495/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 24.21919191919192,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/project_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/project_logic.rs",
+              "functions": [
+                {
+                  "name": "extract_sanitized_filename",
+                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
+                  "line": 14
+                },
+                {
+                  "name": "is_active_inventory_entry",
+                  "signature": "fn is_active_inventory_entry(entry: &Value) -> bool {",
+                  "line": 47
+                },
+                {
+                  "name": "collect_scene_file_references",
+                  "signature": "fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {",
+                  "line": 59
+                },
+                {
+                  "name": "collect_referenced_project_files",
+                  "signature": "fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {",
+                  "line": 75
+                },
+                {
+                  "name": "extract_project_metadata_from_zip",
+                  "signature": "pub fn extract_project_metadata_from_zip(",
+                  "line": 100
+                },
+                {
+                  "name": "list_available_files",
+                  "signature": "pub fn list_available_files(project_path: &Path) -> HashSet<String> {",
+                  "line": 126
+                },
+                {
+                  "name": "extract_zip_to_project_dir",
+                  "signature": "pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), String> {",
+                  "line": 147
+                },
+                {
+                  "name": "generate_project_summary",
+                  "signature": "pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {",
+                  "line": 188
+                },
+                {
+                  "name": "create_project_zip_sync",
+                  "signature": "pub fn create_project_zip_sync(",
+                  "line": 268
+                },
+                {
+                  "name": "validate_project_full_sync",
+                  "signature": "pub fn validate_project_full_sync(",
+                  "line": 328
+                },
+                {
+                  "name": "test_extract_zip_path_traversal",
+                  "signature": "fn test_extract_zip_path_traversal() {",
+                  "line": 364
+                },
+                {
+                  "name": "test_extract_zip_sanitizes_components",
+                  "signature": "fn test_extract_zip_sanitizes_components() {",
+                  "line": 391
+                },
+                {
+                  "name": "test_create_project_zip_sync_includes_inventory_active_scene_files",
+                  "signature": "fn test_create_project_zip_sync_includes_inventory_active_scene_files() {",
+                  "line": 426
+                }
+              ],
+              "fingerprint": "3ade8537449931c38700d825f76779b33158d675ba88a35f894311bdef96913d"
             }
           ]
         }
