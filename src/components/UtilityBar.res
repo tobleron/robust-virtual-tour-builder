@@ -147,40 +147,46 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
       </Shadcn.Button>
     </Tooltip>
 
-    <Tooltip
-      alignment=#Right
-      content={if simActive {
-        "Stop tour preview"
-      } else {
-        "Tour preview"
-      }}
-      disabled={isLinking}
-    >
-      <Shadcn.Button
-        size="icon"
-        variant={if !scenesLoaded {
-          "secondary"
-        } else {
-          "destructive"
-        }}
-        className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
-        onClick={handleSimClick}
-        disabled={isLinking && !simActive}
-        ariaLabel={if simActive {
-          "Stop Tour Preview"
-        } else {
-          "Tour Preview"
-        }}
-      >
-        {if simActive {
-          <LucideIcons.Square size=18 strokeWidth=3.0 />
-        } else {
-          <LucideIcons.Play size=18 strokeWidth=3.0 />
-        }}
-      </Shadcn.Button>
-    </Tooltip>
+    {if !isLinking {
+      <>
+        <Tooltip
+          alignment=#Right
+          content={if simActive {
+            "Stop tour preview"
+          } else {
+            "Tour preview"
+          }}
+          disabled={isLinking}
+        >
+          <Shadcn.Button
+            size="icon"
+            variant={if !scenesLoaded {
+              "secondary"
+            } else {
+              "destructive"
+            }}
+            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
+            onClick={handleSimClick}
+            disabled={isLinking && !simActive}
+            ariaLabel={if simActive {
+              "Stop Tour Preview"
+            } else {
+              "Tour Preview"
+            }}
+          >
+            {if simActive {
+              <LucideIcons.Square size=18 strokeWidth=3.0 />
+            } else {
+              <LucideIcons.Play size=18 strokeWidth=3.0 />
+            }}
+          </Shadcn.Button>
+        </Tooltip>
 
-    <ViewerLabelMenu scenesLoaded isLinking />
+        <ViewerLabelMenu scenesLoaded isLinking />
+      </>
+    } else {
+      React.null
+    }}
   </>
 
   <>
