@@ -2,6 +2,7 @@ use crate::auth;
 use actix_web::web;
 
 pub mod geocoding;
+pub mod health;
 pub mod media;
 pub mod project;
 pub mod project_logic;
@@ -60,6 +61,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
                         web::get().to(media::serve_project_file),
                     ),
             )
-            .route("/quota/stats", web::get().to(utils::quota_stats)),
+            .route("/quota/stats", web::get().to(utils::quota_stats))
+            .route("/health", web::get().to(health::health_check)),
     );
 }
