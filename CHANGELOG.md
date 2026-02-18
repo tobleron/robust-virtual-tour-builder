@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.16.3] - 2026-02-18
+
+### Changed
+- Fix(network): Active probing for offline detection on LAN (Task T1465)
+
 ## [4.16.1] - 2026-02-18
 
 ### Changed
 - Fix(export): disable looking mode during scene animations
+- Fix(network): implement active probing for offline detection to resolve unreliability on LAN
 
 ## [4.16.0] - 2026-02-18
 

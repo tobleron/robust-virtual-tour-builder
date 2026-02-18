@@ -375,3 +375,6 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 *(None currently - all detected modules have been classified and integrated.)*
+
+## 🆕 Unmapped Modules
+* [backend/src/api/health.rs](backend/src/api/health.rs): New module detected. Please classify. #new
