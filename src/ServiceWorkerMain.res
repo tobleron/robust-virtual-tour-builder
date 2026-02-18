@@ -88,7 +88,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav"
+  "/sounds/click.wav",
 ]
 
 let fetchWithTimeout = (request, timeoutMs) => {
