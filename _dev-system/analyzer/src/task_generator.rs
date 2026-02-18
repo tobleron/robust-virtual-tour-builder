@@ -51,20 +51,29 @@ struct BaselineInfo {
     report_relative: PathBuf,
 }
 
-/// Generate strategic directive for a work unit
+/// Extract the base strategy text for a surgical work unit (without split count)
+fn surgical_base_strategy(reason: &str) -> &'static str {
+    if reason.contains("Nesting") && reason.contains("Density") {
+        "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions."
+    } else if reason.contains("Nesting") {
+        "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching."
+    } else if reason.contains("Density") {
+        "Extract Service Logic: Move complex calculations or data transformations into specialized sub-modules."
+    } else {
+        "De-bloat: Reduce module size by identifying and extracting independent domain logic."
+    }
+}
+
+/// Generate strategic directive for a work unit (full version with split count, used in metadata/JSON)
 pub fn generate_strategic_directive(unit: &WorkUnit) -> String {
     match unit {
         WorkUnit::Surgical { reason, recommended_splits, .. } => {
-            let base = if reason.contains("Nesting") && reason.contains("Density") {
-                "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions."
-            } else if reason.contains("Nesting") {
-                "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching."
-            } else if reason.contains("Density") {
-                "Extract Service Logic: Move complex calculations or data transformations into specialized sub-modules."
+            let base = surgical_base_strategy(reason);
+            if *recommended_splits > 1 {
+                format!("{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules to respect the Read Tax (avg 300 LOC/module).", base, recommended_splits)
             } else {
-                "De-bloat: Reduce module size by identifying and extracting independent domain logic."
-            };
-            format!("{} 🏗️ ARCHITECTURAL TARGET: Split into exactly {} cohesive modules to respect the Read Tax (avg 300 LOC/module).", base, recommended_splits)
+                format!("{} Refactor in-place to reduce drag score.", base)
+            }
         },
         WorkUnit::Merge { folder, .. } => {
             let folder_name = Path::new(folder).file_name()
@@ -553,14 +562,21 @@ pub fn sync_all_architectural_tasks(
 
             for (action, mut items) in action_groups {
                 items.sort_by(|a, b| a.0.cmp(&b.0));
-                let strategy = &items[0].2;
+                // Use the base strategy (without split count) for the shared header
+                let base_strategy = surgical_base_strategy(&items[0].1);
                 lines.push(format!(
                     "\n### 🔧 Action: {}\n**Directive:** {}\n",
-                    action, strategy
+                    action, base_strategy
                 ));
 
-                for (file, reason, _, _, maybe_bundle) in &items {
-                    let entry = format!("- **{}** (Metric: {})\n", file, reason);
+                for (file, reason, _, splits, maybe_bundle) in &items {
+                    // Embed per-file split recommendation inline
+                    let split_note = if *splits > 1 {
+                        format!(" → 🏗️ Split into {} modules (target ~300 LOC each)", splits)
+                    } else {
+                        " → Refactor in-place".to_string()
+                    };
+                    let entry = format!("- **{}** (Metric: {}){}\n", file, reason, split_note);
                     lines.push(entry);
                     if let Some(bundle) = maybe_bundle {
                         domain_verification.push(bundle.clone());

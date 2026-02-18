@@ -13,13 +13,13 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ## Tasks
 
 ### 🔧 Action: De-bloat
-**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions. 🏗️ ARCHITECTURAL TARGET: Split into exactly 2 cohesive modules to respect the Read Tax (avg 300 LOC/module).
+**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.11, Coupling: 0.06] | Drag: 3.52 | LOC: 592/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.))
+- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.11, Coupling: 0.06] | Drag: 3.52 | LOC: 592/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.))
+- [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.72 | LOC: 1226/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.))
+- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.09, Coupling: 0.02] | Drag: 4.69 | LOC: 1603/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)) → 🏗️ Split into 6 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -69,7 +69,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TourTemplates.res`
 - `src/systems/TourTemplates.res` (4 functions, fingerprint 304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c)
     - Grouped summary:
-        - generateEmbedCodes × 1 (lines: 1304)
-        - generateExportIndex × 2 (lines: 43, 1305)
+        - generateEmbedCodes × 1 (lines: 1681)
+        - generateExportIndex × 2 (lines: 43, 1682)
         - indexTemplate × 1 (lines: 9)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

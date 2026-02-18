@@ -82,6 +82,17 @@ module Styles = {
     .viewer-persistent-label-export { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); z-index: 6005; background-color: rgba(0, 61, 165, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; padding: 0 0.5rem; height: 27px; border-radius: 6px; font-family: var(--font-family); font-size: 11px; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; border: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 0.1em; white-space: nowrap; }
     .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); visibility: visible; }
     .viewer-persistent-label-export.state-hidden { opacity: 0; transform: translateX(-50%) translateY(-1rem) scale(0.9); visibility: hidden; pointer-events: none; }
+    .viewer-persistent-label-export.state-shortcut-animate { animation: room-label-shortcut-rise 0.42s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes room-label-shortcut-rise {
+      0% { opacity: 0.25; transform: translateX(-50%) translateY(10px) scale(0.94); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+    #viewer-floor-tags-export { position: relative; z-index: 6006; width: min(154px, calc(100vw - 52px)); display: flex; flex-direction: column; align-items: stretch; gap: 6px; pointer-events: auto; user-select: none; margin-top: 10px; }
+    #viewer-floor-tags-export.state-hidden { display: none; }
+    #viewer-floor-tags-export .floor-tag-shortcut-row { width: 100%; display: grid; grid-template-columns: 1.45em minmax(0, 1fr); align-items: start; justify-items: start; column-gap: 6px; color: #fff; font-family: var(--font-family); font-size: 14px; font-weight: 400; line-height: 1.25; font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.52); border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; }
+    #viewer-floor-tags-export .floor-tag-shortcut-row:hover { opacity: 0.88; }
+    #viewer-floor-tags-export .floor-tag-shortcut-index { font-weight: 700; text-align: left; }
+    #viewer-floor-tags-export .floor-tag-shortcut-label { font-weight: 400; letter-spacing: 0.01em; text-transform: none; text-align: left; white-space: normal; overflow-wrap: anywhere; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
@@ -111,6 +122,8 @@ module Styles = {
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
     body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    body.is-hd-export #viewer-floor-tags-export, body.export-state-tablet #viewer-floor-tags-export, body.export-state-portrait #viewer-floor-tags-export { width: min(113px, calc(100vw - 24px)); gap: 3px; margin-top: 7px; }
+    body.is-hd-export #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-tablet #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-portrait #viewer-floor-tags-export .floor-tag-shortcut-row { font-size: 11px; grid-template-columns: 1.35em minmax(0, 1fr); column-gap: 4px; }
     body.is-hd-export .watermark, body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
 
     body.is-hd-export .export-hotspot-root, body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
@@ -121,17 +134,20 @@ module Styles = {
     .pnlm-grab { cursor: inherit !important; }
     .pnlm-grabbing { cursor: grabbing !important; }
     /* Looking Mode Indicator */
-    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: center; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; }
+    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: flex-start; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 10px 12px 24px 12px; min-height: 242px; border-radius: 12px; background: rgba(11, 20, 40, 0.24); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
     .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); transition: background-color 0.3s ease, box-shadow 0.3s ease; margin-top: 1px; }
     .mode-dot.paused { background-color: #f97316; box-shadow: 0 0 8px rgba(249, 115, 22, 0.4); }
     .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
     .mode-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
-    .mode-subtitle { font-size: 10px; font-weight: 500; opacity: 0.8; line-height: 1.2; }
+    .mode-subtitle { font-size: 11px; font-weight: 400; opacity: 0.86; line-height: 1.2; }
+    .mode-shortcut-key { font-size: 13px; font-weight: 700; }
     .pnlm-container.mode-paused { cursor: default !important; }
     .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
-    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; }
+    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; padding: 7px 8px 18px 8px; min-height: 180px; border-radius: 10px; gap: 8px; }
+    body.export-state-portrait .looking-mode-indicator { padding-bottom: 22px; min-height: 190px; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
-    body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 9px; }
+    body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 10px; }
+    body.is-hd-export .mode-shortcut-key, body.export-state-tablet .mode-shortcut-key, body.export-state-portrait .mode-shortcut-key { font-size: 12px; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
@@ -176,6 +192,16 @@ module Scripts = {
       { id: "fourth", label: "Fourth Floor", short: "+4", suffix: "" },
       { id: "roof", label: "Roof Top", short: "R", suffix: "" }
     ];
+    const FLOOR_TAG_SHORTCUT_PAGE_SIZE = 3;
+    let pendingShortcutLabelSceneId = null;
+    const floorTagShortcutState = {
+      sceneId: null,
+      floorId: null,
+      pageStart: 0,
+      totalEntries: 0,
+      hasMore: false,
+      visibleEntries: [],
+    };
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;
     const PAN_MAX_DURATION = 20000.0;
@@ -389,6 +415,10 @@ module Scripts = {
       const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
       return floor === "" ? null : floor;
     }
+    function normalizeSceneLabel(sceneData) {
+      const label = typeof sceneData?.label === "string" ? sceneData.label.trim() : "";
+      return label === "" ? null : label;
+    }
     function getExportFloorLevelsInUse() {
       const activeFloorIds = new Set();
       if (scenesData && typeof scenesData === "object") {
@@ -420,19 +450,333 @@ module Scripts = {
         nav.appendChild(btn);
       }
     }
-    function updateExportRoomLabel(sceneId) {
+    function updateExportRoomLabel(sceneId, animateOnShow) {
       const labelEl = document.getElementById("viewer-room-label-export");
       if (!labelEl) return;
+      labelEl.classList.remove("state-shortcut-animate");
       const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
       if (rawLabel !== "") {
         labelEl.textContent = "# " + rawLabel;
         labelEl.classList.remove("state-hidden");
         labelEl.classList.add("state-visible");
+        if (animateOnShow === true) {
+          void labelEl.offsetWidth;
+          labelEl.classList.add("state-shortcut-animate");
+        }
         return;
       }
       labelEl.textContent = "";
+      labelEl.classList.remove("state-shortcut-animate");
       labelEl.classList.remove("state-visible");
       labelEl.classList.add("state-hidden");
+    }
+    function clearExportFloorTagShortcuts(panel) {
+      floorTagShortcutState.totalEntries = 0;
+      floorTagShortcutState.hasMore = false;
+      floorTagShortcutState.visibleEntries = [];
+      if (!panel) return;
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.add("state-hidden");
+    }
+    function buildFloorTagEntries(sceneId) {
+      const activeFloorId = normalizeSceneFloor(scenesData?.[sceneId]);
+      if (!activeFloorId) return { floorId: null, entries: [] };
+      const entries = [];
+      for (const [candidateSceneId, candidateSceneData] of Object.entries(scenesData || {})) {
+        if (candidateSceneId === sceneId) continue;
+        if (normalizeSceneFloor(candidateSceneData) !== activeFloorId) continue;
+        const label = normalizeSceneLabel(candidateSceneData);
+        if (!label) continue;
+        entries.push({ sceneId: candidateSceneId, label: label });
+      }
+      return { floorId: activeFloorId, entries: entries };
+    }
+    function navigateToFloorTagShortcut(targetSceneId) {
+      if (!window.viewer || typeof window.viewer.getScene !== "function") return;
+      const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
+      if (!resolvedTargetSceneId) return;
+      if (window.viewer.getScene() === resolvedTargetSceneId) {
+        pendingShortcutLabelSceneId = resolvedTargetSceneId;
+        updateExportRoomLabel(resolvedTargetSceneId, true);
+        pendingShortcutLabelSceneId = null;
+        updateExportFloorTagShortcuts(resolvedTargetSceneId, true);
+        return;
+      }
+      pendingShortcutLabelSceneId = resolvedTargetSceneId;
+      navigateToNextScene({ targetSceneId: resolvedTargetSceneId }, resolvedTargetSceneId);
+    }
+    function cycleExportFloorTagShortcutPage() {
+      if (!floorTagShortcutState.hasMore) return;
+      if (!floorTagShortcutState.sceneId) return;
+      const total = floorTagShortcutState.totalEntries;
+      if (total <= FLOOR_TAG_SHORTCUT_PAGE_SIZE) return;
+      floorTagShortcutState.pageStart =
+        (floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE) % total;
+      updateExportFloorTagShortcuts(floorTagShortcutState.sceneId, false);
+    }
+    function updateExportFloorTagShortcuts(sceneId, resetPage) {
+      const panel = document.getElementById("viewer-floor-tags-export");
+      if (!panel) return;
+      const sceneEntries = buildFloorTagEntries(sceneId);
+      const floorId = sceneEntries.floorId;
+      const entries = sceneEntries.entries;
+      const previousFloorId = floorTagShortcutState.floorId;
+      const previousSceneId = floorTagShortcutState.sceneId;
+      const shouldResetPage =
+        resetPage === true ||
+        previousFloorId !== floorId ||
+        previousSceneId !== sceneId;
+      floorTagShortcutState.sceneId = sceneId;
+      floorTagShortcutState.floorId = floorId;
+      if (!floorId || entries.length === 0) {
+        floorTagShortcutState.pageStart = 0;
+        clearExportFloorTagShortcuts(panel);
+        return;
+      }
+      if (shouldResetPage) floorTagShortcutState.pageStart = 0;
+      const total = entries.length;
+      if (floorTagShortcutState.pageStart >= total) floorTagShortcutState.pageStart = 0;
+      const visibleEntries = entries.slice(
+        floorTagShortcutState.pageStart,
+        floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE,
+      );
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("state-hidden");
+      visibleEntries.forEach((entry, index) => {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "floor-tag-shortcut-row";
+        row.setAttribute("aria-label", "Shortcut " + String(index + 1) + " " + entry.label);
+        row.addEventListener("click", () => navigateToFloorTagShortcut(entry.sceneId));
+        const indexEl = document.createElement("span");
+        indexEl.className = "floor-tag-shortcut-index";
+        indexEl.textContent = String(index + 1);
+        const labelEl = document.createElement("span");
+        labelEl.className = "floor-tag-shortcut-label";
+        labelEl.textContent = entry.label;
+        row.appendChild(indexEl);
+        row.appendChild(labelEl);
+        panel.appendChild(row);
+      });
+      const hasMore = total > FLOOR_TAG_SHORTCUT_PAGE_SIZE;
+      if (hasMore) {
+        const moreRow = document.createElement("button");
+        moreRow.type = "button";
+        moreRow.className = "floor-tag-shortcut-row";
+        moreRow.setAttribute("aria-label", "More shortcuts");
+        moreRow.addEventListener("click", () => cycleExportFloorTagShortcutPage());
+        const moreIndex = document.createElement("span");
+        moreIndex.className = "floor-tag-shortcut-index";
+        moreIndex.textContent = "m";
+        const moreLabel = document.createElement("span");
+        moreLabel.className = "floor-tag-shortcut-label";
+        moreLabel.textContent = "more";
+        moreRow.appendChild(moreIndex);
+        moreRow.appendChild(moreLabel);
+        panel.appendChild(moreRow);
+      }
+      floorTagShortcutState.totalEntries = total;
+      floorTagShortcutState.hasMore = hasMore;
+      floorTagShortcutState.visibleEntries = visibleEntries;
+    }
+    function getExportUIMetrics() {
+      const compact =
+        document.body.classList.contains("is-hd-export") ||
+        document.body.classList.contains("export-state-tablet") ||
+        document.body.classList.contains("export-state-portrait");
+      return compact
+        ? {
+            floorBtnSize: 24,
+            floorGap: 8,
+            floorLeft: 8,
+            floorBottom: 10,
+            roomTop: 10,
+            roomHeight: 22,
+            roomFontSize: 9,
+            roomPaddingX: 6,
+            roomRadius: 5,
+          }
+        : {
+            floorBtnSize: 32,
+            floorGap: 8,
+            floorLeft: 20,
+            floorBottom: 24,
+            roomTop: 24,
+            roomHeight: 27,
+            roomFontSize: 11,
+            roomPaddingX: 8,
+            roomRadius: 6,
+          };
+    }
+    function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, strokeStyle, strokeWidth) {
+      const r = Math.max(0, Math.min(radius, Math.min(width, height) / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.arcTo(x + width, y, x + width, y + r, r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.arcTo(x + width, y + height, x + width - r, y + height, r);
+      ctx.lineTo(x + r, y + height);
+      ctx.arcTo(x, y + height, x, y + height - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+      if (fillStyle) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+      }
+      if (strokeStyle && strokeWidth > 0) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = strokeWidth;
+        ctx.stroke();
+      }
+    }
+    function drawExportRoomLabelToCanvas(ctx, sceneId, canvasWidth) {
+      const label = normalizeSceneLabel(scenesData?.[sceneId]);
+      if (!label) return;
+      const metrics = getExportUIMetrics();
+      const text = ("# " + label).toUpperCase();
+      ctx.save();
+      ctx.font = "600 " + String(metrics.roomFontSize) + "px Outfit, sans-serif";
+      const textWidth = ctx.measureText(text).width;
+      const boxWidth = textWidth + metrics.roomPaddingX * 2;
+      const boxX = Math.round((canvasWidth - boxWidth) / 2);
+      const boxY = metrics.roomTop;
+      drawRoundedRect(
+        ctx,
+        boxX,
+        boxY,
+        boxWidth,
+        metrics.roomHeight,
+        metrics.roomRadius,
+        "rgba(0, 61, 165, 0.85)",
+        "rgba(255, 255, 255, 0.1)",
+        1,
+      );
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, boxX + boxWidth / 2, boxY + metrics.roomHeight / 2 + 0.2);
+      ctx.restore();
+    }
+    function drawExportFloorNavToCanvas(ctx, sceneId, canvasHeight) {
+      const visibleFloorLevels = getExportFloorLevelsInUse();
+      if (!visibleFloorLevels.length) return;
+      const currentFloor = normalizeSceneFloor(scenesData?.[sceneId]);
+      const metrics = getExportUIMetrics();
+      const orderedLevels = visibleFloorLevels.slice().reverse();
+      ctx.save();
+      orderedLevels.forEach((level, index) => {
+        const size = metrics.floorBtnSize;
+        const x = metrics.floorLeft;
+        const y = canvasHeight - metrics.floorBottom - size - (index * (size + metrics.floorGap));
+        const isActive = level.id === currentFloor;
+        drawRoundedRect(
+          ctx,
+          x,
+          y,
+          size,
+          size,
+          size / 2,
+          isActive ? "#ea580c" : "rgba(128, 128, 128, 0.22)",
+          isActive ? "#ea580c" : "rgba(255, 255, 255, 0.28)",
+          isActive ? 2 : 1,
+        );
+        const label = (level.short ?? "") + (level.suffix ?? "");
+        ctx.fillStyle = "#ffffff";
+        ctx.font =
+          (metrics.floorBtnSize <= 24 ? "500 9px Outfit, sans-serif" : "500 15px Outfit, sans-serif");
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, x + size / 2, y + size / 2 + 0.2);
+      });
+      ctx.restore();
+    }
+    function drawImageContain(ctx, image, x, y, width, height) {
+      const iw = image.naturalWidth || image.width;
+      const ih = image.naturalHeight || image.height;
+      if (!iw || !ih || width <= 0 || height <= 0) return;
+      const scale = Math.min(width / iw, height / ih);
+      const drawW = iw * scale;
+      const drawH = ih * scale;
+      const drawX = x + (width - drawW) / 2;
+      const drawY = y + (height - drawH) / 2;
+      ctx.drawImage(image, drawX, drawY, drawW, drawH);
+    }
+    function drawExportLogoToCanvas(ctx, stageEl) {
+      const watermark = document.querySelector(".watermark");
+      if (!watermark || !stageEl) return;
+      const img = watermark.querySelector("img");
+      if (!img || !img.complete) return;
+      const stageRect = stageEl.getBoundingClientRect();
+      const logoRect = watermark.getBoundingClientRect();
+      const x = logoRect.left - stageRect.left;
+      const y = logoRect.top - stageRect.top;
+      const width = logoRect.width;
+      const height = logoRect.height;
+      if (width <= 0 || height <= 0) return;
+      const compact =
+        document.body.classList.contains("is-hd-export") ||
+        document.body.classList.contains("export-state-tablet") ||
+        document.body.classList.contains("export-state-portrait");
+      const pad = compact ? 2 : 6;
+      const radius = compact ? 6 : 8;
+      ctx.save();
+      drawRoundedRect(ctx, x, y, width, height, radius, "rgba(255, 255, 255, 0.1)", null, 0);
+      drawImageContain(ctx, img, x + pad, y + pad, width - (pad * 2), height - (pad * 2));
+      ctx.restore();
+    }
+    function renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, includeLogo) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(sourceCanvas, 0, 0, width, height);
+      drawExportRoomLabelToCanvas(ctx, sceneId, width);
+      drawExportFloorNavToCanvas(ctx, sceneId, height);
+      if (includeLogo) drawExportLogoToCanvas(ctx, stage);
+    }
+    function downloadScreenshotFromCanvas(outputCanvas, sceneId) {
+      const dataUrl = outputCanvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.href = dataUrl;
+      link.download = "tour-screenshot-" + sceneId + "-" + stamp + ".png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+    function triggerExportScreenshot() {
+      manualLookingMode = false;
+      lookingMode = false;
+      updateLookingModeUI();
+      requestAnimationFrame(() => {
+        const stage = document.getElementById("stage");
+        if (!stage) return;
+        const sourceCanvas = stage.querySelector("#panorama canvas") ?? stage.querySelector("canvas");
+        if (!(sourceCanvas instanceof HTMLCanvasElement)) return;
+        const width = Math.max(1, Math.round(stage.clientWidth));
+        const height = Math.max(1, Math.round(stage.clientHeight));
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = width;
+        outputCanvas.height = height;
+        const ctx = outputCanvas.getContext("2d");
+        if (!ctx) return;
+        const sceneId =
+          window.viewer && typeof window.viewer.getScene === "function"
+            ? window.viewer.getScene()
+            : firstSceneId;
+        renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, true);
+        try {
+          downloadScreenshotFromCanvas(outputCanvas, sceneId);
+          return;
+        } catch (_logoTaintError) {
+          try {
+            renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, false);
+            downloadScreenshotFromCanvas(outputCanvas, sceneId);
+            return;
+          } catch (_finalError) {
+            return;
+          }
+        }
+      });
     }
     function toPoint(yaw, pitch) {
       return { yaw, pitch };
@@ -684,8 +1028,8 @@ module Scripts = {
           }, 360);
         }
         
-        // Surgical: Restore looking mode preference
-        lookingMode = manualLookingMode;
+        // Keep Looking mode OFF when this scene auto-forwards immediately.
+        lookingMode = autoForward ? false : manualLookingMode;
         updateLookingModeUI();
       };
       waypointRuntime.animationId = requestAnimationFrame(tick);
@@ -708,8 +1052,38 @@ module Scripts = {
         lookingMode = manualLookingMode; 
         updateLookingModeUI(); 
     }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('keydown', (e) => { if (e.key === 'l' || e.key === 'L') toggleLookingMode(); });
+    function handleExportKeydown(e) {
+      if (!e || e.altKey || e.ctrlKey || e.metaKey) return;
+      const key = typeof e.key === "string" ? e.key : "";
+      if (key === "l" || key === "L") {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        toggleLookingMode();
+        return;
+      }
+      if (key === "s" || key === "S") {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        triggerExportScreenshot();
+        return;
+      }
+      if (key === "m" || key === "M") {
+        if (!floorTagShortcutState.hasMore) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        cycleExportFloorTagShortcutPage();
+        return;
+      }
+      if (!/^[1-3]$/.test(key)) return;
+      const index = Number(key) - 1;
+      const entry = floorTagShortcutState.visibleEntries[index];
+      if (!entry) return;
+      if (typeof e.preventDefault === "function") e.preventDefault();
+      if (typeof e.stopPropagation === "function") e.stopPropagation();
+      navigateToFloorTagShortcut(entry.sceneId);
+    }
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleExportKeydown, true);
     }
     
     /* --- LAZY DRIFT LOGIC --- */
@@ -935,7 +1309,10 @@ module Scripts = {
       if (sd?.hotSpots?.length > 0) applyCurrentHfov();
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);
-      updateExportRoomLabel(sid);
+      const animateRoomLabel = pendingShortcutLabelSceneId === sid;
+      updateExportRoomLabel(sid, animateRoomLabel);
+      pendingShortcutLabelSceneId = null;
+      updateExportFloorTagShortcuts(sid, true);
       updateExportStateClasses();
       updateLookingModeUI();
       clearWaypointRuntime();
@@ -1272,7 +1649,7 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle">(Click L to toggle)</div></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div><div class="mode-subtitle"><span class="mode-shortcut-key">S</span> for screenshot</div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
