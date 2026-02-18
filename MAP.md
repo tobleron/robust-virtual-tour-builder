@@ -95,6 +95,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/SimulationHelpers.res](src/core/SimulationHelpers.res): Advanced simulation waypoint and path helpers. `#helpers` `#simulation`
 *   [src/core/NavigationHelpers.res](src/core/NavigationHelpers.res): Transition and target-aware navigation helpers. `#helpers` `#navigation`
 *   [src/core/HotspotHelpers.res](src/core/HotspotHelpers.res): Hotspot placement and coordinate projection helpers. `#helpers` `#hotspots`
+*   [src/core/HotspotTarget.res](src/core/HotspotTarget.res): Normalized matching logic and resolver for hotspot targets and scene linking. `#helpers` `#hotspots` `#linking`
 
 
 ### 🌐 System Layer (Business Logic)
@@ -373,7 +374,4 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/visual-regression.spec.ts](tests/e2e/visual-regression.spec.ts): Visual regression and screenshot comparison suite. `#testing` `#e2e` `#visual`
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
-## 🆕 Unmapped Modules
-* [src/utils/NetworkStatus.res](src/utils/NetworkStatus.res): New module detected. Please classify. #new
-* [src/core/HotspotTarget.res](src/core/HotspotTarget.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

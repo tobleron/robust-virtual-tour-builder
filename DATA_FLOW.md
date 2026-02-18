@@ -16,6 +16,7 @@ User Click Event
   → [src/core/Actions.res] defines navigation action contracts dispatched by UI and systems
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
   → [src/systems/Navigation.res] and [src/systems/NavigationLogic.res] normalize/route navigation intents
+  → [src/core/HotspotTarget.res] resolves target scene IDs and canonical refs
   → [src/systems/Navigation/NavigationSupervisor.res] receives intent (auto-cancels previous task)
       → Creates AbortSignal for structured concurrency
       → dispatch(UserClickedScene) FSM event for UI reactivity
@@ -59,6 +60,7 @@ User file selection
   → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
+  → [src/utils/NetworkStatus.res] pre-checks connectivity before allowing upload
   → [src/systems/FingerprintService.res] calculates unique image hashes
   → [src/systems/ImageValidator.res] validates formats and dimensions
   → [src/systems/Resizer.res] performs client-side pre-processing
@@ -108,6 +110,7 @@ State changes
   → [src/core/AppStateBridge.res] notifies subscribers
   → [src/utils/PersistenceLayer.res] debounced save (2s)
   → [src/core/State.res] and [src/core/StateSnapshot.res] serialized by [src/core/JsonParsers.res], [src/core/JsonParsersEncoders.res], [src/core/JsonEncoders.res], and [src/core/JsonParsersShared.res]
+  → [src/utils/NetworkStatus.res] monitors connectivity to adjust persistence behavior
   → IndexedDB storage [src/bindings/IdbBindings.res]
 
 On startup ([src/Main.res]):
@@ -342,14 +345,10 @@ CI job
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
 
+(Utilities and Infrastructure modules are excluded from flow documentation by design)
+
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/core
-- `[src/core/HotspotTarget.res]`
-
-### 📂 src/utils
-- `[src/utils/NetworkStatus.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
