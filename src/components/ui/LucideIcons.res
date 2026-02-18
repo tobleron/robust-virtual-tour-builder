@@ -405,3 +405,13 @@ module WifiOff = {
     ~fill: string=?,
   ) => React.element = "WifiOff"
 }
+
+module Move = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Move"
+}

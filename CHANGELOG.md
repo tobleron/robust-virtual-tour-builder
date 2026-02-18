@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Stabilize hotspot auto-forward toggle reliability and export consistency
-- Stabilize hotspot auto-forward toggle reliability and export consistency
+- **Exports**: Implemented "Lazy Drift" navigation mode with Move cursor.
+- **Exports**: Snappier drift (2.2x speed) with premium fade-out damping when leaving viewer stage bounds (20% -> 0% over 300px) (not just window).
+- **Exports**: Added visual "Move" cursor (Lucide icon) to exported tours.
+- **Builder**: Added "Move" icon to internal Lucide library.
+- Exports: Tune lazy drift responsiveness and dampening
 
 ## [4.14.0] - 2026-02-17
 
