@@ -353,5 +353,20 @@ CI job
 ### 📂 backend/src/api
 - `[backend/src/api/health.rs]`
 
+### 📂 src/systems/Exporter
+- `[src/systems/Exporter/ExporterUpload.res]`
+- `[src/systems/Exporter/ExporterUtils.res]`
+
+### 📂 src/systems/ProjectManager
+- `[src/systems/ProjectManager/ProjectRecovery.res]`
+- `[src/systems/ProjectManager/ProjectSave.res]`
+- `[src/systems/ProjectManager/ProjectUtils.res]`
+
+### 📂 src/systems/TourTemplates
+- `[src/systems/TourTemplates/TourAssets.res]`
+- `[src/systems/TourTemplates/TourData.res]`
+- `[src/systems/TourTemplates/TourScripts.res]`
+- `[src/systems/TourTemplates/TourStyles.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

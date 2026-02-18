@@ -1,0 +1,1169 @@
+let renderScriptTemplate = `
+    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const DEFAULT_HFOV = __DEFAULT_HFOV__;
+    const MIN_HFOV = __MIN_HFOV__;
+    const MAX_HFOV = __MAX_HFOV__;
+    const STAGE_MIN_WIDTH = __STAGE_MIN_WIDTH__;
+    const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
+    const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
+    const IS_HD_EXPORT = __IS_HD_EXPORT__;
+    const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
+    let exportViewportState = "";
+    const EXPORT_FLOOR_LEVELS = [
+      { id: "b2", label: "Basement 2", short: "B", suffix: "-2" },
+      { id: "b1", label: "Basement 1", short: "B", suffix: "-1" },
+      { id: "ground", label: "Ground Floor", short: "G", suffix: "" },
+      { id: "first", label: "First Floor", short: "+1", suffix: "" },
+      { id: "second", label: "Second Floor", short: "+2", suffix: "" },
+      { id: "third", label: "Third Floor", short: "+3", suffix: "" },
+      { id: "fourth", label: "Fourth Floor", short: "+4", suffix: "" },
+      { id: "roof", label: "Roof Top", short: "R", suffix: "" }
+    ];
+    const FLOOR_TAG_SHORTCUT_PAGE_SIZE = 3;
+    let pendingShortcutLabelSceneId = null;
+    const floorTagShortcutState = {
+      sceneId: null,
+      floorId: null,
+      pageStart: 0,
+      totalEntries: 0,
+      hasMore: false,
+      visibleEntries: [],
+    };
+    const PAN_VELOCITY = 25.0;
+    const PAN_MIN_DURATION = 1000.0;
+    const PAN_MAX_DURATION = 20000.0;
+    const TRAPEZOID_FACTOR = 0.12;
+    const WAYPOINT_SMOOTHING_FACTOR = 0.3;
+    const SPLINE_SEGMENTS = 100;
+    function clearWaypointRuntime() {
+      if (waypointRuntime.animationId !== null) cancelAnimationFrame(waypointRuntime.animationId);
+      if (waypointRuntime.readyTimeoutId !== null) clearTimeout(waypointRuntime.readyTimeoutId);
+      if (waypointRuntime.autoForwardTimeoutId !== null) clearTimeout(waypointRuntime.autoForwardTimeoutId);
+      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.arrivedSceneId = null;
+    }
+    function normalizeYawDelta(fromYaw, toYaw) {
+      let delta = toYaw - fromYaw;
+      while (delta > 180) delta -= 360;
+      while (delta < -180) delta += 360;
+      return delta;
+    }
+    function normalizeYaw(yaw) {
+      let y = yaw % 360;
+      if (y > 180) y -= 360;
+      if (y < -180) y += 360;
+      return y;
+    }
+    function trapezoidal(t, factor) {
+      const vmax = 1.0 / (1.0 - factor);
+      if (t < factor) return 0.5 * (vmax / factor) * t * t;
+      if (t > 1.0 - factor) return 1.0 - 0.5 * (vmax / factor) * (1.0 - t) * (1.0 - t);
+      return vmax * (t - 0.5 * factor);
+    }
+    function resolveExportViewportState() {
+      const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
+      if (portraitViewport) return "portrait";
+      // Allow desktop mode if viewport is at least 60px wider than the stage max width
+      if (window.innerWidth >= (STAGE_MAX_WIDTH + 60)) return "desktop";
+      return "tablet";
+    }
+    function updateExportStateClasses() {
+      const nextState = resolveExportViewportState();
+      exportViewportState = nextState;
+      if (!document || !document.body) return nextState;
+      document.body.classList.remove("export-state-desktop");
+      document.body.classList.remove("export-state-tablet");
+      document.body.classList.remove("export-state-portrait");
+      document.body.classList.add("export-state-" + nextState);
+
+      if (typeof IS_HD_EXPORT === 'boolean' && IS_HD_EXPORT) {
+        document.body.classList.add("is-hd-export");
+      }
+
+      return nextState;
+    }
+    function getCurrentHfov() {
+      const state = exportViewportState === "" ? updateExportStateClasses() : exportViewportState;
+      return state === "portrait" ? MIN_HFOV : MAX_HFOV;
+    }
+    function applyCurrentHfov() {
+      updateExportStateClasses();
+      if (!window.viewer || typeof window.viewer.setHfov !== "function") return;
+      if (typeof window.viewer.resize === "function") window.viewer.resize();
+      window.viewer.setHfov(getCurrentHfov(), false);
+      // Double trigger to catch late layout paint
+      setTimeout(() => { if (window.viewer && window.viewer.resize) window.viewer.resize(); }, 50);
+    }
+    function getSceneHotspots(sceneId) {
+      return Array.from(document.querySelectorAll('.pnlm-hotspot.flat-arrow')).filter(el => el.dataset.ownerScene === sceneId);
+    }
+    function setSceneHotspotsPending(sceneId) {
+      getSceneHotspots(sceneId).forEach(el => {
+        el.classList.remove('waypoint-ready');
+        el.classList.add('waypoint-pending');
+        el.dataset.ready = 'false';
+      });
+    }
+    function setSceneHotspotsReady(sceneId) {
+      getSceneHotspots(sceneId).forEach(el => {
+        el.classList.remove('waypoint-pending');
+        el.classList.add('waypoint-ready');
+        el.dataset.ready = 'true';
+      });
+    }
+    function resolveDestinationView(args) {
+      let y = 90, p = 0;
+      if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
+      else { if (args.targetYaw !== undefined && args.targetYaw !== null) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
+      return { yaw: y, pitch: p };
+    }
+    function normalizeSceneId(candidate) {
+      if (typeof candidate !== "string") return null;
+      let value = candidate.trim();
+      if (!value) return null;
+      try { value = decodeURIComponent(value); } catch (_) {}
+      value = value.replaceAll("\\\\", "/");
+      if (value.startsWith("./")) value = value.slice(2);
+      if (value.startsWith("/")) value = value.slice(1);
+      if (value.startsWith("assets/images/")) value = value.slice("assets/images/".length);
+      value = value.trim();
+      return value.length > 0 ? value : null;
+    }
+    function stripSceneExtension(sceneId) {
+      const lower = sceneId.toLowerCase();
+      const exts = [".jpeg", ".jpg", ".png", ".webp", ".avif"];
+      for (const ext of exts) {
+        if (lower.endsWith(ext)) return sceneId.slice(0, sceneId.length - ext.length);
+      }
+      return sceneId;
+    }
+    function getExportSceneIds() {
+      if (scenesData && typeof scenesData === "object") {
+        const sceneIds = Object.keys(scenesData);
+        if (sceneIds.length > 0) return sceneIds;
+      }
+      if (config && config.scenes && typeof config.scenes === "object") {
+        return Object.keys(config.scenes);
+      }
+      return [];
+    }
+    function resolveExistingSceneId(candidate) {
+      const normalized = normalizeSceneId(candidate);
+      if (!normalized) return null;
+      const sceneIds = getExportSceneIds();
+      if (sceneIds.length === 0) return normalized;
+      if (sceneIds.includes(normalized)) return normalized;
+      const normalizedNoExt = stripSceneExtension(normalized).toLowerCase();
+      for (const sceneId of sceneIds) {
+        if (sceneId.toLowerCase() === normalized.toLowerCase()) return sceneId;
+      }
+      for (const sceneId of sceneIds) {
+        if (stripSceneExtension(sceneId).toLowerCase() === normalizedNoExt) return sceneId;
+      }
+      const normalizedBase = normalized.split("/").pop();
+      const normalizedBaseNoExt = stripSceneExtension(normalizedBase ?? normalized).toLowerCase();
+      if (normalizedBase && normalizedBase !== normalized) {
+        for (const sceneId of sceneIds) {
+          if (sceneId.toLowerCase() === normalizedBase.toLowerCase()) return sceneId;
+          if (stripSceneExtension(sceneId).toLowerCase() === stripSceneExtension(normalizedBase).toLowerCase()) return sceneId;
+        }
+      }
+      for (const sceneId of sceneIds) {
+        const sceneNameRaw = scenesData?.[sceneId]?.name;
+        const sceneName = normalizeSceneId(typeof sceneNameRaw === "string" ? sceneNameRaw : "");
+        if (!sceneName) continue;
+        const sceneNameNoExt = stripSceneExtension(sceneName).toLowerCase();
+        const sceneNameBase = sceneName.split("/").pop() ?? sceneName;
+        const sceneNameBaseNoExt = stripSceneExtension(sceneNameBase).toLowerCase();
+        if (sceneName === normalized) return sceneId;
+        if (sceneName.toLowerCase() === normalized.toLowerCase()) return sceneId;
+        if (sceneNameNoExt === normalizedNoExt) return sceneId;
+        if (sceneNameBase.toLowerCase() === (normalizedBase ?? normalized).toLowerCase()) return sceneId;
+        if (sceneNameBaseNoExt === normalizedBaseNoExt) return sceneId;
+      }
+      return null;
+    }
+    function hasExportScene(sceneId) {
+      return resolveExistingSceneId(sceneId) !== null;
+    }
+    function resolveTargetSceneId(args, forceTargetSceneId) {
+      const ownerSceneId = resolveExistingSceneId(args?.sourceSceneId) ?? normalizeSceneId(args?.sourceSceneId);
+      const hotspotIndex = Number.isInteger(args?.i) ? args.i : null;
+      const ownerHotspot = ownerSceneId !== null && hotspotIndex !== null && hotspotIndex >= 0
+        ? scenesData?.[ownerSceneId]?.hotSpots?.[hotspotIndex]
+        : null;
+      const ownerTarget = ownerSceneId !== null && hotspotIndex !== null && hotspotIndex >= 0
+        ? ownerHotspot?.targetSceneId ?? ownerHotspot?.target
+        : null;
+      const candidates = [
+        forceTargetSceneId,
+        ownerTarget,
+        args?.targetSceneId,
+        args?.target,
+        args?.targetName,
+        args?.targetId
+      ];
+      for (const candidate of candidates) {
+        const resolved = resolveExistingSceneId(candidate);
+        if (resolved) return resolved;
+      }
+      return null;
+    }
+    function navigateToNextScene(args, forceTargetSceneId) {
+      const destination = resolveDestinationView(args);
+      const targetSceneId = resolveTargetSceneId(args, forceTargetSceneId);
+      if (!targetSceneId) return;
+      transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
+      setTimeout(() => {
+        const verifiedTarget = resolveExistingSceneId(targetSceneId);
+        if (!verifiedTarget) return;
+        const targetConfig = config?.scenes?.[verifiedTarget];
+        if (!targetConfig || typeof targetConfig.panorama !== "string" || targetConfig.panorama.trim() === "") return;
+        window.viewer.loadScene(
+          verifiedTarget,
+          destination.pitch,
+          destination.yaw,
+          getCurrentHfov(),
+        );
+      }, 450);
+    }
+    function setSceneHotspotsReadyWithRetry(sceneId, retries) {
+      const hotspots = getSceneHotspots(sceneId);
+      hotspots.forEach(el => {
+        el.classList.remove('waypoint-pending');
+        el.classList.add('waypoint-ready');
+        el.dataset.ready = 'true';
+      });
+      if (window.viewer.getScene() !== sceneId) return;
+      const needsRetry = hotspots.length === 0 || hotspots.some(el => el.dataset.ready !== 'true');
+      if (!needsRetry || retries <= 0) return;
+      waypointRuntime.readyTimeoutId = setTimeout(() => setSceneHotspotsReadyWithRetry(sceneId, retries - 1), 80);
+    }
+    function normalizeSceneFloor(sceneData) {
+      const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
+      return floor === "" ? null : floor;
+    }
+    function normalizeSceneLabel(sceneData) {
+      const label = typeof sceneData?.label === "string" ? sceneData.label.trim() : "";
+      return label === "" ? null : label;
+    }
+    function getExportFloorLevelsInUse() {
+      const activeFloorIds = new Set();
+      if (scenesData && typeof scenesData === "object") {
+        for (const sceneData of Object.values(scenesData)) {
+          const floorId = normalizeSceneFloor(sceneData);
+          if (floorId) activeFloorIds.add(floorId);
+        }
+      }
+      return EXPORT_FLOOR_LEVELS.filter(level => activeFloorIds.has(level.id));
+    }
+    function updateExportFloorNav(sceneId) {
+      const nav = document.getElementById("viewer-floor-nav-export");
+      if (!nav) return;
+      const sceneData = scenesData[sceneId];
+      const currentFloor = normalizeSceneFloor(sceneData);
+      const visibleFloorLevels = getExportFloorLevelsInUse();
+      while (nav.firstChild) nav.removeChild(nav.firstChild);
+      for (const level of visibleFloorLevels) {
+        const btn = document.createElement("div");
+        btn.className = "floor-nav-btn " + (level.id === currentFloor ? "state-active" : "state-idle");
+        btn.setAttribute("title", level.label);
+        btn.setAttribute("aria-label", level.label);
+        btn.textContent = level.short;
+        if (level.suffix) {
+          const suffix = document.createElement("sup");
+          suffix.textContent = level.suffix;
+          btn.appendChild(suffix);
+        }
+        nav.appendChild(btn);
+      }
+    }
+    function updateExportRoomLabel(sceneId, animateOnShow) {
+      const labelEl = document.getElementById("viewer-room-label-export");
+      if (!labelEl) return;
+      labelEl.classList.remove("state-shortcut-animate");
+      const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
+      if (rawLabel !== "") {
+        labelEl.textContent = "# " + rawLabel;
+        labelEl.classList.remove("state-hidden");
+        labelEl.classList.add("state-visible");
+        if (animateOnShow === true) {
+          void labelEl.offsetWidth;
+          labelEl.classList.add("state-shortcut-animate");
+        }
+        return;
+      }
+      labelEl.textContent = "";
+      labelEl.classList.remove("state-shortcut-animate");
+      labelEl.classList.remove("state-visible");
+      labelEl.classList.add("state-hidden");
+    }
+    function clearExportFloorTagShortcuts(panel) {
+      floorTagShortcutState.totalEntries = 0;
+      floorTagShortcutState.hasMore = false;
+      floorTagShortcutState.visibleEntries = [];
+      if (!panel) return;
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.add("state-hidden");
+    }
+    function buildFloorTagEntries(sceneId) {
+      const activeFloorId = normalizeSceneFloor(scenesData?.[sceneId]);
+      if (!activeFloorId) return { floorId: null, entries: [] };
+      const entries = [];
+      for (const [candidateSceneId, candidateSceneData] of Object.entries(scenesData || {})) {
+        if (candidateSceneId === sceneId) continue;
+        if (normalizeSceneFloor(candidateSceneData) !== activeFloorId) continue;
+        const label = normalizeSceneLabel(candidateSceneData);
+        if (!label) continue;
+        entries.push({ sceneId: candidateSceneId, label: label });
+      }
+      return { floorId: activeFloorId, entries: entries };
+    }
+    function navigateToFloorTagShortcut(targetSceneId) {
+      if (!window.viewer || typeof window.viewer.getScene !== "function") return;
+      const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
+      if (!resolvedTargetSceneId) return;
+      if (window.viewer.getScene() === resolvedTargetSceneId) {
+        pendingShortcutLabelSceneId = resolvedTargetSceneId;
+        updateExportRoomLabel(resolvedTargetSceneId, true);
+        pendingShortcutLabelSceneId = null;
+        updateExportFloorTagShortcuts(resolvedTargetSceneId, true);
+        return;
+      }
+      pendingShortcutLabelSceneId = resolvedTargetSceneId;
+      navigateToNextScene({ targetSceneId: resolvedTargetSceneId }, resolvedTargetSceneId);
+    }
+    function cycleExportFloorTagShortcutPage() {
+      if (!floorTagShortcutState.hasMore) return;
+      if (!floorTagShortcutState.sceneId) return;
+      const total = floorTagShortcutState.totalEntries;
+      if (total <= FLOOR_TAG_SHORTCUT_PAGE_SIZE) return;
+      floorTagShortcutState.pageStart =
+        (floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE) % total;
+      updateExportFloorTagShortcuts(floorTagShortcutState.sceneId, false);
+    }
+    function updateExportFloorTagShortcuts(sceneId, resetPage) {
+      const panel = document.getElementById("viewer-floor-tags-export");
+      if (!panel) return;
+      const sceneEntries = buildFloorTagEntries(sceneId);
+      const floorId = sceneEntries.floorId;
+      const entries = sceneEntries.entries;
+      const previousFloorId = floorTagShortcutState.floorId;
+      const previousSceneId = floorTagShortcutState.sceneId;
+      const shouldResetPage =
+        resetPage === true ||
+        previousFloorId !== floorId ||
+        previousSceneId !== sceneId;
+      floorTagShortcutState.sceneId = sceneId;
+      floorTagShortcutState.floorId = floorId;
+      if (!floorId || entries.length === 0) {
+        floorTagShortcutState.pageStart = 0;
+        clearExportFloorTagShortcuts(panel);
+        return;
+      }
+      if (shouldResetPage) floorTagShortcutState.pageStart = 0;
+      const total = entries.length;
+      if (floorTagShortcutState.pageStart >= total) floorTagShortcutState.pageStart = 0;
+      const visibleEntries = entries.slice(
+        floorTagShortcutState.pageStart,
+        floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE,
+      );
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("state-hidden");
+      visibleEntries.forEach((entry, index) => {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "floor-tag-shortcut-row";
+        row.setAttribute("aria-label", "Shortcut " + String(index + 1) + " " + entry.label);
+        row.addEventListener("click", () => navigateToFloorTagShortcut(entry.sceneId));
+        const indexEl = document.createElement("span");
+        indexEl.className = "floor-tag-shortcut-index";
+        indexEl.textContent = String(index + 1);
+        const labelEl = document.createElement("span");
+        labelEl.className = "floor-tag-shortcut-label";
+        labelEl.textContent = entry.label;
+        row.appendChild(indexEl);
+        row.appendChild(labelEl);
+        panel.appendChild(row);
+      });
+      const hasMore = total > FLOOR_TAG_SHORTCUT_PAGE_SIZE;
+      if (hasMore) {
+        const moreRow = document.createElement("button");
+        moreRow.type = "button";
+        moreRow.className = "floor-tag-shortcut-row";
+        moreRow.setAttribute("aria-label", "More shortcuts");
+        moreRow.addEventListener("click", () => cycleExportFloorTagShortcutPage());
+        const moreIndex = document.createElement("span");
+        moreIndex.className = "floor-tag-shortcut-index";
+        moreIndex.textContent = "m";
+        const moreLabel = document.createElement("span");
+        moreLabel.className = "floor-tag-shortcut-label";
+        moreLabel.textContent = "more";
+        moreRow.appendChild(moreIndex);
+        moreRow.appendChild(moreLabel);
+        panel.appendChild(moreRow);
+      }
+      floorTagShortcutState.totalEntries = total;
+      floorTagShortcutState.hasMore = hasMore;
+      floorTagShortcutState.visibleEntries = visibleEntries;
+    }
+    function getExportUIMetrics() {
+      const compact =
+        document.body.classList.contains("is-hd-export") ||
+        document.body.classList.contains("export-state-tablet") ||
+        document.body.classList.contains("export-state-portrait");
+      return compact
+        ? {
+            floorBtnSize: 24,
+            floorGap: 8,
+            floorLeft: 8,
+            floorBottom: 10,
+            roomTop: 10,
+            roomHeight: 22,
+            roomFontSize: 9,
+            roomPaddingX: 6,
+            roomRadius: 5,
+          }
+        : {
+            floorBtnSize: 32,
+            floorGap: 8,
+            floorLeft: 20,
+            floorBottom: 24,
+            roomTop: 24,
+            roomHeight: 27,
+            roomFontSize: 11,
+            roomPaddingX: 8,
+            roomRadius: 6,
+          };
+    }
+    function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, strokeStyle, strokeWidth) {
+      const r = Math.max(0, Math.min(radius, Math.min(width, height) / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.arcTo(x + width, y, x + width, y + r, r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.arcTo(x + width, y + height, x + width - r, y + height, r);
+      ctx.lineTo(x + r, y + height);
+      ctx.arcTo(x, y + height, x, y + height - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+      if (fillStyle) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+      }
+      if (strokeStyle && strokeWidth > 0) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = strokeWidth;
+        ctx.stroke();
+      }
+    }
+    function drawExportRoomLabelToCanvas(ctx, sceneId, canvasWidth) {
+      const label = normalizeSceneLabel(scenesData?.[sceneId]);
+      if (!label) return;
+      const metrics = getExportUIMetrics();
+      const text = ("# " + label).toUpperCase();
+      ctx.save();
+      ctx.font = "600 " + String(metrics.roomFontSize) + "px Outfit, sans-serif";
+      const textWidth = ctx.measureText(text).width;
+      const boxWidth = textWidth + metrics.roomPaddingX * 2;
+      const boxX = Math.round((canvasWidth - boxWidth) / 2);
+      const boxY = metrics.roomTop;
+      drawRoundedRect(
+        ctx,
+        boxX,
+        boxY,
+        boxWidth,
+        metrics.roomHeight,
+        metrics.roomRadius,
+        "rgba(0, 61, 165, 0.85)",
+        "rgba(255, 255, 255, 0.1)",
+        1,
+      );
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, boxX + boxWidth / 2, boxY + metrics.roomHeight / 2 + 0.2);
+      ctx.restore();
+    }
+    function drawExportFloorNavToCanvas(ctx, sceneId, canvasHeight) {
+      const visibleFloorLevels = getExportFloorLevelsInUse();
+      if (!visibleFloorLevels.length) return;
+      const currentFloor = normalizeSceneFloor(scenesData?.[sceneId]);
+      const metrics = getExportUIMetrics();
+      const orderedLevels = visibleFloorLevels.slice().reverse();
+      ctx.save();
+      orderedLevels.forEach((level, index) => {
+        const size = metrics.floorBtnSize;
+        const x = metrics.floorLeft;
+        const y = canvasHeight - metrics.floorBottom - size - (index * (size + metrics.floorGap));
+        const isActive = level.id === currentFloor;
+        drawRoundedRect(
+          ctx,
+          x,
+          y,
+          size,
+          size,
+          size / 2,
+          isActive ? "#ea580c" : "rgba(128, 128, 128, 0.22)",
+          isActive ? "#ea580c" : "rgba(255, 255, 255, 0.28)",
+          isActive ? 2 : 1,
+        );
+        const label = (level.short ?? "") + (level.suffix ?? "");
+        ctx.fillStyle = "#ffffff";
+        ctx.font =
+          (metrics.floorBtnSize <= 24 ? "500 9px Outfit, sans-serif" : "500 15px Outfit, sans-serif");
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, x + size / 2, y + size / 2 + 0.2);
+      });
+      ctx.restore();
+    }
+    function drawImageContain(ctx, image, x, y, width, height) {
+      const iw = image.naturalWidth || image.width;
+      const ih = image.naturalHeight || image.height;
+      if (!iw || !ih || width <= 0 || height <= 0) return;
+      const scale = Math.min(width / iw, height / ih);
+      const drawW = iw * scale;
+      const drawH = ih * scale;
+      const drawX = x + (width - drawW) / 2;
+      const drawY = y + (height - drawH) / 2;
+      ctx.drawImage(image, drawX, drawY, drawW, drawH);
+    }
+    function drawExportLogoToCanvas(ctx, stageEl) {
+      const watermark = document.querySelector(".watermark");
+      if (!watermark || !stageEl) return;
+      const img = watermark.querySelector("img");
+      if (!img || !img.complete) return;
+      const stageRect = stageEl.getBoundingClientRect();
+      const logoRect = watermark.getBoundingClientRect();
+      const x = logoRect.left - stageRect.left;
+      const y = logoRect.top - stageRect.top;
+      const width = logoRect.width;
+      const height = logoRect.height;
+      if (width <= 0 || height <= 0) return;
+      const compact =
+        document.body.classList.contains("is-hd-export") ||
+        document.body.classList.contains("export-state-tablet") ||
+        document.body.classList.contains("export-state-portrait");
+      const pad = compact ? 2 : 6;
+      const radius = compact ? 6 : 8;
+      ctx.save();
+      drawRoundedRect(ctx, x, y, width, height, radius, "rgba(255, 255, 255, 0.1)", null, 0);
+      drawImageContain(ctx, img, x + pad, y + pad, width - (pad * 2), height - (pad * 2));
+      ctx.restore();
+    }
+    function renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, includeLogo) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(sourceCanvas, 0, 0, width, height);
+      drawExportRoomLabelToCanvas(ctx, sceneId, width);
+      drawExportFloorNavToCanvas(ctx, sceneId, height);
+      if (includeLogo) drawExportLogoToCanvas(ctx, stage);
+    }
+    function downloadScreenshotFromCanvas(outputCanvas, sceneId) {
+      const dataUrl = outputCanvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.href = dataUrl;
+      link.download = "tour-screenshot-" + sceneId + "-" + stamp + ".png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+    function triggerExportScreenshot() {
+      manualLookingMode = false;
+      lookingMode = false;
+      updateLookingModeUI();
+      requestAnimationFrame(() => {
+        const stage = document.getElementById("stage");
+        if (!stage) return;
+        const sourceCanvas = stage.querySelector("#panorama canvas") ?? stage.querySelector("canvas");
+        if (!(sourceCanvas instanceof HTMLCanvasElement)) return;
+        const width = Math.max(1, Math.round(stage.clientWidth));
+        const height = Math.max(1, Math.round(stage.clientHeight));
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = width;
+        outputCanvas.height = height;
+        const ctx = outputCanvas.getContext("2d");
+        if (!ctx) return;
+        const sceneId =
+          window.viewer && typeof window.viewer.getScene === "function"
+            ? window.viewer.getScene()
+            : firstSceneId;
+        renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, true);
+        try {
+          downloadScreenshotFromCanvas(outputCanvas, sceneId);
+          return;
+        } catch (_logoTaintError) {
+          try {
+            renderExportScreenshot(ctx, stage, sourceCanvas, width, height, sceneId, false);
+            downloadScreenshotFromCanvas(outputCanvas, sceneId);
+            return;
+          } catch (_finalError) {
+            return;
+          }
+        }
+      });
+    }
+    function toPoint(yaw, pitch) {
+      return { yaw, pitch };
+    }
+    function interpolateBSpline(p0, p1, p2, p3, t) {
+      const t2 = t * t;
+      const t3 = t2 * t;
+      const b0 = ((1.0 - t) * (1.0 - t) * (1.0 - t)) / 6.0;
+      const b1 = (3.0 * t3 - 6.0 * t2 + 4.0) / 6.0;
+      const b2 = (-3.0 * t3 + 3.0 * t2 + 3.0 * t + 1.0) / 6.0;
+      const b3 = t3 / 6.0;
+      return {
+        yaw: p0.yaw * b0 + p1.yaw * b1 + p2.yaw * b2 + p3.yaw * b3,
+        pitch: p0.pitch * b0 + p1.pitch * b1 + p2.pitch * b2 + p3.pitch * b3,
+      };
+    }
+    function getBSplinePath(points, totalSegments) {
+      if (!Array.isArray(points) || points.length < 2) return points || [];
+      const first = points[0];
+      const last = points[points.length - 1];
+      let smoothed = points.slice();
+      if (WAYPOINT_SMOOTHING_FACTOR > 0.0 && smoothed.length > 3) {
+        const s = WAYPOINT_SMOOTHING_FACTOR * 0.5;
+        for (let pass = 0; pass < 2; pass += 1) {
+          for (let i = 1; i < smoothed.length - 1; i += 1) {
+            const prev = smoothed[i - 1];
+            const curr = smoothed[i];
+            const next = smoothed[i + 1];
+            const weighting = (i === 1 || i === smoothed.length - 2) ? s * 0.5 : s;
+            let dy1 = next.yaw - curr.yaw;
+            while (dy1 > 180) dy1 -= 360;
+            while (dy1 < -180) dy1 += 360;
+            let dy2 = prev.yaw - curr.yaw;
+            while (dy2 > 180) dy2 -= 360;
+            while (dy2 < -180) dy2 += 360;
+            smoothed[i] = {
+              yaw: curr.yaw + (dy1 + dy2) * weighting,
+              pitch: curr.pitch + (next.pitch + prev.pitch - 2.0 * curr.pitch) * weighting,
+            };
+          }
+        }
+      }
+      const rawPoints = [first, first, ...smoothed, last, last];
+      const unrolled = [];
+      let prevYaw = first.yaw;
+      for (const p of rawPoints) {
+        let diff = p.yaw - prevYaw;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+        const absYaw = prevYaw + diff;
+        unrolled.push({ yaw: absYaw, pitch: p.pitch });
+        prevYaw = absYaw;
+      }
+      const sections = unrolled.length - 3;
+      if (sections < 1) return points;
+      const segmentsPerSection = Math.ceil(totalSegments / sections);
+      const spline = [];
+      for (let i = 0; i < sections; i += 1) {
+        const p0 = unrolled[i];
+        const p1 = unrolled[i + 1];
+        const p2 = unrolled[i + 2];
+        const p3 = unrolled[i + 3];
+        for (let j = 0; j < segmentsPerSection; j += 1) {
+          const t = j / segmentsPerSection;
+          spline.push(interpolateBSpline(p0, p1, p2, p3, t));
+        }
+      }
+      spline.push({ yaw: last.yaw, pitch: last.pitch });
+      return spline.map(p => ({ yaw: normalizeYaw(p.yaw), pitch: p.pitch }));
+    }
+    function getFloorProjectedPath(start, end, segments) {
+      const toRad = deg => deg * Math.PI / 180.0;
+      const toDeg = rad => rad * 180.0 / Math.PI;
+      const project = p => {
+        const yRad = toRad(p.yaw);
+        const pRad = toRad(p.pitch);
+        if (pRad >= -0.001) return null;
+        const r = -1.0 / Math.tan(pRad);
+        return { x: r * Math.sin(yRad), z: r * Math.cos(yRad) };
+      };
+      const unproject = (x, z) => {
+        const r = Math.sqrt(x * x + z * z);
+        return { yaw: toDeg(Math.atan2(x, z)), pitch: toDeg(Math.atan(-1.0 / r)) };
+      };
+      const p1 = project(start);
+      const p2 = project(end);
+      if (!p1 || !p2) return [start, end];
+      const path = [];
+      for (let i = 0; i <= segments; i += 1) {
+        const t = i / segments;
+        const x = p1.x + (p2.x - p1.x) * t;
+        const z = p1.z + (p2.z - p1.z) * t;
+        path.push(unproject(x, z));
+      }
+      return path;
+    }
+    function buildPath(primary, currentPitch, currentYaw) {
+      const startYaw = Number.isFinite(primary.startYaw) ? primary.startYaw : currentYaw;
+      const startPitch = Number.isFinite(primary.startPitch) ? primary.startPitch : currentPitch;
+      const endYaw = Number.isFinite(primary?.viewFrame?.yaw)
+        ? primary.viewFrame.yaw
+        : (Number.isFinite(primary.targetYaw) ? primary.targetYaw : primary.yaw);
+      const endPitch = Number.isFinite(primary?.viewFrame?.pitch)
+        ? primary.viewFrame.pitch
+        : (Number.isFinite(primary.targetPitch)
+            ? primary.targetPitch
+            : (Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch));
+      const waypoints = Array.isArray(primary.waypoints) ? primary.waypoints : [];
+      const controls = [toPoint(startYaw, startPitch)];
+      for (const w of waypoints) {
+        if (w && Number.isFinite(w.yaw) && Number.isFinite(w.pitch)) {
+          controls.push(toPoint(w.yaw, w.pitch));
+        }
+      }
+      controls.push(toPoint(endYaw, endPitch));
+      if (waypoints.length > 0) {
+        return getBSplinePath(controls, SPLINE_SEGMENTS);
+      }
+      return getFloorProjectedPath(controls[0], controls[controls.length - 1], SPLINE_SEGMENTS);
+    }
+    function buildSegments(path) {
+      const segments = [];
+      let total = 0;
+      for (let i = 0; i < path.length - 1; i += 1) {
+        const a = path[i]; const b = path[i + 1];
+        const dy = normalizeYawDelta(a.yaw, b.yaw);
+        const dp = b.pitch - a.pitch;
+        const dist = Math.max(0.0001, Math.sqrt(dy * dy + dp * dp));
+        segments.push({ a, dy, dp, dist });
+        total += dist;
+      }
+      return { segments, total };
+    }
+    function samplePath(segments, total, t) {
+      const target = total * t;
+      let traversed = 0;
+      for (const seg of segments) {
+        if (traversed + seg.dist >= target) {
+          const local = (target - traversed) / seg.dist;
+          return {
+            yaw: seg.a.yaw + seg.dy * local,
+            pitch: seg.a.pitch + seg.dp * local,
+          };
+        }
+        traversed += seg.dist;
+      }
+      const last = segments[segments.length - 1];
+      return {
+        yaw: last.a.yaw + last.dy,
+        pitch: last.a.pitch + last.dp,
+      };
+    }
+    function resolveScenePlaybackHotspot(sceneId, sceneData) {
+      const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
+      if (!hotspots.length) return null;
+      const resolvedHotspots = hotspots.map((hotspot, hotspotIndex) => {
+        const directTarget = resolveExistingSceneId(hotspot?.targetSceneId);
+        const resolvedTarget = resolveTargetSceneId({
+          sourceSceneId: sceneId,
+          i: hotspotIndex,
+          targetSceneId: hotspot?.targetSceneId,
+          target: hotspot?.target,
+          targetName: hotspot?.target,
+        }, null) ?? directTarget;
+        return { hotspot, hotspotIndex, resolvedTarget };
+      });
+      const routeIndex = Number.isInteger(sceneData?.autoForwardHotspotIndex)
+        ? sceneData.autoForwardHotspotIndex
+        : -1;
+      const routeTarget = resolveExistingSceneId(sceneData?.autoForwardTargetSceneId);
+      if (routeIndex >= 0 && routeIndex < resolvedHotspots.length && routeTarget) {
+        const routeHotspot = resolvedHotspots[routeIndex]?.hotspot ?? hotspots[routeIndex];
+        return {
+          hotspot: routeHotspot,
+          hotspotIndex: routeIndex,
+          autoForward: true,
+          targetSceneId: routeTarget,
+        };
+      }
+      return {
+        hotspot: hotspots[0],
+        hotspotIndex: 0,
+        autoForward: false,
+        targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
+      };
+    }
+    function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
+      if (window.viewer.getScene() !== sceneId) return;
+      if (playbackTarget.targetSceneId) {
+        navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId);
+        return;
+      }
+      const hotspotsNow = getSceneHotspots(sceneId);
+      const preferred = hotspotsNow.find(el => el.dataset.hotspotIndex === String(playbackTarget.hotspotIndex));
+      const anyReady = preferred ?? hotspotsNow.find(el => typeof el.__navigateNext === 'function');
+      if (anyReady && typeof anyReady.__navigateNext === 'function') {
+        anyReady.__navigateNext();
+        return;
+      }
+      if (retriesLeft <= 0) return;
+      waypointRuntime.autoForwardTimeoutId = setTimeout(
+        () => attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft - 1),
+        120,
+      );
+    }
+    function animateSceneToPrimaryHotspot(sceneId, retries) {
+      if (window.viewer.getScene() !== sceneId) return;
+      const sd = scenesData[sceneId];
+      const playbackTarget = resolveScenePlaybackHotspot(sceneId, sd);
+      if (!playbackTarget) return;
+      const primary = playbackTarget.hotspot;
+      const primaryIndex = playbackTarget.hotspotIndex;
+      waypointRuntime.arrivedSceneId = null;
+      setSceneHotspotsPending(sceneId);
+      let durationMs = PAN_MIN_DURATION;
+      const startPitch = typeof window.viewer.getPitch === 'function' ? window.viewer.getPitch() : 0;
+      const startYaw = typeof window.viewer.getYaw === 'function' ? window.viewer.getYaw() : 0;
+      const path = buildPath(primary, startPitch, startYaw);
+      const pathInfo = buildSegments(path);
+      if (!pathInfo.segments.length || pathInfo.total <= 0) {
+        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        return;
+      }
+      durationMs = Math.min(Math.max((pathInfo.total / PAN_VELOCITY) * 1000.0, PAN_MIN_DURATION), PAN_MAX_DURATION);
+
+      // Surgical: Disable looking mode during animation
+      lookingMode = false;
+      updateLookingModeUI();
+      window.viewer.lookAt(path[0].pitch, path[0].yaw, getCurrentHfov(), false);
+      const startAt = performance.now();
+      const tick = now => {
+        if (window.viewer.getScene() !== sceneId) return;
+        const linear = Math.min(1, (now - startAt) / durationMs);
+        const progress = trapezoidal(linear, TRAPEZOID_FACTOR);
+        const current = samplePath(pathInfo.segments, pathInfo.total, progress);
+        window.viewer.lookAt(current.pitch, current.yaw, getCurrentHfov(), false);
+        if (linear < 1) {
+          waypointRuntime.animationId = requestAnimationFrame(tick);
+          return;
+        }
+        waypointRuntime.animationId = null;
+        waypointRuntime.arrivedSceneId = sceneId;
+        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        const autoForward = playbackTarget.autoForward === true;
+        if (autoForward) {
+          waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
+            if (window.viewer.getScene() !== sceneId) return;
+            attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
+          }, 360);
+        }
+
+        // Keep Looking mode OFF when this scene auto-forwards immediately.
+        lookingMode = autoForward ? false : manualLookingMode;
+        updateLookingModeUI();
+      };
+      waypointRuntime.animationId = requestAnimationFrame(tick);
+    }
+
+    /* --- LOOKING MODE & LAZY DRIFT LOGIC --- */
+    let lookingMode = true;
+    let manualLookingMode = true;
+    function updateLookingModeUI() {
+      const titleEl = document.getElementById('looking-mode-title');
+      const dotEl = document.getElementById('looking-mode-dot');
+      const container = document.querySelector('.pnlm-container');
+      if (titleEl) titleEl.textContent = lookingMode ? "Looking mode: ON" : "Looking mode: OFF";
+      if (dotEl) { if (lookingMode) { dotEl.classList.remove('paused'); } else { dotEl.classList.add('paused'); } }
+      if (container) { if (lookingMode) { container.classList.remove('mode-paused'); } else { container.classList.add('mode-paused'); } }
+      if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.active = false; }
+    }
+    function toggleLookingMode() {
+        manualLookingMode = !manualLookingMode;
+        lookingMode = manualLookingMode;
+        updateLookingModeUI();
+    }
+    function handleExportKeydown(e) {
+      if (!e || e.altKey || e.ctrlKey || e.metaKey) return;
+      const key = typeof e.key === "string" ? e.key : "";
+      if (key === "l" || key === "L") {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        toggleLookingMode();
+        return;
+      }
+      if (key === "s" || key === "S") {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        triggerExportScreenshot();
+        return;
+      }
+      if (key === "m" || key === "M") {
+        if (!floorTagShortcutState.hasMore) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        cycleExportFloorTagShortcutPage();
+        return;
+      }
+      if (!/^[1-3]$/.test(key)) return;
+      const index = Number(key) - 1;
+      const entry = floorTagShortcutState.visibleEntries[index];
+      if (!entry) return;
+      if (typeof e.preventDefault === "function") e.preventDefault();
+      if (typeof e.stopPropagation === "function") e.stopPropagation();
+      navigateToFloorTagShortcut(entry.sceneId);
+    }
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleExportKeydown, true);
+    }
+
+    /* --- LAZY DRIFT LOGIC --- */
+    const DRIFT_SPEED_FACTOR = 2.2;
+    const DRIFT_DEADZONE = 0.1;
+    let driftRuntime = { active: false, rafId: null, vector: { x: 0, y: 0 } };
+
+    function updateDriftVector(e) {
+      if (!lookingMode) return;
+      if (waypointRuntime.animationId !== null) return; // Busy navigating
+      // If mouse is down, user is dragging, so pause drift
+      if (e.buttons > 0) return;
+
+      const stage = document.getElementById('stage');
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+
+      const w = rect.width;
+      const h = rect.height;
+      const cx = rect.left + w / 2; // Center X relative to viewport
+      const cy = rect.top + h / 2;  // Center Y relative to viewport
+
+      if (w < 1 || h < 1) return;
+
+      const isOutside = e.clientX < rect.left ||
+                        e.clientX > rect.right ||
+                        e.clientY < rect.top ||
+                        e.clientY > rect.bottom;
+
+      let vx = 0;
+      let vy = 0;
+
+      if (isOutside) {
+         // Premium feel: Significant slow down + fade out over distance
+         const FADE_DISTANCE = 50;
+         const START_DAMPING = 0.2; // Drop to 20% speed immediately at edge
+
+         const distX = Math.max(0, rect.left - e.clientX, e.clientX - rect.right);
+         const distY = Math.max(0, rect.top - e.clientY, e.clientY - rect.bottom);
+         const dist = Math.sqrt(distX*distX + distY*distY);
+
+         const distFactor = Math.max(0, 1.0 - (dist / FADE_DISTANCE));
+         const outsideSpeed = DRIFT_SPEED_FACTOR * START_DAMPING * distFactor;
+
+         // Normalize direction vector to max 1.0 magnitude to prevent acceleration
+         const rawDx = (e.clientX - cx);
+         const rawDy = (e.clientY - cy);
+         const mag = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+         if (mag > 0) {
+             vx = (rawDx / mag) * outsideSpeed;
+             vy = (rawDy / mag) * outsideSpeed;
+         }
+      } else {
+        const dx = (e.clientX - cx) / (w / 2); // -1.0 to 1.0
+        const dy = (e.clientY - cy) / (h / 2); // -1.0 to 1.0
+
+        // Deadzone Check
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+
+        if (ax > DRIFT_DEADZONE) {
+          const sign = Math.sign(dx);
+          const ramp = (ax - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
+          vx = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR;
+        }
+
+        if (ay > DRIFT_DEADZONE) {
+          const sign = Math.sign(dy);
+          const ramp = (ay - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
+          vy = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR;
+        }
+      }
+
+      driftRuntime.vector = { x: vx, y: vy };
+
+      if (!driftRuntime.active && (vx !== 0 || vy !== 0)) {
+        startDriftLoop();
+      }
+    }
+
+    function startDriftLoop() {
+      if (driftRuntime.active) return;
+      driftRuntime.active = true;
+
+      function tick() {
+        // Stop if navigating
+        if (waypointRuntime.animationId !== null) {
+          driftRuntime.active = false;
+          driftRuntime.vector = { x: 0, y: 0 };
+          return;
+        }
+
+        // Stop if stationary
+        if (driftRuntime.vector.x === 0 && driftRuntime.vector.y === 0) {
+          driftRuntime.active = false;
+          return;
+        }
+
+        if (window.viewer && typeof window.viewer.getYaw === 'function') {
+           const nextYaw = window.viewer.getYaw() + driftRuntime.vector.x;
+           const nextPitch = window.viewer.getPitch() - driftRuntime.vector.y; // Invert Y
+           // Clamp pitch (-85 to 85 is standard safe range)
+           const clampedPitch = Math.max(-85, Math.min(85, nextPitch));
+
+           window.viewer.lookAt(clampedPitch, nextYaw, getCurrentHfov(), false);
+        }
+
+        driftRuntime.rafId = requestAnimationFrame(tick);
+      }
+      driftRuntime.rafId = requestAnimationFrame(tick);
+    }
+
+    // Attach Global Listeners
+    if (typeof document !== 'undefined') {
+      document.addEventListener("mousemove", updateDriftVector);
+      document.addEventListener("mousedown", () => {
+         driftRuntime.vector = { x: 0, y: 0 };
+         driftRuntime.active = false;
+         if (driftRuntime.rafId) cancelAnimationFrame(driftRuntime.rafId);
+      });
+    }
+
+    function renderOrangeHotspot(hotSpotDiv, args) {
+      const currentSceneId = window.viewer.getScene();
+      const currentSceneData = scenesData[currentSceneId];
+      const isHome = currentSceneData && currentSceneData.hotSpots.length === 1 && persistentFrom && args.targetSceneId === persistentFrom;
+      const ownerScene = args.sourceSceneId ?? currentSceneId;
+      hotSpotDiv.style.width = "__BASE_SIZE__px"; hotSpotDiv.style.height = "__BASE_SIZE__px";
+      hotSpotDiv.style.pointerEvents = "auto";
+      hotSpotDiv.style.cursor = "pointer";
+      if (args.targetIsAutoForward) {
+        hotSpotDiv.style.setProperty("display", "none", "important");
+      }
+      hotSpotDiv.dataset.ownerScene = ownerScene;
+      hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
+      hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);
+      hotSpotDiv.dataset.ready = "false";
+      hotSpotDiv.classList.remove("waypoint-ready");
+      hotSpotDiv.classList.add("waypoint-pending");
+      if (waypointRuntime.arrivedSceneId === ownerScene) {
+        hotSpotDiv.dataset.ready = "true";
+        hotSpotDiv.classList.remove("waypoint-pending");
+        hotSpotDiv.classList.add("waypoint-ready");
+      }
+      const ns = "http://www.w3.org/2000/svg";
+      const bindNavigateHandlers = function(trigger, root) {
+        if (!trigger) return;
+        trigger.style.pointerEvents = "auto";
+        trigger.style.cursor = "pointer";
+        if (trigger.__exportNavClickHandler) {
+          trigger.removeEventListener("click", trigger.__exportNavClickHandler);
+        }
+        if (trigger.__exportNavPointerUpHandler) {
+          trigger.removeEventListener("pointerup", trigger.__exportNavPointerUpHandler);
+        }
+        const handleNavigate = function(e) {
+          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+          if (e && typeof e.preventDefault === "function") e.preventDefault();
+          if (typeof root.__navigateNext !== "function") return;
+          if (root.__navInFlight === true) return;
+          root.__navInFlight = true;
+          setTimeout(function() { root.__navInFlight = false; }, 700);
+          root.__navigateNext();
+        };
+        trigger.__exportNavClickHandler = handleNavigate;
+        trigger.__exportNavPointerUpHandler = handleNavigate;
+        trigger.addEventListener("click", trigger.__exportNavClickHandler);
+        trigger.addEventListener("pointerup", trigger.__exportNavPointerUpHandler);
+      };
+      const svg = document.createElementNS(ns, "svg");
+      svg.setAttribute("class", "custom-arrow-svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.overflow = "visible";
+
+      if (isHome) {
+        hotSpotDiv.setAttribute('data-target-home', 'true');
+        const defs = document.createElementNS(ns, "defs");
+        const grad = document.createElementNS(ns, "linearGradient");
+        grad.setAttribute("id", "homeGradExport_" + args.i); grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
+        [{o:"0%",c:"var(--gold-1)"},{o:"50%",c:"var(--gold-2)"},{o:"100%",c:"var(--gold-3)"}].forEach(s=>{ const stop=document.createElementNS(ns,"stop"); stop.setAttribute("offset",s.o); stop.style.stopColor=s.c; grad.appendChild(stop); });
+        defs.appendChild(grad); svg.appendChild(defs);
+        const rect = document.createElementNS(ns, "rect"); rect.setAttribute("x", "5"); rect.setAttribute("y", "5"); rect.setAttribute("width", "90"); rect.setAttribute("height", "90"); rect.setAttribute("rx", "12"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")"); svg.appendChild(rect);
+        const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "52"); text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle"); text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "22px"; text.setAttribute("fill", "var(--gold-text)"); text.textContent = "HOME"; svg.appendChild(text);
+      } else {
+        const root = document.createElement("div");
+        root.className = "export-hotspot-root" + (args.targetIsAutoForward ? " auto-forward" : "");
+        const btn = document.createElement("div");
+        btn.className = "export-hotspot-btn";
+        const sweep = document.createElement("div");
+        sweep.className = "export-hotspot-btn-sweep";
+        const icon = document.createElementNS(ns, "svg");
+        icon.setAttribute("class", "export-hotspot-icon");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        if (args.targetIsAutoForward) {
+          const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
+          const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
+        } else {
+          const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
+        }
+        btn.appendChild(sweep);
+        btn.appendChild(icon);
+        root.appendChild(btn);
+        while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
+        hotSpotDiv.appendChild(root);
+        hotSpotDiv.__navInFlight = false;
+        hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
+        bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
+        bindNavigateHandlers(root, hotSpotDiv);
+        bindNavigateHandlers(btn, hotSpotDiv);
+        return;
+      }
+      while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
+      hotSpotDiv.appendChild(svg);
+      hotSpotDiv.__navInFlight = false;
+      hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, hotSpotDiv.getAttribute('data-target-home') === 'true' ? firstSceneId : null); };
+      bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
+      bindNavigateHandlers(svg, hotSpotDiv);
+    }
+  `
+
+let loadEventScript = `
+    window.viewer.on('load', function() {
+      const sid = window.viewer.getScene(); const sd = scenesData[sid];
+      if (!transitionFrom && !isFirstLoad) return;
+      if (sd?.hotSpots?.length > 0) applyCurrentHfov();
+      persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
+      updateExportFloorNav(sid);
+      const animateRoomLabel = pendingShortcutLabelSceneId === sid;
+      updateExportRoomLabel(sid, animateRoomLabel);
+      pendingShortcutLabelSceneId = null;
+      updateExportFloorTagShortcuts(sid, true);
+      updateExportStateClasses();
+      updateLookingModeUI();
+      clearWaypointRuntime();
+      waypointRuntime.sceneId = sid;
+      animateSceneToPrimaryHotspot(sid, 20);
+    });
+  `
+
+let generateRenderScript = (
+  baseSize,
+  defaultHfov,
+  minHfov,
+  maxHfov,
+  stageMinWidth,
+  stageMaxWidth,
+  dynamicHfovEnabled,
+  isHdExport,
+) =>
+  renderScriptTemplate
+  ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
+  ->String.replaceRegExp(/__DEFAULT_HFOV__/g, Belt.Float.toString(defaultHfov))
+  ->String.replaceRegExp(/__MIN_HFOV__/g, Belt.Float.toString(minHfov))
+  ->String.replaceRegExp(/__MAX_HFOV__/g, Belt.Float.toString(maxHfov))
+  ->String.replaceRegExp(/__STAGE_MIN_WIDTH__/g, Belt.Int.toString(stageMinWidth))
+  ->String.replaceRegExp(/__STAGE_MAX_WIDTH__/g, Belt.Int.toString(stageMaxWidth))
+  ->String.replaceRegExp(/__DYNAMIC_HFOV_ENABLED__/g, dynamicHfovEnabled ? "true" : "false")
+  ->String.replaceRegExp(/__IS_HD_EXPORT__/g, isHdExport ? "true" : "false")
