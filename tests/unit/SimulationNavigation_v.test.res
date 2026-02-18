@@ -24,6 +24,7 @@ describe("SimulationNavigation", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
   }
 

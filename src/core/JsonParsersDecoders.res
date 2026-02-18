@@ -6,6 +6,8 @@ open JsonCombinators.Json
 // Utility alias for the extracted shared parsers
 module Shared = JsonParsersShared
 
+type updateHotspotMetadata = {isAutoForward: option<bool>}
+
 // Aliases
 let object = Decode.object
 let field = Decode.field
@@ -84,6 +86,7 @@ let hotspot = object(f => {
     duration: f.optional("duration", option(float))
     ->Option.flatMap(x => x)
     ->Option.map(Belt.Float.toInt),
+    isAutoForward: f.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
   }
 })
 
@@ -289,6 +292,12 @@ let updateMetadata = object(field => {
     Types.category: field.optional("category", option(string))->Option.flatMap(x => x),
     floor: field.optional("floor", option(string))->Option.flatMap(x => x),
     label: field.optional("label", option(string))->Option.flatMap(x => x),
+    isAutoForward: field.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
+  }
+})
+
+let updateHotspotMetadata = object(field => {
+  {
     isAutoForward: field.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
   }
 })

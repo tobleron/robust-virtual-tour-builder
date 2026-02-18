@@ -29,6 +29,7 @@ let createMockHotspot = (~id="h1", ~target="scene2", ()) => {
     displayPitch: None,
     transition: None,
     duration: None,
+    isAutoForward: None,
   }
 }
 

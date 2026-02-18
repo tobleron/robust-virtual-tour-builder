@@ -17,7 +17,7 @@ body::after { content: ""; position: fixed; inset: 0; background-image: var(--te
 .blob-2 { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(15, 23, 42, 0.3) 0%, rgba(0, 0, 0, 0) 70%); }
 .container { position: relative; width: 90%; max-width: 1000px; text-align: center; padding: 60px 0; animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.logo-container { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(249,115,22,1); padding: 3px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); width: 126px; height: 66px; overflow: hidden; }
+.logo-container { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); padding: 3px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); width: 126px; height: 66px; overflow: hidden; }
 .logo-container img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 5px; }
 h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .version-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--glass); padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--slate-400); }
@@ -65,15 +65,14 @@ __LOGO_BLOCK__
 
 module Styles = {
   let cssTemplate = `
-    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); --export-fallback-padding: 5px; }
+    :root { --viewer-bg: #1e1e1e; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); --texture-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); --export-fallback-padding: 5px; }
     body { margin: 0; padding: 0; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: auto; background-color: var(--viewer-bg); font-family: var(--font-family); }
-    body::before { content: ""; position: fixed; top: -20px; left: -20px; right: -20px; bottom: -20px; background: url('assets/images/__FIRST_SCENE_NAME__') no-repeat center center fixed; background-size: cover; filter: blur(25px) brightness(0.4); z-index: -1; }
     body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 0; filter: contrast(120%) brightness(100%); }
     #stage { z-index: 1; }
     __MEDIA_QUERY_CSS__
     #panorama { width: 100%; height: 100%; border-radius: inherit; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 3px; border-radius: 8px; border: 1px solid rgba(249, 115, 22, 1); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 3px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; border-radius: 5px; }
     #viewer-floor-nav-export { position: absolute; bottom: 24px; left: 20px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 8px; align-items: center; pointer-events: none; }
     #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 15px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
@@ -107,7 +106,7 @@ module Styles = {
     .pnlm-hotspot.flat-arrow[data-target-home] .custom-arrow-svg { transform: none !important; animation: home-pulse 2s infinite ease-in-out !important; }
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     body.export-state-portrait { padding: var(--export-fallback-padding); box-sizing: border-box; }
-    body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 16px !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
+    body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 12px !important; border: 1px solid #b44409 !important; box-shadow: none !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
     body.export-state-tablet #viewer-floor-nav-export, body.export-state-portrait #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
     body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
     body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
@@ -120,8 +119,8 @@ module Styles = {
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
     let mediaQuery = switch exportType {
-    | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
-    | _ => ` #stage { position: relative; margin: 0 auto; width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #000; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.6); overflow: hidden; } `
+    | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
+    | _ => ` #stage { position: relative; margin: 0 auto; width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } `
     }
     cssTemplate
     ->String.replaceRegExp(/__FIRST_SCENE_NAME__/g, firstSceneName)
@@ -577,38 +576,11 @@ module Scripts = {
           targetSceneId: routeTarget,
         };
       }
-      const sceneAutoForward = sceneData?.isAutoForward === true;
-      if (!sceneAutoForward) {
-        return {
-          hotspot: hotspots[0],
-          hotspotIndex: 0,
-          autoForward: false,
-          targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
-        };
-      }
-      const preferred = resolvedHotspots.find(item => item.hotspot?.isReturnLink !== true && item.resolvedTarget);
-      if (preferred) {
-        return {
-          hotspot: preferred.hotspot,
-          hotspotIndex: preferred.hotspotIndex,
-          autoForward: true,
-          targetSceneId: preferred.resolvedTarget,
-        };
-      }
-      const fallback = resolvedHotspots.find(item => item.resolvedTarget);
-      if (fallback) {
-        return {
-          hotspot: fallback.hotspot,
-          hotspotIndex: fallback.hotspotIndex,
-          autoForward: true,
-          targetSceneId: fallback.resolvedTarget,
-        };
-      }
       return {
         hotspot: hotspots[0],
         hotspotIndex: 0,
         autoForward: false,
-        targetSceneId: null,
+        targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
       };
     }
     function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
@@ -993,9 +965,9 @@ let generateTourHTML = (
         }
       | None => resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
       }
-      let targetIsAutoForward = switch scenes->Belt.Array.getBy(ts => ts.id == resolvedTargetId) {
-      | Some(ts) => ts.isAutoForward
-      | None => false
+      let targetIsAutoForward = switch h.isAutoForward {
+      | Some(true) => true
+      | _ => false
       }
       {
         "pitch": h.displayPitch->Option.getOr(h.pitch),
@@ -1030,22 +1002,7 @@ let generateTourHTML = (
           )
         switch routeFromAnyDoubleChevron {
         | Some(idx) => idx
-        | None =>
-          if s.isAutoForward {
-            let fallbackBySceneFlag =
-              rawHotspots->Belt.Array.getIndexBy(h =>
-                h["isReturnLink"] == false && hasSceneId(h["targetSceneId"])
-              )
-            switch fallbackBySceneFlag {
-            | Some(idx) => idx
-            | None =>
-              rawHotspots
-              ->Belt.Array.getIndexBy(h => hasSceneId(h["targetSceneId"]))
-              ->Option.getOr(-1)
-            }
-          } else {
-            -1
-          }
+        | None => -1
         }
       }
     }

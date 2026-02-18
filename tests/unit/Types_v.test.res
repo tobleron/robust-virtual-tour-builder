@@ -170,6 +170,7 @@ describe("Types", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
     t->expect(h.linkId)->Expect.toBe("link-1")
     t->expect(h.target)->Expect.toBe("scene-2")

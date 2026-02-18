@@ -152,6 +152,7 @@ type hotspot = {
   displayPitch: option<float>,
   transition: option<string>,
   duration: option<int>,
+  isAutoForward: option<bool>,
 }
 
 type scene = {

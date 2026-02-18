@@ -23,6 +23,7 @@ describe("SimulationLogic", () => {
     displayPitch: None,
     transition: None,
     duration: None,
+    isAutoForward: None,
   }
 
   let baseScene = {

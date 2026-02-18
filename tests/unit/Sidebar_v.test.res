@@ -185,6 +185,7 @@ describe("Sidebar", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
 
     let scene: Types.scene = {
@@ -349,6 +350,7 @@ describe("Sidebar", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
 
     let scene: Types.scene = {
@@ -427,6 +429,7 @@ describe("Sidebar", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
 
     let scene: Types.scene = {

@@ -6,10 +6,22 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
-  let targetSceneOpt = HotspotTarget.resolveScene(state.scenes, hotspot)
-  let isAutoForward = switch targetSceneOpt {
-  | Some(ts) => ts.isAutoForward
-  | None => false
+  let currentHotspot = switch Belt.Array.get(state.scenes, state.activeIndex) {
+  | Some(scene) => Belt.Array.get(scene.hotspots, index)
+  | None => None
+  }
+
+  let isAutoForward = switch currentHotspot {
+  | Some(h) =>
+    switch h.isAutoForward {
+    | Some(b) => b
+    | None => false
+    }
+  | None =>
+    switch hotspot.isAutoForward {
+    | Some(b) => b
+    | None => false
+    }
   }
 
   let handleDelete = () => {
@@ -57,37 +69,28 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleToggleAutoForward = () => {
-    let currentState = AppContext.getBridgeState()
-    let currentTargetSceneOpt = HotspotTarget.resolveScene(currentState.scenes, hotspot)
-    switch currentTargetSceneOpt {
-    | Some(ts) =>
-      switch currentState.scenes->Belt.Array.getIndexBy(s => s.id == ts.id) {
-      | Some(idx) =>
-        let newVal = !ts.isAutoForward
-        HotspotManager.handleUpdateSceneMetadata(
-          idx,
-          Logger.castToJson({"isAutoForward": newVal}),
-        )->ignore
-        EventBus.dispatch(ForceHotspotSync)
-        NotificationManager.dispatch({
-          id: "",
-          importance: Success,
-          context: Operation("hotspot_action"),
-          message: "Auto-forward: " ++ if newVal {
-            "ENABLED"
-          } else {
-            "DISABLED"
-          },
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Success),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      | None => ()
-      }
-    | None => ()
-    }
+    let newVal = !isAutoForward
+    HotspotManager.handleUpdateHotspotMetadata(
+      state.activeIndex,
+      index,
+      Logger.castToJson({"isAutoForward": newVal}),
+    )->ignore
+    let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
+    NotificationManager.dispatch({
+      id: "",
+      importance: Success,
+      context: Operation("hotspot_action"),
+      message: "Auto-forward: " ++ if newVal {
+        "ENABLED"
+      } else {
+        "DISABLED"
+      },
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Success),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
   }
 
   let handleNavigate = () => {

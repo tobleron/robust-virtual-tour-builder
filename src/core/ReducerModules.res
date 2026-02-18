@@ -110,6 +110,9 @@ module Hotspot = {
         ),
       )
 
+    | UpdateHotspotMetadata(sceneIndex, hotspotIndex, metadata) =>
+      Some(HotspotHelpers.handleUpdateHotspotMetadata(state, sceneIndex, hotspotIndex, metadata))
+
     | ToggleHotspotReturnLink(sceneIndex, hotspotIndex) =>
       Some(HotspotHelpers.handleToggleHotspotReturnLink(state, sceneIndex, hotspotIndex))
 

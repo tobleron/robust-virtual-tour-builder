@@ -114,48 +114,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.13, Coupling: 0.02] | Drag: 5.33 | LOC: 1111/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (7.9). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 86.43411341134113,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates.res",
-              "functions": [
-                {
-                  "name": "indexTemplate",
-                  "signature": "indexTemplate = `<!DOCTYPE html>",
-                  "line": 9
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
-                  "line": 43
-                },
-                {
-                  "name": "generateEmbedCodes",
-                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
-                  "line": 1147
-                },
-                {
-                  "name": "generateExportIndex",
-                  "signature": "generateExportIndex = Assets.generateExportIndex",
-                  "line": 1148
-                }
-              ],
-              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
         "reason": "[Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.)",
@@ -237,10 +195,119 @@
       }
     },
     {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.73 | LOC: 1068/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 81.52827715355805,
+        "recommended_splits": 4,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates.res",
+              "functions": [
+                {
+                  "name": "indexTemplate",
+                  "signature": "indexTemplate = `<!DOCTYPE html>",
+                  "line": 9
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = (tourName, version, logoFilename: option<string>) => {",
+                  "line": 43
+                },
+                {
+                  "name": "generateEmbedCodes",
+                  "signature": "generateEmbedCodes = Assets.generateEmbedCodes",
+                  "line": 1104
+                },
+                {
+                  "name": "generateExportIndex",
+                  "signature": "generateExportIndex = Assets.generateExportIndex",
+                  "line": 1105
+                }
+              ],
+              "fingerprint": "304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c"
+            }
+          ]
+        }
+      }
+    },
+    {
       "Violation": {
         "file": "../../src/utils/RequestQueue.res",
         "pattern": "Obj.magic",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.12 | LOC: 377/300  🎯 Target: Function: `isLastIdValid` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.816710875331566,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/ViewerManagerLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/components/ViewerManagerLogic.res",
+              "functions": [
+                {
+                  "name": "useSceneCleanup",
+                  "signature": "useSceneCleanup = (~scenes: array<scene>) => {",
+                  "line": 11
+                },
+                {
+                  "name": "usePreloading",
+                  "signature": "usePreloading = (",
+                  "line": 40
+                },
+                {
+                  "name": "handleMainSceneLoad",
+                  "signature": "handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action => unit) => {",
+                  "line": 66
+                },
+                {
+                  "name": "useMainSceneLoading",
+                  "signature": "useMainSceneLoading = (",
+                  "line": 145
+                },
+                {
+                  "name": "useHotspotSync",
+                  "signature": "useHotspotSync = (",
+                  "line": 172
+                },
+                {
+                  "name": "useRatchetState",
+                  "signature": "useRatchetState = (~isLinking: bool) => {",
+                  "line": 212
+                },
+                {
+                  "name": "useSimulationArrival",
+                  "signature": "useSimulationArrival = (~activeIndex: int, ~simulationStatus: simulationStatus) => {",
+                  "line": 237
+                },
+                {
+                  "name": "useHotspotLineLoop",
+                  "signature": "useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) => {",
+                  "line": 247
+                },
+                {
+                  "name": "useIntroPan",
+                  "signature": "useIntroPan = (",
+                  "line": 375
+                }
+              ],
+              "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
+            }
+          ]
+        }
       }
     }
   ],

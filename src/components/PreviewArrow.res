@@ -57,6 +57,7 @@ let make = (
   let (flickerRed, setFlickerRed) = React.useState(_ => false)
   let (flickerYellow, setFlickerYellow) = React.useState(_ => false)
   let (isSwapping, setIsSwapping) = React.useState(_ => false)
+  let toggleInFlightRef = React.useRef(false)
 
   // 2. Button Swap Logic (Uses localIsAF for instant feedback)
   let (centerIcon, rightIcon) = if localIsAF {
@@ -105,48 +106,40 @@ let make = (
 
   let handleRightClick = e => {
     e->JsxEvent.Mouse.stopPropagation
-    let currentState = AppContext.getBridgeState()
-    switch Belt.Array.get(currentState.scenes, sceneIndex) {
-    | Some(scene) =>
-      switch Belt.Array.get(scene.hotspots, hotspotIndex) {
-      | Some(hotspot) =>
-        let tIdx = HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot)
-        switch tIdx {
-        | Some(idx) =>
-          switch Belt.Array.get(currentState.scenes, idx) {
-          | Some(targetScene) =>
-            // Start Yellow Flicker
-            setFlickerYellow(_ => true)
-            let _ = setTimeout(() => {
-              setFlickerYellow(_ => false)
-              // Start Swap Animation & Logic
-              setIsSwapping(_ => true)
-              let newVal = !targetScene.isAutoForward
-              setLocalIsAF(_ => newVal)
-              dispatch(
-                Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": newVal})),
-              )
-              EventBus.dispatch(ForceHotspotSync)
-              NotificationManager.dispatch({
-                id: "",
-                importance: Info,
-                context: Operation("preview_arrow"),
-                message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-                details: None,
-                action: None,
-                duration: NotificationTypes.defaultTimeoutMs(Info),
-                dismissible: true,
-                createdAt: Date.now(),
-              })
-              let _ = setTimeout(() => setIsSwapping(_ => false), 600)
-            }, 800)
-          | None => ()
-          }
-        | None => ()
-        }
-      | None => ()
-      }
-    | None => ()
+    if toggleInFlightRef.current {
+      ()
+    } else {
+      toggleInFlightRef.current = true
+      let newVal = !localIsAF
+      setFlickerYellow(_ => true)
+      let _ = setTimeout(() => {
+        setFlickerYellow(_ => false)
+        setIsSwapping(_ => true)
+        setLocalIsAF(_ => newVal)
+        dispatch(
+          Actions.UpdateHotspotMetadata(
+            sceneIndex,
+            hotspotIndex,
+            Logger.castToJson({"isAutoForward": newVal}),
+          ),
+        )
+        let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Info,
+          context: Operation("preview_arrow"),
+          message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Info),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        let _ = setTimeout(() => {
+          setIsSwapping(_ => false)
+          toggleInFlightRef.current = false
+        }, 600)
+      }, 800)
     }
   }
 
@@ -156,9 +149,10 @@ let make = (
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        HotspotTarget.resolveScene(currentState.scenes, hotspot)
-        ->Option.map(s => s.isAutoForward)
-        ->Option.getOr(localIsAF)
+        switch hotspot.isAutoForward {
+        | Some(b) => b
+        | None => false
+        }
       | None => localIsAF
       }
     | None => localIsAF
