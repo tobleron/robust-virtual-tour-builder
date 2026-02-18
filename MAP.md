@@ -377,4 +377,13 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/systems/Exporter/ExporterUtils.res](src/systems/Exporter/ExporterUtils.res): New module detected. Please classify. #new
+* [src/systems/Exporter/ExporterUpload.res](src/systems/Exporter/ExporterUpload.res): New module detected. Please classify. #new
+* [src/systems/TourTemplates/TourStyles.res](src/systems/TourTemplates/TourStyles.res): New module detected. Please classify. #new
+* [src/systems/TourTemplates/TourData.res](src/systems/TourTemplates/TourData.res): New module detected. Please classify. #new
+* [src/systems/TourTemplates/TourScripts.res](src/systems/TourTemplates/TourScripts.res): New module detected. Please classify. #new
+* [src/systems/TourTemplates/TourAssets.res](src/systems/TourTemplates/TourAssets.res): New module detected. Please classify. #new
+* [src/systems/ProjectManager/ProjectSave.res](src/systems/ProjectManager/ProjectSave.res): New module detected. Please classify. #new
+* [src/systems/ProjectManager/ProjectRecovery.res](src/systems/ProjectManager/ProjectRecovery.res): New module detected. Please classify. #new
+* [src/systems/ProjectManager/ProjectUtils.res](src/systems/ProjectManager/ProjectUtils.res): New module detected. Please classify. #new
 * [backend/src/api/health.rs](backend/src/api/health.rs): New module detected. Please classify. #new
