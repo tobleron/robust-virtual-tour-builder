@@ -4,7 +4,7 @@ open TourTemplates.TourTemplateScripts
 
 describe("TourTemplateScripts", () => {
   test("generateRenderScript should include correct base size and core logic", t => {
-    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true)
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
 
     t->expect(String.includes(script, "32px"))->Expect.toBe(true)
     t->expect(String.includes(script, "const MIN_HFOV = 65"))->Expect.toBe(true)
@@ -15,7 +15,7 @@ describe("TourTemplateScripts", () => {
   })
 
   test("generateRenderScript should scale with different base sizes", t => {
-    let scriptLarge = generateRenderScript(64, 90.0, 65.0, 90.0, 375, 640, true)
+    let scriptLarge = generateRenderScript(64, 90.0, 65.0, 90.0, 375, 640, true, false)
     t->expect(String.includes(scriptLarge, "64px"))->Expect.toBe(true)
   })
 })
