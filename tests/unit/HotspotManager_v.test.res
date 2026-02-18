@@ -42,6 +42,7 @@ describe("HotspotManager", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
   }
 
@@ -67,7 +68,29 @@ describe("HotspotManager", () => {
     t->expect(String.includes(cssClass, "pnlm-hotspot"))->Expect.toBe(true)
   })
 
-  test("createHotspotConfig should mark auto-forward class", t => {
+  test("createHotspotConfig should mark auto-forward class from hotspot metadata", t => {
+    let hotspot = {...createHotspot("TargetScene"), isAutoForward: Some(true)}
+    let sourceScene = createScene("SourceScene")
+    let targetScene = {...createScene("TargetScene"), isAutoForward: false}
+
+    let state = {
+      ...State.initialState,
+      scenes: [sourceScene, targetScene],
+    }
+
+    let config = HotspotManager.createHotspotConfig(
+      ~hotspot,
+      ~index=0,
+      ~state,
+      ~scene=sourceScene,
+      ~dispatch=mockDispatch,
+    )
+
+    let cssClass: string = config["cssClass"]
+    t->expect(String.includes(cssClass, "auto-forward"))->Expect.toBe(true)
+  })
+
+  test("createHotspotConfig should not infer auto-forward from target scene", t => {
     let hotspot = createHotspot("TargetScene")
     let sourceScene = createScene("SourceScene")
     let targetScene = {...createScene("TargetScene"), isAutoForward: true}
@@ -86,7 +109,7 @@ describe("HotspotManager", () => {
     )
 
     let cssClass: string = config["cssClass"]
-    t->expect(String.includes(cssClass, "auto-forward"))->Expect.toBe(true)
+    t->expect(String.includes(cssClass, "auto-forward"))->Expect.toBe(false)
   })
 
   test("createHotspotConfig should handle displayPitch", t => {

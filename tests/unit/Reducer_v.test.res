@@ -97,6 +97,7 @@ describe("Reducer (Root Re-export)", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
     let action4 = AddHotspot(0, hotspot)
     let state4 = Reducer.reducer(stateWithScenes, action4)

@@ -114,31 +114,43 @@ let navigateToScene = (
 }
 
 let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
-  if state.simulation.status != Running && currentScene.isAutoForward && !state.isLinking {
-    let chain = state.navigationState.autoForwardChain
-    if Array.length(chain) == 0 {
-      state.navigationState.incomingLink->Option.forEach(l =>
-        dispatch(Actions.AddToAutoForwardChain(l.sceneIndex))
-      )
-    }
-    if Array.includes(chain, state.activeIndex) {
-      dispatch(ResetAutoForwardChain)
-      NotificationManager.dispatch({
-        id: "",
-        importance: Warning,
-        context: Operation("scene_switcher"),
-        message: "Loop detected",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Warning),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
+  if state.simulation.status != Running && !state.isLinking {
+    // 1. Explicitly marked hotspot (New precise logic)
+    let explicitHotspot =
+      currentScene.hotspots->Belt.Array.getBy(h => h.isAutoForward == Some(true))
+
+    // 2. Fallback to first non-return link if scene belongs to legacy auto-forward chain
+    let fallbackHotspot = if currentScene.isAutoForward {
+      currentScene.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true))
     } else {
-      dispatch(AddToAutoForwardChain(state.activeIndex))
-      currentScene.hotspots
-      ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-      ->Option.forEach(h => {
+      None
+    }
+
+    let targetHotspot = explicitHotspot->Option.orElse(fallbackHotspot)
+
+    targetHotspot->Option.forEach(h => {
+      let chain = state.navigationState.autoForwardChain
+      if Array.length(chain) == 0 {
+        state.navigationState.incomingLink->Option.forEach(l =>
+          dispatch(Actions.AddToAutoForwardChain(l.sceneIndex))
+        )
+      }
+
+      if Array.includes(chain, state.activeIndex) {
+        dispatch(ResetAutoForwardChain)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: Operation("scene_switcher"),
+          message: "Loop detected",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Warning),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      } else {
+        dispatch(AddToAutoForwardChain(state.activeIndex))
         HotspotTarget.resolveSceneIndex(state.scenes, h)->Option.forEach(tIdx => {
           let hIdx =
             currentScene.hotspots
@@ -146,8 +158,8 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
             ->Option.getOr(0)
           navigateToScene(dispatch, state, tIdx, state.activeIndex, hIdx, ())
         })
-      })
-    }
+      }
+    })
   }
 }
 

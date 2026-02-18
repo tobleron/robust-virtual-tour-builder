@@ -30,6 +30,7 @@ let _ = describe("TourTemplates", () => {
     displayPitch: Some(5.0),
     transition: None,
     duration: None,
+    isAutoForward: None,
   }
 
   let mockScene1: scene = {
@@ -131,6 +132,7 @@ let _ = describe("TourTemplates", () => {
       linkId: "link-to-sc3",
       target: "scene3",
       targetSceneId: Some("sc3"),
+      isAutoForward: Some(true),
     }
     let middleScene = {...mockScene2, hotspots: [hotspotToScene3], isAutoForward: false}
     let html = generateTourHTML(
@@ -147,9 +149,16 @@ let _ = describe("TourTemplates", () => {
   })
 
   test("generateTourHTML keeps two-state hotspot icon rendering", t => {
-    let targetAuto = {...mockScene2, isAutoForward: true}
+    let autoHotspot = {
+      ...mockHotspot,
+      linkId: "auto-link",
+      target: "scene2",
+      targetSceneId: Some("sc2"),
+      isAutoForward: Some(true),
+    }
+    let sourceScene = {...mockScene1, hotspots: [autoHotspot]}
     let html = generateTourHTML(
-      [mockScene1, targetAuto],
+      [sourceScene, mockScene2],
       "Icons Tour",
       None,
       "hd",
@@ -157,12 +166,13 @@ let _ = describe("TourTemplates", () => {
       100,
       "1.0",
     )
+    t->expectToContain(html, "\"targetIsAutoForward\":true")
     t->expectToContain(html, "if (args.targetIsAutoForward)")
     t->expectToContain(html, "M6 17 L11 12 L6 7")
     t->expectToContain(html, "M6 14 L12 8 L18 14")
   })
 
-  test("generateTourHTML auto-advance uses loaded scene auto-forward mode", t => {
+  test("generateTourHTML auto-advance uses explicit route metadata only", t => {
     let html = generateTourHTML([mockScene1, mockScene2], "Runtime Tour", None, "4k", 32, 40, "1.0")
     t->expectToContain(html, "function resolveScenePlaybackHotspot(sceneId, sceneData)")
     t->expectToContain(
@@ -181,9 +191,11 @@ let _ = describe("TourTemplates", () => {
       html,
       "if (routeIndex >= 0 && routeIndex < resolvedHotspots.length && routeTarget)",
     )
-    t->expectToContain(html, "const sceneAutoForward = sceneData?.isAutoForward === true;")
-    t->expectToContain(html, "const preferred = resolvedHotspots.find")
-    t->expectToContain(html, "const fallback = resolvedHotspots.find")
+    t
+    ->expect(String.includes(html, "const sceneAutoForward = sceneData?.isAutoForward === true;"))
+    ->Expect.toBe(false)
+    t->expect(String.includes(html, "const preferred = resolvedHotspots.find"))->Expect.toBe(false)
+    t->expect(String.includes(html, "const fallback = resolvedHotspots.find"))->Expect.toBe(false)
     t->expectToContain(html, "const autoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
     t->expectToContain(
@@ -193,6 +205,33 @@ let _ = describe("TourTemplates", () => {
     t
     ->expect(String.includes(html, "const autoForward = primary.targetIsAutoForward === true;"))
     ->Expect.toBe(false)
+  })
+
+  test("generateTourHTML does not infer auto-forward from scene-level flag alone", t => {
+    let hotspotToScene2 = {
+      ...mockHotspot,
+      linkId: "manual-link",
+      target: "scene2",
+      targetSceneId: Some("sc2"),
+      isAutoForward: None,
+    }
+    let sceneFlagOnly = {
+      ...mockScene1,
+      hotspots: [hotspotToScene2],
+      isAutoForward: true,
+    }
+    let html = generateTourHTML(
+      [sceneFlagOnly, mockScene2],
+      "No Legacy Inference Tour",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
+    t->expectToContain(html, "\"isAutoForward\":true")
+    t->expectToContain(html, "\"autoForwardHotspotIndex\":-1")
+    t->expectToContain(html, "\"autoForwardTargetSceneId\":\"\"")
   })
 
   test("delegated functions exist and return strings", t => {

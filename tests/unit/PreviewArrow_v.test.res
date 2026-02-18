@@ -35,6 +35,7 @@ describe("PreviewArrow", () => {
           displayPitch: None,
           transition: None,
           duration: None,
+          isAutoForward: None,
         },
       ],
       category: "outdoor",
@@ -139,7 +140,9 @@ describe("PreviewArrow", () => {
 
       // Check action
       switch lastAction.contents {
-      | Some(UpdateSceneMetadata(idx, _json)) => t->expect(idx)->Expect.toBe(1) // Target scene index
+      | Some(UpdateHotspotMetadata(sIdx, hIdx, _json)) =>
+        t->expect(sIdx)->Expect.toBe(0)
+        t->expect(hIdx)->Expect.toBe(0)
       | _ => t->expect(lastAction.contents != None)->Expect.toBe(true)
       }
 

@@ -44,6 +44,7 @@ describe("Simulation.PathGenerator", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
   }
 
