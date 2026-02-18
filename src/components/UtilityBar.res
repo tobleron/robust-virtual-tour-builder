@@ -42,7 +42,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
             id: "linking-info",
             importance: Info,
             context: Operation("utility_bar"),
-            message: "Link Mode: Click viewer to place link, ENTER to save",
+            message: "Linking mode ON",
             details: None,
             action: None,
             duration: NotificationTypes.defaultTimeoutMs(Info),

@@ -52,6 +52,18 @@ let make = React.memo(() => {
     <PersistentLabel activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
     <QualityIndicator activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
 
+    {if uiSlice.isLinking {
+      <div
+        className="absolute top-[64px] left-1/2 -translate-x-1/2 z-[5003] pointer-events-none flex flex-col items-center gap-1"
+      >
+        <span className="linking-hint-text">
+          {React.string("Click ENTER to save hotspot, ESC to cancel")}
+        </span>
+      </div>
+    } else {
+      React.null
+    }}
+
     <FloorNavigation
       scenesLoaded activeIndex={sceneSlice.activeIndex} isLinking={uiSlice.isLinking} simActive
     />
