@@ -646,6 +646,10 @@ module Scripts = {
         return;
       }
       durationMs = Math.min(Math.max((pathInfo.total / PAN_VELOCITY) * 1000.0, PAN_MIN_DURATION), PAN_MAX_DURATION);
+      
+      // Surgical: Disable looking mode during animation
+      lookingMode = false;
+      updateLookingModeUI();
       window.viewer.lookAt(path[0].pitch, path[0].yaw, getCurrentHfov(), false);
       const startAt = performance.now();
       const tick = now => {
@@ -668,12 +672,17 @@ module Scripts = {
             attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
           }, 360);
         }
+        
+        // Surgical: Restore looking mode preference
+        lookingMode = manualLookingMode;
+        updateLookingModeUI();
       };
       waypointRuntime.animationId = requestAnimationFrame(tick);
     }
 
     /* --- LOOKING MODE & LAZY DRIFT LOGIC --- */
     let lookingMode = true;
+    let manualLookingMode = true;
     function updateLookingModeUI() {
       const titleEl = document.getElementById('looking-mode-title');
       const dotEl = document.getElementById('looking-mode-dot');
@@ -683,7 +692,11 @@ module Scripts = {
       if (container) { if (lookingMode) { container.classList.remove('mode-paused'); } else { container.classList.add('mode-paused'); } }
       if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.active = false; }
     }
-    function toggleLookingMode() { lookingMode = !lookingMode; updateLookingModeUI(); }
+    function toggleLookingMode() { 
+        manualLookingMode = !manualLookingMode; 
+        lookingMode = manualLookingMode; 
+        updateLookingModeUI(); 
+    }
     if (typeof document !== 'undefined') {
       document.addEventListener('keydown', (e) => { if (e.key === 'l' || e.key === 'L') toggleLookingMode(); });
     }
