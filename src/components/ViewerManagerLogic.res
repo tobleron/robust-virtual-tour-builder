@@ -255,36 +255,40 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
     let unsub = EventBus.subscribe(e => {
       switch e {
       | ForceHotspotSync =>
-        let v = ViewerSystem.getActiveViewer()
-        let currentState = getState()
-        switch (
-          Nullable.toOption(v),
-          Belt.Array.get(currentState.scenes, currentState.activeIndex),
-        ) {
-        | (Some(viewer), Some(scene)) =>
-          // During forced sync, we allow it even if Stabilizing as long as it's not Loading/Swapping
-          let status = NavigationSupervisor.getStatus()
-          let isBusy = switch status {
-          | Loading(_) | Swapping(_) => true
-          | _ => false
-          }
+        let _ = Window.requestAnimationFrame(
+          _ => {
+            let v = ViewerSystem.getActiveViewer()
+            let currentState = getState()
+            switch (
+              Nullable.toOption(v),
+              Belt.Array.get(currentState.scenes, currentState.activeIndex),
+            ) {
+            | (Some(viewer), Some(scene)) =>
+              // During forced sync, we allow it even if Stabilizing as long as it's not Loading/Swapping
+              let status = NavigationSupervisor.getStatus()
+              let isBusy = switch status {
+              | Loading(_) | Swapping(_) => true
+              | _ => false
+              }
 
-          if !isBusy {
-            try {
-              HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
-            } catch {
-            | e =>
-              let (msg, _) = Logger.getErrorDetails(e)
-              Logger.warn(
-                ~module_="ViewerManagerLogic",
-                ~message="FORCE_SYNC_FAILED",
-                ~data=Some({"error": msg}),
-                (),
-              )
+              if !isBusy {
+                try {
+                  HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+                } catch {
+                | e =>
+                  let (msg, _) = Logger.getErrorDetails(e)
+                  Logger.warn(
+                    ~module_="ViewerManagerLogic",
+                    ~message="FORCE_SYNC_FAILED",
+                    ~data=Some({"error": msg}),
+                    (),
+                  )
+                }
+              }
+            | _ => ()
             }
-          }
-        | _ => ()
-        }
+          },
+        )
       | PreviewLinkId(linkId) =>
         let currentState = getState()
         switch Belt.Array.get(currentState.scenes, currentState.activeIndex) {

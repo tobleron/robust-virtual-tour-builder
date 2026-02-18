@@ -19,6 +19,7 @@ type rec action =
   | SyncSceneNames
   | ApplyLazyRename(int, string)
   | UpdateSceneMetadata(int, JSON.t)
+  | UpdateHotspotMetadata(int, int, JSON.t)
   | UpdateHotspotTargetView(int, int, float, float, float)
   | UpdateHotspotReturnView(int, int, float, float, float)
   | ToggleHotspotReturnLink(int, int)
@@ -77,6 +78,8 @@ let hotspotActionToString = (action: action): option<string> =>
   | RemoveHotspot(sIdx, hIdx) =>
     Some(`RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | ClearHotspots(idx) => Some(`ClearHotspots(${Belt.Int.toString(idx)})`)
+  | UpdateHotspotMetadata(sIdx, hIdx, _) =>
+    Some(`UpdateHotspotMetadata(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) =>
     Some(`UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) =>

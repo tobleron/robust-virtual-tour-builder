@@ -144,8 +144,18 @@ module PipelineNode = {
     let className =
       "pipeline-node" ++ (isActive ? " active" : "") ++ (isDraggingSelf ? " is-dragging" : "")
 
-    let isAutoForward = switch targetScene {
-    | Some(ts) => ts.isAutoForward
+    let isAutoForward = switch scene {
+    | Some(s) =>
+      // Check if THIS specific link is marked as auto-forward
+      let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
+      switch hotspot {
+      | Some(h) =>
+        switch h.isAutoForward {
+        | Some(true) => true
+        | _ => false
+        }
+      | None => false
+      }
     | None => false
     }
 

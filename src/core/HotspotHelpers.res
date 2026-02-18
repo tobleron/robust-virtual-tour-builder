@@ -48,9 +48,7 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
       | Some(entry) =>
         let sourceScene = entry.scene
         switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
-        | Some(hotspotToDelete) =>
-          let targetSceneId = HotspotTarget.resolveSceneId(state.scenes, hotspotToDelete)
-
+        | Some(_hotspotToDelete) =>
           // 1. Remove the hotspot
           let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
             i != hotspotIndex
@@ -61,32 +59,7 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
               {...entry, scene: {...sourceScene, hotspots: newSourceHotspots}},
             )
 
-          // 2. Check if anything else still points to targetName
-          let stillReferenced = updatedInventory->Belt.Map.String.some((_id, e) => {
-            switch (e.status, targetSceneId) {
-            | (Active, Some(tid)) =>
-              Belt.Array.some(e.scene.hotspots, h =>
-                HotspotTarget.resolveSceneId(state.scenes, h)
-                ->Option.map(id => id == tid)
-                ->Option.getOr(false)
-              )
-            | _ => false
-            }
-          })
-
-          // 3. If no longer referenced, reset target scene's isAutoForward in inventory
-          let finalInventory = if !stillReferenced {
-            updatedInventory->Belt.Map.String.map(e => {
-              switch targetSceneId {
-              | Some(tid) if e.scene.id == tid => {...e, scene: {...e.scene, isAutoForward: false}}
-              | _ => e
-              }
-            })
-          } else {
-            updatedInventory
-          }
-
-          {...state, inventory: finalInventory}->SceneMutations.rebuildLegacyFields
+          {...state, inventory: updatedInventory}->SceneMutations.rebuildLegacyFields
         | None => state
         }
       | None => state
@@ -208,6 +181,54 @@ let handleToggleHotspotReturnLink = (state: state, sceneIndex: int, hotspotIndex
             let nextVal = !currentVal
             let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
             {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
+          } else {
+            h
+          }
+        })
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            id,
+            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
+          ),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
+    }
+  | _ => state
+  }
+}
+let handleUpdateHotspotMetadata = (
+  state: state,
+  sceneIndex: int,
+  hotspotIndex: int,
+  metadata: JSON.t,
+): state => {
+  switch state.appMode {
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let decoded = JsonCombinators.Json.decode(
+          metadata,
+          JsonParsers.Domain.updateHotspotMetadata,
+        )
+        let meta = switch decoded {
+        | Ok(m) => m
+        | Error(_) => {isAutoForward: None}
+        }
+
+        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
+          if hi == hotspotIndex {
+            {
+              ...h,
+              isAutoForward: switch meta.isAutoForward {
+              | Some(af) => Some(af)
+              | None => h.isAutoForward
+              },
+            }
           } else {
             h
           }

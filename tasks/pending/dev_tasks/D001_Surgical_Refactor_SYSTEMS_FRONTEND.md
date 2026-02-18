@@ -19,7 +19,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 2.40, Density: 0.09, Coupling: 0.08] | Drag: 3.48 | LOC: 400/300  🎯 Target: Function: `classifySaveError` (High Local Complexity (10.5). Logic heavy.))
 
-- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 4.20, Density: 0.13, Coupling: 0.02] | Drag: 5.33 | LOC: 1111/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (7.9). Logic heavy.))
+- [ ] - **../../src/systems/TourTemplates.res** (Metric: [Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.73 | LOC: 1068/300  🎯 Target: Function: `autoForwardHotspotIndex` (High Local Complexity (6.8). Logic heavy.))
 
 
 ## 🔎 Programmatic Verification
@@ -67,7 +67,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TourTemplates.res`
 - `src/systems/TourTemplates.res` (4 functions, fingerprint 304350c5fd614be01d30b964ec8fd71537a12de284d7a372709b85f9db712f9c)
     - Grouped summary:
-        - generateEmbedCodes × 1 (lines: 1147)
-        - generateExportIndex × 2 (lines: 43, 1148)
+        - generateEmbedCodes × 1 (lines: 1104)
+        - generateExportIndex × 2 (lines: 43, 1105)
         - indexTemplate × 1 (lines: 9)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

@@ -48,6 +48,7 @@ let hotspot = (h: Types.hotspot) => {
     ("displayPitch", Encode.option(Encode.float)(h.displayPitch)),
     ("transition", Encode.option(Encode.string)(h.transition)),
     ("duration", Encode.option(i => Encode.float(Belt.Int.toFloat(i)))(h.duration)),
+    ("isAutoForward", Encode.option(Encode.bool)(h.isAutoForward)),
   ])
 }
 

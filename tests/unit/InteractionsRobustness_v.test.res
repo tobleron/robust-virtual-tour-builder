@@ -87,6 +87,7 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
           displayPitch: None,
           transition: None,
           duration: None,
+          isAutoForward: None,
         },
       )
     } else {

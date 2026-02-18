@@ -188,6 +188,7 @@ let showLinkModal = (
             displayPitch: Some(displayPitch),
             transition: None,
             duration: None,
+            isAutoForward: None,
           }
 
           Logger.info(

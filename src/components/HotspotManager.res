@@ -24,7 +24,6 @@ let createHotspotConfig = (
 ) => {
   let isSimulationMode = state.simulation.status != Idle
   let incomingLink = state.navigationState.incomingLink
-  let targetSceneOpt = HotspotTarget.resolveScene(state.scenes, hotspot)
 
   // NAVIGATION LOGIC
   let isReturnLink = switch incomingLink {
@@ -36,8 +35,8 @@ let createHotspotConfig = (
   | None => false
   }
 
-  let isTargetAutoForward = switch targetSceneOpt {
-  | Some(ts) => ts.isAutoForward
+  let isAutoForward = switch hotspot.isAutoForward {
+  | Some(b) => b
   | None => false
   }
 
@@ -49,7 +48,7 @@ let createHotspotConfig = (
 
   // CSS Class (Always Gold, only 3rd chevron changes)
   let cssClass = ref("pnlm-hotspot flat-arrow arrow-gold")
-  if isTargetAutoForward {
+  if isAutoForward {
     cssClass := cssClass.contents ++ " auto-forward"
   }
   if isReturnLink {
@@ -113,7 +112,7 @@ let createHotspotConfig = (
             hotspotIndex={index}
             dispatch={dispatch}
             elementId={elementId}
-            isTargetAutoForward={isTargetAutoForward}
+            isTargetAutoForward={isAutoForward}
             scenes={state.scenes}
             state={state}
           />,
@@ -220,6 +219,25 @@ let handleUpdateSceneMetadata = async (
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.UpdateSceneMetadata(sceneIndex, metadata),
+    ~apiCall=() => {
+      let state = getState()
+      switch state.sessionId {
+      | Some(sid) =>
+        let projectData = getProjectData(state)
+        Api.ProjectApi.saveProject(sid, projectData)
+      | None => Promise.resolve(Ok())
+      }
+    },
+  )
+}
+let handleUpdateHotspotMetadata = async (
+  sceneIndex: int,
+  hotspotIndex: int,
+  metadata: JSON.t,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+) => {
+  let _ = await OptimisticAction.execute(
+    ~action=Actions.UpdateHotspotMetadata(sceneIndex, hotspotIndex, metadata),
     ~apiCall=() => {
       let state = getState()
       switch state.sessionId {

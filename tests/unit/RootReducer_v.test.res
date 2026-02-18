@@ -44,6 +44,7 @@ describe("Reducer", () => {
       displayPitch: None,
       transition: None,
       duration: None,
+      isAutoForward: None,
     }
     hs
   }
