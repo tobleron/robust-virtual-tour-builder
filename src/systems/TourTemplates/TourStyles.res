@@ -21,11 +21,11 @@ let cssTemplate = `
       0% { opacity: 0.25; transform: translateX(-50%) translateY(10px) scale(0.94); }
       100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     }
-    #viewer-floor-tags-export { position: relative; z-index: 6006; width: min(154px, calc(100vw - 52px)); display: flex; flex-direction: column; align-items: stretch; gap: 6px; pointer-events: auto; user-select: none; margin-top: 10px; }
+    #viewer-floor-tags-export { position: relative; z-index: 6006; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: auto; user-select: none; margin-top: 14px; }
     #viewer-floor-tags-export.state-hidden { display: none; }
-    #viewer-floor-tags-export .floor-tag-shortcut-row { width: 100%; display: grid; grid-template-columns: 1.45em minmax(0, 1fr); align-items: start; justify-items: start; column-gap: 6px; color: #fff; font-family: var(--font-family); font-size: 14px; font-weight: 400; line-height: 1.25; font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.52); border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; }
-    #viewer-floor-tags-export .floor-tag-shortcut-row:hover { opacity: 0.88; }
-    #viewer-floor-tags-export .floor-tag-shortcut-index { font-weight: 700; text-align: left; }
+    #viewer-floor-tags-export .floor-tag-shortcut-row { width: auto; display: grid; grid-template-columns: 1.45em minmax(0, 1fr); align-items: start; justify-items: start; column-gap: 8px; color: #ffffff; font-family: var(--font-family); font-size: 14px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+    #viewer-floor-tags-export .floor-tag-shortcut-row:hover { transform: translateX(2px); transition: all 0.2s ease; }
+    #viewer-floor-tags-export .floor-tag-shortcut-index { font-weight: 800; text-align: left; }
     #viewer-floor-tags-export .floor-tag-shortcut-label { font-weight: 400; letter-spacing: 0.01em; text-transform: none; text-align: left; white-space: normal; overflow-wrap: anywhere; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
@@ -68,17 +68,16 @@ let cssTemplate = `
     .pnlm-grab { cursor: inherit !important; }
     .pnlm-grabbing { cursor: grabbing !important; }
     /* Looking Mode Indicator */
-    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: flex-start; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 10px 12px 24px 12px; min-height: 242px; border-radius: 12px; background: rgba(11, 20, 40, 0.24); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
-    .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); transition: background-color 0.3s ease, box-shadow 0.3s ease; margin-top: 1px; }
-    .mode-dot.paused { background-color: #f97316; box-shadow: 0 0 8px rgba(249, 115, 22, 0.4); }
-    .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: flex-start; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 12px; width: 174px; height: 131.7px; border-radius: 12px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: #ffffff; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+    .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.5), 0 0 0 1.5px rgba(0,0,0,0.6); transition: background-color 0.3s ease, box-shadow 0.3s ease; margin-top: 5px; }
+    .mode-dot.paused { background-color: #f97316; box-shadow: 0 0 8px rgba(249, 115, 22, 0.4), 0 0 0 1.5px rgba(0,0,0,0.6); }
     .mode-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
     .mode-subtitle { font-size: 11px; font-weight: 400; opacity: 0.86; line-height: 1.2; }
     .mode-shortcut-key { font-size: 13px; font-weight: 700; }
     .pnlm-container.mode-paused { cursor: default !important; }
     .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
-    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; padding: 7px 8px 18px 8px; min-height: 180px; border-radius: 10px; gap: 8px; }
-    body.export-state-portrait .looking-mode-indicator { padding-bottom: 22px; min-height: 190px; }
+    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; padding: 10px; width: 135px; height: 103px; border-radius: 10px; gap: 8px; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
     body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 10px; }
     body.is-hd-export .mode-shortcut-key, body.export-state-tablet .mode-shortcut-key, body.export-state-portrait .mode-shortcut-key { font-size: 12px; }
