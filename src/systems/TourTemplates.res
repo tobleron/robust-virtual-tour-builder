@@ -107,14 +107,14 @@ module Styles = {
     @keyframes home-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     body.export-state-portrait { padding: var(--export-fallback-padding); box-sizing: border-box; }
     body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 375px) !important; min-width: 0 !important; max-width: calc(100vw - (var(--export-fallback-padding) * 2)) !important; aspect-ratio: 9 / 16 !important; border-radius: 12px !important; border: 1px solid #b44409 !important; box-shadow: none !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
-    body.export-state-tablet #viewer-floor-nav-export, body.export-state-portrait #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
-    body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
-    body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
-    body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
-    body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
+    body.is-hd-export #viewer-floor-nav-export, body.export-state-tablet #viewer-floor-nav-export, body.export-state-portrait #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
+    body.is-hd-export #viewer-floor-nav-export .floor-nav-btn, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
+    body.is-hd-export #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
+    body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    body.is-hd-export .watermark, body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; padding: 2px; border-radius: 6px; }
 
-    body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
-    body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
+    body.is-hd-export .export-hotspot-root, body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
+    body.is-hd-export .export-hotspot-icon, body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
     
     /* Lazy Drift Cursor */
     .pnlm-container { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l-3 3 3 3M9 5l3-3 3 3M19 9l3 3-3 3M9 19l3 3 3-3M2 12h20M12 2v20'/%3E%3C/svg%3E") 12 12, move; }
@@ -129,9 +129,9 @@ module Styles = {
     .mode-subtitle { font-size: 10px; font-weight: 500; opacity: 0.8; line-height: 1.2; }
     .pnlm-container.mode-paused { cursor: default !important; }
     .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
-    body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; }
-    body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
-    body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 9px; }
+    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; }
+    body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
+    body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 9px; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
@@ -207,7 +207,6 @@ module Scripts = {
       return vmax * (t - 0.5 * factor);
     }
     function resolveExportViewportState() {
-      if (typeof IS_HD_EXPORT === 'boolean' && IS_HD_EXPORT) return "portrait";
       const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
       if (portraitViewport) return "portrait";
       // Allow desktop mode if viewport is at least 60px wider than the stage max width
@@ -222,6 +221,11 @@ module Scripts = {
       document.body.classList.remove("export-state-tablet");
       document.body.classList.remove("export-state-portrait");
       document.body.classList.add("export-state-" + nextState);
+      
+      if (typeof IS_HD_EXPORT === 'boolean' && IS_HD_EXPORT) {
+        document.body.classList.add("is-hd-export");
+      }
+      
       return nextState;
     }
     function getCurrentHfov() {
