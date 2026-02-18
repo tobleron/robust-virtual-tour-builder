@@ -115,6 +115,11 @@ module Styles = {
     body.export-state-tablet .watermark img, body.export-state-portrait .watermark img { height: calc(__LOGO_SIZE__px * 0.72); }
     body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
     body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
+    
+    /* Lazy Drift Cursor */
+    .pnlm-container { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l-3 3 3 3M9 5l3-3 3 3M19 9l3 3-3 3M9 19l3 3 3-3M2 12h20M12 2v20'/%3E%3C/svg%3E") 12 12, move; }
+    .pnlm-grab { cursor: inherit !important; }
+    .pnlm-grabbing { cursor: grabbing !important; }
   `
 
   let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
@@ -646,6 +651,126 @@ module Scripts = {
       };
       waypointRuntime.animationId = requestAnimationFrame(tick);
     }
+
+    /* --- LAZY DRIFT LOGIC --- */
+    const DRIFT_SPEED_FACTOR = 2.2; 
+    const DRIFT_DEADZONE = 0.1;
+    let driftRuntime = { active: false, rafId: null, vector: { x: 0, y: 0 } };
+
+    function updateDriftVector(e) {
+      if (waypointRuntime.animationId !== null) return; // Busy navigating
+      // If mouse is down, user is dragging, so pause drift
+      if (e.buttons > 0) return;
+
+      const stage = document.getElementById('stage');
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+
+      const w = rect.width;
+      const h = rect.height;
+      const cx = rect.left + w / 2; // Center X relative to viewport
+      const cy = rect.top + h / 2;  // Center Y relative to viewport
+      
+      if (w < 1 || h < 1) return;
+
+      const isOutside = e.clientX < rect.left || 
+                        e.clientX > rect.right || 
+                        e.clientY < rect.top || 
+                        e.clientY > rect.bottom;
+
+      let vx = 0;
+      let vy = 0;
+
+      if (isOutside) {
+         // Premium feel: Significant slow down + fade out over distance
+         const FADE_DISTANCE = 300; 
+         const START_DAMPING = 0.2; // Drop to 20% speed immediately at edge
+
+         const distX = Math.max(0, rect.left - e.clientX, e.clientX - rect.right);
+         const distY = Math.max(0, rect.top - e.clientY, e.clientY - rect.bottom);
+         const dist = Math.sqrt(distX*distX + distY*distY);
+         
+         const distFactor = Math.max(0, 1.0 - (dist / FADE_DISTANCE));
+         const outsideSpeed = DRIFT_SPEED_FACTOR * START_DAMPING * distFactor;
+         
+         // Normalize direction vector to max 1.0 magnitude to prevent acceleration
+         const rawDx = (e.clientX - cx);
+         const rawDy = (e.clientY - cy);
+         const mag = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+         if (mag > 0) {
+             vx = (rawDx / mag) * outsideSpeed;
+             vy = (rawDy / mag) * outsideSpeed;
+         }
+      } else {
+        const dx = (e.clientX - cx) / (w / 2); // -1.0 to 1.0
+        const dy = (e.clientY - cy) / (h / 2); // -1.0 to 1.0
+
+        // Deadzone Check
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+
+        if (ax > DRIFT_DEADZONE) {
+          const sign = Math.sign(dx);
+          const ramp = (ax - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
+          vx = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR;
+        }
+
+        if (ay > DRIFT_DEADZONE) {
+          const sign = Math.sign(dy);
+          const ramp = (ay - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
+          vy = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR; 
+        }
+      }
+
+      driftRuntime.vector = { x: vx, y: vy };
+
+      if (!driftRuntime.active && (vx !== 0 || vy !== 0)) {
+        startDriftLoop();
+      }
+    }
+
+    function startDriftLoop() {
+      if (driftRuntime.active) return;
+      driftRuntime.active = true;
+      
+      function tick() {
+        // Stop if navigating
+        if (waypointRuntime.animationId !== null) {
+          driftRuntime.active = false;
+          driftRuntime.vector = { x: 0, y: 0 };
+          return;
+        }
+
+        // Stop if stationary
+        if (driftRuntime.vector.x === 0 && driftRuntime.vector.y === 0) {
+          driftRuntime.active = false;
+          return;
+        }
+
+        if (window.viewer && typeof window.viewer.getYaw === 'function') {
+           const nextYaw = window.viewer.getYaw() + driftRuntime.vector.x;
+           const nextPitch = window.viewer.getPitch() - driftRuntime.vector.y; // Invert Y
+           // Clamp pitch (-85 to 85 is standard safe range)
+           const clampedPitch = Math.max(-85, Math.min(85, nextPitch));
+           
+           window.viewer.lookAt(clampedPitch, nextYaw, getCurrentHfov(), false);
+        }
+        
+        driftRuntime.rafId = requestAnimationFrame(tick);
+      }
+      driftRuntime.rafId = requestAnimationFrame(tick);
+    }
+    
+    // Attach Global Listeners
+    if (typeof document !== 'undefined') {
+      document.addEventListener("mousemove", updateDriftVector);
+      document.addEventListener("mousedown", () => {
+         driftRuntime.vector = { x: 0, y: 0 };
+         driftRuntime.active = false;
+         if (driftRuntime.rafId) cancelAnimationFrame(driftRuntime.rafId);
+      });
+    }
+
     function renderOrangeHotspot(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
