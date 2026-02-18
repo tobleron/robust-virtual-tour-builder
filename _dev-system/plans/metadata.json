@@ -186,6 +186,50 @@
   ],
   "rescript": [
     {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates/TourScripts.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 920/409",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 52.10978260869565,
+        "recommended_splits": 3,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates/TourScripts.res",
+              "functions": [
+                {
+                  "name": "renderScriptTemplate",
+                  "signature": "renderScriptTemplate = `",
+                  "line": 1
+                },
+                {
+                  "name": "loadEventScript",
+                  "signature": "loadEventScript = `",
+                  "line": 929
+                },
+                {
+                  "name": "generateRenderScript",
+                  "signature": "generateRenderScript = (",
+                  "line": 948
+                }
+              ],
+              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
+            }
+          ]
+        }
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/components/ViewerManagerLogic.res",
         "action": "De-bloat",
@@ -369,50 +413,6 @@
                 }
               ],
               "fingerprint": "3ef31dbeeec0cc9bcd17dc7de5ca6cb6278812cdbcf66c3c845e30bc2d132bf0"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates/TourScripts.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 920/409",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 52.10978260869565,
-        "recommended_splits": 3,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates/TourScripts.res",
-              "functions": [
-                {
-                  "name": "renderScriptTemplate",
-                  "signature": "renderScriptTemplate = `",
-                  "line": 1
-                },
-                {
-                  "name": "loadEventScript",
-                  "signature": "loadEventScript = `",
-                  "line": 929
-                },
-                {
-                  "name": "generateRenderScript",
-                  "signature": "generateRenderScript = (",
-                  "line": 948
-                }
-              ],
-              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
             }
           ]
         }
