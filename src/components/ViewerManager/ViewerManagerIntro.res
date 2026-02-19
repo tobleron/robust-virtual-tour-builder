@@ -1,9 +1,7 @@
 // @efficiency-role: ui-component
 
 open ReBindings
-open ViewerState
 open Types
-open Actions
 
 // Hook 10: Intro Pan logic
 let useIntroPan = (

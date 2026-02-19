@@ -240,6 +240,21 @@ let waypointSmoothingFactor = 0.3 // 0.0 (raw) to 1.0 (max smoothing)
 module Simulation = {
   let stepDelay = 5000
 }
+let isTestEnvironment = () => {
+  try {
+    %raw(`(typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'))`)
+  } catch {
+  | _ => false
+  }
+}
+
+module Exporter = {
+  let retryDelayMs = if isTestEnvironment() {
+    0
+  } else {
+    2000
+  }
+}
 let sceneLoadTimeout = 30000
 
 // ============================================
@@ -307,13 +322,6 @@ let isDebugBuild = () => {
   mode == "development" || isDevStr == "true"
 }
 
-let isTestEnvironment = () => {
-  try {
-    %raw(`(typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'))`)
-  } catch {
-  | _ => false
-  }
-}
 
 let enableStateInspector = () => {
   try {
