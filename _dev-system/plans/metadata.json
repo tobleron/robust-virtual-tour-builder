@@ -1,13 +1,6 @@
 {
   "rescript": [
     {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/systems/Exporter.res",
         "action": "De-bloat",
@@ -194,6 +187,13 @@
             }
           ]
         }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
