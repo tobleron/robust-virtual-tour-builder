@@ -2,6 +2,13 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-02-19 Archive Consolidation
+- **1404-1435: Export Engine & UX Parity** — Hardened export pipeline (streaming, quota, headless teaser) and resolved critical viewer crashes, HFOV distortion, and standalone CORS parity issues.
+- **1436-1461: Resilience, Persistence & Recovery** — Implemented centralized network status monitoring, circuit breaker fixes, and resilient persistence flushing. Enhanced upload recovery UX and project validation robustness.
+- **1466-1478, T1439-T1446: UI Systems & Auto-Forward** — Refined floor-aware navigation, glass-panel shortcut overlays with root-2 ratio geometry, and looking-mode aware interaction triggers.
+- **T1415-T1438: Forensic Troubleshooting** — Resolved complex race conditions in scene loading, label renaming, and keyboard event interception across the builder and export targets.
+- **D001-D005: Dev-System Governance** — Routine codebase taxonomy synchronization, module classification, and task aggregation maintenance.
+
 ## 🗄️ 2026-02-16 Archive Consolidation
 - **1401-1403: Security Hardening** — Stabilized backend error handling, hardened token/auth transport, and enforced path canonicalization safeguards.
 - **1369-1375: UX/Test Quality Pass** — Tightened upload sorting and filename ordering, improved scene tooltip UX, and completed focused unit test audit/cleanup across core/systems/UI.
