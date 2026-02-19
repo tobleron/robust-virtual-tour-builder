@@ -5,14 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.24.0] - 2026-02-19
+## [4.25.0] - 2026-02-19
 
 ### Added
-- Add visual indicator for shortcut selection and refine pre-push safety
+- Created `docs/VISUAL_PIPELINE_V1_REFERENCE.md` as a revert-safe design specification for the circle-chain pipeline.
 
 ### Changed
-- Fix analyzer dev-task logic, refactor exporter, and align vitests
-- Fix analyzer dev-task logic, refactor exporter, and align vitests
+- **Visual Pipeline V2 Migration**: Replaced circle-chain design with a premium **thumbnail-chain** architecture.
+- **Thumbnail Nodes**: Rectangular scene previews (44x30px) with 3px borders derived from scene histogram data.
+- **Auto-Forward Indication**: Enhanced visibility by overriding the thumbnail border with **Indigo Pigment (#4B0082)** for scenes with auto-forward enabled.
+- **Active State**: Refined active scene indicator with a **1px flush orange ring** (no gap) and scale-up animation.
+- **Cleanup**: Removed drag-and-drop from the pipeline (moved to Sidebar DnD task T1483) and removed orange separator arrows for a cleaner look.
+- **Performance**: Optimized thumbnail loading using `tinyFile` with fallback to main source.
+
+## [4.24.0] - 2026-02-19
+
+### Changed
+- Migrate Visual Pipeline to V2 Thumbnail Chain and add design reference
 
 ## [4.23.0] - 2026-02-19
 

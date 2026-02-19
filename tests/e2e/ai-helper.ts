@@ -4,7 +4,13 @@ import { Page } from '@playwright/test';
  * AI-Helper: Enhances Playwright logs with application-specific context
  * to help AI agents diagnose and fix code.
  */
-export async function setupAIObservability(page: Page) {
+type ObservabilityOptions = {
+  verboseConsole?: boolean;
+};
+
+export async function setupAIObservability(page: Page, options: ObservabilityOptions = {}) {
+  const verboseConsole = options.verboseConsole ?? process.env.E2E_VERBOSE_CONSOLE === '1';
+
   // 1. Capture Unhandled Exceptions that might not trigger a crash but indicate bugs
   page.on('pageerror', (exception) => {
     console.log(`[AI-DIAGNOSTIC][EXCEPTION] ${exception.stack || exception.message}`);
@@ -14,9 +20,11 @@ export async function setupAIObservability(page: Page) {
     console.log(`[AI-DIAGNOSTIC][NET_FAIL] ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
   });
 
-  // 3. Forward Browser Logs to Terminal
+  // 3. Forward Browser Logs to Terminal (errors/warnings by default).
   page.on('console', msg => {
-    console.log(`BROWSER: ${msg.text()}`);
+    if (verboseConsole || msg.type() === 'error' || msg.type() === 'warning') {
+      console.log(`BROWSER[${msg.type()}]: ${msg.text()}`);
+    }
   });
 
   // 3. Inject a state-dumping utility and log capture
