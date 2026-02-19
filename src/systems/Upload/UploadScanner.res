@@ -9,9 +9,9 @@ let handleFingerprinting = (
   ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
-  updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
+  updateProgress(0.0, "Scanning images...", true, "Scanning")
   FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
-    updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")
+    updateProgress(18.0, "Preparing batch...", true, "Scanning")
     let currentState = getState()
     let uniqueItems = FingerprintService.filterDuplicates(
       results,

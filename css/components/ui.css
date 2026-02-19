@@ -47,7 +47,24 @@
 }
 
 .sidebar-progress-fill {
-    background-color: var(--primary);
+    background: linear-gradient(
+        90deg,
+        var(--primary) 0%,
+        color-mix(in srgb, var(--primary), white 30%) 50%,
+        var(--primary) 100%
+    );
+    background-size: 200% 100%;
+    animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 .sidebar-version-line {
