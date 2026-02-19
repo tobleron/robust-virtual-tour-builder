@@ -72,16 +72,14 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.19.2"
+let cacheName = "vtb-cache-v4.24.0"
 let manualAssets = [
   "/",
   "/index.html",
   "/early-boot.js",
-  "/images/6993649b4236040ec564c8cb.mp4.crdownload",
   "/images/icon-192.png",
   "/images/icon-512.png",
   "/images/logo.png",
-  "/images/logo_metallic_premium.png",
   "/images/logo_old.png",
   "/images/logo_on_leather.png",
   "/images/og-preview.png",

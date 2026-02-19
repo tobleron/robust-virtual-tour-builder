@@ -54,7 +54,6 @@ let script = `
     function renderOrangeHotspot(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
-      const isHome = currentSceneData && currentSceneData.hotSpots.length === 1 && persistentFrom && args.targetSceneId === persistentFrom;
       const ownerScene = args.sourceSceneId ?? currentSceneId;
       hotSpotDiv.style.width = "__BASE_SIZE__px"; hotSpotDiv.style.height = "__BASE_SIZE__px";
       hotSpotDiv.style.pointerEvents = "auto";
@@ -101,48 +100,30 @@ let script = `
       const svg = document.createElementNS(ns, "svg");
       svg.setAttribute("class", "custom-arrow-svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.overflow = "visible";
 
-      if (isHome) {
-        hotSpotDiv.setAttribute('data-target-home', 'true');
-        const defs = document.createElementNS(ns, "defs");
-        const grad = document.createElementNS(ns, "linearGradient");
-        grad.setAttribute("id", "homeGradExport_" + args.i); grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
-        [{o:"0%",c:"var(--gold-1)"},{o:"50%",c:"var(--gold-2)"},{o:"100%",c:"var(--gold-3)"}].forEach(s=>{ const stop=document.createElementNS(ns,"stop"); stop.setAttribute("offset",s.o); stop.style.stopColor=s.c; grad.appendChild(stop); });
-        defs.appendChild(grad); svg.appendChild(defs);
-        const rect = document.createElementNS(ns, "rect"); rect.setAttribute("x", "5"); rect.setAttribute("y", "5"); rect.setAttribute("width", "90"); rect.setAttribute("height", "90"); rect.setAttribute("rx", "12"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")"); svg.appendChild(rect);
-        const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "52"); text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle"); text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "22px"; text.setAttribute("fill", "var(--gold-text)"); text.textContent = "HOME"; svg.appendChild(text);
+      const root = document.createElement("div");
+      root.className = "export-hotspot-root" + (args.targetIsAutoForward ? " auto-forward" : "");
+      const btn = document.createElement("div");
+      btn.className = "export-hotspot-btn";
+      const sweep = document.createElement("div");
+      sweep.className = "export-hotspot-btn-sweep";
+      const icon = document.createElementNS(ns, "svg");
+      icon.setAttribute("class", "export-hotspot-icon");
+      icon.setAttribute("viewBox", "0 0 24 24");
+      if (args.targetIsAutoForward) {
+        const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
+        const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
       } else {
-        const root = document.createElement("div");
-        root.className = "export-hotspot-root" + (args.targetIsAutoForward ? " auto-forward" : "");
-        const btn = document.createElement("div");
-        btn.className = "export-hotspot-btn";
-        const sweep = document.createElement("div");
-        sweep.className = "export-hotspot-btn-sweep";
-        const icon = document.createElementNS(ns, "svg");
-        icon.setAttribute("class", "export-hotspot-icon");
-        icon.setAttribute("viewBox", "0 0 24 24");
-        if (args.targetIsAutoForward) {
-          const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
-          const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
-        } else {
-          const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
-        }
-        btn.appendChild(sweep);
-        btn.appendChild(icon);
-        root.appendChild(btn);
-        while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
-        hotSpotDiv.appendChild(root);
-        hotSpotDiv.__navInFlight = false;
-        hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
-        bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
-        bindNavigateHandlers(root, hotSpotDiv);
-        bindNavigateHandlers(btn, hotSpotDiv);
-        return;
+        const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
       }
+      btn.appendChild(sweep);
+      btn.appendChild(icon);
+      root.appendChild(btn);
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
-      hotSpotDiv.appendChild(svg);
+      hotSpotDiv.appendChild(root);
       hotSpotDiv.__navInFlight = false;
-      hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, hotSpotDiv.getAttribute('data-target-home') === 'true' ? firstSceneId : null); };
+      hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
       bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
-      bindNavigateHandlers(svg, hotSpotDiv);
+      bindNavigateHandlers(root, hotSpotDiv);
+      bindNavigateHandlers(btn, hotSpotDiv);
     }
 `
