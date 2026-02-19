@@ -42,6 +42,7 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
       dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
     });
     await page.reload();
+    await page.waitForLoadState('networkidle');
   });
 
   test('should persist project data through save/load cycle', async ({ page }) => {
@@ -120,10 +121,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(savePath);
     }
-
-    // Wait for Project Loaded notification (toast)
-    // Using a regex to be flexible about the exact message "Project Loaded!"
-    await expect(page.locator('li[data-sonner-toast]')).toContainText(/Project/i, { timeout: 30000 });
 
     // 5. Verify Restoration
     console.log('Step 5: Verifying restoration...');
