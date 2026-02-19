@@ -22,9 +22,12 @@ test.describe('Editor Interactions', () => {
     await setupAIObservability(page);
     await resetClientState(page);
 
+    // Jules hardening: Wait for viewer logic to stabilize after load
+    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await page.waitForTimeout(1000); 
+
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
     await waitForNavigationStabilization(page);
-
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
     await waitForNavigationStabilization(page);
   });
@@ -33,16 +36,27 @@ test.describe('Editor Interactions', () => {
     test.setTimeout(240000);
     const sceneItems = page.locator('.scene-item');
     await expect(sceneItems).toHaveCount(2);
+    
+    // Stabilize and click
+    await expect(sceneItems.first()).toBeVisible({ timeout: 15000 });
     await sceneItems.first().click();
 
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
     await waitForNavigationStabilization(page);
+    
+    // Jules hardening: ensure NavigationFSM is idle before interaction
+    await page.waitForFunction(() => {
+        // @ts-ignore
+        const state = window.store?.state;
+        return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
+    }, { timeout: 30000 }).catch(() => console.log("Warning: Navigation stabilization check failed, proceeding anyway..."));
+
     await createHotspotAtViewerCenter(page);
 
     // Expect Modal
     await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
 
-    // Verify System is in Linking Mode (Yellow Dashed Lines visible)
+    // Verify System is in Linking Mode
     const isLinkingMode = await page.evaluate(() => {
       // @ts-ignore
       return window.store.state.ui.isLinking;
@@ -55,7 +69,7 @@ test.describe('Editor Interactions', () => {
     // Verify Modal Closed
     await expect(page.getByText('Link Destination')).toBeHidden({ timeout: 10000 });
 
-    // Verify System exited Linking Mode (Yellow Lines removed, Red Lines persist)
+    // Verify System exited Linking Mode
     const isLinkingModeEnded = await page.evaluate(() => {
       // @ts-ignore
       return window.store.state.ui.isLinking;
@@ -63,11 +77,9 @@ test.describe('Editor Interactions', () => {
     expect(isLinkingModeEnded).toBe(false);
 
     // Verify Visual Pipeline Update
-    // The visual pipeline should now show a connection or node
     const pipelineWrapper = page.locator('.visual-pipeline-wrapper');
     await expect(pipelineWrapper).toBeVisible({ timeout: 10000 });
 
-    // Check for the pipeline node corresponding to the link
     const pipelineNode = page.locator('.pipeline-node');
     await expect(pipelineNode).toBeVisible({ timeout: 10000 });
 

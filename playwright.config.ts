@@ -102,6 +102,7 @@ if (filteredProjects.length === 0) {
 }
 
 export default defineConfig({
+  globalSetup: './tests/e2e/global-setup.ts',
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
