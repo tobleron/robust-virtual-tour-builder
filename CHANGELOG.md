@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Portrait mode UX polish: hide looking mode & cursor, reposition room label tag to top-right, glass panel auto-sizes to fit-content for labels like MASTER BEDROOM
 - T1479: Progress bar premium overhaul — phase-aware export progress, monotonic enforcement, message polish, shimmer animation
 - Maintainance: Aggregate completed tasks (D002), classify map entries (D008), and integrate data-flow modules (D009)
+- Architectural Batch 1: Fix Obj.magic in RequestQueue (D006) and consolidate Exporter modules (D011)
 
 ## [4.19.0] - 2026-02-18
 

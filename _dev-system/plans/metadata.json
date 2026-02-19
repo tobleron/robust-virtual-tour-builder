@@ -9,36 +9,121 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TourTemplates/TourScripts.res",
+        "file": "../../src/systems/Exporter.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 936/409",
+        "reason": "[Nesting: 2.40, Density: 0.10, Coupling: 0.05] | Drag: 3.52 | LOC: 624/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 53.70961538461539,
+        "complexity": 35.91698717948718,
         "recommended_splits": 3,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
+          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
           "snapshots": [
             {
-              "path": "src/systems/TourTemplates/TourScripts.res",
+              "path": "src/systems/Exporter.res",
               "functions": [
                 {
-                  "name": "renderScriptTemplate",
-                  "signature": "renderScriptTemplate = `",
-                  "line": 1
+                  "name": "apiErrorDecoder",
+                  "signature": "apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 11
                 },
                 {
-                  "name": "loadEventScript",
-                  "signature": "loadEventScript = `",
-                  "line": 948
+                  "name": "throwableMessageRaw",
+                  "signature": "throwableMessageRaw: 'a => string = %raw(`",
+                  "line": 18
                 },
                 {
-                  "name": "generateRenderScript",
-                  "signature": "generateRenderScript = (",
-                  "line": 967
+                  "name": "normalizeThrowableMessage",
+                  "signature": "normalizeThrowableMessage = (exn: exn): string => {",
+                  "line": 39
+                },
+                {
+                  "name": "isUnauthorizedHttpError",
+                  "signature": "isUnauthorizedHttpError = (msg: string): bool => {",
+                  "line": 53
+                },
+                {
+                  "name": "extractHttpErrorBody",
+                  "signature": "extractHttpErrorBody = (msg: string): string => {",
+                  "line": 57
+                },
+                {
+                  "name": "backendOfflineExportMessage",
+                  "signature": "backendOfflineExportMessage = () =>",
+                  "line": 66
+                },
+                {
+                  "name": "fetchSceneUrlBlob",
+                  "signature": "fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<",
+                  "line": 70
+                },
+                {
+                  "name": "normalizeLogoExtension",
+                  "signature": "normalizeLogoExtension = (name: string): string => {",
+                  "line": 93
+                },
+                {
+                  "name": "filenameFromUrl",
+                  "signature": "filenameFromUrl = (url: string): option<string> => {",
+                  "line": 102
+                },
+                {
+                  "name": "isLikelyImageUrl",
+                  "signature": "isLikelyImageUrl = (url: string): bool => {",
+                  "line": 113
+                },
+                {
+                  "name": "isLikelyImageBlob",
+                  "signature": "isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {",
+                  "line": 122
+                },
+                {
+                  "name": "fetchLib",
+                  "signature": "fetchLib = async filename => {",
+                  "line": 134
+                },
+                {
+                  "name": "uploadAndProcessRaw",
+                  "signature": "uploadAndProcessRaw: (",
+                  "line": 152
+                },
+                {
+                  "name": "exportScenes",
+                  "signature": "exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != \"\")",
+                  "line": 261
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (p, t, m) => {",
+                  "line": 263
+                },
+                {
+                  "name": "tourName",
+                  "signature": "tourName = if tourName == \"\" {",
+                  "line": 270
+                },
+                {
+                  "name": "msg",
+                  "signature": "msg = normalizeThrowableMessage(exn)",
+                  "line": 644
+                },
+                {
+                  "name": "normalizedStack",
+                  "signature": "normalizedStack = if stack != \"\" {",
+                  "line": 645
+                },
+                {
+                  "name": "payload",
+                  "signature": "payload = extractHttpErrorBody(msg)",
+                  "line": 656
+                },
+                {
+                  "name": "finalMsg",
+                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
+                  "line": 657
                 }
               ],
-              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
+              "fingerprint": "410bdbee140202eed18d98260bed0a1641e09a5674ba36c01f014e4646c13eed"
             }
           ]
         }
@@ -113,127 +198,43 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/Exporter.res",
+        "file": "../../src/systems/TourTemplates/TourScripts.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 421/300",
+        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 936/409",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.554631828978621,
-        "recommended_splits": 2,
+        "complexity": 53.70961538461539,
+        "recommended_splits": 3,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
           "snapshots": [
             {
-              "path": "src/systems/Exporter.res",
+              "path": "src/systems/TourTemplates/TourScripts.res",
               "functions": [
                 {
-                  "name": "apiErrorDecoder",
-                  "signature": "apiErrorDecoder = ExporterUtils.apiErrorDecoder",
-                  "line": 10
+                  "name": "renderScriptTemplate",
+                  "signature": "renderScriptTemplate = `",
+                  "line": 1
                 },
                 {
-                  "name": "fetchLib",
-                  "signature": "fetchLib = ExporterUtils.fetchLib",
-                  "line": 11
+                  "name": "loadEventScript",
+                  "signature": "loadEventScript = `",
+                  "line": 948
                 },
                 {
-                  "name": "uploadAndProcessRaw",
-                  "signature": "uploadAndProcessRaw = ExporterUpload.uploadAndProcessRaw",
-                  "line": 12
-                },
-                {
-                  "name": "throwableMessageRaw",
-                  "signature": "throwableMessageRaw = ExporterUtils.throwableMessageRaw",
-                  "line": 13
-                },
-                {
-                  "name": "normalizeThrowableMessage",
-                  "signature": "normalizeThrowableMessage = ExporterUtils.normalizeThrowableMessage",
-                  "line": 14
-                },
-                {
-                  "name": "isUnauthorizedHttpError",
-                  "signature": "isUnauthorizedHttpError = ExporterUtils.isUnauthorizedHttpError",
-                  "line": 15
-                },
-                {
-                  "name": "extractHttpErrorBody",
-                  "signature": "extractHttpErrorBody = ExporterUtils.extractHttpErrorBody",
-                  "line": 16
-                },
-                {
-                  "name": "backendOfflineExportMessage",
-                  "signature": "backendOfflineExportMessage = ExporterUtils.backendOfflineExportMessage",
-                  "line": 17
-                },
-                {
-                  "name": "fetchSceneUrlBlob",
-                  "signature": "fetchSceneUrlBlob = ExporterUtils.fetchSceneUrlBlob",
-                  "line": 18
-                },
-                {
-                  "name": "normalizeLogoExtension",
-                  "signature": "normalizeLogoExtension = ExporterUtils.normalizeLogoExtension",
-                  "line": 19
-                },
-                {
-                  "name": "filenameFromUrl",
-                  "signature": "filenameFromUrl = ExporterUtils.filenameFromUrl",
-                  "line": 20
-                },
-                {
-                  "name": "isLikelyImageUrl",
-                  "signature": "isLikelyImageUrl = ExporterUtils.isLikelyImageUrl",
-                  "line": 21
-                },
-                {
-                  "name": "isLikelyImageBlob",
-                  "signature": "isLikelyImageBlob = ExporterUtils.isLikelyImageBlob",
-                  "line": 22
-                },
-                {
-                  "name": "exportScenes",
-                  "signature": "exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != \"\")",
-                  "line": 34
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (p, t, m) => {",
-                  "line": 36
-                },
-                {
-                  "name": "tourName",
-                  "signature": "tourName = if tourName == \"\" {",
-                  "line": 43
-                },
-                {
-                  "name": "msg",
-                  "signature": "msg = normalizeThrowableMessage(exn)",
-                  "line": 417
-                },
-                {
-                  "name": "normalizedStack",
-                  "signature": "normalizedStack = if stack != \"\" {",
-                  "line": 418
-                },
-                {
-                  "name": "payload",
-                  "signature": "payload = extractHttpErrorBody(msg)",
-                  "line": 429
-                },
-                {
-                  "name": "finalMsg",
-                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
-                  "line": 430
+                  "name": "generateRenderScript",
+                  "signature": "generateRenderScript = (",
+                  "line": 967
                 }
               ],
-              "fingerprint": "3ef31dbeeec0cc9bcd17dc7de5ca6cb6278812cdbcf66c3c845e30bc2d132bf0"
+              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
             }
           ]
         }
       }
     }
   ],
+  "system": [],
   "rust": [
     {
       "Surgical": {
@@ -317,102 +318,6 @@
                 }
               ],
               "fingerprint": "3ade8537449931c38700d825f76779b33158d675ba88a35f894311bdef96913d"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Merge": {
-        "folder": "../../src/systems/Exporter",
-        "files": [
-          "ExporterUtils.res",
-          "ExporterUpload.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.17)",
-        "strategy": "",
-        "platform": "frontend",
-        "verification": {
-          "headline": "Pre-merge snapshots for `../../src/systems/Exporter`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter/ExporterUtils.res",
-              "functions": [
-                {
-                  "name": "apiErrorDecoder",
-                  "signature": "apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 8
-                },
-                {
-                  "name": "throwableMessageRaw",
-                  "signature": "throwableMessageRaw: 'a => string = %raw(`",
-                  "line": 15
-                },
-                {
-                  "name": "normalizeThrowableMessage",
-                  "signature": "normalizeThrowableMessage = (exn: exn): string => {",
-                  "line": 36
-                },
-                {
-                  "name": "isUnauthorizedHttpError",
-                  "signature": "isUnauthorizedHttpError = (msg: string): bool => {",
-                  "line": 50
-                },
-                {
-                  "name": "extractHttpErrorBody",
-                  "signature": "extractHttpErrorBody = (msg: string): string => {",
-                  "line": 54
-                },
-                {
-                  "name": "backendOfflineExportMessage",
-                  "signature": "backendOfflineExportMessage = () =>",
-                  "line": 63
-                },
-                {
-                  "name": "fetchSceneUrlBlob",
-                  "signature": "fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>): result<",
-                  "line": 67
-                },
-                {
-                  "name": "normalizeLogoExtension",
-                  "signature": "normalizeLogoExtension = (name: string): string => {",
-                  "line": 90
-                },
-                {
-                  "name": "filenameFromUrl",
-                  "signature": "filenameFromUrl = (url: string): option<string> => {",
-                  "line": 99
-                },
-                {
-                  "name": "isLikelyImageUrl",
-                  "signature": "isLikelyImageUrl = (url: string): bool => {",
-                  "line": 110
-                },
-                {
-                  "name": "isLikelyImageBlob",
-                  "signature": "isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {",
-                  "line": 119
-                },
-                {
-                  "name": "fetchLib",
-                  "signature": "fetchLib = async filename => {",
-                  "line": 132
-                }
-              ],
-              "fingerprint": "fb5d2057024a8418e0b7898f79996b074ea83baacd8df99911d149c37fdb1596"
-            },
-            {
-              "path": "src/systems/Exporter/ExporterUpload.res",
-              "functions": [
-                {
-                  "name": "uploadAndProcessRaw",
-                  "signature": "uploadAndProcessRaw: (",
-                  "line": 4
-                }
-              ],
-              "fingerprint": "297d394e042a8ba627f45e39c303e8f1bd66047b288ce23cb9f12912d95607d4"
             }
           ]
         }

@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 421/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.10, Coupling: 0.05] | Drag: 3.52 | LOC: 624/300  🎯 Target: Function: `normalizeLogoExtension` (High Local Complexity (5.0). Logic heavy.)) → 🏗️ Split into 3 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -23,26 +23,26 @@ Baseline artifacts: `_dev-system/tmp/D001/verification.json` (files at `_dev-sys
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D001/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/systems/Exporter.res`
-- `src/systems/Exporter.res` (20 functions, fingerprint 3ef31dbeeec0cc9bcd17dc7de5ca6cb6278812cdbcf66c3c845e30bc2d132bf0)
+- `src/systems/Exporter.res` (20 functions, fingerprint 410bdbee140202eed18d98260bed0a1641e09a5674ba36c01f014e4646c13eed)
     - Grouped summary:
-        - apiErrorDecoder × 1 (lines: 10)
-        - backendOfflineExportMessage × 1 (lines: 17)
-        - exportScenes × 1 (lines: 34)
-        - extractHttpErrorBody × 1 (lines: 16)
-        - fetchLib × 1 (lines: 11)
-        - fetchSceneUrlBlob × 1 (lines: 18)
-        - filenameFromUrl × 1 (lines: 20)
-        - finalMsg × 1 (lines: 430)
-        - isLikelyImageBlob × 1 (lines: 22)
-        - isLikelyImageUrl × 1 (lines: 21)
-        - isUnauthorizedHttpError × 1 (lines: 15)
-        - msg × 1 (lines: 417)
-        - normalizeLogoExtension × 1 (lines: 19)
-        - normalizeThrowableMessage × 1 (lines: 14)
-        - normalizedStack × 1 (lines: 418)
-        - payload × 1 (lines: 429)
-        - progress × 1 (lines: 36)
-        - throwableMessageRaw × 1 (lines: 13)
-        - tourName × 1 (lines: 43)
-        - uploadAndProcessRaw × 1 (lines: 12)
+        - apiErrorDecoder × 1 (lines: 11)
+        - backendOfflineExportMessage × 1 (lines: 66)
+        - exportScenes × 1 (lines: 261)
+        - extractHttpErrorBody × 1 (lines: 57)
+        - fetchLib × 1 (lines: 134)
+        - fetchSceneUrlBlob × 1 (lines: 70)
+        - filenameFromUrl × 1 (lines: 102)
+        - finalMsg × 1 (lines: 657)
+        - isLikelyImageBlob × 1 (lines: 122)
+        - isLikelyImageUrl × 1 (lines: 113)
+        - isUnauthorizedHttpError × 1 (lines: 53)
+        - msg × 1 (lines: 644)
+        - normalizeLogoExtension × 1 (lines: 93)
+        - normalizeThrowableMessage × 1 (lines: 39)
+        - normalizedStack × 1 (lines: 645)
+        - payload × 1 (lines: 656)
+        - progress × 1 (lines: 263)
+        - throwableMessageRaw × 1 (lines: 18)
+        - tourName × 1 (lines: 270)
+        - uploadAndProcessRaw × 1 (lines: 152)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
