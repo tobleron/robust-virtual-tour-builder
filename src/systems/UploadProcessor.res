@@ -28,7 +28,7 @@ let processUploads = (
     }: UploadTypes.processResult
   )
 
-  updateProgress(0.0, "Checking backend...", true, "Health Check")
+  updateProgress(0.0, "Connecting to server...", true, "Health Check")
 
   OperationJournal.startOperation(
     ~operation="UploadImages",

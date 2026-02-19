@@ -22,7 +22,7 @@ let finalizeUploads = (
     ~existingScenes,
     ~updateProgress,
   )->Promise.then(processedWithClusters => {
-    updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
+    updateProgress(98.0, "Organizing scenes...", true, "Finalizing")
 
     let wasEmpty = getState().activeIndex == -1
     if wasEmpty {
@@ -38,7 +38,7 @@ let finalizeUploads = (
       ~getState,
       ~dispatch,
     )->Promise.then(report => {
-      updateProgress(100.0, "Completed", false, "Done")
+      updateProgress(100.0, "Upload complete", false, "Done")
       let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
       let qualityResults = Belt.Array.map(
@@ -105,7 +105,7 @@ let executeProcessingChain = (
   ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
-  updateProgress(20.0, "Processing images...", true, "Processing")
+  updateProgress(20.0, "Optimizing images...", true, "Analyzing")
 
   let processedCount = ref(0)
   let allProcessedItems = ref([])
@@ -143,7 +143,7 @@ let executeProcessingChain = (
     },
     (pct, msg) => {
       let scaledPct = 20.0 +. 75.0 *. pct
-      updateProgress(scaledPct, msg, true, "Processing")
+      updateProgress(scaledPct, msg, true, "Optimizing")
     },
   )->Promise.then(_ => {
     let validProcessed = Belt.Array.keep(allProcessedItems.contents, i => i.error == None)

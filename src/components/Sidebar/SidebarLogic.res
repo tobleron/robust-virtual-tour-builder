@@ -25,6 +25,8 @@ module SidebarTypes = {
 
 open ReBindings
 
+let lastPct = ref(0.0)
+
 let updateProgress = (
   ~dispatch: Actions.action => unit,
   ~onCancel=() => (),
@@ -33,10 +35,22 @@ let updateProgress = (
   active,
   phase,
 ) => {
+  /* Monotonic enforcement: never go backwards during an active operation */
+  let effectivePct = if active && pct > 0.0 {
+    let clamped = Math.max(pct, lastPct.contents)
+    lastPct := clamped
+    clamped
+  } else if !active {
+    lastPct := 0.0
+    pct
+  } else {
+    pct
+  }
+
   EventBus.dispatch(
     UpdateProcessing({
       "active": active,
-      "progress": pct,
+      "progress": effectivePct,
       "message": msg,
       "phase": phase,
       "error": false,
@@ -44,7 +58,7 @@ let updateProgress = (
     }),
   )
   if active {
-    dispatch(DispatchAppFsmEvent(UploadProgress(pct)))
+    dispatch(DispatchAppFsmEvent(UploadProgress(effectivePct)))
   }
 }
 
@@ -270,7 +284,7 @@ let handleExport = async (
   ~onCancel,
 ) => {
   dispatch(DispatchAppFsmEvent(StartExport))
-  updateProgress(~dispatch, ~onCancel, 0.0, "Exporting...", true, "Export")
+  updateProgress(~dispatch, ~onCancel, 0.0, "Starting export...", true, "Export")
   NotificationManager.dispatch({
     id: "",
     importance: Info,

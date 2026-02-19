@@ -47,7 +47,7 @@ let exportTour = async (
   }
   let safeName = tourName->String.replaceRegExp(/[^a-z0-9]/gi, "_")->String.toLowerCase
 
-  progress(0.0, 100.0, "Preparing assets...")
+  progress(0.0, 100.0, "Preparing export...")
   let exportStartTime = Date.now()
   let currentPhase = ref("INITIAL")
 
@@ -75,7 +75,7 @@ let exportTour = async (
     }
 
     currentPhase := "HEALTH_CHECK"
-    progress(1.0, 100.0, "Checking backend...")
+    progress(1.0, 100.0, "Verifying connection...")
     let backendHealthy = await Resizer.checkBackendHealth()
     if !backendHealthy {
       let msg = backendOfflineExportMessage()
@@ -99,6 +99,7 @@ let exportTour = async (
 
     /* 1. Set Logo (prioritize custom uploaded logo) */
     currentPhase := "LOGO"
+    progress(3.0, 100.0, "Packaging logo...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
 
     let logoFilename = ref(None)
@@ -185,6 +186,7 @@ let exportTour = async (
 
     /* 2. Generate HTML Templates */
     currentPhase := "TEMPLATES"
+    progress(7.0, 100.0, "Generating tour pages...")
     Logger.debug(~module_="Exporter", ~message="PHASE_TEMPLATES", ())
     let html4k = TourTemplates.generateTourHTML(
       exportScenes,
@@ -227,6 +229,7 @@ let exportTour = async (
 
     /* 3. Append Libraries */
     currentPhase := "LIBRARIES"
+    progress(12.0, 100.0, "Bundling viewer engine...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LIBRARIES", ())
     try {
       let panJSRes: result<Blob.t, string> = await fetchLib("pannellum.js")
@@ -252,10 +255,12 @@ let exportTour = async (
 
     /* 4. Append Scene Images */
     currentPhase := "SCENES"
+    let totalScenes = Belt.Array.length(exportScenes)
+    progress(15.0, 100.0, "Packaging scenes...")
     Logger.debug(
       ~module_="Exporter",
       ~message="PHASE_SCENES",
-      ~data=Some({"count": Belt.Array.length(exportScenes)}),
+      ~data=Some({"count": totalScenes}),
       (),
     )
     let rec appendScenes = async (sceneList, idx) => {
@@ -295,6 +300,15 @@ let exportTour = async (
               fileBlob,
               s.name,
             )
+            let scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)
+            progress(
+              scenePct,
+              100.0,
+              "Packaging scene " ++
+              Int.toString(idx + 1) ++
+              " of " ++
+              Int.toString(totalScenes) ++ "...",
+            )
             await appendScenes(rest, idx + 1)
           | Error(msg) => Error("Scene packaging failed for '" ++ s.name ++ "': " ++ msg)
           }
@@ -308,6 +322,7 @@ let exportTour = async (
 
     /* 5. Send via XHR */
     currentPhase := "UPLOAD"
+    progress(40.0, 100.0, "Starting upload...")
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
 
@@ -360,7 +375,7 @@ let exportTour = async (
             ~data=Some(Logger.castToJson({"attempt": retryCount + 1, "error": msg})),
             (),
           )
-          progress(0.0, 100.0, "Retrying export upload...")
+          progress(40.0, 100.0, "Retrying upload...")
           let _ = await Promise.make((resolve, _) => {
             let _ = ReBindings.Window.setTimeout(() => resolve(), 2000)
           })
@@ -380,7 +395,7 @@ let exportTour = async (
 
     let zipBlob = await uploadWithRetry(0, finalToken)
 
-    progress(100.0, 100.0, "Saving...")
+    progress(100.0, 100.0, "Export complete")
     let filename = `Export_RMX_${safeName}_v${version}.zip`
     Logger.endOperation(
       ~module_="Exporter",
