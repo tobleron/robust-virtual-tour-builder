@@ -15,6 +15,8 @@ use std::future::{Ready, ready};
 use std::rc::Rc;
 use tracing::Instrument;
 
+pub mod rate_limiter;
+
 // ==========================================
 // QuotaCheck
 // ==========================================
