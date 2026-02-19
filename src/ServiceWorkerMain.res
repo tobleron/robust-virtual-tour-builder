@@ -72,7 +72,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.19.0"
+let cacheName = "vtb-cache-v4.19.1"
 let manualAssets = [
   "/",
   "/index.html",
@@ -80,7 +80,9 @@ let manualAssets = [
   "/images/icon-192.png",
   "/images/icon-512.png",
   "/images/logo.png",
+  "/images/logo_metallic_premium.png",
   "/images/logo_old.png",
+  "/images/logo_on_leather.png",
   "/images/og-preview.png",
   "/libs/FileSaver.min.js",
   "/libs/jszip.min.js",
@@ -88,7 +90,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
 
 let fetchWithTimeout = (request, timeoutMs) => {

@@ -1,7 +1,6 @@
 // @efficiency-role: ui-component
 
 open ReBindings
-open ViewerState
 open Types
 open Actions
 

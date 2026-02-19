@@ -1,9 +1,8 @@
 // @efficiency-role: ui-component
 
 open ReBindings
-open ViewerState
 open Types
-open Actions
+
 
 // Hook 2: Scene Cleanup
 let useSceneCleanup = (~scenes: array<scene>) => {

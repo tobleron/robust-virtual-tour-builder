@@ -295,12 +295,7 @@ describe("Exporter", () => {
     let scene1 = createScene("s1", "Scene 1")
 
     // Mock offline
-    let _ = %raw(`
-      Object.defineProperty(navigator, "onLine", {
-        value: false,
-        configurable: true
-      })
-    `)
+    NetworkStatus.forceStatus(false)
 
     let controller = AbortController.make()
     let signal = AbortController.signal(controller)
@@ -308,12 +303,7 @@ describe("Exporter", () => {
     let result = await exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None)
 
     // Reset online
-    let _ = %raw(`
-      Object.defineProperty(navigator, "onLine", {
-        value: true,
-        configurable: true
-      })
-    `)
+    NetworkStatus.forceStatus(true)
 
     switch result {
     | Error(msg) => t->expect(msg)->Expect.String.toContain("NetworkOffline")

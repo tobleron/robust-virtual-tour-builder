@@ -4,7 +4,7 @@ let cssTemplate = `
     body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 0; filter: contrast(120%) brightness(100%); }
     #stage { z-index: 1; }
     __MEDIA_QUERY_CSS__
-    #panorama { width: 100%; height: 100%; border-radius: inherit; }
+    #panorama { width: 100%; height: 100%; border-radius: inherit; background-image: url("../../assets/images/__FIRST_SCENE_NAME__"); background-size: cover; background-position: center; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; overflow: visible; }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; filter: drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.95)) drop-shadow(0px 0px 4px rgba(0,0,0,0.25)); }

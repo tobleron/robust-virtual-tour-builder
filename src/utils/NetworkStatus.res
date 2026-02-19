@@ -65,9 +65,15 @@ let probe = async () => {
   }
 }
 
+let skipProbe = ref(false)
+
 let handleOnline = () => {
-  Console.info("NetworkStatus: Browser reported ONLINE, probing...")
-  let _ = probe()
+  if skipProbe.contents {
+    forceStatus(true)
+  } else {
+    Console.info("NetworkStatus: Browser reported ONLINE, probing...")
+    let _ = probe()
+  }
 }
 
 let handleOffline = () => {
