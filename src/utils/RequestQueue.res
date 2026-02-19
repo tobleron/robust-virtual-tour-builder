@@ -6,7 +6,7 @@ let activeCount = ref(0)
 
 type queuedItem = {
   task: unit => Promise.t<unit>,
-  reject: Obj.t => unit,
+  reject: string => unit,
 }
 
 let queue: array<queuedItem> = []
@@ -75,7 +75,7 @@ let drain = (): int => {
   let _ = Array.splice(queue, ~start=0, ~remove=count, ~insert=[])
 
   removed->Belt.Array.forEach(item => {
-    item.reject(Obj.magic("RequestQueueDrained"))
+    item.reject("RequestQueueDrained")
   })
 
   Logger.info(
@@ -121,7 +121,7 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
         }
       }
 
-      let _ = Array.push(queue, {task: run, reject: Obj.magic(reject)})
+      let _ = Array.push(queue, {task: run, reject: val => reject(Obj.magic(val))})
       process()
     }
   })

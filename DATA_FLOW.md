@@ -234,8 +234,7 @@ Save/Export Trigger:
       → [src/systems/ProjectManager/ProjectSave.res] and [src/systems/ProjectManager/ProjectUtils.res] orchestrate the save sequence
       → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
-      → [src/systems/Exporter/ExporterUpload.res] and [src/systems/Exporter/ExporterUtils.res] handle asset streaming/upload
-      → [src/systems/TourTemplates.res] applies branding (using [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], and [src/systems/TourTemplates/TourAssets.res])
+      → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], and [src/systems/TourTemplates/TourAssets.res])
   → [src/systems/DownloadSystem.res] triggers client-side saving
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
   → [backend/src/api/project_logic.rs] and [backend/src/services/project/mod.rs] handle persistence
