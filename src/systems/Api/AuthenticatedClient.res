@@ -1,12 +1,16 @@
 /* src/systems/Api/AuthenticatedClient.res */
 open ReBindings
 
+type headers
+@send external getHeader: (headers, string) => Nullable.t<string> = "get"
+
 type response = {
   status: int,
   statusText: string,
   json: unit => Promise.t<JSON.t>,
   text: unit => Promise.t<string>,
   blob: unit => Promise.t<Blob.t>,
+  headers: headers,
 }
 
 @val external fetch: (string, 'options) => Promise.t<response> = "fetch"
@@ -206,7 +210,22 @@ let request = async (
 
       try {
         let res = await fetch(url, options)
-        if res.status >= 400 {
+
+        if res.status == 429 {
+          signalScope.cleanup()
+          // Treat 429 as failure for circuit breaker stats to help global backoff if needed
+          CircuitBreaker.recordFailure(circuitBreaker)
+
+          let retryAfter = res.headers
+            ->getHeader("Retry-After")
+            ->Nullable.toOption
+            ->Option.flatMap(Belt.Int.fromString)
+            ->Option.getOr(10)
+
+          EventBus.dispatch(RateLimitBackoff(retryAfter))
+
+          Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
+        } else if res.status >= 400 {
           signalScope.cleanup()
           CircuitBreaker.recordFailure(circuitBreaker)
           let currentState = CircuitBreaker.getState(circuitBreaker)
@@ -313,6 +332,8 @@ let requestWithRetry = (
     ~shouldRetry=error => {
       if error == "NetworkOffline" {
         false
+      } else if String.startsWith(error, "RateLimited: ") {
+        true
       } else {
         Retry.defaultShouldRetry(error)
       }
@@ -346,6 +367,18 @@ let requestWithRetry = (
         dismissible: true,
         createdAt: Date.now(),
       })
+    },
+    ~getDelay=(error, _) => {
+      if String.startsWith(error, "RateLimited: ") {
+        let parts = String.split(error, ": ")
+        if Array.length(parts) == 2 {
+          parts[1]->Option.flatMap(Belt.Int.fromString)->Option.map(s => s * 1000)
+        } else {
+          None
+        }
+      } else {
+        None
+      }
     },
   )->Promise.then(result => {
     switch result {

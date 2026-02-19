@@ -415,3 +415,13 @@ module Move = {
     ~fill: string=?,
   ) => React.element = "Move"
 }
+
+module Hourglass = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Hourglass"
+}
