@@ -26,7 +26,7 @@ let processZipResponse = zipResult => {
   }
 }
 
-let generateAndOverrideTiny = (previewBlob) => {
+let generateAndOverrideTiny = previewBlob => {
   Promise.make((resolve, _reject) => {
     let img = Dom.createElement("img")
     let url = UrlUtils.safeCreateObjectURL(previewBlob)

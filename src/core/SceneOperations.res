@@ -323,3 +323,16 @@ let handleApplyLazyRename = (state: state, index: int, name: string): state => {
   | None => state
   }
 }
+
+let handlePatchSceneThumbnail = (state: state, id: string, file: file): state => {
+  switch state.inventory->Belt.Map.String.get(id) {
+  | Some(entry) =>
+    let updatedScene = {...entry.scene, tinyFile: Some(file)}
+    let updatedInventory = state.inventory->Belt.Map.String.set(id, {...entry, scene: updatedScene})
+    // Invalidate caches so UI detects the change
+    SceneCache.clearThumbUrl(id)
+    SceneCache.clearThumbUrl(id ++ "_tiny")
+    {...state, inventory: updatedInventory}->SceneInventory.rebuildLegacyFields
+  | None => state
+  }
+}

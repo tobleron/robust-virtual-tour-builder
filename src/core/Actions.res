@@ -57,6 +57,7 @@ type rec action =
   | DispatchAppFsmEvent(AppFSM.event)
   | SetLogo(option<file>)
   | Batch(array<action>)
+  | PatchSceneThumbnail(string, file) // sceneId, newTinyFile
 
 let sceneActionToString = (action: action): option<string> =>
   switch action {

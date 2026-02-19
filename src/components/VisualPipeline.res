@@ -16,8 +16,6 @@ let injectStyles = () => {
   Dom.setTextContent(style, Styles.styles)
 }
 
-
-
 module PipelineNode = {
   @react.component
   let make = (

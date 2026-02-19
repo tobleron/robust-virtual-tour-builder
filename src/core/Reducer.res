@@ -60,7 +60,8 @@ let isStructuralMutation = (action: Actions.action): bool => {
   | Actions.LoadProject(_)
   | Actions.Reset
   | Actions.SetExifReport(_)
-  | Actions.SetLogo(_) => true
+  | Actions.SetLogo(_)
+  | Actions.PatchSceneThumbnail(_, _) => true
   | _ => false
   }
 }
