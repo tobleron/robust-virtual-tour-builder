@@ -158,9 +158,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/Project/ProjectSaver.res](src/systems/Project/ProjectSaver.res): Logic for packaging and exporting tour data into ZIP files. `#persistence` `#saving`
     *   [src/systems/Project/ProjectValidator.res](src/systems/Project/ProjectValidator.res): Deep structural validation for tour projects and schemas. `#validation` `#project`
     *   [src/systems/ProjectManagerUrl.res](src/systems/ProjectManagerUrl.res): Specialized logic for rebuilding and validating tour URLs. `#persistence` `#url` `#logic`
-*   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
-    *   [src/systems/Exporter/ExporterUtils.res](src/systems/Exporter/ExporterUtils.res): Shared utilities for the export pipeline. `#export` `#utils`
-    *   [src/systems/Exporter/ExporterUpload.res](src/systems/Exporter/ExporterUpload.res): Logic for parallel asset upload during export. `#export` `#network`
+*   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment` `#network` `#utils`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
 *   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Orchestrator for API client logic and sub-modules. `#api` `#client` `#orchestration`
     *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#adapter`
@@ -205,13 +203,13 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/TeaserPathfinder.res](src/systems/TeaserPathfinder.res): Specialized pathfinding for cinematic teaser sequences. `#teaser` `#pathfinding`
 *   [src/systems/ServerTeaser.res](src/systems/ServerTeaser.res): Client-side bridge for server-side teaser generation requests. `#teaser` `#api`
 *   [src/systems/ViewerFollow.res](src/systems/ViewerFollow.res): Logic for synchronizing viewer orientations across sessions. `#sync` `#viewer`
-
+ 
 *   [src/systems/TourTemplates.res](src/systems/TourTemplates.res): Manager for visual tour templates and themes. `#branding` `#facade`
     *   [src/systems/TourTemplates/TourStyles.res](src/systems/TourTemplates/TourStyles.res): CSS-in-JS style definitions for various tour themes. `#branding` `#styling`
     *   [src/systems/TourTemplates/TourData.res](src/systems/TourTemplates/TourData.res): Static data and configuration for tour templates. `#branding` `#data`
     *   [src/systems/TourTemplates/TourScripts.res](src/systems/TourTemplates/TourScripts.res): Dynamic scripts and behaviors injected into exported tours. `#branding` `#logic`
     *   [src/systems/TourTemplates/TourAssets.res](src/systems/TourTemplates/TourAssets.res): Asset management and URL resolution for template icons/images. `#branding` `#assets`
-
+ 
 *   [src/systems/BackendApi.res](src/systems/BackendApi.res): Facade for the consolidated API module. `#api` `#client` `#facade`
 
 ### 🎨 Visual & UI Components
