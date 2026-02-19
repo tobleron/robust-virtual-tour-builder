@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add visual indicator for shortcut selection and refine pre-push safety
 
+### Changed
+- Fix analyzer dev-task logic, refactor exporter, and align vitests
+- Fix analyzer dev-task logic, refactor exporter, and align vitests
+
 ## [4.23.0] - 2026-02-19
 
 ### Added

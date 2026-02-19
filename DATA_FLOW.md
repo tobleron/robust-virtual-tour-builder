@@ -35,7 +35,7 @@ User Click Event
       → [src/systems/SceneLoaderLogic.res] constructs scene configuration and Pannellum setup parameters
       → [src/systems/Scene/Loader/SceneLoaderConfig.res], [src/systems/Scene/Loader/SceneLoaderEvents.res], and [src/systems/Scene/Loader/SceneLoaderReuse.res] handle configuration, events, and instance reuse
       → [src/core/SceneCache.res] manages preloaded scene state
-      → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], and [src/components/ViewerManager/ViewerManagerLifecycle.res] manage active viewers
+      → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], [src/components/ViewerManager/ViewerManagerLifecycle.res], [src/components/ViewerManager/ViewerManagerCleanup.res], [src/components/ViewerManager/ViewerManagerPreloading.res], [src/components/ViewerManager/ViewerManagerSceneLoad.res], [src/components/ViewerManager/ViewerManagerHotspots.res], [src/components/ViewerManager/ViewerManagerRatchet.res], [src/components/ViewerManager/ViewerManagerSimulation.res], and [src/components/ViewerManager/ViewerManagerIntro.res] manage active viewers and hook-level synchronization
       → [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render interactive overlays
       → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], [src/systems/ViewerLogic.res] manage viewer instance lifecycle
           → [src/systems/Viewer/ViewerAdapter.res], [src/systems/Viewer/ViewerPool.res], and [src/systems/Viewer/ViewerFollow.res] provide the underlying implementation
@@ -234,10 +234,17 @@ Save/Export Trigger:
       → [src/systems/ProjectManager/ProjectSave.res] and [src/systems/ProjectManager/ProjectUtils.res] orchestrate the save sequence
       → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
-      → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], and [src/systems/TourTemplates/TourAssets.res])
+      → [src/systems/Exporter/ExporterPackaging.res], [src/systems/Exporter/ExporterUpload.res], and [src/systems/Exporter/ExporterUtils.res] handle packaging assembly, upload transport, and export-specific helpers
+      → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], [src/systems/TourTemplates/TourScriptCore.res], [src/systems/TourTemplates/TourScriptNavigation.res], [src/systems/TourTemplates/TourScriptInput.res], [src/systems/TourTemplates/TourScriptHotspots.res], [src/systems/TourTemplates/TourScriptViewport.res], [src/systems/TourTemplates/TourScriptUI.res], and [src/systems/TourTemplates/TourAssets.res])
   → [src/systems/DownloadSystem.res] triggers client-side saving
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
-  → [backend/src/api/project_logic.rs] and [backend/src/services/project/mod.rs] handle persistence
+  → [backend/src/api/project_logic.rs] and [backend/src/api/project_logic/mod.rs] coordinate project packaging/import helpers
+      → [backend/src/api/project_logic/files.rs] discovers available image files
+      → [backend/src/api/project_logic/reference.rs] resolves scene/inventory file references
+      → [backend/src/api/project_logic/summary.rs] builds export summary artifacts
+      → [backend/src/api/project_logic/validation.rs] performs synchronous validation + report generation
+      → [backend/src/api/project_logic/zip.rs] handles zip extraction/creation and secure path handling
+  → [backend/src/services/project/mod.rs] handles persistence
   → [backend/src/api/utils.rs] for request validation
   → [backend/src/services/mod.rs] and [backend/src/services/project/package.rs] create ZIP (Export only)
 
@@ -358,35 +365,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src/api/project_logic
-- `[backend/src/api/project_logic/files.rs]`
-- `[backend/src/api/project_logic/mod.rs]`
-- `[backend/src/api/project_logic/reference.rs]`
-- `[backend/src/api/project_logic/summary.rs]`
-- `[backend/src/api/project_logic/validation.rs]`
-- `[backend/src/api/project_logic/zip.rs]`
-
-### 📂 src/components/ViewerManager
-- `[src/components/ViewerManager/ViewerManagerCleanup.res]`
-- `[src/components/ViewerManager/ViewerManagerHotspots.res]`
-- `[src/components/ViewerManager/ViewerManagerIntro.res]`
-- `[src/components/ViewerManager/ViewerManagerPreloading.res]`
-- `[src/components/ViewerManager/ViewerManagerRatchet.res]`
-- `[src/components/ViewerManager/ViewerManagerSceneLoad.res]`
-- `[src/components/ViewerManager/ViewerManagerSimulation.res]`
-
-### 📂 src/systems/Exporter
-- `[src/systems/Exporter/ExporterUpload.res]`
-- `[src/systems/Exporter/ExporterUtils.res]`
-
-### 📂 src/systems/TourTemplates
-- `[src/systems/TourTemplates/TourScriptCore.res]`
-- `[src/systems/TourTemplates/TourScriptHotspots.res]`
-- `[src/systems/TourTemplates/TourScriptInput.res]`
-- `[src/systems/TourTemplates/TourScriptNavigation.res]`
-- `[src/systems/TourTemplates/TourScriptUI.res]`
-- `[src/systems/TourTemplates/TourScriptViewport.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

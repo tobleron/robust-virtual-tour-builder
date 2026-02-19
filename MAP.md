@@ -159,6 +159,9 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/Project/ProjectValidator.res](src/systems/Project/ProjectValidator.res): Deep structural validation for tour projects and schemas. `#validation` `#project`
     *   [src/systems/ProjectManagerUrl.res](src/systems/ProjectManagerUrl.res): Specialized logic for rebuilding and validating tour URLs. `#persistence` `#url` `#logic`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment` `#network` `#utils`
+    *   [src/systems/Exporter/ExporterPackaging.res](src/systems/Exporter/ExporterPackaging.res): Packaging helpers for export assembly (logo, templates, libraries, scene files). `#export` `#packaging` `#helpers`
+    *   [src/systems/Exporter/ExporterUpload.res](src/systems/Exporter/ExporterUpload.res): XHR upload transport with progress, timeout, and abort support for export delivery. `#export` `#upload` `#network`
+    *   [src/systems/Exporter/ExporterUtils.res](src/systems/Exporter/ExporterUtils.res): Shared export helpers for error normalization, URL/blob fetch, and file inference. `#export` `#utils` `#helpers`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
 *   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Orchestrator for API client logic and sub-modules. `#api` `#client` `#orchestration`
     *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#adapter`
@@ -208,6 +211,12 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/TourTemplates/TourStyles.res](src/systems/TourTemplates/TourStyles.res): CSS-in-JS style definitions for various tour themes. `#branding` `#styling`
     *   [src/systems/TourTemplates/TourData.res](src/systems/TourTemplates/TourData.res): Static data and configuration for tour templates. `#branding` `#data`
     *   [src/systems/TourTemplates/TourScripts.res](src/systems/TourTemplates/TourScripts.res): Dynamic scripts and behaviors injected into exported tours. `#branding` `#logic`
+    *   [src/systems/TourTemplates/TourScriptCore.res](src/systems/TourTemplates/TourScriptCore.res): Core cinematic waypoint runtime and spline/path interpolation script template. `#branding` `#logic` `#navigation`
+    *   [src/systems/TourTemplates/TourScriptNavigation.res](src/systems/TourTemplates/TourScriptNavigation.res): Scene ID resolution and export navigation routing script helpers. `#branding` `#navigation` `#logic`
+    *   [src/systems/TourTemplates/TourScriptInput.res](src/systems/TourTemplates/TourScriptInput.res): Export keyboard shortcut and lazy-drift camera input script logic. `#branding` `#input` `#logic`
+    *   [src/systems/TourTemplates/TourScriptHotspots.res](src/systems/TourTemplates/TourScriptHotspots.res): Export hotspot rendering, readiness states, and animation trigger script helpers. `#branding` `#hotspots` `#rendering`
+    *   [src/systems/TourTemplates/TourScriptViewport.res](src/systems/TourTemplates/TourScriptViewport.res): Viewport-state and HFOV adaptation script for responsive exports. `#branding` `#viewport` `#logic`
+    *   [src/systems/TourTemplates/TourScriptUI.res](src/systems/TourTemplates/TourScriptUI.res): Export floor navigation and room-label UI script helpers. `#branding` `#ui` `#logic`
     *   [src/systems/TourTemplates/TourAssets.res](src/systems/TourTemplates/TourAssets.res): Asset management and URL resolution for template icons/images. `#branding` `#assets`
  
 *   [src/systems/BackendApi.res](src/systems/BackendApi.res): Facade for the consolidated API module. `#api` `#client` `#facade`
@@ -259,6 +268,13 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/ViewerManager.res](src/components/ViewerManager.res): Lightweight facade orchestrating viewer logic. `#rendering` `#orchestration` `#facade`
     *   [src/components/ViewerManagerLogic.res](src/components/ViewerManagerLogic.res): Core logic hooks for viewer initialization, scene loading, and sync. `#logic` `#hooks`
     *   [src/components/ViewerManager/ViewerManagerLifecycle.res](src/components/ViewerManager/ViewerManagerLifecycle.res): Lifecycle hooks for stage events and global UI state. `#logic` `#hooks`
+    *   [src/components/ViewerManager/ViewerManagerCleanup.res](src/components/ViewerManager/ViewerManagerCleanup.res): Hook for viewer teardown and pool reset when scenes are emptied. `#ui` `#hooks` `#cleanup`
+    *   [src/components/ViewerManager/ViewerManagerPreloading.res](src/components/ViewerManager/ViewerManagerPreloading.res): Anticipatory scene preload hook dispatching navigation FSM events. `#ui` `#hooks` `#preloading`
+    *   [src/components/ViewerManager/ViewerManagerSceneLoad.res](src/components/ViewerManager/ViewerManagerSceneLoad.res): Main scene-load synchronization hook coordinating viewer state and navigation FSM. `#ui` `#hooks` `#scene-loading`
+    *   [src/components/ViewerManager/ViewerManagerHotspots.res](src/components/ViewerManager/ViewerManagerHotspots.res): Hotspot synchronization hooks and render-loop maintenance for line overlays. `#ui` `#hooks` `#hotspots`
+    *   [src/components/ViewerManager/ViewerManagerRatchet.res](src/components/ViewerManager/ViewerManagerRatchet.res): Ratchet/follow-loop state reset hook for linking mode transitions. `#ui` `#hooks` `#state`
+    *   [src/components/ViewerManager/ViewerManagerSimulation.res](src/components/ViewerManager/ViewerManagerSimulation.res): Simulation-arrival effect hook for scene/simulation coupling points. `#ui` `#hooks` `#simulation`
+    *   [src/components/ViewerManager/ViewerManagerIntro.res](src/components/ViewerManager/ViewerManagerIntro.res): Intro-pan hook for waypoint-guided initial camera movement per scene. `#ui` `#hooks` `#navigation`
 *   [src/components/ViewerSnapshot.res](src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
 ### 🪝 React Hooks
 
@@ -305,6 +321,12 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/media/image.rs](backend/src/api/media/image.rs): Consolidated image processing endpoints and optimization logic. `#image` `#api` `#processing`
 *   [backend/src/api/media/video.rs](backend/src/api/media/video.rs): Consolidated video transcoding and teaser generation endpoints. `#video` `#api` `#teaser`
 *   [backend/src/api/project_logic.rs](backend/src/api/project_logic.rs): Detailed logic for project packaging and import. `#logic`
+    *   [backend/src/api/project_logic/mod.rs](backend/src/api/project_logic/mod.rs): Re-export hub for modular project import/export logic. `#logic` `#module`
+    *   [backend/src/api/project_logic/files.rs](backend/src/api/project_logic/files.rs): Session/project file inventory discovery for validation and packaging. `#logic` `#files`
+    *   [backend/src/api/project_logic/reference.rs](backend/src/api/project_logic/reference.rs): Referenced-file extraction from scenes/inventory with filename sanitization. `#logic` `#validation`
+    *   [backend/src/api/project_logic/summary.rs](backend/src/api/project_logic/summary.rs): Human-readable project summary generation for export bundles. `#logic` `#reporting`
+    *   [backend/src/api/project_logic/validation.rs](backend/src/api/project_logic/validation.rs): Synchronous validation pipeline coordinating summary + clean-project report generation. `#validation` `#project`
+    *   [backend/src/api/project_logic/zip.rs](backend/src/api/project_logic/zip.rs): ZIP extraction and packaging helpers with path hardening and image inclusion logic. `#zip` `#security` `#project`
 *   [backend/src/api/media/image_logic.rs](backend/src/api/media/image_logic.rs): Logic for image processing operations. `#image` `#logic`
 *   [backend/src/api/media/video_logic.rs](backend/src/api/media/video_logic.rs): Orchestrator for teaser generation and transcoding flows. `#video` `#logic` `#orchestration`
 *   [backend/src/api/media/video_logic_support.rs](backend/src/api/media/video_logic_support.rs): Extracted helper module for headless hydration payloads, readiness polling, and ffmpeg process guards. `#video` `#helpers`
@@ -385,25 +407,4 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
-* [backend/src/api/project_logic/summary.rs](backend/src/api/project_logic/summary.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic/zip.rs](backend/src/api/project_logic/zip.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic/reference.rs](backend/src/api/project_logic/reference.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic/validation.rs](backend/src/api/project_logic/validation.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic/mod.rs](backend/src/api/project_logic/mod.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic/files.rs](backend/src/api/project_logic/files.rs): New module detected. Please classify. #new
-* [src/systems/Exporter/ExporterUtils.res](src/systems/Exporter/ExporterUtils.res): New module detected. Please classify. #new
-* [src/systems/Exporter/ExporterUpload.res](src/systems/Exporter/ExporterUpload.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptCore.res](src/systems/TourTemplates/TourScriptCore.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptNavigation.res](src/systems/TourTemplates/TourScriptNavigation.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptInput.res](src/systems/TourTemplates/TourScriptInput.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptHotspots.res](src/systems/TourTemplates/TourScriptHotspots.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptViewport.res](src/systems/TourTemplates/TourScriptViewport.res): New module detected. Please classify. #new
-* [src/systems/TourTemplates/TourScriptUI.res](src/systems/TourTemplates/TourScriptUI.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerPreloading.res](src/components/ViewerManager/ViewerManagerPreloading.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerSimulation.res](src/components/ViewerManager/ViewerManagerSimulation.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerCleanup.res](src/components/ViewerManager/ViewerManagerCleanup.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerSceneLoad.res](src/components/ViewerManager/ViewerManagerSceneLoad.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerRatchet.res](src/components/ViewerManager/ViewerManagerRatchet.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerHotspots.res](src/components/ViewerManager/ViewerManagerHotspots.res): New module detected. Please classify. #new
-* [src/components/ViewerManager/ViewerManagerIntro.res](src/components/ViewerManager/ViewerManagerIntro.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*
