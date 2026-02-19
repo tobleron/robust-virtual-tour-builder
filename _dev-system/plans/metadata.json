@@ -1,100 +1,11 @@
 {
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.07, Coupling: 0.03] | Drag: 4.72 | LOC: 495/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 24.21919191919192,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/project_logic.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/project_logic.rs",
-              "functions": [
-                {
-                  "name": "extract_sanitized_filename",
-                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
-                  "line": 14
-                },
-                {
-                  "name": "is_active_inventory_entry",
-                  "signature": "fn is_active_inventory_entry(entry: &Value) -> bool {",
-                  "line": 47
-                },
-                {
-                  "name": "collect_scene_file_references",
-                  "signature": "fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {",
-                  "line": 59
-                },
-                {
-                  "name": "collect_referenced_project_files",
-                  "signature": "fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {",
-                  "line": 75
-                },
-                {
-                  "name": "extract_project_metadata_from_zip",
-                  "signature": "pub fn extract_project_metadata_from_zip(",
-                  "line": 100
-                },
-                {
-                  "name": "list_available_files",
-                  "signature": "pub fn list_available_files(project_path: &Path) -> HashSet<String> {",
-                  "line": 126
-                },
-                {
-                  "name": "extract_zip_to_project_dir",
-                  "signature": "pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), String> {",
-                  "line": 147
-                },
-                {
-                  "name": "generate_project_summary",
-                  "signature": "pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {",
-                  "line": 188
-                },
-                {
-                  "name": "create_project_zip_sync",
-                  "signature": "pub fn create_project_zip_sync(",
-                  "line": 268
-                },
-                {
-                  "name": "validate_project_full_sync",
-                  "signature": "pub fn validate_project_full_sync(",
-                  "line": 328
-                },
-                {
-                  "name": "test_extract_zip_path_traversal",
-                  "signature": "fn test_extract_zip_path_traversal() {",
-                  "line": 364
-                },
-                {
-                  "name": "test_extract_zip_sanitizes_components",
-                  "signature": "fn test_extract_zip_sanitizes_components() {",
-                  "line": 391
-                },
-                {
-                  "name": "test_create_project_zip_sync_includes_inventory_active_scene_files",
-                  "signature": "fn test_create_project_zip_sync_includes_inventory_active_scene_files() {",
-                  "line": 426
-                }
-              ],
-              "fingerprint": "3ade8537449931c38700d825f76779b33158d675ba88a35f894311bdef96913d"
-            }
-          ]
-        }
-      }
-    }
-  ],
   "system": [
     {
       "Merge": {
         "folder": "../../src/systems/Exporter",
         "files": [
-          "ExporterUpload.res",
-          "ExporterUtils.res"
+          "ExporterUtils.res",
+          "ExporterUpload.res"
         ],
         "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.17)",
         "strategy": "",
@@ -102,17 +13,6 @@
         "verification": {
           "headline": "Pre-merge snapshots for `../../src/systems/Exporter`",
           "snapshots": [
-            {
-              "path": "src/systems/Exporter/ExporterUpload.res",
-              "functions": [
-                {
-                  "name": "uploadAndProcessRaw",
-                  "signature": "uploadAndProcessRaw: (",
-                  "line": 4
-                }
-              ],
-              "fingerprint": "297d394e042a8ba627f45e39c303e8f1bd66047b288ce23cb9f12912d95607d4"
-            },
             {
               "path": "src/systems/Exporter/ExporterUtils.res",
               "functions": [
@@ -178,6 +78,17 @@
                 }
               ],
               "fingerprint": "fb5d2057024a8418e0b7898f79996b074ea83baacd8df99911d149c37fdb1596"
+            },
+            {
+              "path": "src/systems/Exporter/ExporterUpload.res",
+              "functions": [
+                {
+                  "name": "uploadAndProcessRaw",
+                  "signature": "uploadAndProcessRaw: (",
+                  "line": 4
+                }
+              ],
+              "fingerprint": "297d394e042a8ba627f45e39c303e8f1bd66047b288ce23cb9f12912d95607d4"
             }
           ]
         }
@@ -190,43 +101,6 @@
         "file": "../../src/utils/RequestQueue.res",
         "pattern": "Obj.magic",
         "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates/TourScripts.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 920/409",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 52.10978260869565,
-        "recommended_splits": 3,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates/TourScripts.res",
-              "functions": [
-                {
-                  "name": "renderScriptTemplate",
-                  "signature": "renderScriptTemplate = `",
-                  "line": 1
-                },
-                {
-                  "name": "loadEventScript",
-                  "signature": "loadEventScript = `",
-                  "line": 929
-                },
-                {
-                  "name": "generateRenderScript",
-                  "signature": "generateRenderScript = (",
-                  "line": 948
-                }
-              ],
-              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
-            }
-          ]
-        }
       }
     },
     {
@@ -291,6 +165,43 @@
                 }
               ],
               "fingerprint": "0fea42f43f3083e336ee539f610f377531e76d509de51e084ee2eb457f931023"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates/TourScripts.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.00, Density: 0.01, Coupling: 0.00] | Drag: 1.01 | LOC: 920/409",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 52.10978260869565,
+        "recommended_splits": 3,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScripts.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates/TourScripts.res",
+              "functions": [
+                {
+                  "name": "renderScriptTemplate",
+                  "signature": "renderScriptTemplate = `",
+                  "line": 1
+                },
+                {
+                  "name": "loadEventScript",
+                  "signature": "loadEventScript = `",
+                  "line": 929
+                },
+                {
+                  "name": "generateRenderScript",
+                  "signature": "generateRenderScript = (",
+                  "line": 948
+                }
+              ],
+              "fingerprint": "24000339bdfe7cced029d1300d76747ddb9243a61d1b6d4e720da0de00542e5a"
             }
           ]
         }
@@ -413,6 +324,95 @@
                 }
               ],
               "fingerprint": "3ef31dbeeec0cc9bcd17dc7de5ca6cb6278812cdbcf66c3c845e30bc2d132bf0"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.07, Coupling: 0.03] | Drag: 4.72 | LOC: 495/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 24.21919191919192,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/project_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/project_logic.rs",
+              "functions": [
+                {
+                  "name": "extract_sanitized_filename",
+                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
+                  "line": 14
+                },
+                {
+                  "name": "is_active_inventory_entry",
+                  "signature": "fn is_active_inventory_entry(entry: &Value) -> bool {",
+                  "line": 47
+                },
+                {
+                  "name": "collect_scene_file_references",
+                  "signature": "fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {",
+                  "line": 59
+                },
+                {
+                  "name": "collect_referenced_project_files",
+                  "signature": "fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {",
+                  "line": 75
+                },
+                {
+                  "name": "extract_project_metadata_from_zip",
+                  "signature": "pub fn extract_project_metadata_from_zip(",
+                  "line": 100
+                },
+                {
+                  "name": "list_available_files",
+                  "signature": "pub fn list_available_files(project_path: &Path) -> HashSet<String> {",
+                  "line": 126
+                },
+                {
+                  "name": "extract_zip_to_project_dir",
+                  "signature": "pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), String> {",
+                  "line": 147
+                },
+                {
+                  "name": "generate_project_summary",
+                  "signature": "pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {",
+                  "line": 188
+                },
+                {
+                  "name": "create_project_zip_sync",
+                  "signature": "pub fn create_project_zip_sync(",
+                  "line": 268
+                },
+                {
+                  "name": "validate_project_full_sync",
+                  "signature": "pub fn validate_project_full_sync(",
+                  "line": 328
+                },
+                {
+                  "name": "test_extract_zip_path_traversal",
+                  "signature": "fn test_extract_zip_path_traversal() {",
+                  "line": 364
+                },
+                {
+                  "name": "test_extract_zip_sanitizes_components",
+                  "signature": "fn test_extract_zip_sanitizes_components() {",
+                  "line": 391
+                },
+                {
+                  "name": "test_create_project_zip_sync_includes_inventory_active_scene_files",
+                  "signature": "fn test_create_project_zip_sync_includes_inventory_active_scene_files() {",
+                  "line": 426
+                }
+              ],
+              "fingerprint": "3ade8537449931c38700d825f76779b33158d675ba88a35f894311bdef96913d"
             }
           ]
         }
