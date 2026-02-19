@@ -26,9 +26,35 @@ let processZipResponse = zipResult => {
   }
 }
 
-let createResultFiles = (extractedResult, originalName) => {
+let generateAndOverrideTiny = (previewBlob) => {
+  Promise.make((resolve, _reject) => {
+    let img = Dom.createElement("img")
+    let url = UrlUtils.safeCreateObjectURL(previewBlob)
+
+    let onLoad = () => {
+      URL.revokeObjectURL(url)
+      ThumbnailGenerator.generateRectilinearThumbnail(img, 120, 80)
+      ->Promise.then(tinyBlob => {
+        resolve(tinyBlob)
+        Promise.resolve()
+      })
+      ->ignore
+    }
+
+    let onError = () => {
+      URL.revokeObjectURL(url)
+      resolve(previewBlob)
+    }
+
+    Dom.addEventListenerNoEv(img, "load", onLoad)
+    Dom.addEventListenerNoEv(img, "error", onError)
+    Dom.setAttribute(img, "src", url)
+  })
+}
+
+let createResultFiles = async (extractedResult, originalName) => {
   switch extractedResult {
-  | Ok((previewBlob, metaText, tinyBlobOpt)) =>
+  | Ok((previewBlob, metaText, _tinyBlobOpt)) =>
     switch JsonCombinators.Json.parse(metaText) {
     | Ok(json) =>
       switch JsonCombinators.Json.decode(json, JsonParsers.Shared.metadataResponse) {
@@ -87,32 +113,29 @@ let createResultFiles = (extractedResult, originalName) => {
           newName ++ ".webp",
           {"type": "image/webp", "lastModified": Date.now()},
         )
-        let tinyFile = switch tinyBlobOpt {
-        | Some(b) =>
-          Some(
-            File.newFile(
-              [b],
-              newName ++ "_tiny.webp",
-              {"type": "image/webp", "lastModified": Date.now()},
-            ),
-          )
-        | None => None
-        }
 
-        Promise.resolve(
-          Ok({
-            preview: previewFile,
-            tiny: tinyFile,
-            metadata: metadata.exif,
-            qualityData: metadata.quality,
-            checksumData: metadata.checksum,
-          }),
+        // Generate high-quality rectilinear tiny thumbnail (HFOV 90 override)
+        let tinyBlobFixed = await generateAndOverrideTiny(previewBlob)
+        let tinyFile = Some(
+          File.newFile(
+            [tinyBlobFixed],
+            newName ++ "_tiny.webp",
+            {"type": "image/webp", "lastModified": Date.now()},
+          ),
         )
-      | Error(msg) => Promise.resolve(Error("Metadata decode error: " ++ msg))
+
+        Ok({
+          preview: previewFile,
+          tiny: tinyFile,
+          metadata: metadata.exif,
+          qualityData: metadata.quality,
+          checksumData: metadata.checksum,
+        })
+      | Error(msg) => Error("Metadata decode error: " ++ msg)
       }
-    | Error(msg) => Promise.resolve(Error("Metadata parse error: " ++ msg))
+    | Error(msg) => Error("Metadata parse error: " ++ msg)
     }
-  | Error(msg) => Promise.resolve(Error(msg))
+  | Error(msg) => Error(msg)
   }
 }
 
