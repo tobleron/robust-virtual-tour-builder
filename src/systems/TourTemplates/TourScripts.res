@@ -674,7 +674,7 @@ let renderScriptTemplate = `
       if (titleEl) titleEl.textContent = lookingMode ? "Looking mode: ON" : "Looking mode: OFF";
       if (dotEl) { if (lookingMode) { dotEl.classList.remove('paused'); } else { dotEl.classList.add('paused'); } }
       if (container) { if (lookingMode) { container.classList.remove('mode-paused'); } else { container.classList.add('mode-paused'); } }
-      if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.active = false; }
+      if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.smoothedVector = { x: 0, y: 0 }; driftRuntime.active = false; driftRuntime.lastTickTime = null; }
     }
     function toggleLookingMode() {
         manualLookingMode = !manualLookingMode;
@@ -711,9 +711,10 @@ let renderScriptTemplate = `
     }
 
     /* --- LAZY DRIFT LOGIC --- */
-    const DRIFT_SPEED_FACTOR = 2.2;
-    const DRIFT_DEADZONE = 0.1;
-    let driftRuntime = { active: false, rafId: null, vector: { x: 0, y: 0 } };
+    const DRIFT_MAX_SPEED = 80.0;  // degrees/second — frame-rate independent
+    const DRIFT_LERP = 0.10;       // smoothing factor (~10% per frame at 60fps)
+    const DRIFT_DEADZONE = 0.2;    // 20% deadzone
+    let driftRuntime = { active: false, rafId: null, vector: { x: 0, y: 0 }, smoothedVector: { x: 0, y: 0 }, lastTickTime: null };
 
     function updateDriftVector(e) {
       if (!lookingMode) return;
@@ -741,18 +742,18 @@ let renderScriptTemplate = `
       let vy = 0;
 
       if (isOutside) {
-         // Premium feel: Significant slow down + fade out over distance
+         // Premium feel: fade-out drift over distance beyond stage boundary
          const FADE_DISTANCE = 50;
-         const START_DAMPING = 0.2; // Drop to 20% speed immediately at edge
+         const START_DAMPING = 0.15; // Normalized 0–1 fraction of DRIFT_MAX_SPEED at edge
 
          const distX = Math.max(0, rect.left - e.clientX, e.clientX - rect.right);
          const distY = Math.max(0, rect.top - e.clientY, e.clientY - rect.bottom);
          const dist = Math.sqrt(distX*distX + distY*distY);
 
          const distFactor = Math.max(0, 1.0 - (dist / FADE_DISTANCE));
-         const outsideSpeed = DRIFT_SPEED_FACTOR * START_DAMPING * distFactor;
+         const outsideSpeed = START_DAMPING * distFactor; // normalized 0–1
 
-         // Normalize direction vector to max 1.0 magnitude to prevent acceleration
+         // Normalize direction to unit vector to prevent diagonal acceleration
          const rawDx = (e.clientX - cx);
          const rawDy = (e.clientY - cy);
          const mag = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
@@ -764,20 +765,22 @@ let renderScriptTemplate = `
         const dx = (e.clientX - cx) / (w / 2); // -1.0 to 1.0
         const dy = (e.clientY - cy) / (h / 2); // -1.0 to 1.0
 
-        // Deadzone Check
+        // Deadzone check (20% of half-dimension)
         const ax = Math.abs(dx);
         const ay = Math.abs(dy);
 
         if (ax > DRIFT_DEADZONE) {
           const sign = Math.sign(dx);
           const ramp = (ax - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
-          vx = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR;
+          const smooth = ramp * ramp * (3.0 - 2.0 * ramp); // smoothstep: gentle mid, firm edge
+          vx = sign * smooth; // normalized 0–1
         }
 
         if (ay > DRIFT_DEADZONE) {
           const sign = Math.sign(dy);
           const ramp = (ay - DRIFT_DEADZONE) / (1.0 - DRIFT_DEADZONE);
-          vy = sign * (ramp * ramp) * DRIFT_SPEED_FACTOR;
+          const smooth = ramp * ramp * (3.0 - 2.0 * ramp); // smoothstep
+          vy = sign * smooth; // normalized 0–1
         }
       }
 
@@ -792,26 +795,40 @@ let renderScriptTemplate = `
       if (driftRuntime.active) return;
       driftRuntime.active = true;
 
-      function tick() {
-        // Stop if navigating
+      function tick(now) {
+        // Stop if navigating — clear all state immediately
         if (waypointRuntime.animationId !== null) {
           driftRuntime.active = false;
           driftRuntime.vector = { x: 0, y: 0 };
+          driftRuntime.smoothedVector = { x: 0, y: 0 };
+          driftRuntime.lastTickTime = null;
           return;
         }
 
-        // Stop if stationary
-        if (driftRuntime.vector.x === 0 && driftRuntime.vector.y === 0) {
+        // Delta time — frame-rate independent (cap at 50ms to survive tab hide/wake)
+        const dt = driftRuntime.lastTickTime !== null ? Math.min((now - driftRuntime.lastTickTime) / 1000.0, 0.05) : 0.016;
+        driftRuntime.lastTickTime = now;
+
+        // Lerp smoothed vector toward target vector (inertia + coast-to-stop)
+        driftRuntime.smoothedVector.x += (driftRuntime.vector.x - driftRuntime.smoothedVector.x) * DRIFT_LERP;
+        driftRuntime.smoothedVector.y += (driftRuntime.vector.y - driftRuntime.smoothedVector.y) * DRIFT_LERP;
+
+        const sx = driftRuntime.smoothedVector.x;
+        const sy = driftRuntime.smoothedVector.y;
+
+        // Stop once both the target and smoothed vector are effectively zero
+        if (Math.abs(sx) < 0.001 && Math.abs(sy) < 0.001 &&
+            driftRuntime.vector.x === 0 && driftRuntime.vector.y === 0) {
           driftRuntime.active = false;
+          driftRuntime.smoothedVector = { x: 0, y: 0 };
+          driftRuntime.lastTickTime = null;
           return;
         }
 
         if (window.viewer && typeof window.viewer.getYaw === 'function') {
-           const nextYaw = window.viewer.getYaw() + driftRuntime.vector.x;
-           const nextPitch = window.viewer.getPitch() - driftRuntime.vector.y; // Invert Y
-           // Clamp pitch (-85 to 85 is standard safe range)
+           const nextYaw   = window.viewer.getYaw()   + sx * dt * DRIFT_MAX_SPEED;
+           const nextPitch = window.viewer.getPitch() - sy * dt * DRIFT_MAX_SPEED; // Invert Y
            const clampedPitch = Math.max(-85, Math.min(85, nextPitch));
-
            window.viewer.lookAt(clampedPitch, nextYaw, getCurrentHfov(), false);
         }
 
@@ -825,7 +842,9 @@ let renderScriptTemplate = `
       document.addEventListener("mousemove", updateDriftVector);
       document.addEventListener("mousedown", () => {
          driftRuntime.vector = { x: 0, y: 0 };
+         driftRuntime.smoothedVector = { x: 0, y: 0 };
          driftRuntime.active = false;
+         driftRuntime.lastTickTime = null;
          if (driftRuntime.rafId) cancelAnimationFrame(driftRuntime.rafId);
       });
     }
