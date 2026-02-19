@@ -1,6 +1,6 @@
+use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use serde_json::Value;
 use std::collections::HashMap;
-use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 
 pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {
     let tour_name = project_data["tourName"]

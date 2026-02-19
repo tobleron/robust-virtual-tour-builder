@@ -3,7 +3,6 @@
 open ReBindings
 open Types
 
-
 // Hook 2: Scene Cleanup
 let useSceneCleanup = (~scenes: array<scene>) => {
   React.useEffect1(() => {

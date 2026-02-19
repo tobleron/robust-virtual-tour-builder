@@ -322,7 +322,6 @@ let isDebugBuild = () => {
   mode == "development" || isDevStr == "true"
 }
 
-
 let enableStateInspector = () => {
   try {
     %raw(`typeof process !== 'undefined' && process.env.ENABLE_STATE_INSPECTOR === 'true'`) ||
