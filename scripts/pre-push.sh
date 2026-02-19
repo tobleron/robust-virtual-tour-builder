@@ -6,7 +6,7 @@ echo "🔍 Starting Pre-Push Sanitization..."
 
 # 1. Check for Large Files (>1MB)
 echo "📦 Checking for large binaries..."
-LARGE_FILES=$(find . -type f -not -path '*/.*' -not -path './node_modules/*' -not -path './backend/target/*' -not -path './_dev-system/analyzer/target/*' -not -path './target/*' -not -path './backend/data/*' -not -path './logs/*' -not -path './dist/*' -size +1M)
+LARGE_FILES=$(find . -type f -not -path '*/.*' -not -path './node_modules/*' -not -path './backend/target/*' -not -path './backend/temp/*' -not -path './backend/logs/*' -not -path './_dev-system/analyzer/target/*' -not -path './target/*' -not -path './backend/data/*' -not -path './logs/*' -not -path './dist/*' -size +1M)
 if [ -n "$LARGE_FILES" ]; then
     echo "⚠️  Found files > 1MB:"
     echo "$LARGE_FILES"

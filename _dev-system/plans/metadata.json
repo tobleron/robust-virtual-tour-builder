@@ -1,70 +1,4 @@
 {
-  "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/utils/RequestQueue.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.09] | Drag: 3.46 | LOC: 407/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.156511056511055,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter.res",
-              "functions": [
-                {
-                  "name": "exportScenes",
-                  "signature": "exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != \"\")",
-                  "line": 14
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (p, t, m) => {",
-                  "line": 16
-                },
-                {
-                  "name": "tourName",
-                  "signature": "tourName = if tourName == \"\" {",
-                  "line": 23
-                },
-                {
-                  "name": "msg",
-                  "signature": "msg = ExporterUtils.normalizeThrowableMessage(exn)",
-                  "line": 401
-                },
-                {
-                  "name": "normalizedStack",
-                  "signature": "normalizedStack = if stack != \"\" {",
-                  "line": 402
-                },
-                {
-                  "name": "payload",
-                  "signature": "payload = ExporterUtils.extractHttpErrorBody(msg)",
-                  "line": 413
-                },
-                {
-                  "name": "finalMsg",
-                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
-                  "line": 414
-                }
-              ],
-              "fingerprint": "0ab80b65d78cf5a8d7b51ae65ec60c8308921c080f789426efa58fe5ed1b611b"
-            }
-          ]
-        }
-      }
-    }
-  ],
   "system": [
     {
       "Merge": {
@@ -158,6 +92,72 @@
             }
           ]
         }
+      }
+    }
+  ],
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/Exporter.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.09] | Drag: 3.46 | LOC: 417/300",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.155155875299759,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Exporter.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Exporter.res",
+              "functions": [
+                {
+                  "name": "exportScenes",
+                  "signature": "exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != \"\")",
+                  "line": 14
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (p, t, m) => {",
+                  "line": 16
+                },
+                {
+                  "name": "tourName",
+                  "signature": "tourName = if tourName == \"\" {",
+                  "line": 23
+                },
+                {
+                  "name": "msg",
+                  "signature": "msg = ExporterUtils.normalizeThrowableMessage(exn)",
+                  "line": 411
+                },
+                {
+                  "name": "normalizedStack",
+                  "signature": "normalizedStack = if stack != \"\" {",
+                  "line": 412
+                },
+                {
+                  "name": "payload",
+                  "signature": "payload = ExporterUtils.extractHttpErrorBody(msg)",
+                  "line": 423
+                },
+                {
+                  "name": "finalMsg",
+                  "signature": "finalMsg = switch JsonCombinators.Json.parse(payload) {",
+                  "line": 424
+                }
+              ],
+              "fingerprint": "0ab80b65d78cf5a8d7b51ae65ec60c8308921c080f789426efa58fe5ed1b611b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RequestQueue.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     }
   ]

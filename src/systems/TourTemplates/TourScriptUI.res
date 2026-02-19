@@ -101,6 +101,13 @@ let script = `
     }
     function navigateToFloorTagShortcut(targetSceneId) {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;
+      const row = document.querySelector('.floor-tag-shortcut-row[data-scene-id="' + String(targetSceneId) + '"]');
+      if (row) {
+        row.classList.add("state-selected");
+        setTimeout(() => {
+          row.classList.remove("state-selected");
+        }, 500);
+      }
       const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
       if (!resolvedTargetSceneId) return;
       if (window.viewer.getScene() === resolvedTargetSceneId) {
@@ -154,14 +161,23 @@ let script = `
         const row = document.createElement("button");
         row.type = "button";
         row.className = "floor-tag-shortcut-row";
+        row.setAttribute("data-scene-id", entry.sceneId);
         row.setAttribute("aria-label", "Shortcut " + String(index + 1) + " " + entry.label);
         row.addEventListener("click", () => navigateToFloorTagShortcut(entry.sceneId));
+
+        const arrowEl = document.createElement("span");
+        arrowEl.className = "shortcut-indicator-arrow";
+        arrowEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+
         const indexEl = document.createElement("span");
         indexEl.className = "floor-tag-shortcut-index";
         indexEl.textContent = String(index + 1);
+
         const labelEl = document.createElement("span");
         labelEl.className = "floor-tag-shortcut-label";
         labelEl.textContent = entry.label;
+
+        row.appendChild(arrowEl);
         row.appendChild(indexEl);
         row.appendChild(labelEl);
         panel.appendChild(row);
@@ -173,12 +189,19 @@ let script = `
         moreRow.className = "floor-tag-shortcut-row";
         moreRow.setAttribute("aria-label", "More shortcuts");
         moreRow.addEventListener("click", () => cycleExportFloorTagShortcutPage());
+
+        const spacer = document.createElement("span");
+        spacer.className = "shortcut-indicator-spacer";
+
         const moreIndex = document.createElement("span");
         moreIndex.className = "floor-tag-shortcut-index";
         moreIndex.textContent = "m";
+
         const moreLabel = document.createElement("span");
         moreLabel.className = "floor-tag-shortcut-label";
         moreLabel.textContent = "more";
+
+        moreRow.appendChild(spacer);
         moreRow.appendChild(moreIndex);
         moreRow.appendChild(moreLabel);
         panel.appendChild(moreRow);
