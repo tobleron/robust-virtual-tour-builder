@@ -40,7 +40,7 @@ let make = () => {
         let resumeButtons = if Array.length(resumable) > 0 {
           [
             {
-              label: "Retry Available",
+              label: "Resume Upload",
               class_: "btn-primary",
               onClick: () => retryAll(resumable),
               autoClose: Some(false),
@@ -52,25 +52,25 @@ let make = () => {
 
         let dismissedCount = Array.length(interrupted) - Array.length(resumable)
         let description = if dismissedCount > 0 {
-          "The app closed unexpectedly while operations were in progress. " ++
+          "We found unfinished tasks from your last session. " ++
           Belt.Int.toString(
             dismissedCount,
-          ) ++ " operation(s) cannot be resumed and can only be dismissed."
+          ) ++ " item(s) cannot be resumed and will be discarded."
         } else {
-          "The app closed unexpectedly while operations were in progress."
+          "We found an interrupted upload from your last session."
         }
 
         let _ = Window.setTimeout(() => {
           EventBus.dispatch(
             ShowModal({
-              title: "Interrupted Operations Detected",
+              title: "Incomplete Uploads Detected",
               description: Some(description),
               content: Some(<RecoveryPrompt entries={interrupted} />),
               buttons: Belt.Array.concat(
                 resumeButtons,
                 [
                   {
-                    label: "Dismiss All",
+                    label: "Discard",
                     class_: "btn-secondary",
                     onClick: () => clearInterrupted(),
                     autoClose: Some(false),
