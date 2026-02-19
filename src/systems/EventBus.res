@@ -53,6 +53,7 @@ type event =
   | TriggerUpload
   | PreviewLinkId(string)
   | NetworkStatusChanged(bool)
+  | CancelActiveOperation
 
 type subscription = unit => unit
 
