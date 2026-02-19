@@ -196,15 +196,25 @@ fn read_env_usize(name: &str, default: usize) -> usize {
         .unwrap_or(default)
 }
 
-pub fn rate_limit_settings() -> (u64, u32) {
+pub fn rate_limit_settings_for_class(class: &str) -> (u64, u32) {
     let (default_rps, default_burst) = if is_production() {
-        (30_u64, 60_u32)
+        match class {
+            "health" => (50_u64, 100_u32),
+            "read" => (30_u64, 60_u32),
+            "write" => (10_u64, 20_u32),
+            "admin" => (5_u64, 10_u32),
+            _ => (30_u64, 60_u32),
+        }
     } else {
         (500_u64, 1000_u32)
     };
 
-    let rps = read_env_usize("RATE_LIMIT_PER_SECOND", default_rps as usize) as u64;
-    let burst = read_env_usize("RATE_LIMIT_BURST_SIZE", default_burst as usize) as u32;
+    let prefix = format!("RATE_LIMIT_{}", class.to_uppercase());
+    let rps_key = format!("{}_RPS", prefix);
+    let burst_key = format!("{}_BURST", prefix);
+
+    let rps = read_env_usize(&rps_key, default_rps as usize) as u64;
+    let burst = read_env_usize(&burst_key, default_burst as usize) as u32;
     (rps, burst)
 }
 

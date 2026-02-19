@@ -69,6 +69,24 @@ let resume = () => {
   process()
 }
 
+let handleRateLimit = (seconds: int) => {
+  if !paused.contents {
+    Logger.warn(
+      ~module_="RequestQueue",
+      ~message="RATE_LIMIT_PAUSE",
+      ~data=Some(Logger.castToJson({"seconds": seconds})),
+      ()
+    )
+    pause()
+    let _ = ReBindings.Window.setTimeout(() => {
+      // Only resume if network is online.
+      if NetworkStatus.isOnline() {
+        resume()
+      }
+    }, seconds * 1000)
+  }
+}
+
 let drain = (): int => {
   let count = Array.length(queue)
   let removed = Array.slice(queue, ~start=0, ~end=count)
