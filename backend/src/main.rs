@@ -18,6 +18,7 @@ mod startup;
 
 use middleware::QuotaCheck;
 use middleware::RequestTracker;
+use middleware::rate_limiter::RateLimiters;
 use services::database::DatabaseManager;
 use services::media::StorageManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
@@ -96,28 +97,16 @@ async fn main() -> io::Result<()> {
             )
         })?;
 
-    let (requests_per_sec, burst_size) = startup::rate_limit_settings();
-
-    let governor_conf = actix_governor::GovernorConfigBuilder::default()
-        .per_second(requests_per_sec)
-        .burst_size(burst_size)
-        .finish()
-        .ok_or_else(|| {
-            io::Error::new(
-                io::ErrorKind::Other,
-                "Failed to initialize rate limiter configuration.",
-            )
-        })?;
+    // Initialize Rate Limiters
+    let rate_limiters = web::Data::new(RateLimiters::new());
 
     tracing::info!(
-        requests_per_second = requests_per_sec,
-        burst_size = burst_size,
         environment = if startup::is_production() {
             "production"
         } else {
             "development"
         },
-        "Rate limiter configured"
+        "Rate limiters configured"
     );
 
     let session_key = startup::session_key()?;
@@ -135,15 +124,14 @@ async fn main() -> io::Result<()> {
             .wrap(RequestTracker)
             .wrap(TracingLogger::default())
             .wrap(startup::security_headers())
-            .wrap(actix_governor::Governor::new(&governor_conf))
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
                 session_key.clone(),
             ))
             .wrap(startup::cors())
             .wrap(prometheus.clone())
-            .route("/health", web::get().to(health_check))
-            .configure(api::config)
+            .route("/health", web::get().to(health_check).wrap(middleware::rate_limiter::RateLimitResponseTransformer::new("health")).wrap(actix_governor::Governor::new(&rate_limiters.health)))
+            .configure(|cfg| api::config(cfg, &rate_limiters))
             // --- STATIC FILES (Serve Production Build from dist/) ---
             .configure(|cfg: &mut web::ServiceConfig| {
                 if std::path::Path::new("../dist/static").is_dir() {

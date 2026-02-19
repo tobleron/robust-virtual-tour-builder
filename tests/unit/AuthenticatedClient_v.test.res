@@ -150,6 +150,7 @@ describe("AuthenticatedClient", () => {
       m.mockResolvedValueOnce({
         ok: false,
         status: 429,
+        headers: { get: (k) => k === 'Retry-After' ? '0' : null },
         statusText: 'Too Many Requests',
         json: () => Promise.resolve({}),
         text: () => Promise.resolve('Rate limited')

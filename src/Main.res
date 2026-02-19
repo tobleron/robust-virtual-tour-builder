@@ -158,6 +158,13 @@ let init = async () => {
       NetworkStatus.initialize()
       RequestQueue.initializeNetworkListener()
 
+      let _ = EventBus.subscribe(event => {
+        switch event {
+        | RateLimitBackoff(seconds) => RequestQueue.handleRateLimit(seconds)
+        | _ => ()
+        }
+      })
+
       // 9. Service Worker (for offline capability and caching)
       try {
         if Constants.isDebugBuild() {
