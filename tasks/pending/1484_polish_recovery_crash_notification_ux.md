@@ -1,4 +1,4 @@
-# Task 1484: [DELEGATED TO JULES - CLOUD] Polish Recovery/Crash Notification UX
+# Task 1484: Polish Recovery/Crash Notification UX
 
 ## Priority: Medium
 ## Category: UX Polish
