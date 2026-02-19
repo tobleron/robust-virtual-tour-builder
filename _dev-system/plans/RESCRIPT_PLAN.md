@@ -14,7 +14,7 @@
 - [ ] **../../src/components/ViewerManagerLogic.res**
   - *Reason:* [Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.12 | LOC: 377/300  🎯 Target: Function: `isLastIdValid` (High Local Complexity (3.0). Logic heavy.)
 - [ ] **../../src/systems/Exporter.res**
-  - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 423/300
+  - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 421/300
 
 ---
 

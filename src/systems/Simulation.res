@@ -244,11 +244,12 @@ let make = () => {
                   dispatch(StopAutoPilot)
                 }
               } catch {
-              | _err =>
+              | err =>
+                let (msg, stack) = LoggerCommon.getErrorDetails(err)
                 Logger.error(
                   ~module_="Simulation",
                   ~message="SIM_TICK_EXCEPTION",
-                  ~data={"error": "TODO"},
+                  ~data={"error": msg, "stack": stack},
                   (),
                 )
                 advancingForIndex.current = -1
