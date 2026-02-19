@@ -268,7 +268,11 @@ let exportTour = async (
               | Some(t) => t == "dev-token"
               | None => false
               }
-              if Constants.isDebugBuild() && !usingDevToken && ExporterUtils.isUnauthorizedHttpError(msg) {
+              if (
+                Constants.isDebugBuild() &&
+                !usingDevToken &&
+                ExporterUtils.isUnauthorizedHttpError(msg)
+              ) {
                 await ExporterUtils.fetchSceneUrlBlob(~url, ~authToken=Some("dev-token"))
               } else {
                 initial
@@ -312,7 +316,13 @@ let exportTour = async (
 
     let rec uploadWithRetry = async (retryCount, token) => {
       try {
-        let result = await ExporterUpload.uploadAndProcessRaw(formData, progress, backendUrl, ~signal, ~token)
+        let result = await ExporterUpload.uploadAndProcessRaw(
+          formData,
+          progress,
+          backendUrl,
+          ~signal,
+          ~token,
+        )
         CircuitBreaker.recordSuccess(AuthenticatedClient.circuitBreaker)
         result
       } catch {
