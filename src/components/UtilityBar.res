@@ -104,7 +104,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
   , (simActive, currentJourneyId))
 
   let utilBarClass =
-    "absolute top-6 left-6 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
+    "absolute top-6 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
       !scenesLoaded
     ) {
       "grayscale opacity-60 pointer-events-none"

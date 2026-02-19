@@ -21,10 +21,6 @@ Baseline artifacts: `_dev-system/tmp/D011/verification.json` (files at `_dev-sys
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D011/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-merge snapshots for `../../src/systems/Exporter`
-- `src/systems/Exporter/ExporterUpload.res` (1 functions, fingerprint 297d394e042a8ba627f45e39c303e8f1bd66047b288ce23cb9f12912d95607d4)
-    - Grouped summary:
-        - uploadAndProcessRaw × 1 (lines: 4)
-    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 - `src/systems/Exporter/ExporterUtils.res` (12 functions, fingerprint fb5d2057024a8418e0b7898f79996b074ea83baacd8df99911d149c37fdb1596)
     - Grouped summary:
         - apiErrorDecoder × 1 (lines: 8)
@@ -39,4 +35,8 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - normalizeLogoExtension × 1 (lines: 90)
         - normalizeThrowableMessage × 1 (lines: 36)
         - throwableMessageRaw × 1 (lines: 15)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+- `src/systems/Exporter/ExporterUpload.res` (1 functions, fingerprint 297d394e042a8ba627f45e39c303e8f1bd66047b288ce23cb9f12912d95607d4)
+    - Grouped summary:
+        - uploadAndProcessRaw × 1 (lines: 4)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
