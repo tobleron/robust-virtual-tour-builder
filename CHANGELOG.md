@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge: integrate jules-e2e-hardening improvements
+- Fix sidebar operation cancellation: ESC key now aborts active Save/Export/Teaser, wired teaser onCancel, and cleaned up save cancellation UX
 
 ## [4.26.1] - 2026-02-19
 

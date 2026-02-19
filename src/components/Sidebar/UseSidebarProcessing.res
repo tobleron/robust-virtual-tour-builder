@@ -52,6 +52,8 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
   let appearanceTimerRef = React.useRef(Nullable.null)
   let hideTimerRef = React.useRef(Nullable.null)
   let isBarVisible = React.useRef(false)
+  // Tracks the latest cancel callback so ESC (CancelActiveOperation) can abort any running op.
+  let currentCancelRef = React.useRef(() => ())
 
   React.useEffect0(() => {
     Logger.initialized(~module_="Sidebar")
@@ -67,6 +69,9 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
           let wantedActive = payload["active"]
 
           if wantedActive {
+            // Track the latest cancel callback for ESC support
+            currentCancelRef.current = payload["onCancel"]
+
             // Cancel any pending hide
             switch Nullable.toOption(hideTimerRef.current) {
             | Some(timerId) =>
@@ -91,7 +96,8 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
               appearanceTimerRef.current = Nullable.fromOption(Some(tid))
             }
           } else {
-            // Operation is finished (Inactive)
+            // Operation is finished (Inactive) — clear the cancel ref
+            currentCancelRef.current = () => ()
 
             // 1. Cancel any pending appearance
             switch Nullable.toOption(appearanceTimerRef.current) {
@@ -134,6 +140,10 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
             }
           }
         }
+      | CancelActiveOperation =>
+        // ESC key or any system-level cancel — invoke the active operation's abort
+        Logger.info(~module_="Sidebar", ~message="CANCEL_ACTIVE_OPERATION_VIA_ESC", ())
+        currentCancelRef.current()
       | _ => ()
       }
     })
@@ -165,7 +175,7 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
       })
     } // Check if it was cancelled via signal
     else if BrowserBindings.AbortSignal.aborted(signal) {
-      SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", true, "Save")
+      SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", false, "")
       NotificationManager.dispatch({
         id: "save-cancelled-notification",
         importance: Info,
@@ -177,9 +187,6 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
         dismissible: true,
         createdAt: Date.now(),
       })
-      let _ = ReBindings.Window.setTimeout(() => {
-        SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", false, "")
-      }, 5000)
     } else {
       SidebarLogic.updateProgress(~dispatch, 0.0, "Save Failed", false, "")
     }

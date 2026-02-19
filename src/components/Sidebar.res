@@ -114,7 +114,15 @@ let make = React.memo(() => {
           )
         }}
         onTeaser={(~signal, ~onCancel) => {
-          let _ = onCancel
+          // Seed the progress bar cancel callback so clicking "Cancel" aborts the signal.
+          SidebarLogic.updateProgress(
+            ~dispatch,
+            ~onCancel,
+            0.0,
+            "Starting teaser...",
+            true,
+            "Teaser",
+          )
           Teaser.startAutoTeaser("fast", false, "webm", false, ~getState, ~dispatch, ~signal)
         }}
       />
