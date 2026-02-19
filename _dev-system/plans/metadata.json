@@ -1,3 +1,19 @@
 {
-  "system": []
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    }
+  ]
 }

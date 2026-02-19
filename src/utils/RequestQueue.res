@@ -75,7 +75,7 @@ let handleRateLimit = (seconds: int) => {
       ~module_="RequestQueue",
       ~message="RATE_LIMIT_PAUSE",
       ~data=Some(Logger.castToJson({"seconds": seconds})),
-      ()
+      (),
     )
     pause()
     let _ = ReBindings.Window.setTimeout(() => {

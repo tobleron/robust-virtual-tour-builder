@@ -1,5 +1,5 @@
 use crate::auth;
-use crate::middleware::rate_limiter::{RateLimiters, RateLimitResponseTransformer};
+use crate::middleware::rate_limiter::{RateLimitResponseTransformer, RateLimiters};
 use actix_governor::Governor;
 use actix_web::web;
 
@@ -57,21 +57,69 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
             .service(
                 web::scope("/project")
                     .wrap(auth::AuthMiddleware)
-                    .route("/save", web::post().to(project::save_project).wrap(RateLimitResponseTransformer::new("write")).wrap(Governor::new(&limiters.write)))
-                    .route("/load", web::post().to(project::load_project).wrap(RateLimitResponseTransformer::new("read")).wrap(Governor::new(&limiters.read)))
+                    .route(
+                        "/save",
+                        web::post()
+                            .to(project::save_project)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/load",
+                        web::post()
+                            .to(project::load_project)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
                     .route(
                         "/create-tour-package",
-                        web::post().to(project::create_tour_package).wrap(RateLimitResponseTransformer::new("write")).wrap(Governor::new(&limiters.write)),
+                        web::post()
+                            .to(project::create_tour_package)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
                     )
-                    .route("/validate", web::post().to(project::validate_project).wrap(RateLimitResponseTransformer::new("write")).wrap(Governor::new(&limiters.write)))
-                    .route("/import", web::post().to(project::import_project).wrap(RateLimitResponseTransformer::new("write")).wrap(Governor::new(&limiters.write)))
-                    .route("/calculate-path", web::post().to(project::calculate_path).wrap(RateLimitResponseTransformer::new("write")).wrap(Governor::new(&limiters.write)))
+                    .route(
+                        "/validate",
+                        web::post()
+                            .to(project::validate_project)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/import",
+                        web::post()
+                            .to(project::import_project)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/calculate-path",
+                        web::post()
+                            .to(project::calculate_path)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
                     .route(
                         "/{project_id}/file/{filename:.*}",
-                        web::get().to(media::serve_project_file).wrap(RateLimitResponseTransformer::new("read")).wrap(Governor::new(&limiters.read)),
+                        web::get()
+                            .to(media::serve_project_file)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
                     ),
             )
-            .route("/quota/stats", web::get().to(utils::quota_stats).wrap(RateLimitResponseTransformer::new("health")).wrap(Governor::new(&limiters.health)))
-            .route("/health", web::get().to(health::health_check).wrap(RateLimitResponseTransformer::new("health")).wrap(Governor::new(&limiters.health))),
+            .route(
+                "/quota/stats",
+                web::get()
+                    .to(utils::quota_stats)
+                    .wrap(RateLimitResponseTransformer::new("health"))
+                    .wrap(Governor::new(&limiters.health)),
+            )
+            .route(
+                "/health",
+                web::get()
+                    .to(health::health_check)
+                    .wrap(RateLimitResponseTransformer::new("health"))
+                    .wrap(Governor::new(&limiters.health)),
+            ),
     );
 }

@@ -13,8 +13,40 @@ external removeEventListener: (string, unit => unit) => unit = "removeEventListe
 let currentStatus: ref<bool> = ref(navigatorOnLine)
 let subscribers: ref<array<bool => unit>> = ref([])
 
+type statusReason =
+  | BrowserOffline
+  | ProbeNetworkFailure
+  | BackendRateLimited(option<int>)
+  | BackendUnavailable(int, string)
+  | Healthy
+
+let currentReason: ref<statusReason> = ref(navigatorOnLine ? Healthy : BrowserOffline)
+
+let reasonToMessage = (reason: statusReason): string =>
+  switch reason {
+  | Healthy => "Connected."
+  | BrowserOffline => "Browser reports no network connection."
+  | ProbeNetworkFailure => "Cannot reach backend health endpoint."
+  | BackendRateLimited(Some(secs)) =>
+    "Backend is rate-limiting requests. Retry in " ++ Belt.Int.toString(secs) ++ "s."
+  | BackendRateLimited(None) => "Backend is rate-limiting requests."
+  | BackendUnavailable(status, statusText) =>
+    "Backend health check failed (" ++ Belt.Int.toString(status) ++ " " ++ statusText ++ ")."
+  }
+
+type statusSnapshot = {
+  online: bool,
+  reason: statusReason,
+  message: string,
+}
+
 // --- Public API ---
 let isOnline = (): bool => currentStatus.contents
+
+let getSnapshot = (): statusSnapshot => {
+  let reason = currentReason.contents
+  {online: currentStatus.contents, reason, message: reasonToMessage(reason)}
+}
 
 let subscribe = (callback: bool => unit): (unit => unit) => {
   Array.push(subscribers.contents, callback)
@@ -28,18 +60,41 @@ let notifySubscribers = (online: bool) => {
   subscribers.contents->Belt.Array.forEach(cb => cb(online))
 }
 
-let forceStatus = (online: bool) => {
-  if currentStatus.contents !== online {
+let updateStatus = (online: bool, ~reason: statusReason) => {
+  let changedOnline = currentStatus.contents !== online
+  let changedReason = currentReason.contents !== reason
+
+  if changedOnline || changedReason {
     currentStatus := online
-    if online {
-      Console.info("NetworkStatus: NETWORK_ONLINE")
-      EventBus.dispatch(NetworkStatusChanged(true))
-    } else {
-      Console.warn("NetworkStatus: NETWORK_OFFLINE")
-      EventBus.dispatch(NetworkStatusChanged(false))
+    currentReason := reason
+
+    switch reason {
+    | Healthy => Console.info("NetworkStatus: NETWORK_ONLINE")
+    | BrowserOffline => Console.warn("NetworkStatus: BROWSER_OFFLINE")
+    | ProbeNetworkFailure => Console.warn("NetworkStatus: BACKEND_UNREACHABLE")
+    | BackendRateLimited(Some(secs)) =>
+      Console.warn2("NetworkStatus: BACKEND_RATE_LIMITED", {"retryAfterSec": secs})
+    | BackendRateLimited(None) => Console.warn("NetworkStatus: BACKEND_RATE_LIMITED")
+    | BackendUnavailable(status, statusText) =>
+      Console.warn2(
+        "NetworkStatus: BACKEND_UNAVAILABLE",
+        {"status": status, "statusText": statusText},
+      )
+    }
+
+    if changedOnline {
+      EventBus.dispatch(NetworkStatusChanged(online))
     }
     notifySubscribers(online)
   }
+}
+
+let parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {
+  let headers = WebApiBindings.Fetch.headers(res)
+  let direct = WebApiBindings.Fetch.getHeader(headers, "retry-after")->Nullable.toOption
+  let xRate = WebApiBindings.Fetch.getHeader(headers, "x-ratelimit-after")->Nullable.toOption
+  let raw = direct->Option.orElse(xRate)
+  raw->Option.flatMap(Belt.Int.fromString)
 }
 
 let probe = async () => {
@@ -54,14 +109,36 @@ let probe = async () => {
         (),
       ),
     )
-    let online = WebApiBindings.Fetch.ok(res)
-    forceStatus(online)
-    online
+    if WebApiBindings.Fetch.ok(res) {
+      updateStatus(true, ~reason=Healthy)
+      true
+    } else if WebApiBindings.Fetch.status(res) == 429 {
+      let retryAfter = parseRetryAfter(res)
+      updateStatus(false, ~reason=BackendRateLimited(retryAfter))
+      false
+    } else {
+      updateStatus(
+        false,
+        ~reason=BackendUnavailable(
+          WebApiBindings.Fetch.status(res),
+          WebApiBindings.Fetch.statusText(res),
+        ),
+      )
+      false
+    }
   } catch {
   | _ =>
     // If navigator says we are online but fetch fails, we ARE offline (from app perspective)
-    forceStatus(false)
+    updateStatus(false, ~reason=ProbeNetworkFailure)
     false
+  }
+}
+
+let forceStatus = (online: bool) => {
+  if online {
+    updateStatus(true, ~reason=Healthy)
+  } else {
+    updateStatus(false, ~reason=BrowserOffline)
   }
 }
 
@@ -69,7 +146,7 @@ let skipProbe = ref(false)
 
 let handleOnline = () => {
   if skipProbe.contents {
-    forceStatus(true)
+    updateStatus(true, ~reason=Healthy)
   } else {
     Console.info("NetworkStatus: Browser reported ONLINE, probing...")
     let _ = probe()
@@ -80,7 +157,7 @@ let handleOffline = () => {
   // If browser says we are offline, we usually trust it for immediate UI fallback,
   // but we might want to double check if we are on a weird LAN.
   // For now, we trust the browser's "offline" event as a fast-path.
-  forceStatus(false)
+  updateStatus(false, ~reason=BrowserOffline)
 }
 
 let intervalId: ref<option<int>> = ref(None)

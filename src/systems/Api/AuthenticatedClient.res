@@ -216,7 +216,8 @@ let request = async (
           // Treat 429 as failure for circuit breaker stats to help global backoff if needed
           CircuitBreaker.recordFailure(circuitBreaker)
 
-          let retryAfter = res.headers
+          let retryAfter =
+            res.headers
             ->getHeader("Retry-After")
             ->Nullable.toOption
             ->Option.flatMap(Belt.Int.fromString)

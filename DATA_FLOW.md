@@ -381,5 +381,8 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 backend/src/middleware
+- `[backend/src/middleware/rate_limiter.rs]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

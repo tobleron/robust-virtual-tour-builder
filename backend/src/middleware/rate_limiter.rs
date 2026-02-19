@@ -1,16 +1,21 @@
+use crate::startup;
 use actix_governor::{GovernorConfig, GovernorConfigBuilder, PeerIpKeyExtractor};
 use actix_web::{
+    Error,
+    body::{BoxBody, EitherBody, MessageBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
-    Error, body::{BoxBody, EitherBody, MessageBody},
-    http::{StatusCode, header::{CONTENT_TYPE, HeaderValue}},
+    http::{
+        StatusCode,
+        header::{CONTENT_TYPE, HeaderValue},
+    },
 };
 use futures_util::future::LocalBoxFuture;
+use serde_json::json;
 use std::future::{Ready, ready};
 use std::rc::Rc;
-use crate::startup;
-use serde_json::json;
 
-pub type RateLimitConfig = GovernorConfig<PeerIpKeyExtractor, actix_governor::governor::middleware::NoOpMiddleware>;
+pub type RateLimitConfig =
+    GovernorConfig<PeerIpKeyExtractor, actix_governor::governor::middleware::NoOpMiddleware>;
 
 #[derive(Clone)]
 pub struct RateLimiters {
@@ -100,7 +105,8 @@ where
         let scope = self.scope.clone();
 
         // Capture Request ID if present
-        let request_id = req.headers()
+        let request_id = req
+            .headers()
             .get("X-Request-ID")
             .and_then(|h| h.to_str().ok())
             .map(|s| s.to_string());
@@ -133,20 +139,21 @@ where
                 let new_body = serde_json::to_string(&msg).unwrap();
 
                 let mut res = res.map_body(|_, _| EitherBody::Right {
-                    body: BoxBody::new(new_body)
+                    body: BoxBody::new(new_body),
                 });
 
-                res.headers_mut().insert(
-                    CONTENT_TYPE,
-                    HeaderValue::from_static("application/json")
-                );
+                res.headers_mut()
+                    .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
                 if retry_after > 0 {
                     // Make sure x-ratelimit-after is present as well
                     if !res.headers().contains_key("x-ratelimit-after") {
                         res.headers_mut().insert(
                             actix_web::http::header::HeaderName::from_static("x-ratelimit-after"),
-                            actix_web::http::header::HeaderValue::from_str(&retry_after.to_string()).unwrap(),
+                            actix_web::http::header::HeaderValue::from_str(
+                                &retry_after.to_string(),
+                            )
+                            .unwrap(),
                         );
                     }
                 }
