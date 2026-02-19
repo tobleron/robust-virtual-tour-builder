@@ -67,6 +67,10 @@ let handleApplyLazyRename = (state: state, index: int, name: string): state => {
   SceneOperations.handleApplyLazyRename(state, index, name)
 }
 
+let handlePatchSceneThumbnail = (state: state, id: string, file: file): state => {
+  SceneOperations.handlePatchSceneThumbnail(state, id, file)
+}
+
 let syncSceneNames = (scenes: array<Types.scene>) => {
   SceneNaming.syncSceneNames(scenes)
 }

@@ -93,6 +93,8 @@ module Dom = {
   @set external setWidth: (element, int) => unit = "width"
   @get external getHeight: element => int = "height"
   @set external setHeight: (element, int) => unit = "height"
+  @get external naturalWidth: element => int = "naturalWidth"
+  @get external naturalHeight: element => int = "naturalHeight"
 
   @get external getComputedStyle: element => style = "getComputedStyle"
 

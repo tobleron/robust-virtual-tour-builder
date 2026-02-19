@@ -40,7 +40,7 @@ let make = React.memo((
     None
   })
 
-  let thumbUrl = React.useMemo1(() => Logic.getThumbUrl(scene), [scene.id])
+  let thumbUrl = React.useMemo1(() => Logic.getThumbUrl(scene), [scene])
 
   let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
   let (flickerState, setFlickerState) = React.useState(_ => #None)

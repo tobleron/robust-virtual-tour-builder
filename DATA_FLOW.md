@@ -366,6 +366,9 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/systems
+- `[src/systems/ThumbnailProjectSystem.res]`
+
 ### 📂 src/utils
 - `[src/utils/ThumbnailGenerator.res]`
 
