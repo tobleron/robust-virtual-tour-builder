@@ -202,7 +202,10 @@ let startRecording = () => {
     let stream = captureStream(canvas, 60)
     let mimeType = if String.includes(Window.navigatorUserAgent, "Firefox") {
       "video/webm;codecs=vp8"
-    } else if String.includes(Window.navigatorUserAgent, "Safari") && !String.includes(Window.navigatorUserAgent, "Chrome") {
+    } else if (
+      String.includes(Window.navigatorUserAgent, "Safari") &&
+      !String.includes(Window.navigatorUserAgent, "Chrome")
+    ) {
       "video/webm"
     } else {
       "video/webm;codecs=vp9,opus"
