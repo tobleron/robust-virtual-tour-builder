@@ -79,7 +79,12 @@ pub fn generate_strategic_directive(unit: &WorkUnit) -> String {
             let folder_name = Path::new(folder).file_name()
                 .map(|n| n.to_string_lossy())
                 .unwrap_or_default();
-            format!("Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `{}.rs`). CRITICAL: Delete the now-empty `{}/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.", folder_name, folder)
+            let example_ext = if folder.contains("/src/") && !folder.contains("/backend/") {
+                "res"
+            } else {
+                "rs"
+            };
+            format!("Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `{}.{}`). CRITICAL: Delete the now-empty `{}/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.", folder_name, example_ext, folder)
         },
         WorkUnit::Structural { action, .. } => {
             if action.contains("Flatten") {

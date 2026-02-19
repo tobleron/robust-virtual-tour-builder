@@ -20,10 +20,39 @@ pub fn detect_merge_candidates(
     spec_map: &HashMap<String, SpecSnapshot>,
 ) -> Vec<WorkUnit> {
     let mut merge_units = Vec::new();
+    let surgical_files: std::collections::HashSet<String> = _buffer
+        .values()
+        .flat_map(|units| units.iter())
+        .filter_map(|u| {
+            if let WorkUnit::Surgical { file, .. } = u {
+                Some(file.clone())
+            } else {
+                None
+            }
+        })
+        .collect();
 
     for ((dir, _ext), files) in dir_stats {
         // Stability Guard: Don't merge if the folder is locked
         if state.is_locked(&dir) {
+            continue;
+        }
+
+        // Shadow Guard: skip if a sibling orchestrator/service file exists (e.g. `.../Exporter` + `.../Exporter.res`)
+        if let Some(folder_name) = Path::new(&dir).file_name().and_then(|n| n.to_str()) {
+            let parent = Path::new(&dir)
+                .parent()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default();
+            let shadow_rs = format!("{}/{}.rs", parent, folder_name);
+            let shadow_res = format!("{}/{}.res", parent, folder_name);
+            if _registry.contains_key(&shadow_rs) || _registry.contains_key(&shadow_res) {
+                continue;
+            }
+        }
+
+        // Priority Guard: don't emit merge for a folder participating in active de-bloat work
+        if surgical_files.iter().any(|f| f.starts_with(&format!("{}/", dir))) {
             continue;
         }
 

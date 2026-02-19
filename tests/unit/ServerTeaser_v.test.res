@@ -133,7 +133,7 @@ describe("ServerTeaser - Remote Rendering", () => {
 
     switch result {
     | Ok(_) => t->expect("Success")->Expect.toBe("Error expected")
-    | Error(msg) => t->expect(msg)->Expect.toBe("Unknown JS Error")
+    | Error(msg) => t->expect(msg)->Expect.String.toContain("Network Failure")
     }
   })
 

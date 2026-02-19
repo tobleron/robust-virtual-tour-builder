@@ -4,6 +4,11 @@ open Vitest
 open RequestQueue
 
 describe("RequestQueue", () => {
+  let swallowRejection = (p: Promise.t<'a>): Promise.t<unit> =>
+    p
+    ->Promise.then(_ => Promise.resolve())
+    ->Promise.catch(_ => Promise.resolve())
+
   afterEach(() => {
     let _ = drain()
     paused := false
@@ -77,11 +82,11 @@ describe("RequestQueue", () => {
 
     // Fill active workers.
     for _i in 1 to maxConcurrent {
-      let _ = schedule(blocker)
+      let _ = schedule(blocker)->swallowRejection
     }
     // Fill pending queue.
     for _i in 1 to maxQueued {
-      let _ = schedule(blocker)
+      let _ = schedule(blocker)->swallowRejection
     }
 
     let overflowResult = await schedule(blocker)
@@ -98,7 +103,7 @@ describe("RequestQueue", () => {
       async () => {
         executed := true
       },
-    )
+    )->swallowRejection
 
     // Wait a bit to ensure it doesn't run
     let _ = await Promise.make(
@@ -141,9 +146,9 @@ describe("RequestQueue", () => {
 
   testAsync("drain clears the queue", async t => {
     pause()
-    let _ = schedule(async () => {ignore()})
-    let _ = schedule(async () => {ignore()})
-    let _ = schedule(async () => {ignore()})
+    let _ = schedule(async () => {ignore()})->swallowRejection
+    let _ = schedule(async () => {ignore()})->swallowRejection
+    let _ = schedule(async () => {ignore()})->swallowRejection
 
     t->expect(length())->Expect.toBe(3)
 

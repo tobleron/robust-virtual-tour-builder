@@ -6,7 +6,7 @@ let activeCount = ref(0)
 
 type queuedItem = {
   task: unit => Promise.t<unit>,
-  reject: string => unit,
+  reject: exn => unit,
 }
 
 let queue: array<queuedItem> = []
@@ -75,7 +75,7 @@ let drain = (): int => {
   let _ = Array.splice(queue, ~start=0, ~remove=count, ~insert=[])
 
   removed->Belt.Array.forEach(item => {
-    item.reject("RequestQueueDrained")
+    item.reject(Failure("RequestQueueDrained"))
   })
 
   Logger.info(
@@ -100,7 +100,7 @@ let initializeNetworkListener = () => {
 let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
   Promise.make((resolve, reject) => {
     if Array.length(queue) >= maxQueued {
-      reject("RequestQueueOverflow")
+      reject(Failure("RequestQueueOverflow"))
     } else {
       let run = () => {
         try {
@@ -110,18 +110,18 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
             Promise.resolve()
           })
           ->Promise.catch(err => {
-            reject(String.make(err))
+            reject(err)
             Promise.resolve()
           })
         } catch {
         | e => {
-            reject(String.make(e))
+            reject(e)
             Promise.resolve()
           }
         }
       }
 
-      let _ = Array.push(queue, {task: run, reject: val => reject(Obj.magic(val))})
+      let _ = Array.push(queue, {task: run, reject})
       process()
     }
   })
