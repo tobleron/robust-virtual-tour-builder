@@ -12,14 +12,14 @@ let make = () => {
 
   // Business Logic Hooks
   ViewerManagerLifecycle.useInitialization(~getState, ~dispatch)
-  ViewerManagerLogic.useSceneCleanup(~scenes=sceneSlice.scenes)
-  ViewerManagerLogic.usePreloading(
+  ViewerManagerCleanup.useSceneCleanup(~scenes=sceneSlice.scenes)
+  ViewerManagerPreloading.usePreloading(
     ~preloadingSceneIndex=uiSlice.preloadingSceneIndex,
     ~scenes=sceneSlice.scenes,
     ~activeIndex=sceneSlice.activeIndex,
     ~dispatch,
   )
-  ViewerManagerLogic.useMainSceneLoading(
+  ViewerManagerSceneLoad.useMainSceneLoading(
     ~scenes=sceneSlice.scenes,
     ~activeIndex=sceneSlice.activeIndex,
     ~isLinking=uiSlice.isLinking,
@@ -28,15 +28,15 @@ let make = () => {
     ~getState,
     ~dispatch,
   )
-  ViewerManagerLogic.useHotspotSync(
+  ViewerManagerHotspots.useHotspotSync(
     ~scenes=sceneSlice.scenes,
     ~activeIndex=sceneSlice.activeIndex,
     ~isLinking=uiSlice.isLinking,
     ~getState,
     ~dispatch,
   )
-  ViewerManagerLogic.useRatchetState(~isLinking=uiSlice.isLinking)
-  ViewerManagerLogic.useSimulationArrival(
+  ViewerManagerRatchet.useRatchetState(~isLinking=uiSlice.isLinking)
+  ViewerManagerSimulation.useSimulationArrival(
     ~activeIndex=sceneSlice.activeIndex,
     ~simulationStatus=simSlice.simulation.status,
   )
@@ -54,8 +54,8 @@ let make = () => {
     ~getState,
     ~dispatch,
   )
-  ViewerManagerLogic.useHotspotLineLoop(~getState, dispatch)
-  ViewerManagerLogic.useIntroPan(
+  ViewerManagerHotspots.useHotspotLineLoop(~getState, dispatch)
+  ViewerManagerIntro.useIntroPan(
     ~navigationState=navSlice,
     ~activeIndex=sceneSlice.activeIndex,
     ~isLinking=uiSlice.isLinking,
