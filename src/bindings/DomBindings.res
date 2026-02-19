@@ -21,6 +21,7 @@ module Dom = {
   @set external setEffectAllowed: (dataTransfer, string) => unit = "effectAllowed"
   @set external setDropEffect: (dataTransfer, string) => unit = "dropEffect"
   @send external setData: (dataTransfer, string, string) => unit = "setData"
+  @send external setDragImage: (dataTransfer, element, int, int) => unit = "setDragImage"
   @val @scope("window") external document: {..} = "document"
   type rect = {
     x: float,

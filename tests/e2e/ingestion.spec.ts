@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { resetClientState } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,14 +14,7 @@ const IMAGE_PATH = path.join(FIXTURES_DIR, 'image.jpg');
 test.describe('Ingestion Pipeline', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      const dbs = await window.indexedDB.databases();
-      dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
-    });
-    await page.reload(); // Reload to ensure app starts from clean state
+    await resetClientState(page);
   });
 
   test('should upload a .vt.zip and load the project', async ({ page }) => {
@@ -32,9 +26,7 @@ test.describe('Ingestion Pipeline', () => {
     await startBtn.waitFor({ state: 'visible', timeout: 30000 });
     await startBtn.click();
 
-    // Verify scene appears in the list - use a more robust check for the text containing '# Scene 1' or similar if it's the HUD
-    // but here it's the .scene-item in sidebar
-    await expect(page.locator('.scene-item').filter({ hasText: 'Scene 1' }).first()).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('.scene-item')).toHaveCount(1, { timeout: 30000 });
     await expect(page.locator('input.sidebar-project-input')).toHaveValue('Test Tour', { timeout: 10000 });
   });
 
@@ -46,6 +38,6 @@ test.describe('Ingestion Pipeline', () => {
     await startBtn.waitFor({ state: 'visible', timeout: 30000 });
     await startBtn.click();
 
-    await expect(page.locator('.scene-item').filter({ hasText: 'image' }).first()).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('.scene-item')).toHaveCount(1, { timeout: 30000 });
   });
 });

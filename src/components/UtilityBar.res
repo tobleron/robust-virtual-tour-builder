@@ -131,7 +131,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         } else {
           "destructive"
         }}
-        className="w-[32px] h-[32px] rounded-full text-[20px] font-semibold border border-transparent hover:border-[#0e2d52]"
+        className="w-8 h-8 min-w-8 min-h-8 rounded-full font-semibold border border-transparent hover:border-[#0e2d52]"
         onClick={handleFabClick}
         ariaLabel={if isLinking {
           "Close Link Mode"
@@ -165,7 +165,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
             } else {
               "destructive"
             }}
-            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
+            className="w-8 h-8 min-w-8 min-h-8 rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleSimClick}
             disabled={isLinking && !simActive}
             ariaLabel={if simActive {

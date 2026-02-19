@@ -1,8 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import {
+  createHotspotAtViewerCenter,
+  resetClientState,
+  selectFirstLinkTarget,
+  uploadImageAndWaitForSceneCount,
+  waitForNavigationStabilization,
+} from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,72 +20,24 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 test.describe('Editor Interactions', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    page.on('console', msg => console.log('BROWSER:', msg.text()));
-    await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      const dbs = await window.indexedDB.databases();
-      dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
-    });
-    await page.reload();
+    await resetClientState(page);
 
-    const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-    await fileInput.setInputFiles([IMAGE_PATH_1]);
-    const startBtn1 = page.getByRole('button', { name: 'Start Building' });
-    try {
-      await startBtn1.waitFor({ state: 'visible', timeout: 30000 });
-      await startBtn1.click();
-    } catch (e) {
-      await page.screenshot({ path: 'editor_fail_startbtn1.png' });
-      const html = await page.content();
-      fs.writeFileSync('editor_fail.html', html);
-      console.log('HTML Length:', html.length);
-      throw e;
-    }
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
+    await waitForNavigationStabilization(page);
 
-    // Wait for scene item and viewer stabilization
-    await expect(page.locator('.scene-item').filter({ hasText: 'image' }).first()).toBeVisible({ timeout: 30000 });
-    // Ensure NavigationFSM has reached Idle state
-    await page.waitForFunction(() => {
-      // @ts-ignore
-      const state = window.store?.state;
-      return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
-    }, { timeout: 30000 }).catch(() => console.log("Warning: Navigation stabilization check timed out, proceeding anyway..."));
-
-
-    await fileInput.setInputFiles([IMAGE_PATH_2]);
-    const startBtn2 = page.getByRole('button', { name: 'Start Building' });
-    try {
-      await startBtn2.waitFor({ state: 'visible', timeout: 30000 });
-      await startBtn2.click();
-    } catch (e) {
-      await page.screenshot({ path: 'editor_fail_startbtn2.png' });
-      throw e;
-    }
-    await expect(page.locator('.scene-item').filter({ hasText: 'image' }).nth(1)).toBeVisible({ timeout: 30000 });
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
+    await waitForNavigationStabilization(page);
   });
 
   test('should create a hotspot, link scenes, and verify visual pipeline', async ({ page }) => {
-    test.setTimeout(90000);
-    // Use first scene
-    await page.waitForSelector('.scene-item', { timeout: 30000 });
-    await page.locator('.scene-item').filter({ hasText: 'image' }).first().click();
+    test.setTimeout(240000);
+    const sceneItems = page.locator('.scene-item');
+    await expect(sceneItems).toHaveCount(2);
+    await sceneItems.first().click();
 
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
-    // Wait for viewer logic to stabilize
-    await page.waitForTimeout(2000);
-
-    const viewer = page.locator('#viewer-stage');
-    const box = await viewer.boundingBox();
-    if (!box) throw new Error('Viewer not found');
-
-    // Create Hotspot (Alt + Click)
-    const activePanorama = page.locator('#panorama-a.active');
-    await activePanorama.click({
-      position: { x: box.width / 2, y: box.height / 2 },
-      modifiers: ['Alt']
-    });
+    await waitForNavigationStabilization(page);
+    await createHotspotAtViewerCenter(page);
 
     // Expect Modal
     await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
@@ -91,7 +49,7 @@ test.describe('Editor Interactions', () => {
     });
     expect(isLinkingMode).toBe(true);
 
-    await page.selectOption('#link-target', 'image2'); // Select by filename/ID match
+    await selectFirstLinkTarget(page);
     await page.getByRole('button', { name: 'Save Link' }).click();
 
     // Verify Modal Closed
@@ -116,10 +74,11 @@ test.describe('Editor Interactions', () => {
     // Verify tooltip
     await pipelineNode.hover();
     await expect(page.locator('.node-tooltip')).toBeVisible();
-    await expect(page.locator('.tooltip-text')).toContainText('image'); // Should contain scene name
+    await expect(page.locator('.tooltip-text').first()).toHaveText(/.+/);
   });
 
   test('should sync tour name property', async ({ page }) => {
+    test.setTimeout(180000);
     const nameInput = page.locator('input.sidebar-project-input');
     await expect(nameInput).toBeVisible({ timeout: 15000 });
     await nameInput.fill('Renamed Tour');

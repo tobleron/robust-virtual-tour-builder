@@ -10,6 +10,7 @@ const CACHE_CANDIDATES = Array.from(
     [
       process.env.PLAYWRIGHT_BROWSERS_PATH,
       path.join(os.homedir(), '.cache', 'ms-playwright'),
+      path.join(os.homedir(), 'Library', 'Caches', 'ms-playwright'),
       path.join(process.cwd(), 'node_modules', '.cache', 'ms-playwright'),
     ]
       .filter((entry): entry is string => !!entry)
