@@ -143,6 +143,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/Navigation/NavigationUI.res](src/systems/Navigation/NavigationUI.res): UI-driven navigation logic and prompt management. `#ui` `#navigation`
     *   [src/systems/Navigation/NavigationController.res](src/systems/Navigation/NavigationController.res): React hooks and controller for navigation side effects. `#logic` `#controller`
 *   [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): Core logic for navigation state transitions. `#navigation` `#logic`
+*   [src/systems/ThumbnailProjectSystem.res](src/systems/ThumbnailProjectSystem.res): Background thumbnail enhancement orchestrator. `#thumbnail` `#background` `#orchestration`
 *   [src/systems/Teaser.res](src/systems/Teaser.res): Teaser generation system. `#teaser` `#video`
 *   [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Core playback, recording orchestration, and cinematic movement logic for teasers. `#teaser` `#playback` `#logic`
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Extracted playback helpers for viewer readiness waits, pan animation, and shot transitions. `#teaser` `#playback` `#helpers`
@@ -292,6 +293,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/Constants.res](src/utils/Constants.res): Centralized application constants and configuration. `#utils` `#config`
 *   [src/utils/GeoUtils.res](src/utils/GeoUtils.res): Geospatial calculation utilities for tour locations. `#utils` `#geo`
 *   [src/utils/ImageOptimizer.res](src/utils/ImageOptimizer.res): Client-side image optimization and compression helpers. `#utils` `#image`
+*   [src/utils/ThumbnailGenerator.res](src/utils/ThumbnailGenerator.res): Math and rendering logic for rectilinear projections. `#thumbnail` `#math` `#graphics`
 *   [src/utils/PathInterpolation.res](src/utils/PathInterpolation.res): Smooth path interpolation for cinematic movements. `#utils` `#math`
 *   [src/utils/Easing.res](src/utils/Easing.res): Premium easing functions for smooth cinematic transitions. `#utils` `#math` `#animation`
 *   [src/utils/ProgressBar.res](src/utils/ProgressBar.res): Logic for managing multi-step progress indicators. `#utils` `#ui`
@@ -406,7 +408,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 *(None currently - all detected modules have been classified and integrated.)*
 
-## 🆕 Unmapped Modules
-* [src/systems/ThumbnailProjectSystem.res](src/systems/ThumbnailProjectSystem.res): New module detected. Please classify. #new
-* [src/utils/ThumbnailGenerator.res](src/utils/ThumbnailGenerator.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*
