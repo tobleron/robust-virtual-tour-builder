@@ -1020,7 +1020,42 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
 
 pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
     let completed_dir = format!("{}/completed", config.tasks_dir);
+    let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+    let task_pattern = "Aggregate_Completed_Tasks";
+
+    let find_existing_aggregate_task = || -> Option<PathBuf> {
+        if !Path::new(&dev_tasks_dir).exists() {
+            return None;
+        }
+        if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                if entry
+                    .file_name()
+                    .to_string_lossy()
+                    .contains(task_pattern)
+                {
+                    return Some(entry.path());
+                }
+            }
+        }
+        None
+    };
+
+    let is_completed_task_file = |name: &str| -> bool {
+        if !name.ends_with(".md") || name == "_CONCISE_SUMMARY.md" {
+            return false;
+        }
+        let stem = name.trim_end_matches(".md");
+        match stem.chars().next() {
+            Some(c) if c.is_ascii_digit() || c == 'T' => true,
+            _ => false,
+        }
+    };
+
     if !Path::new(&completed_dir).exists() {
+        if let Some(path) = find_existing_aggregate_task() {
+            fs::remove_file(path)?;
+        }
         return Ok(());
     }
 
@@ -1028,47 +1063,48 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
     let mut count = 0;
     for entry in entries {
         if let Ok(entry) = entry {
-            if entry.file_name().to_string_lossy().ends_with(".md") {
+            let name = entry.file_name().to_string_lossy().to_string();
+            if is_completed_task_file(&name) {
                 count += 1;
             }
         }
     }
 
     if count > 20 {
-        // Check dev_tasks directory for existing maintenance task
-        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
-        let task_pattern = "Aggregate_Completed_Tasks";
-        let mut exists = false;
-
-        if Path::new(&dev_tasks_dir).exists() {
-            if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
-                for entry in entries.filter_map(|e| e.ok()) {
-                    if entry.file_name().to_string_lossy().contains(task_pattern) {
-                        exists = true;
-                        break;
-                    }
-                }
-            }
+        // Ensure dev_tasks directory exists
+        if !Path::new(&dev_tasks_dir).exists() {
+            fs::create_dir_all(&dev_tasks_dir)?;
         }
 
-        if !exists {
-            // Ensure dev_tasks directory exists
-            if !Path::new(&dev_tasks_dir).exists() {
-                fs::create_dir_all(&dev_tasks_dir)?;
-            }
-
+        let task_path = if let Some(path) = find_existing_aggregate_task() {
+            path
+        } else {
             let next_id = get_next_dev_id(config);
             let task_filename = format!("D{:03}_Aggregate_Completed_Tasks.md", next_id);
-            let task_path = PathBuf::from(&dev_tasks_dir).join(&task_filename);
+            PathBuf::from(&dev_tasks_dir).join(task_filename)
+        };
 
-            let task_content = format!(
-                "# Task D{:03}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 20 (Current: {}).\n\n## Objective\nAggregate all but the last 10 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify all completed task files in `tasks/completed/` except for the 10 most recent ones (based on their numerical prefix).\n2. Read these older files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these older tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the processed original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
-                next_id, count
-            );
+        let id_label = task_path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .and_then(|s| s.split('_').next())
+            .unwrap_or("D000")
+            .to_string();
+        let id_num = id_label
+            .trim_start_matches('D')
+            .parse::<usize>()
+            .unwrap_or(0);
 
-            fs::write(&task_path, task_content)?;
-            println!("🧹 Created Maintenance Task: {}", task_path.display());
-        }
+        let task_content = format!(
+            "# Task {}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 20 (Current: {}).\n\n## Objective\nAggregate all but the last 10 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify all completed task files in `tasks/completed/` except for the 10 most recent ones (based on their numerical prefix).\n2. Read these older files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these older tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the processed original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
+            if id_num > 0 { format!("D{:03}", id_num) } else { id_label },
+            count
+        );
+
+        fs::write(&task_path, task_content)?;
+        println!("🧹 Synced Maintenance Task: {}", task_path.display());
+    } else if let Some(path) = find_existing_aggregate_task() {
+        fs::remove_file(path)?;
     }
 
     Ok(())

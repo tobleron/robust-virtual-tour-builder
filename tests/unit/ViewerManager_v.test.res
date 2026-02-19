@@ -362,6 +362,8 @@ describe("ViewerManager", () => {
       "getPitch": () => 5.0,
       "getYaw": () => 15.0,
       "getHfov": () => 90.0,
+      "resize": () => (),
+      "setHfov": (_, _) => (),
       "destroy": () => (),
     }
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic(mockViewer))
