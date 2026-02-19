@@ -89,6 +89,7 @@ module InnerApp = {
       <Navigation.Controller />
       <ViewerManager />
       <Simulation />
+      <ThumbnailProjectSystem />
     </div>
   }
 }

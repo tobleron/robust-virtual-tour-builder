@@ -53,6 +53,14 @@ let getThumbUrl = (sceneId: string, file: Types.file) => {
   }
 }
 
+let clearThumbUrl = (sceneId: string) => {
+  switch Belt.MutableMap.String.get(thumbUrls, sceneId) {
+  | Some(url) => URL.revokeObjectURL(url)
+  | None => ()
+  }
+  Belt.MutableMap.String.remove(thumbUrls, sceneId)
+}
+
 let removeKeyOnly = (sceneId: string) => {
   Belt.MutableMap.String.remove(cache, sceneId)
 }

@@ -1,15 +1,89 @@
 /* src/utils/ThumbnailGenerator.res */
 open ReBindings
 
-let degToRad = Math.Constants.pi /. 180.0
-
 /**
  * Generates a rectilinear thumbnail from an equirectangular source.
- * hfov defaults to 90.0 as requested.
- * centered at yaw=0, pitch=0 (level scene plane center).
+ * hfov defaults to 90.0 (degrees).
+ * Centered at yaw=0, pitch=0 (level scene plane center).
+ *
+ * The heavy pixel work is done entirely in a single %raw JS function
+ * to avoid ReScript variable-name mangling issues with %raw inline blocks.
  */
+let _doProjection: (Dom.element, Dom.element, int, int, float) => unit = %raw(`
+  function(source, canvas, width, height, hfov) {
+    var ctx = canvas.getContext("2d", { alpha: false });
+
+    // Use naturalWidth for <img>, fall back to .width for <canvas>
+    var srcW = source.naturalWidth || source.width || 0;
+    var srcH = source.naturalHeight || source.height || 0;
+
+    if (srcW === 0 || srcH === 0) {
+      ctx.drawImage(source, 0, 0, width, height);
+      return;
+    }
+
+    // Cap source resolution to 1024px wide for performance
+    var maxSrc = 1024;
+    var sW = srcW, sH = srcH;
+    if (sW > maxSrc) {
+      sH = Math.round(sH * maxSrc / sW);
+      sW = maxSrc;
+    }
+
+    // Draw source into an intermediate canvas at capped resolution
+    var srcCanvas = document.createElement("canvas");
+    srcCanvas.width = sW;
+    srcCanvas.height = sH;
+    var srcCtx = srcCanvas.getContext("2d", { alpha: false });
+    srcCtx.drawImage(source, 0, 0, sW, sH);
+    var srcPixels = srcCtx.getImageData(0, 0, sW, sH).data;
+
+    // Prepare output
+    var imageData = ctx.createImageData(width, height);
+    var data = imageData.data;
+
+    var PI = Math.PI;
+    var hfovRad = hfov * PI / 180.0;
+    var halfTanH = Math.tan(hfovRad / 2.0);
+    var aspect = width / height;
+    var halfTanV = halfTanH / aspect;
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        var u = (x / width) * 2.0 - 1.0;
+        var v = 1.0 - (y / height) * 2.0;
+
+        var theta = Math.atan(u * halfTanH);
+        var phi = Math.atan(v * halfTanV * Math.cos(theta));
+
+        var lon = theta / (2.0 * PI) + 0.5;
+        var lat = 0.5 - phi / PI;
+
+        var sx = (lon * sW) | 0;
+        var sy = (lat * sH) | 0;
+
+        // Clamp
+        if (sx < 0) sx = 0;
+        if (sx >= sW) sx = sW - 1;
+        if (sy < 0) sy = 0;
+        if (sy >= sH) sy = sH - 1;
+
+        var di = (y * width + x) * 4;
+        var si = (sy * sW + sx) * 4;
+
+        data[di]     = srcPixels[si];
+        data[di + 1] = srcPixels[si + 1];
+        data[di + 2] = srcPixels[si + 2];
+        data[di + 3] = 255;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  }
+`)
+
 let generateRectilinearThumbnail = (
-  source: Dom.element, // HTMLImageElement or HTMLCanvasElement
+  source: Dom.element,
   width: int,
   height: int,
   ~hfov: float=90.0,
@@ -18,69 +92,8 @@ let generateRectilinearThumbnail = (
     let canvas = Dom.createElement("canvas")
     Dom.setWidth(canvas, width)
     Dom.setHeight(canvas, height)
-    let ctx = Canvas.getContext2d(canvas, "2d", {"alpha": false})
 
-    let srcW = Float.fromInt(Dom.getWidth(source))
-    let srcH = Float.fromInt(Dom.getHeight(source))
-
-    if srcW == 0.0 || srcH == 0.0 {
-      // Fallback: just draw it scaled if source size is unknown
-      Canvas.drawImage(ctx, source, 0.0, 0.0, Float.fromInt(width), Float.fromInt(height))
-    } else {
-      let imageData = ctx->Canvas.createImageData(width, height)
-      let _data = %raw("imageData.data")
-
-      // Optimization: Load source data into a temporary canvas to get pixel access
-      let srcCanvas = Dom.createElement("canvas")
-      Dom.setWidth(srcCanvas, Float.toInt(srcW))
-      Dom.setHeight(srcCanvas, Float.toInt(srcH))
-      let srcCtx = Canvas.getContext2d(srcCanvas, "2d", {"alpha": false})
-      Canvas.drawImage(srcCtx, source, 0.0, 0.0, srcW, srcH)
-      let _srcImageData = srcCtx->Canvas.getImageData(0.0, 0.0, srcW, srcH)
-      let _srcPixelsCursor = %raw("_srcImageData.data")
-
-      let hfovRad = hfov *. degToRad
-      let halfTanHfov = Math.tan(hfovRad /. 2.0)
-      let aspectRatio = Float.fromInt(width) /. Float.fromInt(height)
-      let halfTanVfov = halfTanHfov /. aspectRatio
-
-      for y in 0 to height - 1 {
-        for x in 0 to width - 1 {
-          // 1. Normalized Device Coordinates [-1, 1]
-          let u = Float.fromInt(x) /. Float.fromInt(width) *. 2.0 -. 1.0
-          let v = 1.0 -. Float.fromInt(y) /. Float.fromInt(height) *. 2.0
-
-          // 2. Rectilinear -> Spherical (theta, phi)
-          let theta = Math.atan(u *. halfTanHfov)
-          let phi = Math.atan(v *. halfTanVfov *. Math.cos(theta))
-
-          // 3. Spherical -> Equirectangular (Longitude, Latitude normalized)
-          // Longitude theta is in range [-pi, pi], 0 is center.
-          // Latitude phi is in range [-pi/2, pi/2], 0 is center.
-          let lon = theta /. (2.0 *. Math.Constants.pi) +. 0.5
-          let lat = 0.5 -. phi /. Math.Constants.pi
-
-          // 4. Map to source pixel coordinates
-          let sx = Float.toInt(lon *. srcW)
-          let sy = Float.toInt(lat *. srcH)
-
-          // 5. Clamp
-          let sx = Math.Int.max(0, Math.Int.min(Float.toInt(srcW) - 1, sx))
-          let sy = Math.Int.max(0, Math.Int.min(Float.toInt(srcH) - 1, sy))
-
-          let _destIdx = (y * width + x) * 4
-          let _srcIdx = (sy * Float.toInt(srcW) + sx) * 4
-
-          let _ = %raw(`
-            (_data[_destIdx] = _srcPixelsCursor[_srcIdx],
-             _data[_destIdx + 1] = _srcPixelsCursor[_srcIdx + 1],
-             _data[_destIdx + 2] = _srcPixelsCursor[_srcIdx + 2],
-             _data[_destIdx + 3] = 255)
-          `)
-        }
-      }
-      ctx->Canvas.putImageData(imageData, 0.0, 0.0)
-    }
+    _doProjection(source, canvas, width, height, hfov)
 
     let toBlob: (Dom.element, Nullable.t<Blob.t> => unit, string, float) => unit = %raw(
       "(el, cb, type, q) => el.toBlob(cb, type, q)"
@@ -91,9 +104,7 @@ let generateRectilinearThumbnail = (
       blob => {
         switch Nullable.toOption(blob) {
         | Some(b) => resolve(b)
-        | None =>
-          // Last resort fallback: should not happen
-          resolve(%raw("new Blob([])"))
+        | None => resolve(%raw("new Blob([])"))
         }
       },
       "image/webp",

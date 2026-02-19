@@ -70,6 +70,8 @@ module Scene = {
       Some(handleUpdateSceneMetadata(state, index, metaJson))
     | SyncSceneNames => Some(handleSyncSceneNames(state))
     | ApplyLazyRename(index, name) => Some(handleApplyLazyRename(state, index, name))
+    | PatchSceneThumbnail(id, file) =>
+      Some(SceneMutations.handlePatchSceneThumbnail(state, id, file))
     | _ => None
     }
   }
