@@ -67,6 +67,7 @@ User file selection
       → [src/systems/Resizer/ResizerLogic.res] and [src/systems/Resizer/ResizerUtils.res] manage resizing tasks with [src/systems/Resizer/ResizerTypes.res]
       → [src/systems/Upload/UploadItemProcessor.res] and [src/systems/Upload/UploadUtils.res] handle per-item transformations
   → [src/utils/ImageOptimizer.res] applies final compression
+  → [src/utils/ThumbnailGenerator.res] generates rectilinear thumbnail for local preview
   → [src/utils/OperationJournal.res] starts transaction (startOperation) using [src/utils/OperationJournal/JournalLogic.res] and [src/utils/OperationJournal/JournalPersistence.res]
   → [src/systems/Api/MediaApi.res] sends to backend
   → [backend/src/api/media/image_multipart.rs] and [backend/src/api/media/image.rs] receive files
@@ -175,6 +176,18 @@ User clicks "Generate Report"
       → [src/systems/ExifReport/ExifReportGeneratorLogicGroups.res] camera device categorization
   → [src/systems/ExifParser.res] and [src/systems/ExifUtils.res] handle binary extraction
   → [src/components/UploadReport.res] renders visual results
+```
+
+### Background Thumbnail Enhancement
+**Trigger:** App mounted with existing equirectangular scene thumbnails
+**Flow:**
+```
+[src/systems/ThumbnailProjectSystem.res] scans scenes on mount
+  → Identifies scenes with None or Url(equirectangular) tinyFile
+  → Loads scene.file (source equirectangular)
+  → [src/utils/ThumbnailGenerator.res] projects rectilinear 120x80 thumbnail
+  → dispatch(PatchSceneThumbnail) update session state
+  → [src/utils/PersistenceLayer.res] saves updated thumbnail to local cache
 ```
 
 ### System Notification & Feedback
@@ -363,14 +376,10 @@ CI job
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
 
+*(None currently - all detected modules have been integrated into flows.)*
+
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/systems
-- `[src/systems/ThumbnailProjectSystem.res]`
-
-### 📂 src/utils
-- `[src/utils/ThumbnailGenerator.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

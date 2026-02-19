@@ -3,6 +3,13 @@ open Vitest
 open Resizer
 open ReBindings
 
+/* Mocks */
+%%raw(`
+  vi.mock('../../src/utils/ThumbnailGenerator.bs.js', () => ({
+    generateRectilinearThumbnail: vi.fn(() => Promise.resolve(new Blob(["mock-thumbnail"], {type: "image/webp"})))
+  }));
+`)
+
 describe("ResizerLogic", () => {
   beforeEach(() => {
     let _ = %raw(`(function(){
@@ -10,6 +17,24 @@ describe("ResizerLogic", () => {
         loadAsync: vi.fn(),
         file: vi.fn(),
         async: vi.fn()
+      };
+      
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName) {
+        const el = originalCreateElement.call(document, tagName);
+        if (tagName.toLowerCase() === 'img') {
+          const originalSetAttribute = el.setAttribute;
+          el.setAttribute = function(name, value) {
+            originalSetAttribute.call(this, name, value);
+            if (name === 'src') {
+              setTimeout(() => {
+                const event = new Event('load');
+                this.dispatchEvent(event);
+              }, 0);
+            }
+          };
+        }
+        return el;
       };
     })()`)
   })

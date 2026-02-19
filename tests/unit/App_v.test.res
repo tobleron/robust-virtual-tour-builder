@@ -12,6 +12,15 @@ open Vitest
 `)
 
 %%raw(`
+  vi.mock('../../src/systems/ThumbnailProjectSystem.bs.js', () => {
+    const React = require('react');
+    return {
+      make: () => null,
+    };
+  })
+`)
+
+%%raw(`
   vi.mock('../../src/components/ViewerUI.bs.js', () => {
     const React = require('react');
     return {
@@ -99,13 +108,14 @@ open Vitest
         },
         useAppState: vi.fn(() => ({
            scenes: [],
-           timeline: [],
-           tourName: "Test",
+           inventory: Belt.Map.String.empty,
+           sceneOrder: [],
            activeIndex: 0,
            activeYaw: 0,
            activePitch: 0,
            isLinking: false,
            isTeasing: false,
+           tourName: "Test",
            appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
            simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
         })),
@@ -232,7 +242,8 @@ describe("App", () => {
     useAppStateMock->mockReturnValue(
       %raw(`{
          scenes: [],
-         timeline: [],
+         inventory: {},
+         sceneOrder: [],
          tourName: "Test",
          activeIndex: 0,
          activeYaw: 0,
@@ -271,7 +282,8 @@ describe("App", () => {
     useAppStateMock->mockReturnValue(
       %raw(`{
        scenes: [{id: "1"}],
-       timeline: [],
+       inventory: {"1": {id: "1", name: "Scene 1", file: {}}},
+       sceneOrder: ["1"],
        tourName: "Test",
        activeIndex: 0,
        activeYaw: 0,
@@ -300,7 +312,8 @@ let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.j
 useAppStateMock->mockReturnValue(
   %raw(`{
          scenes: [],
-         timeline: [],
+         inventory: {},
+         sceneOrder: [],
          tourName: "Test",
          activeIndex: 0,
          activeYaw: 0,
