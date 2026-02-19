@@ -26,7 +26,7 @@ let cssTemplate = `
     #viewer-floor-tags-export .floor-tag-shortcut-row { width: auto; display: grid; grid-template-columns: 1.45em minmax(0, 1fr); align-items: start; justify-items: start; column-gap: 8px; color: #ffffff; font-family: var(--font-family); font-size: 14px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
     #viewer-floor-tags-export .floor-tag-shortcut-row:hover { transform: translateX(2px); transition: all 0.2s ease; }
     #viewer-floor-tags-export .floor-tag-shortcut-index { font-weight: 800; text-align: left; }
-    #viewer-floor-tags-export .floor-tag-shortcut-label { font-weight: 400; letter-spacing: 0.01em; text-transform: none; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+    #viewer-floor-tags-export .floor-tag-shortcut-label { font-weight: 400; letter-spacing: 0.01em; text-transform: none; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
@@ -55,8 +55,11 @@ let cssTemplate = `
     body.is-hd-export #viewer-floor-nav-export, body.export-state-tablet #viewer-floor-nav-export, body.export-state-portrait #viewer-floor-nav-export { bottom: 10px; left: 8px; gap: 8px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 24px; height: 24px; min-width: 24px; min-height: 24px; font-size: 9.36px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.8px; margin-left: 0; }
-    body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export, body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
-    body.is-hd-export #viewer-floor-tags-export, body.export-state-tablet #viewer-floor-tags-export, body.export-state-portrait #viewer-floor-tags-export { width: min(113px, calc(100vw - 24px)); gap: 3px; margin-top: 7px; }
+    body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
+    body.export-state-portrait .viewer-persistent-label-export { top: 10px; height: 22px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; left: auto; right: 8px; transform: none; }
+    body.export-state-portrait .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateY(0) scale(1); }
+    body.export-state-portrait .viewer-persistent-label-export.state-hidden { opacity: 0; transform: translateY(-1rem) scale(0.9); }
+    body.is-hd-export #viewer-floor-tags-export, body.export-state-tablet #viewer-floor-tags-export, body.export-state-portrait #viewer-floor-tags-export { width: fit-content; max-width: calc(100vw - 36px); gap: 3px; margin-top: 7px; }
     body.is-hd-export #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-tablet #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-portrait #viewer-floor-tags-export .floor-tag-shortcut-row { font-size: 11px; grid-template-columns: 1.35em minmax(0, 1fr); column-gap: 4px; }
     body.is-hd-export .watermark, body.export-state-tablet .watermark, body.export-state-portrait .watermark { bottom: 10px; right: 10px; }
 
@@ -67,8 +70,12 @@ let cssTemplate = `
     .pnlm-container { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l-3 3 3 3M9 5l3-3 3 3M19 9l3 3-3 3M9 19l3 3 3-3M2 12h20M12 2v20'/%3E%3C/svg%3E") 12 12, move; }
     .pnlm-grab { cursor: inherit !important; }
     .pnlm-grabbing { cursor: grabbing !important; }
+    /* Portrait: no custom cursor (touch/mobile context) */
+    body.export-state-portrait .pnlm-container { cursor: default !important; }
+    body.export-state-portrait .pnlm-grab { cursor: default !important; }
+    body.export-state-portrait .pnlm-grabbing { cursor: grabbing !important; }
     /* Looking Mode Indicator */
-    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: flex-start; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 12px; width: 174px; height: 131.7px; border-radius: 12px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .looking-mode-indicator { position: absolute; top: 24px; left: 20px; z-index: 6005; display: flex; flex-direction: row; align-items: flex-start; gap: 10px; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 12px; width: fit-content; min-width: 174px; max-width: min(240px, calc(100vw - 16px)); height: auto; border-radius: 12px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
     .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: #ffffff; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
     .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; transition: background-color 0.3s ease; margin-top: 5px; }
     .mode-dot.paused { background-color: #f97316; }
@@ -77,7 +84,9 @@ let cssTemplate = `
     .mode-shortcut-key { font-size: 13px; font-weight: 700; }
     .pnlm-container.mode-paused { cursor: default !important; }
     .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
-    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator, body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; padding: 10px; width: 135px; height: 103px; border-radius: 10px; gap: 8px; }
+    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator { top: 10px; left: 8px; padding: 10px; width: fit-content; min-width: 130px; max-width: min(210px, calc(100vw - 16px)); height: auto; border-radius: 10px; gap: 8px; }
+    body.export-state-portrait .looking-mode-indicator { top: 10px; left: 8px; padding: 10px; width: fit-content; min-width: 110px; max-width: min(210px, calc(100vw - 16px)); height: auto; border-radius: 10px; gap: 8px; }
+    body.export-state-portrait .mode-dot, body.export-state-portrait .mode-title, body.export-state-portrait .mode-subtitle { display: none !important; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
     body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 10px; }
     body.is-hd-export .mode-shortcut-key, body.export-state-tablet .mode-shortcut-key, body.export-state-portrait .mode-shortcut-key { font-size: 12px; }
