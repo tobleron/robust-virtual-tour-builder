@@ -118,6 +118,9 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
     | Some(m) => Dom.ClassList.add(Dom.classList(m), "hidden")
     | None => ()
     }
+
+    // 3. Cancel any active sidebar operation (Save / Export / Teaser)
+    EventBus.dispatch(CancelActiveOperation)
   }
 
   if key == "Enter" {
