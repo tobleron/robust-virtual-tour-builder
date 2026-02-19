@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 423/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/Exporter.res** (Metric: [Nesting: 2.40, Density: 0.04, Coupling: 0.08] | Drag: 3.45 | LOC: 421/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -32,15 +32,15 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - fetchLib × 1 (lines: 11)
         - fetchSceneUrlBlob × 1 (lines: 18)
         - filenameFromUrl × 1 (lines: 20)
-        - finalMsg × 1 (lines: 432)
+        - finalMsg × 1 (lines: 430)
         - isLikelyImageBlob × 1 (lines: 22)
         - isLikelyImageUrl × 1 (lines: 21)
         - isUnauthorizedHttpError × 1 (lines: 15)
-        - msg × 1 (lines: 419)
+        - msg × 1 (lines: 417)
         - normalizeLogoExtension × 1 (lines: 19)
         - normalizeThrowableMessage × 1 (lines: 14)
-        - normalizedStack × 1 (lines: 420)
-        - payload × 1 (lines: 431)
+        - normalizedStack × 1 (lines: 418)
+        - payload × 1 (lines: 429)
         - progress × 1 (lines: 36)
         - throwableMessageRaw × 1 (lines: 13)
         - tourName × 1 (lines: 43)

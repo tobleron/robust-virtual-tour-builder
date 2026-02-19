@@ -115,7 +115,7 @@ State changes
 
 On startup ([src/Main.res]):
   → [src/components/RecoveryCheck.res], [src/components/RecoveryPrompt.res], and [src/components/ReturnPrompt.res] mount
-  → [src/utils/RecoveryManager.res] checks for interrupted operations
+  → [src/utils/RecoveryManager.res] checks for interrupted operations using [src/systems/ProjectManager/ProjectRecovery.res]
   → [src/utils/OperationJournal.res] checks journal for active transactions using [src/utils/OperationJournal/JournalLogic.res] and [src/utils/OperationJournal/JournalTypes.res]
   → [src/utils/PersistenceLayer.res] loads last session
   → [src/core/JsonParsersDecoders.res] deserializes
@@ -231,8 +231,11 @@ Trigger Event
 ```
 Save/Export Trigger:
   → [src/systems/ProjectManager.res] and [src/systems/ProjectManagerUrl.res] package project data
+      → [src/systems/ProjectManager/ProjectSave.res] and [src/systems/ProjectManager/ProjectUtils.res] orchestrate the save sequence
       → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
+      → [src/systems/Exporter/ExporterUpload.res] and [src/systems/Exporter/ExporterUtils.res] handle asset streaming/upload
+      → [src/systems/TourTemplates.res] applies branding (using [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], and [src/systems/TourTemplates/TourAssets.res])
   → [src/systems/DownloadSystem.res] triggers client-side saving
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
   → [backend/src/api/project_logic.rs] and [backend/src/services/project/mod.rs] handle persistence
@@ -272,6 +275,7 @@ Address/GPS Query
   → [backend/src/middleware.rs] and [backend/src/auth.rs] handle CORS and Auth
   → [backend/src/services/database.rs] connection pool
   → [backend/src/services/upload_quota.rs] and [backend/src/services/upload_quota_tests.rs] enforce limits
+  → [backend/src/api/health.rs] provides service diagnostics
 
 ### CI Budget Governance
 **Trigger:** Pull request / CI execution
@@ -347,26 +351,14 @@ CI job
 
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
 
+*(None currently - all detected modules have been integrated into flows.)*
+
+
+---
+(Utilities and Infrastructure modules are excluded from flow documentation by design)
+
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src/api
-- `[backend/src/api/health.rs]`
-
-### 📂 src/systems/Exporter
-- `[src/systems/Exporter/ExporterUpload.res]`
-- `[src/systems/Exporter/ExporterUtils.res]`
-
-### 📂 src/systems/ProjectManager
-- `[src/systems/ProjectManager/ProjectRecovery.res]`
-- `[src/systems/ProjectManager/ProjectSave.res]`
-- `[src/systems/ProjectManager/ProjectUtils.res]`
-
-### 📂 src/systems/TourTemplates
-- `[src/systems/TourTemplates/TourAssets.res]`
-- `[src/systems/TourTemplates/TourData.res]`
-- `[src/systems/TourTemplates/TourScripts.res]`
-- `[src/systems/TourTemplates/TourStyles.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
