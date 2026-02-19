@@ -366,5 +366,8 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/utils
+- `[src/utils/ThumbnailGenerator.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

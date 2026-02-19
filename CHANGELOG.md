@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Migrate Visual Pipeline to V2 Thumbnail Chain and add design reference
+- Fix syntax error in ThumbnailGenerator %raw block
 
 ## [4.23.0] - 2026-02-19
 
