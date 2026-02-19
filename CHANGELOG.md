@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ui: align utility bar and floor navigation in builder
 - Fine-tune move cursor dynamics: frame-rate independent panning, vector smoothing, and smoothstep profile
+- Portrait mode UX polish: hide looking mode & cursor, reposition room label tag to top-right, glass panel auto-sizes to fit-content for labels like MASTER BEDROOM
 
 ## [4.19.0] - 2026-02-18
 
