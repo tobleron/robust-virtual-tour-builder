@@ -409,3 +409,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 *(None currently - all detected modules have been classified and integrated.)*
+
+## 🆕 Unmapped Modules
+* [backend/src/middleware/rate_limiter.rs](backend/src/middleware/rate_limiter.rs): New module detected. Please classify. #new

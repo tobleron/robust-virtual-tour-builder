@@ -130,7 +130,15 @@ async fn main() -> io::Result<()> {
             ))
             .wrap(startup::cors())
             .wrap(prometheus.clone())
-            .route("/health", web::get().to(health_check).wrap(middleware::rate_limiter::RateLimitResponseTransformer::new("health")).wrap(actix_governor::Governor::new(&rate_limiters.health)))
+            .route(
+                "/health",
+                web::get()
+                    .to(health_check)
+                    .wrap(middleware::rate_limiter::RateLimitResponseTransformer::new(
+                        "health",
+                    ))
+                    .wrap(actix_governor::Governor::new(&rate_limiters.health)),
+            )
             .configure(|cfg| api::config(cfg, &rate_limiters))
             // --- STATIC FILES (Serve Production Build from dist/) ---
             .configure(|cfg: &mut web::ServiceConfig| {

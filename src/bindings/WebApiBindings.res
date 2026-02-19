@@ -26,6 +26,7 @@ module URL = {
 
 module Fetch = {
   type response
+  type headers
   type requestInit<'body>
   @obj
   external requestInit: (
@@ -47,6 +48,8 @@ module Fetch = {
   @get external ok: response => bool = "ok"
   @get external status: response => int = "status"
   @get external statusText: response => string = "statusText"
+  @get external headers: response => headers = "headers"
+  @send external getHeader: (headers, string) => Nullable.t<string> = "get"
 }
 
 module FormData = {

@@ -8,9 +8,8 @@
 
 ---
 
-## 🧩 MERGE TASKS (1)
-### Merge Folder: `../../src/systems/Exporter`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.17)
-- **Files:**
-  - `../../src/systems/Exporter/ExporterUtils.res`
-  - `../../src/systems/Exporter/ExporterUpload.res`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+- [ ] `../../backend/src/middleware/rate_limiter.rs`
+
+---
+
