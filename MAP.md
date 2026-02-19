@@ -407,4 +407,5 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/utils/ThumbnailGenerator.res](src/utils/ThumbnailGenerator.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

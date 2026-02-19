@@ -33,11 +33,26 @@ module Canvas = {
     float,
   ) => unit = "drawImage"
 
+  type imageData
+  @send external createImageData: (context2d, int, int) => imageData = "createImageData"
+  @send external getImageData: (context2d, float, float, float, float) => imageData = "getImageData"
+  @send external putImageData: (context2d, imageData, float, float) => unit = "putImageData"
+
   @send external beginPath: context2d => unit = "beginPath"
+  @send external closePath: context2d => unit = "closePath"
   @send external stroke: context2d => unit = "stroke"
   @send external fill: context2d => unit = "fill"
   @send external save: context2d => unit = "save"
   @send external restore: context2d => unit = "restore"
+
+  @send external moveTo: (context2d, float, float) => unit = "moveTo"
+  @send external lineTo: (context2d, float, float) => unit = "lineTo"
+  @send external arc: (context2d, float, float, float, float, float, bool) => unit = "arc"
+  @send external arcTo: (context2d, float, float, float, float, float) => unit = "arcTo"
+
+  @send external translate: (context2d, float, float) => unit = "translate"
+  @send external rotate: (context2d, float) => unit = "rotate"
+  @send external scale: (context2d, float, float) => unit = "scale"
 
   @send external roundRect: (context2d, float, float, float, float, float) => unit = "roundRect"
   @send external rect: (context2d, float, float, float, float) => unit = "rect"
