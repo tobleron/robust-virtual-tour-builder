@@ -54,6 +54,7 @@ type event =
   | PreviewLinkId(string)
   | NetworkStatusChanged(bool)
   | CancelActiveOperation
+  | RateLimitBackoff(int)
 
 type subscription = unit => unit
 

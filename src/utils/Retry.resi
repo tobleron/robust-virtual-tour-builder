@@ -22,4 +22,5 @@ let execute: (
   ~config: config=?,
   ~shouldRetry: string => bool=?,
   ~onRetry: (int, string, int) => unit=?,
+  ~getDelay: (string, int) => option<int>=?,
 ) => Promise.t<retryResult<'a>>

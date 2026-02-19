@@ -146,7 +146,7 @@ let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<boo
   })
 }
 
-let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
+let rec loop = async (fn, signal, config, shouldRetry, onRetry, getDelay, attempt) => {
   if aborted(signal) {
     Exhausted("AbortError")
   } else {
@@ -162,7 +162,14 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
       } else if !shouldRetry(err) {
         Exhausted(err)
       } else {
-        let delay = calculateDelay(attempt, config)
+        let delay = switch getDelay {
+        | Some(f) =>
+          switch f(err, attempt) {
+          | Some(d) => d
+          | None => calculateDelay(attempt, config)
+          }
+        | None => calculateDelay(attempt, config)
+        }
 
         switch onRetry {
         | Some(cb) => cb(attempt, err, delay)
@@ -172,7 +179,7 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
         // Abort-aware delay wait. Do not retry if cancelled while backing off.
         let canContinue = await waitForDelay(signal, delay)
         if canContinue {
-          await loop(fn, signal, config, shouldRetry, onRetry, attempt + 1)
+          await loop(fn, signal, config, shouldRetry, onRetry, getDelay, attempt + 1)
         } else {
           Exhausted("AbortError")
         }
@@ -181,9 +188,9 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
   }
 }
 
-let execute = (~fn, ~signal, ~config=?, ~shouldRetry=?, ~onRetry=?) => {
+let execute = (~fn, ~signal, ~config=?, ~shouldRetry=?, ~onRetry=?, ~getDelay=?) => {
   let cfg = Option.getOr(config, defaultConfig)
   let should = Option.getOr(shouldRetry, defaultShouldRetry)
 
-  loop(fn, signal, cfg, should, onRetry, 1)
+  loop(fn, signal, cfg, should, onRetry, getDelay, 1)
 }
