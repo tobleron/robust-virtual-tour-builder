@@ -1,9 +1,6 @@
 // @efficiency-role: ui-component
 
-open ReBindings
-open ViewerState
 open Types
-open Actions
 
 // Hook 7: Simulation Arrival
 let useSimulationArrival = (~activeIndex: int, ~simulationStatus: simulationStatus) => {

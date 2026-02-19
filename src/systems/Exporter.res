@@ -56,6 +56,10 @@ let exportTour = async (
 
     currentPhase := "HEALTH_CHECK"
     progress(1.0, 100.0, "Verifying connection...")
+    if !NetworkStatus.isOnline() {
+      let msg = "NetworkOffline: " ++ ExporterUtils.backendOfflineExportMessage()
+      JsError.throwWithMessage(msg)
+    }
     let backendHealthy = await Resizer.checkBackendHealth()
     if !backendHealthy {
       let msg = ExporterUtils.backendOfflineExportMessage()
@@ -357,7 +361,7 @@ let exportTour = async (
           )
           progress(40.0, 100.0, "Retrying upload...")
           let _ = await Promise.make((resolve, _) => {
-            let _ = ReBindings.Window.setTimeout(() => resolve(), 2000)
+            let _ = ReBindings.Window.setTimeout(() => resolve(), Constants.Exporter.retryDelayMs)
           })
           await uploadWithRetry(retryCount + 1, token)
         } else {

@@ -1,9 +1,6 @@
 // @efficiency-role: ui-component
 
-open ReBindings
 open ViewerState
-open Types
-open Actions
 
 // Hook 6: Ratchet State
 let useRatchetState = (~isLinking: bool) => {

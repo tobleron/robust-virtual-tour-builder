@@ -49,5 +49,5 @@ let generateExportIndex = (tourName, version, logoFilename: option<string>) => {
 }
 
 let generateEmbedCodes = (tourName, version) => {
-  `VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n2. 2K (Deskop/Laptop):\n   <iframe src="tour_2k/index.html" width="100%" height="520" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`
+  `VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n2. 2K (Deskop/Laptop):\n   <iframe src="tour_2k/index.html" width="100%" height="400" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`
 }

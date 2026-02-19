@@ -359,5 +359,34 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 backend/src/api/project_logic
+- `[backend/src/api/project_logic/files.rs]`
+- `[backend/src/api/project_logic/mod.rs]`
+- `[backend/src/api/project_logic/reference.rs]`
+- `[backend/src/api/project_logic/summary.rs]`
+- `[backend/src/api/project_logic/validation.rs]`
+- `[backend/src/api/project_logic/zip.rs]`
+
+### 📂 src/components/ViewerManager
+- `[src/components/ViewerManager/ViewerManagerCleanup.res]`
+- `[src/components/ViewerManager/ViewerManagerHotspots.res]`
+- `[src/components/ViewerManager/ViewerManagerIntro.res]`
+- `[src/components/ViewerManager/ViewerManagerPreloading.res]`
+- `[src/components/ViewerManager/ViewerManagerRatchet.res]`
+- `[src/components/ViewerManager/ViewerManagerSceneLoad.res]`
+- `[src/components/ViewerManager/ViewerManagerSimulation.res]`
+
+### 📂 src/systems/Exporter
+- `[src/systems/Exporter/ExporterUpload.res]`
+- `[src/systems/Exporter/ExporterUtils.res]`
+
+### 📂 src/systems/TourTemplates
+- `[src/systems/TourTemplates/TourScriptCore.res]`
+- `[src/systems/TourTemplates/TourScriptHotspots.res]`
+- `[src/systems/TourTemplates/TourScriptInput.res]`
+- `[src/systems/TourTemplates/TourScriptNavigation.res]`
+- `[src/systems/TourTemplates/TourScriptUI.res]`
+- `[src/systems/TourTemplates/TourScriptViewport.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

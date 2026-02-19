@@ -20,6 +20,7 @@ let setOnline: bool => unit = %raw(`function(online) {
 describe("LoggerTelemetry Offline Awareness", () => {
   beforeAll(() => {
     NetworkStatus.initialize()
+    NetworkStatus.skipProbe := true
   })
 
   beforeEach(() => {
