@@ -3,9 +3,7 @@
 @react.component
 let make = React.memo(() => {
   <>
-    /* Background logic/HUD layers */
-    <SnapshotOverlay />
-    <HotspotLayer />
+    /* Background logic controllers */
     <LockFeedback />
 
     /* Interactive UI layers */

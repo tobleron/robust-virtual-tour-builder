@@ -62,6 +62,10 @@ module InnerApp = {
 
           <div id="cursor-guide" ariaHidden=true />
 
+          <div id="viewer-scene-elements-layer">
+            <ViewerSceneElements />
+          </div>
+
           /* Viewer UI Layer */
           <div id="viewer-ui-layer">
             <ViewerUI />

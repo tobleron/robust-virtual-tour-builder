@@ -99,19 +99,14 @@ let make = () => {
               (),
             )
 
-            let _ = await Promise.make((resolve, _) => {
-              let _ = setTimeout(resolve, delay)
-            })
-
-            // Re-resolve state after delay
-            let sAfterDelay = stateRef.current
+            let sAfterInitial = stateRef.current
             let stillRunning =
               isCurrentRun() &&
-              sAfterDelay.simulation.status == Running &&
-              !sAfterDelay.simulation.stoppingOnArrival
+              sAfterInitial.simulation.status == Running &&
+              !sAfterInitial.simulation.stoppingOnArrival
             let stillInSameScene =
-              sAfterDelay.scenes
-              ->Belt.Array.get(sAfterDelay.activeIndex)
+              sAfterInitial.scenes
+              ->Belt.Array.get(sAfterInitial.activeIndex)
               ->Option.map(ss => ss.id) == Some(sceneId)
 
             if stillRunning && stillInSameScene {
@@ -126,7 +121,7 @@ let make = () => {
                   (),
                 )
 
-                // Re-resolve again after viewer wait
+                // Re-resolve state after delay
                 let sAfterWait = stateRef.current
                 let stillOk =
                   isCurrentRun() &&
@@ -135,26 +130,51 @@ let make = () => {
                   ->Belt.Array.get(sAfterWait.activeIndex)
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
+                if stillOk {
+                  let isFirstScene = sAfterWait.simulation.visitedScenes->Belt.Array.length <= 1
+                  let delay = if sAfterWait.simulation.skipAutoForwardGlobal {
+                    switch sAfterWait.scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
+                    | Some(scene) if scene.isAutoForward => isFirstScene ? 3000 : 0
+                    | _ => Constants.Simulation.stepDelay
+                    }
+                  } else {
+                    // Even if not skipping, first scene should have a healthy delay for the pan (min 3s)
+                    Math.max(Constants.Simulation.stepDelay->Int.toFloat, 3000.0)->Float.toInt
+                  }
+
+                  if delay > 0 {
+                    Logger.debug(
+                      ~module_="Simulation",
+                      ~message="SIM_TICK_WAIT",
+                      ~data=Some({"sceneId": sceneId, "delay": delay}),
+                      (),
+                    )
+
+                    let _ = await Promise.make((resolve, _) => {
+                      let _ = setTimeout(resolve, delay)
+                    })
+                  }
+                }
+
+                // Final check before advancing
+                let sFinal = stateRef.current
+                let finalOk =
+                  isCurrentRun() &&
+                  sFinal.simulation.status == Running &&
+                  sFinal.scenes
+                  ->Belt.Array.get(sFinal.activeIndex)
+                  ->Option.map(ss => ss.id) == Some(sceneId)
+
                 switch waitResult {
-                | Ok() if stillOk && sAfterWait.navigationState.navigationFsm == IdleFsm =>
-                  Logger.debug(
-                    ~module_="Simulation",
-                    ~message="SIM_READY_TO_ADVANCE",
-                    ~data=Some({
-                      "activeIndex": sAfterWait.activeIndex,
-                      "sceneId": sceneId,
-                      "fsmState": "IdleFsm",
-                    }),
-                    (),
-                  )
-                  let move = Logic.getNextMove(sAfterWait)
+                | Ok() if finalOk && sFinal.navigationState.navigationFsm == IdleFsm =>
+                  let move = Logic.getNextMove(sFinal)
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
                     Logger.info(
                       ~module_="Simulation",
                       ~message="SIM_ADVANCING",
                       ~data=Some({
-                        "from": sAfterWait.activeIndex,
+                        "from": sFinal.activeIndex,
                         "to": targetIndex,
                         "hotspotIndex": hotspotIndex,
                       }),

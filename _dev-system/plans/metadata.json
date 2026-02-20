@@ -98,28 +98,7 @@
       }
     }
   ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    }
-  ],
   "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../backend/src/api/project.rs",
@@ -235,6 +214,27 @@
             }
           ]
         }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
       }
     }
   ]
