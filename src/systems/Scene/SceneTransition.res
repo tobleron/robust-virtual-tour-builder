@@ -31,6 +31,11 @@ let finalizeSwap = (~getState, ~taskId: option<string>=?) => {
         }
       }
     })
+
+    switch taskId {
+    | Some(tid) => NavigationSupervisor.complete(tid)
+    | None => ()
+    }
   }
 }
 
@@ -115,25 +120,13 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
   | None => ()
   }
 
-  // Single-owner completion lifecycle:
-  // Cleanup and supervisor completion are tied to the same timer callback
-  // so stale timers cannot complete a newer task.
+  // Decoupled completion lifecycle:
+  // Task completes via finalizeSwap (~50ms), but resource cleanup happens here (~500ms).
+  // Cancellation is handled by ViewerPool via clearCleanupTimeout.
   let resourceCleanupId = Window.setTimeout(() => {
-    let shouldFinalize = switch taskId {
-    | Some(tid) => NavigationSupervisor.isCurrentTaskId(tid)
-    | None => true
-    }
-    if !shouldFinalize {
-      ViewerSystem.Pool.clearCleanupTimeout(vp.id)
-    } else {
-      ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
-      ViewerSystem.Pool.clearInstance(vp.containerId)
-      ViewerSystem.Pool.clearCleanupTimeout(vp.id)
-      switch taskId {
-      | Some(tid) => NavigationSupervisor.complete(tid)
-      | None => ()
-      }
-    }
+    ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
+    ViewerSystem.Pool.clearInstance(vp.containerId)
+    ViewerSystem.Pool.clearCleanupTimeout(vp.id)
   }, 500)
 
   // Register the resource cleanup task so it can be cancelled
