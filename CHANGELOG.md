@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - T1503: Move to active for Jules delegation
 - Review task-1503 branch (not merged) and strengthen task 1504 lock-policy interruptibility guardrails
 - Task 1503 capability lock matrix + 1504 validation refresh
+- T1504: Move to active for Jules delegation
 
 ## [4.30.10] - 2026-02-20
 
