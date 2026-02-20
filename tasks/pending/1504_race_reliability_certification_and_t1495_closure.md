@@ -7,6 +7,9 @@ Run a determinism-focused validation sweep after Tasks `1501`-`1503`, close rema
 - Requires Tasks `1501`, `1502`, and `1503` complete first.
 - This is the final task in the sequence.
 
+## Prerequisite Guardrail
+- `1504` must explicitly verify that `1503` lock policy keeps navigation interruptible (rapid scene re-targeting must still cancel/replace in-flight navigation).
+
 ## Problem Statement
 Architecture has significantly improved race handling, but closure of `T1495` requires explicit stress evidence and residual risk accounting, not assumptions.
 
@@ -37,6 +40,7 @@ Architecture has significantly improved race handling, but closure of `T1495` re
 - Ambient thumbnail generation contention during navigation.
 - Cancellation and interruption scenarios with operation lifecycle evidence.
 - Replayability check: same scenario sequence should produce stable ordering.
+- Lock-policy regression check: controls disabled only when capability matrix requires it, and no accidental hard-lock during ordinary navigation.
 
 ## Execution Plan
 1. Prepare test matrix linked to each `T1495` success criterion.
