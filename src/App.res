@@ -4,7 +4,7 @@ module InnerApp = {
     PerfUtils.useRenderBudget("InnerApp")
     let state = AppContext.useAppState()
     let dispatch = AppContext.useAppDispatch()
-    let isSystemLocked = AppContext.useIsSystemLocked()
+    let isSystemLocked = Capability.useIsSystemLocked()
 
     React.useEffect1(() => {
       Logger.info(

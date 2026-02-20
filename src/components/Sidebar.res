@@ -6,6 +6,7 @@
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
+  let canUpload = Capability.useCapability(CanUpload)
   let dispatch = AppContext.useAppDispatch()
   let getState = AppContext.getBridgeState
 
@@ -158,14 +159,19 @@ let make = React.memo(() => {
 
     <SidebarProjectInfo
       localTourName
+      disabled={!canUpload}
       onTourNameChange={e => {
         let val = JsxEvent.Form.target(e)["value"]
         setLocalTourName(_ => val)
       }}
       onUploadClick={() => {
-        switch Nullable.toOption(fileInputRef.current) {
-        | Some(el) => ReBindings.Dom.click(el)
-        | None => ()
+        if canUpload {
+          switch Nullable.toOption(fileInputRef.current) {
+          | Some(el) => ReBindings.Dom.click(el)
+          | None => ()
+          }
+        } else {
+          Logger.debug(~module_="Sidebar", ~message="UPLOAD_TRIGGER_REJECTED_LOCK_HELD", ())
         }
       }}
     />

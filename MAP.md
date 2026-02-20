@@ -410,6 +410,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/core/Capability.res](src/core/Capability.res): New module detected. Please classify. #new
 * [src/systems/OperationLifecycle.res](src/systems/OperationLifecycle.res): New module detected. Please classify. #new
 * [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): New module detected. Please classify. #new
 * [src/utils/FileSlicer.res](src/utils/FileSlicer.res): New module detected. Please classify. #new

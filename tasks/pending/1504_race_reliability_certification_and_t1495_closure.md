@@ -20,6 +20,7 @@ Architecture has significantly improved race handling, but closure of `T1495` re
 
 ## In Scope
 - `tasks/active/T1495_frontend_race_condition_audit.md` (status updates/checklist completion)
+- `src/core/Capability.res` policy contract verification (no drift from task `1503`)
 - Existing e2e stress suites and perf budgets
 - Targeted new tests/instrumentation where evidence is missing
 - Diagnostics/log correlation for stale callback rejection
@@ -29,10 +30,11 @@ Architecture has significantly improved race handling, but closure of `T1495` re
 
 ## Required Implementation
 1. Build a deterministic verification matrix mapped directly to `T1495` success criteria.
-2. Add missing instrumentation to measure stale callback rejection and operation ordering.
-3. Execute repeated stress loops (CPU throttle + rapid interaction + ambient contention).
-4. Document residual risk explicitly (none/small/known limits) with mitigation notes.
-5. Update `T1495` with objective evidence and closure recommendation.
+2. Add capability-policy drift checks so lock behavior remains centralized and deterministic.
+3. Add missing instrumentation to measure stale callback rejection and operation ordering.
+4. Execute repeated stress loops (CPU throttle + rapid interaction + ambient contention).
+5. Document residual risk explicitly (none/small/known limits) with mitigation notes.
+6. Update `T1495` with objective evidence and closure recommendation.
 
 ## Mandatory Validation Runs
 - 100-run rapid scene interaction stress loop.
@@ -41,6 +43,7 @@ Architecture has significantly improved race handling, but closure of `T1495` re
 - Cancellation and interruption scenarios with operation lifecycle evidence.
 - Replayability check: same scenario sequence should produce stable ordering.
 - Lock-policy regression check: controls disabled only when capability matrix requires it, and no accidental hard-lock during ordinary navigation.
+- Hard-lock overlay verification: full-screen lock appears only for integrity-critical states (project load/export/initialization), not ordinary navigation.
 
 ## Execution Plan
 1. Prepare test matrix linked to each `T1495` success criterion.
@@ -54,6 +57,7 @@ Architecture has significantly improved race handling, but closure of `T1495` re
 - [ ] No reproducible stale-callback mutation after ownership change in stress runs.
 - [ ] No deterministic ordering regressions under contention scenarios.
 - [ ] Residual risks are documented with concrete guardrails.
+- [ ] Capability matrix behavior remains centralized in `Capability.Policy` with no ad hoc lock regressions.
 - [ ] `T1495` receives evidence-backed closure recommendation.
 
 ## Handoff Evidence Required

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge task-1502 visibility thresholds and align task 1503 lock-policy prerequisites
 - T1503: Move to active for Jules delegation
 - Review task-1503 branch (not merged) and strengthen task 1504 lock-policy interruptibility guardrails
+- Task 1503 capability lock matrix + 1504 validation refresh
 
 ## [4.30.10] - 2026-02-20
 

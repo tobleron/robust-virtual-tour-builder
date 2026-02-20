@@ -390,6 +390,9 @@ CI job
 ### 📂 src/components
 - `[src/components/ViewerSceneElements.res]`
 
+### 📂 src/core
+- `[src/core/Capability.res]`
+
 ### 📂 src/systems
 - `[src/systems/OperationLifecycle.res]`
 
