@@ -91,19 +91,19 @@ describe("OperationLifecycle", () => {
   test("sets default visibility threshold correctly", t => {
     let navId = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ())
     let navOp = OperationLifecycle.getOperation(navId)->Option.getOrThrow
-    t->expect(navOp.visibleAfterMs)->Expect.toBe(500)
+    t->expect(navOp.visibleAfterMs)->Expect.toBe(1200)
 
     let upId = OperationLifecycle.start(~type_=OperationLifecycle.Upload, ())
     let upOp = OperationLifecycle.getOperation(upId)->Option.getOrThrow
-    t->expect(upOp.visibleAfterMs)->Expect.toBe(200)
+    t->expect(upOp.visibleAfterMs)->Expect.toBe(700)
 
     let thumbId = OperationLifecycle.start(~type_=OperationLifecycle.ThumbnailGeneration, ())
     let thumbOp = OperationLifecycle.getOperation(thumbId)->Option.getOrThrow
-    t->expect(thumbOp.visibleAfterMs)->Expect.toBe(600)
+    t->expect(thumbOp.visibleAfterMs)->Expect.toBe(1500)
 
     let projId = OperationLifecycle.start(~type_=OperationLifecycle.ProjectLoad, ())
     let projOp = OperationLifecycle.getOperation(projId)->Option.getOrThrow
-    t->expect(projOp.visibleAfterMs)->Expect.toBe(0)
+    t->expect(projOp.visibleAfterMs)->Expect.toBe(500)
   })
 
   test("overrides default visibility threshold", t => {

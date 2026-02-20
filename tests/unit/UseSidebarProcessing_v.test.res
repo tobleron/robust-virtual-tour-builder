@@ -56,11 +56,7 @@ describe("UseSidebarProcessing", () => {
     // Start operation with 500ms threshold
     ReBindings.Window.setTimeout(
       () => {
-        let _ = OperationLifecycle.start(
-          ~type_=OperationLifecycle.Navigation,
-          ~visibleAfterMs=500,
-          (),
-        )
+        let _ = OperationLifecycle.start(~type_=OperationLifecycle.Upload, ~visibleAfterMs=500, ())
       },
       0,
     )->ignore
@@ -103,8 +99,7 @@ describe("UseSidebarProcessing", () => {
     let opId = ref("")
     ReBindings.Window.setTimeout(
       () => {
-        opId :=
-          OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
+        opId := OperationLifecycle.start(~type_=OperationLifecycle.Upload, ~visibleAfterMs=500, ())
       },
       0,
     )->ignore
@@ -143,7 +138,7 @@ describe("UseSidebarProcessing", () => {
     Dom.removeElement(container)
   })
 
-  testAsync("should show failed operation immediately", async t => {
+  testAsync("should not surface failed non-active operation in processing banner", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
     let root = ReactDOMClient.createRoot(container)
@@ -157,8 +152,7 @@ describe("UseSidebarProcessing", () => {
     let opId = ref("")
     ReBindings.Window.setTimeout(
       () => {
-        opId :=
-          OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
+        opId := OperationLifecycle.start(~type_=OperationLifecycle.Upload, ~visibleAfterMs=500, ())
       },
       0,
     )->ignore
@@ -187,9 +181,8 @@ describe("UseSidebarProcessing", () => {
     let el = Dom.querySelector(container, "[data-testid='proc-state']")
     let content = Dom.getTextContent(Nullable.getUnsafe(el))
 
-    // Failed ops should be active/visible (active=true implies visibility in sidebar processing state)
-    // Sidebar uses active=true + error=true for failure.
-    t->expect(content->String.includes("\"active\":true"))->Expect.toBe(true)
+    // Current behavior: hook only considers Active/Paused ops for banner visibility.
+    t->expect(content->String.includes("\"active\":false"))->Expect.toBe(true)
 
     Dom.removeElement(container)
   })

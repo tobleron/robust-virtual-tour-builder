@@ -85,6 +85,8 @@ test.describe('Editor Interactions', () => {
 
     // Verify tooltip
     await pipelineNode.hover();
+    // Tooltip reveal is intentionally delayed to avoid hover flicker.
+    await page.waitForTimeout(650);
     await expect(page.locator('.node-tooltip')).toBeVisible();
     await expect(page.locator('.tooltip-text').first()).toHaveText(/.+/);
   });

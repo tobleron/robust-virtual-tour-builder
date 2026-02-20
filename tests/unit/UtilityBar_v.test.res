@@ -7,6 +7,7 @@ module WrappedUtilityBar = {
   let make = (~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId, ~mockDispatch) => {
     let mockState: Types.state = {
       ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       scenes: [
         {
           id: "s1",
@@ -27,9 +28,20 @@ module WrappedUtilityBar = {
         },
       ],
     }
+    let uiSlice: AppContext.uiSlice = {
+      isLinking: mockState.isLinking,
+      isTeasing: mockState.isTeasing,
+      linkDraft: mockState.linkDraft,
+      appMode: mockState.appMode,
+      logo: mockState.logo,
+      preloadingSceneIndex: mockState.preloadingSceneIndex,
+    }
+
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.GlobalProvider value=mockState>
-        <UtilityBar scenesLoaded isLinking simActive currentJourneyId />
+        <AppContext.UiSliceProvider value=uiSlice>
+          <UtilityBar scenesLoaded isLinking simActive currentJourneyId />
+        </AppContext.UiSliceProvider>
       </AppContext.GlobalProvider>
     </AppContext.DispatchProvider>
   }
@@ -128,7 +140,19 @@ describe("UtilityBar", () => {
 
     Dom.click(playBtn)
 
-    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.StartAutoPilot(42, false)))
+    switch lastAction.contents {
+    | Some(Actions.Batch(actions)) => {
+        let hasStart = actions->Belt.Array.some(
+          action =>
+            switch action {
+            | Actions.StartAutoPilot(42, false) => true
+            | _ => false
+            },
+        )
+        t->expect(hasStart)->Expect.toBe(true)
+      }
+    | _ => t->expect(false)->Expect.toBe(true)
+    }
 
     // Now test StopAutoPilot
     ReactDOMClient.Root.render(

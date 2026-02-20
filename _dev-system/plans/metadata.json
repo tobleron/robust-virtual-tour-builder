@@ -1,6 +1,20 @@
 {
   "rescript": [
     {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
@@ -162,20 +176,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
       }
     }
   ],

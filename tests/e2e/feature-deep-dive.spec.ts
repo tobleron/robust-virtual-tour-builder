@@ -117,6 +117,8 @@ test.describe('Feature Deep Dive & Comprehensive Tests', () => {
         // Verify tooltip in Visual Pipeline
         const pipelineNode = page.locator('.pipeline-node').first();
         await pipelineNode.hover();
+        // Tooltip reveal is intentionally delayed to avoid hover flicker.
+        await page.waitForTimeout(650);
         await expect(page.locator('.tooltip-text').first()).toHaveText('Grand Entrance');
     });
 
