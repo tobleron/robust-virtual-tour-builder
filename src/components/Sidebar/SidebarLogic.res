@@ -200,13 +200,14 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
           },
           (),
         )
-        let projectDataResult = await ProjectManager.loadProject(file, ~signal, ~onProgress=(
-          pct,
-          _t,
-          msg,
-        ) => {
-          updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
-        }, ~opId)
+        let projectDataResult = await ProjectManager.loadProject(
+          file,
+          ~signal,
+          ~onProgress=(pct, _t, msg) => {
+            updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
+          },
+          ~opId,
+        )
 
         switch projectDataResult {
         | Ok((sessionId, projectData)) => {
@@ -330,7 +331,7 @@ let handleExport = async (
       ~projectData?,
       ~signal,
       Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
-      ~opId
+      ~opId,
     )
     switch exportResult {
     | Ok() => {

@@ -37,18 +37,27 @@ pub async fn serve_project_file(
         }
     };
     let images_path = project_path.join("images").join(&safe_filename);
+    let thumbnails_path = project_path.join("thumbnails").join(&safe_filename);
     let root_path = project_path.join(&safe_filename);
 
-    tracing::info!(path = ?images_path, "Checking images/ subdir for file request");
+    tracing::info!(
+        path = ?images_path,
+        thumbnails_path = ?thumbnails_path,
+        "Checking images/ and thumbnails/ subdirs for file request"
+    );
 
     // Logic:
     // 1. Check images/filename
-    // 2. Check root/filename
-    // 3. If filename has extension, check images/filename_without_extension (Legacy fallback)
+    // 2. Check thumbnails/filename
+    // 3. Check root/filename
+    // 4. If filename has extension, check images/filename_without_extension (Legacy fallback)
 
     let file_path = if images_path.exists() && images_path.is_file() {
         tracing::info!(path = ?images_path, "Serving from images/ subdir");
         images_path
+    } else if thumbnails_path.exists() && thumbnails_path.is_file() {
+        tracing::info!(path = ?thumbnails_path, "Serving from thumbnails/ subdir");
+        thumbnails_path
     } else if root_path.exists() && root_path.is_file() {
         tracing::info!(path = ?root_path, "Serving from project root");
         root_path
@@ -60,12 +69,26 @@ pub async fn serve_project_file(
             // or just check stem generally.
             if stem != path_obj.as_os_str() {
                 let stem_str = stem.to_string_lossy();
-                let no_ext = project_path.join("images").join(stem_str.as_ref());
-                if no_ext.exists() && no_ext.is_file() {
-                    tracing::warn!(path = ?no_ext, original = %safe_filename, "Serving extensionless fallback");
-                    Some(no_ext)
+                let image_no_ext = project_path.join("images").join(stem_str.as_ref());
+                if image_no_ext.exists() && image_no_ext.is_file() {
+                    tracing::warn!(
+                        path = ?image_no_ext,
+                        original = %safe_filename,
+                        "Serving extensionless fallback from images/"
+                    );
+                    Some(image_no_ext)
                 } else {
-                    None
+                    let thumbnail_no_ext = project_path.join("thumbnails").join(stem_str.as_ref());
+                    if thumbnail_no_ext.exists() && thumbnail_no_ext.is_file() {
+                        tracing::warn!(
+                            path = ?thumbnail_no_ext,
+                            original = %safe_filename,
+                            "Serving extensionless fallback from thumbnails/"
+                        );
+                        Some(thumbnail_no_ext)
+                    } else {
+                        None
+                    }
                 }
             } else {
                 None
@@ -80,7 +103,7 @@ pub async fn serve_project_file(
                 tracing::warn!(
                     project_id = %project_id,
                     filename = %filename,
-                    "File not found in images/ or root"
+                    "File not found in images/, thumbnails/, or root"
                 );
                 return Ok(
                     HttpResponse::NotFound().body(format!("File not found: {}", safe_filename))

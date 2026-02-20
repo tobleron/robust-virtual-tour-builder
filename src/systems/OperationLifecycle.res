@@ -61,12 +61,15 @@ let notifyListeners = () => {
 let updateLoggerContext = () => {
   // Determine the most relevant operation for logging context
   // Priority: Blocking > Ambient (latest started)
-  let activeOps = operations.contents->Belt.Map.String.valuesToArray->Belt.Array.keep(t => {
-    switch t.status {
-    | Active(_) | Paused => true
-    | _ => false
-    }
-  })
+  let activeOps =
+    operations.contents
+    ->Belt.Map.String.valuesToArray
+    ->Belt.Array.keep(t => {
+      switch t.status {
+      | Active(_) | Paused => true
+      | _ => false
+      }
+    })
 
   let contextOp =
     activeOps
@@ -77,7 +80,7 @@ let updateLoggerContext = () => {
       activeOps
       ->Belt.Array.keep(t => t.scope == Ambient)
       ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
-      ->Belt.Array.get(0)
+      ->Belt.Array.get(0),
     )
 
   switch contextOp {
@@ -280,7 +283,12 @@ let cancel = (id: operationId): unit => {
       // Invoke callback first
       switch cancelCallbacks.contents->Belt.Map.String.get(id) {
       | Some(cb) =>
-        Logger.info(~module_="OperationLifecycle", ~message="INVOKING_CANCEL_CALLBACK", ~data=Some({"id": id}), ())
+        Logger.info(
+          ~module_="OperationLifecycle",
+          ~message="INVOKING_CANCEL_CALLBACK",
+          ~data=Some({"id": id}),
+          (),
+        )
         cb()
       | None => ()
       }

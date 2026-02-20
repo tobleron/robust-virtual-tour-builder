@@ -33,7 +33,7 @@ let processUploads = (
   }
 
   let updateProgress = (pct, msg, isProc, phase) => {
-    OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phase, ())
+    OperationLifecycle.progress(opId, pct, ~message=msg, ~phase, ())
     switch progressCallback {
     | Some(cb) => cb(pct, msg, isProc, phase)
     | None => ()

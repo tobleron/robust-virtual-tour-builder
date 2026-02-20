@@ -49,12 +49,9 @@ let make = () => {
   React.useEffect1(() => {
     if simulation.status == Running {
       if opIdRef.current == None {
-        opIdRef.current = Some(OperationLifecycle.start(
-          ~type_=Simulation,
-          ~scope=Ambient,
-          ~phase="Running",
-          (),
-        ))
+        opIdRef.current = Some(
+          OperationLifecycle.start(~type_=Simulation, ~scope=Ambient, ~phase="Running", ()),
+        )
       }
     } else {
       switch opIdRef.current {

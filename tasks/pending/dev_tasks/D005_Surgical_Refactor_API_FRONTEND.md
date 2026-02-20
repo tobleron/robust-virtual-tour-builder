@@ -15,9 +15,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/Api/AuthenticatedClient.res** (Metric: [Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 388/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/Api/AuthenticatedClient.res** (Metric: [Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/Api/ProjectApi.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 437/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/Api/ProjectApi.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 459/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -35,25 +35,25 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - prepareRequestBody × 1 (lines: 104)
         - prepareRequestSignal × 1 (lines: 47)
         - request × 1 (lines: 115)
-        - requestWithRetry × 1 (lines: 309)
+        - requestWithRetry × 1 (lines: 316)
         - toUpper × 1 (lines: 23)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/Api/ProjectApi.res`
-- `src/systems/Api/ProjectApi.res` (15 functions, fingerprint bf9ee190c9f06bd7598c0e35183abf12c5708c4bd73ffea9e1cc223890e0b615)
+- `src/systems/Api/ProjectApi.res` (15 functions, fingerprint 250b40f2f5e65314fbdf232ce854885dbaaf61d0a43091f78e7952bd0381a1e7)
     - Grouped summary:
-        - calculatePath × 1 (lines: 401)
+        - calculatePath × 1 (lines: 423)
         - decodeImportChunkResponse × 1 (lines: 64)
         - decodeImportInitResponse × 1 (lines: 51)
         - decodeImportStatusResponse × 1 (lines: 76)
         - handleError × 1 (lines: 6)
         - handleJsonDecode × 1 (lines: 17)
-        - importProject × 1 (lines: 328)
-        - requestImportAbort × 1 (lines: 267)
-        - requestImportChunk × 1 (lines: 164)
-        - requestImportComplete × 1 (lines: 224)
+        - importProject × 1 (lines: 346)
+        - requestImportAbort × 1 (lines: 276)
+        - requestImportChunk × 1 (lines: 169)
+        - requestImportComplete × 1 (lines: 231)
         - requestImportInit × 1 (lines: 92)
-        - requestImportStatus × 1 (lines: 131)
-        - reverseGeocode × 1 (lines: 436)
-        - saveProject × 1 (lines: 379)
-        - uploadMissingChunks × 1 (lines: 283)
+        - requestImportStatus × 1 (lines: 134)
+        - reverseGeocode × 1 (lines: 458)
+        - saveProject × 1 (lines: 401)
+        - uploadMissingChunks × 1 (lines: 297)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

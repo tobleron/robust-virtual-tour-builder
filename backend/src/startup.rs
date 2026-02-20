@@ -105,6 +105,7 @@ pub fn cors() -> Cors {
             actix_web::http::header::AUTHORIZATION,
             actix_web::http::header::HeaderName::from_static("x-session-id"),
             actix_web::http::header::HeaderName::from_static("x-operation-id"),
+            actix_web::http::header::HeaderName::from_static("x-correlation-id"),
             actix_web::http::header::HeaderName::from_static("x-request-id"),
         ])
         .supports_credentials()

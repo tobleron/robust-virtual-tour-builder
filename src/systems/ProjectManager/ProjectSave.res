@@ -79,10 +79,16 @@ let saveProject = (
 
         // Progress starts after file handle confirmation
         let progress = (curr, total, msg) => {
-          opId->Option.forEach(id => {
-             let pct = if total > 0 { Float.fromInt(curr) /. Float.fromInt(total) *. 100.0 } else { 0.0 }
-             OperationLifecycle.progress(id, pct, ~message=msg, ())
-          })
+          opId->Option.forEach(
+            id => {
+              let pct = if total > 0 {
+                Float.fromInt(curr) /. Float.fromInt(total) *. 100.0
+              } else {
+                0.0
+              }
+              OperationLifecycle.progress(id, pct, ~message=msg, ())
+            },
+          )
           switch onProgress {
           | Some(cb) => cb(curr, total, msg)
           | None => ()
@@ -125,9 +131,7 @@ let saveProject = (
                       ~stage="completed",
                       ~filename,
                     )
-                    opId->Option.forEach(id =>
-                      OperationLifecycle.complete(id, ~result="Saved", ())
-                    )
+                    opId->Option.forEach(id => OperationLifecycle.complete(id, ~result="Saved", ()))
 
                     OperationJournal.completeOperation(journalId)->Promise.then(
                       () => {

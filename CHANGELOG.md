@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove current file structure generation from commit workflows
 - T1499: Completed; T1498: Moved to active for Jules delegation
+- Add sequenced tasks 1501-1504 for navigation/progress/lock/race hardening
 
 ## [4.30.8] - 2026-02-20
 

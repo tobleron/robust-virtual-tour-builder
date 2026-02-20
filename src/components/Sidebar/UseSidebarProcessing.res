@@ -50,10 +50,11 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
       }
     })
 
-    let blocking = relevantOps
-    ->Belt.Array.keep(t => t.scope == Blocking)
-    ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
-    ->Belt.Array.get(0)
+    let blocking =
+      relevantOps
+      ->Belt.Array.keep(t => t.scope == Blocking)
+      ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
+      ->Belt.Array.get(0)
 
     switch blocking {
     | Some(op) => Some(op)
@@ -99,24 +100,24 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
       }
 
       if op.status == Cancelled {
-         setProcState(prev => {
-            let next = Object.assign(Object.make(), prev)
-            next["active"] = false
-            next
-         })
-         isVisible.current = false
+        setProcState(prev => {
+          let next = Object.assign(Object.make(), prev)
+          next["active"] = false
+          next
+        })
+        isVisible.current = false
       } else {
-         let newState = {
-            "active": active,
-            "progress": progress,
-            "message": message,
-            "phase": op.phase,
-            "error": error,
-            "onCancel": () => OperationLifecycle.cancel(op.id),
-            "cancellable": op.cancellable,
-         }
-         setProcState(_ => newState)
-         isVisible.current = active
+        let newState = {
+          "active": active,
+          "progress": progress,
+          "message": message,
+          "phase": op.phase,
+          "error": error,
+          "onCancel": () => OperationLifecycle.cancel(op.id),
+          "cancellable": op.cancellable,
+        }
+        setProcState(_ => newState)
+        isVisible.current = active
       }
 
     | None =>
@@ -160,17 +161,20 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         switch activeOpRef.current {
         | Some(_) => () // Ignore if activeOp exists
         | None =>
-           // Map legacy payload
-           let cancellable = true // Assume legacy is cancellable if active
-           setProcState(_ => {
-             "active": payload["active"],
-             "progress": payload["progress"],
-             "message": payload["message"],
-             "phase": payload["phase"],
-             "error": payload["error"],
-             "onCancel": payload["onCancel"],
-             "cancellable": cancellable,
-           })
+          // Map legacy payload
+          let cancellable = true // Assume legacy is cancellable if active
+          setProcState(
+            _ =>
+              {
+                "active": payload["active"],
+                "progress": payload["progress"],
+                "message": payload["message"],
+                "phase": payload["phase"],
+                "error": payload["error"],
+                "onCancel": payload["onCancel"],
+                "cancellable": cancellable,
+              },
+          )
         }
       | _ => ()
       }
@@ -188,18 +192,23 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
     let state: Types.state = getState()
     // Start OperationLifecycle
     let opId = OperationLifecycle.start(
-       ~type_=ProjectSave,
-       ~scope=Blocking,
-       ~phase="Initializing",
-       ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
-       (),
+      ~type_=ProjectSave,
+      ~scope=Blocking,
+      ~phase="Initializing",
+      ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
+      (),
     )
     opIdRef := Some(opId)
     OperationLifecycle.registerCancel(opId, onCancel)
 
-    let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
-      SidebarLogic.updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
-    }, ~opId)
+    let success = await ProjectManager.saveProject(
+      state,
+      ~signal,
+      ~onProgress=(pct, _t, msg) => {
+        SidebarLogic.updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
+      },
+      ~opId,
+    )
 
     if success {
       SidebarLogic.updateProgress(~dispatch, 100.0, "Saved", false, "")

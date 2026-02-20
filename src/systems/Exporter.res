@@ -33,7 +33,11 @@ let exportTour = async (
   let currentPhase = ref("INITIAL")
 
   let progress = (p, t, m) => {
-    let pct = if t > 0.0 { p /. t *. 100.0 } else { 0.0 }
+    let pct = if t > 0.0 {
+      p /. t *. 100.0
+    } else {
+      0.0
+    }
     OperationLifecycle.progress(opId, pct, ~message=m, ~phase=currentPhase.contents, ())
     switch onProgress {
     | Some(cb) => cb(p, t, m)

@@ -213,13 +213,15 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       // Update OperationLifecycle Phase
       switch newStatus {
       | Swapping(_, _) =>
-         currentTask.contents->Option.forEach(t =>
-           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase="Swapping", ()))
-         )
+        currentTask.contents->Option.forEach(t =>
+          t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase="Swapping", ()))
+        )
       | Stabilizing(_, _) =>
-         currentTask.contents->Option.forEach(t =>
-           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 80.0, ~phase="Stabilizing", ()))
-         )
+        currentTask.contents->Option.forEach(t =>
+          t.opId->Option.forEach(id =>
+            OperationLifecycle.progress(id, 80.0, ~phase="Stabilizing", ())
+          )
+        )
       | _ => ()
       }
 

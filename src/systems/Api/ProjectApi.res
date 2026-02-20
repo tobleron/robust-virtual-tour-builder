@@ -93,9 +93,7 @@ let requestImportInit = (
   file: File.t,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~operationId: option<string>=?,
-): Promise.t<
-  apiResult<importInitResponse>,
-> => {
+): Promise.t<apiResult<importInitResponse>> => {
   let body = JsonCombinators.Json.Encode.object([
     ("filename", JsonCombinators.Json.Encode.string(File.name(file))),
     ("sizeBytes", JsonCombinators.Json.Encode.int(Float.toInt(File.size(file)))),
@@ -349,9 +347,7 @@ let importProject = (
   file: File.t,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~operationId: option<string>=?,
-): Promise.t<
-  apiResult<importResponse>,
-> => {
+): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     let chunkedFlow = async () => {
       let initResult = await requestImportInit(file, ~signal?, ~operationId?)
