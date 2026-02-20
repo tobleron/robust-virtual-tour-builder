@@ -26,11 +26,11 @@ This section outlines the protocols, standards, and automated workflows required
 We utilize strict automation to maintain quality. **Do not run these manually if an AI agent is handling the task.**
 
 ### Phase 1: Pre-Flight
-1. **Context Check**: Read `.agent/current_file_structure.md` before editing.
+1. **Context Check**: Read `MAP.md` and `DATA_FLOW.md` before editing.
 2. **Standards Review**: Read `.agent/workflows/functional-standards.md` for logic and `/docs/PROJECT_SPECS.md` (Design System section) for UI.
 
 ### Phase 2: Execution
-- **Commit Workflow**: Use `./scripts/commit.sh` (Auto-increments version, cleans console logs, updates file maps).
+- **Commit Workflow**: Use `./scripts/commit.sh` (Auto-increments version and cleans console logs).
 - **Time Machine (Undo)**: Use `./scripts/restore-snapshot.sh <HASH>` to rollback internal development states.
 
 ### Phase 3: Push Verification

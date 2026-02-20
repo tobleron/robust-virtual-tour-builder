@@ -22,11 +22,7 @@ fi
 # 1.5 Project Guard (Static Analysis)
 ./scripts/project-guard.sh
 
-# 2. Context Refresh
-echo "🗺️  Refreshing file structure map..."
-tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_structure.md
-
-# 3. Versioning (Smart Detection)
+# 2. Versioning (Smart Detection)
 BUMP_REQUEST="${2:-$MSG}"
 echo "📈 Processing versioning..."
 node scripts/bump-version.js "$BUMP_REQUEST"
@@ -36,11 +32,11 @@ NEW_VER=$(node -p "require('./package.json').version")
 BUILD_NUM=$(node -p "require('./package.json').buildNumber")
 FULL_VER="${NEW_VER}+${BUILD_NUM}"
 
-# 4. Auto-Format
+# 3. Auto-Format
 echo "🎨 Formatting Code..."
 npm run format
 
-# 5. Build Verification (Zero Warning Policy)
+# 4. Build Verification (Zero Warning Policy)
 echo "🔨 Verifying Build (Strict Mode)..."
 npm run res:clean > /dev/null
 git add -N .
@@ -50,7 +46,7 @@ if ! ./node_modules/.bin/rescript build --warn-error "+a"; then
     exit 1; 
 fi
 
-# 6. Test Gap Detection
+# 5. Test Gap Detection
 # if ! node scripts/detect-missing-tests.cjs; then
 #     echo "❌ Commit blocked: Missing unit tests detected."
 #     git reset > /dev/null
@@ -58,23 +54,23 @@ fi
 # fi
 echo "⚠️  Skipping Test Gap Detection (Process missing)"
 
-# 7. Test Verification (Skipped for speed)
+# 6. Test Verification (Skipped for speed)
 echo "🧪 Skipping Tests (Run manually if needed)..."
 
-# 8. Update Documentation
+# 7. Update Documentation
 echo "📝 Updating Documentation..."
 node scripts/update-changelog.js "$MSG"
 node scripts/update-readme.js
 
 # --- COMMIT & SYNC PHASE ---
 
-# 9. Log & Commit to current branch
+# 8. Log & Commit to current branch
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG [TRIPLE]" >> logs/log_changes.txt
 rm -f logs/telemetry.log
 git add .
 git commit -m "v$FULL_VER [TRIPLE]: $MSG"
 
-# 10. Sync to main, testing, and development
+# 9. Sync to main, testing, and development
 TARGET_BRANCHES=("main" "testing" "development")
 
 echo "🔄 Syncing all core branches locally..."
@@ -89,7 +85,7 @@ for BRANCH in "${TARGET_BRANCHES[@]}"; do
     fi
 done
 
-# 11. Push all 3 branches
+# 10. Push all 3 branches
 echo "🚀 Pushing all branches to remote..."
 git push origin main
 git push origin testing
