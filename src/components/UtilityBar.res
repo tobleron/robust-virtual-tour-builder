@@ -87,10 +87,12 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         }
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
-        dispatch(Batch([
-          Actions.SetActiveScene(0, 0.0, 0.0, None),
-          Actions.StartAutoPilot(currentJourneyId, false),
-        ]))
+        dispatch(
+          Batch([
+            Actions.SetActiveScene(0, 0.0, 0.0, None),
+            Actions.StartAutoPilot(currentJourneyId, false),
+          ]),
+        )
         NotificationManager.dispatch({
           id: "",
           importance: Info,

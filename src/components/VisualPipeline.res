@@ -191,6 +191,33 @@ let make = () => {
     })
   }, (groupedItems, Constants.Scene.floorLevels))
 
+  // Determine the active step to highlight.
+  // If the explicit active timeline step does not belong to the current scene,
+  // fall back to the current scene step so highlight updates immediately on scene switch.
+  let effectiveActiveStepId = React.useMemo3(() => {
+    let currentSceneId =
+      Belt.Array.get(pipelineSlice.scenes, pipelineSlice.activeIndex)->Option.map(scene => scene.id)
+
+    let currentSceneStepId = currentSceneId->Option.flatMap(sceneId =>
+      pipelineSlice.timeline
+      ->Belt.Array.getBy(step => step.sceneId == sceneId)
+      ->Option.map(step => step.id)
+    )
+
+    switch pipelineSlice.activeTimelineStepId {
+    | Some(stepId) =>
+      switch currentSceneId {
+      | Some(sceneId) =>
+        switch pipelineSlice.timeline->Belt.Array.getBy(step => step.id == stepId) {
+        | Some(step) if step.sceneId == sceneId => Some(stepId)
+        | _ => currentSceneStepId
+        }
+      | None => Some(stepId)
+      }
+    | None => currentSceneStepId
+    }
+  }, (pipelineSlice.activeTimelineStepId, pipelineSlice.activeIndex, pipelineSlice.timeline))
+
   // --- Deterministic Measurement Logic ---
   let (linePaths, setLinePaths) = React.useState(_ => Dict.make())
   let containerRef = React.useRef(Nullable.null)
@@ -291,21 +318,10 @@ let make = () => {
           <div key={"track-" ++ fid} className="pipeline-track">
             {items
             ->Belt.Array.mapWithIndex((idx, item) => {
-              let isActive = switch pipelineSlice.activeTimelineStepId {
-              | Some(id) => id == item.id
-              | None =>
-                switch Belt.Array.get(pipelineSlice.scenes, pipelineSlice.activeIndex) {
-                | Some(currentScene) =>
-                  let firstMatchId =
-                    pipelineSlice.timeline
-                    ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
-                    ->Option.map(idx => pipelineSlice.timeline[idx]->Option.map(t => t.id))
-                    ->Option.flatMap(x => x)
-                    ->Option.getOr("")
-                  item.id == firstMatchId
-                | None => false
-                }
-              }
+              let isActive =
+                effectiveActiveStepId
+                ->Option.map(activeId => activeId == item.id)
+                ->Option.getOr(false)
 
               let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
               let targetScene =
