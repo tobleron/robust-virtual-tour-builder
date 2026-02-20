@@ -20,6 +20,7 @@ module SidebarTypes = {
     "phase": string,
     "error": bool,
     "onCancel": unit => unit,
+    "cancellable": bool,
   }
 }
 
@@ -175,6 +176,19 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
         let signal = BrowserBindings.AbortController.signal(controller)
         let onCancel = () => BrowserBindings.AbortController.abort(controller)
         dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
+
+        let opId = OperationLifecycle.start(
+          ~type_=ProjectLoad,
+          ~scope=Blocking,
+          ~phase="Loading",
+          ~meta=Logger.castToJson({
+            "filename": File.name(file),
+            "size": File.size(file),
+          }),
+          (),
+        )
+        OperationLifecycle.registerCancel(opId, onCancel)
+
         updateProgress(~dispatch, ~onCancel, 0.0, "Loading Project...", true, "Loading")
 
         Logger.startOperation(
@@ -192,7 +206,7 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
           msg,
         ) => {
           updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
-        })
+        }, ~opId)
 
         switch projectDataResult {
         | Ok((sessionId, projectData)) => {
@@ -284,6 +298,18 @@ let handleExport = async (
   ~onCancel,
 ) => {
   dispatch(DispatchAppFsmEvent(StartExport))
+
+  let opId = OperationLifecycle.start(
+    ~type_=Export,
+    ~scope=Blocking,
+    ~phase="Preparing",
+    ~meta=Logger.castToJson({
+      "tourName": tourName,
+    }),
+    (),
+  )
+  OperationLifecycle.registerCancel(opId, onCancel)
+
   updateProgress(~dispatch, ~onCancel, 0.0, "Starting export...", true, "Export")
   NotificationManager.dispatch({
     id: "",
@@ -304,6 +330,7 @@ let handleExport = async (
       ~projectData?,
       ~signal,
       Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
+      ~opId
     )
     switch exportResult {
     | Ok() => {

@@ -7,8 +7,9 @@ let uploadAndProcessRaw: (
   string,
   ~signal: BrowserBindings.AbortSignal.t,
   ~token: option<string>,
+  ~operationId: option<string>,
 ) => Promise.t<Blob.t> = %raw(`
-  function(formData, onProgress, backendUrl, signal, token) {
+  function(formData, onProgress, backendUrl, signal, token, operationId) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
@@ -22,6 +23,10 @@ let uploadAndProcessRaw: (
 
         if (token) {
           xhr.setRequestHeader("Authorization", "Bearer " + token);
+        }
+        if (operationId) {
+          xhr.setRequestHeader("X-Operation-ID", operationId);
+          xhr.setRequestHeader("X-Correlation-ID", operationId);
         }
 
         if (signal) {

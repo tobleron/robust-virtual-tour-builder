@@ -120,21 +120,28 @@ let request = async (
   ~headers=Dict.make(),
   ~signal: option<ReBindings.AbortSignal.t>=?,
   ~requestId: option<string>=?,
+  ~operationId: option<string>=?,
   (),
 ) => {
   let sessionId = switch Logger.getSessionId() {
   | Some(id) => id
   | None => "anonymous"
   }
-  let currentOperationId = Logger.getOperationId()
+  let effectiveOperationId = switch operationId {
+  | Some(id) => Some(id)
+  | None => Logger.getOperationId()
+  }
 
   Dict.set(headers, "X-Session-ID", sessionId)
-  currentOperationId->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
+  effectiveOperationId->Option.forEach(opId => {
+    Dict.set(headers, "X-Operation-ID", opId)
+    Dict.set(headers, "X-Correlation-ID", opId)
+  })
 
   // HARDENING: Check operation validity before request.
   // Only lifecycle operation IDs are eligible for cancellation checks.
   let isOpCancelled =
-    currentOperationId
+    effectiveOperationId
     ->Option.map(id =>
       if String.startsWith(id, "op_") {
         !OperationLifecycle.isActive(id)
@@ -314,6 +321,7 @@ let requestWithRetry = (
   ~headers=Dict.make(),
   ~signal: option<ReBindings.AbortSignal.t>=?,
   ~retryConfig: option<Retry.config>=?,
+  ~operationId: option<string>=?,
   (),
 ) => {
   // Inject Request ID for distributed tracing and retry linking
@@ -345,6 +353,7 @@ let requestWithRetry = (
         ~headers,
         ~signal,
         ~requestId,
+        ~operationId?,
         (),
       ),
     ~signal=resolvedSignal,

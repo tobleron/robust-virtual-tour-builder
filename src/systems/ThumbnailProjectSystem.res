@@ -41,7 +41,13 @@ let make = () => {
           (),
         )
         isProcessing.current = true
-        let opId = OperationLifecycle.start(~type_=ThumbnailGeneration, ())
+        let opId = OperationLifecycle.start(
+          ~type_=ThumbnailGeneration,
+          ~scope=Ambient,
+          ~phase="Generating",
+          ~meta=Logger.castToJson({"id": s.id}),
+          (),
+        )
 
         let srcUrl = Types.fileToUrl(s.file)
         let img = Dom.createElement("img")

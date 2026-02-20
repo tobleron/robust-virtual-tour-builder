@@ -4,7 +4,12 @@ type onProgress = (int, int, string) => unit
 
 external asJson: 'a => JSON.t = "%identity"
 
-let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {
+let saveProject = (
+  state: state,
+  ~signal=?,
+  ~onProgress: option<onProgress>=?,
+  ~opId: option<OperationLifecycle.operationId>=?,
+) => {
   if Array.length(state.scenes) == 0 {
     Logger.warn(~module_="ProjectManager", ~message="SAVE_SKIPPED_NO_SCENES", ())
     Promise.resolve(false)
@@ -20,6 +25,10 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
     let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr("unknown_date")
     let filename =
       "Saved_RMX_" ++ safeName ++ "_v" ++ Version.version ++ "_" ++ dateStr ++ ".vt.zip"
+
+    opId->Option.forEach(id =>
+      OperationLifecycle.progress(id, 0.0, ~message="Preparing save...", ~phase="Initializing", ())
+    )
 
     Logger.startOperation(
       ~module_="ProjectManager",
@@ -70,6 +79,10 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
 
         // Progress starts after file handle confirmation
         let progress = (curr, total, msg) => {
+          opId->Option.forEach(id => {
+             let pct = if total > 0 { Float.fromInt(curr) /. Float.fromInt(total) *. 100.0 } else { 0.0 }
+             OperationLifecycle.progress(id, pct, ~message=msg, ())
+          })
           switch onProgress {
           | Some(cb) => cb(curr, total, msg)
           | None => ()
@@ -79,7 +92,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
 
         let _ = ProjectUtils.updateSaveContext(~journalId, ~state, ~stage="packaging", ~filename)
 
-        ProjectUtils.Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(
+        ProjectUtils.Logic.createSavePackage(state, ~signal?, ~onProgress?, ~opId?)->Promise.then(
           resultRes => {
             switch resultRes {
             | Ok(blob) =>
@@ -112,6 +125,10 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
                       ~stage="completed",
                       ~filename,
                     )
+                    opId->Option.forEach(id =>
+                      OperationLifecycle.complete(id, ~result="Saved", ())
+                    )
+
                     OperationJournal.completeOperation(journalId)->Promise.then(
                       () => {
                         Logger.endOperation(
@@ -133,6 +150,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
                       ~error=reason,
                     )
                     ProjectUtils.notifySaveFailure(~message="Project save failed", ~details=reason)
+                    opId->Option.forEach(id => OperationLifecycle.fail(id, reason))
                     OperationJournal.failOperation(journalId, reason)->Promise.then(
                       () => Promise.resolve(success),
                     )
@@ -148,6 +166,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
                   ~filename,
                   ~error=msg,
                 )
+                opId->Option.forEach(id => OperationLifecycle.cancel(id))
                 OperationJournal.updateStatus(journalId, Cancelled)->Promise.then(
                   () => {
                     Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED", ())
@@ -164,6 +183,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
                   ~error=msg,
                 )
                 ProjectUtils.notifySaveFailure(~message=userMessage, ~details=msg)
+                opId->Option.forEach(id => OperationLifecycle.fail(id, msg))
                 OperationJournal.failOperation(journalId, msg)->Promise.then(
                   () => {
                     Logger.error(
@@ -190,6 +210,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
             ~filename,
             ~error=msg,
           )
+          opId->Option.forEach(id => OperationLifecycle.cancel(id))
           OperationJournal.updateStatus(journalId, Cancelled)->Promise.then(
             () => {
               Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
@@ -206,6 +227,7 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
             ~error=msg,
           )
           ProjectUtils.notifySaveFailure(~message=userMessage, ~details=msg)
+          opId->Option.forEach(id => OperationLifecycle.fail(id, msg))
           OperationJournal.failOperation(journalId, msg)->Promise.then(
             () => {
               Logger.error(

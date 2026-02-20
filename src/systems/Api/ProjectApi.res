@@ -89,7 +89,11 @@ let decodeImportStatusResponse = json =>
     }),
   )
 
-let requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
+let requestImportInit = (
+  file: File.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<
   apiResult<importInitResponse>,
 > => {
   let body = JsonCombinators.Json.Encode.object([
@@ -103,6 +107,7 @@ let requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSign
     ~method="POST",
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
+    ~operationId?,
     (),
   )->Promise.then(resultResponse => {
     switch resultResponse {
@@ -131,11 +136,13 @@ let requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSign
 let requestImportStatus = (
   uploadId: string,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
 ): Promise.t<apiResult<importStatusResponse>> => {
   AuthenticatedClient.requestWithRetry(
     Constants.backendUrl ++ "/api/project/import/status/" ++ uploadId,
     ~method="GET",
     ~signal?,
+    ~operationId?,
     (),
   )->Promise.then(resultResponse => {
     switch resultResponse {
@@ -167,6 +174,7 @@ let requestImportChunk = (
   ~chunkIndex: int,
   ~chunkSizeBytes: int,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
 ): Promise.t<apiResult<importChunkResponse>> => {
   let sizeBytes = Float.toInt(File.size(file))
 
@@ -191,6 +199,7 @@ let requestImportChunk = (
       ~method="POST",
       ~formData,
       ~signal?,
+      ~operationId?,
       (),
     )->Promise.then(resultResponse => {
       switch resultResponse {
@@ -226,6 +235,7 @@ let requestImportComplete = (
   ~uploadId: string,
   ~totalChunks: int,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
 ): Promise.t<apiResult<importResponse>> => {
   let body = JsonCombinators.Json.Encode.object([
     ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
@@ -239,6 +249,7 @@ let requestImportComplete = (
     ~method="POST",
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
+    ~operationId?,
     (),
   )->Promise.then(resultResponse => {
     switch resultResponse {
@@ -264,7 +275,11 @@ let requestImportComplete = (
   })
 }
 
-let requestImportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
+let requestImportAbort = (
+  uploadId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+) => {
   let body = JsonCombinators.Json.Encode.object([
     ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
   ])
@@ -274,6 +289,7 @@ let requestImportAbort = (uploadId: string, ~signal: option<BrowserBindings.Abor
     ~method="POST",
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
+    ~operationId?,
     (),
   )
   ->Promise.then(_ => Promise.resolve())
@@ -288,6 +304,7 @@ let rec uploadMissingChunks = async (
   ~receivedChunks: array<int>,
   ~currentIndex: int,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
 ): apiResult<unit> => {
   if currentIndex >= totalChunks {
     Ok()
@@ -300,6 +317,7 @@ let rec uploadMissingChunks = async (
       ~receivedChunks,
       ~currentIndex=currentIndex + 1,
       ~signal?,
+      ~operationId?,
     )
   } else {
     let chunkResult = await requestImportChunk(
@@ -308,6 +326,7 @@ let rec uploadMissingChunks = async (
       ~chunkIndex=currentIndex,
       ~chunkSizeBytes,
       ~signal?,
+      ~operationId?,
     )
     switch chunkResult {
     | Ok(_) =>
@@ -319,22 +338,27 @@ let rec uploadMissingChunks = async (
         ~receivedChunks,
         ~currentIndex=currentIndex + 1,
         ~signal?,
+        ~operationId?,
       )
     | Error(msg) => Error(msg)
     }
   }
 }
 
-let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
+let importProject = (
+  file: File.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<
   apiResult<importResponse>,
 > => {
   RequestQueue.schedule(() => {
     let chunkedFlow = async () => {
-      let initResult = await requestImportInit(file, ~signal?)
+      let initResult = await requestImportInit(file, ~signal?, ~operationId?)
       switch initResult {
       | Error(msg) => Error(msg)
       | Ok(initData) =>
-        let statusResult = await requestImportStatus(initData.uploadId, ~signal?)
+        let statusResult = await requestImportStatus(initData.uploadId, ~signal?, ~operationId?)
         let receivedChunks = switch statusResult {
         | Ok(status) => status.receivedChunks
         | Error(msg) =>
@@ -355,11 +379,12 @@ let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t
           ~receivedChunks,
           ~currentIndex=0,
           ~signal?,
+          ~operationId?,
         )
 
         switch uploadResult {
         | Error(msg) =>
-          let _ = requestImportAbort(initData.uploadId, ~signal?)
+          let _ = requestImportAbort(initData.uploadId, ~signal?, ~operationId?)
           Error(msg)
         | Ok(_) =>
           await requestImportComplete(
@@ -367,6 +392,7 @@ let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t
             ~uploadId=initData.uploadId,
             ~totalChunks=initData.totalChunks,
             ~signal?,
+            ~operationId?,
           )
         }
       }

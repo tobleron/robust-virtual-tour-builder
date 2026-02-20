@@ -23,12 +23,16 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={_ => procState["onCancel"]()}
-            className="text-[9px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"
-          >
-            {React.string("Cancel")}
-          </button>
+          {if procState["cancellable"] {
+            <button
+              onClick={_ => procState["onCancel"]()}
+              className="text-[9px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+            >
+              {React.string("Cancel")}
+            </button>
+          } else {
+            React.null
+          }}
           <div className="font-heading font-semibold text-primary text-[11px]">
             {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
           </div>
