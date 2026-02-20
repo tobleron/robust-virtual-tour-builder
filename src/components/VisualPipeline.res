@@ -254,42 +254,41 @@ let make = () => {
         // Calculate vertical delta for slant
         let slantWidth = Math.abs(vYTo -. vYFrom)
         let deltaX = xEnd -. xStart
-        let d =
-          if deltaX <= 2.0 {
-            "M " ++
-            xStart->Float.toString ++
-            " " ++
-            vYFrom->Float.toString ++
-            " L " ++
-            xEnd->Float.toString ++
-            " " ++
-            vYTo->Float.toString
-          } else {
-            let xCorridor = xStart +. Math.min(14.0, deltaX *. 0.25)
-            let xSlantEnd = xStart +. Math.min(44.0, deltaX *. 0.7)
-            // Slant starts at xSlantEnd - slantWidth, clamped so it never backtracks.
-            let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
-            "M " ++
-            xStart->Float.toString ++
-            " " ++
-            vYFrom->Float.toString ++
-            " L " ++
-            xCorridor->Float.toString ++
-            " " ++
-            vYFrom->Float.toString ++
-            " L " ++
-            vXSlantStart->Float.toString ++
-            " " ++
-            vYFrom->Float.toString ++
-            " L " ++
-            xSlantEnd->Float.toString ++
-            " " ++
-            vYTo->Float.toString ++
-            " L " ++
-            xEnd->Float.toString ++
-            " " ++
-            vYTo->Float.toString
-          }
+        let d = if deltaX <= 2.0 {
+          "M " ++
+          xStart->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          xEnd->Float.toString ++
+          " " ++
+          vYTo->Float.toString
+        } else {
+          let xCorridor = xStart +. Math.min(14.0, deltaX *. 0.25)
+          let xSlantEnd = xStart +. Math.min(44.0, deltaX *. 0.7)
+          // Slant starts at xSlantEnd - slantWidth, clamped so it never backtracks.
+          let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
+          "M " ++
+          xStart->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          xCorridor->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          vXSlantStart->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          xSlantEnd->Float.toString ++
+          " " ++
+          vYTo->Float.toString ++
+          " L " ++
+          xEnd->Float.toString ++
+          " " ++
+          vYTo->Float.toString
+        }
 
         paths->Dict.set(fid, d)
       | _ => ()

@@ -118,20 +118,6 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
@@ -176,6 +162,20 @@
             }
           ]
         }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
       }
     }
   ],

@@ -77,8 +77,17 @@ let handleClearHotspots = (state: state, sceneIndex: int): state => {
     | Some(id) =>
       switch state.inventory->Belt.Map.String.get(id) {
       | Some(entry) =>
+        let filteredTimeline = Belt.Array.keep(state.timeline, t => t.sceneId != id)
+        let activeTimelineStepId = switch state.activeTimelineStepId {
+        | Some(stepId) =>
+          let stillExists = filteredTimeline->Belt.Array.some(t => t.id == stepId)
+          stillExists ? Some(stepId) : None
+        | None => None
+        }
         {
           ...state,
+          timeline: filteredTimeline,
+          activeTimelineStepId,
           inventory: state.inventory->Belt.Map.String.set(
             id,
             {...entry, scene: {...entry.scene, hotspots: []}},

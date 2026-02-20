@@ -106,7 +106,6 @@ describe("ViewerUI", () => {
     let logo = Dom.getElementById("viewer-logo")
     t->expect(Nullable.toOption(logo)->Belt.Option.isSome)->Expect.toBe(true)
 
-
     Dom.removeElement(container)
   })
 

@@ -24,8 +24,8 @@ module WrappedUtilityBar = {
           labelSet: false,
           _metadataSource: "user",
           isAutoForward: false,
-        }
-      ]
+        },
+      ],
     }
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.GlobalProvider value=mockState>
