@@ -25,6 +25,7 @@ type task = {
   targetSceneId: string,
   abort: unit => unit,
   startedAt: float,
+  opId: option<OperationLifecycle.operationId>,
 }
 
 // Module-level refs
@@ -127,6 +128,9 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
   switch currentTask.contents {
   | Some(task) =>
     task.abort()
+    // Cancel operation in Lifecycle
+    task.opId->Option.forEach(id => OperationLifecycle.cancel(id))
+
     Logger.info(
       ~module_="NavigationSupervisor",
       ~message="PREVIOUS_TASK_CANCELLED",
@@ -151,6 +155,11 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
     epoch: runId.contents,
     signal: abortSignal,
   }
+
+  // Start Global Operation
+  let opId = OperationLifecycle.start(~type_=Navigation, ())
+  Logger.setOperationId(Some(opId))
+
   let task = {
     token,
     targetSceneId,
@@ -158,6 +167,7 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
       BrowserBindings.AbortController.abort(controller)
     },
     startedAt: Date.now(),
+    opId: Some(opId),
   }
 
   currentTask := Some(task)
@@ -225,6 +235,12 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
 let complete = (taskId: taskId): unit => {
   // Only process if taskId matches current task
   if isCurrentTaskId(taskId) {
+    // Complete operation
+    currentTask.contents->Option.forEach(t =>
+      t.opId->Option.forEach(id => OperationLifecycle.complete(id, ()))
+    )
+    Logger.setOperationId(None)
+
     currentTask := None
     status := Idle
     notifyListeners()
@@ -252,6 +268,12 @@ let complete = (taskId: taskId): unit => {
 let abort = (taskId: taskId): unit => {
   // Only process if taskId matches current task
   if isCurrentTaskId(taskId) {
+    // Cancel operation
+    currentTask.contents->Option.forEach(t =>
+      t.opId->Option.forEach(id => OperationLifecycle.cancel(id))
+    )
+    Logger.setOperationId(None)
+
     currentTask := None
     status := Idle
     notifyListeners()

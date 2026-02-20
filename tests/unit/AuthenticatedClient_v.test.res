@@ -19,6 +19,8 @@ describe("AuthenticatedClient", () => {
     let _ = %raw("global.fetch = vi.fn()")
     // Reset NotificationManager
     NotificationManager.clear()
+    Logger.setOperationId(None)
+    OperationLifecycle.reset()
     ignore(Promise.resolve())
   })
 

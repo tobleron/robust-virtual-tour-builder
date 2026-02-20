@@ -38,11 +38,29 @@ let make = () => {
   }
   let stateRef = React.useRef(state)
   let runIdRef = React.useRef(0)
+  let opIdRef = React.useRef(None)
 
   React.useEffect1(() => {
     stateRef.current = state
     None
   }, [state])
+
+  // Operation Lifecycle Sync
+  React.useEffect1(() => {
+    if simulation.status == Running {
+      if opIdRef.current == None {
+        opIdRef.current = Some(OperationLifecycle.start(~type_=Simulation, ()))
+      }
+    } else {
+      switch opIdRef.current {
+      | Some(id) =>
+        OperationLifecycle.complete(id, ())
+        opIdRef.current = None
+      | None => ()
+      }
+    }
+    None
+  }, [simulation.status])
 
   let advancingForIndex = React.useRef(-1)
 
@@ -166,7 +184,10 @@ let make = () => {
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 switch waitResult {
-                | Ok() if finalOk && sFinal.navigationState.navigationFsm == IdleFsm =>
+                | Ok()
+                  if finalOk &&
+                  sFinal.navigationState.navigationFsm == IdleFsm &&
+                  !OperationLifecycle.isBusy(~type_=Navigation, ()) =>
                   let move = Logic.getNextMove(sFinal)
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
@@ -288,8 +309,22 @@ let make = () => {
       advancingForIndex.current = -1
     }
 
-    Some(() => {cancel := true})
+    Some(() => {
+      cancel := true
+    })
   }, (simulation.status, activeIndex))
+
+  // Cleanup on unmount
+  React.useEffect0(() => {
+    Some(() => {
+      switch opIdRef.current {
+      | Some(id) =>
+        OperationLifecycle.cancel(id)
+        opIdRef.current = None
+      | None => ()
+      }
+    })
+  })
 
   React.null
 }
