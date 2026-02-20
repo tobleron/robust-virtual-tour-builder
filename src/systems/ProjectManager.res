@@ -21,6 +21,7 @@ let loadProject = (
   zipFile: File.t,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~onProgress: option<onProgress>=?,
+  ~opId: option<OperationLifecycle.operationId>=?,
 ): Promise.t<BackendApi.apiResult<(string, JSON.t)>> => {
-  Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?)
+  Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?, ~opId?)
 }

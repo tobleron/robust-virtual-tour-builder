@@ -5,6 +5,8 @@
  * Uses AbortController/AbortSignal for structured concurrency.
  */
 
+open ReBindings
+
 type taskId = string
 
 type status =
@@ -157,8 +159,13 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
   }
 
   // Start Global Operation
-  let opId = OperationLifecycle.start(~type_=Navigation, ())
-  Logger.setOperationId(Some(opId))
+  let opId = OperationLifecycle.start(
+    ~type_=Navigation,
+    ~scope=Blocking,
+    ~phase="Loading",
+    ~meta=Some(Logger.castToJson({"targetSceneId": targetSceneId})),
+    (),
+  )
 
   let task = {
     token,
@@ -205,6 +212,19 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       status := newStatus
       notifyListeners()
 
+      // Update OperationLifecycle Phase
+      switch newStatus {
+      | Swapping(_, _) =>
+         currentTask.contents->Option.forEach(t =>
+           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase=Some("Swapping"), ()))
+         )
+      | Stabilizing(_, _) =>
+         currentTask.contents->Option.forEach(t =>
+           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 80.0, ~phase=Some("Stabilizing"), ()))
+         )
+      | _ => ()
+      }
+
       Logger.info(
         ~module_="NavigationSupervisor",
         ~message="STATUS_TRANSITION",
@@ -237,9 +257,8 @@ let complete = (taskId: taskId): unit => {
   if isCurrentTaskId(taskId) {
     // Complete operation
     currentTask.contents->Option.forEach(t =>
-      t.opId->Option.forEach(id => OperationLifecycle.complete(id, ()))
+      t.opId->Option.forEach(id => OperationLifecycle.complete(id, ~result=Some("Completed"), ()))
     )
-    Logger.setOperationId(None)
 
     currentTask := None
     status := Idle
@@ -272,7 +291,6 @@ let abort = (taskId: taskId): unit => {
     currentTask.contents->Option.forEach(t =>
       t.opId->Option.forEach(id => OperationLifecycle.cancel(id))
     )
-    Logger.setOperationId(None)
 
     currentTask := None
     status := Idle

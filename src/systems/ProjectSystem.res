@@ -161,13 +161,33 @@ let loadProjectZip = (
   zipFile: File.t,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~onProgress: option<onProgress>=?,
+  ~opId: option<OperationLifecycle.operationId>=?,
 ) => {
+  let opId = switch opId {
+  | Some(id) => id
+  | None =>
+    OperationLifecycle.start(
+      ~type_=ProjectLoad,
+      ~scope=Blocking,
+      ~phase="Uploading",
+      ~meta=Some(Logger.castToJson({"filename": File.name(zipFile), "size": File.size(zipFile)})),
+      (),
+    )
+  }
+
   let progress = (curr, total, msg) => {
+    let pct = if total > 0 {
+      Float.fromInt(curr) /. Float.fromInt(total) *. 100.0
+    } else {
+      0.0
+    }
+    OperationLifecycle.progress(opId, pct, ~message=Some(msg), ())
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
     | None => ()
     }
   }
+
   progress(0, 100, "Uploading project...")
   let loadStartTime = Date.now()
   Logger.startOperation(
@@ -181,6 +201,13 @@ let loadProjectZip = (
   ->Promise.then(resultRes => {
     switch resultRes {
     | Ok(response) =>
+      OperationLifecycle.progress(
+        opId,
+        50.0,
+        ~message=Some("Processing response..."),
+        ~phase=Some("Processing"),
+        (),
+      )
       progress(50, 100, "Processing response...")
       validateProjectStructure(response.projectData)
       ->Belt.Result.map(pd => (response.sessionId, pd))
@@ -189,16 +216,49 @@ let loadProjectZip = (
     }
   })
   ->Promise.then(resultSessionData =>
-    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress?)
+    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress=Some(progress))
   )
+  ->Promise.then(result => {
+    switch result {
+    | Ok(_) => OperationLifecycle.complete(opId, ~result=Some("Success"), ())
+    | Error(msg) => OperationLifecycle.fail(opId, msg)
+    }
+    Promise.resolve(result)
+  })
+  ->Promise.catch(err => {
+    let (msg, _) = Logger.getErrorDetails(err)
+    OperationLifecycle.fail(opId, msg)
+    Promise.resolve(Error(msg))
+  })
 }
 
 /* --- Saver --- */
 
-let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
-  result<Blob.t, apiError>,
-> => {
+let createSavePackage = (
+  state: state,
+  ~signal=?,
+  ~onProgress: option<onProgress>=?,
+  ~opId: option<OperationLifecycle.operationId>=?,
+): Promise.t<result<Blob.t, apiError>> => {
+  let opId = switch opId {
+  | Some(id) => id
+  | None =>
+    OperationLifecycle.start(
+      ~type_=ProjectSave,
+      ~scope=Blocking,
+      ~phase="Preparing",
+      ~meta=Some(Logger.castToJson({"sceneCount": Array.length(state.scenes)})),
+      (),
+    )
+  }
+
   let progress = (curr, total, msg) => {
+    let pct = if total > 0 {
+      Float.fromInt(curr) /. Float.fromInt(total) *. 100.0
+    } else {
+      0.0
+    }
+    OperationLifecycle.progress(opId, pct, ~message=Some(msg), ())
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
     | None => ()
@@ -220,6 +280,14 @@ let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress
   state.sessionId->Option.forEach(id => FormData.append(formData, "session_id", id))
 
   progress(10, 100, "Uploading to backend...")
+  OperationLifecycle.progress(
+    opId,
+    10.0,
+    ~message=Some("Uploading to backend..."),
+    ~phase=Some("Uploading"),
+    (),
+  )
+
   RequestQueue.schedule(() => {
     AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/save",
@@ -239,12 +307,16 @@ let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress
     switch blobResult {
     | Ok(blob) =>
       progress(100, 100, "Package created!")
+      OperationLifecycle.complete(opId, ~result=Some("Saved"), ())
       Promise.resolve(Ok(blob))
-    | Error(msg) => Promise.resolve(Error(msg))
+    | Error(msg) =>
+      OperationLifecycle.fail(opId, msg)
+      Promise.resolve(Error(msg))
     }
   })
   ->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
+    OperationLifecycle.fail(opId, msg)
     Promise.resolve(Error(msg))
   })
 }

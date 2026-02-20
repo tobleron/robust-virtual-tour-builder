@@ -38,6 +38,39 @@ let useTourNameSync = (sceneSlice: AppContext.sceneSlice, dispatch: AppContext.d
 }
 
 let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
+  let ops = OperationLifecycle.useOperations()
+
+  // Find active operation to display
+  // Priority: Blocking > Ambient (latest started)
+  let activeOp = React.useMemo1(() => {
+    let relevantOps = ops->Belt.Array.keep(t => {
+      switch t.status {
+      | Active(_) | Paused | Completed(_) | Failed(_) | Cancelled => true
+      | Idle => false
+      }
+    })
+
+    let blocking = relevantOps
+    ->Belt.Array.keep(t => t.scope == Blocking)
+    ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
+    ->Belt.Array.get(0)
+
+    switch blocking {
+    | Some(op) => Some(op)
+    | None =>
+      relevantOps
+      ->Belt.Array.keep(t => t.scope == Ambient)
+      ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
+      ->Belt.Array.get(0)
+    }
+  }, [ops])
+
+  let activeOpRef = React.useRef(activeOp)
+  React.useEffect1(() => {
+    activeOpRef.current = activeOp
+    None
+  }, [activeOp])
+
   let (procState, setProcState) = React.useState(_ =>
     {
       "active": false,
@@ -46,14 +79,59 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
       "phase": "",
       "error": false,
       "onCancel": () => (),
+      "cancellable": false,
     }
   )
 
-  let appearanceTimerRef = React.useRef(Nullable.null)
-  let hideTimerRef = React.useRef(Nullable.null)
-  let isBarVisible = React.useRef(false)
-  // Tracks the latest cancel callback so ESC (CancelActiveOperation) can abort any running op.
-  let currentCancelRef = React.useRef(() => ())
+  // Ref to track if we should hide
+  let isVisible = React.useRef(false)
+
+  React.useEffect1(() => {
+    switch activeOp {
+    | Some(op) =>
+      let (progress, message, error, active) = switch op.status {
+      | Active({progress, message}) => (progress, message->Option.getOr(""), false, true)
+      | Paused => (0.0, "Paused", false, true)
+      | Completed({result}) => (100.0, result->Option.getOr("Done"), false, true)
+      | Failed({error}) => (0.0, error, true, true)
+      | Cancelled => (0.0, "Cancelled", false, false)
+      | Idle => (0.0, "", false, false)
+      }
+
+      if op.status == Cancelled {
+         setProcState(prev => {
+            let next = Object.assign(Object.make(), prev)
+            next["active"] = false
+            next
+         })
+         isVisible.current = false
+      } else {
+         let newState = {
+            "active": active,
+            "progress": progress,
+            "message": message,
+            "phase": op.phase,
+            "error": error,
+            "onCancel": () => OperationLifecycle.cancel(op.id),
+            "cancellable": op.cancellable,
+         }
+         setProcState(_ => newState)
+         isVisible.current = active
+      }
+
+    | None =>
+      // Only hide if we were visible
+      if isVisible.current {
+        setProcState(prev => {
+          let next = Object.assign(Object.make(), prev)
+          next["active"] = false
+          next
+        })
+        isVisible.current = false
+      }
+    }
+    None
+  }, [activeOp])
 
   React.useEffect0(() => {
     Logger.initialized(~module_="Sidebar")
@@ -65,85 +143,35 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         | Some(el) => ReBindings.Dom.click(el)
         | None => ()
         }
-      | UpdateProcessing(payload) => {
-          let wantedActive = payload["active"]
-
-          if wantedActive {
-            // Track the latest cancel callback for ESC support
-            currentCancelRef.current = payload["onCancel"]
-
-            // Cancel any pending hide
-            switch Nullable.toOption(hideTimerRef.current) {
-            | Some(timerId) =>
-              ReBindings.Window.clearTimeout(timerId)
-              hideTimerRef.current = Nullable.null
-            | None => ()
-            }
-
-            if isBarVisible.current {
-              // Already showing, just update
-              setProcState(_ => payload)
-            } else if Nullable.isNullable(appearanceTimerRef.current) {
-              // Not showing, and no timer? Start appearance delay.
-              let tid = ReBindings.Window.setTimeout(
-                () => {
-                  setProcState(_ => payload)
-                  isBarVisible.current = true
-                  appearanceTimerRef.current = Nullable.null
-                },
-                1000,
-              )
-              appearanceTimerRef.current = Nullable.fromOption(Some(tid))
-            }
-          } else {
-            // Operation is finished (Inactive) — clear the cancel ref
-            currentCancelRef.current = () => ()
-
-            // 1. Cancel any pending appearance
-            switch Nullable.toOption(appearanceTimerRef.current) {
-            | Some(tid) =>
-              ReBindings.Window.clearTimeout(tid)
-              appearanceTimerRef.current = Nullable.null
-            | None => ()
-            }
-
-            // 2. Cancel any pending hide
-            switch Nullable.toOption(hideTimerRef.current) {
-            | Some(tid) =>
-              ReBindings.Window.clearTimeout(tid)
-              hideTimerRef.current = Nullable.null
-            | None => ()
-            }
-
-            if payload["progress"] >= 100.0 && isBarVisible.current {
-              // Done and visible: Victory Lap (Hold 1500ms)
-              setProcState(_ => payload)
-              let tid = ReBindings.Window.setTimeout(
-                () => {
-                  setProcState(
-                    prev => {
-                      let next = Object.assign(Object.make(), prev)
-                      next["active"] = false
-                      next
-                    },
-                  )
-                  isBarVisible.current = false
-                  hideTimerRef.current = Nullable.null
-                },
-                1500,
-              )
-              hideTimerRef.current = Nullable.fromOption(Some(tid))
-            } else {
-              // Error, Cancelled, or was never visible: Instant hide/stay hidden
-              setProcState(_ => payload)
-              isBarVisible.current = false
-            }
-          }
-        }
       | CancelActiveOperation =>
         // ESC key or any system-level cancel — invoke the active operation's abort
         Logger.info(~module_="Sidebar", ~message="CANCEL_ACTIVE_OPERATION_VIA_ESC", ())
-        currentCancelRef.current()
+        switch activeOpRef.current {
+        | Some(op) => OperationLifecycle.cancel(op.id)
+        | None => ()
+        }
+      | UpdateProcessing(payload) =>
+        // Only update if no active OperationLifecycle op (to support legacy calls if any)
+        // Or handle mixing? If OperationLifecycle is active, ignore legacy updates?
+        // Since we migrated major flows, most should come via OperationLifecycle.
+        // But UploadProcessor updates come via UpdateProcessing AND OperationLifecycle.
+        // OperationLifecycle is preferred.
+
+        switch activeOpRef.current {
+        | Some(_) => () // Ignore if activeOp exists
+        | None =>
+           // Map legacy payload
+           let cancellable = true // Assume legacy is cancellable if active
+           setProcState(_ => {
+             "active": payload["active"],
+             "progress": payload["progress"],
+             "message": payload["message"],
+             "phase": payload["phase"],
+             "error": payload["error"],
+             "onCancel": payload["onCancel"],
+             "cancellable": cancellable,
+           })
+        }
       | _ => ()
       }
     })
@@ -154,14 +182,28 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
 }
 
 let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
+  let opIdRef = ref(None)
+
   try {
     let state = getState()
+    // Start OperationLifecycle
+    let opId = OperationLifecycle.start(
+       ~type_=ProjectSave,
+       ~scope=Blocking,
+       ~phase="Initializing",
+       ~meta=Some(Logger.castToJson({"sceneCount": Array.length(state.scenes)})),
+       (),
+    )
+    opIdRef := Some(opId)
+    OperationLifecycle.registerCancel(opId, onCancel)
+
     let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
       SidebarLogic.updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
-    })
+    }, ~opId)
 
     if success {
       SidebarLogic.updateProgress(~dispatch, 100.0, "Saved", false, "")
+      // OperationLifecycle.complete handled by createSavePackage
       NotificationManager.dispatch({
         id: "",
         importance: Success,
@@ -176,6 +218,7 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
     } // Check if it was cancelled via signal
     else if BrowserBindings.AbortSignal.aborted(signal) {
       SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+
       NotificationManager.dispatch({
         id: "save-cancelled-notification",
         importance: Info,
@@ -189,11 +232,15 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
       })
     } else {
       SidebarLogic.updateProgress(~dispatch, 0.0, "Save Failed", false, "")
+      // OperationLifecycle.fail handled by createSavePackage
     }
   } catch {
   | exn => {
       let (msg, _) = Logger.getErrorDetails(exn)
       SidebarLogic.updateProgress(~dispatch, 0.0, "Error", false, "")
+
+      opIdRef.contents->Option.forEach(id => OperationLifecycle.fail(id, msg))
+
       NotificationManager.dispatch({
         id: "",
         importance: Error,

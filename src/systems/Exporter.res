@@ -1,3 +1,4 @@
+/* src/systems/Exporter.res */
 open ReBindings
 open Types
 
@@ -10,10 +11,30 @@ let exportTour = async (
   ~projectData: option<JSON.t>=?,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
+  ~opId: option<OperationLifecycle.operationId>=?,
 ): result<unit, string> => {
   let exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != "")
 
+  let opId = switch opId {
+  | Some(id) => id
+  | None =>
+    OperationLifecycle.start(
+      ~type_=Export,
+      ~scope=Blocking,
+      ~phase="Preparing",
+      ~meta=Some(Logger.castToJson({
+        "sceneCount": Belt.Array.length(scenes),
+        "tourName": tourName,
+      })),
+      (),
+    )
+  }
+
+  let currentPhase = ref("INITIAL")
+
   let progress = (p, t, m) => {
+    let pct = if t > 0.0 { p /. t *. 100.0 } else { 0.0 }
+    OperationLifecycle.progress(opId, pct, ~message=Some(m), ~phase=Some(currentPhase.contents), ())
     switch onProgress {
     | Some(cb) => cb(p, t, m)
     | None => ()
@@ -29,7 +50,6 @@ let exportTour = async (
 
   progress(0.0, 100.0, "Preparing export...")
   let exportStartTime = Date.now()
-  let currentPhase = ref("INITIAL")
 
   Logger.startOperation(
     ~module_="Exporter",
@@ -210,6 +230,7 @@ let exportTour = async (
 
     progress(100.0, 100.0, "Export complete")
     let filename = `Export_RMX_${safeName}_v${version}.zip`
+    OperationLifecycle.complete(opId, ~result=Some(filename), ())
     Logger.endOperation(
       ~module_="Exporter",
       ~operation="EXPORT",
@@ -236,6 +257,7 @@ let exportTour = async (
 
       if String.includes(msg, "AbortError") {
         Logger.info(~module_="Exporter", ~message="EXPORT_CANCELLED", ())
+        OperationLifecycle.cancel(opId)
         progress(0.0, 0.0, "Cancelled")
         Error("CANCELLED")
       } else {
@@ -255,7 +277,7 @@ let exportTour = async (
           ~data={"error": finalMsg, "stack": normalizedStack, "phase": currentPhase.contents},
           (),
         )
-        // ... dispatch notification ...
+        OperationLifecycle.fail(opId, finalMsg)
         progress(0.0, 0.0, "Failed")
         Error(finalMsg)
       }

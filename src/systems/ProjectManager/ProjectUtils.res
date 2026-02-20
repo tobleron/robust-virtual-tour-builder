@@ -95,10 +95,13 @@ module Logic = {
     ProjectSystem.validateProjectStructure(data)
   }
 
-  let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
-    result<Blob.t, apiError>,
-  > => {
-    ProjectSystem.createSavePackage(state, ~signal?, ~onProgress?)
+  let createSavePackage = (
+    state: state,
+    ~signal=?,
+    ~onProgress: option<onProgress>=?,
+    ~opId: option<OperationLifecycle.operationId>=?,
+  ): Promise.t<result<Blob.t, apiError>> => {
+    ProjectSystem.createSavePackage(state, ~signal?, ~onProgress?, ~opId?)
   }
 
   let processLoadedProjectData = (
@@ -113,7 +116,8 @@ module Logic = {
     zipFile: File.t,
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
     ~onProgress: option<onProgress>=?,
+    ~opId: option<OperationLifecycle.operationId>=?,
   ) => {
-    ProjectSystem.loadProjectZip(zipFile, ~signal?, ~onProgress?)
+    ProjectSystem.loadProjectZip(zipFile, ~signal?, ~onProgress?, ~opId?)
   }
 }

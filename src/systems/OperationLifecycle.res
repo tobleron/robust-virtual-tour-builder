@@ -13,7 +13,13 @@ module Types = {
     | Export
     | ThumbnailGeneration
     | SceneLoad
+    | ProjectLoad
+    | ProjectSave
     | Unknown(string)
+
+  type scope =
+    | Blocking
+    | Ambient
 
   type status =
     | Idle
@@ -26,6 +32,10 @@ module Types = {
   type task = {
     id: operationId,
     type_: operationType,
+    scope: scope,
+    phase: string,
+    cancellable: bool,
+    correlationId: option<string>,
     status: status,
     startedAt: float,
     updatedAt: float,
@@ -39,6 +49,7 @@ include Types
 
 let operations = ref(Belt.Map.String.empty)
 let listeners: ref<array<array<task> => unit>> = ref([])
+let cancelCallbacks = ref(Belt.Map.String.empty)
 
 // --- INTERNAL HELPERS ---
 
@@ -47,11 +58,41 @@ let notifyListeners = () => {
   listeners.contents->Belt.Array.forEach(cb => cb(ops))
 }
 
+let updateLoggerContext = () => {
+  // Determine the most relevant operation for logging context
+  // Priority: Blocking > Ambient (latest started)
+  let activeOps = operations.contents->Belt.Map.String.valuesToArray->Belt.Array.keep(t => {
+    switch t.status {
+    | Active(_) | Paused => true
+    | _ => false
+    }
+  })
+
+  let contextOp =
+    activeOps
+    ->Belt.Array.keep(t => t.scope == Blocking)
+    ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
+    ->Belt.Array.get(0)
+    ->Option.orElse(
+      activeOps
+      ->Belt.Array.keep(t => t.scope == Ambient)
+      ->Belt.SortArray.stableSortBy((a, b) => compare(b.startedAt, a.startedAt))
+      ->Belt.Array.get(0)
+    )
+
+  switch contextOp {
+  | Some(op) => Logger.setOperationId(Some(op.id))
+  | None => Logger.setOperationId(None)
+  }
+}
+
 // --- PUBLIC API ---
 
 let reset = () => {
   operations := Belt.Map.String.empty
   listeners := []
+  cancelCallbacks := Belt.Map.String.empty
+  updateLoggerContext()
 }
 
 let subscribe = (cb: array<task> => unit): (unit => unit) => {
@@ -62,6 +103,10 @@ let subscribe = (cb: array<task> => unit): (unit => unit) => {
   () => {
     listeners := listeners.contents->Belt.Array.keep(x => x !== cb)
   }
+}
+
+let registerCancel = (id: operationId, cb: unit => unit): unit => {
+  cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.set(id, cb)
 }
 
 let getOperation = (id: operationId): option<task> => {
@@ -83,25 +128,44 @@ let isActive = (id: operationId): bool => {
   }
 }
 
-let isBusy = (~type_: option<operationType>=?, ()): bool => {
+let isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {
   operations.contents->Belt.Map.String.some((_, task) => {
     let isActive = switch task.status {
     | Active(_) | Paused => true
     | _ => false
     }
 
-    switch type_ {
-    | Some(t) => isActive && task.type_ == t
-    | None => isActive
+    let typeMatch = switch type_ {
+    | Some(t) => task.type_ == t
+    | None => true
     }
+
+    let scopeMatch = switch scope {
+    | Some(s) => task.scope == s
+    | None => true
+    }
+
+    isActive && typeMatch && scopeMatch
   })
 }
 
-let start = (~type_: operationType, ~meta: option<JSON.t>=?, ()): operationId => {
+let start = (
+  ~type_: operationType,
+  ~scope: scope=Ambient,
+  ~phase: string="Running",
+  ~cancellable: bool=true,
+  ~correlationId: option<string>=?,
+  ~meta: option<JSON.t>=?,
+  (),
+): operationId => {
   let id = `op_${Date.now()->Float.toString}_${Math.random()->Float.toString}`
   let task = {
     id,
     type_,
+    scope,
+    phase,
+    cancellable,
+    correlationId,
     status: Active({progress: 0.0, message: None}),
     startedAt: Date.now(),
     updatedAt: Date.now(),
@@ -109,24 +173,38 @@ let start = (~type_: operationType, ~meta: option<JSON.t>=?, ()): operationId =>
   }
 
   operations := operations.contents->Belt.Map.String.set(id, task)
+  updateLoggerContext()
   notifyListeners()
 
   Logger.info(
     ~module_="OperationLifecycle",
     ~message="OPERATION_STARTED",
-    ~data=Some({"id": id, "type": type_}),
+    ~data=Some({
+      "id": id,
+      "type": type_,
+      "scope": scope,
+      "phase": phase,
+      "cancellable": cancellable,
+    }),
     (),
   )
 
   id
 }
 
-let progress = (id: operationId, progress: float, ~message: option<string>=?, ()): unit => {
+let progress = (
+  id: operationId,
+  progress: float,
+  ~message: option<string>=?,
+  ~phase: option<string>=?,
+  (),
+): unit => {
   switch operations.contents->Belt.Map.String.get(id) {
   | Some(task) =>
     let updatedTask = {
       ...task,
       status: Active({progress, message}),
+      phase: phase->Option.getOr(task.phase),
       updatedAt: Date.now(),
     }
     operations := operations.contents->Belt.Map.String.set(id, updatedTask)
@@ -144,7 +222,9 @@ let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
       updatedAt: Date.now(),
     }
     operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+    updateLoggerContext()
     notifyListeners()
+    cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
 
     Logger.info(
       ~module_="OperationLifecycle",
@@ -156,6 +236,7 @@ let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
     // Auto-cleanup after 5 seconds
     let _ = setTimeout(() => {
       operations := operations.contents->Belt.Map.String.remove(id)
+      updateLoggerContext()
       notifyListeners()
     }, 5000)
   | None => ()
@@ -171,7 +252,9 @@ let fail = (id: operationId, error: string): unit => {
       updatedAt: Date.now(),
     }
     operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+    updateLoggerContext()
     notifyListeners()
+    cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
 
     Logger.error(
       ~module_="OperationLifecycle",
@@ -183,6 +266,7 @@ let fail = (id: operationId, error: string): unit => {
     // Auto-cleanup after 10 seconds for errors
     let _ = setTimeout(() => {
       operations := operations.contents->Belt.Map.String.remove(id)
+      updateLoggerContext()
       notifyListeners()
     }, 10000)
   | None => ()
@@ -192,26 +276,46 @@ let fail = (id: operationId, error: string): unit => {
 let cancel = (id: operationId): unit => {
   switch operations.contents->Belt.Map.String.get(id) {
   | Some(task) =>
-    let updatedTask = {
-      ...task,
-      status: Cancelled,
-      updatedAt: Date.now(),
-    }
-    operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-    notifyListeners()
+    if task.cancellable {
+      // Invoke callback first
+      switch cancelCallbacks.contents->Belt.Map.String.get(id) {
+      | Some(cb) =>
+        Logger.info(~module_="OperationLifecycle", ~message="INVOKING_CANCEL_CALLBACK", ~data=Some({"id": id}), ())
+        cb()
+      | None => ()
+      }
 
-    Logger.info(
-      ~module_="OperationLifecycle",
-      ~message="OPERATION_CANCELLED",
-      ~data=Some({"id": id}),
-      (),
-    )
-
-    // Auto-cleanup
-    let _ = setTimeout(() => {
-      operations := operations.contents->Belt.Map.String.remove(id)
+      let updatedTask = {
+        ...task,
+        status: Cancelled,
+        updatedAt: Date.now(),
+      }
+      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+      updateLoggerContext()
       notifyListeners()
-    }, 5000)
+      cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
+
+      Logger.info(
+        ~module_="OperationLifecycle",
+        ~message="OPERATION_CANCELLED",
+        ~data=Some({"id": id}),
+        (),
+      )
+
+      // Auto-cleanup
+      let _ = setTimeout(() => {
+        operations := operations.contents->Belt.Map.String.remove(id)
+        updateLoggerContext()
+        notifyListeners()
+      }, 5000)
+    } else {
+      Logger.warn(
+        ~module_="OperationLifecycle",
+        ~message="OPERATION_CANCEL_ATTEMPT_IGNORED",
+        ~data=Some({"id": id, "reason": "Not Cancellable"}),
+        (),
+      )
+    }
   | None => ()
   }
 }
@@ -231,7 +335,7 @@ let useOperations = () => {
   ops
 }
 
-let useIsBusy = (~type_: option<operationType>=?) => {
+let useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {
   let ops = useOperations()
 
   React.useMemo2(() => {
@@ -241,10 +345,17 @@ let useIsBusy = (~type_: option<operationType>=?) => {
       | _ => false
       }
 
-      switch type_ {
-      | Some(t) => isActive && task.type_ == t
-      | None => isActive
+      let typeMatch = switch type_ {
+      | Some(t) => task.type_ == t
+      | None => true
       }
+
+      let scopeMatch = switch scope {
+      | Some(s) => task.scope == s
+      | None => true
+      }
+
+      isActive && typeMatch && scopeMatch
     })
   }, (ops, type_))
 }
