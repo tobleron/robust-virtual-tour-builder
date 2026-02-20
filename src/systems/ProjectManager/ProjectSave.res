@@ -26,13 +26,8 @@ let saveProject = (
     let filename =
       "Saved_RMX_" ++ safeName ++ "_v" ++ Version.version ++ "_" ++ dateStr ++ ".vt.zip"
 
-    // If opId is provided, we assume OperationLifecycle is already started.
-    // If not, createSavePackage will start one later, but we miss tracking the file picker phase.
-    // Ideally, we should start it here if None, but let's just use what's given for now
-    // and let createSavePackage handle the "executor" lifecycle if needed.
-
     opId->Option.forEach(id =>
-      OperationLifecycle.progress(id, 0.0, ~message=Some("Preparing save..."), ~phase=Some("Initializing"), ())
+      OperationLifecycle.progress(id, 0.0, ~message="Preparing save...", ~phase="Initializing", ())
     )
 
     Logger.startOperation(
@@ -86,7 +81,7 @@ let saveProject = (
         let progress = (curr, total, msg) => {
           opId->Option.forEach(id => {
              let pct = if total > 0 { Float.fromInt(curr) /. Float.fromInt(total) *. 100.0 } else { 0.0 }
-             OperationLifecycle.progress(id, pct, ~message=Some(msg), ())
+             OperationLifecycle.progress(id, pct, ~message=msg, ())
           })
           switch onProgress {
           | Some(cb) => cb(curr, total, msg)
@@ -130,47 +125,9 @@ let saveProject = (
                       ~stage="completed",
                       ~filename,
                     )
-                    // Completion handled in createSavePackage usually, but if we passed opId, createSavePackage completed it?
-                    // createSavePackage completes opId on success.
-                    // But we are doing more work here (DownloadSystem.saveBlob).
-                    // Wait, createSavePackage calls OperationLifecycle.complete inside it.
-                    // This might be premature if we still have to write the file.
-
-                    // Actually createSavePackage implementation I wrote:
-                    // ->Promise.then(blobResult => { ... OperationLifecycle.complete(...) ... })
-
-                    // So when createSavePackage returns, the operation is marked complete.
-                    // But we are still writing the file here.
-                    // This is a discrepancy. createSavePackage should perhaps NOT complete if opId is passed?
-                    // Or saveProject should manage lifecycle if it owns it.
-
-                    // Ideally, ProjectSystem.createSavePackage is just creating the package.
-                    // Writing to disk is another step.
-                    // But I integrated OperationLifecycle into createSavePackage.
-
-                    // If opId is passed, maybe createSavePackage should update progress but NOT complete?
-                    // But createSavePackage doesn't know if there are more steps.
-
-                    // For now, let's assume createSavePackage completion is "close enough" or accept that "Saved" means package created.
-                    // But if writing fails, we have a problem (UI says success, but file write fails).
-
-                    // I should fix createSavePackage to NOT complete if opId is passed?
-                    // Or fix saveProject to create a new operation for the whole flow?
-
-                    // createSavePackage is "Creating Save Package".
-                    // saveProject is "Saving Project".
-
-                    // If saveProject is the main operation, it should manage lifecycle.
-                    // createSavePackage is a sub-step.
-
-                    // But I modified createSavePackage to be self-contained for lifecycle.
-
-                    // I will leave it as is. If createSavePackage completes, the UI shows "Saved".
-                    // Then we write the file. If that fails, we might need to show error.
-                    // But OperationLifecycle is already completed.
-
-                    // This is a flaw in my previous step. I should have checked callers.
-                    // But it's acceptable for this task scope to have "Package Created" as the heavy lifting.
+                    opId->Option.forEach(id =>
+                      OperationLifecycle.complete(id, ~result="Saved", ())
+                    )
 
                     OperationJournal.completeOperation(journalId)->Promise.then(
                       () => {
@@ -193,7 +150,7 @@ let saveProject = (
                       ~error=reason,
                     )
                     ProjectUtils.notifySaveFailure(~message="Project save failed", ~details=reason)
-                    opId->Option.forEach(id => OperationLifecycle.fail(id, reason)) // Might fail if already completed
+                    opId->Option.forEach(id => OperationLifecycle.fail(id, reason))
                     OperationJournal.failOperation(journalId, reason)->Promise.then(
                       () => Promise.resolve(success),
                     )
@@ -226,7 +183,7 @@ let saveProject = (
                   ~error=msg,
                 )
                 ProjectUtils.notifySaveFailure(~message=userMessage, ~details=msg)
-                // createSavePackage already failed the opId? Yes.
+                opId->Option.forEach(id => OperationLifecycle.fail(id, msg))
                 OperationJournal.failOperation(journalId, msg)->Promise.then(
                   () => {
                     Logger.error(

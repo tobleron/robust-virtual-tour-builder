@@ -170,7 +170,7 @@ let loadProjectZip = (
       ~type_=ProjectLoad,
       ~scope=Blocking,
       ~phase="Uploading",
-      ~meta=Some(Logger.castToJson({"filename": File.name(zipFile), "size": File.size(zipFile)})),
+      ~meta=Logger.castToJson({"filename": File.name(zipFile), "size": File.size(zipFile)}),
       (),
     )
   }
@@ -181,7 +181,7 @@ let loadProjectZip = (
     } else {
       0.0
     }
-    OperationLifecycle.progress(opId, pct, ~message=Some(msg), ())
+    OperationLifecycle.progress(opId, pct, ~message=msg, ())
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
     | None => ()
@@ -197,15 +197,15 @@ let loadProjectZip = (
     (),
   )
 
-  BackendApi.importProject(zipFile, ~signal?)
+  BackendApi.importProject(zipFile, ~signal?, ~operationId=opId)
   ->Promise.then(resultRes => {
     switch resultRes {
     | Ok(response) =>
       OperationLifecycle.progress(
         opId,
         50.0,
-        ~message=Some("Processing response..."),
-        ~phase=Some("Processing"),
+        ~message="Processing response...",
+        ~phase="Processing",
         (),
       )
       progress(50, 100, "Processing response...")
@@ -216,11 +216,11 @@ let loadProjectZip = (
     }
   })
   ->Promise.then(resultSessionData =>
-    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress=Some(progress))
+    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress=progress)
   )
   ->Promise.then(result => {
     switch result {
-    | Ok(_) => OperationLifecycle.complete(opId, ~result=Some("Success"), ())
+    | Ok(_) => OperationLifecycle.complete(opId, ~result="Success", ())
     | Error(msg) => OperationLifecycle.fail(opId, msg)
     }
     Promise.resolve(result)
@@ -240,6 +240,11 @@ let createSavePackage = (
   ~onProgress: option<onProgress>=?,
   ~opId: option<OperationLifecycle.operationId>=?,
 ): Promise.t<result<Blob.t, apiError>> => {
+  let ownsLifecycle = switch opId {
+  | Some(_) => false
+  | None => true
+  }
+
   let opId = switch opId {
   | Some(id) => id
   | None =>
@@ -247,7 +252,7 @@ let createSavePackage = (
       ~type_=ProjectSave,
       ~scope=Blocking,
       ~phase="Preparing",
-      ~meta=Some(Logger.castToJson({"sceneCount": Array.length(state.scenes)})),
+      ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
       (),
     )
   }
@@ -258,7 +263,7 @@ let createSavePackage = (
     } else {
       0.0
     }
-    OperationLifecycle.progress(opId, pct, ~message=Some(msg), ())
+    OperationLifecycle.progress(opId, pct, ~message=msg, ())
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
     | None => ()
@@ -283,8 +288,8 @@ let createSavePackage = (
   OperationLifecycle.progress(
     opId,
     10.0,
-    ~message=Some("Uploading to backend..."),
-    ~phase=Some("Uploading"),
+    ~message="Uploading to backend...",
+    ~phase="Uploading",
     (),
   )
 
@@ -294,6 +299,7 @@ let createSavePackage = (
       ~method="POST",
       ~formData,
       ~signal?,
+      ~operationId=opId,
       (),
     )->Promise.then(retryResult => {
       switch retryResult {
@@ -307,16 +313,22 @@ let createSavePackage = (
     switch blobResult {
     | Ok(blob) =>
       progress(100, 100, "Package created!")
-      OperationLifecycle.complete(opId, ~result=Some("Saved"), ())
+      if ownsLifecycle {
+        OperationLifecycle.complete(opId, ~result="Saved", ())
+      }
       Promise.resolve(Ok(blob))
     | Error(msg) =>
-      OperationLifecycle.fail(opId, msg)
+      if ownsLifecycle {
+        OperationLifecycle.fail(opId, msg)
+      }
       Promise.resolve(Error(msg))
     }
   })
   ->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
-    OperationLifecycle.fail(opId, msg)
+    if ownsLifecycle {
+      OperationLifecycle.fail(opId, msg)
+    }
     Promise.resolve(Error(msg))
   })
 }

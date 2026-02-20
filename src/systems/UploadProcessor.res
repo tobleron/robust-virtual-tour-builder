@@ -22,18 +22,18 @@ let processUploads = (
       ~type_=Upload,
       ~scope=Ambient,
       ~phase="Initializing",
-      ~meta=Some(UploadProcessorLogic.castToJson({
+      ~meta=UploadProcessorLogic.castToJson({
         "fileCount": Belt.Array.length(files),
         "totalSizeBytes": files->Belt.Array.reduce(0.0, (acc, f) =>
           acc +. BrowserBindings.File.size(f)
         ),
-      })),
+      }),
       (),
     )
   }
 
   let updateProgress = (pct, msg, isProc, phase) => {
-    OperationLifecycle.progress(opId, pct, ~message=Some(msg), ~phase=Some(phase), ())
+    OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phase, ())
     switch progressCallback {
     | Some(cb) => cb(pct, msg, isProc, phase)
     | None => ()
@@ -88,7 +88,7 @@ let processUploads = (
         } else {
           let startTime = Date.now()
           if Belt.Array.length(files) == 0 {
-            OperationLifecycle.complete(opId, ~result=Some("No files"), ())
+            OperationLifecycle.complete(opId, ~result="No files", ())
             OperationJournal.completeOperation(journalId)->Promise.then(
               () => Promise.resolve(emptyResult),
             )
@@ -99,7 +99,7 @@ let processUploads = (
             )
             if Belt.Array.length(validFiles) == 0 {
               UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
-              OperationLifecycle.complete(opId, ~result=Some("No valid files"), ())
+              OperationLifecycle.complete(opId, ~result="No valid files", ())
               OperationJournal.completeOperation(journalId)->Promise.then(
                 () => Promise.resolve(emptyResult),
               )
@@ -114,7 +114,7 @@ let processUploads = (
               )
               ->Promise.then(
                 result => {
-                  OperationLifecycle.complete(opId, ~result=Some("Success"), ())
+                  OperationLifecycle.complete(opId, ~result="Success", ())
                   OperationJournal.completeOperation(journalId)->Promise.then(
                     () => Promise.resolve(result),
                   )

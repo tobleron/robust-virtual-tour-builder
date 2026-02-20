@@ -181,10 +181,10 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
           ~type_=ProjectLoad,
           ~scope=Blocking,
           ~phase="Loading",
-          ~meta=Some(Logger.castToJson({
+          ~meta=Logger.castToJson({
             "filename": File.name(file),
             "size": File.size(file),
-          })),
+          }),
           (),
         )
         OperationLifecycle.registerCancel(opId, onCancel)
@@ -303,9 +303,9 @@ let handleExport = async (
     ~type_=Export,
     ~scope=Blocking,
     ~phase="Preparing",
-    ~meta=Some(Logger.castToJson({
+    ~meta=Logger.castToJson({
       "tourName": tourName,
-    })),
+    }),
     (),
   )
   OperationLifecycle.registerCancel(opId, onCancel)

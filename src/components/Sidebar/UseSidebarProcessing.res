@@ -185,13 +185,13 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
   let opIdRef = ref(None)
 
   try {
-    let state = getState()
+    let state: Types.state = getState()
     // Start OperationLifecycle
     let opId = OperationLifecycle.start(
        ~type_=ProjectSave,
        ~scope=Blocking,
        ~phase="Initializing",
-       ~meta=Some(Logger.castToJson({"sceneCount": Array.length(state.scenes)})),
+       ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
        (),
     )
     opIdRef := Some(opId)
@@ -203,7 +203,6 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
 
     if success {
       SidebarLogic.updateProgress(~dispatch, 100.0, "Saved", false, "")
-      // OperationLifecycle.complete handled by createSavePackage
       NotificationManager.dispatch({
         id: "",
         importance: Success,
@@ -232,7 +231,6 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
       })
     } else {
       SidebarLogic.updateProgress(~dispatch, 0.0, "Save Failed", false, "")
-      // OperationLifecycle.fail handled by createSavePackage
     }
   } catch {
   | exn => {

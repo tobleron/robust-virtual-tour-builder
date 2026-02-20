@@ -22,10 +22,10 @@ let exportTour = async (
       ~type_=Export,
       ~scope=Blocking,
       ~phase="Preparing",
-      ~meta=Some(Logger.castToJson({
+      ~meta=Logger.castToJson({
         "sceneCount": Belt.Array.length(scenes),
         "tourName": tourName,
-      })),
+      }),
       (),
     )
   }
@@ -34,7 +34,7 @@ let exportTour = async (
 
   let progress = (p, t, m) => {
     let pct = if t > 0.0 { p /. t *. 100.0 } else { 0.0 }
-    OperationLifecycle.progress(opId, pct, ~message=Some(m), ~phase=Some(currentPhase.contents), ())
+    OperationLifecycle.progress(opId, pct, ~message=m, ~phase=currentPhase.contents, ())
     switch onProgress {
     | Some(cb) => cb(p, t, m)
     | None => ()
@@ -161,6 +161,7 @@ let exportTour = async (
           backendUrl,
           ~signal,
           ~token,
+          ~operationId=Some(opId),
         )
         CircuitBreaker.recordSuccess(AuthenticatedClient.circuitBreaker)
         result
@@ -230,7 +231,7 @@ let exportTour = async (
 
     progress(100.0, 100.0, "Export complete")
     let filename = `Export_RMX_${safeName}_v${version}.zip`
-    OperationLifecycle.complete(opId, ~result=Some(filename), ())
+    OperationLifecycle.complete(opId, ~result=filename, ())
     Logger.endOperation(
       ~module_="Exporter",
       ~operation="EXPORT",

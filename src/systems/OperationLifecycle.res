@@ -338,7 +338,7 @@ let useOperations = () => {
 let useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {
   let ops = useOperations()
 
-  React.useMemo2(() => {
+  React.useMemo3(() => {
     ops->Belt.Array.some(task => {
       let isActive = switch task.status {
       | Active(_) | Paused => true
@@ -357,5 +357,5 @@ let useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {
 
       isActive && typeMatch && scopeMatch
     })
-  }, (ops, type_))
+  }, (ops, type_, scope))
 }

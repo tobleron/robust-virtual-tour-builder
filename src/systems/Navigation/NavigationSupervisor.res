@@ -5,8 +5,6 @@
  * Uses AbortController/AbortSignal for structured concurrency.
  */
 
-open ReBindings
-
 type taskId = string
 
 type status =
@@ -163,7 +161,7 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
     ~type_=Navigation,
     ~scope=Blocking,
     ~phase="Loading",
-    ~meta=Some(Logger.castToJson({"targetSceneId": targetSceneId})),
+    ~meta=Logger.castToJson({"targetSceneId": targetSceneId}),
     (),
   )
 
@@ -216,11 +214,11 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       switch newStatus {
       | Swapping(_, _) =>
          currentTask.contents->Option.forEach(t =>
-           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase=Some("Swapping"), ()))
+           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase="Swapping", ()))
          )
       | Stabilizing(_, _) =>
          currentTask.contents->Option.forEach(t =>
-           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 80.0, ~phase=Some("Stabilizing"), ()))
+           t.opId->Option.forEach(id => OperationLifecycle.progress(id, 80.0, ~phase="Stabilizing", ()))
          )
       | _ => ()
       }
@@ -257,7 +255,7 @@ let complete = (taskId: taskId): unit => {
   if isCurrentTaskId(taskId) {
     // Complete operation
     currentTask.contents->Option.forEach(t =>
-      t.opId->Option.forEach(id => OperationLifecycle.complete(id, ~result=Some("Completed"), ()))
+      t.opId->Option.forEach(id => OperationLifecycle.complete(id, ~result="Completed", ()))
     )
 
     currentTask := None

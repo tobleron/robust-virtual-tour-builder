@@ -45,7 +45,7 @@ let make = () => {
           ~type_=ThumbnailGeneration,
           ~scope=Ambient,
           ~phase="Generating",
-          ~meta=Some(Logger.castToJson({"id": s.id})),
+          ~meta=Logger.castToJson({"id": s.id}),
           (),
         )
 
