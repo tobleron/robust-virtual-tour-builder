@@ -1,4 +1,117 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/Api/ProjectApi.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 437/300",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.904576659038902,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Api/ProjectApi.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Api/ProjectApi.res",
+              "functions": [
+                {
+                  "name": "handleError",
+                  "signature": "handleError = (e, message, logKey) => {",
+                  "line": 6
+                },
+                {
+                  "name": "handleJsonDecode",
+                  "signature": "handleJsonDecode = (json, decoder, logKey, errorMessage) => {",
+                  "line": 17
+                },
+                {
+                  "name": "decodeImportInitResponse",
+                  "signature": "decodeImportInitResponse = json =>",
+                  "line": 51
+                },
+                {
+                  "name": "decodeImportChunkResponse",
+                  "signature": "decodeImportChunkResponse = json =>",
+                  "line": 64
+                },
+                {
+                  "name": "decodeImportStatusResponse",
+                  "signature": "decodeImportStatusResponse = json =>",
+                  "line": 76
+                },
+                {
+                  "name": "requestImportInit",
+                  "signature": "requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<",
+                  "line": 92
+                },
+                {
+                  "name": "requestImportStatus",
+                  "signature": "requestImportStatus = (",
+                  "line": 131
+                },
+                {
+                  "name": "requestImportChunk",
+                  "signature": "requestImportChunk = (",
+                  "line": 164
+                },
+                {
+                  "name": "requestImportComplete",
+                  "signature": "requestImportComplete = (",
+                  "line": 224
+                },
+                {
+                  "name": "requestImportAbort",
+                  "signature": "requestImportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {",
+                  "line": 267
+                },
+                {
+                  "name": "uploadMissingChunks",
+                  "signature": "uploadMissingChunks = async (",
+                  "line": 283
+                },
+                {
+                  "name": "importProject",
+                  "signature": "importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<",
+                  "line": 328
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {",
+                  "line": 379
+                },
+                {
+                  "name": "calculatePath",
+                  "signature": "calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathRequest): Promise.t<",
+                  "line": 401
+                },
+                {
+                  "name": "reverseGeocode",
+                  "signature": "reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {",
+                  "line": 436
+                }
+              ],
+              "fingerprint": "bf9ee190c9f06bd7598c0e35183abf12c5708c4bd73ffea9e1cc223890e0b615"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
+      }
+    }
+  ],
   "rust": [
     {
       "Surgical": {
@@ -122,119 +235,6 @@
         "file": "../../backend/src/middleware/rate_limiter.rs",
         "pattern": "unwrap()",
         "strategy": ""
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/Api/ProjectApi.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 437/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.904576659038902,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Api/ProjectApi.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Api/ProjectApi.res",
-              "functions": [
-                {
-                  "name": "handleError",
-                  "signature": "handleError = (e, message, logKey) => {",
-                  "line": 6
-                },
-                {
-                  "name": "handleJsonDecode",
-                  "signature": "handleJsonDecode = (json, decoder, logKey, errorMessage) => {",
-                  "line": 17
-                },
-                {
-                  "name": "decodeImportInitResponse",
-                  "signature": "decodeImportInitResponse = json =>",
-                  "line": 51
-                },
-                {
-                  "name": "decodeImportChunkResponse",
-                  "signature": "decodeImportChunkResponse = json =>",
-                  "line": 64
-                },
-                {
-                  "name": "decodeImportStatusResponse",
-                  "signature": "decodeImportStatusResponse = json =>",
-                  "line": 76
-                },
-                {
-                  "name": "requestImportInit",
-                  "signature": "requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<",
-                  "line": 92
-                },
-                {
-                  "name": "requestImportStatus",
-                  "signature": "requestImportStatus = (",
-                  "line": 131
-                },
-                {
-                  "name": "requestImportChunk",
-                  "signature": "requestImportChunk = (",
-                  "line": 164
-                },
-                {
-                  "name": "requestImportComplete",
-                  "signature": "requestImportComplete = (",
-                  "line": 224
-                },
-                {
-                  "name": "requestImportAbort",
-                  "signature": "requestImportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {",
-                  "line": 267
-                },
-                {
-                  "name": "uploadMissingChunks",
-                  "signature": "uploadMissingChunks = async (",
-                  "line": 283
-                },
-                {
-                  "name": "importProject",
-                  "signature": "importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<",
-                  "line": 328
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {",
-                  "line": 379
-                },
-                {
-                  "name": "calculatePath",
-                  "signature": "calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathRequest): Promise.t<",
-                  "line": 401
-                },
-                {
-                  "name": "reverseGeocode",
-                  "signature": "reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {",
-                  "line": 436
-                }
-              ],
-              "fingerprint": "bf9ee190c9f06bd7598c0e35183abf12c5708c4bd73ffea9e1cc223890e0b615"
-            }
-          ]
-        }
       }
     }
   ]
