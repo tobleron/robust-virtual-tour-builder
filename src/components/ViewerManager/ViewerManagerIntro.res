@@ -82,11 +82,19 @@ let useIntroPan = (
                 } else if !isIdle {
                   Logger.debug(~module_="ViewerManagerIntro", ~message="PAN_DELAYED_NOT_IDLE", ())
                 } else if viewerSceneId != Some(targetId) {
-                  Logger.debug(~module_="ViewerManagerIntro", ~message="PAN_DELAYED_SCENE_MISMATCH", ())
+                  Logger.debug(
+                    ~module_="ViewerManagerIntro",
+                    ~message="PAN_DELAYED_SCENE_MISMATCH",
+                    (),
+                  )
                 } else {
-                  Logger.debug(~module_="ViewerManagerIntro", ~message="PAN_DELAYED_VIEWER_NOT_READY", ())
+                  Logger.debug(
+                    ~module_="ViewerManagerIntro",
+                    ~message="PAN_DELAYED_VIEWER_NOT_READY",
+                    (),
+                  )
                 }
-              | None => 
+              | None =>
                 Logger.debug(~module_="ViewerManagerIntro", ~message="PAN_DELAYED_NO_VIEWER", ())
               }
             }
