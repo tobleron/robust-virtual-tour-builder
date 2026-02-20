@@ -223,14 +223,13 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/BackendApi.res](src/systems/BackendApi.res): Facade for the consolidated API module. `#api` `#client` `#facade`
 
 ### 🎨 Visual & UI Components
-*   [src/components/ViewerUI.res](src/components/ViewerUI.res): High-level orchestrator for the viewer interface. `#ui` `#hud` `#orchestration`
+*   [src/components/ViewerUI.res](src/components/ViewerUI.res): High-level orchestrator for the interactive HUD layers. `#ui` `#hud` `#orchestration`
+*   [src/components/ViewerSceneElements.res](src/components/ViewerSceneElements.res): Background scene indicators (Waypoints, Arrows, Snapshots) with lower z-index. `#ui` `#rendering`
 *   [src/components/ViewerHUD.res](src/components/ViewerHUD.res): Primary overlay system (UtilityBar, FloorNav, Labels). `#ui` `#hud` `#overlays`
 *   [src/components/FloorNavigation.res](src/components/FloorNavigation.res): Interactive floor and level switcher for the viewer HUD. `#ui` `#navigation`
 *   [src/components/UtilityBar.res](src/components/UtilityBar.res): Top-level action bar for viewer tools and settings. `#ui` `#hud`
-*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
-    *   [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): Functional React component for the visualizer pipeline. `#ui` `#visual-pipeline`
-    *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
-    *   [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): Logic and utility functions for timeline item reordering and visual pipeline styling. `#logic` `#ui` `#timeline`
+*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline component. `#ui` `#visual-pipeline` `#logic` `#rendering`
+*   [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): Stylings and logic for floor-grouped pipeline squares. `#logic` `#styling` `#ui`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator (Custom ReScript implementation). `#ui` `#notifications` `#custom-system`
 *   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`

@@ -33,6 +33,13 @@
     background: #0e2d52;
 }
 
+#viewer-scene-elements-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5000;
+}
+
 .sidebar-branding-icon {
     font-size: 32px;
 }

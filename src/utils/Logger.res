@@ -367,14 +367,14 @@ let init = () => {
   /* Listen for long tasks and log them */
   let _ = Window.addEventListener("vtb-long-task", (_e: Dom.event) => {
     let detail = %raw(`_e.detail`)
-    info(~module_="Performance", ~message="LONG_TASK_DETECTED", ~data=Some(castToJson(detail)), ())
+    debug(~module_="Performance", ~message="LONG_TASK_DETECTED", ~data=Some(castToJson(detail)), ())
   })
 
   /* EventBus Logging */
   let _ = EventBus.subscribe(evt => {
     switch evt {
     | EventBus.ShowModal(config) =>
-      info(
+      debug(
         ~module_="Modal",
         ~message=`Opening Modal: ${config.title}`,
         ~data=Some(castToJson(config.description)),
@@ -390,14 +390,14 @@ let init = () => {
         )
       }
     | EventBus.NavStart(payload) =>
-      info(
+      debug(
         ~module_="Navigation",
         ~message=`Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`,
         (),
       )
     | EventBus.NetworkStatusChanged(online) =>
       if online {
-        info(~module_="NetworkStatus", ~message="NETWORK_ONLINE", ())
+        debug(~module_="NetworkStatus", ~message="NETWORK_ONLINE", ())
       } else {
         warn(~module_="NetworkStatus", ~message="NETWORK_OFFLINE", ())
       }

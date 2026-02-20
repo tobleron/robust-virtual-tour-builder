@@ -387,6 +387,9 @@ CI job
 ### 📂 backend/src/services/project
 - `[backend/src/services/project/import_upload.rs]`
 
+### 📂 src/components
+- `[src/components/ViewerSceneElements.res]`
+
 ### 📂 src/utils
 - `[src/utils/FileSlicer.res]`
 

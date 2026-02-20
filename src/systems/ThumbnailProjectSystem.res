@@ -9,45 +9,46 @@ let make = () => {
   let (processedIds, setProcessedIds) = React.useState(_ => Belt.Set.String.empty)
   let isProcessing = React.useRef(false)
 
-  React.useEffect2(() => {
-    if !isProcessing.current {
+  React.useEffect3(() => {
+    let isSimulationRunning = state.simulation.status == Running
+
+    if !isProcessing.current && !isSimulationRunning {
       let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
 
-      // Find FIRST scene that needs enhancement:
-      // 1. Must NOT have been processed in this session
-      // 2. Must either have NO thumbnail OR a server-side URL thumbnail (equirectangular)
+      // Find FIRST scene that needs enhancement
       let sceneToEnhance = scenes->Belt.Array.getBy(s => {
         if Belt.Set.String.has(processedIds, s.id) {
           false
         } else {
           switch s.tinyFile {
-          | None => true // Missing thumbnail entirely
-          | Some(Url(_)) => true // Legacy equirectangular URL from server
-          | Some(Blob(_)) | Some(File(_)) => false // Already high-quality local cache
+          | None => true
+          | Some(Url(_)) => true
+          | Some(Blob(_)) | Some(File(_)) => false
           }
         }
       })
 
       switch sceneToEnhance {
       | Some(s) =>
-        Logger.info(
+        Logger.debug(
           ~module_="ThumbnailProjectSystem",
           ~message="ENHANCING_SCENE",
           ~data=Some({"id": s.id, "name": s.name}),
           (),
         )
         isProcessing.current = true
-        setProcessedIds(prev => Belt.Set.String.add(prev, s.id))
 
         let srcUrl = Types.fileToUrl(s.file)
         let img = Dom.createElement("img")
 
         let cleanup = () => {
+          // Clear processing lock before state update so next render can continue the queue.
           isProcessing.current = false
+          setProcessedIds(prev => Belt.Set.String.add(prev, s.id))
         }
 
         let onLoad = () => {
-          Logger.info(
+          Logger.debug(
             ~module_="ThumbnailProjectSystem",
             ~message="GENERATING_RECTILINEAR",
             ~data=Some({"id": s.id}),
@@ -57,7 +58,7 @@ let make = () => {
           ->Promise.then(blob => {
             Logger.info(
               ~module_="ThumbnailProjectSystem",
-              ~message="PATCHING_THUMBNAIL",
+              ~message="PATCHING_THUMBNAIL_SUCCESS",
               ~data=Some({"id": s.id}),
               (),
             )
@@ -91,14 +92,13 @@ let make = () => {
 
         Dom.addEventListenerNoEv(img, "load", onLoad)
         Dom.addEventListenerNoEv(img, "error", onError)
-        // crossOrigin MUST be set BEFORE src to avoid tainting the canvas
         Dom.setAttribute(img, "crossOrigin", "anonymous")
         Dom.setAttribute(img, "src", srcUrl)
       | None => ()
       }
     }
     None
-  }, (state.inventory, processedIds))
+  }, (state.inventory, processedIds, state.simulation.status))
 
   React.null
 }
