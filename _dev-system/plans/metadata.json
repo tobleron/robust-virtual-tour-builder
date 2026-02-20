@@ -1,5 +1,26 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
+      }
+    }
+  ],
   "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/services/project/validate.rs",
@@ -55,13 +76,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
       }
     },
     {
@@ -182,93 +196,7 @@
       }
     }
   ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.34433249370277,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Api/AuthenticatedClient.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Api/AuthenticatedClient.res",
-              "functions": [
-                {
-                  "name": "fetchJson",
-                  "signature": "fetchJson = (res: response) => res.json()",
-                  "line": 18
-                },
-                {
-                  "name": "fetchText",
-                  "signature": "fetchText = (res: response) => res.text()",
-                  "line": 19
-                },
-                {
-                  "name": "fetchBlob",
-                  "signature": "fetchBlob = (res: response) => res.blob()",
-                  "line": 20
-                },
-                {
-                  "name": "toUpper",
-                  "signature": "toUpper: string => string = %raw(\"(s) => String(s || '').toUpperCase()\")",
-                  "line": 23
-                },
-                {
-                  "name": "circuitBreaker",
-                  "signature": "circuitBreaker = CircuitBreaker.make()",
-                  "line": 25
-                },
-                {
-                  "name": "getTimeoutMs",
-                  "signature": "getTimeoutMs = (method: string): int => {",
-                  "line": 28
-                },
-                {
-                  "name": "prepareRequestSignal",
-                  "signature": "prepareRequestSignal = (",
-                  "line": 47
-                },
-                {
-                  "name": "prepareRequestBody",
-                  "signature": "prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {",
-                  "line": 104
-                },
-                {
-                  "name": "request",
-                  "signature": "request = async (",
-                  "line": 115
-                },
-                {
-                  "name": "requestWithRetry",
-                  "signature": "requestWithRetry = (",
-                  "line": 316
-                }
-              ],
-              "fingerprint": "54025c386ca048345d2c27981094b399c701320923e2f1dcef1f5c2d74f1ca8a"
-            }
-          ]
-        }
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogic.res",
@@ -423,6 +351,78 @@
                 }
               ],
               "fingerprint": "250b40f2f5e65314fbdf232ce854885dbaaf61d0a43091f78e7952bd0381a1e7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.34433249370277,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Api/AuthenticatedClient.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Api/AuthenticatedClient.res",
+              "functions": [
+                {
+                  "name": "fetchJson",
+                  "signature": "fetchJson = (res: response) => res.json()",
+                  "line": 18
+                },
+                {
+                  "name": "fetchText",
+                  "signature": "fetchText = (res: response) => res.text()",
+                  "line": 19
+                },
+                {
+                  "name": "fetchBlob",
+                  "signature": "fetchBlob = (res: response) => res.blob()",
+                  "line": 20
+                },
+                {
+                  "name": "toUpper",
+                  "signature": "toUpper: string => string = %raw(\"(s) => String(s || '').toUpperCase()\")",
+                  "line": 23
+                },
+                {
+                  "name": "circuitBreaker",
+                  "signature": "circuitBreaker = CircuitBreaker.make()",
+                  "line": 25
+                },
+                {
+                  "name": "getTimeoutMs",
+                  "signature": "getTimeoutMs = (method: string): int => {",
+                  "line": 28
+                },
+                {
+                  "name": "prepareRequestSignal",
+                  "signature": "prepareRequestSignal = (",
+                  "line": 47
+                },
+                {
+                  "name": "prepareRequestBody",
+                  "signature": "prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {",
+                  "line": 104
+                },
+                {
+                  "name": "request",
+                  "signature": "request = async (",
+                  "line": 115
+                },
+                {
+                  "name": "requestWithRetry",
+                  "signature": "requestWithRetry = (",
+                  "line": 316
+                }
+              ],
+              "fingerprint": "54025c386ca048345d2c27981094b399c701320923e2f1dcef1f5c2d74f1ca8a"
             }
           ]
         }
