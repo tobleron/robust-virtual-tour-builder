@@ -80,38 +80,42 @@ module Styles = {
   /* --- Tooltip --- */
   .node-tooltip {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px; padding: 8px;
+    background: #0e2d52; /* Navy blue bar color */
+    border: 1.5px solid var(--orange-brand, #f97316); /* Thin orange border */
+    border-radius: 6px; 
+    padding: 0;
     opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 160px; z-index: 100;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 100;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
     margin-bottom: 12px;
   }
 
   .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .tooltip-thumb {
-    width: 100%; height: 72px; object-fit: cover; border-radius: 4px;
-    margin-bottom: 6px; background: var(--slate-900);
-    border: 1px solid rgba(255,255,255,0.1);
+    width: 100%; height: 80px; object-fit: cover; 
+    display: block;
+    background: var(--slate-900);
+  }
+
+  .tooltip-footer {
+    width: 100%;
+    background: #0e2d52; /* Explicitly navy */
+    padding: 4px 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 18px;
   }
 
   .tooltip-text {
-    font-size: 9px; color: white; font-weight: 500; text-align: center;
+    font-size: 8.5px; color: rgba(255, 255, 255, 0.9); font-weight: 500; text-align: center;
     width: 100%;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
-    line-height: 1.3;
-    padding: 0 2px;
-  }
-
-  .tooltip-link-id {
-    font-size: 9px; color: var(--slate-400); font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    text-overflow: ellipsis;
+    line-height: 1;
   }
 
   /* --- Electronic Board Lines --- */

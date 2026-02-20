@@ -99,7 +99,6 @@ module PipelineNode = {
       style
     >
       <div className="node-tooltip">
-        <span className="tooltip-link-id"> {React.string("Link: " ++ item.linkId)} </span>
         {if thumbUrl != "" {
           <img
             src=thumbUrl
@@ -109,9 +108,11 @@ module PipelineNode = {
         } else {
           React.null
         }}
-        <span className="tooltip-text">
-          {React.string(scene->Option.map(s => s.name)->Option.getOr("Unknown Scene"))}
-        </span>
+        <div className="tooltip-footer">
+          <span className="tooltip-text">
+            {React.string(scene->Option.map(s => s.name)->Option.getOr("Unknown Scene"))}
+          </span>
+        </div>
       </div>
     </div>
   }
