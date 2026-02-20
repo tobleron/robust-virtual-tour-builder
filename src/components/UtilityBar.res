@@ -3,8 +3,10 @@
 @react.component
 let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
   let dispatch = AppContext.useAppDispatch()
+  let canEdit = Capability.useCapability(CanEditHotspots)
+  let canSimulate = Capability.useCapability(CanStartSimulation)
 
-  let handleFabClick = React.useMemo1(() =>
+  let handleFabClick = React.useMemo2(() =>
     e => {
       JsxEvent.Mouse.stopPropagation(e)
 
@@ -22,7 +24,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           dismissible: true,
           createdAt: Date.now(),
         })
-      } else {
+      } else if canEdit {
         let cx = JsxEvent.Mouse.clientX(e)
         let cy = JsxEvent.Mouse.clientY(e)
         ViewerState.state := {
@@ -64,9 +66,9 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         }
       }
     }
-  , [isLinking])
+  , (isLinking, canEdit))
 
-  let handleSimClick = React.useMemo2(() =>
+  let handleSimClick = React.useMemo3(() =>
     e => {
       JsxEvent.Mouse.stopPropagation(e)
       if simActive {
@@ -86,7 +88,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         | None => ()
         }
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
-      } else {
+      } else if canSimulate {
         dispatch(
           Batch([
             Actions.SetActiveScene(0, 0.0, 0.0, None),
@@ -106,7 +108,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         })
       }
     }
-  , (simActive, currentJourneyId))
+  , (simActive, currentJourneyId, canSimulate))
 
   let utilBarClass =
     "absolute top-6 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
@@ -138,6 +140,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         }}
         className="w-8 h-8 min-w-8 min-h-8 rounded-full font-semibold border border-transparent hover:border-[#0e2d52]"
         onClick={handleFabClick}
+        disabled={!scenesLoaded || (!isLinking && !canEdit)}
         ariaLabel={if isLinking {
           "Close Link Mode"
         } else {
@@ -172,7 +175,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
             }}
             className="w-8 h-8 min-w-8 min-h-8 rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleSimClick}
-            disabled={isLinking && !simActive}
+            disabled={(isLinking && !simActive) || (!simActive && !canSimulate)}
             ariaLabel={if simActive {
               "Stop Tour Preview"
             } else {

@@ -7,6 +7,7 @@ let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let simSlice = AppContext.useSimSlice()
+  let canUpload = Capability.useCapability(CanUpload)
 
   let dispatch = AppContext.useAppDispatch()
   let fileInputRef = React.useRef(Nullable.null)
@@ -20,11 +21,13 @@ let make = React.memo(() => {
   }
 
   let handleLogoClick = _ => {
-    switch fileInputRef.current->Nullable.toOption {
-    | Some(input) => {
-        let _ = %raw("(input) => input.click()")(input)
+    if canUpload {
+      switch fileInputRef.current->Nullable.toOption {
+      | Some(input) => {
+          let _ = %raw("(input) => input.click()")(input)
+        }
+      | None => ()
       }
-    | None => ()
     }
   }
 
@@ -64,7 +67,12 @@ let make = React.memo(() => {
         /* Permanent Branding with Perfect Masking & Editable Support */
         <div
           id="viewer-logo"
-          className="absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden cursor-pointer transition-all active:scale-95 group pointer-events-auto p-[6px]"
+          className={"absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden transition-all p-[6px] " ++
+          if canUpload {
+            "cursor-pointer active:scale-95 group pointer-events-auto"
+          } else {
+            "opacity-50 cursor-not-allowed pointer-events-none"
+          }}
           onClick=handleLogoClick
           title="Click to change logo"
         >

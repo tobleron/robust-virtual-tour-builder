@@ -6,7 +6,8 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
-  let isSystemLocked = AppContext.useIsSystemLocked()
+  let canNavigate = Capability.useCapability(CanNavigate)
+  let canMutate = Capability.useCapability(CanMutateProject)
   let dispatch = AppContext.useAppDispatch()
   let getState = AppContext.getBridgeState
 
@@ -101,7 +102,7 @@ let make = React.memo(() => {
     index => {
       if index == sceneSlice.activeIndex {
         ()
-      } else if isSystemLocked {
+      } else if !canNavigate {
         // LockFeedback component handles timeout notification independently
         // No notification dispatch here to avoid redundant "System is busy" message
         Logger.debug(
@@ -144,52 +145,61 @@ let make = React.memo(() => {
 
   let handleDelete = React.useMemo1(() =>
     index => {
-      Logger.info(
-        ~module_="SceneList",
-        ~message="SCENE_DELETE_REQUESTED",
-        ~data=Some({"index": index}),
-        (),
-      )
-      EventBus.dispatch(
-        ShowModal({
-          title: "Delete Scene",
-          description: Some("Are you sure you want to delete this scene?"),
-          content: None,
-          icon: Some("warning"),
-          className: Some("modal-blue"),
-          allowClose: Some(true),
-          onClose: None,
-          buttons: [
-            {
-              label: "Cancel",
-              class_: "bg-slate-100/10 text-white hover:bg-white/20",
-              onClick: () => (),
-              autoClose: Some(true),
-            },
-            {
-              label: "Delete",
-              class_: "bg-red-500/20 text-white hover:bg-red-500/40",
-              onClick: () => {
-                SidebarLogic.handleDeleteScene(index, ~getState)->ignore
-                NotificationManager.dispatch({
-                  id: "",
-                  importance: Success,
-                  context: Operation("scene_list"),
-                  message: "Scene Removed",
-                  details: None,
-                  action: None,
-                  duration: NotificationTypes.defaultTimeoutMs(Success),
-                  dismissible: true,
-                  createdAt: Date.now(),
-                })
+      if canMutate {
+        Logger.info(
+          ~module_="SceneList",
+          ~message="SCENE_DELETE_REQUESTED",
+          ~data=Some({"index": index}),
+          (),
+        )
+        EventBus.dispatch(
+          ShowModal({
+            title: "Delete Scene",
+            description: Some("Are you sure you want to delete this scene?"),
+            content: None,
+            icon: Some("warning"),
+            className: Some("modal-blue"),
+            allowClose: Some(true),
+            onClose: None,
+            buttons: [
+              {
+                label: "Cancel",
+                class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                onClick: () => (),
+                autoClose: Some(true),
               },
-              autoClose: Some(true),
-            },
-          ],
-        }),
-      )
+              {
+                label: "Delete",
+                class_: "bg-red-500/20 text-white hover:bg-red-500/40",
+                onClick: () => {
+                  SidebarLogic.handleDeleteScene(index, ~getState)->ignore
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Success,
+                    context: Operation("scene_list"),
+                    message: "Scene Removed",
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Success),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
+                },
+                autoClose: Some(true),
+              },
+            ],
+          }),
+        )
+      } else {
+        Logger.warn(
+          ~module_="SceneList",
+          ~message="SCENE_DELETE_REJECTED_LOCK_HELD",
+          ~data=Some({"index": index}),
+          (),
+        )
+      }
     }
-  , [])
+  , [canMutate])
 
   let handleClearLinks = React.useMemo1(() =>
     index => {
@@ -226,14 +236,14 @@ let make = React.memo(() => {
     }
   )
 
-  let onDrop = React.useMemo1(() =>
+  let onDrop = React.useMemo2(() =>
     (targetIndex, e) => {
       JsxEvent.Mouse.preventDefault(e)
       setDraggedIndex(
         current => {
           switch current {
           | Some(fromIndex) =>
-            if fromIndex != targetIndex {
+            if canMutate && fromIndex != targetIndex {
               Logger.info(
                 ~module_="SceneList",
                 ~message="SCENE_REORDER",
@@ -248,7 +258,7 @@ let make = React.memo(() => {
         },
       )
     }
-  , [dispatch])
+  , (dispatch, canMutate))
 
   <div
     className="flex-1 flex flex-col pt-2 pb-12 relative"
