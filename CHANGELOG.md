@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Visual pipeline active timing and define global operation progress orchestration task
 
+### Changed
+- T1495: Move to active for Jules delegation
+
 ## [4.30.4] - 2026-02-20
 
 ### Fixed
