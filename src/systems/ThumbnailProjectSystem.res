@@ -9,10 +9,16 @@ let make = () => {
   let (processedIds, setProcessedIds) = React.useState(_ => Belt.Set.String.empty)
   let isProcessing = React.useRef(false)
 
-  React.useEffect3(() => {
-    let isSimulationRunning = state.simulation.status == Running
+  // Dependencies on global operations
+  let isNavigationBusy = OperationLifecycle.useIsBusy(~type_=Navigation)
+  let isSimulationBusy = OperationLifecycle.useIsBusy(~type_=Simulation)
+  let isUploadBusy = OperationLifecycle.useIsBusy(~type_=Upload)
+  let isExportBusy = OperationLifecycle.useIsBusy(~type_=Export)
 
-    if !isProcessing.current && !isSimulationRunning {
+  React.useEffect6(() => {
+    let isBusy = isNavigationBusy || isSimulationBusy || isUploadBusy || isExportBusy
+
+    if !isProcessing.current && !isBusy {
       let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
 
       // Find FIRST scene that needs enhancement
@@ -37,6 +43,7 @@ let make = () => {
           (),
         )
         isProcessing.current = true
+        let opId = OperationLifecycle.start(~type_=ThumbnailGeneration, ())
 
         let srcUrl = Types.fileToUrl(s.file)
         let img = Dom.createElement("img")
@@ -62,6 +69,7 @@ let make = () => {
               ~data=Some({"id": s.id}),
               (),
             )
+            OperationLifecycle.complete(opId, ())
             dispatch(PatchSceneThumbnail(s.id, Blob(blob)))
             cleanup()
             Promise.resolve()
@@ -74,6 +82,7 @@ let make = () => {
               ~data=Some({"id": s.id, "error": msg}),
               (),
             )
+            OperationLifecycle.fail(opId, msg)
             cleanup()
             Promise.resolve()
           })
@@ -87,6 +96,7 @@ let make = () => {
             ~data=Some({"id": s.id}),
             (),
           )
+          OperationLifecycle.fail(opId, "Image load error")
           cleanup()
         }
 
@@ -98,7 +108,14 @@ let make = () => {
       }
     }
     None
-  }, (state.inventory, processedIds, state.simulation.status))
+  }, (
+    state.inventory,
+    processedIds,
+    isNavigationBusy,
+    isSimulationBusy,
+    isUploadBusy,
+    isExportBusy,
+  ))
 
   React.null
 }
