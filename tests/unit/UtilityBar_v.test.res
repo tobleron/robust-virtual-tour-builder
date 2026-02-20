@@ -5,8 +5,32 @@ open ReBindings
 module WrappedUtilityBar = {
   @react.component
   let make = (~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId, ~mockDispatch) => {
+    let mockState: Types.state = {
+      ...State.initialState,
+      scenes: [
+        {
+          id: "s1",
+          name: "Scene 1",
+          label: "Living Room",
+          file: Url("test.webp"),
+          tinyFile: None,
+          originalFile: None,
+          hotspots: [],
+          category: "indoor",
+          floor: "ground",
+          quality: None,
+          colorGroup: None,
+          categorySet: false,
+          labelSet: false,
+          _metadataSource: "user",
+          isAutoForward: false,
+        }
+      ]
+    }
     <AppContext.DispatchProvider value=mockDispatch>
-      <UtilityBar scenesLoaded isLinking simActive currentJourneyId />
+      <AppContext.GlobalProvider value=mockState>
+        <UtilityBar scenesLoaded isLinking simActive currentJourneyId />
+      </AppContext.GlobalProvider>
     </AppContext.DispatchProvider>
   }
 }
@@ -115,7 +139,9 @@ describe("UtilityBar", () => {
     )
 
     await wait(50)
-    Dom.click(playBtn)
+    let buttons3 = Dom.querySelectorAll(container, "button")
+    let playBtn2 = Belt.Array.get(JsHelpers.from(buttons3), 1)->Belt.Option.getExn
+    Dom.click(playBtn2)
     // When stopping, it sends multiple actions. Let's check the last one.
     // In code: dispatch(Actions.StopAutoPilot), dispatch(Actions.SetActiveScene(0, ...)), dispatch(DispatchNavigationFsmEvent(Reset))
     t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.DispatchNavigationFsmEvent(Reset)))

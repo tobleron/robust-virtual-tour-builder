@@ -124,6 +124,7 @@ let make = () => {
   injectStyles()
 
   let pipelineSlice = AppContext.usePipelineSlice()
+  let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
 
   let handleNodeActivate = React.useCallback1((itemId: string) => {
@@ -243,52 +244,77 @@ let make = () => {
         let vYFrom = 400.0 -. yFrom
         let vYTo = 400.0 -. yTo
 
-        let xStart = bRect.left +. bRect.width /. 2.0 -. cRect.left
-        let xCorridor = 46.0 // Convergence happens almost immediately
-        let xSlantEnd = 86.0 // Termination earlier
+        /* Route line edge-to-edge:
+           - Start at floor button right edge
+           - End at first pipeline node left edge
+           This prevents crossing through controls and makes contact exact. */
+        let xStart = bRect.right -. cRect.left
         let xEnd = aRect.left -. cRect.left
 
         // Calculate vertical delta for slant
         let slantWidth = Math.abs(vYTo -. vYFrom)
-
-        // Parallel Bus Geometry:
-        // Slant ends at xSlantEnd. It starts at xSlantEnd - slantWidth (limited by corridor start).
-        let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
-
+        let deltaX = xEnd -. xStart
         let d =
-          "M " ++
-          xStart->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          xCorridor->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          vXSlantStart->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          xSlantEnd->Float.toString ++
-          " " ++
-          vYTo->Float.toString ++
-          " L " ++
-          xEnd->Float.toString ++
-          " " ++
-          vYTo->Float.toString
+          if deltaX <= 2.0 {
+            "M " ++
+            xStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString
+          } else {
+            let xCorridor = xStart +. Math.min(14.0, deltaX *. 0.25)
+            let xSlantEnd = xStart +. Math.min(44.0, deltaX *. 0.7)
+            // Slant starts at xSlantEnd - slantWidth, clamped so it never backtracks.
+            let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
+            "M " ++
+            xStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xCorridor->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            vXSlantStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xSlantEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString ++
+            " L " ++
+            xEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString
+          }
 
         paths->Dict.set(fid, d)
       | _ => ()
       }
     })
-    setLinePaths(_ => paths)
+    setLinePaths(prev => {
+      let prevStr = JSON.stringifyAny(prev)
+      let nextStr = JSON.stringifyAny(paths)
+      if prevStr == nextStr {
+        prev
+      } else {
+        paths
+      }
+    })
     None
   }, (activeFloors, pipelineSlice.timeline))
 
-  if activeFloors->Belt.Array.length == 0 {
+  if uiSlice.isLinking || activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
-    <div id="visual-pipeline-container" ref={containerRef->ReactDOM.Ref.domRef}>
+    <div
+      id="visual-pipeline-container"
+      className="pointer-events-none"
+      ref={containerRef->ReactDOM.Ref.domRef}
+    >
       /* PCB-style Lines: Deterministic DOM-based Mapping */
       <svg
         className="pipeline-svg-overlay"

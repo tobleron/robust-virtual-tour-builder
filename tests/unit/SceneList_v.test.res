@@ -40,6 +40,15 @@ describe("SceneList", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
+  afterEach(() => {
+    OperationLifecycle.reset()
+    InteractionGuard.clear()
+    switch NavigationSupervisor.getCurrentTask() {
+    | Some(task) => NavigationSupervisor.abort(task.token.id)
+    | None => ()
+    }
+  })
+
   let createScene = (id, name): scene => {
     {
       id,

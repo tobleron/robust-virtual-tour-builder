@@ -6,7 +6,7 @@ module Styles = {
 
   /* Container */
   #visual-pipeline-container {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 15500;
+    position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 200;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
     /* User Spacing Proposal: 120px Left, 220px Right, ~80px Baseline elevation */
     padding-bottom: 80px; 
@@ -17,7 +17,7 @@ module Styles = {
   }
 
   .visual-pipeline-wrapper {
-    pointer-events: auto;
+    pointer-events: none;
     display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: flex-start;
     width: 100%;
     max-width: 1400px;
@@ -34,6 +34,7 @@ module Styles = {
     display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center;
     position: relative; width: 100%; gap: 6px;
     min-height: 12px;
+    pointer-events: none;
   }
 
   /* --- Square Node --- */
@@ -51,6 +52,7 @@ module Styles = {
                 filter 0.3s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     z-index: 20;
+    pointer-events: auto;
   }
 
   .pipeline-node:hover {
@@ -86,13 +88,13 @@ module Styles = {
     border-radius: 6px; 
     padding: 0;
     opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 1000;
+    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 300;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     margin-bottom: 12px;
   }
 
-  .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
   .tooltip-thumb {
     width: 100%; height: 80px; object-fit: cover; 

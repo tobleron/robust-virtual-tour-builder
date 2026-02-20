@@ -89,6 +89,11 @@ describe("Sidebar", () => {
     m["make"]
   }
 
+  afterEach(() => {
+    OperationLifecycle.reset()
+    InteractionGuard.clear()
+  })
+
   testAsync("should render sidebar branding and version", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
@@ -472,7 +477,10 @@ describe("Sidebar", () => {
 
     let teaserBtn = Dom.querySelector(container, "button[aria-label='Create Teaser']")
     switch Nullable.toOption(teaserBtn) {
-    | Some(btn) => Dom.click(btn)
+    | Some(btn) =>
+      let disabled = ReBindings.Dom.getAttribute(btn, "disabled")
+      Console.log2("Teaser Button disabled attr:", disabled)
+      Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
 

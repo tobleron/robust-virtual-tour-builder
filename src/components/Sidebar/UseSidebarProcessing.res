@@ -40,14 +40,28 @@ let useTourNameSync = (sceneSlice: AppContext.sceneSlice, dispatch: AppContext.d
 let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
   let ops = OperationLifecycle.useOperations()
 
+  let isCriticalProgressType = (type_: OperationLifecycle.operationType) =>
+    switch type_ {
+    | Upload
+    | Export
+    | ProjectLoad
+    | ProjectSave => true
+    | Navigation
+    | Simulation
+    | ThumbnailGeneration
+    | SceneLoad
+    | Unknown(_) => false
+    }
+
   // Find active operation to display
   // Priority: Blocking > Ambient (latest started)
   let activeOp = React.useMemo1(() => {
     let relevantOps = ops->Belt.Array.keep(t => {
-      switch t.status {
-      | Active(_) | Paused | Completed(_) | Failed(_) | Cancelled => true
-      | Idle => false
+      let statusEligible = switch t.status {
+      | Active(_) | Paused => true
+      | Idle | Completed(_) | Failed(_) | Cancelled => false
       }
+      statusEligible && isCriticalProgressType(t.type_)
     })
 
     let blocking =
@@ -211,20 +225,31 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         switch activeOpRef.current {
         | Some(_) => () // Ignore if activeOp exists
         | None =>
-          // Map legacy payload
-          let cancellable = true // Assume legacy is cancellable if active
-          setProcState(
-            _ =>
-              {
-                "active": payload["active"],
-                "progress": payload["progress"],
-                "message": payload["message"],
-                "phase": payload["phase"],
-                "error": payload["error"],
-                "onCancel": payload["onCancel"],
-                "cancellable": cancellable,
-              },
-          )
+          // Legacy fallback safety:
+          // ignore late "active=true" payloads when there is no active lifecycle operation.
+          // This prevents stale callbacks from resurrecting an endless progress UI.
+          if payload["active"] {
+            Logger.debug(
+              ~module_="Sidebar",
+              ~message="IGNORING_STALE_LEGACY_PROCESSING_UPDATE",
+              ~data=Some({"message": payload["message"], "phase": payload["phase"]}),
+              (),
+            )
+          } else {
+            // Allow inactive payload to force clear.
+            setProcState(
+              _ =>
+                {
+                  "active": false,
+                  "progress": payload["progress"],
+                  "message": payload["message"],
+                  "phase": payload["phase"],
+                  "error": payload["error"],
+                  "onCancel": payload["onCancel"],
+                  "cancellable": false,
+                },
+            )
+          }
         }
       | _ => ()
       }

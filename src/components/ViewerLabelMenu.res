@@ -34,8 +34,14 @@ let make = React.memo((~scenesLoaded, ~isLinking) => {
           } else {
             "destructive"
           }}
-          className="w-8 h-8 min-w-8 min-h-8 rounded-full font-semibold border border-transparent hover:border-[#0e2d52]"
-          disabled={isLinking}
+          className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer font-semibold border border-transparent hover:border-[#0e2d52]" ++ if (
+            !scenesLoaded
+          ) {
+            " disabled:opacity-100"
+          } else {
+            ""
+          }}
+          disabled={!scenesLoaded || isLinking}
         >
           <LucideIcons.Hash size=18 strokeWidth=3.0 />
         </Shadcn.Button>

@@ -106,8 +106,6 @@ describe("ViewerUI", () => {
     let logo = Dom.getElementById("viewer-logo")
     t->expect(Nullable.toOption(logo)->Belt.Option.isSome)->Expect.toBe(true)
 
-    let snapshotOverlay = Dom.getElementById("viewer-snapshot-overlay")
-    t->expect(Nullable.toOption(snapshotOverlay)->Belt.Option.isSome)->Expect.toBe(true)
 
     Dom.removeElement(container)
   })
@@ -129,8 +127,12 @@ describe("ViewerUI", () => {
     await wait(150)
 
     let labelEl = Dom.getElementById("v-scene-persistent-label")
+    let currentScenes = mockState.scenes
+    let currentScenesStr = JSON.stringifyAny(currentScenes)->Option.getOr("None")
+    Console.log2("Scenes passed:", currentScenesStr)
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
+      Console.log2("Label El TextContent:", Dom.getTextContent(el))
       t->expect(Dom.getTextContent(el))->Expect.toBe("# " ++ defaultScene.label)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)

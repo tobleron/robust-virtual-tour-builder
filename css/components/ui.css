@@ -37,7 +37,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 5000;
+    z-index: 100;
 }
 
 .sidebar-branding-icon {
@@ -126,7 +126,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 16000;
+    z-index: 200;
 }
 
 #viewer-ui-layer> :not(.pointer-events-none) {

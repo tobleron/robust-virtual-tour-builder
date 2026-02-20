@@ -87,8 +87,8 @@ module InnerApp = {
           /* Viewer UI Layer */
           <div id="viewer-ui-layer">
             <ViewerUI />
+            <VisualPipeline />
           </div>
-          <VisualPipeline />
         </div>
 
         {if Belt.Array.length(state.scenes) == 0 {

@@ -166,15 +166,16 @@ let start = (
   let id = `op_${Date.now()->Float.toString}_${Math.random()->Float.toString}`
 
   let defaultThreshold = switch type_ {
-  | Navigation => 500
-  | Upload => 200
-  | ThumbnailGeneration => 600
+  // Calibrated for long-task UI visibility: avoid flashing for short operations.
+  | Navigation => 1200
+  | Upload => 700
+  | ThumbnailGeneration => 1500
   | ProjectLoad
   | ProjectSave
-  | Export
-  | SceneLoad => 0
-  | Simulation => 500
-  | Unknown(_) => 0
+  | Export => 500
+  | SceneLoad => 800
+  | Simulation => 1200
+  | Unknown(_) => 800
   }
 
   let threshold = visibleAfterMs->Option.getOr(defaultThreshold)
@@ -223,14 +224,28 @@ let progress = (
 ): unit => {
   switch operations.contents->Belt.Map.String.get(id) {
   | Some(task) =>
-    let updatedTask = {
-      ...task,
-      status: Active({progress, message}),
-      phase: phase->Option.getOr(task.phase),
-      updatedAt: Date.now(),
+    switch task.status {
+    | Active(_)
+    | Paused =>
+      let updatedTask = {
+        ...task,
+        status: Active({progress, message}),
+        phase: phase->Option.getOr(task.phase),
+        updatedAt: Date.now(),
+      }
+      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+      notifyListeners()
+    | Idle
+    | Completed(_)
+    | Failed(_)
+    | Cancelled =>
+      Logger.debug(
+        ~module_="OperationLifecycle",
+        ~message="PROGRESS_IGNORED_TERMINAL_OR_IDLE",
+        ~data=Some({"id": id}),
+        (),
+      )
     }
-    operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-    notifyListeners()
   | None => ()
   }
 }
@@ -238,83 +253,12 @@ let progress = (
 let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
   switch operations.contents->Belt.Map.String.get(id) {
   | Some(task) =>
-    let updatedTask = {
-      ...task,
-      status: Completed({result: result}),
-      updatedAt: Date.now(),
-    }
-    operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-    updateLoggerContext()
-    notifyListeners()
-    cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-
-    Logger.info(
-      ~module_="OperationLifecycle",
-      ~message="OPERATION_COMPLETED",
-      ~data=Some({"id": id}),
-      (),
-    )
-
-    // Auto-cleanup after 5 seconds
-    let _ = setTimeout(() => {
-      operations := operations.contents->Belt.Map.String.remove(id)
-      updateLoggerContext()
-      notifyListeners()
-    }, 5000)
-  | None => ()
-  }
-}
-
-let fail = (id: operationId, error: string): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    let updatedTask = {
-      ...task,
-      status: Failed({error: error}),
-      updatedAt: Date.now(),
-    }
-    operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-    updateLoggerContext()
-    notifyListeners()
-    cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-
-    Logger.error(
-      ~module_="OperationLifecycle",
-      ~message="OPERATION_FAILED",
-      ~data=Some({"id": id, "error": error}),
-      (),
-    )
-
-    // Auto-cleanup after 10 seconds for errors
-    let _ = setTimeout(() => {
-      operations := operations.contents->Belt.Map.String.remove(id)
-      updateLoggerContext()
-      notifyListeners()
-    }, 10000)
-  | None => ()
-  }
-}
-
-let cancel = (id: operationId): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    if task.cancellable {
-      // Invoke callback first
-      switch cancelCallbacks.contents->Belt.Map.String.get(id) {
-      | Some(cb) =>
-        Logger.info(
-          ~module_="OperationLifecycle",
-          ~message="INVOKING_CANCEL_CALLBACK",
-          ~data=Some({"id": id}),
-          (),
-        )
-        cb()
-      | None => ()
-      }
-
+    switch task.status {
+    | Active(_)
+    | Paused =>
       let updatedTask = {
         ...task,
-        status: Cancelled,
+        status: Completed({result: result}),
         updatedAt: Date.now(),
       }
       operations := operations.contents->Belt.Map.String.set(id, updatedTask)
@@ -324,22 +268,135 @@ let cancel = (id: operationId): unit => {
 
       Logger.info(
         ~module_="OperationLifecycle",
-        ~message="OPERATION_CANCELLED",
+        ~message="OPERATION_COMPLETED",
         ~data=Some({"id": id}),
         (),
       )
 
-      // Auto-cleanup
+      // Auto-cleanup after 5 seconds
       let _ = setTimeout(() => {
         operations := operations.contents->Belt.Map.String.remove(id)
         updateLoggerContext()
         notifyListeners()
       }, 5000)
-    } else {
-      Logger.warn(
+    | Idle
+    | Completed(_)
+    | Failed(_)
+    | Cancelled =>
+      Logger.debug(
         ~module_="OperationLifecycle",
-        ~message="OPERATION_CANCEL_ATTEMPT_IGNORED",
-        ~data=Some({"id": id, "reason": "Not Cancellable"}),
+        ~message="COMPLETE_IGNORED_TERMINAL_OR_IDLE",
+        ~data=Some({"id": id}),
+        (),
+      )
+    }
+  | None => ()
+  }
+}
+
+let fail = (id: operationId, error: string): unit => {
+  switch operations.contents->Belt.Map.String.get(id) {
+  | Some(task) =>
+    switch task.status {
+    | Active(_)
+    | Paused =>
+      let updatedTask = {
+        ...task,
+        status: Failed({error: error}),
+        updatedAt: Date.now(),
+      }
+      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+      updateLoggerContext()
+      notifyListeners()
+      cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
+
+      Logger.error(
+        ~module_="OperationLifecycle",
+        ~message="OPERATION_FAILED",
+        ~data=Some({"id": id, "error": error}),
+        (),
+      )
+
+      // Auto-cleanup after 10 seconds for errors
+      let _ = setTimeout(() => {
+        operations := operations.contents->Belt.Map.String.remove(id)
+        updateLoggerContext()
+        notifyListeners()
+      }, 10000)
+    | Idle
+    | Completed(_)
+    | Failed(_)
+    | Cancelled =>
+      Logger.debug(
+        ~module_="OperationLifecycle",
+        ~message="FAIL_IGNORED_TERMINAL_OR_IDLE",
+        ~data=Some({"id": id}),
+        (),
+      )
+    }
+  | None => ()
+  }
+}
+
+let cancel = (id: operationId): unit => {
+  switch operations.contents->Belt.Map.String.get(id) {
+  | Some(task) =>
+    switch task.status {
+    | Active(_)
+    | Paused =>
+      if task.cancellable {
+        // Invoke callback first
+        switch cancelCallbacks.contents->Belt.Map.String.get(id) {
+        | Some(cb) =>
+          Logger.info(
+            ~module_="OperationLifecycle",
+            ~message="INVOKING_CANCEL_CALLBACK",
+            ~data=Some({"id": id}),
+            (),
+          )
+          cb()
+        | None => ()
+        }
+
+        let updatedTask = {
+          ...task,
+          status: Cancelled,
+          updatedAt: Date.now(),
+        }
+        operations := operations.contents->Belt.Map.String.set(id, updatedTask)
+        updateLoggerContext()
+        notifyListeners()
+        cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
+
+        Logger.info(
+          ~module_="OperationLifecycle",
+          ~message="OPERATION_CANCELLED",
+          ~data=Some({"id": id}),
+          (),
+        )
+
+        // Auto-cleanup
+        let _ = setTimeout(() => {
+          operations := operations.contents->Belt.Map.String.remove(id)
+          updateLoggerContext()
+          notifyListeners()
+        }, 5000)
+      } else {
+        Logger.warn(
+          ~module_="OperationLifecycle",
+          ~message="OPERATION_CANCEL_ATTEMPT_IGNORED",
+          ~data=Some({"id": id, "reason": "Not Cancellable"}),
+          (),
+        )
+      }
+    | Idle
+    | Completed(_)
+    | Failed(_)
+    | Cancelled =>
+      Logger.debug(
+        ~module_="OperationLifecycle",
+        ~message="CANCEL_IGNORED_TERMINAL_OR_IDLE",
+        ~data=Some({"id": id}),
         (),
       )
     }
