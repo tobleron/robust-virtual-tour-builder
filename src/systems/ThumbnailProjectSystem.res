@@ -12,11 +12,9 @@ let make = () => {
   // Dependencies on global operations
   let isNavigationBusy = OperationLifecycle.useIsBusy(~type_=Navigation)
   let isSimulationBusy = OperationLifecycle.useIsBusy(~type_=Simulation)
-  let isUploadBusy = OperationLifecycle.useIsBusy(~type_=Upload)
-  let isExportBusy = OperationLifecycle.useIsBusy(~type_=Export)
 
-  React.useEffect6(() => {
-    let isBusy = isNavigationBusy || isSimulationBusy || isUploadBusy || isExportBusy
+  React.useEffect4(() => {
+    let isBusy = isNavigationBusy || isSimulationBusy
 
     if !isProcessing.current && !isBusy {
       let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
@@ -113,8 +111,6 @@ let make = () => {
     processedIds,
     isNavigationBusy,
     isSimulationBusy,
-    isUploadBusy,
-    isExportBusy,
   ))
 
   React.null

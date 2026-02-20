@@ -126,13 +126,23 @@ let request = async (
   | Some(id) => id
   | None => "anonymous"
   }
+  let currentOperationId = Logger.getOperationId()
 
   Dict.set(headers, "X-Session-ID", sessionId)
-  Logger.getOperationId()->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
+  currentOperationId->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
 
-  // HARDENING: Check operation validity before request
+  // HARDENING: Check operation validity before request.
+  // Only lifecycle operation IDs are eligible for cancellation checks.
   let isOpCancelled =
-    Logger.getOperationId()->Option.map(id => !OperationLifecycle.isActive(id))->Option.getOr(false)
+    currentOperationId
+    ->Option.map(id =>
+      if String.startsWith(id, "op_") {
+        !OperationLifecycle.isActive(id)
+      } else {
+        false
+      }
+    )
+    ->Option.getOr(false)
 
   if isOpCancelled {
     Error("OperationCancelled")
@@ -191,7 +201,6 @@ let request = async (
         }
       }
       Dict.set(headers, "X-Request-ID", finalRequestId)
-      Logger.setOperationId(Some(finalRequestId)) // Link telemetry to this request as well
 
       let timeoutMs = TimeoutPolicy.getTimeoutMs(method)
       let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
