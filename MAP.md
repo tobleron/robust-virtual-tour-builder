@@ -84,6 +84,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
 *   [src/core/InteractionGuard.res](src/core/InteractionGuard.res): Cooldown and multi-click prevention for UI actions. `#concurrency` `#safety`
 *   [src/core/InteractionPolicies.res](src/core/InteractionPolicies.res): Configuration for interaction cooldowns and limits. `#configuration` `#safety`
+*   [src/core/Capability.res](src/core/Capability.res): Centralized capability matrix and lock-policy evaluation for interaction gating. `#policy` `#locking` `#state`
 *   [src/core/NotificationManager.res](src/core/NotificationManager.res): Core logic for dispatching and managing notifications. `#logic` `#notifications`
 *   [src/core/NotificationQueue.res](src/core/NotificationQueue.res): Queue management for sequential notification display. `#logic` `#queue`
 *   [src/core/NotificationTypes.res](src/core/NotificationTypes.res): Type definitions for the notification system. `#types` `#notifications`
@@ -185,6 +186,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/DownloadSystem.res](src/systems/DownloadSystem.res): Management of asset downloading and caching. `#download` `#cache`
 *   [src/systems/AudioManager.res](src/systems/AudioManager.res): Orchestrator for spatial audio and background soundscapes. `#audio` `#spatial-sound`
 *   [src/systems/EventBus.res](src/systems/EventBus.res): Centralized pub/sub broker for decoupled system communication. `#events` `#orchestration`
+*   [src/systems/OperationLifecycle.res](src/systems/OperationLifecycle.res): Canonical operation registry for start/progress/terminal lifecycle and visibility thresholds. `#operations` `#concurrency` `#orchestration`
 *   [src/systems/InputSystem.res](src/systems/InputSystem.res): Unified handler for mouse, touch, and keyboard input. `#input` `#gestures`
 *   [src/systems/CursorPhysics.res](src/systems/CursorPhysics.res): Physics-based cursor and interaction smoothing. `#physics` `#ux`
 *   [src/systems/ExifParser.res](src/systems/ExifParser.res): Frontend-side EXIF data parsing and normalization. `#exif` `#parsing`
@@ -292,6 +294,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/Constants.res](src/utils/Constants.res): Centralized application constants and configuration. `#utils` `#config`
 *   [src/utils/GeoUtils.res](src/utils/GeoUtils.res): Geospatial calculation utilities for tour locations. `#utils` `#geo`
 *   [src/utils/ImageOptimizer.res](src/utils/ImageOptimizer.res): Client-side image optimization and compression helpers. `#utils` `#image`
+*   [src/utils/FileSlicer.res](src/utils/FileSlicer.res): Chunk-slicing utilities for resumable project import uploads. `#utils` `#upload` `#chunking`
 *   [src/utils/ThumbnailGenerator.res](src/utils/ThumbnailGenerator.res): Math and rendering logic for rectilinear projections. `#thumbnail` `#math` `#graphics`
 *   [src/utils/PathInterpolation.res](src/utils/PathInterpolation.res): Smooth path interpolation for cinematic movements. `#utils` `#math`
 *   [src/utils/Easing.res](src/utils/Easing.res): Premium easing functions for smooth cinematic transitions. `#utils` `#math` `#animation`
@@ -357,6 +360,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/lib.rs](backend/src/lib.rs): Shared library code and trait definitions for the backend. `#rust` `#core`
 *   [backend/src/metrics.rs](backend/src/metrics.rs): Prometheus metrics collection and instrumentation. `#monitoring` `#telemetry`
 *   [backend/src/middleware.rs](backend/src/middleware.rs): Centralized Actix-web middleware collection (Auth, Quota, Request Tracker). `#mw`
+*   [backend/src/middleware/rate_limiter.rs](backend/src/middleware/rate_limiter.rs): Route-class rate limiter definitions and structured 429 response transformation. `#mw` `#rate-limit` `#resilience`
 *   [backend/src/models.rs](backend/src/models.rs): Aggregated model facade for shared backend types and error contracts. `#types` `#models` `#facade`
 *   [backend/src/models_common.rs](backend/src/models_common.rs): Shared backend DTO/data structs for geocoding, metadata, similarity, and telemetry payloads. `#types` `#models` `#shared`
 *   [backend/src/models_identity.rs](backend/src/models_identity.rs): User and auth persistence models with query helpers. `#types` `#models` `#auth`
@@ -378,6 +382,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/upload_quota.rs](backend/src/services/upload_quota.rs): Rate-limiting and quota management logic. `#quota` `#logic`
     *   [backend/src/services/upload_quota_tests.rs](backend/src/services/upload_quota_tests.rs): Integration tests for the quota enforcement system. `#rust` `#testing`
 *   [backend/src/services/project/mod.rs](backend/src/services/project/mod.rs): Core services for heavy project operations. `#services` `#project`
+    *   [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): Chunked/resumable import session manager for init/chunk/status/complete/abort workflows. `#project` `#upload` `#resumable`
     *   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
     *   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
     *   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation for tour projects. `#validation`
@@ -410,8 +415,4 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
-* [src/core/Capability.res](src/core/Capability.res): New module detected. Please classify. #new
-* [src/systems/OperationLifecycle.res](src/systems/OperationLifecycle.res): New module detected. Please classify. #new
-* [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): New module detected. Please classify. #new
-* [src/utils/FileSlicer.res](src/utils/FileSlicer.res): New module detected. Please classify. #new
-* [backend/src/middleware/rate_limiter.rs](backend/src/middleware/rate_limiter.rs): New module detected. Please classify. #new
+*(None currently - all detected modules have been classified and integrated.)*

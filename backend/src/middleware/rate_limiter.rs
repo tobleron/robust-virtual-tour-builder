@@ -1,3 +1,5 @@
+// @efficiency-role: infra-adapter
+
 use crate::startup;
 use actix_governor::{GovernorConfig, GovernorConfigBuilder, PeerIpKeyExtractor};
 use actix_web::{

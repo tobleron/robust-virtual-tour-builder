@@ -13,6 +13,7 @@ This document maps critical data flows through the system to help AI understand 
 ```
 User Click Event
   → [src/components/SceneList/SceneItem.res], [src/components/HotspotLayer.res], or [src/components/FloorNavigation.res] handles click
+  → [src/core/Capability.res] evaluates interaction permissions (`CanNavigate`, lock policy)
   → [src/core/Actions.res] defines navigation action contracts dispatched by UI and systems
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
   → [src/systems/Navigation.res] and [src/systems/NavigationLogic.res] normalize/route navigation intents
@@ -21,6 +22,7 @@ User Click Event
       → Creates AbortSignal for structured concurrency
       → dispatch(UserClickedScene) FSM event for UI reactivity
       → [src/components/LockFeedback.res] renders progress via NavigationSupervisor.addStatusListener()
+      → [src/systems/OperationLifecycle.res] tracks navigation operation lifecycle and visibility thresholds
   → [src/App.res] and [src/components/AppErrorBoundary.res] provide the top-level container
       → [src/components/ErrorFallbackUI.res] and [src/components/CriticalErrorMonitor.res] provide the crash UI and error monitoring
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
@@ -36,7 +38,7 @@ User Click Event
       → [src/systems/Scene/Loader/SceneLoaderConfig.res], [src/systems/Scene/Loader/SceneLoaderEvents.res], and [src/systems/Scene/Loader/SceneLoaderReuse.res] handle configuration, events, and instance reuse
       → [src/core/SceneCache.res] manages preloaded scene state
       → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], [src/components/ViewerManager/ViewerManagerLifecycle.res], [src/components/ViewerManager/ViewerManagerCleanup.res], [src/components/ViewerManager/ViewerManagerPreloading.res], [src/components/ViewerManager/ViewerManagerSceneLoad.res], [src/components/ViewerManager/ViewerManagerHotspots.res], [src/components/ViewerManager/ViewerManagerRatchet.res], [src/components/ViewerManager/ViewerManagerSimulation.res], and [src/components/ViewerManager/ViewerManagerIntro.res] manage active viewers and hook-level synchronization
-      → [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render interactive overlays
+      → [src/components/ViewerSceneElements.res], [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render scene and interactive overlays
       → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], [src/systems/ViewerLogic.res] manage viewer instance lifecycle
           → [src/systems/Viewer/ViewerAdapter.res], [src/systems/Viewer/ViewerPool.res], and [src/systems/Viewer/ViewerFollow.res] provide the underlying implementation
       → [src/systems/PannellumAdapter.res] and [src/systems/PannellumLifecycle.res] interface with engine
@@ -250,7 +252,9 @@ Save/Export Trigger:
       → [src/systems/Exporter/ExporterPackaging.res], [src/systems/Exporter/ExporterUpload.res], and [src/systems/Exporter/ExporterUtils.res] handle packaging assembly, upload transport, and export-specific helpers
       → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], [src/systems/TourTemplates/TourScriptCore.res], [src/systems/TourTemplates/TourScriptNavigation.res], [src/systems/TourTemplates/TourScriptInput.res], [src/systems/TourTemplates/TourScriptHotspots.res], [src/systems/TourTemplates/TourScriptViewport.res], [src/systems/TourTemplates/TourScriptUI.res], and [src/systems/TourTemplates/TourAssets.res])
   → [src/systems/DownloadSystem.res] triggers client-side saving
+  → [src/systems/OperationLifecycle.res] tracks blocking/ambient operation progress for load/save/export UX
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
+      → [backend/src/middleware/rate_limiter.rs] enforces route-class rate limits and structured 429 response payloads
   → [backend/src/api/project_logic.rs] and [backend/src/api/project_logic/mod.rs] coordinate project packaging/import helpers
       → [backend/src/api/project_logic/files.rs] discovers available image files
       → [backend/src/api/project_logic/reference.rs] resolves scene/inventory file references
@@ -262,6 +266,9 @@ Save/Export Trigger:
   → [backend/src/services/mod.rs] and [backend/src/services/project/package.rs] create ZIP (Export only)
 
 Load Trigger:
+  → [src/utils/FileSlicer.res] slices project archive for chunked/resumable import uploads
+  → [backend/src/services/project/import_upload.rs] manages init/chunk/status/complete/abort upload session lifecycle
+  → [backend/src/middleware/rate_limiter.rs] applies write-scope backpressure controls during import sequence
   → [backend/src/services/project/load.rs] fetches project data
   → [backend/src/services/project/validate.rs] performs deep structural validation
   → Returns metadata to client
@@ -291,7 +298,7 @@ Address/GPS Query
 [backend/src/main.rs] entry point
   → [backend/src/startup.rs] initializes HTTP server
   → [backend/src/lib.rs] provides core application logic
-  → [backend/src/middleware.rs] and [backend/src/auth.rs] handle CORS and Auth
+  → [backend/src/middleware.rs], [backend/src/middleware/rate_limiter.rs], and [backend/src/auth.rs] handle CORS/Auth/rate limiting
   → [backend/src/services/database.rs] connection pool
   → [backend/src/services/upload_quota.rs] and [backend/src/services/upload_quota_tests.rs] enforce limits
   → [backend/src/api/health.rs] provides service diagnostics
@@ -348,7 +355,7 @@ CI job
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/utils/FileSlicer.res], [src/core/InteractionGuard.res], [src/core/Capability.res], [src/systems/OperationLifecycle.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res], [src/utils/PerfUtils.res], [src/utils/StateDensityMonitor.res]
@@ -380,24 +387,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src/middleware
-- `[backend/src/middleware/rate_limiter.rs]`
-
-### 📂 backend/src/services/project
-- `[backend/src/services/project/import_upload.rs]`
-
-### 📂 src/components
-- `[src/components/ViewerSceneElements.res]`
-
-### 📂 src/core
-- `[src/core/Capability.res]`
-
-### 📂 src/systems
-- `[src/systems/OperationLifecycle.res]`
-
-### 📂 src/utils
-- `[src/utils/FileSlicer.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

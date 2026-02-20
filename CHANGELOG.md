@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Task 1503 capability lock matrix + 1504 validation refresh
 - T1504: Move to active for Jules delegation
 - Task 1504 race reliability verification + certification e2e
+- Tasks cleanup + D001 D003 D004 integration
 
 ## [4.30.10] - 2026-02-20
 
