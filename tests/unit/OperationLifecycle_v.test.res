@@ -44,7 +44,8 @@ describe("OperationLifecycle", () => {
     let op = OperationLifecycle.getOperation(id)
 
     switch op {
-    | Some(task) => t
+    | Some(task) =>
+      t
       ->expect(task.status)
       ->Expect.toEqual(OperationLifecycle.Completed({result: Some("Done")}))
     | None => t->expect(true)->Expect.toBe(false)
@@ -57,7 +58,8 @@ describe("OperationLifecycle", () => {
     let op = OperationLifecycle.getOperation(id)
 
     switch op {
-    | Some(task) => t
+    | Some(task) =>
+      t
       ->expect(task.status)
       ->Expect.toEqual(OperationLifecycle.Failed({error: "Error occurred"}))
     | None => t->expect(true)->Expect.toBe(false)

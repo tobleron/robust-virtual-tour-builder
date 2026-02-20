@@ -9,10 +9,10 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../src/systems/Api/ProjectApi.res**
-  - *Reason:* [Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 459/300
 - [ ] **../../src/components/Sidebar/SidebarLogic.res**
   - *Reason:* [Nesting: 4.20, Density: 0.11, Coupling: 0.09] | Drag: 5.33 | LOC: 379/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)
+- [ ] **../../src/systems/Api/ProjectApi.res**
+  - *Reason:* [Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 459/300
 - [ ] **../../src/systems/Api/AuthenticatedClient.res**
   - *Reason:* [Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)
 

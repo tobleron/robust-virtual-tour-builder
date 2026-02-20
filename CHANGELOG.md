@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge task-1502 visibility thresholds and align task 1503 lock-policy prerequisites
+- T1503: Move to active for Jules delegation
 
 ## [4.30.10] - 2026-02-20
 

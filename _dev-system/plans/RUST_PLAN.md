@@ -9,10 +9,10 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (2)
-- [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300
 - [ ] **../../backend/src/services/project/validate.rs**
   - *Reason:* [Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300
+- [ ] **../../backend/src/api/project.rs**
+  - *Reason:* [Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300
 
 ---
 
