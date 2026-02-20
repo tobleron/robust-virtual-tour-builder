@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Polish: fix intro pan on simulation start and auto-navigate to scene 0
+- Refine Visual Pipeline tooltips: compact layout, orange border, navy footer, and removed Link ID
 
 ## [4.30.1] - 2026-02-20
 
