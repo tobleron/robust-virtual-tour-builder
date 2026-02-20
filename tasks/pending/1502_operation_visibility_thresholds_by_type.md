@@ -7,6 +7,10 @@ Implement app-wide operation visibility thresholds (`visibleAfterMs`) so progres
 - Requires Task `1501` complete first.
 - Task `1503` MUST NOT start until this task is marked complete.
 
+## Prerequisite Status
+- `1501` merged: navigation completion is now decoupled from 500ms cleanup timing.
+- Start `1502` only after confirming `1501` branch is in the target branch and navigation regression checks are green.
+
 ## Problem Statement
 Progress UI currently appears immediately for active operations selected by lifecycle priority, which causes unnecessary visual noise for short operations (especially navigation).
 
@@ -36,6 +40,7 @@ Progress UI currently appears immediately for active operations selected by life
 3. Enforce visibility gate in processing selector logic (not component rendering hacks).
 4. Preserve immediate visibility for failures and critical blocking states.
 5. Ensure ambient operations remain visible once threshold crossed and while active.
+6. Keep operation completion semantics from `1501` untouched (no re-coupling to cleanup timers).
 
 ## Policy Baseline (starting point)
 - Navigation: 400-500ms
