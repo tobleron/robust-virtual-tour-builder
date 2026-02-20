@@ -1,8 +1,10 @@
+mod import_upload;
 mod load;
 mod package;
 mod validate;
 
 // Re-export public API
+pub use import_upload::{ChunkedProjectImportManager, MAX_IMPORT_CHUNK_SIZE_BYTES};
 #[allow(unused_imports)]
 pub use load::process_uploaded_project_zip;
 pub use package::create_tour_package;

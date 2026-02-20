@@ -1,5 +1,221 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/Api/ProjectApi.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.06] | Drag: 2.20 | LOC: 414/300",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.604830917874397,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Api/ProjectApi.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Api/ProjectApi.res",
+              "functions": [
+                {
+                  "name": "handleError",
+                  "signature": "handleError = (e, message, logKey) => {",
+                  "line": 6
+                },
+                {
+                  "name": "handleJsonDecode",
+                  "signature": "handleJsonDecode = (json, decoder, logKey, errorMessage) => {",
+                  "line": 17
+                },
+                {
+                  "name": "decodeImportInitResponse",
+                  "signature": "decodeImportInitResponse = json =>",
+                  "line": 51
+                },
+                {
+                  "name": "decodeImportChunkResponse",
+                  "signature": "decodeImportChunkResponse = json =>",
+                  "line": 64
+                },
+                {
+                  "name": "decodeImportStatusResponse",
+                  "signature": "decodeImportStatusResponse = json =>",
+                  "line": 76
+                },
+                {
+                  "name": "requestImportInit",
+                  "signature": "requestImportInit = (",
+                  "line": 92
+                },
+                {
+                  "name": "requestImportStatus",
+                  "signature": "requestImportStatus = (",
+                  "line": 131
+                },
+                {
+                  "name": "requestImportChunk",
+                  "signature": "requestImportChunk = (",
+                  "line": 156
+                },
+                {
+                  "name": "requestImportComplete",
+                  "signature": "requestImportComplete = (",
+                  "line": 208
+                },
+                {
+                  "name": "requestImportAbort",
+                  "signature": "requestImportAbort = (",
+                  "line": 247
+                },
+                {
+                  "name": "uploadMissingChunks",
+                  "signature": "uploadMissingChunks = async (",
+                  "line": 266
+                },
+                {
+                  "name": "importProject",
+                  "signature": "importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<",
+                  "line": 311
+                },
+                {
+                  "name": "saveProject",
+                  "signature": "saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {",
+                  "line": 356
+                },
+                {
+                  "name": "calculatePath",
+                  "signature": "calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathRequest): Promise.t<",
+                  "line": 378
+                },
+                {
+                  "name": "reverseGeocode",
+                  "signature": "reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {",
+                  "line": 413
+                }
+              ],
+              "fingerprint": "22174c2415c722f3a8c4d26c8132e5838b1dfa88ec0a808b87dfd635844da180"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 34.03666666666667,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/project.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/project.rs",
+              "functions": [
+                {
+                  "name": "save_project",
+                  "signature": "pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 81
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 98
+                },
+                {
+                  "name": "new",
+                  "signature": "fn new(path: std::path::PathBuf) -> Self {",
+                  "line": 110
+                },
+                {
+                  "name": "keep",
+                  "signature": "fn keep(&mut self) {",
+                  "line": 114
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 119
+                },
+                {
+                  "name": "load_project",
+                  "signature": "pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 188
+                },
+                {
+                  "name": "import_project_from_zip_path",
+                  "signature": "async fn import_project_from_zip_path(",
+                  "line": 213
+                },
+                {
+                  "name": "import_project",
+                  "signature": "pub async fn import_project(",
+                  "line": 267
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 285
+                },
+                {
+                  "name": "import_project_init",
+                  "signature": "pub async fn import_project_init(",
+                  "line": 306
+                },
+                {
+                  "name": "import_project_chunk",
+                  "signature": "pub async fn import_project_chunk(",
+                  "line": 352
+                },
+                {
+                  "name": "import_project_status",
+                  "signature": "pub async fn import_project_status(",
+                  "line": 384
+                },
+                {
+                  "name": "import_project_complete",
+                  "signature": "pub async fn import_project_complete(",
+                  "line": 410
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 437
+                },
+                {
+                  "name": "import_project_abort",
+                  "signature": "pub async fn import_project_abort(",
+                  "line": 458
+                },
+                {
+                  "name": "calculate_path",
+                  "signature": "pub async fn calculate_path(payload: web::Json<PathRequest>) -> Result<HttpResponse, AppError> {",
+                  "line": 482
+                },
+                {
+                  "name": "validate_project",
+                  "signature": "pub async fn validate_project(",
+                  "line": 503
+                },
+                {
+                  "name": "create_tour_package",
+                  "signature": "pub async fn create_tour_package(",
+                  "line": 530
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 556
+                }
+              ],
+              "fingerprint": "24cbe0bf56a3c04971e24a2f7c91b92a24d7329ed53820f14861894ec093716b"
+            }
+          ]
+        }
+      }
+    },
     {
       "Violation": {
         "file": "../../backend/src/middleware/rate_limiter.rs",
@@ -12,6 +228,12 @@
     {
       "Ambiguity": {
         "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
         "strategy": ""
       }
     }

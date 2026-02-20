@@ -58,22 +58,24 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
       }
 
       <Tooltip key={f.id ++ keySuffix} content={f.label} alignment=#Right disabled={isLinking}>
-        <Shadcn.Button
-          size="icon"
-          variant="ghost"
-          className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++
-          buttonStateClass}
-          onClick={e => handleFloorClick(f.id, f.label, e)}
-          disabled={isLinking}
-        >
-          <span className="floor-combo">
-            <span className="floor-main"> {React.string(f.short)} </span>
-            {switch f.suffix {
-            | Some(s) if s != "" => <sup className="floor-suffix"> {React.string(s)} </sup>
-            | _ => React.null
-            }}
-          </span>
-        </Shadcn.Button>
+        <span id={"floor-nav-button-" ++ f.id} className="inline-block">
+          <Shadcn.Button
+            size="icon"
+            variant="ghost"
+            className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++
+            buttonStateClass}
+            onClick={e => handleFloorClick(f.id, f.label, e)}
+            disabled={isLinking}
+          >
+            <span className="floor-combo">
+              <span className="floor-main"> {React.string(f.short)} </span>
+              {switch f.suffix {
+              | Some(s) if s != "" => <sup className="floor-suffix"> {React.string(s)} </sup>
+              | _ => React.null
+              }}
+            </span>
+          </Shadcn.Button>
+        </span>
       </Tooltip>
     })
     ->React.array

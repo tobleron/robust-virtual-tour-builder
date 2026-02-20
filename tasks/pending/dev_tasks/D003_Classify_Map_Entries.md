@@ -7,4 +7,6 @@ New modules were detected and added to the 'Unmapped Modules' section of `MAP.md
 Move the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.
 
 ## Tasks
+- [ ] [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): New module detected. Please classify. #new
+- [ ] [src/utils/FileSlicer.res](src/utils/FileSlicer.res): New module detected. Please classify. #new
 - [ ] [backend/src/middleware/rate_limiter.rs](backend/src/middleware/rate_limiter.rs): New module detected. Please classify. #new

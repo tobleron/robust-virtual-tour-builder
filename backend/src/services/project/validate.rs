@@ -125,9 +125,11 @@ pub fn validate_and_clean_project(
             image_found = true;
         }
 
-        // Fallback: Check 'file' property (URL) if not found by name
+        // Fallback: Check 'file' property (URL or direct path) if not found by name
         if !image_found {
             if let Some(file_url) = scene["file"].as_str() {
+                let mut target_filename = None;
+
                 if file_url.contains("/file/") {
                     if let Some(filename_segment) = file_url
                         .split("/file/")
@@ -137,17 +139,21 @@ pub fn validate_and_clean_project(
                         if let Ok(decoded_filename) =
                             percent_encoding::percent_decode_str(filename_segment).decode_utf8()
                         {
-                            let decoded_filename = decoded_filename.to_string();
-                            if let Ok(safe_filename) =
-                                crate::api::utils::sanitize_filename(&decoded_filename)
-                            {
-                                if available_files.contains(&safe_filename)
-                                    || available_files
-                                        .contains(&format!("images/{}", safe_filename))
-                                {
-                                    image_found = true;
-                                }
-                            }
+                            target_filename = Some(decoded_filename.to_string());
+                        }
+                    }
+                } else if file_url.starts_with("/images/") {
+                    target_filename = Some(file_url.trim_start_matches("/images/").to_string());
+                } else if file_url.starts_with("images/") {
+                    target_filename = Some(file_url.trim_start_matches("images/").to_string());
+                }
+
+                if let Some(filename) = target_filename {
+                    if let Ok(safe_filename) = crate::api::utils::sanitize_filename(&filename) {
+                        if available_files.contains(&safe_filename)
+                            || available_files.contains(&format!("images/{}", safe_filename))
+                        {
+                            image_found = true;
                         }
                     }
                 }
@@ -284,11 +290,37 @@ pub fn validate_and_clean_project(
     }
     *scenes = scenes_to_keep;
 
-    let final_scene_names: HashSet<String> = scenes
+    let mut used_filenames: HashSet<String> = scenes
         .iter()
         .filter_map(|s| s["name"].as_str())
         .map(|s| s.to_string())
         .collect();
+
+    // Also collect from 'file' property to handle direct path references
+    for scene in scenes.iter() {
+        if let Some(file_url) = scene["file"].as_str() {
+            let filename = if file_url.contains("/file/") {
+                file_url
+                    .split("/file/")
+                    .nth(1)
+                    .and_then(|s| s.split('?').next())
+                    .and_then(|s| percent_encoding::percent_decode_str(s).decode_utf8().ok())
+                    .map(|s| s.to_string())
+            } else if file_url.starts_with("/images/") {
+                Some(file_url.trim_start_matches("/images/").to_string())
+            } else if file_url.starts_with("images/") {
+                Some(file_url.trim_start_matches("images/").to_string())
+            } else {
+                Some(file_url.to_string())
+            };
+
+            if let Some(name) = filename {
+                if let Ok(safe) = crate::api::utils::sanitize_filename(&name) {
+                    used_filenames.insert(safe);
+                }
+            }
+        }
+    }
 
     // 5. Check for orphaned image files in the ZIP (files not used in project)
     for file in available_files {
@@ -304,7 +336,7 @@ pub fn validate_and_clean_project(
                 file
             };
 
-            if !final_scene_names.contains(base_name) {
+            if !used_filenames.contains(base_name) {
                 report.unused_files.push(file.clone());
             }
         }

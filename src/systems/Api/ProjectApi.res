@@ -28,36 +28,351 @@ let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
   }
 }
 
-let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
-  apiResult<importResponse>,
+type importInitResponse = {
+  uploadId: string,
+  chunkSizeBytes: int,
+  totalChunks: int,
+  expiresAtEpochMs: float,
+}
+
+type importChunkResponse = {
+  accepted: bool,
+  nextExpectedChunk: int,
+  receivedCount: int,
+}
+
+type importStatusResponse = {
+  receivedChunks: array<int>,
+  nextExpectedChunk: int,
+  totalChunks: int,
+  expiresAtEpochMs: float,
+}
+
+let decodeImportInitResponse = json =>
+  JsonCombinators.Json.decode(
+    json,
+    JsonCombinators.Json.Decode.object(field => {
+      {
+        uploadId: field.required("uploadId", JsonCombinators.Json.Decode.string),
+        chunkSizeBytes: field.required("chunkSizeBytes", JsonCombinators.Json.Decode.int),
+        totalChunks: field.required("totalChunks", JsonCombinators.Json.Decode.int),
+        expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
+      }
+    }),
+  )
+
+let decodeImportChunkResponse = json =>
+  JsonCombinators.Json.decode(
+    json,
+    JsonCombinators.Json.Decode.object(field => {
+      {
+        accepted: field.required("accepted", JsonCombinators.Json.Decode.bool),
+        nextExpectedChunk: field.required("nextExpectedChunk", JsonCombinators.Json.Decode.int),
+        receivedCount: field.required("receivedCount", JsonCombinators.Json.Decode.int),
+      }
+    }),
+  )
+
+let decodeImportStatusResponse = json =>
+  JsonCombinators.Json.decode(
+    json,
+    JsonCombinators.Json.Decode.object(field => {
+      {
+        receivedChunks: field.required(
+          "receivedChunks",
+          JsonCombinators.Json.Decode.array(JsonCombinators.Json.Decode.int),
+        ),
+        nextExpectedChunk: field.required("nextExpectedChunk", JsonCombinators.Json.Decode.int),
+        totalChunks: field.required("totalChunks", JsonCombinators.Json.Decode.int),
+        expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
+      }
+    }),
+  )
+
+let requestImportInit = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
+  apiResult<importInitResponse>,
 > => {
-  RequestQueue.schedule(() => {
+  let body = JsonCombinators.Json.Encode.object([
+    ("filename", JsonCombinators.Json.Encode.string(File.name(file))),
+    ("sizeBytes", JsonCombinators.Json.Encode.int(Float.toInt(File.size(file)))),
+    ("chunkSizeBytes", JsonCombinators.Json.Encode.int(FileSlicer.defaultChunkSizeBytes)),
+  ])
+
+  AuthenticatedClient.requestWithRetry(
+    Constants.backendUrl ++ "/api/project/import/init",
+    ~method="POST",
+    ~body=AuthenticatedClient.castBody(body),
+    ~signal?,
+    (),
+  )->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Retry.Success(response, _) =>
+      response.json()
+      ->Promise.then(json =>
+        handleJsonDecode(
+          json,
+          decodeImportInitResponse,
+          "IMPORT_INIT",
+          "Project import initialization failed",
+        )
+      )
+      ->Promise.catch(e =>
+        handleError(
+          e,
+          "Project import initialization failed: JSON parsing error",
+          "IMPORT_INIT_ERROR_JSON_DECODE",
+        )
+      )
+    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+    }
+  })
+}
+
+let requestImportStatus = (
+  uploadId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): Promise.t<apiResult<importStatusResponse>> => {
+  AuthenticatedClient.requestWithRetry(
+    Constants.backendUrl ++ "/api/project/import/status/" ++ uploadId,
+    ~method="GET",
+    ~signal?,
+    (),
+  )->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Retry.Success(response, _) =>
+      response.json()
+      ->Promise.then(json =>
+        handleJsonDecode(
+          json,
+          decodeImportStatusResponse,
+          "IMPORT_STATUS",
+          "Project import status failed",
+        )
+      )
+      ->Promise.catch(e =>
+        handleError(
+          e,
+          "Project import status failed: JSON parsing error",
+          "IMPORT_STATUS_ERROR_JSON_DECODE",
+        )
+      )
+    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+    }
+  })
+}
+
+let requestImportChunk = (
+  file: File.t,
+  ~uploadId: string,
+  ~chunkIndex: int,
+  ~chunkSizeBytes: int,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): Promise.t<apiResult<importChunkResponse>> => {
+  let sizeBytes = Float.toInt(File.size(file))
+
+  switch (
+    FileSlicer.sliceChunk(file, ~chunkSizeBytes, ~chunkIndex),
+    FileSlicer.chunkByteLengthForIndex(~sizeBytes, ~chunkSizeBytes, ~chunkIndex),
+  ) {
+  | (Some(chunkBlob), Some(chunkByteLength)) =>
     let formData = FormData.newFormData()
-    // Backend expects 'file' field for multipart imports
-    FormData.append(formData, "file", file)
+    FormData.append(formData, "uploadId", uploadId)
+    FormData.append(formData, "chunkIndex", Belt.Int.toString(chunkIndex))
+    FormData.append(formData, "chunkByteLength", Belt.Int.toString(chunkByteLength))
+    FormData.appendWithFilename(
+      formData,
+      "chunk",
+      chunkBlob,
+      File.name(file) ++ ".part-" ++ Belt.Int.toString(chunkIndex),
+    )
 
     AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/project/import",
+      Constants.backendUrl ++ "/api/project/import/chunk",
       ~method="POST",
       ~formData,
       ~signal?,
       (),
-    )
-    ->Promise.then(resultResponse => {
+    )->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
         response.json()
-        ->Promise.then(
-          json => handleJsonDecode(json, decodeImportResponse, "IMPORT", "Project import failed"),
+        ->Promise.then(json =>
+          handleJsonDecode(
+            json,
+            decodeImportChunkResponse,
+            "IMPORT_CHUNK",
+            "Project import chunk failed",
+          )
         )
-        ->Promise.catch(
-          e =>
-            handleError(e, "Project import failed: JSON parsing error", "IMPORT_ERROR_JSON_DECODE"),
+        ->Promise.catch(e =>
+          handleError(
+            e,
+            "Project import chunk failed: JSON parsing error",
+            "IMPORT_CHUNK_ERROR_JSON_DECODE",
+          )
         )
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Project import failed", "IMPORT_ERROR"))
+  | _ =>
+    Promise.resolve(
+      Error("Failed to prepare chunk " ++ Belt.Int.toString(chunkIndex) ++ " for project import"),
+    )
+  }
+}
+
+let requestImportComplete = (
+  file: File.t,
+  ~uploadId: string,
+  ~totalChunks: int,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): Promise.t<apiResult<importResponse>> => {
+  let body = JsonCombinators.Json.Encode.object([
+    ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
+    ("filename", JsonCombinators.Json.Encode.string(File.name(file))),
+    ("sizeBytes", JsonCombinators.Json.Encode.int(Float.toInt(File.size(file)))),
+    ("totalChunks", JsonCombinators.Json.Encode.int(totalChunks)),
+  ])
+
+  AuthenticatedClient.requestWithRetry(
+    Constants.backendUrl ++ "/api/project/import/complete",
+    ~method="POST",
+    ~body=AuthenticatedClient.castBody(body),
+    ~signal?,
+    (),
+  )->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Retry.Success(response, _) =>
+      response.json()
+      ->Promise.then(json =>
+        handleJsonDecode(
+          json,
+          decodeImportResponse,
+          "IMPORT_COMPLETE",
+          "Project import completion failed",
+        )
+      )
+      ->Promise.catch(e =>
+        handleError(
+          e,
+          "Project import completion failed: JSON parsing error",
+          "IMPORT_COMPLETE_ERROR_JSON_DECODE",
+        )
+      )
+    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+    }
+  })
+}
+
+let requestImportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
+  let body = JsonCombinators.Json.Encode.object([
+    ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
+  ])
+
+  AuthenticatedClient.requestWithRetry(
+    Constants.backendUrl ++ "/api/project/import/abort",
+    ~method="POST",
+    ~body=AuthenticatedClient.castBody(body),
+    ~signal?,
+    (),
+  )
+  ->Promise.then(_ => Promise.resolve())
+  ->Promise.catch(_ => Promise.resolve())
+}
+
+let rec uploadMissingChunks = async (
+  file: File.t,
+  ~uploadId: string,
+  ~chunkSizeBytes: int,
+  ~totalChunks: int,
+  ~receivedChunks: array<int>,
+  ~currentIndex: int,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): apiResult<unit> => {
+  if currentIndex >= totalChunks {
+    Ok()
+  } else if receivedChunks->Belt.Array.some(idx => idx == currentIndex) {
+    await uploadMissingChunks(
+      file,
+      ~uploadId,
+      ~chunkSizeBytes,
+      ~totalChunks,
+      ~receivedChunks,
+      ~currentIndex=currentIndex + 1,
+      ~signal?,
+    )
+  } else {
+    let chunkResult = await requestImportChunk(
+      file,
+      ~uploadId,
+      ~chunkIndex=currentIndex,
+      ~chunkSizeBytes,
+      ~signal?,
+    )
+    switch chunkResult {
+    | Ok(_) =>
+      await uploadMissingChunks(
+        file,
+        ~uploadId,
+        ~chunkSizeBytes,
+        ~totalChunks,
+        ~receivedChunks,
+        ~currentIndex=currentIndex + 1,
+        ~signal?,
+      )
+    | Error(msg) => Error(msg)
+    }
+  }
+}
+
+let importProject = (file: File.t, ~signal: option<BrowserBindings.AbortSignal.t>=?): Promise.t<
+  apiResult<importResponse>,
+> => {
+  RequestQueue.schedule(() => {
+    let chunkedFlow = async () => {
+      let initResult = await requestImportInit(file, ~signal?)
+      switch initResult {
+      | Error(msg) => Error(msg)
+      | Ok(initData) =>
+        let statusResult = await requestImportStatus(initData.uploadId, ~signal?)
+        let receivedChunks = switch statusResult {
+        | Ok(status) => status.receivedChunks
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="ProjectApi",
+            ~message="CHUNK_IMPORT_STATUS_FALLBACK_EMPTY",
+            ~data=Logger.castToJson({"reason": msg, "uploadId": initData.uploadId}),
+            (),
+          )
+          []
+        }
+
+        let uploadResult = await uploadMissingChunks(
+          file,
+          ~uploadId=initData.uploadId,
+          ~chunkSizeBytes=initData.chunkSizeBytes,
+          ~totalChunks=initData.totalChunks,
+          ~receivedChunks,
+          ~currentIndex=0,
+          ~signal?,
+        )
+
+        switch uploadResult {
+        | Error(msg) =>
+          let _ = requestImportAbort(initData.uploadId, ~signal?)
+          Error(msg)
+        | Ok(_) =>
+          await requestImportComplete(
+            file,
+            ~uploadId=initData.uploadId,
+            ~totalChunks=initData.totalChunks,
+            ~signal?,
+          )
+        }
+      }
+    }
+
+    chunkedFlow()->Promise.catch(e => handleError(e, "Project import failed", "IMPORT_ERROR"))
   })
 }
 

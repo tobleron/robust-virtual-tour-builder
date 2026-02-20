@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
 use crate::models::AppError;
+use crate::services::project::MAX_IMPORT_CHUNK_SIZE_BYTES;
 
 /// Reads a string field from multipart.
 pub async fn read_string_field(field: &mut actix_multipart::Field) -> Result<String, AppError> {
@@ -51,6 +52,14 @@ pub async fn save_temp_file_field(
     save_field_to_file(field, &temp_img_path).await?;
 
     Ok((sanitized_name, temp_img_path))
+}
+
+/// Parsed multipart payload for a chunk upload request.
+pub struct ImportChunkMultipartData {
+    pub upload_id: String,
+    pub chunk_index: usize,
+    pub chunk_byte_length: Option<usize>,
+    pub chunk_data: Vec<u8>,
 }
 
 /// Parses the multipart payload for saving a project.
@@ -123,6 +132,69 @@ pub async fn extract_file_from_multipart(
     Err(AppError::MultipartError(
         actix_multipart::MultipartError::Incomplete.to_string(),
     ))
+}
+
+/// Parses the multipart payload for project import chunk upload.
+pub async fn parse_import_chunk_multipart(
+    mut payload: Multipart,
+) -> Result<ImportChunkMultipartData, AppError> {
+    let mut upload_id: Option<String> = None;
+    let mut chunk_index: Option<usize> = None;
+    let mut chunk_byte_length: Option<usize> = None;
+    let mut chunk_data: Option<Vec<u8>> = None;
+
+    while let Some(mut field) = payload.try_next().await? {
+        match field.name().unwrap_or("") {
+            "uploadId" | "upload_id" => {
+                upload_id = Some(read_string_field(&mut field).await?);
+            }
+            "chunkIndex" | "chunk_index" => {
+                let raw = read_string_field(&mut field).await?;
+                chunk_index = Some(raw.trim().parse::<usize>().map_err(|_| {
+                    AppError::ValidationError("Invalid chunkIndex provided".to_string())
+                })?);
+            }
+            "chunkByteLength" | "chunk_byte_length" => {
+                let raw = read_string_field(&mut field).await?;
+                chunk_byte_length = Some(raw.trim().parse::<usize>().map_err(|_| {
+                    AppError::ValidationError("Invalid chunkByteLength provided".to_string())
+                })?);
+            }
+            "chunk" | "file" => {
+                let mut bytes = Vec::new();
+                while let Some(chunk) = field.try_next().await? {
+                    bytes.extend_from_slice(&chunk);
+                    if bytes.len() > MAX_IMPORT_CHUNK_SIZE_BYTES {
+                        return Err(AppError::ValidationError(format!(
+                            "Chunk exceeds maximum size of {} bytes",
+                            MAX_IMPORT_CHUNK_SIZE_BYTES
+                        )));
+                    }
+                }
+                chunk_data = Some(bytes);
+            }
+            _ => {
+                let _ = read_string_field(&mut field).await?;
+            }
+        }
+    }
+
+    let upload_id = upload_id.ok_or_else(|| {
+        AppError::MultipartError("Missing uploadId field in chunk payload".to_string())
+    })?;
+    let chunk_index = chunk_index.ok_or_else(|| {
+        AppError::MultipartError("Missing chunkIndex field in chunk payload".to_string())
+    })?;
+    let chunk_data = chunk_data.ok_or_else(|| {
+        AppError::MultipartError("Missing chunk data in chunk payload".to_string())
+    })?;
+
+    Ok(ImportChunkMultipartData {
+        upload_id,
+        chunk_index,
+        chunk_byte_length,
+        chunk_data,
+    })
 }
 
 /// Parses the multipart payload for creating a tour package.
