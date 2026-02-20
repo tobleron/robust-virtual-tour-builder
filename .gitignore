@@ -62,6 +62,7 @@ playwright/.cache/
 docs/_tmp_test_reports/
 
 # Generated local artifacts (never commit)
+artifacts/
 backend/temp/
 backend/logs/
 .agent/current_file_structure.md

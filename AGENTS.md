@@ -44,6 +44,7 @@ This file provides universal guidelines for agents working with code in this rep
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
 - **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push. Note: Tests are currently Bypassed/Manual).
 - **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/testing/dev).
+- **Storage Check**: Before committing, audit for unnecessary large files (logs, temp zips, etc.) and ask the user for cleanup permission.
 - **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.
 
 ## 🚨 Coding Vitals (PRIORITY 0)

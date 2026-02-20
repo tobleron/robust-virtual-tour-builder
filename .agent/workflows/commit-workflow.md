@@ -48,8 +48,9 @@ Before running the commit script, perform these checks that automation cannot ca
 - [ ] **Explicit Handling**: Verify `Option` and `Result` are handled explicitly; no `Obj.magic` or unsafe type-casting.
 - [ ] **Module Boundaries**: Ensure new modules are correctly mapped in `MAP.md` (if not, the script will warn you, but you must add the tags).
 
-### Visual & UX Verification
+### Storage & Bloat Check
 - [ ] **Ghost Artifacts**: In the browser, verify no SVG or CSS artifacts remain during scene transitions.
+- [ ] **Large File Audit**: Check for unnecessary large files (e.g. logs, temp zips, massive screenshots). If found, ask the user if they should be cleaned up before committing.
 - [ ] **Responsive Check**: Ensure new UI elements don't break the layout on smaller viewports.
 - [ ] **Interaction Feedback**: Verify animations (flickers, sweeps) feel tactical and responsive.
 
