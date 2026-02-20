@@ -388,5 +388,23 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 backend/src/api
+- `[backend/src/api/project_import.rs]`
+
+### 📂 backend/src/services/project
+- `[backend/src/services/project/import_session.rs]`
+- `[backend/src/services/project/validate_utils.rs]`
+
+### 📂 src/components/Sidebar
+- `[src/components/Sidebar/SidebarBase.res]`
+- `[src/components/Sidebar/SidebarLogicHandler.res]`
+
+### 📂 src/systems/Api
+- `[src/systems/Api/AuthenticatedClientBase.res]`
+- `[src/systems/Api/AuthenticatedClientRequest.res]`
+- `[src/systems/Api/ProjectImportApi.res]`
+- `[src/systems/Api/ProjectImportOrchestrator.res]`
+- `[src/systems/Api/ProjectImportTypes.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

@@ -1,71 +1,21 @@
 {
-  "system": [],
-  "rust": [
+  "system": [
     {
-      "Surgical": {
-        "file": "../../backend/src/services/project/validate.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 13.401047120418847,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/validate.rs",
-              "functions": [
-                {
-                  "name": "normalize_scene_key",
-                  "signature": "fn normalize_scene_key(value: &str) -> String {",
-                  "line": 6
-                },
-                {
-                  "name": "scene_id_or_fallback",
-                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
-                  "line": 18
-                },
-                {
-                  "name": "extract_sanitized_filename",
-                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
-                  "line": 28
-                },
-                {
-                  "name": "archive_contains_file",
-                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
-                  "line": 67
-                },
-                {
-                  "name": "get_scene_filename",
-                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
-                  "line": 71
-                },
-                {
-                  "name": "resolve_hotspot_target_id",
-                  "signature": "fn resolve_hotspot_target_id(",
-                  "line": 78
-                },
-                {
-                  "name": "validate_and_clean_project",
-                  "signature": "pub fn validate_and_clean_project(",
-                  "line": 124
-                }
-              ],
-              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
-            }
-          ]
-        }
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
       }
-    },
+    }
+  ],
+  "rust": [
     {
       "Surgical": {
         "file": "../../backend/src/services/project/import_upload.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.01] | Drag: 3.74 | LOC: 541/300",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
         "strategy": "",
         "platform": "backend",
-        "complexity": 27.844362292051756,
+        "complexity": 19.6479302832244,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
@@ -74,449 +24,62 @@
               "path": "backend/src/services/project/import_upload.rs",
               "functions": [
                 {
-                  "name": "chunk_path",
-                  "signature": "fn chunk_path(&self, index: usize) -> PathBuf {",
-                  "line": 55
-                },
-                {
-                  "name": "expected_chunk_size",
-                  "signature": "fn expected_chunk_size(&self, index: usize) -> Option<usize> {",
-                  "line": 59
-                },
-                {
-                  "name": "next_expected_chunk",
-                  "signature": "fn next_expected_chunk(&self) -> usize {",
-                  "line": 69
-                },
-                {
                   "name": "new",
                   "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 84
+                  "line": 51
                 },
                 {
                   "name": "with_ttl",
                   "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 88
+                  "line": 55
                 },
                 {
                   "name": "init_session",
                   "signature": "pub async fn init_session(",
-                  "line": 102
+                  "line": 69
                 },
                 {
                   "name": "save_chunk",
                   "signature": "pub async fn save_chunk(",
-                  "line": 167
+                  "line": 134
                 },
                 {
                   "name": "status",
                   "signature": "pub async fn status(",
-                  "line": 252
+                  "line": 219
                 },
                 {
                   "name": "complete_session",
                   "signature": "pub async fn complete_session(",
-                  "line": 276
+                  "line": 243
                 },
                 {
                   "name": "abort_session",
                   "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 342
+                  "line": 309
                 },
                 {
                   "name": "remove_session",
                   "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 347
+                  "line": 314
                 },
                 {
                   "name": "cleanup_expired",
                   "signature": "async fn cleanup_expired(&self) {",
-                  "line": 367
-                },
-                {
-                  "name": "normalize_chunk_size",
-                  "signature": "fn normalize_chunk_size(requested_chunk_size: Option<usize>) -> Result<usize, String> {",
-                  "line": 397
-                },
-                {
-                  "name": "assemble_chunks",
-                  "signature": "async fn assemble_chunks(session: &UploadSession, output_path: &Path) -> Result<(), String> {",
-                  "line": 414
-                },
-                {
-                  "name": "to_epoch_ms",
-                  "signature": "fn to_epoch_ms(time: SystemTime) -> Result<u64, String> {",
-                  "line": 439
+                  "line": 334
                 },
                 {
                   "name": "completes_chunked_payload_and_reassembles_in_order",
                   "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 452
+                  "line": 370
                 },
                 {
                   "name": "rejects_invalid_chunk_byte_size",
                   "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 515
+                  "line": 433
                 }
               ],
-              "fingerprint": "2265bbd956c25d40c7c935fc43b7925c21fc474ecb4cfca1c66c7150b594e2d8"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 34.03666666666667,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/project.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/project.rs",
-              "functions": [
-                {
-                  "name": "save_project",
-                  "signature": "pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 81
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 98
-                },
-                {
-                  "name": "new",
-                  "signature": "fn new(path: std::path::PathBuf) -> Self {",
-                  "line": 110
-                },
-                {
-                  "name": "keep",
-                  "signature": "fn keep(&mut self) {",
-                  "line": 114
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 119
-                },
-                {
-                  "name": "load_project",
-                  "signature": "pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 188
-                },
-                {
-                  "name": "import_project_from_zip_path",
-                  "signature": "async fn import_project_from_zip_path(",
-                  "line": 213
-                },
-                {
-                  "name": "import_project",
-                  "signature": "pub async fn import_project(",
-                  "line": 267
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 285
-                },
-                {
-                  "name": "import_project_init",
-                  "signature": "pub async fn import_project_init(",
-                  "line": 306
-                },
-                {
-                  "name": "import_project_chunk",
-                  "signature": "pub async fn import_project_chunk(",
-                  "line": 352
-                },
-                {
-                  "name": "import_project_status",
-                  "signature": "pub async fn import_project_status(",
-                  "line": 384
-                },
-                {
-                  "name": "import_project_complete",
-                  "signature": "pub async fn import_project_complete(",
-                  "line": 410
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 437
-                },
-                {
-                  "name": "import_project_abort",
-                  "signature": "pub async fn import_project_abort(",
-                  "line": 458
-                },
-                {
-                  "name": "calculate_path",
-                  "signature": "pub async fn calculate_path(payload: web::Json<PathRequest>) -> Result<HttpResponse, AppError> {",
-                  "line": 482
-                },
-                {
-                  "name": "validate_project",
-                  "signature": "pub async fn validate_project(",
-                  "line": 503
-                },
-                {
-                  "name": "create_tour_package",
-                  "signature": "pub async fn create_tour_package(",
-                  "line": 530
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 556
-                }
-              ],
-              "fingerprint": "24cbe0bf56a3c04971e24a2f7c91b92a24d7329ed53820f14861894ec093716b"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/Api/ProjectApi.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 459/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 18.104357298474945,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Api/ProjectApi.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Api/ProjectApi.res",
-              "functions": [
-                {
-                  "name": "handleError",
-                  "signature": "handleError = (e, message, logKey) => {",
-                  "line": 6
-                },
-                {
-                  "name": "handleJsonDecode",
-                  "signature": "handleJsonDecode = (json, decoder, logKey, errorMessage) => {",
-                  "line": 17
-                },
-                {
-                  "name": "decodeImportInitResponse",
-                  "signature": "decodeImportInitResponse = json =>",
-                  "line": 51
-                },
-                {
-                  "name": "decodeImportChunkResponse",
-                  "signature": "decodeImportChunkResponse = json =>",
-                  "line": 64
-                },
-                {
-                  "name": "decodeImportStatusResponse",
-                  "signature": "decodeImportStatusResponse = json =>",
-                  "line": 76
-                },
-                {
-                  "name": "requestImportInit",
-                  "signature": "requestImportInit = (",
-                  "line": 92
-                },
-                {
-                  "name": "requestImportStatus",
-                  "signature": "requestImportStatus = (",
-                  "line": 134
-                },
-                {
-                  "name": "requestImportChunk",
-                  "signature": "requestImportChunk = (",
-                  "line": 169
-                },
-                {
-                  "name": "requestImportComplete",
-                  "signature": "requestImportComplete = (",
-                  "line": 231
-                },
-                {
-                  "name": "requestImportAbort",
-                  "signature": "requestImportAbort = (",
-                  "line": 276
-                },
-                {
-                  "name": "uploadMissingChunks",
-                  "signature": "uploadMissingChunks = async (",
-                  "line": 297
-                },
-                {
-                  "name": "importProject",
-                  "signature": "importProject = (",
-                  "line": 346
-                },
-                {
-                  "name": "saveProject",
-                  "signature": "saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {",
-                  "line": 401
-                },
-                {
-                  "name": "calculatePath",
-                  "signature": "calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathRequest): Promise.t<",
-                  "line": 423
-                },
-                {
-                  "name": "reverseGeocode",
-                  "signature": "reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {",
-                  "line": 458
-                }
-              ],
-              "fingerprint": "250b40f2f5e65314fbdf232ce854885dbaaf61d0a43091f78e7952bd0381a1e7"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.09] | Drag: 5.32 | LOC: 380/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.323684210526316,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogic.res",
-              "functions": [
-                {
-                  "name": "lastPct",
-                  "signature": "lastPct = ref(0.0)",
-                  "line": 29
-                },
-                {
-                  "name": "updateProgress",
-                  "signature": "updateProgress = (",
-                  "line": 31
-                },
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 66
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 124
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 169
-                },
-                {
-                  "name": "getProjectData",
-                  "signature": "getProjectData = (state: Types.state) => {",
-                  "line": 278
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 282
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 294
-                }
-              ],
-              "fingerprint": "1e010ccb9a80ad92e78d4cff5e4459e29a646bd574a07cbb55f24bc3cb9c1232"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.34433249370277,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Api/AuthenticatedClient.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Api/AuthenticatedClient.res",
-              "functions": [
-                {
-                  "name": "fetchJson",
-                  "signature": "fetchJson = (res: response) => res.json()",
-                  "line": 18
-                },
-                {
-                  "name": "fetchText",
-                  "signature": "fetchText = (res: response) => res.text()",
-                  "line": 19
-                },
-                {
-                  "name": "fetchBlob",
-                  "signature": "fetchBlob = (res: response) => res.blob()",
-                  "line": 20
-                },
-                {
-                  "name": "toUpper",
-                  "signature": "toUpper: string => string = %raw(\"(s) => String(s || '').toUpperCase()\")",
-                  "line": 23
-                },
-                {
-                  "name": "circuitBreaker",
-                  "signature": "circuitBreaker = CircuitBreaker.make()",
-                  "line": 25
-                },
-                {
-                  "name": "getTimeoutMs",
-                  "signature": "getTimeoutMs = (method: string): int => {",
-                  "line": 28
-                },
-                {
-                  "name": "prepareRequestSignal",
-                  "signature": "prepareRequestSignal = (",
-                  "line": 47
-                },
-                {
-                  "name": "prepareRequestBody",
-                  "signature": "prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {",
-                  "line": 104
-                },
-                {
-                  "name": "request",
-                  "signature": "request = async (",
-                  "line": 115
-                },
-                {
-                  "name": "requestWithRetry",
-                  "signature": "requestWithRetry = (",
-                  "line": 316
-                }
-              ],
-              "fingerprint": "54025c386ca048345d2c27981094b399c701320923e2f1dcef1f5c2d74f1ca8a"
+              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
             }
           ]
         }

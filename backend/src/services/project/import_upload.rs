@@ -1,17 +1,19 @@
 // @efficiency-role: domain-logic
 
 use std::collections::{BTreeSet, HashMap};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime};
 
-use tokio::io::AsyncWriteExt;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-pub const DEFAULT_IMPORT_CHUNK_SIZE_BYTES: usize = 5 * 1024 * 1024; // 5MB
-pub const MAX_IMPORT_CHUNK_SIZE_BYTES: usize = 10 * 1024 * 1024; // 10MB hard cap
-pub const MIN_IMPORT_CHUNK_SIZE_BYTES: usize = 256 * 1024; // 256KB
+use crate::services::project::import_session::{
+    UploadSession, assemble_chunks, normalize_chunk_size, to_epoch_ms,
+};
+
+pub use crate::services::project::import_session::MAX_IMPORT_CHUNK_SIZE_BYTES;
+
 pub const MAX_IMPORT_PROJECT_SIZE_BYTES: u64 = 500 * 1024 * 1024; // 500MB
 const DEFAULT_UPLOAD_TTL_SECS: u64 = 30 * 60;
 
@@ -36,41 +38,6 @@ pub struct ImportUploadStatus {
     pub next_expected_chunk: usize,
     pub total_chunks: usize,
     pub expires_at_epoch_ms: u64,
-}
-
-#[derive(Clone, Debug)]
-struct UploadSession {
-    user_id: String,
-    filename: String,
-    size_bytes: u64,
-    size_bytes_usize: usize,
-    chunk_size_bytes: usize,
-    total_chunks: usize,
-    received_chunks: BTreeSet<usize>,
-    session_dir: PathBuf,
-    expires_at: SystemTime,
-}
-
-impl UploadSession {
-    fn chunk_path(&self, index: usize) -> PathBuf {
-        self.session_dir.join(format!("chunk_{index:08}.part"))
-    }
-
-    fn expected_chunk_size(&self, index: usize) -> Option<usize> {
-        if index >= self.total_chunks {
-            return None;
-        }
-
-        let start = index.saturating_mul(self.chunk_size_bytes);
-        let remaining = self.size_bytes_usize.saturating_sub(start);
-        Some(remaining.min(self.chunk_size_bytes))
-    }
-
-    fn next_expected_chunk(&self) -> usize {
-        (0..self.total_chunks)
-            .find(|idx| !self.received_chunks.contains(idx))
-            .unwrap_or(self.total_chunks)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -198,14 +165,14 @@ impl ChunkedProjectImportManager {
             .expected_chunk_size(chunk_index)
             .ok_or_else(|| "Unable to resolve expected chunk size".to_string())?;
 
-        if let Some(declared) = declared_chunk_size
-            && declared != chunk_data.len()
-        {
-            return Err(format!(
-                "Declared chunkByteLength {} does not match payload size {}",
-                declared,
-                chunk_data.len()
-            ));
+        if let Some(declared) = declared_chunk_size {
+            if declared != chunk_data.len() {
+                return Err(format!(
+                    "Declared chunkByteLength {} does not match payload size {}",
+                    declared,
+                    chunk_data.len()
+                ));
+            }
         }
 
         if chunk_data.len() != expected_chunk_size {
@@ -394,59 +361,10 @@ impl ChunkedProjectImportManager {
     }
 }
 
-fn normalize_chunk_size(requested_chunk_size: Option<usize>) -> Result<usize, String> {
-    let candidate = requested_chunk_size.unwrap_or(DEFAULT_IMPORT_CHUNK_SIZE_BYTES);
-    if candidate < MIN_IMPORT_CHUNK_SIZE_BYTES {
-        return Err(format!(
-            "chunkSizeBytes {} is below minimum {}",
-            candidate, MIN_IMPORT_CHUNK_SIZE_BYTES
-        ));
-    }
-    if candidate > MAX_IMPORT_CHUNK_SIZE_BYTES {
-        return Err(format!(
-            "chunkSizeBytes {} exceeds maximum {}",
-            candidate, MAX_IMPORT_CHUNK_SIZE_BYTES
-        ));
-    }
-    Ok(candidate)
-}
-
-async fn assemble_chunks(session: &UploadSession, output_path: &Path) -> Result<(), String> {
-    let file = tokio::fs::File::create(output_path)
-        .await
-        .map_err(|e| format!("Failed to create assembled upload file: {e}"))?;
-    let mut writer = tokio::io::BufWriter::new(file);
-
-    for idx in 0..session.total_chunks {
-        let chunk_path = session.chunk_path(idx);
-        let chunk_bytes = tokio::fs::read(&chunk_path)
-            .await
-            .map_err(|e| format!("Failed to read chunk {}: {}", idx, e))?;
-        writer
-            .write_all(&chunk_bytes)
-            .await
-            .map_err(|e| format!("Failed to write chunk {}: {}", idx, e))?;
-    }
-
-    writer
-        .flush()
-        .await
-        .map_err(|e| format!("Failed to flush assembled upload file: {e}"))?;
-
-    Ok(())
-}
-
-fn to_epoch_ms(time: SystemTime) -> Result<u64, String> {
-    let millis = time
-        .duration_since(UNIX_EPOCH)
-        .map_err(|_| "System clock drift detected while converting timestamp".to_string())?
-        .as_millis();
-    u64::try_from(millis).map_err(|_| "Timestamp overflow".to_string())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::services::project::import_session::MIN_IMPORT_CHUNK_SIZE_BYTES;
 
     #[tokio::test]
     async fn completes_chunked_payload_and_reassembles_in_order() {

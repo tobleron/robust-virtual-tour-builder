@@ -6,7 +6,7 @@ module Styles = {
 
   /* Container */
   #visual-pipeline-container {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 9000;
+    position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 15500;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
     /* User Spacing Proposal: 120px Left, 220px Right, ~80px Baseline elevation */
     padding-bottom: 80px; 
@@ -26,6 +26,7 @@ module Styles = {
     user-select: none;
     row-gap: 12px;
     position: relative;
+    z-index: 20;
   }
 
   /* Floor Track */
@@ -56,7 +57,7 @@ module Styles = {
     transform: scale(1.4);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(255, 255, 255, 0.4);
-    z-index: 30;
+    z-index: 1001;
     filter: brightness(1.2);
   }
 
@@ -85,7 +86,7 @@ module Styles = {
     border-radius: 6px; 
     padding: 0;
     opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 100;
+    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 1000;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     margin-bottom: 12px;

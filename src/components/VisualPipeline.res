@@ -297,7 +297,7 @@ let make = () => {
           "width": "100%",
           "top": "auto",
           "bottom": "0",
-          "zIndex": "9500",
+          "zIndex": "5",
         })}
       >
         {activeFloors

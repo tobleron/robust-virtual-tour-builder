@@ -1,7 +1,9 @@
+mod import_session;
 mod import_upload;
 mod load;
 mod package;
 mod validate;
+mod validate_utils;
 
 // Re-export public API
 pub use import_upload::{ChunkedProjectImportManager, MAX_IMPORT_CHUNK_SIZE_BYTES};

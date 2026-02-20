@@ -1,0 +1,345 @@
+/* src/components/Sidebar/SidebarLogicHandler.res */
+
+open SidebarBase
+open ReBindings
+
+@get external value: 'a => string = "value"
+@set external set_value: ('a, string) => unit = "value"
+
+let performUpload = async (
+  files,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
+) => {
+  let fileArray = JsHelpers.from(files)
+
+  try {
+    let result: UploadTypes.processResult = await UploadProcessor.processUploads(
+      fileArray,
+      Some(
+        (pct, msg, isProc, phase) => {
+          updateProgress(~dispatch, pct, msg, isProc, phase)
+        },
+      ),
+      ~getState,
+      ~dispatch,
+    )
+
+    let qualityResults = result.qualityResults
+    let report = result.report
+
+    dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
+    UploadReport.show(report, qualityResults, ~getState, ~dispatch)
+    NotificationManager.dispatch({
+      id: "",
+      importance: Success,
+      context: Operation("sidebar_upload"),
+      message: "Upload Complete",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Success),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+  } catch {
+  | JsExn(obj) =>
+    let msg = switch JsExn.message(obj) {
+    | Some(m) => m
+    | None => "Unknown error"
+    }
+    dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Error,
+      context: Operation("sidebar_upload"),
+      message: "Upload failed: " ++ msg,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Error),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+    updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+  | _ => dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")))
+  }
+}
+
+let handleUpload = async (
+  filesOpt,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
+) => {
+  switch filesOpt {
+  | Some(files) if FileList.length(files) > 0 =>
+    let state = getState()
+    let canUpload = Capability.Policy.evaluate(
+      ~capability=CanUpload,
+      ~appMode=state.appMode,
+      OperationLifecycle.getOperations(),
+    )
+
+    if !canUpload {
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation("sidebar_upload"),
+        message: "Please wait for current operation to finish",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    } else {
+      dispatch(DispatchAppFsmEvent(StartUpload))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("sidebar_upload"),
+        message: "Upload Started...",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+      await performUpload(files, ~getState, ~dispatch)
+    }
+  | _ => ()
+  }
+}
+
+let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {
+  switch filesOpt {
+  | Some(files) if FileList.length(files) > 0 =>
+    SessionStore.clearState()
+    try {
+      switch FileList.item(files, 0) {
+      | Some(file) =>
+        let controller = BrowserBindings.AbortController.make()
+        let signal = BrowserBindings.AbortController.signal(controller)
+        let onCancel = () => BrowserBindings.AbortController.abort(controller)
+        dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
+
+        let opId = OperationLifecycle.start(
+          ~type_=ProjectLoad,
+          ~scope=Blocking,
+          ~phase="Loading",
+          ~meta=Logger.castToJson({
+            "filename": File.name(file),
+            "size": File.size(file),
+          }),
+          (),
+        )
+        OperationLifecycle.registerCancel(opId, onCancel)
+
+        updateProgress(~dispatch, ~onCancel, 0.0, "Loading Project...", true, "Loading")
+
+        Logger.startOperation(
+          ~module_="Sidebar",
+          ~operation="PROJECT_LOAD",
+          ~data={
+            "filename": File.name(file),
+            "size": File.size(file),
+          },
+          (),
+        )
+        let projectDataResult = await ProjectManager.loadProject(
+          file,
+          ~signal,
+          ~onProgress=(pct, _t, msg) => {
+            updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
+          },
+          ~opId,
+        )
+
+        switch projectDataResult {
+        | Ok((sessionId, projectData)) => {
+            ViewerSystem.resetState()
+            dispatch(Actions.SetSessionId(sessionId))
+            dispatch(Actions.LoadProject(projectData))
+            UploadReport.showFromProjectData(projectData, ~getState, ~dispatch)
+
+            Logger.endOperation(
+              ~module_="Sidebar",
+              ~operation="PROJECT_LOAD",
+              ~data={"success": true},
+              (),
+            )
+            updateProgress(~dispatch, 100.0, "Done", false, "")
+            dispatch(Actions.DispatchAppFsmEvent(ProjectLoadComplete))
+            NotificationManager.dispatch({
+              id: "",
+              importance: Success,
+              context: Operation("sidebar_load_project"),
+              message: "Project Loaded",
+              details: None,
+              action: None,
+              duration: NotificationTypes.defaultTimeoutMs(Success),
+              dismissible: true,
+              createdAt: Date.now(),
+            })
+          }
+        | Error(msg) => {
+            Logger.info(
+              ~module_="SidebarLogic",
+              ~message="PROJECT_LOAD_FAILED_DISPATCHING_NOTIF",
+              ~data=Some({"error": msg}),
+              (),
+            )
+            dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError(msg)))
+            NotificationManager.dispatch({
+              id: "",
+              importance: Error,
+              context: Operation("sidebar_load_project"),
+              message: "Failed to load project: " ++ msg,
+              details: None,
+              action: None,
+              duration: NotificationTypes.defaultTimeoutMs(Error),
+              dismissible: true,
+              createdAt: Date.now(),
+            })
+            updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+            Logger.endOperation(
+              ~module_="Sidebar",
+              ~operation="PROJECT_LOAD",
+              ~data={"success": false, "error": msg},
+              (),
+            )
+          }
+        }
+      | None => ()
+      }
+    } catch {
+    | _ => updateProgress(~dispatch, 0.0, "Error", false, "")
+    }
+    set_value(target, "")
+  | _ => ()
+  }
+}
+
+let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
+  let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
+    let state = getState()
+    switch state.sessionId {
+    | Some(sid) =>
+      let projectData = getProjectData(state)
+      Api.ProjectApi.saveProject(sid, projectData)
+    | None => Promise.resolve(Error("No active session"))
+    }
+  })
+}
+
+let handleExport = async (
+  scenes,
+  ~tourName: string,
+  ~projectData: option<JSON.t>=?,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~signal,
+  ~onCancel,
+) => {
+  dispatch(DispatchAppFsmEvent(StartExport))
+
+  let opId = OperationLifecycle.start(
+    ~type_=Export,
+    ~scope=Blocking,
+    ~phase="Preparing",
+    ~meta=Logger.castToJson({
+      "tourName": tourName,
+    }),
+    (),
+  )
+  OperationLifecycle.registerCancel(opId, onCancel)
+
+  updateProgress(~dispatch, ~onCancel, 0.0, "Starting export...", true, "Export")
+  NotificationManager.dispatch({
+    id: "",
+    importance: Info,
+    context: Operation("sidebar_export"),
+    message: "Export Started...",
+    details: None,
+    action: None,
+    duration: NotificationTypes.defaultTimeoutMs(Info),
+    dismissible: true,
+    createdAt: Date.now(),
+  })
+  try {
+    let exportResult = await Exporter.exportTour(
+      scenes,
+      ~tourName,
+      ~logo=AppContext.getBridgeState().logo,
+      ~projectData?,
+      ~signal,
+      Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
+      ~opId,
+    )
+    switch exportResult {
+    | Ok() => {
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("sidebar_export"),
+          message: "Export complete",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        updateProgress(~dispatch, 100.0, "Done", false, "")
+        dispatch(DispatchAppFsmEvent(ExportComplete))
+      }
+    | Error("CANCELLED") => {
+        Logger.info(~module_="SidebarLogicHandler", ~message="EXPORT_CANCELLED_HANDLED", ())
+        updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+        dispatch(DispatchAppFsmEvent(ExportComplete))
+      }
+    | Error(msg) => {
+        Logger.error(
+          ~module_="SidebarLogicHandler",
+          ~message="EXPORT_FAILED",
+          ~data=Some({"error": msg}),
+          (),
+        )
+        dispatch(DispatchAppFsmEvent(ExportComplete))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: Operation("sidebar_export"),
+          message: "Export failed: " ++ msg,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+      }
+    }
+  } catch {
+  | JsExn(exn) =>
+    let msg = exn->JsExn.message->Option.getOr("Unexpected Error")
+    Logger.error(
+      ~module_="SidebarLogicHandler",
+      ~message="EXPORT_FAILED_UNCAUGHT",
+      ~data=Some({"error": msg}),
+      (),
+    )
+    dispatch(DispatchAppFsmEvent(ExportComplete))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Error,
+      context: Operation("sidebar_export"),
+      message: "Export failed: " ++ msg,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Error),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+    updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+  | _ =>
+    dispatch(DispatchAppFsmEvent(ExportComplete))
+    updateProgress(~dispatch, 0.0, "Error: Unexpected Error", false, "")
+  }
+}

@@ -172,7 +172,10 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): Handling of large image uploads via multipart/form-data. `#api` `#upload`
     *   [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): Specialized multipart handling for project ZIP imports. `#api` `#project`
 
-    *   [src/systems/Api/ProjectApi.res](src/systems/Api/ProjectApi.res): Logic for project-related API operations (import, save, pathfinding, geocode). `#api` `#project`
+    *   [src/systems/Api/ProjectApi.res](src/systems/Api/ProjectApi.res): Main entry for project API operations (save, geocode, pathfinding). `#api` `#project` `#facade`
+        *   [src/systems/Api/ProjectImportApi.res](src/systems/Api/ProjectImportApi.res): Atomic request functions for project import. `#api` `#project` `#import`
+        *   [src/systems/Api/ProjectImportOrchestrator.res](src/systems/Api/ProjectImportOrchestrator.res): Orchestration of the chunked import flow. `#api` `#project` `#logic`
+        *   [src/systems/Api/ProjectImportTypes.res](src/systems/Api/ProjectImportTypes.res): Shared types and decoders for the import system. `#api` `#project` `#types`
     *   [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): Shared helper functions and types for the API system. `#api` `#helpers`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
@@ -237,6 +240,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
     * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
+        * [src/components/Sidebar/SidebarLogicHandler.res](src/components/Sidebar/SidebarLogicHandler.res): UI event handlers for upload, load, save, and export. `#logic` `#handlers`
+        * [src/components/Sidebar/SidebarBase.res](src/components/Sidebar/SidebarBase.res): Shared sidebar types and progress monitoring logic. `#logic` `#types`
     * [src/components/Sidebar/SidebarProjectInfo.res](src/components/Sidebar/SidebarProjectInfo.res): UI for tour name and upload triggers. `#ui`
     * [src/components/Sidebar/SidebarProcessing.res](src/components/Sidebar/SidebarProcessing.res): Global processing status and progress tracking. `#ui` `#notifications`
     * [src/components/Sidebar/SidebarAbout.res](src/components/Sidebar/SidebarAbout.res): Modal and information about the application. `#ui` `#about`
@@ -320,7 +325,8 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](backend/src/main.rs): Server entry point and high-level orchestration. `#rust` `#api` `#server` `#entry-point`
-*   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
+*   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging and validation. `#backend-logic` `#project-api`
+*   [backend/src/api/project_import.rs](backend/src/api/project_import.rs): Specialized endpoints for chunked, resumable project imports. `#api` `#project` `#import`
 *   [backend/src/api/geocoding.rs](backend/src/api/geocoding.rs): API endpoints for address lookup and coordinate resolution. `#rust` `#api` `#geocoding`
 *   [backend/src/api/media/image.rs](backend/src/api/media/image.rs): Consolidated image processing endpoints and optimization logic. `#image` `#api` `#processing`
 *   [backend/src/api/media/video.rs](backend/src/api/media/video.rs): Consolidated video transcoding and teaser generation endpoints. `#video` `#api` `#teaser`
@@ -382,10 +388,12 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/upload_quota.rs](backend/src/services/upload_quota.rs): Rate-limiting and quota management logic. `#quota` `#logic`
     *   [backend/src/services/upload_quota_tests.rs](backend/src/services/upload_quota_tests.rs): Integration tests for the quota enforcement system. `#rust` `#testing`
 *   [backend/src/services/project/mod.rs](backend/src/services/project/mod.rs): Core services for heavy project operations. `#services` `#project`
-    *   [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): Chunked/resumable import session manager for init/chunk/status/complete/abort workflows. `#project` `#upload` `#resumable`
-    *   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
-    *   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
-    *   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation for tour projects. `#validation`
+    *   [backend/src/services/project/import_upload.rs](backend/src/services/project/import_upload.rs): Chunked/resumable import manager. `#project` `#upload` `#resumable`
+    *   [backend/src/services/project/import_session.rs](backend/src/services/project/import_session.rs): Extracted session state and chunk assembly logic. `#logic` `#session`
+*   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
+*   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
+*   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation orchestrator. `#validation`
+    *   [backend/src/services/project/validate_utils.rs](backend/src/services/project/validate_utils.rs): Validation helper functions for filename sanitization and link resolution. `#logic` `#helpers`
 *   [backend/src/startup.rs](backend/src/startup.rs): Consolidated server startup orchestration (Logging, CORS, Security). `#startup` `#logging` `#config` `#consolidated`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 
@@ -415,4 +423,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/systems/Api/AuthenticatedClientBase.res](src/systems/Api/AuthenticatedClientBase.res): New module detected. Please classify. #new
+* [src/systems/Api/AuthenticatedClientRequest.res](src/systems/Api/AuthenticatedClientRequest.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

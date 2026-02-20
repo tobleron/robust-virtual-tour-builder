@@ -8,9 +8,8 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
-- [ ] `../../backend/src/services/project/import_upload.rs`
-- [ ] `../../backend/src/middleware/rate_limiter.rs`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+- [ ] `../../backend/src/services/project/import_session.rs`
 
 ---
 

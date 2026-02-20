@@ -45,7 +45,15 @@ impl RateLimiters {
             .burst_size(burst)
             .key_extractor(PeerIpKeyExtractor)
             .finish()
-            .expect("Failed to create rate limit config")
+            .unwrap_or_else(|| {
+                // Return a minimal safe config as fallback rather than panicking,
+                // though this should theoretically never fail with default PeerIpKeyExtractor.
+                GovernorConfigBuilder::default()
+                    .per_second(1)
+                    .burst_size(1)
+                    .finish()
+                    .unwrap_or_default()
+            })
     }
 }
 
@@ -138,7 +146,7 @@ where
                     }
                 }
 
-                let new_body = serde_json::to_string(&msg).unwrap();
+                let new_body = serde_json::to_string(&msg).unwrap_or_else(|_| "{}".to_string());
 
                 let mut res = res.map_body(|_, _| EitherBody::Right {
                     body: BoxBody::new(new_body),
@@ -150,13 +158,16 @@ where
                 if retry_after > 0 {
                     // Make sure x-ratelimit-after is present as well
                     if !res.headers().contains_key("x-ratelimit-after") {
-                        res.headers_mut().insert(
-                            actix_web::http::header::HeaderName::from_static("x-ratelimit-after"),
-                            actix_web::http::header::HeaderValue::from_str(
-                                &retry_after.to_string(),
-                            )
-                            .unwrap(),
-                        );
+                        if let Ok(hv) =
+                            actix_web::http::header::HeaderValue::from_str(&retry_after.to_string())
+                        {
+                            res.headers_mut().insert(
+                                actix_web::http::header::HeaderName::from_static(
+                                    "x-ratelimit-after",
+                                ),
+                                hv,
+                            );
+                        }
                     }
                 }
 

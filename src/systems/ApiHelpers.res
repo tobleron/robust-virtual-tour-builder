@@ -134,3 +134,28 @@ let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.respo
     processErrorResponse(response)
   }
 }
+
+let handleError = (~module_, e, message, logKey) => {
+  let (msg, stack) = Logger.getErrorDetails(e)
+  Logger.error(
+    ~module_,
+    ~message=logKey,
+    ~data=Logger.castToJson({"error": msg, "stack": stack}),
+    (),
+  )
+  Promise.resolve(Error(message))
+}
+
+let handleJsonDecode = (~module_, json, decoder, logKey, errorMessage) => {
+  switch decoder(json) {
+  | Ok(data) => Promise.resolve(Ok(data))
+  | Error(msg) =>
+    Logger.error(
+      ~module_,
+      ~message=logKey ++ "_DECODE_FAILED",
+      ~data=Logger.castToJson({"error": msg}),
+      (),
+    )
+    Promise.resolve(Error(errorMessage ++ ": " ++ msg))
+  }
+}

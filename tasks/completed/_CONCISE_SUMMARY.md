@@ -2,6 +2,12 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-02-20 Archive Consolidation
+- **1489-1492, T1491: Enterprise Project Import** — Delivered production-grade chunked, resumable project import (500MB+ support) with robust validation and backend protective hardening.
+- **1501-1504, T1495-T1500: Interaction Orchestration & Race Reliability** — Systematized interaction locking, navigation-operation decoupling, and visibility thresholds. Certified race reliability through targeted frontend audits and E2E hardening.
+- **1470-1485, T1479-T1484: Visual UX & Progress Systems** — Overhauled progress bar with premium aesthetics, refined the visual pipeline (floor-aware squares), and polished export shortcut overlays, panel geometry, and crash recovery UX.
+- **1485-1488, T1482-T1484: Performance & Resilience** — Hardened rate limiting and backpressure systems for commercial scale. Resolved stale progress stalls and thumbnail generation/progression hangs.
+
 ## 🗄️ 2026-02-19 Archive Consolidation
 - **1404-1435: Export Engine & UX Parity** — Hardened export pipeline (streaming, quota, headless teaser) and resolved critical viewer crashes, HFOV distortion, and standalone CORS parity issues.
 - **1436-1461: Resilience, Persistence & Recovery** — Implemented centralized network status monitoring, circuit breaker fixes, and resilient persistence flushing. Enhanced upload recovery UX and project validation robustness.
