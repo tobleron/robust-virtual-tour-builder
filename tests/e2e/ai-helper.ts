@@ -40,6 +40,12 @@ export async function setupAIObservability(page: Page, options: ObservabilityOpt
       originalConsoleLog.apply(console, args);
     };
 
+    const originalConsoleInfo = console.info;
+    console.info = (...args: any[]) => {
+      (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
+      originalConsoleInfo.apply(console, args);
+    };
+
     console.warn = (...args: any[]) => {
       (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
       originalConsoleWarn.apply(console, args);

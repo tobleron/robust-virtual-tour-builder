@@ -129,12 +129,13 @@ let handleUpload = async (
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
     let state = getState()
-    // Guard: Only start if not already blocking
-    switch state.appMode {
-    | SystemBlocking(Uploading(_))
-    | SystemBlocking(Summary(_))
-    | SystemBlocking(ProjectLoading(_))
-    | SystemBlocking(Exporting(_)) =>
+    let canUpload = Capability.Policy.evaluate(
+      ~capability=CanUpload,
+      ~appMode=state.appMode,
+      OperationLifecycle.getOperations(),
+    )
+
+    if !canUpload {
       NotificationManager.dispatch({
         id: "",
         importance: Warning,
@@ -146,7 +147,7 @@ let handleUpload = async (
         dismissible: true,
         createdAt: Date.now(),
       })
-    | _ =>
+    } else {
       dispatch(DispatchAppFsmEvent(StartUpload))
       NotificationManager.dispatch({
         id: "",

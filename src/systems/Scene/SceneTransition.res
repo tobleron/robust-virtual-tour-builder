@@ -220,6 +220,7 @@ let performSwap = (
           ->Nullable.toOption
           ->Option.forEach(assignGlobalViewer)
           dispatch(SyncSceneNames)
+          finalizeSwap(~getState, ~taskId?)
           completeSwapTransition(~getState, ~loadedScene, ~dispatch)
         }
       }

@@ -26,6 +26,24 @@ module InnerApp = {
       None
     }, [state])
 
+    React.useEffect0(() => {
+      let _ = %raw("(isBusyFn, evaluateFn) => { 
+        window.OperationLifecycle = { 
+          isBusy: (opts) => {
+            const t = opts ? opts.type : undefined;
+            const s = opts ? opts.scope : undefined;
+            return isBusyFn(t, s, undefined);
+          }
+        };
+        window.Capability = { 
+          evaluate: (opts) => {
+             return evaluateFn(opts.capability, opts.appMode, opts.operations);
+          }
+        };
+      }")(OperationLifecycle.isBusy, Capability.Policy.evaluate)
+      None
+    })
+
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       <OfflineBanner />
       {if isSystemLocked {

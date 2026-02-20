@@ -1,210 +1,13 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/validate.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 13.401047120418847,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/validate.rs",
-              "functions": [
-                {
-                  "name": "normalize_scene_key",
-                  "signature": "fn normalize_scene_key(value: &str) -> String {",
-                  "line": 6
-                },
-                {
-                  "name": "scene_id_or_fallback",
-                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
-                  "line": 18
-                },
-                {
-                  "name": "extract_sanitized_filename",
-                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
-                  "line": 28
-                },
-                {
-                  "name": "archive_contains_file",
-                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
-                  "line": 67
-                },
-                {
-                  "name": "get_scene_filename",
-                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
-                  "line": 71
-                },
-                {
-                  "name": "resolve_hotspot_target_id",
-                  "signature": "fn resolve_hotspot_target_id(",
-                  "line": 78
-                },
-                {
-                  "name": "validate_and_clean_project",
-                  "signature": "pub fn validate_and_clean_project(",
-                  "line": 124
-                }
-              ],
-              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 34.03666666666667,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/project.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/project.rs",
-              "functions": [
-                {
-                  "name": "save_project",
-                  "signature": "pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 81
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 98
-                },
-                {
-                  "name": "new",
-                  "signature": "fn new(path: std::path::PathBuf) -> Self {",
-                  "line": 110
-                },
-                {
-                  "name": "keep",
-                  "signature": "fn keep(&mut self) {",
-                  "line": 114
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 119
-                },
-                {
-                  "name": "load_project",
-                  "signature": "pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 188
-                },
-                {
-                  "name": "import_project_from_zip_path",
-                  "signature": "async fn import_project_from_zip_path(",
-                  "line": 213
-                },
-                {
-                  "name": "import_project",
-                  "signature": "pub async fn import_project(",
-                  "line": 267
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 285
-                },
-                {
-                  "name": "import_project_init",
-                  "signature": "pub async fn import_project_init(",
-                  "line": 306
-                },
-                {
-                  "name": "import_project_chunk",
-                  "signature": "pub async fn import_project_chunk(",
-                  "line": 352
-                },
-                {
-                  "name": "import_project_status",
-                  "signature": "pub async fn import_project_status(",
-                  "line": 384
-                },
-                {
-                  "name": "import_project_complete",
-                  "signature": "pub async fn import_project_complete(",
-                  "line": 410
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 437
-                },
-                {
-                  "name": "import_project_abort",
-                  "signature": "pub async fn import_project_abort(",
-                  "line": 458
-                },
-                {
-                  "name": "calculate_path",
-                  "signature": "pub async fn calculate_path(payload: web::Json<PathRequest>) -> Result<HttpResponse, AppError> {",
-                  "line": 482
-                },
-                {
-                  "name": "validate_project",
-                  "signature": "pub async fn validate_project(",
-                  "line": 503
-                },
-                {
-                  "name": "create_tour_package",
-                  "signature": "pub async fn create_tour_package(",
-                  "line": 530
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 556
-                }
-              ],
-              "fingerprint": "24cbe0bf56a3c04971e24a2f7c91b92a24d7329ed53820f14861894ec093716b"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
     {
       "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.11, Coupling: 0.09] | Drag: 5.33 | LOC: 379/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.09] | Drag: 5.32 | LOC: 380/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.226649076517152,
+        "complexity": 13.323684210526316,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogic.res`",
@@ -235,22 +38,22 @@
                 {
                   "name": "handleLoadProject",
                   "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 168
+                  "line": 169
                 },
                 {
                   "name": "getProjectData",
                   "signature": "getProjectData = (state: Types.state) => {",
-                  "line": 277
+                  "line": 278
                 },
                 {
                   "name": "handleDeleteScene",
                   "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 281
+                  "line": 282
                 },
                 {
                   "name": "handleExport",
                   "signature": "handleExport = async (",
-                  "line": 293
+                  "line": 294
                 }
               ],
               "fingerprint": "1e010ccb9a80ad92e78d4cff5e4459e29a646bd574a07cbb55f24bc3cb9c1232"
@@ -423,6 +226,203 @@
                 }
               ],
               "fingerprint": "250b40f2f5e65314fbdf232ce854885dbaaf61d0a43091f78e7952bd0381a1e7"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.01, Coupling: 0.02] | Drag: 4.04 | LOC: 600/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 34.03666666666667,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/project.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/project.rs",
+              "functions": [
+                {
+                  "name": "save_project",
+                  "signature": "pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 81
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 98
+                },
+                {
+                  "name": "new",
+                  "signature": "fn new(path: std::path::PathBuf) -> Self {",
+                  "line": 110
+                },
+                {
+                  "name": "keep",
+                  "signature": "fn keep(&mut self) {",
+                  "line": 114
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 119
+                },
+                {
+                  "name": "load_project",
+                  "signature": "pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 188
+                },
+                {
+                  "name": "import_project_from_zip_path",
+                  "signature": "async fn import_project_from_zip_path(",
+                  "line": 213
+                },
+                {
+                  "name": "import_project",
+                  "signature": "pub async fn import_project(",
+                  "line": 267
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 285
+                },
+                {
+                  "name": "import_project_init",
+                  "signature": "pub async fn import_project_init(",
+                  "line": 306
+                },
+                {
+                  "name": "import_project_chunk",
+                  "signature": "pub async fn import_project_chunk(",
+                  "line": 352
+                },
+                {
+                  "name": "import_project_status",
+                  "signature": "pub async fn import_project_status(",
+                  "line": 384
+                },
+                {
+                  "name": "import_project_complete",
+                  "signature": "pub async fn import_project_complete(",
+                  "line": 410
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 437
+                },
+                {
+                  "name": "import_project_abort",
+                  "signature": "pub async fn import_project_abort(",
+                  "line": 458
+                },
+                {
+                  "name": "calculate_path",
+                  "signature": "pub async fn calculate_path(payload: web::Json<PathRequest>) -> Result<HttpResponse, AppError> {",
+                  "line": 482
+                },
+                {
+                  "name": "validate_project",
+                  "signature": "pub async fn validate_project(",
+                  "line": 503
+                },
+                {
+                  "name": "create_tour_package",
+                  "signature": "pub async fn create_tour_package(",
+                  "line": 530
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 556
+                }
+              ],
+              "fingerprint": "24cbe0bf56a3c04971e24a2f7c91b92a24d7329ed53820f14861894ec093716b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/validate.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 13.401047120418847,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/validate.rs",
+              "functions": [
+                {
+                  "name": "normalize_scene_key",
+                  "signature": "fn normalize_scene_key(value: &str) -> String {",
+                  "line": 6
+                },
+                {
+                  "name": "scene_id_or_fallback",
+                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
+                  "line": 18
+                },
+                {
+                  "name": "extract_sanitized_filename",
+                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
+                  "line": 28
+                },
+                {
+                  "name": "archive_contains_file",
+                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
+                  "line": 67
+                },
+                {
+                  "name": "get_scene_filename",
+                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
+                  "line": 71
+                },
+                {
+                  "name": "resolve_hotspot_target_id",
+                  "signature": "fn resolve_hotspot_target_id(",
+                  "line": 78
+                },
+                {
+                  "name": "validate_and_clean_project",
+                  "signature": "pub fn validate_and_clean_project(",
+                  "line": 124
+                }
+              ],
+              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
             }
           ]
         }
