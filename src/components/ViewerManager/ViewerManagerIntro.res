@@ -13,6 +13,17 @@ let useIntroPan = (
   ~simulationStatus: simulationStatus,
 ) => {
   let lastPannedSceneId = React.useRef(Nullable.null)
+  let prevSimulationStatus = React.useRef(simulationStatus)
+
+  // Reset tracking when simulation starts to guarantee the first scene pans
+  React.useEffect1(() => {
+    if prevSimulationStatus.current != Running && simulationStatus == Running {
+      Logger.info(~module_="ViewerManagerIntro", ~message="SIMULATION_START_RESET_PAN_TRACKER", ())
+      lastPannedSceneId.current = Nullable.null
+    }
+    prevSimulationStatus.current = simulationStatus
+    None
+  }, [simulationStatus])
 
   React.useEffect3(() => {
     let isIdle = navigationState.navigationFsm == IdleFsm
