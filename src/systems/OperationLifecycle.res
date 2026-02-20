@@ -40,6 +40,7 @@ module Types = {
     startedAt: float,
     updatedAt: float,
     meta: option<JSON.t>,
+    visibleAfterMs: int,
   }
 }
 
@@ -159,9 +160,25 @@ let start = (
   ~cancellable: bool=true,
   ~correlationId: option<string>=?,
   ~meta: option<JSON.t>=?,
+  ~visibleAfterMs: option<int>=?,
   (),
 ): operationId => {
   let id = `op_${Date.now()->Float.toString}_${Math.random()->Float.toString}`
+
+  let defaultThreshold = switch type_ {
+  | Navigation => 500
+  | Upload => 200
+  | ThumbnailGeneration => 600
+  | ProjectLoad
+  | ProjectSave
+  | Export
+  | SceneLoad => 0
+  | Simulation => 500
+  | Unknown(_) => 0
+  }
+
+  let threshold = visibleAfterMs->Option.getOr(defaultThreshold)
+
   let task = {
     id,
     type_,
@@ -173,6 +190,7 @@ let start = (
     startedAt: Date.now(),
     updatedAt: Date.now(),
     meta,
+    visibleAfterMs: threshold,
   }
 
   operations := operations.contents->Belt.Map.String.set(id, task)
@@ -188,6 +206,7 @@ let start = (
       "scope": scope,
       "phase": phase,
       "cancellable": cancellable,
+      "visibleAfterMs": threshold,
     }),
     (),
   )

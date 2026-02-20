@@ -86,38 +86,85 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
 
   // Ref to track if we should hide
   let isVisible = React.useRef(false)
+  let visibilityTimer = React.useRef(None)
+  let (forceUpdate, setForceUpdate) = React.useState(_ => 0)
 
-  React.useEffect1(() => {
+  React.useEffect2(() => {
+    // Clear previous timer
+    visibilityTimer.current->Option.forEach(id => ReBindings.Window.clearTimeout(id))
+    visibilityTimer.current = None
+
     switch activeOp {
     | Some(op) =>
-      let (progress, message, error, active) = switch op.status {
-      | Active({progress, message}) => (progress, message->Option.getOr(""), false, true)
-      | Paused => (0.0, "Paused", false, true)
-      | Completed({result}) => (100.0, result->Option.getOr("Done"), false, true)
-      | Failed({error}) => (0.0, error, true, true)
-      | Cancelled => (0.0, "Cancelled", false, false)
-      | Idle => (0.0, "", false, false)
+      let now = Date.now()
+      let elapsed = now -. op.startedAt
+      let threshold = op.visibleAfterMs->Int.toFloat
+
+      let shouldBeVisible = switch op.status {
+      | Failed(_) => true
+      | Completed(_) =>
+        // Only show completed if it ran longer than threshold
+        let duration = op.updatedAt -. op.startedAt
+        duration >= threshold
+      | Active(_) | Paused => elapsed >= threshold
+      | Cancelled | Idle => false
       }
 
-      if op.status == Cancelled {
-        setProcState(prev => {
-          let next = Object.assign(Object.make(), prev)
-          next["active"] = false
-          next
-        })
-        isVisible.current = false
-      } else {
-        let newState = {
-          "active": active,
-          "progress": progress,
-          "message": message,
-          "phase": op.phase,
-          "error": error,
-          "onCancel": () => OperationLifecycle.cancel(op.id),
-          "cancellable": op.cancellable,
+      // Schedule visibility check if active but not yet visible
+      if !shouldBeVisible {
+        switch op.status {
+        | Active(_) | Paused =>
+          let remaining = threshold -. elapsed
+          if remaining > 0.0 {
+            let id = ReBindings.Window.setTimeout(() => {
+              setForceUpdate(prev => prev + 1)
+            }, remaining->Float.toInt + 10)
+            visibilityTimer.current = Some(id)
+          }
+        | _ => ()
         }
-        setProcState(_ => newState)
-        isVisible.current = active
+      }
+
+      if shouldBeVisible {
+        let (progress, message, error, active) = switch op.status {
+        | Active({progress, message}) => (progress, message->Option.getOr(""), false, true)
+        | Paused => (0.0, "Paused", false, true)
+        | Completed({result}) => (100.0, result->Option.getOr("Done"), false, true)
+        | Failed({error}) => (0.0, error, true, true)
+        | Cancelled => (0.0, "Cancelled", false, false)
+        | Idle => (0.0, "", false, false)
+        }
+
+        if op.status == Cancelled {
+          setProcState(prev => {
+            let next = Object.assign(Object.make(), prev)
+            next["active"] = false
+            next
+          })
+          isVisible.current = false
+        } else {
+          let newState = {
+            "active": active,
+            "progress": progress,
+            "message": message,
+            "phase": op.phase,
+            "error": error,
+            "onCancel": () => OperationLifecycle.cancel(op.id),
+            "cancellable": op.cancellable,
+          }
+          setProcState(_ => newState)
+          isVisible.current = active
+        }
+      } else {
+        // Hide if currently visible
+        if isVisible.current {
+          setProcState(prev => {
+            let next = Object.assign(Object.make(), prev)
+            next["active"] = false
+            next
+          })
+          isVisible.current = false
+        }
       }
 
     | None =>
@@ -131,8 +178,13 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         isVisible.current = false
       }
     }
-    None
-  }, [activeOp])
+
+    Some(
+      () => {
+        visibilityTimer.current->Option.forEach(id => ReBindings.Window.clearTimeout(id))
+      },
+    )
+  }, (activeOp, forceUpdate))
 
   React.useEffect0(() => {
     Logger.initialized(~module_="Sidebar")
