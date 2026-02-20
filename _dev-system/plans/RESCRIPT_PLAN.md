@@ -10,7 +10,7 @@
 
 ## 🛠️ SURGICAL REFACTOR TASKS (1)
 - [ ] **../../src/systems/Api/ProjectApi.res**
-  - *Reason:* [Nesting: 1.20, Density: 0.00, Coupling: 0.06] | Drag: 2.20 | LOC: 414/300
+  - *Reason:* [Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 437/300
 
 ---
 
