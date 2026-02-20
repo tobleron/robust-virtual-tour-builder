@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge task-1501 decoupling, validate behavior, and refine task 1502 prerequisites
+- T1502: Move to active for Jules delegation
 
 ## [4.30.9] - 2026-02-20
 
