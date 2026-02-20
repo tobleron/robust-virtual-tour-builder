@@ -390,6 +390,9 @@ CI job
 ### 📂 src/components
 - `[src/components/ViewerSceneElements.res]`
 
+### 📂 src/systems
+- `[src/systems/OperationLifecycle.res]`
+
 ### 📂 src/utils
 - `[src/utils/FileSlicer.res]`
 

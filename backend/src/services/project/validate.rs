@@ -1,5 +1,6 @@
 // @efficiency: domain-logic
 use crate::models::ValidationReport;
+use percent_encoding::percent_decode_str;
 use std::collections::{HashMap, HashSet};
 
 fn normalize_scene_key(value: &str) -> String {
@@ -22,6 +23,56 @@ fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .unwrap_or_else(|| format!("__legacy_scene_{}", index))
+}
+
+fn extract_sanitized_filename(raw_value: &str) -> Option<String> {
+    let trimmed = raw_value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let from_file_segment = if let Some((_, after_file)) = trimmed.rsplit_once("/file/") {
+        after_file
+    } else {
+        trimmed
+    };
+
+    let without_query = from_file_segment
+        .split('?')
+        .next()
+        .unwrap_or(from_file_segment)
+        .split('#')
+        .next()
+        .unwrap_or(from_file_segment);
+
+    let candidate = if without_query.starts_with("/images/") {
+        without_query.trim_start_matches("/images/")
+    } else if without_query.starts_with("images/") {
+        without_query.trim_start_matches("images/")
+    } else {
+        without_query.rsplit('/').next().unwrap_or(without_query)
+    };
+
+    if candidate.is_empty() {
+        return None;
+    }
+
+    let decoded = percent_decode_str(candidate)
+        .decode_utf8()
+        .ok()?
+        .to_string();
+    crate::api::utils::sanitize_filename(&decoded).ok()
+}
+
+fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {
+    available_files.contains(filename) || available_files.contains(&format!("images/{}", filename))
+}
+
+fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {
+    scene
+        .get(key)
+        .and_then(|value| value.as_str())
+        .and_then(extract_sanitized_filename)
 }
 
 fn resolve_hotspot_target_id(
@@ -127,36 +178,8 @@ pub fn validate_and_clean_project(
 
         // Fallback: Check 'file' property (URL or direct path) if not found by name
         if !image_found {
-            if let Some(file_url) = scene["file"].as_str() {
-                let mut target_filename = None;
-
-                if file_url.contains("/file/") {
-                    if let Some(filename_segment) = file_url
-                        .split("/file/")
-                        .nth(1)
-                        .and_then(|s| s.split('?').next())
-                    {
-                        if let Ok(decoded_filename) =
-                            percent_encoding::percent_decode_str(filename_segment).decode_utf8()
-                        {
-                            target_filename = Some(decoded_filename.to_string());
-                        }
-                    }
-                } else if file_url.starts_with("/images/") {
-                    target_filename = Some(file_url.trim_start_matches("/images/").to_string());
-                } else if file_url.starts_with("images/") {
-                    target_filename = Some(file_url.trim_start_matches("images/").to_string());
-                }
-
-                if let Some(filename) = target_filename {
-                    if let Ok(safe_filename) = crate::api::utils::sanitize_filename(&filename) {
-                        if available_files.contains(&safe_filename)
-                            || available_files.contains(&format!("images/{}", safe_filename))
-                        {
-                            image_found = true;
-                        }
-                    }
-                }
+            if let Some(filename) = get_scene_filename(scene, "file") {
+                image_found = archive_contains_file(available_files, &filename);
             }
         }
 
@@ -164,6 +187,22 @@ pub fn validate_and_clean_project(
             report.warnings.push(format!(
                 "Scene '{}': Image file not found in ZIP",
                 scene_name
+            ));
+        }
+
+        // Clear thumbnail references that point to missing files to prevent 404 floods on import.
+        if let Some(tiny_filename) = get_scene_filename(scene, "tinyFile")
+            && !archive_contains_file(available_files, &tiny_filename)
+        {
+            tracing::warn!(
+                "Scene '{}': tinyFile '{}' not found in ZIP, clearing reference",
+                scene_name,
+                tiny_filename
+            );
+            scene["tinyFile"] = serde_json::Value::Null;
+            report.warnings.push(format!(
+                "Scene '{}': Missing thumbnail '{}', cleared tinyFile reference",
+                scene_name, tiny_filename
             ));
         }
 
@@ -296,28 +335,11 @@ pub fn validate_and_clean_project(
         .map(|s| s.to_string())
         .collect();
 
-    // Also collect from 'file' property to handle direct path references
+    // Also collect from file references so tiny/original assets are not misclassified as unused.
     for scene in scenes.iter() {
-        if let Some(file_url) = scene["file"].as_str() {
-            let filename = if file_url.contains("/file/") {
-                file_url
-                    .split("/file/")
-                    .nth(1)
-                    .and_then(|s| s.split('?').next())
-                    .and_then(|s| percent_encoding::percent_decode_str(s).decode_utf8().ok())
-                    .map(|s| s.to_string())
-            } else if file_url.starts_with("/images/") {
-                Some(file_url.trim_start_matches("/images/").to_string())
-            } else if file_url.starts_with("images/") {
-                Some(file_url.trim_start_matches("images/").to_string())
-            } else {
-                Some(file_url.to_string())
-            };
-
-            if let Some(name) = filename {
-                if let Ok(safe) = crate::api::utils::sanitize_filename(&name) {
-                    used_filenames.insert(safe);
-                }
+        for key in ["file", "tinyFile", "originalFile"] {
+            if let Some(filename) = get_scene_filename(scene, key) {
+                used_filenames.insert(filename);
             }
         }
     }

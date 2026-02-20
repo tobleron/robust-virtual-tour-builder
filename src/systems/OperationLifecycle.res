@@ -115,7 +115,7 @@ let start = (~type_: operationType, ~meta: option<JSON.t>=?, ()): operationId =>
     ~module_="OperationLifecycle",
     ~message="OPERATION_STARTED",
     ~data=Some({"id": id, "type": type_}),
-    ()
+    (),
   )
 
   id
@@ -150,7 +150,7 @@ let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
       ~module_="OperationLifecycle",
       ~message="OPERATION_COMPLETED",
       ~data=Some({"id": id}),
-      ()
+      (),
     )
 
     // Auto-cleanup after 5 seconds
@@ -158,7 +158,6 @@ let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
       operations := operations.contents->Belt.Map.String.remove(id)
       notifyListeners()
     }, 5000)
-    ()
   | None => ()
   }
 }
@@ -178,7 +177,7 @@ let fail = (id: operationId, error: string): unit => {
       ~module_="OperationLifecycle",
       ~message="OPERATION_FAILED",
       ~data=Some({"id": id, "error": error}),
-      ()
+      (),
     )
 
     // Auto-cleanup after 10 seconds for errors
@@ -186,7 +185,6 @@ let fail = (id: operationId, error: string): unit => {
       operations := operations.contents->Belt.Map.String.remove(id)
       notifyListeners()
     }, 10000)
-    ()
   | None => ()
   }
 }
@@ -206,7 +204,7 @@ let cancel = (id: operationId): unit => {
       ~module_="OperationLifecycle",
       ~message="OPERATION_CANCELLED",
       ~data=Some({"id": id}),
-      ()
+      (),
     )
 
     // Auto-cleanup
@@ -214,7 +212,6 @@ let cancel = (id: operationId): unit => {
       operations := operations.contents->Belt.Map.String.remove(id)
       notifyListeners()
     }, 5000)
-    ()
   | None => ()
   }
 }

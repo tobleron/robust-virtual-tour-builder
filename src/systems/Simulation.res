@@ -309,21 +309,25 @@ let make = () => {
       advancingForIndex.current = -1
     }
 
-    Some(() => {
-      cancel := true
-    })
+    Some(
+      () => {
+        cancel := true
+      },
+    )
   }, (simulation.status, activeIndex))
 
   // Cleanup on unmount
   React.useEffect0(() => {
-    Some(() => {
-      switch opIdRef.current {
-      | Some(id) =>
-        OperationLifecycle.cancel(id)
-        opIdRef.current = None
-      | None => ()
-      }
-    })
+    Some(
+      () => {
+        switch opIdRef.current {
+        | Some(id) =>
+          OperationLifecycle.cancel(id)
+          opIdRef.current = None
+        | None => ()
+        }
+      },
+    )
   })
 
   React.null

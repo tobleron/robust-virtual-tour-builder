@@ -106,12 +106,7 @@ let make = () => {
       }
     }
     None
-  }, (
-    state.inventory,
-    processedIds,
-    isNavigationBusy,
-    isSimulationBusy,
-  ))
+  }, (state.inventory, processedIds, isNavigationBusy, isSimulationBusy))
 
   React.null
 }

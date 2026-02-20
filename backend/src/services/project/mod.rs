@@ -197,4 +197,58 @@ mod tests {
         );
         Ok(())
     }
+
+    #[test]
+    fn test_validate_and_clean_clears_missing_tiny_file_reference()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "file": "/api/project/old/file/img1.webp",
+                    "tinyFile": "/api/project/old/file/thumb-001.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+
+        assert!(project["scenes"][0]["tinyFile"].is_null());
+        assert!(
+            report
+                .warnings
+                .iter()
+                .any(|warning| warning.contains("cleared tinyFile reference"))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_and_clean_keeps_existing_tiny_file_reference()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "file": "/api/project/old/file/img1.webp",
+                    "tinyFile": "/api/project/old/file/thumb-001.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files =
+            HashSet::from(["img1.webp".to_string(), "thumb-001.webp".to_string()]);
+        let (project, _report) = validate_and_clean_project(project, &available_files)?;
+
+        assert_eq!(
+            project["scenes"][0]["tinyFile"].as_str(),
+            Some("/api/project/old/file/thumb-001.webp")
+        );
+        Ok(())
+    }
 }

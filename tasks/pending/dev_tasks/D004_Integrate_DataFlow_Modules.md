@@ -14,4 +14,5 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 - [ ] [backend/src/middleware/rate_limiter.rs]
 - [ ] [backend/src/services/project/import_upload.rs]
 - [ ] [src/components/ViewerSceneElements.res]
+- [ ] [src/systems/OperationLifecycle.res]
 - [ ] [src/utils/FileSlicer.res]

@@ -149,19 +149,19 @@ let request = async (
   } else {
     // Inject Authorization header if not already present
     if Dict.get(headers, "Authorization") == None {
-    let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+      let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
 
-    let finalToken = switch token {
-    | Some(t) => Some(t)
-    | None if Constants.isDebugBuild() => Some("dev-token") // Only allowed in debug builds
-    | None => None
-    }
+      let finalToken = switch token {
+      | Some(t) => Some(t)
+      | None if Constants.isDebugBuild() => Some("dev-token") // Only allowed in debug builds
+      | None => None
+      }
 
-    // Sync the effective token to cookie for media requests (image GETs cannot send custom headers).
-    finalToken->Option.forEach(t => {
-      let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
-      let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
-    })
+      // Sync the effective token to cookie for media requests (image GETs cannot send custom headers).
+      finalToken->Option.forEach(t => {
+        let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
+        let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
+      })
 
       finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
     }
@@ -175,133 +175,135 @@ let request = async (
       )
       Error("NetworkOffline")
     } else {
-    let lastState = CircuitBreaker.getState(circuitBreaker)
-    if lastState === CircuitBreaker.Open {
-      NotificationManager.dispatch({
-        id: "cb-open-notification",
-        importance: Warning,
-        context: Operation("api"),
-        message: "Connection issues: Circuit breaker is open. Please wait 30 seconds.",
-        details: None,
-        action: None,
-        duration: 10000,
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-      Error("Circuit breaker is open")
-    } else {
-      // Inject Request ID for distributed tracing
-      let finalRequestId = switch requestId {
-      | Some(id) => id
-      | None =>
+      let lastState = CircuitBreaker.getState(circuitBreaker)
+      if lastState === CircuitBreaker.Open {
+        NotificationManager.dispatch({
+          id: "cb-open-notification",
+          importance: Warning,
+          context: Operation("api"),
+          message: "Connection issues: Circuit breaker is open. Please wait 30 seconds.",
+          details: None,
+          action: None,
+          duration: 10000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        Error("Circuit breaker is open")
+      } else {
+        // Inject Request ID for distributed tracing
+        let finalRequestId = switch requestId {
+        | Some(id) => id
+        | None =>
+          try {
+            Crypto.randomUUID()
+          } catch {
+          | _ => "req_" ++ Float.toString(Date.now())
+          }
+        }
+        Dict.set(headers, "X-Request-ID", finalRequestId)
+
+        let timeoutMs = TimeoutPolicy.getTimeoutMs(method)
+        let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
+
+        let bodyVal = switch (body, formData) {
+        | (Some(b), Some(f)) =>
+          Some(
+            prepareRequestBody(Some(b), headers)
+            ->Option.map(castBody)
+            ->Option.getOr(castBody(f)),
+          )
+        | (Some(b), _) => prepareRequestBody(Some(b), headers)->Option.map(castBody)
+        | (None, Some(f)) => Some(castBody(f))
+        | (None, None) => None
+        }
+
+        let options = {
+          "method": method,
+          "headers": headers,
+          "body": bodyVal,
+          "signal": Some(signalScope.signal),
+        }
+
         try {
-          Crypto.randomUUID()
-        } catch {
-        | _ => "req_" ++ Float.toString(Date.now())
-        }
-      }
-      Dict.set(headers, "X-Request-ID", finalRequestId)
+          let res = await fetch(url, options)
 
-      let timeoutMs = TimeoutPolicy.getTimeoutMs(method)
-      let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
+          if res.status == 429 {
+            signalScope.cleanup()
+            // Treat 429 as failure for circuit breaker stats to help global backoff if needed
+            CircuitBreaker.recordFailure(circuitBreaker)
 
-      let bodyVal = switch (body, formData) {
-      | (Some(b), Some(f)) =>
-        Some(
-          prepareRequestBody(Some(b), headers)
-          ->Option.map(castBody)
-          ->Option.getOr(castBody(f)),
-        )
-      | (Some(b), _) => prepareRequestBody(Some(b), headers)->Option.map(castBody)
-      | (None, Some(f)) => Some(castBody(f))
-      | (None, None) => None
-      }
+            let retryAfter =
+              res.headers
+              ->getHeader("Retry-After")
+              ->Nullable.toOption
+              ->Option.flatMap(Belt.Int.fromString)
+              ->Option.getOr(10)
 
-      let options = {
-        "method": method,
-        "headers": headers,
-        "body": bodyVal,
-        "signal": Some(signalScope.signal),
-      }
+            EventBus.dispatch(RateLimitBackoff(retryAfter))
 
-      try {
-        let res = await fetch(url, options)
+            Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
+          } else if res.status >= 400 {
+            signalScope.cleanup()
+            CircuitBreaker.recordFailure(circuitBreaker)
+            let currentState = CircuitBreaker.getState(circuitBreaker)
 
-        if res.status == 429 {
-          signalScope.cleanup()
-          // Treat 429 as failure for circuit breaker stats to help global backoff if needed
-          CircuitBreaker.recordFailure(circuitBreaker)
+            if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
+              NotificationManager.dispatch({
+                id: "circuit-breaker-open",
+                importance: Warning,
+                context: Operation("network"),
+                message: "Connection issues: Circuit breaker activated",
+                details: Some(
+                  "Multiple requests failing. Circuit breaker activated to prevent overload.",
+                ),
+                action: None,
+                duration: 10000,
+                dismissible: true,
+                createdAt: Date.now(),
+              })
+            }
 
-          let retryAfter =
-            res.headers
-            ->getHeader("Retry-After")
-            ->Nullable.toOption
-            ->Option.flatMap(Belt.Int.fromString)
-            ->Option.getOr(10)
-
-          EventBus.dispatch(RateLimitBackoff(retryAfter))
-
-          Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
-        } else if res.status >= 400 {
-          signalScope.cleanup()
-          CircuitBreaker.recordFailure(circuitBreaker)
-          let currentState = CircuitBreaker.getState(circuitBreaker)
-
-          if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
-            NotificationManager.dispatch({
-              id: "circuit-breaker-open",
-              importance: Warning,
-              context: Operation("network"),
-              message: "Connection issues: Circuit breaker activated",
-              details: Some(
-                "Multiple requests failing. Circuit breaker activated to prevent overload.",
-              ),
-              action: None,
-              duration: 10000,
-              dismissible: true,
-              createdAt: Date.now(),
-            })
-          }
-
-          let errorText = await res.text()
-          Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
-        } else {
-          signalScope.cleanup()
-          CircuitBreaker.recordSuccess(circuitBreaker)
-          Ok(res)
-        }
-      } catch {
-      | e =>
-        signalScope.cleanup()
-        // Use JsExn as suggested by deprecation warning
-        let (name, msg) = switch JsExn.fromException(e) {
-        | Some(err) => (
-            Option.getOr(JsExn.name(err), "Unknown"),
-            Option.getOr(JsExn.message(err), "Unknown Error"),
-          )
-        | None => ("Unknown", String.make(e))
-        }
-
-        if name == "AbortError" || name == "Abort" {
-          if signalScope.wasTimedOut() {
-            Error("TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms")
+            let errorText = await res.text()
+            Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
           } else {
-            Error("AbortError")
+            signalScope.cleanup()
+            CircuitBreaker.recordSuccess(circuitBreaker)
+            Ok(res)
           }
-        } else {
-          CircuitBreaker.recordFailure(circuitBreaker)
-          Error(
-            if msg == "" {
-              "Unknown Error"
+        } catch {
+        | e =>
+          signalScope.cleanup()
+          // Use JsExn as suggested by deprecation warning
+          let (name, msg) = switch JsExn.fromException(e) {
+          | Some(err) => (
+              Option.getOr(JsExn.name(err), "Unknown"),
+              Option.getOr(JsExn.message(err), "Unknown Error"),
+            )
+          | None => ("Unknown", String.make(e))
+          }
+
+          if name == "AbortError" || name == "Abort" {
+            if signalScope.wasTimedOut() {
+              Error(
+                "TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms",
+              )
             } else {
-              msg
-            },
-          )
+              Error("AbortError")
+            }
+          } else {
+            CircuitBreaker.recordFailure(circuitBreaker)
+            Error(
+              if msg == "" {
+                "Unknown Error"
+              } else {
+                msg
+              },
+            )
+          }
         }
       }
     }
   }
-}
 }
 
 let requestWithRetry = (

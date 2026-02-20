@@ -1,24 +1,67 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    }
-  ],
   "rust": [
     {
       "Violation": {
         "file": "../../backend/src/middleware/rate_limiter.rs",
         "pattern": "unwrap()",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/validate.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 13.401047120418847,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/validate.rs",
+              "functions": [
+                {
+                  "name": "normalize_scene_key",
+                  "signature": "fn normalize_scene_key(value: &str) -> String {",
+                  "line": 6
+                },
+                {
+                  "name": "scene_id_or_fallback",
+                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
+                  "line": 18
+                },
+                {
+                  "name": "extract_sanitized_filename",
+                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
+                  "line": 28
+                },
+                {
+                  "name": "archive_contains_file",
+                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
+                  "line": 67
+                },
+                {
+                  "name": "get_scene_filename",
+                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
+                  "line": 71
+                },
+                {
+                  "name": "resolve_hotspot_target_id",
+                  "signature": "fn resolve_hotspot_target_id(",
+                  "line": 78
+                },
+                {
+                  "name": "validate_and_clean_project",
+                  "signature": "pub fn validate_and_clean_project(",
+                  "line": 124
+                }
+              ],
+              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
+            }
+          ]
+        }
       }
     },
     {
@@ -142,6 +185,78 @@
   "rescript": [
     {
       "Surgical": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 388/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.442268041237114,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/Api/AuthenticatedClient.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/Api/AuthenticatedClient.res",
+              "functions": [
+                {
+                  "name": "fetchJson",
+                  "signature": "fetchJson = (res: response) => res.json()",
+                  "line": 18
+                },
+                {
+                  "name": "fetchText",
+                  "signature": "fetchText = (res: response) => res.text()",
+                  "line": 19
+                },
+                {
+                  "name": "fetchBlob",
+                  "signature": "fetchBlob = (res: response) => res.blob()",
+                  "line": 20
+                },
+                {
+                  "name": "toUpper",
+                  "signature": "toUpper: string => string = %raw(\"(s) => String(s || '').toUpperCase()\")",
+                  "line": 23
+                },
+                {
+                  "name": "circuitBreaker",
+                  "signature": "circuitBreaker = CircuitBreaker.make()",
+                  "line": 25
+                },
+                {
+                  "name": "getTimeoutMs",
+                  "signature": "getTimeoutMs = (method: string): int => {",
+                  "line": 28
+                },
+                {
+                  "name": "prepareRequestSignal",
+                  "signature": "prepareRequestSignal = (",
+                  "line": 47
+                },
+                {
+                  "name": "prepareRequestBody",
+                  "signature": "prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {",
+                  "line": 104
+                },
+                {
+                  "name": "request",
+                  "signature": "request = async (",
+                  "line": 115
+                },
+                {
+                  "name": "requestWithRetry",
+                  "signature": "requestWithRetry = (",
+                  "line": 309
+                }
+              ],
+              "fingerprint": "54025c386ca048345d2c27981094b399c701320923e2f1dcef1f5c2d74f1ca8a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/Api/ProjectApi.res",
         "action": "De-bloat",
         "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.05] | Drag: 2.20 | LOC: 437/300",
@@ -235,6 +350,20 @@
             }
           ]
         }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
       }
     }
   ]
