@@ -126,12 +126,29 @@ let request = async (
   | Some(id) => id
   | None => "anonymous"
   }
+  let currentOperationId = Logger.getOperationId()
 
   Dict.set(headers, "X-Session-ID", sessionId)
-  Logger.getOperationId()->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
+  currentOperationId->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
 
-  // Inject Authorization header if not already present
-  if Dict.get(headers, "Authorization") == None {
+  // HARDENING: Check operation validity before request.
+  // Only lifecycle operation IDs are eligible for cancellation checks.
+  let isOpCancelled =
+    currentOperationId
+    ->Option.map(id =>
+      if String.startsWith(id, "op_") {
+        !OperationLifecycle.isActive(id)
+      } else {
+        false
+      }
+    )
+    ->Option.getOr(false)
+
+  if isOpCancelled {
+    Error("OperationCancelled")
+  } else {
+    // Inject Authorization header if not already present
+    if Dict.get(headers, "Authorization") == None {
     let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
 
     let finalToken = switch token {
@@ -146,18 +163,18 @@ let request = async (
       let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
     })
 
-    finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
-  }
+      finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
+    }
 
-  if !NetworkStatus.isOnline() {
-    Logger.warn(
-      ~module_="AuthenticatedClient",
-      ~message="REQUEST_SKIPPED_OFFLINE",
-      ~data=Some(Logger.castToJson({"url": url, "method": method})),
-      (),
-    )
-    Error("NetworkOffline")
-  } else {
+    if !NetworkStatus.isOnline() {
+      Logger.warn(
+        ~module_="AuthenticatedClient",
+        ~message="REQUEST_SKIPPED_OFFLINE",
+        ~data=Some(Logger.castToJson({"url": url, "method": method})),
+        (),
+      )
+      Error("NetworkOffline")
+    } else {
     let lastState = CircuitBreaker.getState(circuitBreaker)
     if lastState === CircuitBreaker.Open {
       NotificationManager.dispatch({
@@ -184,7 +201,6 @@ let request = async (
         }
       }
       Dict.set(headers, "X-Request-ID", finalRequestId)
-      Logger.setOperationId(Some(finalRequestId)) // Link telemetry to this request as well
 
       let timeoutMs = TimeoutPolicy.getTimeoutMs(method)
       let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
@@ -286,6 +302,7 @@ let request = async (
     }
   }
 }
+}
 
 let requestWithRetry = (
   url,
@@ -331,7 +348,7 @@ let requestWithRetry = (
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
     ~shouldRetry=error => {
-      if error == "NetworkOffline" {
+      if error == "NetworkOffline" || error == "OperationCancelled" {
         false
       } else if String.startsWith(error, "RateLimited: ") {
         true
