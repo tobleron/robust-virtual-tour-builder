@@ -7,6 +7,10 @@ Replace ad hoc lock decisions with a centralized capability-based lock policy ma
 - Requires Task `1502` complete first.
 - Task `1504` MUST NOT start until this task is marked complete.
 
+## Prerequisite Status
+- `1502` merged: operation visibility thresholds (`visibleAfterMs`) are now active in `OperationLifecycle` + Sidebar processing selection.
+- `1503` must treat visibility policy and lock policy as separate concerns: lock decisions cannot be inferred only from progress UI visibility.
+
 ## Problem Statement
 Locking behavior is currently distributed across app mode checks and component guards. This creates inconsistency and makes it hard to reason about what should be blocked for each active operation.
 
@@ -35,6 +39,7 @@ Locking behavior is currently distributed across app mode checks and component g
 3. Replace scattered lock checks with policy queries.
 4. Keep navigation interruptible where safe; hard-lock only integrity-critical paths.
 5. Ensure overlay/feedback reflects hard-lock states only.
+6. Preserve `1502` threshold behavior: hidden short operations may still influence policy if they are semantically lock-worthy.
 
 ## Execution Plan
 1. Introduce policy types + evaluator module.
@@ -48,6 +53,7 @@ Locking behavior is currently distributed across app mode checks and component g
 - Project load/export still block conflicting mutations.
 - No full-screen lock overlay during ordinary scene navigation.
 - Concurrent operation cases resolve deterministically.
+- Lock policy remains correct when progress UI is hidden due to `visibleAfterMs`.
 
 ## Acceptance Criteria
 - [ ] Centralized lock policy module exists and is authoritative.

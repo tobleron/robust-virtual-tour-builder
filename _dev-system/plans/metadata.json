@@ -1,76 +1,5 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/rate_limiter.rs",
-        "strategy": ""
-      }
-    }
-  ],
   "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/validate.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 13.401047120418847,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/validate.rs",
-              "functions": [
-                {
-                  "name": "normalize_scene_key",
-                  "signature": "fn normalize_scene_key(value: &str) -> String {",
-                  "line": 6
-                },
-                {
-                  "name": "scene_id_or_fallback",
-                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
-                  "line": 18
-                },
-                {
-                  "name": "extract_sanitized_filename",
-                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
-                  "line": 28
-                },
-                {
-                  "name": "archive_contains_file",
-                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
-                  "line": 67
-                },
-                {
-                  "name": "get_scene_filename",
-                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
-                  "line": 71
-                },
-                {
-                  "name": "resolve_hotspot_target_id",
-                  "signature": "fn resolve_hotspot_target_id(",
-                  "line": 78
-                },
-                {
-                  "name": "validate_and_clean_project",
-                  "signature": "pub fn validate_and_clean_project(",
-                  "line": 124
-                }
-              ],
-              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
-            }
-          ]
-        }
-      }
-    },
     {
       "Surgical": {
         "file": "../../backend/src/api/project.rs",
@@ -189,6 +118,63 @@
       }
     },
     {
+      "Surgical": {
+        "file": "../../backend/src/services/project/validate.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.01] | Drag: 5.20 | LOC: 382/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 13.401047120418847,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/validate.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/validate.rs",
+              "functions": [
+                {
+                  "name": "normalize_scene_key",
+                  "signature": "fn normalize_scene_key(value: &str) -> String {",
+                  "line": 6
+                },
+                {
+                  "name": "scene_id_or_fallback",
+                  "signature": "fn scene_id_or_fallback(scene: &serde_json::Value, index: usize) -> String {",
+                  "line": 18
+                },
+                {
+                  "name": "extract_sanitized_filename",
+                  "signature": "fn extract_sanitized_filename(raw_value: &str) -> Option<String> {",
+                  "line": 28
+                },
+                {
+                  "name": "archive_contains_file",
+                  "signature": "fn archive_contains_file(available_files: &HashSet<String>, filename: &str) -> bool {",
+                  "line": 67
+                },
+                {
+                  "name": "get_scene_filename",
+                  "signature": "fn get_scene_filename(scene: &serde_json::Value, key: &str) -> Option<String> {",
+                  "line": 71
+                },
+                {
+                  "name": "resolve_hotspot_target_id",
+                  "signature": "fn resolve_hotspot_target_id(",
+                  "line": 78
+                },
+                {
+                  "name": "validate_and_clean_project",
+                  "signature": "pub fn validate_and_clean_project(",
+                  "line": 124
+                }
+              ],
+              "fingerprint": "5ec0bdf274b5486108957898508585e198f4022a7a17796c4f3d0f58e93ca130"
+            }
+          ]
+        }
+      }
+    },
+    {
       "Violation": {
         "file": "../../backend/src/middleware/rate_limiter.rs",
         "pattern": "unwrap()",
@@ -296,6 +282,68 @@
     },
     {
       "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.11, Coupling: 0.09] | Drag: 5.33 | LOC: 379/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.226649076517152,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/components/Sidebar/SidebarLogic.res",
+              "functions": [
+                {
+                  "name": "lastPct",
+                  "signature": "lastPct = ref(0.0)",
+                  "line": 29
+                },
+                {
+                  "name": "updateProgress",
+                  "signature": "updateProgress = (",
+                  "line": 31
+                },
+                {
+                  "name": "performUpload",
+                  "signature": "performUpload = async (",
+                  "line": 66
+                },
+                {
+                  "name": "handleUpload",
+                  "signature": "handleUpload = async (",
+                  "line": 124
+                },
+                {
+                  "name": "handleLoadProject",
+                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
+                  "line": 168
+                },
+                {
+                  "name": "getProjectData",
+                  "signature": "getProjectData = (state: Types.state) => {",
+                  "line": 277
+                },
+                {
+                  "name": "handleDeleteScene",
+                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
+                  "line": 281
+                },
+                {
+                  "name": "handleExport",
+                  "signature": "handleExport = async (",
+                  "line": 293
+                }
+              ],
+              "fingerprint": "1e010ccb9a80ad92e78d4cff5e4459e29a646bd574a07cbb55f24bc3cb9c1232"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/Api/AuthenticatedClient.res",
         "action": "De-bloat",
         "reason": "[Nesting: 2.40, Density: 0.18, Coupling: 0.09] | Drag: 3.64 | LOC: 397/300  🎯 Target: Function: `getTimeoutMs` (High Local Complexity (4.0). Logic heavy.)",
@@ -365,67 +413,19 @@
           ]
         }
       }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "strategy": ""
+      }
     },
     {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.11, Coupling: 0.09] | Drag: 5.33 | LOC: 379/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.226649076517152,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogic.res",
-              "functions": [
-                {
-                  "name": "lastPct",
-                  "signature": "lastPct = ref(0.0)",
-                  "line": 29
-                },
-                {
-                  "name": "updateProgress",
-                  "signature": "updateProgress = (",
-                  "line": 31
-                },
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 66
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 124
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 168
-                },
-                {
-                  "name": "getProjectData",
-                  "signature": "getProjectData = (state: Types.state) => {",
-                  "line": 277
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 281
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 293
-                }
-              ],
-              "fingerprint": "1e010ccb9a80ad92e78d4cff5e4459e29a646bd574a07cbb55f24bc3cb9c1232"
-            }
-          ]
-        }
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/rate_limiter.rs",
+        "strategy": ""
       }
     }
   ]

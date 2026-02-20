@@ -18,7 +18,11 @@ describe("OperationLifecycle", () => {
   })
 
   test("starts operation correctly", t => {
-    let id = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~scope=OperationLifecycle.Ambient, ())
+    let id = OperationLifecycle.start(
+      ~type_=OperationLifecycle.Navigation,
+      ~scope=OperationLifecycle.Ambient,
+      (),
+    )
     let op = OperationLifecycle.getOperation(id)
 
     switch op {
@@ -26,7 +30,9 @@ describe("OperationLifecycle", () => {
         t->expect(task.id)->Expect.toBe(id)
         t->expect(task.type_)->Expect.toBe(OperationLifecycle.Navigation)
         t->expect(task.scope)->Expect.toBe(OperationLifecycle.Ambient)
-        t->expect(task.status)->Expect.toEqual(OperationLifecycle.Active({progress: 0.0, message: None}))
+        t
+        ->expect(task.status)
+        ->Expect.toEqual(OperationLifecycle.Active({progress: 0.0, message: None}))
       }
     | None => t->expect(true)->Expect.toBe(false)
     }
@@ -38,9 +44,9 @@ describe("OperationLifecycle", () => {
     let op = OperationLifecycle.getOperation(id)
 
     switch op {
-    | Some(task) => {
-        t->expect(task.status)->Expect.toEqual(OperationLifecycle.Completed({result: Some("Done")}))
-      }
+    | Some(task) => t
+      ->expect(task.status)
+      ->Expect.toEqual(OperationLifecycle.Completed({result: Some("Done")}))
     | None => t->expect(true)->Expect.toBe(false)
     }
   })
@@ -51,9 +57,9 @@ describe("OperationLifecycle", () => {
     let op = OperationLifecycle.getOperation(id)
 
     switch op {
-    | Some(task) => {
-        t->expect(task.status)->Expect.toEqual(OperationLifecycle.Failed({error: "Error occurred"}))
-      }
+    | Some(task) => t
+      ->expect(task.status)
+      ->Expect.toEqual(OperationLifecycle.Failed({error: "Error occurred"}))
     | None => t->expect(true)->Expect.toBe(false)
     }
   })
@@ -99,11 +105,7 @@ describe("OperationLifecycle", () => {
   })
 
   test("overrides default visibility threshold", t => {
-    let id = OperationLifecycle.start(
-      ~type_=OperationLifecycle.Navigation,
-      ~visibleAfterMs=100,
-      ()
-    )
+    let id = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=100, ())
     let op = OperationLifecycle.getOperation(id)->Option.getOrThrow
     t->expect(op.visibleAfterMs)->Expect.toBe(100)
   })

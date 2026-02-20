@@ -155,16 +155,14 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
           setProcState(_ => newState)
           isVisible.current = active
         }
-      } else {
-        // Hide if currently visible
-        if isVisible.current {
-          setProcState(prev => {
-            let next = Object.assign(Object.make(), prev)
-            next["active"] = false
-            next
-          })
-          isVisible.current = false
-        }
+      } // Hide if currently visible
+      else if isVisible.current {
+        setProcState(prev => {
+          let next = Object.assign(Object.make(), prev)
+          next["active"] = false
+          next
+        })
+        isVisible.current = false
       }
 
     | None =>

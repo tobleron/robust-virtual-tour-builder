@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.30.11] - 2026-02-20
+
+### Changed
+- Merge task-1502 visibility thresholds and align task 1503 lock-policy prerequisites
+
 ## [4.30.10] - 2026-02-20
 
 ### Changed

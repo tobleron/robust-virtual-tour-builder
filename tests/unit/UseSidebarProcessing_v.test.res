@@ -19,13 +19,13 @@ module TestComponent = {
 
     <div dataTestId="proc-state">
       {
-         let json = JSON.Encode.object(
-             Dict.fromArray([
-                 ("active", JSON.Encode.bool(procState["active"])),
-                 ("message", JSON.Encode.string(procState["message"])),
-             ])
-         )
-         React.string(JSON.stringify(json))
+        let json = JSON.Encode.object(
+          Dict.fromArray([
+            ("active", JSON.Encode.bool(procState["active"])),
+            ("message", JSON.Encode.string(procState["message"])),
+          ]),
+        )
+        React.string(JSON.stringify(json))
       }
     </div>
   }
@@ -47,31 +47,41 @@ describe("UseSidebarProcessing", () => {
     Dom.appendChild(Dom.documentBody, container)
     let root = ReactDOMClient.createRoot(container)
 
-    await Act.act(async () => {
-      ReactDOMClient.Root.render(
-        root,
-        <TestComponent />
-      )
-    })
+    await Act.act(
+      async () => {
+        ReactDOMClient.Root.render(root, <TestComponent />)
+      },
+    )
 
     // Start operation with 500ms threshold
-    ReBindings.Window.setTimeout(() => {
-       let _ = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
-    }, 0)->ignore
+    ReBindings.Window.setTimeout(
+      () => {
+        let _ = OperationLifecycle.start(
+          ~type_=OperationLifecycle.Navigation,
+          ~visibleAfterMs=500,
+          (),
+        )
+      },
+      0,
+    )->ignore
 
     // Process the start
-    await Act.act(async () => {
-       advanceTimersByTime(10) // 1010ms. Elapsed 10ms. < 500ms.
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(10) // 1010ms. Elapsed 10ms. < 500ms.
+      },
+    )
 
     let el = Dom.querySelector(container, "[data-testid='proc-state']")
     let content = Dom.getTextContent(Nullable.getUnsafe(el))
     t->expect(content->String.includes("\"active\":false"))->Expect.toBe(true)
 
     // Advance to 600ms elapsed
-    await Act.act(async () => {
-       advanceTimersByTime(600) // 1610ms. Elapsed 610ms. > 500ms.
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(600) // 1610ms. Elapsed 610ms. > 500ms.
+      },
+    )
 
     let content2 = Dom.getTextContent(Nullable.getUnsafe(el))
     t->expect(content2->String.includes("\"active\":true"))->Expect.toBe(true)
@@ -84,37 +94,51 @@ describe("UseSidebarProcessing", () => {
     Dom.appendChild(Dom.documentBody, container)
     let root = ReactDOMClient.createRoot(container)
 
-    await Act.act(async () => {
-      ReactDOMClient.Root.render(
-        root,
-        <TestComponent />
-      )
-    })
+    await Act.act(
+      async () => {
+        ReactDOMClient.Root.render(root, <TestComponent />)
+      },
+    )
 
     let opId = ref("")
-    ReBindings.Window.setTimeout(() => {
-       opId := OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
-    }, 0)->ignore
+    ReBindings.Window.setTimeout(
+      () => {
+        opId :=
+          OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
+      },
+      0,
+    )->ignore
 
     // Start
-    await Act.act(async () => {
-       advanceTimersByTime(10)
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(10)
+      },
+    )
 
     let el = Dom.querySelector(container, "[data-testid='proc-state']")
-    t->expect(Dom.getTextContent(Nullable.getUnsafe(el))->String.includes("\"active\":false"))->Expect.toBe(true)
+    t
+    ->expect(Dom.getTextContent(Nullable.getUnsafe(el))->String.includes("\"active\":false"))
+    ->Expect.toBe(true)
 
     // Complete at 200ms elapsed
-    ReBindings.Window.setTimeout(() => {
-       OperationLifecycle.complete(opId.contents, ~result="Done", ())
-    }, 0)->ignore
+    ReBindings.Window.setTimeout(
+      () => {
+        OperationLifecycle.complete(opId.contents, ~result="Done", ())
+      },
+      0,
+    )->ignore
 
-    await Act.act(async () => {
-       advanceTimersByTime(200) // 1210ms. Elapsed 210ms.
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(200) // 1210ms. Elapsed 210ms.
+      },
+    )
 
     // Should still be inactive because duration (210) < 500
-    t->expect(Dom.getTextContent(Nullable.getUnsafe(el))->String.includes("\"active\":false"))->Expect.toBe(true)
+    t
+    ->expect(Dom.getTextContent(Nullable.getUnsafe(el))->String.includes("\"active\":false"))
+    ->Expect.toBe(true)
 
     Dom.removeElement(container)
   })
@@ -124,31 +148,41 @@ describe("UseSidebarProcessing", () => {
     Dom.appendChild(Dom.documentBody, container)
     let root = ReactDOMClient.createRoot(container)
 
-    await Act.act(async () => {
-      ReactDOMClient.Root.render(
-        root,
-        <TestComponent />
-      )
-    })
+    await Act.act(
+      async () => {
+        ReactDOMClient.Root.render(root, <TestComponent />)
+      },
+    )
 
     let opId = ref("")
-    ReBindings.Window.setTimeout(() => {
-       opId := OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
-    }, 0)->ignore
+    ReBindings.Window.setTimeout(
+      () => {
+        opId :=
+          OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ~visibleAfterMs=500, ())
+      },
+      0,
+    )->ignore
 
     // Start
-    await Act.act(async () => {
-       advanceTimersByTime(10)
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(10)
+      },
+    )
 
     // Fail immediately
-    ReBindings.Window.setTimeout(() => {
-       OperationLifecycle.fail(opId.contents, "Oops")
-    }, 0)->ignore
+    ReBindings.Window.setTimeout(
+      () => {
+        OperationLifecycle.fail(opId.contents, "Oops")
+      },
+      0,
+    )->ignore
 
-    await Act.act(async () => {
-       advanceTimersByTime(10)
-    })
+    await Act.act(
+      async () => {
+        advanceTimersByTime(10)
+      },
+    )
 
     let el = Dom.querySelector(container, "[data-testid='proc-state']")
     let content = Dom.getTextContent(Nullable.getUnsafe(el))
