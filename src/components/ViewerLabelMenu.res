@@ -1,9 +1,10 @@
 /* src/components/ViewerLabelMenu.res */
 
 @react.component
-let make = React.memo((~scenesLoaded, ~isLinking) => {
+let make = React.memo((~scenesLoaded, ~isLinking, ~simActive=false) => {
   let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
   let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
+  let isDisabled = !scenesLoaded || isLinking || simActive
 
   let handleMenuOpenChange = React.useMemo0(() =>
     isOpen => {
@@ -24,7 +25,7 @@ let make = React.memo((~scenesLoaded, ~isLinking) => {
     <Tooltip
       content="Set scene label"
       alignment=#Right
-      disabled={isLinking || (isLabelMenuOpen || tooltipCooldown)}
+      disabled={isDisabled || isLabelMenuOpen || tooltipCooldown}
     >
       <Shadcn.DropdownMenu.Trigger asChild=true>
         <Shadcn.Button
@@ -41,7 +42,7 @@ let make = React.memo((~scenesLoaded, ~isLinking) => {
           } else {
             ""
           }}
-          disabled={!scenesLoaded || isLinking}
+          disabled=isDisabled
         >
           <LucideIcons.Hash size=18 strokeWidth=3.0 />
         </Shadcn.Button>

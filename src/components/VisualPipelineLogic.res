@@ -87,14 +87,21 @@ module Styles = {
     border: 1.5px solid var(--orange-brand, #f97316); /* Thin orange border */
     border-radius: 6px; 
     padding: 0;
-    opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 300;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: 0ms;
+    display: flex; flex-direction: column; align-items: center; width: 140px; z-index: 6008;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     margin-bottom: 12px;
   }
 
-  .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .pipeline-node:hover .node-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+    transition-delay: 600ms;
+  }
 
   .tooltip-thumb {
     width: 100%; height: 80px; object-fit: cover; 

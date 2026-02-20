@@ -229,7 +229,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           </Shadcn.Button>
         </Tooltip>
 
-        <ViewerLabelMenu scenesLoaded isLinking />
+        <ViewerLabelMenu scenesLoaded isLinking simActive />
       </>
     } else {
       React.null

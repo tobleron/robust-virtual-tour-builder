@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fix z-index for visual pipeline elements
 - T1506 project-load stuck + cancel/esc hardening
+- T1506 tooltip layer parity + 600ms pipeline hover + room-label preview dim
 
 ## [4.30.11] - 2026-02-20
 
