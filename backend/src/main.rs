@@ -21,6 +21,7 @@ use middleware::RequestTracker;
 use middleware::rate_limiter::RateLimiters;
 use services::database::DatabaseManager;
 use services::media::StorageManager;
+use services::project::ChunkedProjectImportManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
@@ -75,6 +76,13 @@ async fn main() -> io::Result<()> {
     // Initialize upload quota manager
     let quota_config = QuotaConfig::from_env();
     let quota_manager = web::Data::new(UploadQuotaManager::new(quota_config.clone()));
+    let project_import_uploads =
+        web::Data::new(ChunkedProjectImportManager::new().map_err(|e| {
+            io::Error::other(format!(
+                "Failed to initialize chunked import upload manager: {}",
+                e
+            ))
+        })?);
 
     let disk_bypass = std::env::var("ALLOW_DISK_CHECK_BYPASS").unwrap_or_default();
 
@@ -118,6 +126,7 @@ async fn main() -> io::Result<()> {
         App::new()
             .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
             .app_data(quota_manager.clone())
+            .app_data(project_import_uploads.clone())
             .app_data(shutdown_manager_server.clone())
             .app_data(db_pool_server.clone())
             .wrap(QuotaCheck)

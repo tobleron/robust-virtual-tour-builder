@@ -185,13 +185,13 @@ let make = React.memo((
           <img
             src={thumbUrl}
             alt={`Thumbnail of ${scene.name}`}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 opacity-100 group-hover:brightness-[1.3]"
             loading=#lazy
           />
         } else {
           React.null
         }}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
+        <div className="absolute inset-0 bg-transparent" />
 
         <div
           className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[10px] font-semibold text-white border border-white/10 z-10"

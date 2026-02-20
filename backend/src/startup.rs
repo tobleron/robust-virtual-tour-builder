@@ -199,11 +199,11 @@ fn read_env_usize(name: &str, default: usize) -> usize {
 pub fn rate_limit_settings_for_class(class: &str) -> (u64, u32) {
     let (default_rps, default_burst) = if is_production() {
         match class {
-            "health" => (50_u64, 100_u32),
-            "read" => (30_u64, 60_u32),
-            "write" => (10_u64, 20_u32),
-            "admin" => (5_u64, 10_u32),
-            _ => (30_u64, 60_u32),
+            "health" => (10_u64, 100_u32),
+            "read" => (50_u64, 200_u32),
+            "write" => (20_u64, 100_u32),
+            "admin" => (10_u64, 50_u32),
+            _ => (20_u64, 100_u32),
         }
     } else {
         (500_u64, 1000_u32)

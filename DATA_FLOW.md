@@ -384,5 +384,11 @@ CI job
 ### 📂 backend/src/middleware
 - `[backend/src/middleware/rate_limiter.rs]`
 
+### 📂 backend/src/services/project
+- `[backend/src/services/project/import_upload.rs]`
+
+### 📂 src/utils
+- `[src/utils/FileSlicer.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

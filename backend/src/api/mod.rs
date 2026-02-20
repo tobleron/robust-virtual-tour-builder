@@ -93,6 +93,41 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
+                        "/import/init",
+                        web::post()
+                            .to(project::import_project_init)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/import/chunk",
+                        web::post()
+                            .to(project::import_project_chunk)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/import/status/{upload_id}",
+                        web::get()
+                            .to(project::import_project_status)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/import/complete",
+                        web::post()
+                            .to(project::import_project_complete)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/import/abort",
+                        web::post()
+                            .to(project::import_project_abort)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/calculate-path",
                         web::post()
                             .to(project::calculate_path)

@@ -2,83 +2,73 @@
 
 module Styles = {
   let styles = "
-  /* --- Visual Pipeline V2: Thumbnail Chain --- */
+  /* --- Visual Pipeline V3: Scalable Floor-Grouped Squares --- */
 
   /* Container */
   #visual-pipeline-container {
     position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 9000;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
-    padding-bottom: env(safe-area-inset-bottom, 16px);
-    padding-left: 70px;
+    /* User Spacing Proposal: 120px Left, 220px Right, ~80px Baseline elevation */
+    padding-bottom: 80px; 
+    padding-left: 110px;
     padding-right: 150px;
     box-sizing: border-box;
+    min-height: 200px;
   }
 
   .visual-pipeline-wrapper {
     pointer-events: auto;
-    margin-bottom: 16px;
-    display: flex; justify-content: center; align-items: center;
+    display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: flex-start;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     padding: 0;
     background: transparent;
     user-select: none;
-    flex-wrap: wrap;
-    row-gap: 8px;
-    column-gap: 0;
+    row-gap: 12px;
+    position: relative;
   }
 
-  body.viewer-state-portrait #visual-pipeline-container {
-    padding-left: 60px;
-    padding-right: 140px;
-    padding-bottom: env(safe-area-inset-bottom, 8px);
-  }
-
-  body.viewer-state-portrait .visual-pipeline-wrapper {
-    row-gap: 6px;
-    transform: scale(0.85);
-    transform-origin: bottom center;
-  }
-
-  /* Pipeline Track */
+  /* Floor Track */
   .pipeline-track {
-    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center;
     position: relative; width: 100%; gap: 6px;
+    min-height: 12px;
   }
 
-  /* --- Thumbnail Node --- */
+  /* --- Square Node --- */
   .pipeline-node {
-    width: 44px; height: 30px;
+    width: 12px; height: 12px;
     position: relative;
     flex-shrink: 0;
     cursor: pointer;
     border-radius: 3px;
     overflow: visible;
-    border: 3px solid var(--node-color, var(--primary-ui-blue));
-    transition: border-color 0.3s ease,
-                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background: var(--node-color, var(--primary-ui-blue));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
                 box-shadow 0.3s ease,
-                opacity 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+                filter 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     z-index: 20;
   }
 
   .pipeline-node:hover {
-    transform: scale(1.12);
+    transform: scale(1.4);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.2);
+                0 0 0 1px rgba(255, 255, 255, 0.4);
     z-index: 30;
+    filter: brightness(1.2);
   }
 
   .pipeline-node:active {
-    transform: scale(0.97);
+    transform: scale(0.9);
   }
 
-  /* Active node glow — 1px orange ring with no gap */
+  /* Active node glow */
   .pipeline-node.active {
-    box-shadow: 0 0 0 1px var(--orange-brand, #f97316),
+    box-shadow: 0 0 0 2px var(--orange-brand, #f97316),
                 0 4px 12px rgba(0, 0, 0, 0.4);
-    transform: scale(1.08);
+    transform: scale(1.2);
     z-index: 25;
   }
 
@@ -86,37 +76,6 @@ module Styles = {
     outline: none;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
   }
-
-  /* Thumbnail image */
-  .pipeline-thumb {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: inherit;
-    background: var(--slate-900, #0f172a);
-  }
-
-  /* Scene number badge */
-  .pipeline-badge {
-    position: absolute;
-    bottom: 1px; left: 1px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    color: white;
-    font-size: 7px;
-    font-weight: 700;
-    padding: 1px 3px;
-    border-radius: 2px;
-    line-height: 1;
-    pointer-events: none;
-    z-index: 5;
-  }
-
-
-
-
-
-
 
   /* --- Tooltip --- */
   .node-tooltip {
@@ -128,7 +87,7 @@ module Styles = {
     display: flex; flex-direction: column; align-items: center; width: 160px; z-index: 100;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
   .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -155,29 +114,24 @@ module Styles = {
     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
   }
 
-  /* --- Compact Mode --- */
-  body.viewer-state-tablet .pipeline-node,
-  body.viewer-state-portrait .pipeline-node,
-  body.viewer-state-2k .pipeline-node,
-  body.viewer-force-fallback .pipeline-node,
-  body.stage-size-small .pipeline-node {
-    width: 34px; height: 24px;
-    border-width: 2px;
+  /* --- Electronic Board Lines --- */
+  .pipeline-svg-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5; /* Behind tracks */
+    overflow: visible;
   }
 
-
-
-
-
-  body.viewer-state-tablet .pipeline-badge,
-  body.viewer-state-portrait .pipeline-badge,
-  body.viewer-state-2k .pipeline-badge,
-  body.viewer-force-fallback .pipeline-badge,
-  body.stage-size-small .pipeline-badge {
-    font-size: 6px;
-    padding: 0px 2px;
+  .pipeline-floor-line {
+    fill: none;
+    stroke: #f97316; /* Force brand orange for visibility */
+    stroke-width: 1.8;
+    opacity: 0.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.4));
+    transition: opacity 0.3s ease;
   }
-
-
 "
 }

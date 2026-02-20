@@ -1,4 +1,4 @@
-/* src/components/VisualPipeline.res - Visual Pipeline V2: Thumbnail Chain */
+/* src/components/VisualPipeline.res - Visual Pipeline V3: Scalable Floor-Grouped Squares */
 
 open ReBindings
 module Styles = VisualPipelineLogic.Styles
@@ -20,7 +20,6 @@ module PipelineNode = {
   @react.component
   let make = (
     ~item: Types.timelineItem,
-    ~index: int,
     ~isActive: bool,
     ~scene: option<Types.scene>,
     ~targetScene: option<Types.scene>,
@@ -77,7 +76,7 @@ module PipelineNode = {
     }
 
     let color = if isAutoForward {
-      "#4B0082"
+      "#4B0082" // Deep Indigo for Auto-Forward
     } else {
       switch scene {
       | Some(s) => ColorPalette.getGroupColor(s.colorGroup)
@@ -87,17 +86,6 @@ module PipelineNode = {
 
     let style = ReBindings.makeStyle({"--node-color": color})
     let className = "pipeline-node" ++ (isActive ? " active" : "")
-
-    // Determine what number to show — find the scene index in the scenes array
-    let sceneNumber = switch scene {
-    | Some(s) =>
-      let idx = AppContext.getBridgeState().scenes->Belt.Array.getIndexBy(sc => sc.id == s.id)
-      switch idx {
-      | Some(i) => i + 1
-      | None => index + 1
-      }
-    | None => index + 1
-    }
 
     <div
       className
@@ -110,17 +98,6 @@ module PipelineNode = {
       onContextMenu=handleContextMenu
       style
     >
-      {if thumbUrl != "" {
-        <img
-          src=thumbUrl
-          className="pipeline-thumb"
-          alt={scene->Option.map(s => s.name)->Option.getOr("Unknown Scene") ++ " preview"}
-          draggable=false
-        />
-      } else {
-        <div className="pipeline-thumb" />
-      }}
-      <div className="pipeline-badge"> {React.int(sceneNumber)} </div>
       <div className="node-tooltip">
         <span className="tooltip-link-id"> {React.string("Link: " ++ item.linkId)} </span>
         {if thumbUrl != "" {
@@ -183,50 +160,175 @@ let make = () => {
     dispatch(RemoveFromTimeline(itemId))
   }, [dispatch])
 
-  if Belt.Array.length(pipelineSlice.timeline) == 0 {
+  // --- Multi-Row Logic ---
+
+  // 1. Group items by floor
+  let groupedItems = React.useMemo2(() => {
+    let groups = Belt.MutableMap.String.make()
+    pipelineSlice.timeline->Belt.Array.forEach(item => {
+      let floorId = switch pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId) {
+      | Some(s) => s.floor == "" ? "ground" : s.floor
+      | None => "ground"
+      }
+      let existing = groups->Belt.MutableMap.String.get(floorId)->Option.getOr([])
+      groups->Belt.MutableMap.String.set(floorId, Belt.Array.concat(existing, [item]))
+    })
+    groups
+  }, (pipelineSlice.timeline, pipelineSlice.scenes))
+
+  // 3. Filter and sort floors that have items (Strict Basement-to-Roof order)
+  let activeFloors = React.useMemo2(() => {
+    let arr =
+      groupedItems
+      ->Belt.MutableMap.String.keysToArray
+      ->Belt.Array.keep(fid => groupedItems->Belt.MutableMap.String.get(fid)->Option.isSome)
+
+    arr->Belt.SortArray.stableSortBy((a, b) => {
+      let idxA = Constants.Scene.floorLevels->Belt.Array.getIndexBy(f => f.id == a)->Option.getOr(0)
+      let idxB = Constants.Scene.floorLevels->Belt.Array.getIndexBy(f => f.id == b)->Option.getOr(0)
+      idxA - idxB
+    })
+  }, (groupedItems, Constants.Scene.floorLevels))
+
+  // --- Deterministic Measurement Logic ---
+  let (linePaths, setLinePaths) = React.useState(_ => Dict.make())
+  let containerRef = React.useRef(Nullable.null)
+
+  React.useLayoutEffect2(() => {
+    let paths = Dict.make()
+    activeFloors->Belt.Array.forEachWithIndex((_idx, fid) => {
+      let btn = Dom.getElementById("floor-nav-button-" ++ fid)
+      let anchor = Dom.getElementById("track-anchor-" ++ fid)
+      let container = containerRef.current->Nullable.toOption
+
+      switch (Nullable.toOption(btn), Nullable.toOption(anchor), container) {
+      | (Some(b), Some(a), Some(c)) =>
+        let bRect = b->Dom.getBoundingClientRect
+        let aRect = a->Dom.getBoundingClientRect
+        let cRect = c->Dom.getBoundingClientRect
+
+        // Calculate Y relative to container bottom (since container is bottom-aligned)
+        let yFrom = cRect.bottom -. (bRect.top +. bRect.height /. 2.0)
+        let yTo = cRect.bottom -. (aRect.top +. aRect.height /. 2.0)
+
+        // Maps to SVG Y (SVG Height is matching container height)
+        let vYFrom = 400.0 -. yFrom
+        let vYTo = 400.0 -. yTo
+
+        let xStart = bRect.left +. bRect.width /. 2.0 -. cRect.left
+        let xCorridor = 46.0 // Convergence happens almost immediately
+        let xSlantEnd = 86.0 // Termination earlier
+        let xEnd = aRect.left -. cRect.left
+
+        // Calculate vertical delta for slant
+        let slantWidth = Math.abs(vYTo -. vYFrom)
+
+        // Parallel Bus Geometry:
+        // Slant ends at xSlantEnd. It starts at xSlantEnd - slantWidth (limited by corridor start).
+        let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
+
+        let d =
+          "M " ++
+          xStart->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          xCorridor->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          vXSlantStart->Float.toString ++
+          " " ++
+          vYFrom->Float.toString ++
+          " L " ++
+          xSlantEnd->Float.toString ++
+          " " ++
+          vYTo->Float.toString ++
+          " L " ++
+          xEnd->Float.toString ++
+          " " ++
+          vYTo->Float.toString
+
+        paths->Dict.set(fid, d)
+      | _ => ()
+      }
+    })
+    setLinePaths(_ => paths)
+    None
+  }, (activeFloors, pipelineSlice.timeline))
+
+  if activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
-    <div id="visual-pipeline-container">
+    <div id="visual-pipeline-container" ref={containerRef->ReactDOM.Ref.domRef}>
+      /* PCB-style Lines: Deterministic DOM-based Mapping */
+      <svg
+        className="pipeline-svg-overlay"
+        style={ReBindings.makeStyle({
+          "height": "400px",
+          "width": "100%",
+          "top": "auto",
+          "bottom": "0",
+          "zIndex": "9500",
+        })}
+      >
+        {activeFloors
+        ->Belt.Array.map(fid => {
+          switch linePaths->Dict.get(fid) {
+          | Some(d) => <path key={"line-" ++ fid} d className="pipeline-floor-line" />
+          | None => React.null
+          }
+        })
+        ->React.array}
+      </svg>
+
       <div className="visual-pipeline-wrapper">
-        <div className="pipeline-track">
-          {pipelineSlice.timeline
-          ->Belt.Array.mapWithIndex((index, item) => {
-            let isActive = switch pipelineSlice.activeTimelineStepId {
-            | Some(id) => id == item.id
-            | None =>
-              switch Belt.Array.get(pipelineSlice.scenes, pipelineSlice.activeIndex) {
-              | Some(currentScene) =>
-                let firstMatchIdx =
-                  pipelineSlice.timeline
-                  ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
-                  ->Option.getOr(-1)
-                item.sceneId == currentScene.id && firstMatchIdx == index
-              | None => false
+        /* Floor Tracks */
+        {activeFloors
+        ->Belt.Array.map(fid => {
+          let items = groupedItems->Belt.MutableMap.String.get(fid)->Option.getOr([])
+          <div key={"track-" ++ fid} className="pipeline-track">
+            {items
+            ->Belt.Array.mapWithIndex((idx, item) => {
+              let isActive = switch pipelineSlice.activeTimelineStepId {
+              | Some(id) => id == item.id
+              | None =>
+                switch Belt.Array.get(pipelineSlice.scenes, pipelineSlice.activeIndex) {
+                | Some(currentScene) =>
+                  let firstMatchId =
+                    pipelineSlice.timeline
+                    ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
+                    ->Option.map(idx => pipelineSlice.timeline[idx]->Option.map(t => t.id))
+                    ->Option.flatMap(x => x)
+                    ->Option.getOr("")
+                  item.id == firstMatchId
+                | None => false
+                }
               }
-            }
 
-            let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
-            let targetScene =
-              pipelineSlice.scenes
-              ->Belt.Array.getBy(s => s.id == item.targetScene)
-              ->Option.orElse(
-                pipelineSlice.scenes->Belt.Array.getBy(s => s.name == item.targetScene),
-              )
+              let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
+              let targetScene =
+                pipelineSlice.scenes
+                ->Belt.Array.getBy(s => s.id == item.targetScene)
+                ->Option.orElse(
+                  pipelineSlice.scenes->Belt.Array.getBy(s => s.name == item.targetScene),
+                )
 
-            <React.Fragment key={item.id}>
-              <PipelineNode
-                item
-                index
-                isActive
-                scene
-                targetScene
-                onActivate=handleNodeActivate
-                onRemove=handleNodeRemove
-              />
-            </React.Fragment>
-          })
-          ->React.array}
-        </div>
+              <div id={idx == 0 ? "track-anchor-" ++ fid : ""} key={item.id}>
+                <PipelineNode
+                  item
+                  isActive
+                  scene
+                  targetScene
+                  onActivate=handleNodeActivate
+                  onRemove=handleNodeRemove
+                />
+              </div>
+            })
+            ->React.array}
+          </div>
+        })
+        ->React.array}
       </div>
     </div>
   }
