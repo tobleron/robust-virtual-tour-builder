@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint: standardize thumbnail quality and pipeline preview behavior
 - Remove temporary utility-bar trash button; align pipeline tooltip updates
 - V4.30.12+export: redesign 3-mode exports (web_only/desktop/mobile), add export home shortcut, and compact glass panel
+- V4.30.12+11 [TRIPLE]: builder viewport deprecation and visual pipeline spacing refinements
 
 ## [4.30.12] - 2026-02-20
 

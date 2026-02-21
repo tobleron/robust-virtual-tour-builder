@@ -106,7 +106,7 @@ let make = React.memo(() => {
         /* Permanent Branding with Perfect Masking & Editable Support */
         <div
           id="viewer-logo"
-          className={"absolute bottom-6 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden transition-all p-[6px] " ++ if (
+          className={"absolute bottom-5 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden transition-all p-[6px] " ++ if (
             canUpload
           ) {
             "cursor-pointer active:scale-95 group pointer-events-auto"

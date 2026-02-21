@@ -40,7 +40,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
   }
 
   let floorNavClass =
-    "absolute bottom-6 left-5 z-[200] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
+    "absolute bottom-5 left-5 z-[200] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
       (!scenesLoaded && !simActive) || isSystemLocked
     ) {
       " opacity-80 pointer-events-none"

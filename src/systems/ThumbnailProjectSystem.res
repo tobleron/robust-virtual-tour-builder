@@ -74,7 +74,7 @@ let make = () => {
           )
           ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
           ->Promise.then(blob => {
-            Logger.info(
+            Logger.debug(
               ~module_="ThumbnailProjectSystem",
               ~message="PATCHING_THUMBNAIL_SUCCESS",
               ~data=Some({"id": s.id}),

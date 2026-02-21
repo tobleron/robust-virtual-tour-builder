@@ -6,14 +6,14 @@ module Styles = {
 
   /* Container */
   #visual-pipeline-container {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 200;
+    position: absolute; bottom: 16px; left: 0; width: 100%; height: auto; z-index: 200;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
     /* User Spacing Proposal: 120px Left, 220px Right, ~80px Baseline elevation */
-    padding-bottom: 92px;
+    padding-bottom: 65px;
     padding-left: 110px;
-    padding-right: 232px;
+    padding-right: 220px;
     box-sizing: border-box;
-    min-height: 200px;
+    min-height: 170px;
   }
 
   #visual-pipeline-container.pipeline-locked {
@@ -107,7 +107,7 @@ module Styles = {
     padding: 0;
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; width: 128px; z-index: 6008;
+    display: flex; flex-direction: column; align-items: center; width: 146px; z-index: 6008;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
   }
@@ -118,7 +118,7 @@ module Styles = {
   }
 
   .tooltip-thumb {
-    width: 100%; height: 72px; object-fit: cover; 
+    width: 100%; height: 84px; object-fit: cover;
     display: block;
     background: var(--slate-900);
   }

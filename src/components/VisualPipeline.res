@@ -271,7 +271,7 @@ let make = () => {
             }
           | None => hideHoverPreview()
           }
-        }, 600))
+        }, 50))
     }
   }
 

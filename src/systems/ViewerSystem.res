@@ -151,11 +151,8 @@ let isViewerReady = (viewer: Viewer.t): bool => {
 }
 
 let getCorrectHfov = () => {
-  let classes = Dom.classList(Dom.documentBody)
-  let isPortrait =
-    classes->Dom.ClassList.contains("viewer-state-portrait") ||
-      classes->Dom.ClassList.contains("viewer-force-fallback")
-  isPortrait ? Constants.globalMinHfov : Constants.globalMaxHfov
+  // Builder runs in a single canonical desktop viewport mode.
+  Constants.globalMaxHfov
 }
 
 let destroyViewer = Adapter.destroy

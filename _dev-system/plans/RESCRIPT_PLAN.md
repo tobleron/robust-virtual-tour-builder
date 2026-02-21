@@ -9,12 +9,12 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (3)
+- [ ] **../../src/components/Sidebar/SidebarLogicHandler.res**
+  - *Reason:* [Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)
 - [ ] **../../src/systems/OperationLifecycle.res**
   - *Reason:* [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 379/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)
 - [ ] **../../src/components/VisualPipeline.res**
   - *Reason:* [Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)
-- [ ] **../../src/components/Sidebar/SidebarLogicHandler.res**
-  - *Reason:* [Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)
 
 ---
 

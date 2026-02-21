@@ -18,34 +18,10 @@ let updateViewerStateClasses = () => {
     classes->Dom.ClassList.remove("viewer-force-fallback")
   }
 
-  switch Nullable.toOption(Dom.getElementById("viewer-container")) {
-  | Some(container) =>
-    let contRect = Dom.getBoundingClientRect(container)
-    let availableWidth = contRect.width
-    let viewportIsPortrait = Window.innerHeight > Window.innerWidth
-    let state = if viewportIsPortrait || availableWidth < 720.0 {
-      "portrait"
-    } else if availableWidth < 1104.0 {
-      "tablet"
-    } else {
-      "desktop"
-    }
-
-    clearStateClasses()
-    switch state {
-    | "desktop" =>
-      classes->Dom.ClassList.add("viewer-state-desktop")
-      classes->Dom.ClassList.add("viewer-state-4k")
-    | "tablet" =>
-      classes->Dom.ClassList.add("viewer-state-tablet")
-      classes->Dom.ClassList.add("viewer-state-2k")
-    | _ => classes->Dom.ClassList.add("viewer-state-portrait")
-    }
-  | None =>
-    clearStateClasses()
-    classes->Dom.ClassList.add("viewer-state-desktop")
-    classes->Dom.ClassList.add("viewer-state-4k")
-  }
+  // Builder is intentionally desktop-only to avoid multi-viewport overlay drift.
+  clearStateClasses()
+  classes->Dom.ClassList.add("viewer-state-desktop")
+  classes->Dom.ClassList.add("viewer-state-4k")
 }
 
 let computeDynamicStageHfov = (): float => {
