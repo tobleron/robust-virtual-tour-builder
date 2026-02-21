@@ -75,6 +75,11 @@ module Styles = {
     z-index: 25;
   }
 
+  .pipeline-node.active:hover {
+    transform: scale(1.4);
+    z-index: 1001;
+  }
+
   .pipeline-node:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
@@ -90,7 +95,7 @@ module Styles = {
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     transition-delay: 0ms;
-    display: flex; flex-direction: column; align-items: center; width: 120px; z-index: 6008;
+    display: flex; flex-direction: column; align-items: center; width: 128px; z-index: 6008;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     margin-bottom: 12px;
@@ -104,7 +109,7 @@ module Styles = {
   }
 
   .tooltip-thumb {
-    width: 100%; height: 68px; object-fit: cover; 
+    width: 100%; height: 72px; object-fit: cover; 
     display: block;
     background: var(--slate-900);
   }

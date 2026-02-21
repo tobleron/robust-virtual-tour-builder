@@ -9,6 +9,7 @@ use uuid::Uuid;
 // Configs
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 pub const WEBP_QUALITY: f32 = 85.0;
+pub const TINY_WEBP_QUALITY: f32 = 80.0;
 pub const TEMP_DIR: &str = "/tmp/vt_backend";
 pub const MAX_UPLOAD_SIZE: usize = 60 * 1024 * 1024; // 60MB limit
 pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB

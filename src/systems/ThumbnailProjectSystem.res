@@ -13,6 +13,13 @@ let make = () => {
   let isNavigationBusy = OperationLifecycle.useIsBusy(~type_=Navigation)
   let isSimulationBusy = OperationLifecycle.useIsBusy(~type_=Simulation)
 
+  // New project load may reuse scene IDs; reset dedupe state so thumbnails regenerate deterministically.
+  React.useEffect1(() => {
+    isProcessing.current = false
+    setProcessedIds(_ => Belt.Set.String.empty)
+    None
+  }, [state.sessionId])
+
   React.useEffect4(() => {
     let isBusy = isNavigationBusy || isSimulationBusy
 
@@ -65,7 +72,7 @@ let make = () => {
             ~data=Some({"id": s.id}),
             (),
           )
-          ThumbnailGenerator.generateRectilinearThumbnail(img, 120, 80)
+          ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
           ->Promise.then(blob => {
             Logger.info(
               ~module_="ThumbnailProjectSystem",

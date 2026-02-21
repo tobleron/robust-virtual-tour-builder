@@ -1,7 +1,7 @@
 use std::io::{Cursor, Write};
 use zip::write::FileOptions;
 
-use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
+use crate::api::utils::{PROCESSED_IMAGE_WIDTH, TINY_WEBP_QUALITY, WEBP_QUALITY};
 use crate::models::{ExifMetadata, MetadataResponse};
 use crate::services::media;
 
@@ -57,7 +57,7 @@ pub fn process_tiny_image_task(
         .map_err(|e| format!("Tiny resize failed: {}", e))?;
     let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
         .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
-    media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), 60.0)
+    media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), TINY_WEBP_QUALITY)
 }
 
 pub fn process_large_image_task(

@@ -1,5 +1,35 @@
 /* src/components/UtilityBar.res */
 
+let clearLocalClientCache: unit => Promise.t<unit> = %raw(`() => (async () => {
+  try { localStorage.clear(); } catch (_) {}
+  try { sessionStorage.clear(); } catch (_) {}
+
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch (_) {}
+
+  try {
+    if (indexedDB && typeof indexedDB.databases === "function") {
+      const dbs = await indexedDB.databases();
+      for (const db of dbs) {
+        if (db && db.name) indexedDB.deleteDatabase(db.name);
+      }
+    }
+  } catch (_) {}
+
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+  } catch (_) {}
+})()`)
+
+let hardReload: unit => unit = %raw(`() => window.location.reload()`)
+
 @react.component
 let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
   let dispatch = AppContext.useAppDispatch()
@@ -137,6 +167,33 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
     }
   , (simActive, currentJourneyId, canStartSimulation))
 
+  let handleResetCacheClick = React.useMemo0(() =>
+    e => {
+      JsxEvent.Mouse.stopPropagation(e)
+      clearLocalClientCache()
+      ->Promise.then(_ => {
+        let _ = ReBindings.Window.setTimeout(() => hardReload(), 120)
+        Promise.resolve()
+      })
+      ->Promise.catch(err => {
+        let (msg, _) = Logger.getErrorDetails(err)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: Operation("utility_bar"),
+          message: "Failed to clear cache: " ++ msg,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        Promise.resolve()
+      })
+      ->ignore
+    }
+  )
+
   let utilBarClass =
     "absolute top-6 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
       !scenesLoaded
@@ -230,6 +287,18 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         </Tooltip>
 
         <ViewerLabelMenu scenesLoaded isLinking simActive />
+
+        <Tooltip alignment=#Right content="Reset local cache (temporary)">
+          <Shadcn.Button
+            size="icon"
+            variant="secondary"
+            className="w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer border border-transparent hover:border-[#0e2d52]"
+            onClick={handleResetCacheClick}
+            ariaLabel="Reset Cache"
+          >
+            <LucideIcons.Trash2 size=14 strokeWidth=2.5 />
+          </Shadcn.Button>
+        </Tooltip>
       </>
     } else {
       React.null

@@ -22,8 +22,8 @@ let _doProjection: (Dom.element, Dom.element, int, int, float) => unit = %raw(`
       return;
     }
 
-    // Cap source resolution to 1024px wide for performance
-    var maxSrc = 1024;
+    // Cap source resolution to 2048px wide for better thumbnail detail
+    var maxSrc = 2048;
     var sW = srcW, sH = srcH;
     if (sW > maxSrc) {
       sH = Math.round(sH * maxSrc / sW);
@@ -108,7 +108,7 @@ let generateRectilinearThumbnail = (
         }
       },
       "image/webp",
-      0.85,
+      0.8,
     )
   })
 }

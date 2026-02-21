@@ -33,7 +33,7 @@ let generateAndOverrideTiny = previewBlob => {
 
     let onLoad = () => {
       URL.revokeObjectURL(url)
-      ThumbnailGenerator.generateRectilinearThumbnail(img, 120, 80)
+      ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
       ->Promise.then(tinyBlob => {
         resolve(tinyBlob)
         Promise.resolve()

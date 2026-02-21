@@ -5,7 +5,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 module Logic = {
   let getThumbUrl = (scene: Types.scene) => {
     switch scene.tinyFile {
-    | Some(tiny) =>
+    | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
       let url = SceneCache.getThumbUrl(scene.id ++ "_tiny", tiny)
       if url == "" {
         SceneCache.getThumbUrl(scene.id, scene.file)
@@ -13,6 +13,7 @@ module Logic = {
         url
       }
     | None => SceneCache.getThumbUrl(scene.id, scene.file)
+    | Some(Url(_)) => SceneCache.getThumbUrl(scene.id, scene.file)
     }
   }
 }

@@ -31,12 +31,17 @@ module PipelineNode = {
     React.useEffect1(() => {
       switch scene {
       | Some(s) =>
-        let file = s.tinyFile->Option.getOr(s.file)
-        let url = UrlUtils.fileToUrl(file)
-        if url != thumbUrl {
-          setThumbUrl(_ => url)
+        switch s.tinyFile {
+        | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
+          let url = UrlUtils.fileToUrl(tiny)
+          if url != thumbUrl {
+            setThumbUrl(_ => url)
+          }
+          Some(() => UrlUtils.revokeUrl(url))
+        | _ =>
+          setThumbUrl(_ => "")
+          None
         }
-        Some(() => UrlUtils.revokeUrl(url))
       | None =>
         setThumbUrl(_ => "")
         None

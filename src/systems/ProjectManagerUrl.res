@@ -70,14 +70,8 @@ let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string) => {
       }
     })
 
-    let tinyFile = scene.tinyFile->Option.flatMap(f => {
-      switch rebuildUrl(f, ~sessionId) {
-      | Url("") => None
-      | Url(u) => Some(Types.Url(u))
-      | other => Some(other)
-      }
-    })
-
-    {...scene, file, originalFile, tinyFile}
+    // Force frontend-only thumbnail regeneration from source preview for every imported project.
+    // This avoids mixing legacy backend tiny assets with current frontend-generated thumbnails.
+    {...scene, file, originalFile, tinyFile: None}
   })
 }

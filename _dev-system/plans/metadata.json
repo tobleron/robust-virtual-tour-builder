@@ -1,19 +1,92 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 19.6479302832244,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/import_upload.rs",
+              "functions": [
+                {
+                  "name": "new",
+                  "signature": "pub fn new() -> std::io::Result<Self> {",
+                  "line": 51
+                },
+                {
+                  "name": "with_ttl",
+                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
+                  "line": 55
+                },
+                {
+                  "name": "init_session",
+                  "signature": "pub async fn init_session(",
+                  "line": 69
+                },
+                {
+                  "name": "save_chunk",
+                  "signature": "pub async fn save_chunk(",
+                  "line": 134
+                },
+                {
+                  "name": "status",
+                  "signature": "pub async fn status(",
+                  "line": 219
+                },
+                {
+                  "name": "complete_session",
+                  "signature": "pub async fn complete_session(",
+                  "line": 243
+                },
+                {
+                  "name": "abort_session",
+                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
+                  "line": 309
+                },
+                {
+                  "name": "remove_session",
+                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
+                  "line": 314
+                },
+                {
+                  "name": "cleanup_expired",
+                  "signature": "async fn cleanup_expired(&self) {",
+                  "line": 334
+                },
+                {
+                  "name": "completes_chunked_payload_and_reassembles_in_order",
+                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
+                  "line": 370
+                },
+                {
+                  "name": "rejects_invalid_chunk_byte_size",
+                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
@@ -132,6 +205,20 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
@@ -176,93 +263,6 @@
             }
           ]
         }
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 19.6479302832244,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/import_upload.rs",
-              "functions": [
-                {
-                  "name": "new",
-                  "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 51
-                },
-                {
-                  "name": "with_ttl",
-                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 55
-                },
-                {
-                  "name": "init_session",
-                  "signature": "pub async fn init_session(",
-                  "line": 69
-                },
-                {
-                  "name": "save_chunk",
-                  "signature": "pub async fn save_chunk(",
-                  "line": 134
-                },
-                {
-                  "name": "status",
-                  "signature": "pub async fn status(",
-                  "line": 219
-                },
-                {
-                  "name": "complete_session",
-                  "signature": "pub async fn complete_session(",
-                  "line": 243
-                },
-                {
-                  "name": "abort_session",
-                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 309
-                },
-                {
-                  "name": "remove_session",
-                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 314
-                },
-                {
-                  "name": "cleanup_expired",
-                  "signature": "async fn cleanup_expired(&self) {",
-                  "line": 334
-                },
-                {
-                  "name": "completes_chunked_payload_and_reassembles_in_order",
-                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 370
-                },
-                {
-                  "name": "rejects_invalid_chunk_byte_size",
-                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
-        "strategy": ""
       }
     }
   ]
