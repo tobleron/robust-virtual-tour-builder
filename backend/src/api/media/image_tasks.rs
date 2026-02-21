@@ -57,7 +57,10 @@ pub fn process_tiny_image_task(
         .map_err(|e| format!("Tiny resize failed: {}", e))?;
     let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
         .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
-    media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), TINY_WEBP_QUALITY)
+    media::encode_webp(
+        &image::DynamicImage::ImageRgba8(tiny_img),
+        TINY_WEBP_QUALITY,
+    )
 }
 
 pub fn process_large_image_task(

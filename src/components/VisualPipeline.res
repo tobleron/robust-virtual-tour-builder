@@ -16,6 +16,8 @@ let injectStyles = () => {
   Dom.setTextContent(style, Styles.styles)
 }
 
+type hoverPreview = {thumbUrl: string, sceneName: string}
+
 module PipelineNode = {
   @react.component
   let make = (
@@ -25,29 +27,9 @@ module PipelineNode = {
     ~targetScene: option<Types.scene>,
     ~onActivate: string => unit,
     ~onRemove: string => unit,
+    ~onHoverStart: option<Types.scene> => unit,
+    ~onHoverEnd: unit => unit,
   ) => {
-    let (thumbUrl, setThumbUrl) = React.useState(_ => "")
-
-    React.useEffect1(() => {
-      switch scene {
-      | Some(s) =>
-        switch s.tinyFile {
-        | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
-          let url = UrlUtils.fileToUrl(tiny)
-          if url != thumbUrl {
-            setThumbUrl(_ => url)
-          }
-          Some(() => UrlUtils.revokeUrl(url))
-        | _ =>
-          setThumbUrl(_ => "")
-          None
-        }
-      | None =>
-        setThumbUrl(_ => "")
-        None
-      }
-    }, [scene])
-
     let handleClick = (e: ReactEvent.Mouse.t) => {
       ReactEvent.Mouse.preventDefault(e)
       onActivate(item.id)
@@ -65,6 +47,11 @@ module PipelineNode = {
       ReactEvent.Mouse.preventDefault(e)
       onRemove(item.id)
     }
+
+    let handleMouseEnter = (_e: ReactEvent.Mouse.t) => onHoverStart(scene)
+    let handleMouseLeave = (_e: ReactEvent.Mouse.t) => onHoverEnd()
+    let handleFocus = (_e: ReactEvent.Focus.t) => onHoverStart(scene)
+    let handleBlur = (_e: ReactEvent.Focus.t) => onHoverEnd()
 
     let isAutoForward = switch scene {
     | Some(s) =>
@@ -101,25 +88,12 @@ module PipelineNode = {
       onClick=handleClick
       onKeyDown=handleKeyDown
       onContextMenu=handleContextMenu
+      onMouseEnter=handleMouseEnter
+      onMouseLeave=handleMouseLeave
+      onFocus=handleFocus
+      onBlur=handleBlur
       style
-    >
-      <div className="node-tooltip">
-        {if thumbUrl != "" {
-          <img
-            src=thumbUrl
-            className="tooltip-thumb"
-            alt={scene->Option.map(s => s.name)->Option.getOr("Unknown Scene") ++ " preview"}
-          />
-        } else {
-          React.null
-        }}
-        <div className="tooltip-footer">
-          <span className="tooltip-text">
-            {React.string(scene->Option.map(s => s.name)->Option.getOr("Unknown Scene"))}
-          </span>
-        </div>
-      </div>
-    </div>
+    />
   }
 }
 
@@ -227,6 +201,64 @@ let make = () => {
   // --- Deterministic Measurement Logic ---
   let (linePaths, setLinePaths) = React.useState(_ => Dict.make())
   let containerRef = React.useRef(Nullable.null)
+  let (hoverPreview, setHoverPreview) = React.useState((): option<hoverPreview> => None)
+  let hoverTimerRef = React.useRef((None: option<int>))
+  let activePreviewUrlRef = React.useRef("")
+
+  let clearHoverTimer = () => {
+    switch hoverTimerRef.current {
+    | Some(id) => ReBindings.Window.clearTimeout(id)
+    | None => ()
+    }
+    hoverTimerRef.current = None
+  }
+
+  let hideHoverPreview = () => {
+    clearHoverTimer()
+    let prevUrl = activePreviewUrlRef.current
+    if prevUrl != "" {
+      UrlUtils.revokeUrl(prevUrl)
+      activePreviewUrlRef.current = ""
+    }
+    setHoverPreview(_ => None)
+  }
+
+  let showHoverPreview = (sceneOpt: option<Types.scene>) => {
+    clearHoverTimer()
+    hoverTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
+        switch sceneOpt {
+        | Some(scene) =>
+          switch scene.tinyFile {
+          | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
+            let nextUrl = UrlUtils.fileToUrl(tiny)
+            if nextUrl == "" {
+              hideHoverPreview()
+            } else {
+              let prevUrl = activePreviewUrlRef.current
+              if prevUrl != "" && prevUrl != nextUrl {
+                UrlUtils.revokeUrl(prevUrl)
+              }
+              activePreviewUrlRef.current = nextUrl
+              setHoverPreview(_ => Some({thumbUrl: nextUrl, sceneName: scene.name}))
+            }
+          | _ => hideHoverPreview()
+          }
+        | None => hideHoverPreview()
+        }
+      }, 600))
+  }
+
+  React.useEffect0(() => {
+    Some(
+      () => {
+        clearHoverTimer()
+        let prevUrl = activePreviewUrlRef.current
+        if prevUrl != "" {
+          UrlUtils.revokeUrl(prevUrl)
+        }
+      },
+    )
+  })
 
   React.useLayoutEffect2(() => {
     let paths = Dict.make()
@@ -369,6 +401,8 @@ let make = () => {
                   targetScene
                   onActivate=handleNodeActivate
                   onRemove=handleNodeRemove
+                  onHoverStart=showHoverPreview
+                  onHoverEnd=hideHoverPreview
                 />
               </div>
             })
@@ -377,6 +411,16 @@ let make = () => {
         })
         ->React.array}
       </div>
+
+      {switch hoverPreview {
+      | Some(preview) =>
+        <div className="pipeline-global-tooltip visible">
+          <img
+            src={preview.thumbUrl} className="tooltip-thumb" alt={preview.sceneName ++ " preview"}
+          />
+        </div>
+      | None => React.null
+      }}
     </div>
   }
 }

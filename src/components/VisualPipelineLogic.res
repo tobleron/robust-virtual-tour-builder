@@ -9,9 +9,9 @@ module Styles = {
     position: absolute; bottom: 0; left: 0; width: 100%; height: auto; z-index: 200;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
     /* User Spacing Proposal: 120px Left, 220px Right, ~80px Baseline elevation */
-    padding-bottom: 80px; 
+    padding-bottom: 92px;
     padding-left: 110px;
-    padding-right: 150px;
+    padding-right: 232px;
     box-sizing: border-box;
     min-height: 200px;
   }
@@ -85,52 +85,29 @@ module Styles = {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
   }
 
-  /* --- Tooltip --- */
-  .node-tooltip {
-    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+  /* --- Right-anchored Tooltip (above logo) --- */
+  .pipeline-global-tooltip {
+    position: absolute; right: 24px; bottom: 104px; transform: translateY(10px);
     background: #0e2d52; /* Navy blue bar color */
     border: 1.5px solid var(--orange-brand, #f97316); /* Thin orange border */
     border-radius: 6px; 
     padding: 0;
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    transition-delay: 0ms;
     display: flex; flex-direction: column; align-items: center; width: 128px; z-index: 6008;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
     overflow: hidden;
-    margin-bottom: 12px;
   }
 
-  .pipeline-node:hover .node-tooltip {
+  .pipeline-global-tooltip.visible {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-    transition-delay: 600ms;
+    transform: translateY(0);
   }
 
   .tooltip-thumb {
     width: 100%; height: 72px; object-fit: cover; 
     display: block;
     background: var(--slate-900);
-  }
-
-  .tooltip-footer {
-    width: 100%;
-    background: #0e2d52; /* Explicitly navy */
-    padding: 4px 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 18px;
-  }
-
-  .tooltip-text {
-    font-size: 7.5px; color: rgba(255, 255, 255, 0.9); font-weight: 500; text-align: center;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1;
   }
 
   /* --- Electronic Board Lines --- */
@@ -152,5 +129,6 @@ module Styles = {
     filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.4));
     transition: opacity 0.3s ease;
   }
+
 "
 }
