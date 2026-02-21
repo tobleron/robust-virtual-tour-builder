@@ -79,7 +79,7 @@ module PipelineNode = {
     }
 
     let color = if isAutoForward {
-      "#4B0082" // Deep Indigo for Auto-Forward
+      "var(--success)" // Emerald for Auto-Forward
     } else {
       switch scene {
       | Some(s) => ColorPalette.getGroupColor(s.colorGroup)

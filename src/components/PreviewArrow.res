@@ -183,23 +183,23 @@ let make = (
   }
 
   let centerBaseColor = if localIsAF {
-    "bg-[#4B0082]"
+    "bg-[#059669]"
   } else {
     "bg-[#ea580c]"
   }
   let centerHoverColor = if localIsAF {
-    "hover:bg-[#5D3FD3]"
+    "hover:bg-[#10b981]"
   } else {
     "hover:bg-[#f97316]"
   }
 
   let rightBaseColor = if !localIsAF {
-    "bg-[#4B0082]"
+    "bg-[#059669]"
   } else {
     "bg-[#ea580c]"
   }
   let rightHoverColor = if !localIsAF {
-    "hover:bg-[#5D3FD3]"
+    "hover:bg-[#10b981]"
   } else {
     "hover:bg-[#f97316]"
   }
