@@ -8,6 +8,7 @@ let make = React.memo(() => {
   let uiSlice = AppContext.useUiSlice()
   let canNavigate = Capability.useCapability(CanNavigate)
   let canMutateProject = Capability.useCapability(CanMutateProject)
+  let isSystemLocked = Capability.useIsSystemLocked()
   let dispatch = AppContext.useAppDispatch()
   let getState = AppContext.getBridgeState
 
@@ -315,6 +316,7 @@ let make = React.memo(() => {
               scene={scene}
               index={actualIndex}
               isActive={actualIndex == sceneSlice.activeIndex}
+              interactionLocked=isSystemLocked
               onItemClick={handleSceneClick}
               onItemDragStart={onDragStart}
               onItemDragOver={onDragOver}

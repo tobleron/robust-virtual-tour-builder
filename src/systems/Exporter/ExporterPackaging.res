@@ -1,24 +1,95 @@
 open ReBindings
 open Types
 
+type optimizedAsset = {blob: Blob.t, filename: string}
+
+let toWebpFilename = (name: string, ~fallback: string): string => {
+  let base = name->UrlUtils.stripExtension
+  let safeBase = if base == "" {
+    fallback
+  } else {
+    base
+  }
+  safeBase ++ ".webp"
+}
+
+let optimizeBlobAsWebp = async (
+  ~blob: Blob.t,
+  ~filenameHint: string,
+  ~quality: float,
+  ~maxWidth: float,
+  ~maxHeight: float,
+): result<optimizedAsset, string> => {
+  let sourceType = blob->Blob.type_
+  let sourceFile = File.newFile(
+    [blob],
+    filenameHint,
+    {
+      "type": if sourceType == "" {
+        "application/octet-stream"
+      } else {
+        sourceType
+      },
+    },
+  )
+  switch await ImageOptimizer.compressToWebPConstrained(
+    sourceFile,
+    ~quality,
+    ~maxWidth,
+    ~maxHeight,
+  ) {
+  | Ok(webpBlob) =>
+    Ok({
+      blob: webpBlob,
+      filename: toWebpFilename(filenameHint, ~fallback="asset"),
+    })
+  | Error(msg) => Error(msg)
+  }
+}
+
 let appendLogo = async (
   ~formData: FormData.t,
   ~logo: option<file>,
   ~authToken: option<string>,
 ): option<string> => {
   let logoFilename = ref(None)
+  let appendOptimizedLogoBlob = async (~blob: Blob.t, ~filenameHint: string): bool => {
+    switch await optimizeBlobAsWebp(
+      ~blob,
+      ~filenameHint,
+      ~quality=Constants.Media.logoWebpQuality,
+      ~maxWidth=Constants.Media.logoMaxWidth,
+      ~maxHeight=Constants.Media.logoMaxHeight,
+    ) {
+    | Ok({blob: webpBlob}) =>
+      FormData.appendWithFilename(
+        formData,
+        Constants.Media.logoOutputFilename,
+        webpBlob,
+        Constants.Media.logoOutputFilename,
+      )
+      logoFilename := Some(Constants.Media.logoOutputFilename)
+      true
+    | Error(msg) =>
+      Logger.warn(
+        ~module_="Exporter",
+        ~message="LOGO_OPTIMIZATION_FAILED",
+        ~data=Some({"filenameHint": filenameHint, "error": msg}),
+        (),
+      )
+      false
+    }
+  }
 
   switch logo {
-  | Some(File(f)) => {
-      let name = "logo." ++ ExporterUtils.normalizeLogoExtension(f->File.name)
-      FormData.appendWithFilename(formData, name, f, name)
-      logoFilename := Some(name)
-    }
-  | Some(Blob(b)) => {
-      let name = "logo.png"
-      FormData.appendWithFilename(formData, name, b, name)
-      logoFilename := Some(name)
-    }
+  | Some(File(f)) =>
+    ignore(
+      await appendOptimizedLogoBlob(
+        ~blob=UiHelpers.fileToBlob(File(f)),
+        ~filenameHint=File.name(f),
+      ),
+    )
+  | Some(Blob(b)) => ignore(await appendOptimizedLogoBlob(~blob=b, ~filenameHint="logo-upload"))
   | Some(Url(url)) =>
     if url == "" || !ExporterUtils.isLikelyImageUrl(url) {
       Logger.warn(
@@ -31,13 +102,11 @@ let appendLogo = async (
       switch await ExporterUtils.fetchSceneUrlBlob(~url, ~authToken) {
       | Ok(logoBlob) =>
         if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(url)) {
-          let ext = switch ExporterUtils.filenameFromUrl(url) {
-          | Some(fileName) => ExporterUtils.normalizeLogoExtension(fileName)
-          | None => "png"
+          let hint = switch ExporterUtils.filenameFromUrl(url) {
+          | Some(fileName) => fileName
+          | None => "logo-url"
           }
-          let name = "logo." ++ ext
-          FormData.appendWithFilename(formData, name, logoBlob, name)
-          logoFilename := Some(name)
+          ignore(await appendOptimizedLogoBlob(~blob=logoBlob, ~filenameHint=hint))
         } else {
           Logger.warn(
             ~module_="Exporter",
@@ -71,8 +140,10 @@ let appendLogo = async (
             if Fetch.ok(res) {
               let logoBlob = await Fetch.blob(res)
               if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
-                FormData.appendWithFilename(formData, filename, logoBlob, filename)
-                logoFilename := Some(filename)
+                let applied = await appendOptimizedLogoBlob(~blob=logoBlob, ~filenameHint=filename)
+                if !applied {
+                  await findLogo(rest)
+                }
               } else {
                 await findLogo(rest)
               }
@@ -126,14 +197,25 @@ let appendTemplates = (
     40,
     version,
   )
+  let htmlDesktop2kBlob = TourTemplates.generateTourHTML(
+    exportScenes,
+    tourName,
+    logoFilename,
+    "desktop_blob_2k",
+    28,
+    50,
+    version,
+  )
   let htmlIndex = TourTemplates.generateExportIndex(tourName, version, logoFilename)
   let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)
 
   FormData.append(formData, "html_4k", html4k)
   FormData.append(formData, "html_2k", html2k)
   FormData.append(formData, "html_hd", htmlHd)
+  FormData.append(formData, "html_desktop_2k_blob", htmlDesktop2kBlob)
   FormData.append(formData, "html_index", htmlIndex)
   FormData.append(formData, "embed_codes", embed)
+  FormData.append(formData, "scene_policy", Constants.Media.exportScenePolicy)
   projectData->Option.forEach(data =>
     FormData.append(formData, "project_data", JsonCombinators.Json.stringify(data))
   )
@@ -206,17 +288,32 @@ let appendScenes = async (
 
         switch blobResult {
         | Ok(fileBlob) =>
-          FormData.appendWithFilename(formData, `scene_${Belt.Int.toString(idx)}`, fileBlob, s.name)
-          let scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)
-          progress(
-            scenePct,
-            100.0,
-            "Packaging scene " ++
-            Int.toString(idx + 1) ++
-            " of " ++
-            Int.toString(totalScenes) ++ "...",
-          )
-          await appendScenesList(rest, idx + 1)
+          switch await optimizeBlobAsWebp(
+            ~blob=fileBlob,
+            ~filenameHint=s.name,
+            ~quality=Constants.Media.exportSceneWebpQuality,
+            ~maxWidth=Constants.Media.exportSceneMaxWidth,
+            ~maxHeight=Constants.Media.exportSceneMaxWidth,
+          ) {
+          | Ok({blob: normalizedBlob, filename}) =>
+            FormData.appendWithFilename(
+              formData,
+              `scene_${Belt.Int.toString(idx)}`,
+              normalizedBlob,
+              filename,
+            )
+            let scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)
+            progress(
+              scenePct,
+              100.0,
+              "Packaging scene " ++
+              Int.toString(idx + 1) ++
+              " of " ++
+              Int.toString(totalScenes) ++ "...",
+            )
+            await appendScenesList(rest, idx + 1)
+          | Error(msg) => Error("Scene normalization failed for '" ++ s.name ++ "': " ++ msg)
+          }
         | Error(msg) => Error("Scene packaging failed for '" ++ s.name ++ "': " ++ msg)
         }
       }

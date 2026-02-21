@@ -23,6 +23,7 @@ module PipelineNode = {
   let make = (
     ~item: Types.timelineItem,
     ~isActive: bool,
+    ~interactionDisabled: bool,
     ~scene: option<Types.scene>,
     ~targetScene: option<Types.scene>,
     ~onActivate: string => unit,
@@ -32,12 +33,14 @@ module PipelineNode = {
   ) => {
     let handleClick = (e: ReactEvent.Mouse.t) => {
       ReactEvent.Mouse.preventDefault(e)
-      onActivate(item.id)
+      if !interactionDisabled {
+        onActivate(item.id)
+      }
     }
 
     let handleKeyDown = (e: ReactEvent.Keyboard.t) => {
       let key = ReactEvent.Keyboard.key(e)
-      if key == "Enter" || key == " " {
+      if !interactionDisabled && (key == "Enter" || key == " ") {
         ReactEvent.Keyboard.preventDefault(e)
         onActivate(item.id)
       }
@@ -45,12 +48,20 @@ module PipelineNode = {
 
     let handleContextMenu = (e: ReactEvent.Mouse.t) => {
       ReactEvent.Mouse.preventDefault(e)
-      onRemove(item.id)
+      if !interactionDisabled {
+        onRemove(item.id)
+      }
     }
 
-    let handleMouseEnter = (_e: ReactEvent.Mouse.t) => onHoverStart(scene)
+    let handleMouseEnter = (_e: ReactEvent.Mouse.t) =>
+      if !interactionDisabled {
+        onHoverStart(scene)
+      }
     let handleMouseLeave = (_e: ReactEvent.Mouse.t) => onHoverEnd()
-    let handleFocus = (_e: ReactEvent.Focus.t) => onHoverStart(scene)
+    let handleFocus = (_e: ReactEvent.Focus.t) =>
+      if !interactionDisabled {
+        onHoverStart(scene)
+      }
     let handleBlur = (_e: ReactEvent.Focus.t) => onHoverEnd()
 
     let isAutoForward = switch scene {
@@ -77,12 +88,14 @@ module PipelineNode = {
     }
 
     let style = ReBindings.makeStyle({"--node-color": color})
-    let className = "pipeline-node" ++ (isActive ? " active" : "")
+    let className =
+      "pipeline-node" ++ (isActive ? " active" : "") ++ (interactionDisabled ? " disabled" : "")
 
     <div
       className
       role="button"
-      tabIndex=0
+      tabIndex={interactionDisabled ? -1 : 0}
+      ariaDisabled=interactionDisabled
       ariaLabel={"Timeline step: " ++
       targetScene->Option.map(ts => ts.name)->Option.getOr("Unknown")}
       onClick=handleClick
@@ -105,41 +118,50 @@ let make = () => {
   let pipelineSlice = AppContext.usePipelineSlice()
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
+  let isSystemLocked = Capability.useIsSystemLocked()
 
-  let handleNodeActivate = React.useCallback1((itemId: string) => {
-    Logger.debug(
-      ~module_="VisualPipeline",
-      ~message="ACTIVATE_NODE",
-      ~data=Some({"id": itemId}),
-      (),
-    )
-    dispatch(Actions.SetActiveTimelineStep(Some(itemId)))
+  let handleNodeActivate = (itemId: string) => {
+    if isSystemLocked {
+      ()
+    } else {
+      Logger.debug(
+        ~module_="VisualPipeline",
+        ~message="ACTIVATE_NODE",
+        ~data=Some({"id": itemId}),
+        (),
+      )
+      dispatch(Actions.SetActiveTimelineStep(Some(itemId)))
 
-    let item = pipelineSlice.timeline->Belt.Array.getBy(t => t.id == itemId)
-    switch item {
-    | Some(t) =>
-      let sceneIdx =
-        pipelineSlice.scenes->Belt.Array.getIndexBy(s => s.id == t.sceneId)->Option.getOr(-1)
-      if sceneIdx != -1 {
-        let scene = Belt.Array.get(pipelineSlice.scenes, sceneIdx)
-        switch scene {
-        | Some(s) =>
-          let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == t.linkId)
-          switch hotspot {
-          | Some(h) => dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-          | None => dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+      let item = pipelineSlice.timeline->Belt.Array.getBy(t => t.id == itemId)
+      switch item {
+      | Some(t) =>
+        let sceneIdx =
+          pipelineSlice.scenes->Belt.Array.getIndexBy(s => s.id == t.sceneId)->Option.getOr(-1)
+        if sceneIdx != -1 {
+          let scene = Belt.Array.get(pipelineSlice.scenes, sceneIdx)
+          switch scene {
+          | Some(s) =>
+            let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == t.linkId)
+            switch hotspot {
+            | Some(h) => dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
+            | None => dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+            }
+          | None => ()
           }
-        | None => ()
         }
+      | None => ()
       }
-    | None => ()
     }
-  }, [pipelineSlice])
+  }
 
-  let handleNodeRemove = React.useCallback1((itemId: string) => {
-    Logger.info(~module_="VisualPipeline", ~message="REMOVE_STEP", ~data=Some({"id": itemId}), ())
-    dispatch(RemoveFromTimeline(itemId))
-  }, [dispatch])
+  let handleNodeRemove = (itemId: string) => {
+    if isSystemLocked {
+      ()
+    } else {
+      Logger.info(~module_="VisualPipeline", ~message="REMOVE_STEP", ~data=Some({"id": itemId}), ())
+      dispatch(RemoveFromTimeline(itemId))
+    }
+  }
 
   // --- Multi-Row Logic ---
 
@@ -224,29 +246,41 @@ let make = () => {
   }
 
   let showHoverPreview = (sceneOpt: option<Types.scene>) => {
-    clearHoverTimer()
-    hoverTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
-        switch sceneOpt {
-        | Some(scene) =>
-          switch scene.tinyFile {
-          | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
-            let nextUrl = UrlUtils.fileToUrl(tiny)
-            if nextUrl == "" {
-              hideHoverPreview()
-            } else {
-              let prevUrl = activePreviewUrlRef.current
-              if prevUrl != "" && prevUrl != nextUrl {
-                UrlUtils.revokeUrl(prevUrl)
+    if isSystemLocked {
+      hideHoverPreview()
+      ()
+    } else {
+      clearHoverTimer()
+      hoverTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
+          switch sceneOpt {
+          | Some(scene) =>
+            switch scene.tinyFile {
+            | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
+              let nextUrl = UrlUtils.fileToUrl(tiny)
+              if nextUrl == "" {
+                hideHoverPreview()
+              } else {
+                let prevUrl = activePreviewUrlRef.current
+                if prevUrl != "" && prevUrl != nextUrl {
+                  UrlUtils.revokeUrl(prevUrl)
+                }
+                activePreviewUrlRef.current = nextUrl
+                setHoverPreview(_ => Some({thumbUrl: nextUrl, sceneName: scene.name}))
               }
-              activePreviewUrlRef.current = nextUrl
-              setHoverPreview(_ => Some({thumbUrl: nextUrl, sceneName: scene.name}))
+            | _ => hideHoverPreview()
             }
-          | _ => hideHoverPreview()
+          | None => hideHoverPreview()
           }
-        | None => hideHoverPreview()
-        }
-      }, 600))
+        }, 600))
+    }
   }
+
+  React.useEffect1(() => {
+    if isSystemLocked {
+      hideHoverPreview()
+    }
+    None
+  }, [isSystemLocked])
 
   React.useEffect0(() => {
     Some(
@@ -348,7 +382,11 @@ let make = () => {
   } else {
     <div
       id="visual-pipeline-container"
-      className="pointer-events-none"
+      className={"pointer-events-none" ++ if isSystemLocked {
+        " pipeline-locked"
+      } else {
+        ""
+      }}
       ref={containerRef->ReactDOM.Ref.domRef}
     >
       /* PCB-style Lines: Deterministic DOM-based Mapping */
@@ -397,6 +435,7 @@ let make = () => {
                 <PipelineNode
                   item
                   isActive
+                  interactionDisabled=isSystemLocked
                   scene
                   targetScene
                   onActivate=handleNodeActivate
@@ -412,14 +451,15 @@ let make = () => {
         ->React.array}
       </div>
 
-      {switch hoverPreview {
-      | Some(preview) =>
+      {switch (hoverPreview, isSystemLocked) {
+      | (_, true) => React.null
+      | (Some(preview), false) =>
         <div className="pipeline-global-tooltip visible">
           <img
             src={preview.thumbUrl} className="tooltip-thumb" alt={preview.sceneName ++ " preview"}
           />
         </div>
-      | None => React.null
+      | (None, false) => React.null
       }}
     </div>
   }

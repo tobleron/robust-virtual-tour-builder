@@ -211,9 +211,11 @@ pub async fn parse_tour_package_multipart(
             "html_4k",
             "html_2k",
             "html_hd",
+            "html_desktop_2k_blob",
             "html_index",
             "embed_codes",
             "project_data",
+            "scene_policy",
         ]
         .contains(&name.as_str())
         {

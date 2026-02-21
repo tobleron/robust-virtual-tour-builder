@@ -16,6 +16,12 @@ let generateTourHTML = (
   logoSize,
   _version,
 ) => {
+  let normalizedExportType = switch exportType {
+  | "desktop_blob_2k" => "2k"
+  | other => other
+  }
+  let allowFileProtocol = exportType == "desktop_blob_2k"
+
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
   let rawScenesData = Dict.make()
@@ -122,13 +128,13 @@ let generateTourHTML = (
     stageMinWidth,
     stageMaxWidth,
     dynamicHfovEnabled,
-  ) = switch exportType {
+  ) = switch normalizedExportType {
   | "4k" => (90.0, 65.0, 90.0, 375, 1024, true)
   | "2k" => (90.0, 65.0, 90.0, 375, 832, true)
   | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
-  let css = TourStyles.generateCSS(firstSceneName, exportType, baseSize, logoSize)
+  let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
     defaultHfov,
@@ -137,7 +143,7 @@ let generateTourHTML = (
     stageMinWidth,
     stageMaxWidth,
     dynamicHfovEnabled,
-    exportType == "hd",
+    normalizedExportType == "hd",
   )
   let logoDiv = switch logoFilename {
   | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`
@@ -173,10 +179,36 @@ let generateTourHTML = (
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
-    updateExportStateClasses();
-    window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
-    window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); });
-    ${TourScripts.loadEventScript}
+    const mountFileProtocolWarning = () => {
+      const existing = document.getElementById('file-protocol-warning');
+      if (existing) return;
+      const host = document.createElement('div');
+      host.id = 'file-protocol-warning';
+      host.style.position = 'absolute';
+      host.style.inset = '0';
+      host.style.display = 'grid';
+      host.style.placeItems = 'center';
+      host.style.padding = '20px';
+      host.style.zIndex = '99999';
+      host.style.background = 'linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0.72))';
+      host.innerHTML = '<div style=\"width:min(680px,94vw);background:#050b18;border:1px solid rgba(255,255,255,0.16);border-radius:14px;padding:20px 18px;color:#fff;font-family:Outfit,sans-serif;box-shadow:0 20px 50px rgba(0,0,0,0.45)\"><div style=\"font-size:20px;font-weight:700;margin-bottom:8px\">This tour cannot run via file://</div><div style=\"font-size:14px;line-height:1.6;opacity:.94\">Open this export through a small local HTTP server.</div><div style=\"margin-top:12px;font-size:13px;line-height:1.7;opacity:.95\"><div style=\"margin-bottom:6px;font-weight:600\">Quick start (from export root folder):</div><div><code style=\"background:#0d1b38;padding:3px 6px;border-radius:6px\">python3 -m http.server 8080</code></div><div style=\"margin-top:6px\">Then open <code style=\"background:#0d1b38;padding:3px 6px;border-radius:6px\">http://127.0.0.1:8080/web_only/index.html</code></div></div></div>';
+      document.body.appendChild(host);
+    };
+
+    const allowFileProtocol = ${if allowFileProtocol {
+      "true"
+    } else {
+      "false"
+    }};
+    if (window.location.protocol === 'file:' && !allowFileProtocol) {
+      updateExportStateClasses();
+      mountFileProtocolWarning();
+    } else {
+      updateExportStateClasses();
+      window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
+      window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); });
+      ${TourScripts.loadEventScript}
+    }
   </script></body></html>`
   html
 }

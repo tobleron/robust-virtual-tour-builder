@@ -8,3 +8,14 @@ let init: unit => unit
  * Quality should be between 0.0 and 1.0.
  */
 let compressToWebP: (File.t, float) => Promise.t<result<Blob.t, string>>
+
+/**
+ * Compresses a File/Blob to WebP with explicit geometry constraints.
+ * `maxWidth` and `maxHeight` are upper bounds; source aspect ratio is preserved.
+ */
+let compressToWebPConstrained: (
+  File.t,
+  ~quality: float,
+  ~maxWidth: float,
+  ~maxHeight: float,
+) => Promise.t<result<Blob.t, string>>

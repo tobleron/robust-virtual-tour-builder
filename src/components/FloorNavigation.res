@@ -5,6 +5,7 @@ open Types
 let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false) => {
   let dispatch = AppContext.useAppDispatch()
   let sceneSlice = AppContext.useSceneSlice()
+  let isSystemLocked = Capability.useIsSystemLocked()
 
   let currentFloor = if activeIndex >= 0 {
     switch Belt.Array.get(sceneSlice.scenes, activeIndex) {
@@ -40,9 +41,9 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
 
   let floorNavClass =
     "absolute bottom-6 left-5 z-[200] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
-      !scenesLoaded && !simActive
+      (!scenesLoaded && !simActive) || isSystemLocked
     ) {
-      " grayscale opacity-60 pointer-events-none"
+      " opacity-80 pointer-events-none"
     } else {
       ""
     }
@@ -65,7 +66,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
             className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer text-[15px] font-medium opacity-100 transition-all " ++
             buttonStateClass}
             onClick={e => handleFloorClick(f.id, f.label, e)}
-            disabled={isLinking}
+            disabled={isLinking || isSystemLocked}
           >
             <span className="floor-combo">
               <span className="floor-main"> {React.string(f.short)} </span>

@@ -163,6 +163,7 @@ let exportTour = async (
           formData,
           progress,
           backendUrl,
+          Constants.Exporter.uploadTimeoutMs,
           ~signal,
           ~token,
           ~operationId=Some(opId),
@@ -175,6 +176,7 @@ let exportTour = async (
         let isLegacyNetworkOffline = String.includes(msg, "NetworkOffline")
         let isAbort = String.includes(msg, "AbortError")
         let isUnauthorized = ExporterUtils.isUnauthorizedHttpError(msg)
+        let isTimeout = String.includes(msg, "TimeoutError")
         let isTransportNetworkError = String.includes(msg, "NetworkError") || isLegacyNetworkOffline
         let backendStillReachable = if isTransportNetworkError {
           await Resizer.checkBackendHealth()
@@ -206,7 +208,7 @@ let exportTour = async (
           )
           CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
           JsError.throwWithMessage(message)
-        } else if retryCount < 2 && !isAbort && !isUnauthorized {
+        } else if retryCount < 2 && !isAbort && !isUnauthorized && !isTimeout {
           Logger.warn(
             ~module_="Exporter",
             ~message="EXPORT_RETRY",
@@ -218,6 +220,14 @@ let exportTour = async (
             let _ = ReBindings.Window.setTimeout(() => resolve(), Constants.Exporter.retryDelayMs)
           })
           await uploadWithRetry(retryCount + 1, token)
+        } else if isTimeout {
+          Logger.warn(
+            ~module_="Exporter",
+            ~message="EXPORT_TIMEOUT_NO_RETRY",
+            ~data=Some({"timeoutMs": Constants.Exporter.uploadTimeoutMs, "error": msg}),
+            (),
+          )
+          JsError.throwWithMessage(msg)
         } else {
           CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
           if isLegacyNetworkOffline {

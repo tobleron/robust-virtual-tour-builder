@@ -1,10 +1,10 @@
 /* src/components/ViewerLabelMenu.res */
 
 @react.component
-let make = React.memo((~scenesLoaded, ~isLinking, ~simActive=false) => {
+let make = React.memo((~scenesLoaded, ~isLinking, ~simActive=false, ~isSystemLocked=false) => {
   let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
   let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
-  let isDisabled = !scenesLoaded || isLinking || simActive
+  let isDisabled = !scenesLoaded || isLinking || simActive || isSystemLocked
 
   let handleMenuOpenChange = React.useMemo0(() =>
     isOpen => {

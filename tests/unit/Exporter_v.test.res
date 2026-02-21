@@ -165,6 +165,43 @@ describe("Exporter", () => {
     )
   })
 
+  testAsync("exportTour: progress callback failure does not stall completion", async t => {
+    let scene1 = createScene("s1", "Scene 1")
+    let scenes = [scene1]
+
+    let _ = %raw(`
+      globalThis.fetch = vi.fn((u) => {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          blob: () => Promise.resolve(new Blob(["content"], {type: "text/plain"}))
+        })
+      })
+    `)
+
+    let _ = mockXHR(200, %raw(`new Blob(["zip"], {type: "application/zip"})`))
+    let crashingProgress: (float, float, string) => unit = %raw(`(p, t, msg) => {
+      if (typeof msg === "string" && msg.includes("Preparing download")) {
+        throw new Error("Progress callback crashed");
+      }
+    }`)
+    let controller = AbortController.make()
+    let signal = AbortController.signal(controller)
+
+    let result = await exportTour(
+      scenes,
+      ~tourName="Test Tour",
+      ~logo=None,
+      ~signal,
+      Some(crashingProgress),
+    )
+
+    switch result {
+    | Ok(_) => t->expect(true)->Expect.toBe(true)
+    | Error(msg) => t->expect(msg)->Expect.toBe("Should not fail on progress callback crash")
+    }
+  })
+
   testAsync("exportTour: handles XHR error", async t => {
     let scene1 = createScene("s1", "Scene 1")
 

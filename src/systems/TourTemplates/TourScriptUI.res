@@ -120,6 +120,20 @@ let script = `
       pendingShortcutLabelSceneId = resolvedTargetSceneId;
       navigateToNextScene({ targetSceneId: resolvedTargetSceneId }, resolvedTargetSceneId);
     }
+    function navigateToExportHome() {
+      if (!window.viewer || typeof window.viewer.getScene !== "function") return;
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (!homeSceneId) return;
+      if (window.viewer.getScene() === homeSceneId) {
+        pendingShortcutLabelSceneId = homeSceneId;
+        updateExportRoomLabel(homeSceneId, true);
+        pendingShortcutLabelSceneId = null;
+        updateExportFloorTagShortcuts(homeSceneId, true);
+        return;
+      }
+      pendingShortcutLabelSceneId = homeSceneId;
+      navigateToNextScene({ targetSceneId: homeSceneId }, homeSceneId);
+    }
     function cycleExportFloorTagShortcutPage() {
       if (!floorTagShortcutState.hasMore) return;
       if (!floorTagShortcutState.sceneId) return;
@@ -187,7 +201,7 @@ let script = `
         const moreRow = document.createElement("button");
         moreRow.type = "button";
         moreRow.className = "floor-tag-shortcut-row";
-        moreRow.setAttribute("aria-label", "More shortcuts");
+        moreRow.setAttribute("aria-label", "More shortcuts. Press H to go home.");
         moreRow.addEventListener("click", () => cycleExportFloorTagShortcutPage());
 
         const spacer = document.createElement("span");
@@ -199,7 +213,7 @@ let script = `
 
         const moreLabel = document.createElement("span");
         moreLabel.className = "floor-tag-shortcut-label";
-        moreLabel.textContent = "more";
+        moreLabel.textContent = "more \u00A0|\u00A0 h home";
 
         moreRow.appendChild(spacer);
         moreRow.appendChild(moreIndex);

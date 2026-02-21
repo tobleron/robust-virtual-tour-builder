@@ -16,6 +16,11 @@ module Styles = {
     min-height: 200px;
   }
 
+  #visual-pipeline-container.pipeline-locked {
+    opacity: 0.78;
+    filter: grayscale(0.28);
+  }
+
   .visual-pipeline-wrapper {
     pointer-events: none;
     display: flex; flex-direction: column-reverse; justify-content: flex-start; align-items: flex-start;
@@ -83,6 +88,14 @@ module Styles = {
   .pipeline-node:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+  }
+
+  .pipeline-node.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    filter: saturate(0.45) brightness(0.9);
   }
 
   /* --- Right-anchored Tooltip (above logo) --- */

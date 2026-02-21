@@ -23,6 +23,7 @@ let make = React.memo((
   ~scene: Types.scene,
   ~index,
   ~isActive,
+  ~interactionLocked=false,
   ~onItemClick: int => unit,
   ~onItemDragStart: (int, JsxEvent.Mouse.t) => unit,
   ~onItemDragOver: (int, JsxEvent.Mouse.t) => unit,
@@ -121,6 +122,11 @@ let make = React.memo((
   | #Throttled => "ring-2 ring-primary/40 opacity-80 cursor-wait"
   | _ => ""
   }
+  let lockClasses = if interactionLocked {
+    "opacity-80 pointer-events-none"
+  } else {
+    ""
+  }
   let isBusy = flickerState == #Throttled
   let fallbackSceneFileName = switch scene.file {
   | Url(url) => UrlUtils.getFileNameFromUrl(url)
@@ -151,8 +157,8 @@ let make = React.memo((
 
   <div
     key={scene.id}
-    className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses} ${throttleClasses}`}
-    draggable=true
+    className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses} ${throttleClasses} ${lockClasses}`}
+    draggable={!interactionLocked}
     onDragStart={e => onItemDragStart(index, e)}
     onDragOver={e => onItemDragOver(index, e)}
     onDrop={e => onItemDrop(index, e)}
@@ -322,6 +328,7 @@ let make = React.memo((
           <button
             className="w-6 h-6 rounded flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-400 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             ariaLabel={`Actions for ${scene.name}`}
+            disabled=interactionLocked
           >
             <LucideIcons.MoreVertical size=14 />
           </button>

@@ -254,6 +254,27 @@ module Exporter = {
   } else {
     2000
   }
+  // Backend export endpoint allows up to 10 minutes; keep client timeout above that
+  // to avoid abort+retry loops on large packages (e.g. x700-class projects).
+  let uploadTimeoutMs = if isTestEnvironment() {
+    30000
+  } else {
+    720000
+  }
+}
+
+module Media = {
+  // Frontend pre-upload compression quality for WebP conversion (0.0 - 1.0)
+  let uploadWebpQuality = 0.92
+  // Export scene normalization policy
+  let exportSceneWebpQuality = 0.92
+  let exportSceneMaxWidth = Float.fromInt(processedImageWidth)
+  let exportScenePolicy = "browser-webp92-v1"
+  // Branding/logo normalization policy
+  let logoWebpQuality = 0.92
+  let logoMaxWidth = 1024.0
+  let logoMaxHeight = 1024.0
+  let logoOutputFilename = "logo.webp"
 }
 let sceneLoadTimeout = 30000
 

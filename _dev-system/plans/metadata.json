@@ -1,19 +1,184 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 19.6479302832244,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/import_upload.rs",
+              "functions": [
+                {
+                  "name": "new",
+                  "signature": "pub fn new() -> std::io::Result<Self> {",
+                  "line": 51
+                },
+                {
+                  "name": "with_ttl",
+                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
+                  "line": 55
+                },
+                {
+                  "name": "init_session",
+                  "signature": "pub async fn init_session(",
+                  "line": 69
+                },
+                {
+                  "name": "save_chunk",
+                  "signature": "pub async fn save_chunk(",
+                  "line": 134
+                },
+                {
+                  "name": "status",
+                  "signature": "pub async fn status(",
+                  "line": 219
+                },
+                {
+                  "name": "complete_session",
+                  "signature": "pub async fn complete_session(",
+                  "line": 243
+                },
+                {
+                  "name": "abort_session",
+                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
+                  "line": 309
+                },
+                {
+                  "name": "remove_session",
+                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
+                  "line": 314
+                },
+                {
+                  "name": "cleanup_expired",
+                  "signature": "async fn cleanup_expired(&self) {",
+                  "line": 334
+                },
+                {
+                  "name": "completes_chunked_payload_and_reassembles_in_order",
+                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
+                  "line": 370
+                },
+                {
+                  "name": "rejects_invalid_chunk_byte_size",
+                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/package.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.03, Coupling: 0.01] | Drag: 5.05 | LOC: 609/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 35.94942528735632,
+        "recommended_splits": 3,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/package.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/package.rs",
+              "functions": [
+                {
+                  "name": "target_dimensions",
+                  "signature": "fn target_dimensions(src_w: u32, src_h: u32, max_width: u32) -> (u32, u32) {",
+                  "line": 30
+                },
+                {
+                  "name": "write_zip_file",
+                  "signature": "fn write_zip_file(",
+                  "line": 41
+                },
+                {
+                  "name": "require_scene_policy",
+                  "signature": "fn require_scene_policy(fields: &HashMap<String, String>) -> Result<(), String> {",
+                  "line": 52
+                },
+                {
+                  "name": "create_root_index",
+                  "signature": "fn create_root_index() -> String {",
+                  "line": 68
+                },
+                {
+                  "name": "create_mobile_hd_index",
+                  "signature": "fn create_mobile_hd_index() -> String {",
+                  "line": 103
+                },
+                {
+                  "name": "create_web_only_deployment_readme",
+                  "signature": "fn create_web_only_deployment_readme() -> String {",
+                  "line": 133
+                },
+                {
+                  "name": "create_desktop_readme",
+                  "signature": "fn create_desktop_readme() -> String {",
+                  "line": 167
+                },
+                {
+                  "name": "create_mobile_hd_readme",
+                  "signature": "fn create_mobile_hd_readme() -> String {",
+                  "line": 186
+                },
+                {
+                  "name": "rewrite_tour_html_for_subfolder",
+                  "signature": "fn rewrite_tour_html_for_subfolder(web_html: &str, resolution_key: &str) -> String {",
+                  "line": 215
+                },
+                {
+                  "name": "rewrite_web_only_index_html",
+                  "signature": "fn rewrite_web_only_index_html(index_html: &str) -> String {",
+                  "line": 228
+                },
+                {
+                  "name": "infer_mime_from_filename",
+                  "signature": "fn infer_mime_from_filename(file_name: &str) -> &'static str {",
+                  "line": 232
+                },
+                {
+                  "name": "data_uri_for_bytes",
+                  "signature": "fn data_uri_for_bytes(mime: &str, bytes: &[u8]) -> String {",
+                  "line": 245
+                },
+                {
+                  "name": "build_desktop_blob_html",
+                  "signature": "fn build_desktop_blob_html(",
+                  "line": 249
+                },
+                {
+                  "name": "create_tour_package",
+                  "signature": "pub fn create_tour_package(",
+                  "line": 284
+                }
+              ],
+              "fingerprint": "445e44470ff2917cc13340ee287ccc82082e463dca9fd70063e59334df091b20"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
@@ -133,6 +298,57 @@
     },
     {
       "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.489371980676328,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 6
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (",
+                  "line": 23
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 114
+                }
+              ],
+              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
@@ -176,93 +392,6 @@
             }
           ]
         }
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 19.6479302832244,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/import_upload.rs",
-              "functions": [
-                {
-                  "name": "new",
-                  "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 51
-                },
-                {
-                  "name": "with_ttl",
-                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 55
-                },
-                {
-                  "name": "init_session",
-                  "signature": "pub async fn init_session(",
-                  "line": 69
-                },
-                {
-                  "name": "save_chunk",
-                  "signature": "pub async fn save_chunk(",
-                  "line": 134
-                },
-                {
-                  "name": "status",
-                  "signature": "pub async fn status(",
-                  "line": 219
-                },
-                {
-                  "name": "complete_session",
-                  "signature": "pub async fn complete_session(",
-                  "line": 243
-                },
-                {
-                  "name": "abort_session",
-                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 309
-                },
-                {
-                  "name": "remove_session",
-                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 314
-                },
-                {
-                  "name": "cleanup_expired",
-                  "signature": "async fn cleanup_expired(&self) {",
-                  "line": 334
-                },
-                {
-                  "name": "completes_chunked_payload_and_reassembles_in_order",
-                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 370
-                },
-                {
-                  "name": "rejects_invalid_chunk_byte_size",
-                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
-        "strategy": ""
       }
     }
   ]

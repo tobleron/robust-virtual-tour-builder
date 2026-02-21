@@ -5,6 +5,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
   let dispatch = AppContext.useAppDispatch()
   let canEditHotspots = Capability.useCapability(CanEditHotspots)
   let canStartSimulation = Capability.useCapability(CanStartSimulation)
+  let isSystemLocked = Capability.useIsSystemLocked()
 
   let handleFabClick = React.useMemo2(() =>
     e => {
@@ -139,9 +140,9 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
 
   let utilBarClass =
     "absolute top-6 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
-      !scenesLoaded
+      !scenesLoaded || isSystemLocked
     ) {
-      "grayscale opacity-60 pointer-events-none"
+      "opacity-80 pointer-events-none"
     } else {
       ""
     }
@@ -173,7 +174,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           ""
         }}
         onClick={handleFabClick}
-        disabled={!scenesLoaded || (!isLinking && !canEditHotspots)}
+        disabled={!scenesLoaded || isSystemLocked || (!isLinking && !canEditHotspots)}
         ariaLabel={if isLinking {
           "Close Link Mode"
         } else {
@@ -214,7 +215,9 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
               ""
             }}
             onClick={handleSimClick}
-            disabled={(isLinking && !simActive) || (!simActive && !canStartSimulation)}
+            disabled={isSystemLocked ||
+            isLinking && !simActive ||
+            (!simActive && !canStartSimulation)}
             ariaLabel={if simActive {
               "Stop Tour Preview"
             } else {
@@ -229,7 +232,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           </Shadcn.Button>
         </Tooltip>
 
-        <ViewerLabelMenu scenesLoaded isLinking simActive />
+        <ViewerLabelMenu scenesLoaded isLinking simActive isSystemLocked />
       </>
     } else {
       React.null

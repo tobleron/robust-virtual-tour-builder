@@ -5,17 +5,27 @@ let uploadAndProcessRaw: (
   FormData.t,
   (float, float, string) => unit,
   string,
+  int,
   ~signal: BrowserBindings.AbortSignal.t,
   ~token: option<string>,
   ~operationId: option<string>,
 ) => Promise.t<Blob.t> = %raw(`
-  function(formData, onProgress, backendUrl, signal, token, operationId) {
+  function(formData, onProgress, backendUrl, timeoutMs, signal, token, operationId) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
-        xhr.timeout = 300000; // 5 minutes
+        xhr.timeout = timeoutMs;
         let serverPulseTimer = null;
         let settled = false;
+
+        const emitProgress = (p, t, message) => {
+          if (!onProgress) return;
+          try {
+            onProgress(p, t, message);
+          } catch (_) {
+            // Never allow UI callback failures to block export completion.
+          }
+        };
 
         const cleanup = () => {
           if (serverPulseTimer) { clearInterval(serverPulseTimer); serverPulseTimer = null; }
@@ -48,15 +58,15 @@ let uploadAndProcessRaw: (
                 const percent = 40 + Math.round((e.loaded / e.total) * 35);
                 const sentMB = Math.round(e.loaded / 1024 / 1024);
                 const totalMB = Math.round(e.total / 1024 / 1024);
-                if (onProgress) onProgress(percent, 100, "Uploading: " + sentMB + " of " + totalMB + " MB");
+                emitProgress(percent, 100, "Uploading: " + sentMB + " of " + totalMB + " MB");
             }
         };
 
         xhr.onload = () => {
             cleanup();
             if (xhr.status === 200) {
-                if (onProgress) onProgress(95, 100, "Preparing download...");
                 if (!settled) { settled = true; resolve(xhr.response); }
+                emitProgress(95, 100, "Preparing download...");
             } else {
                 const rejectWithStatus = (payload) => {
                     const bodyText = String(payload ?? "");
@@ -78,23 +88,38 @@ let uploadAndProcessRaw: (
             }
         };
 
+        xhr.onloadend = () => {
+            cleanup();
+            // Fallback: ensure successful terminal response always resolves once.
+            if (!settled && xhr.readyState === 4 && xhr.status === 200) {
+                settled = true;
+                resolve(xhr.response);
+            }
+        };
+
+        xhr.onabort = () => {
+            cleanup();
+            if (!settled) { settled = true; reject(new Error("AbortError: Export cancelled by user")); }
+        };
+
         xhr.onerror = () => {
             cleanup();
             if (!settled) { settled = true; reject(new Error("NetworkError: Export upload failed to " + backendUrl + "/api/project/create-tour-package. The backend may be unreachable.")); }
         };
         xhr.ontimeout = () => {
             cleanup();
-            if (!settled) { settled = true; reject(new Error("TimeoutError: Export upload timed out after 5 minutes. Try with fewer scenes or a faster connection.")); }
+            const mins = Math.max(1, Math.round((timeoutMs || 0) / 60000));
+            if (!settled) { settled = true; reject(new Error("TimeoutError: Export upload timed out after " + mins + " minutes. Try again or reduce export size.")); }
         };
 
         xhr.upload.onload = () => {
             // Upload bytes sent — server is now processing. Start synthetic pulse 75→95%
             let serverPct = 75;
-            if (onProgress) onProgress(75, 100, "Building your tour...");
+            emitProgress(75, 100, "Building your tour...");
             serverPulseTimer = setInterval(() => {
               if (serverPct < 94) {
                 serverPct += 2;
-                if (onProgress) onProgress(serverPct, 100, "Building your tour...");
+                emitProgress(serverPct, 100, "Building your tour...");
               }
             }, 3000);
         };

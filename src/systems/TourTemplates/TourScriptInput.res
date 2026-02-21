@@ -33,6 +33,12 @@ let script = `
         cycleExportFloorTagShortcutPage();
         return;
       }
+      if (key === "h" || key === "H") {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        navigateToExportHome();
+        return;
+      }
       if (!/^[1-3]$/.test(key)) return;
       const index = Number(key) - 1;
       const entry = floorTagShortcutState.visibleEntries[index];

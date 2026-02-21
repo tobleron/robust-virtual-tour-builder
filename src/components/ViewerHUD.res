@@ -36,8 +36,45 @@ let make = React.memo(() => {
   let handleFileChange = e => {
     let files = ReactEvent.Form.target(e)["files"]
     if Belt.Array.length(files) > 0 {
-      let file = files[0]
-      dispatch(SetLogo(Some(Types.File(file->unsafeCastToFile))))
+      let file = files[0]->unsafeCastToFile
+      ImageOptimizer.compressToWebPConstrained(
+        file,
+        ~quality=Constants.Media.logoWebpQuality,
+        ~maxWidth=Constants.Media.logoMaxWidth,
+        ~maxHeight=Constants.Media.logoMaxHeight,
+      )
+      ->Promise.then(result => {
+        switch result {
+        | Ok(blob) =>
+          let optimized = BrowserBindings.File.newFile(
+            [blob],
+            Constants.Media.logoOutputFilename,
+            {"type": "image/webp"},
+          )
+          dispatch(SetLogo(Some(Types.File(optimized))))
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="ViewerHUD",
+            ~message="LOGO_OPTIMIZATION_FAILED_FALLBACK_ORIGINAL",
+            ~data=Some({"error": msg}),
+            (),
+          )
+          dispatch(SetLogo(Some(Types.File(file))))
+        }
+        Promise.resolve()
+      })
+      ->Promise.catch(exn => {
+        let (msg, _) = Logger.getErrorDetails(exn)
+        Logger.warn(
+          ~module_="ViewerHUD",
+          ~message="LOGO_OPTIMIZATION_THROW_FALLBACK_ORIGINAL",
+          ~data=Some({"error": msg}),
+          (),
+        )
+        dispatch(SetLogo(Some(Types.File(file))))
+        Promise.resolve()
+      })
+      ->ignore
     }
   }
 
@@ -74,7 +111,7 @@ let make = React.memo(() => {
           ) {
             "cursor-pointer active:scale-95 group pointer-events-auto"
           } else {
-            "opacity-50 cursor-not-allowed pointer-events-none"
+            "opacity-70 cursor-not-allowed pointer-events-none"
           }}
           onClick=handleLogoClick
           title="Click to change logo"
