@@ -55,7 +55,8 @@ let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
   let arrivalView = resolveArrivalView(~state, ~scene)
   let initialYaw = arrivalView->Option.map(v => v.yaw)->Option.getOr(state.activeYaw)
   let initialPitch = arrivalView->Option.map(v => v.pitch)->Option.getOr(state.activePitch)
-  let initialHfov = arrivalView->Option.map(v => v.hfov)->Option.getOr(ViewerSystem.getCorrectHfov())
+  let initialHfov =
+    arrivalView->Option.map(v => v.hfov)->Option.getOr(ViewerSystem.getCorrectHfov())
   let panorama = if url == "" {
     Logger.error(
       ~module_="SceneLoader",

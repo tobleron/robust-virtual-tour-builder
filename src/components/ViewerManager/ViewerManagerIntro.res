@@ -34,12 +34,13 @@ let useIntroPan = (
   React.useEffect3(() => {
     let isIdle = navigationState.navigationFsm == IdleFsm
 
-    if
+    if (
       simulationStatus == Running &&
       activeIndex != -1 &&
       !isLinking &&
       !isTeasing &&
-      !hasPannedForCurrentSimulation.current {
+      !hasPannedForCurrentSimulation.current
+    ) {
       switch Belt.Array.get(scenes, activeIndex) {
       | Some(scene) =>
         if lastPannedSceneId.current != Nullable.make(scene.id) {

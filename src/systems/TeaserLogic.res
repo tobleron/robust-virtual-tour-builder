@@ -41,13 +41,12 @@ let readHeadlessMotionProfile = (): headlessMotionProfile =>
 
 let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
   Belt.Array.get(state.scenes, state.activeIndex)->Option.flatMap(scene => {
-    let waypointCandidates =
-      scene.hotspots->Belt.Array.keep(h =>
-        switch h.waypoints {
-        | Some(w) => Belt.Array.length(w) > 0
-        | None => false
-        }
-      )
+    let waypointCandidates = scene.hotspots->Belt.Array.keep(h =>
+      switch h.waypoints {
+      | Some(w) => Belt.Array.length(w) > 0
+      | None => false
+      }
+    )
     let candidate =
       waypointCandidates
       ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
@@ -202,18 +201,26 @@ module Manager = {
       let result = await Server.generateServerTeaser(
         state,
         safeFormat,
-        Some((pct, msg) => {
-          let phase = if pct < 25 {
-            "Uploading"
-          } else if pct < 95 {
-            "Processing"
-          } else {
-            "Finalizing"
-          }
-          let pctF = Belt.Int.toFloat(pct)
-          OperationLifecycle.progress(opId, pctF, ~message=msg, ~phase=phase, ())
-          ProgressBar.updateProgressBar(Belt.Int.toFloat(pct), msg, ~visible=true, ~title=phase, ())
-        }),
+        Some(
+          (pct, msg) => {
+            let phase = if pct < 25 {
+              "Uploading"
+            } else if pct < 95 {
+              "Processing"
+            } else {
+              "Finalizing"
+            }
+            let pctF = Belt.Int.toFloat(pct)
+            OperationLifecycle.progress(opId, pctF, ~message=msg, ~phase, ())
+            ProgressBar.updateProgressBar(
+              Belt.Int.toFloat(pct),
+              msg,
+              ~visible=true,
+              ~title=phase,
+              (),
+            )
+          },
+        ),
         ~signal?,
       )
 
@@ -272,146 +279,143 @@ module Manager = {
       await startHeadlessTeaser(format, ~getState, ~dispatch, ~signal?)
       ()
     } else {
-    let state = getState()
-    if state.isLinking {
-      Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
-    } else if Array.length(state.scenes) == 0 {
-      ()
-    } else if style == "cinematic" && format == "mp4" {
-      if signalIsAborted(signal) {
+      let state = getState()
+      if state.isLinking {
+        Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
+      } else if Array.length(state.scenes) == 0 {
         ()
-      } else {
-        dispatch(Actions.SetIsTeasing(true))
-        ProgressBar.updateProgressBar(
-          0.0,
-          "Server Generating...",
-          ~visible=true,
-          ~title="Uploading",
-          (),
-        )
-        let _ = await Server.generateServerTeaser(
-          state,
-          format,
-          Some(
-            (pct, msg) => {
-              ProgressBar.updateProgressBar(
-                Belt.Int.toFloat(pct),
-                msg,
-                ~visible=true,
-                ~title=pct < 50 ? "Uploading" : "Processing",
-                (),
-              )
-            },
-          ),
-          ~signal?,
-        )->Promise.then(res => {
-          dispatch(Actions.SetIsTeasing(false))
-          ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
-          if signalIsAborted(signal) {
-            Promise.resolve()
-          } else {
-            switch res {
-            | Ok(blob) =>
-              DownloadSystem.saveBlob(
-                blob,
-                "Cinematic_" ++ String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_") ++ ".mp4",
-              )
-            | Error(msg) =>
-              if msg == "AbortError" {
-                ()
-              } else {
-                NotificationManager.dispatch({
-                  id: "",
-                  importance: Error,
-                  context: Operation("teaser"),
-                  message: "Server Generation Failed: " ++ msg,
-                  details: None,
-                  action: None,
-                  duration: NotificationTypes.defaultTimeoutMs(Error),
-                  dismissible: true,
-                  createdAt: Date.now(),
-                })
-              }
-            }
-            Promise.resolve()
-          }
-        })
-      }
-    } else {
-      let config = State.getConfigForStyle(style)
-      let logoState = await Recorder.loadLogo()
-      let pathResult = await Pathfinder.getWalkPath(state.scenes, skipAutoForward, ~signal?)
-      switch pathResult {
-      | Ok(steps) =>
-        Recorder.startAnimationLoop(includeLogo, logoState)
-        if Recorder.startRecording() {
-          throwIfCancelled(~signal?)
-          try {
-            await Playback.prepareFirstScene(
-              steps[0]->Option.getOrThrow,
-              style,
-              config,
-              ~getState,
-              ~dispatch,
-            )
-            throwIfCancelled(~signal?)
-            for i in 0 to Array.length(steps) - 1 {
-              await Playback.recordShot(i, steps[i]->Option.getOrThrow, style, config)
-              throwIfCancelled(~signal?)
-              if i < Array.length(steps) - 1 {
-                await Playback.transitionToNextShot(
-                  i,
-                  steps[i + 1]->Option.getOrThrow,
-                  style,
-                  config,
-                  ~getState,
-                  ~dispatch,
+      } else if style == "cinematic" && format == "mp4" {
+        if signalIsAborted(signal) {
+          ()
+        } else {
+          dispatch(Actions.SetIsTeasing(true))
+          ProgressBar.updateProgressBar(
+            0.0,
+            "Server Generating...",
+            ~visible=true,
+            ~title="Uploading",
+            (),
+          )
+          let _ = await Server.generateServerTeaser(
+            state,
+            format,
+            Some(
+              (pct, msg) => {
+                ProgressBar.updateProgressBar(
+                  Belt.Int.toFloat(pct),
+                  msg,
+                  ~visible=true,
+                  ~title=pct < 50 ? "Uploading" : "Processing",
+                  (),
                 )
+              },
+            ),
+            ~signal?,
+          )->Promise.then(res => {
+            dispatch(Actions.SetIsTeasing(false))
+            ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
+            if signalIsAborted(signal) {
+              Promise.resolve()
+            } else {
+              switch res {
+              | Ok(blob) =>
+                DownloadSystem.saveBlob(
+                  blob,
+                  "Cinematic_" ++
+                  String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_") ++ ".mp4",
+                )
+              | Error(msg) =>
+                if msg == "AbortError" {
+                  ()
+                } else {
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Error,
+                    context: Operation("teaser"),
+                    message: "Server Generation Failed: " ++ msg,
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Error),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
+                }
+              }
+              Promise.resolve()
+            }
+          })
+        }
+      } else {
+        let config = State.getConfigForStyle(style)
+        let logoState = await Recorder.loadLogo()
+        let pathResult = await Pathfinder.getWalkPath(state.scenes, skipAutoForward, ~signal?)
+        switch pathResult {
+        | Ok(steps) =>
+          Recorder.startAnimationLoop(includeLogo, logoState)
+          if Recorder.startRecording() {
+            throwIfCancelled(~signal?)
+            try {
+              await Playback.prepareFirstScene(
+                steps[0]->Option.getOrThrow,
+                style,
+                config,
+                ~getState,
+                ~dispatch,
+              )
+              throwIfCancelled(~signal?)
+              for i in 0 to Array.length(steps) - 1 {
+                await Playback.recordShot(i, steps[i]->Option.getOrThrow, style, config)
                 throwIfCancelled(~signal?)
+                if i < Array.length(steps) - 1 {
+                  await Playback.transitionToNextShot(
+                    i,
+                    steps[i + 1]->Option.getOrThrow,
+                    style,
+                    config,
+                    ~getState,
+                    ~dispatch,
+                  )
+                  throwIfCancelled(~signal?)
+                }
+              }
+              throwIfCancelled(~signal?)
+              Recorder.stopRecording()
+              await Playback.wait(500)
+              throwIfCancelled(~signal?)
+              let safeName =
+                String.replaceRegExp(getState().tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
+              await finalizeTeaser(format, "Teaser_" ++ style ++ "_" ++ safeName)
+            } catch {
+            | err =>
+              Recorder.stopRecording()
+              let msg = switch JsExn.fromException(err) {
+              | Some(jsErr) => JsExn.message(jsErr)->Option.getOr("")
+              | None => ""
+              }
+              if msg != "AbortError" {
+                ()
               }
             }
-            throwIfCancelled(~signal?)
-            Recorder.stopRecording()
-            await Playback.wait(500)
-            throwIfCancelled(~signal?)
-            let safeName =
-              String.replaceRegExp(getState().tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
-            await finalizeTeaser(format, "Teaser_" ++ style ++ "_" ++ safeName)
-          } catch {
-          | err =>
-            Recorder.stopRecording()
-            let msg = switch JsExn.fromException(err) {
-            | Some(jsErr) => JsExn.message(jsErr)->Option.getOr("")
-            | None => ""
-            }
-            if msg != "AbortError" {
-              ()
-            }
           }
+        | Error(msg) =>
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("teaser"),
+            message: "Failed to generate path: " ++ msg,
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
-      | Error(msg) =>
-        NotificationManager.dispatch({
-          id: "",
-          importance: Error,
-          context: Operation("teaser"),
-          message: "Failed to generate path: " ++ msg,
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Error),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
       }
-    }
     }
   }
 }
 
-let startHeadlessTeaserForWindow = (
-  _includeLogo: bool,
-  _format: string,
-  skipAutoForward: bool,
-) => {
+let startHeadlessTeaserForWindow = (_includeLogo: bool, _format: string, skipAutoForward: bool) => {
   let getState = AppContext.getBridgeState
   let dispatch = AppContext.getBridgeDispatch()
   if getState().simulation.status == Running {
@@ -427,7 +431,10 @@ let startHeadlessTeaserForWindow = (
       }
 
       dispatch(
-        Actions.StartAutoPilot(getState().navigationState.currentJourneyId, effectiveSkipAutoForward),
+        Actions.StartAutoPilot(
+          getState().navigationState.currentJourneyId,
+          effectiveSkipAutoForward,
+        ),
       )
 
       let startedAt = Date.now()
@@ -453,11 +460,7 @@ let startHeadlessTeaserForWindow = (
   }
 }
 
-let startCinematicTeaserForWindow = (
-  includeLogo: bool,
-  format: string,
-  skipAutoForward: bool,
-) => {
+let startCinematicTeaserForWindow = (includeLogo: bool, format: string, skipAutoForward: bool) => {
   startHeadlessTeaserForWindow(includeLogo, format, skipAutoForward)
 }
 

@@ -83,6 +83,7 @@ pub enum TeaserOutputFormat {
 }
 
 const TEASER_OUTPUT_FPS: f64 = 60.0;
+const TEASER_CAPTURE_JPEG_QUALITY: u32 = 92;
 
 impl TeaserOutputFormat {
     pub fn from_str(raw: &str) -> Self {
@@ -235,6 +236,12 @@ pub fn generate_teaser_sync(
             std::ffi::OsStr::new("--use-gl=swiftshader"),
             std::ffi::OsStr::new("--use-angle=swiftshader"),
             std::ffi::OsStr::new("--enable-unsafe-swiftshader"),
+            std::ffi::OsStr::new("--disable-background-timer-throttling"),
+            std::ffi::OsStr::new("--disable-renderer-backgrounding"),
+            std::ffi::OsStr::new("--disable-backgrounding-occluded-windows"),
+            std::ffi::OsStr::new("--run-all-compositor-stages-before-draw"),
+            std::ffi::OsStr::new("--disable-frame-rate-limit"),
+            std::ffi::OsStr::new("--disable-gpu-vsync"),
         ],
         ..LaunchOptions::default()
     })
@@ -305,7 +312,7 @@ pub fn generate_teaser_sync(
                 "-f",
                 "image2pipe",
                 "-vcodec",
-                "png",
+                "mjpeg",
                 "-framerate",
                 "60",
                 "-i",
@@ -327,7 +334,7 @@ pub fn generate_teaser_sync(
                 "-f",
                 "image2pipe",
                 "-vcodec",
-                "png",
+                "mjpeg",
                 "-framerate",
                 "60",
                 "-i",
@@ -410,6 +417,8 @@ pub fn generate_teaser_sync(
     let frame_interval = Duration::from_secs_f64(1.0 / TEASER_OUTPUT_FPS);
     let mut next_frame_deadline = start_sim;
     let mut emitted_frames: u64 = 0;
+    let mut captured_frames: u64 = 0;
+    let mut duplicated_frames: u64 = 0;
     let mut last_png: Option<Vec<u8>> = None;
 
     loop {
@@ -431,15 +440,16 @@ pub fn generate_teaser_sync(
 
         use std::io::Write;
 
-        let current_png = match tab.capture_screenshot(
-            headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-            None,
+        let current_frame = match tab.capture_screenshot(
+            headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Jpeg,
+            Some(TEASER_CAPTURE_JPEG_QUALITY),
             Some(capture_viewport.clone()),
             true,
         ) {
-            Ok(png_data) => {
-                last_png = Some(png_data.clone());
-                png_data
+            Ok(frame_data) => {
+                last_png = Some(frame_data.clone());
+                captured_frames = captured_frames.saturating_add(1);
+                frame_data
             }
             Err(e) => {
                 if let Some(previous) = last_png.clone() {
@@ -458,11 +468,16 @@ pub fn generate_teaser_sync(
             }
         };
 
-        let elapsed_secs = std::time::Instant::now().duration_since(start_sim).as_secs_f64();
+        let elapsed_secs = std::time::Instant::now()
+            .duration_since(start_sim)
+            .as_secs_f64();
         let expected_frames = (elapsed_secs * TEASER_OUTPUT_FPS).floor() as u64;
         let frames_to_emit = std::cmp::max(1, expected_frames.saturating_sub(emitted_frames));
+        if frames_to_emit > 1 {
+            duplicated_frames = duplicated_frames.saturating_add(frames_to_emit - 1);
+        }
         for _ in 0..frames_to_emit {
-            if stdin.write_all(&current_png).is_err() {
+            if stdin.write_all(&current_frame).is_err() {
                 screenshot_failed = true;
                 break;
             }
@@ -533,6 +548,29 @@ pub fn generate_teaser_sync(
     }
 
     // Success
+    let elapsed_secs = start_sim.elapsed().as_secs_f64();
+    let emitted_fps = if elapsed_secs > 0.0 {
+        emitted_frames as f64 / elapsed_secs
+    } else {
+        0.0
+    };
+    let captured_fps = if elapsed_secs > 0.0 {
+        captured_frames as f64 / elapsed_secs
+    } else {
+        0.0
+    };
+    tracing::info!(
+        module = "TeaserGenerator",
+        session_id = %session_id_clone,
+        duration_s = elapsed_secs,
+        emitted_frames = emitted_frames,
+        captured_frames = captured_frames,
+        duplicated_frames = duplicated_frames,
+        emitted_fps = emitted_fps,
+        captured_fps = captured_fps,
+        "TEASER_CAPTURE_STATS"
+    );
+
     // browser is dropped here at end of scope
     Ok(())
 }

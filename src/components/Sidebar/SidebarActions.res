@@ -197,8 +197,12 @@ let make = React.memo((
 
     {if showTeaserDialog {
       <div className="fixed inset-0 z-[17050] flex items-center justify-center bg-black/45 p-4">
-        <div className="w-[320px] rounded-xl border border-white/20 bg-slate-900 text-white shadow-2xl p-4">
-          <div className="text-sm font-semibold uppercase tracking-wide mb-3"> {React.string("Teaser Format")} </div>
+        <div
+          className="w-[320px] rounded-xl border border-white/20 bg-slate-900 text-white shadow-2xl p-4"
+        >
+          <div className="text-sm font-semibold uppercase tracking-wide mb-3">
+            {React.string("Teaser Format")}
+          </div>
           <div className="grid grid-cols-2 gap-2 mb-4">
             <button
               className="rounded-lg border border-white/10 bg-slate-800/40 px-3 py-3 text-sm font-semibold text-white/45 cursor-not-allowed"

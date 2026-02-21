@@ -40,13 +40,8 @@ let generateServerTeaser = (
     ",\"startAtWaypoint\":" ++
     boolJson(Constants.Teaser.HeadlessMotion.startAtWaypoint) ++
     ",\"includeIntroPan\":" ++
-    boolJson(Constants.Teaser.HeadlessMotion.includeIntroPan) ++
-    "}"
-  FormData.append(
-    formData,
-    "motion_profile",
-    motionProfileJson,
-  )
+    boolJson(Constants.Teaser.HeadlessMotion.includeIntroPan) ++ "}"
+  FormData.append(formData, "motion_profile", motionProfileJson)
   let added = ref(0)
   state.scenes->Belt.Array.forEach(s => {
     switch s.file {

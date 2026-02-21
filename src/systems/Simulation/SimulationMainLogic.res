@@ -17,11 +17,9 @@ type nextMove =
   | Complete({reason: string})
   | None
 
-let selectArrivalHotspot = (
-  state: state,
-  scene: scene,
-  visitedAfterArrival: array<int>,
-): option<hotspot> => {
+let selectArrivalHotspot = (state: state, scene: scene, visitedAfterArrival: array<int>): option<
+  hotspot,
+> => {
   SimulationNavigation.findBestNextLink(scene, state, visitedAfterArrival)
   ->Option.map(link => link.hotspot)
   ->Option.orElse(
@@ -92,9 +90,10 @@ let getNextMove = (state: state): nextMove => {
       let hotspot = finalLink.hotspot
       let targetIndex = finalLink.targetIndex
       let hotspotIndex = finalLink.hotspotIndex
-      let visitedAfterArrival = Belt.Array.concat(Belt.Array.concat(visitedScenes, extraVisited), [
-        targetIndex,
-      ])
+      let visitedAfterArrival = Belt.Array.concat(
+        Belt.Array.concat(visitedScenes, extraVisited),
+        [targetIndex],
+      )
 
       let (tYaw, tPitch, tHfov) = if finalLink.isReturn {
         hotspot.returnViewFrame
@@ -111,7 +110,7 @@ let getNextMove = (state: state): nextMove => {
               hotspot.targetPitch->Option.getOr(0.0),
               hotspot.targetHfov->Option.getOr(90.0),
             ))
-          ->Option.getOr((hotspot.yaw, hotspot.pitch, hotspot.targetHfov->Option.getOr(90.0))),
+            ->Option.getOr((hotspot.yaw, hotspot.pitch, hotspot.targetHfov->Option.getOr(90.0))),
           )
 
         arrivalFromTargetScene(state, targetIndex, visitedAfterArrival)->Option.getOr(

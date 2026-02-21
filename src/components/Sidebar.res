@@ -124,13 +124,7 @@ let make = React.memo(() => {
             true,
             "Teaser",
           )
-          Teaser.startHeadlessTeaser(
-            format,
-            ~getState,
-            ~dispatch,
-            ~signal,
-            ~onCancel,
-          )
+          Teaser.startHeadlessTeaser(format, ~getState, ~dispatch, ~signal, ~onCancel)
         }}
       />
 

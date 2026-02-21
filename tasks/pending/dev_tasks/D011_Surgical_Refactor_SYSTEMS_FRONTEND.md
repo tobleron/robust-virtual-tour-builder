@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.12, Coupling: 0.09] | Drag: 3.52 | LOC: 441/300  🎯 Target: Function: `signalIsAborted` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.12, Coupling: 0.09] | Drag: 3.52 | LOC: 444/300  🎯 Target: Function: `signalIsAborted` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -52,13 +52,13 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - Grouped summary:
         - canvasHeight × 1 (lines: 8)
         - canvasWidth × 1 (lines: 7)
-        - centerViewerAtWaypointStart × 1 (lines: 69)
-        - check × 1 (lines: 145)
-        - finalizeTeaser × 1 (lines: 106)
-        - logoState × 1 (lines: 141)
+        - centerViewerAtWaypointStart × 1 (lines: 68)
+        - check × 1 (lines: 144)
+        - finalizeTeaser × 1 (lines: 105)
+        - logoState × 1 (lines: 140)
         - readHeadlessMotionProfile × 1 (lines: 30)
         - resolveTeaserStartView × 1 (lines: 42)
-        - safeName × 1 (lines: 154)
-        - signalIsAborted × 1 (lines: 93)
-        - throwIfCancelled × 1 (lines: 99)
+        - safeName × 1 (lines: 153)
+        - signalIsAborted × 1 (lines: 92)
+        - throwIfCancelled × 1 (lines: 98)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

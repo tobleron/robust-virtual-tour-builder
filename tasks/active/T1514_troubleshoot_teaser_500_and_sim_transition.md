@@ -27,6 +27,7 @@
 - [x] Fix arrival centering drift by selecting target-scene arrival frame from the next-link decision instead of static first-hotspot heuristic.
 - [x] Force simulation scene swaps to crossfade even when stale transition state marks `Cut`.
 - [x] Fix teaser duration warp by replacing variable-rate frame piping with real-time paced 60 FPS emission.
+- [x] Reduce capture stutter by switching headless frame grab from PNG to high-quality JPEG and adding no-throttle Chromium flags.
 
 ## Code Change Ledger
 - [x] `backend/src/api/media/video_logic_support.rs` - add robust headless loader fallback (`__VTB_LOAD_PROJECT__` or `window.store.loadProject`) and configurable `headless_app_origin`.
@@ -60,6 +61,7 @@
 - [x] `backend/src/api/media/video.rs` - parse incoming `motion_profile` multipart field and pass to sync teaser generator.
 - [x] `backend/src/api/media/video_logic.rs` - hide hotspot-line layers in capture mode and start teaser with profile-driven skip-auto-forward.
 - [x] `backend/src/api/media/video_logic.rs` - set FFmpeg input/output to 60 FPS and emit duplicate frames to preserve wall-clock simulation timing.
+- [x] `backend/src/api/media/video_logic.rs` - switch capture/pipe format to MJPEG (JPEG quality 92) and disable browser background throttling/frame caps for smoother capture cadence.
 
 ## Rollback Check
 - [x] Confirmed non-working iterations were replaced by validated working fixes (no extra debug artifacts kept).
