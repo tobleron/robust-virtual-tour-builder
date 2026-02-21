@@ -67,6 +67,7 @@ let make = React.memo((
 
   let handleClearClick = e => {
     JsxEvent.Mouse.preventDefault(e)
+    JsxEvent.Mouse.stopPropagation(e)
     setFlickerState(_ => #Clear)
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickerState(_ => #None)
@@ -77,6 +78,7 @@ let make = React.memo((
 
   let handleDeleteClick = e => {
     JsxEvent.Mouse.preventDefault(e)
+    JsxEvent.Mouse.stopPropagation(e)
     setFlickerState(_ => #Delete)
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickerState(_ => #None)
@@ -329,6 +331,7 @@ let make = React.memo((
             className="w-6 h-6 rounded flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-400 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             ariaLabel={`Actions for ${scene.name}`}
             disabled=interactionLocked
+            onClick={e => JsxEvent.Mouse.stopPropagation(e)}
           >
             <LucideIcons.MoreVertical size=14 />
           </button>

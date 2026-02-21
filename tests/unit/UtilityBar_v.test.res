@@ -172,4 +172,45 @@ describe("UtilityBar", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("should disable buttons when system is locked", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let _ = OperationLifecycle.start(
+      ~type_=OperationLifecycle.ProjectLoad,
+      ~scope=OperationLifecycle.Blocking,
+      (),
+    )
+
+    let lastAction = ref(None)
+    let mockDispatch = action => lastAction := Some(action)
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedUtilityBar
+        scenesLoaded=true isLinking=false simActive=false currentJourneyId=0 mockDispatch
+      />,
+    )
+
+    await wait(50)
+
+    let buttons = Dom.querySelectorAll(container, "button")
+    let plusBtn = Belt.Array.get(JsHelpers.from(buttons), 0)->Belt.Option.getExn
+    let playBtn = Belt.Array.get(JsHelpers.from(buttons), 1)->Belt.Option.getExn
+
+    let plusDisabled = Dom.getAttribute(plusBtn, "disabled")->Nullable.toOption
+    let playDisabled = Dom.getAttribute(playBtn, "disabled")->Nullable.toOption
+
+    // Check if buttons are disabled
+    t->expect(plusDisabled)->Expect.toBe(Some(""))
+    t->expect(playDisabled)->Expect.toBe(Some(""))
+
+    // Try clicking - should not dispatch
+    Dom.click(plusBtn)
+    t->expect(lastAction.contents)->Expect.toBe(None)
+
+    Dom.removeElement(container)
+  })
 })

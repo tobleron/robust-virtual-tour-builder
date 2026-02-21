@@ -141,4 +141,44 @@ describe("ImageOptimizer - Browser-side Compression", () => {
     t->expect(w)->Expect.toBe(4096)
     t->expect(h)->Expect.toBe(2048)
   })
+
+  testAsync("compressToWebPConstrained respects custom bounds", async t => {
+    let _ = %raw(`(() => {
+      globalThis.originalCreateElement = document.createElement;
+      document.createElement = (tag) => {
+        if (tag === 'img') {
+          const img = new MockImage();
+          img.width = 1000;
+          img.height = 1000;
+          return img;
+        }
+        if (tag === 'canvas') {
+           const c = new MockCanvas();
+           globalThis.testCanvasConstrained = c;
+           return c;
+        }
+        return {};
+      }
+    })()`)
+
+    let mockFile: File.t = Obj.magic({"size": 1000000})
+    let _ = await compressToWebPConstrained(
+      mockFile,
+      ~quality=0.8,
+      ~maxWidth=500.0,
+      ~maxHeight=250.0,
+    )
+
+    let w = %raw(`globalThis.testCanvasConstrained.width`)
+    let h = %raw(`globalThis.testCanvasConstrained.height`)
+
+    // Restore
+    let _ = %raw(`document.createElement = globalThis.originalCreateElement`)
+
+    // Source 1000x1000 (1:1), constraints 500x250.
+    // Preserving 1:1 ratio, it should fit within 500x250.
+    // So it should be 250x250.
+    t->expect(w)->Expect.toBe(250)
+    t->expect(h)->Expect.toBe(250)
+  })
 })
