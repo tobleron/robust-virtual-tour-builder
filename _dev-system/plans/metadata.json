@@ -1,52 +1,13 @@
 {
-  "rescript": [
+  "system": [
     {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.906382978723403,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogicHandler.res",
-              "functions": [
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 9
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 67
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 112
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 274
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 286
-                }
-              ],
-              "fingerprint": "7e869842e215a066722def803cb055f2d0ecde32b1ef51cd66e5975119b0d72c"
-            }
-          ]
-        }
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
       }
-    },
+    }
+  ],
+  "rescript": [
     {
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
@@ -159,6 +120,53 @@
                 }
               ],
               "fingerprint": "be040c29c53ce43d2e200948a53503deca8e0ea78decd4fba4d36d8457f46a04"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.906382978723403,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
+          "snapshots": [
+            {
+              "path": "src/components/Sidebar/SidebarLogicHandler.res",
+              "functions": [
+                {
+                  "name": "performUpload",
+                  "signature": "performUpload = async (",
+                  "line": 9
+                },
+                {
+                  "name": "handleUpload",
+                  "signature": "handleUpload = async (",
+                  "line": 67
+                },
+                {
+                  "name": "handleLoadProject",
+                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
+                  "line": 112
+                },
+                {
+                  "name": "handleDeleteScene",
+                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
+                  "line": 274
+                },
+                {
+                  "name": "handleExport",
+                  "signature": "handleExport = async (",
+                  "line": 286
+                }
+              ],
+              "fingerprint": "7e869842e215a066722def803cb055f2d0ecde32b1ef51cd66e5975119b0d72c"
             }
           ]
         }
@@ -384,14 +392,6 @@
             }
           ]
         }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
-        "strategy": ""
       }
     }
   ]

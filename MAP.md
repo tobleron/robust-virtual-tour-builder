@@ -167,6 +167,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
 *   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Orchestrator for API client logic and sub-modules. `#api` `#client` `#orchestration`
     *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#adapter`
+    *   [src/systems/Api/AuthenticatedClientBase.res](src/systems/Api/AuthenticatedClientBase.res): Shared base logic for the authenticated fetch client. `#api` `#auth` `#base`
+    *   [src/systems/Api/AuthenticatedClientRequest.res](src/systems/Api/AuthenticatedClientRequest.res): Request-specific builders and helpers for authenticated calls. `#api` `#auth` `#request`
     *   [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): Logic for media-related API operations (metadata, processing, similarity). `#api` `#media`
     *   [backend/src/api/media/image_tasks.rs](backend/src/api/media/image_tasks.rs): Backend processing tasks for multi-resolution images. `#api` `#processing`
     *   [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): Handling of large image uploads via multipart/form-data. `#api` `#upload`
@@ -404,6 +406,7 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/unit/ExifUtils_v.test.res](tests/unit/ExifUtils_v.test.res): Tests for EXIF utilities and report generation helpers. `#testing` `#unit` `#exif`
 * [tests/unit/Simulation_v.test.res](tests/unit/Simulation_v.test.res): Tests for the simulation component and logic. `#testing` `#unit` `#simulation`
 * [tests/unit/SvgManager_v.test.res](tests/unit/SvgManager_v.test.res): Tests for SVG rendering and management. `#testing` `#unit` `#svg`
+* [tests/unit/ThumbnailGenerator_v.test.res](tests/unit/ThumbnailGenerator_v.test.res): Tests for equirectangular to rectilinear thumbnail projection. `#testing` `#unit` `#thumbnail`
 
 ### 🎭 End-to-End (Playwright)
 * [tests/e2e/robustness.spec.ts](tests/e2e/robustness.spec.ts): Stress tests for concurrency, state transitions, and recovery. `#testing` `#e2e` `#robustness`
@@ -422,7 +425,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 *(None currently - all detected modules have been classified and integrated.)*
 
-## 🆕 Unmapped Modules
-* [src/systems/Api/AuthenticatedClientBase.res](src/systems/Api/AuthenticatedClientBase.res): New module detected. Please classify. #new
-* [src/systems/Api/AuthenticatedClientRequest.res](src/systems/Api/AuthenticatedClientRequest.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*
