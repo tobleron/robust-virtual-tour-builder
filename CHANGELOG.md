@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Teaser mp4-only capture-mode and progress lifecycle stabilization
 - Teaser motion profile + real-time 60fps pacing
 - Teaser capture smoothing + cdp migration task specification
+- T1515: Move to active for Jules delegation
 
 ## [4.30.14] - 2026-02-21
 
