@@ -1,4 +1,10 @@
 module InnerApp = {
+  module HeadlessWindow = {
+    type t
+    @val external window: t = "window"
+    @set external setLoadProject: (t, JSON.t => unit) => unit = "__VTB_LOAD_PROJECT__"
+  }
+
   @react.component
   let make = () => {
     PerfUtils.useRenderBudget("InnerApp")
@@ -43,6 +49,12 @@ module InnerApp = {
       }")(OperationLifecycle.isBusy, Capability.Policy.evaluate)
       None
     })
+
+    React.useEffect1(() => {
+      let loadProjectFn = data => dispatch(Actions.LoadProject(data))
+      HeadlessWindow.setLoadProject(HeadlessWindow.window, loadProjectFn)
+      None
+    }, [dispatch])
 
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       <OfflineBanner />

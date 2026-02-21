@@ -7,12 +7,18 @@ let make = React.memo((
   ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onAbout: unit => unit,
   ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
-  ~onTeaser: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onTeaser: (
+    ~format: string,
+    ~signal: BrowserBindings.AbortSignal.t,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
   ~exportReady: bool,
   ~teaserReady: bool,
   ~isLinking: bool,
 ) => {
   let isPermitted = Hooks.useIsInteractionPermitted()
+  let (showTeaserDialog, setShowTeaserDialog) = React.useState(_ => false)
+  let (teaserFormat, setTeaserFormat) = React.useState(_ => "mp4")
 
   let saveAbortRef = React.useRef(None)
   let (saveExecute, savePending, _saveThrottled) = UseInteraction.useInteraction(
@@ -93,7 +99,7 @@ let make = React.memo((
         | None => ()
         }
       }
-      await onTeaser(~signal, ~onCancel)
+      await onTeaser(~format=teaserFormat, ~signal, ~onCancel)
       teaserAbortRef.current = None
     },
   )
@@ -177,7 +183,8 @@ let make = React.memo((
             : ""}`}
         disabled={!teaserReady || !isPermitted || isLinking || teaserPending}
         onClick={_ => {
-          let _ = teaserExecute()
+          setTeaserFormat(_ => "mp4")
+          setShowTeaserDialog(_ => true)
         }}
         ariaLabel="Create Teaser"
       >
@@ -187,5 +194,49 @@ let make = React.memo((
         <span> {React.string(teaserPending ? "Teasing" : "Teaser")} </span>
       </button>
     </div>
+
+    {if showTeaserDialog {
+      <div className="fixed inset-0 z-[17050] flex items-center justify-center bg-black/45 p-4">
+        <div className="w-[320px] rounded-xl border border-white/20 bg-slate-900 text-white shadow-2xl p-4">
+          <div className="text-sm font-semibold uppercase tracking-wide mb-3"> {React.string("Teaser Format")} </div>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <button
+              className="rounded-lg border border-white/10 bg-slate-800/40 px-3 py-3 text-sm font-semibold text-white/45 cursor-not-allowed"
+              disabled=true
+            >
+              {React.string("WebM (Later)")}
+            </button>
+            <button
+              className={`rounded-lg border px-3 py-3 text-sm font-semibold transition-colors ${teaserFormat == "mp4"
+                  ? "border-emerald-400 bg-emerald-600/30"
+                  : "border-white/20 bg-slate-800/80 hover:bg-slate-700/80"}`}
+              onClick={_ => setTeaserFormat(_ => "mp4")}
+            >
+              {React.string("MP4")}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              className="rounded-lg border border-white/20 bg-slate-800/80 px-3 py-2.5 text-sm font-medium hover:bg-slate-700/80"
+              onClick={_ => setShowTeaserDialog(_ => false)}
+            >
+              {React.string("Cancel")}
+            </button>
+            <button
+              className="rounded-lg border border-emerald-400/50 bg-emerald-600/30 px-3 py-2.5 text-sm font-semibold hover:bg-emerald-500/35"
+              onClick={_ => {
+                setShowTeaserDialog(_ => false)
+                let _ = teaserExecute()
+              }}
+            >
+              {React.string("Generate")}
+            </button>
+          </div>
+        </div>
+      </div>
+    } else {
+      React.null
+    }}
   </div>
 })

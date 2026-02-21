@@ -16,12 +16,16 @@ let useIntroPan = (
 ) => {
   let lastPannedSceneId = React.useRef(Nullable.null)
   let prevSimulationStatus = React.useRef(simulationStatus)
+  let hasPannedForCurrentSimulation = React.useRef(false)
 
   // Reset tracking when simulation starts to guarantee the first scene pans
   React.useEffect1(() => {
     if prevSimulationStatus.current != Running && simulationStatus == Running {
       Logger.info(~module_="ViewerManagerIntro", ~message="SIMULATION_START_RESET_PAN_TRACKER", ())
       lastPannedSceneId.current = Nullable.null
+      hasPannedForCurrentSimulation.current = false
+    } else if prevSimulationStatus.current == Running && simulationStatus != Running {
+      hasPannedForCurrentSimulation.current = false
     }
     prevSimulationStatus.current = simulationStatus
     None
@@ -30,7 +34,12 @@ let useIntroPan = (
   React.useEffect3(() => {
     let isIdle = navigationState.navigationFsm == IdleFsm
 
-    if activeIndex != -1 && !isLinking && !isTeasing {
+    if
+      simulationStatus == Running &&
+      activeIndex != -1 &&
+      !isLinking &&
+      !isTeasing &&
+      !hasPannedForCurrentSimulation.current {
       switch Belt.Array.get(scenes, activeIndex) {
       | Some(scene) =>
         if lastPannedSceneId.current != Nullable.make(scene.id) {
@@ -51,6 +60,7 @@ let useIntroPan = (
 
             if Array.length(hotspotsWithWaypoints) == 0 {
               lastPannedSceneId.current = Nullable.make(scene.id)
+              hasPannedForCurrentSimulation.current = true
             } else {
               let v = ViewerSystem.getActiveViewer()
               switch Nullable.toOption(v) {
@@ -75,6 +85,7 @@ let useIntroPan = (
                   )
 
                   lastPannedSceneId.current = Nullable.make(scene.id)
+                  hasPannedForCurrentSimulation.current = true
 
                   // Slow, gentle pan (2000ms duration)
                   Viewer.setYawWithDuration(viewer, ty, 2000)

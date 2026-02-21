@@ -33,9 +33,29 @@ let resolveScenePanoramaFile = (scene: scene): Types.file => {
   }
 }
 
+let resolveArrivalView = (~state: state, ~scene: scene): option<viewFrame> => {
+  switch state.navigationState.navigation {
+  | Navigating(journey) =>
+    switch Belt.Array.get(state.scenes, journey.targetIndex) {
+    | Some(targetScene) if targetScene.id == scene.id =>
+      Some({
+        yaw: journey.arrivalYaw,
+        pitch: journey.arrivalPitch,
+        hfov: journey.arrivalHfov,
+      })
+    | _ => None
+    }
+  | _ => None
+  }
+}
+
 let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
   let fileForLoad = resolveScenePanoramaFile(scene)
   let url = SceneCache.getSourceUrl(scene.id, fileForLoad)
+  let arrivalView = resolveArrivalView(~state, ~scene)
+  let initialYaw = arrivalView->Option.map(v => v.yaw)->Option.getOr(state.activeYaw)
+  let initialPitch = arrivalView->Option.map(v => v.pitch)->Option.getOr(state.activePitch)
+  let initialHfov = arrivalView->Option.map(v => v.hfov)->Option.getOr(ViewerSystem.getCorrectHfov())
   let panorama = if url == "" {
     Logger.error(
       ~module_="SceneLoader",
@@ -56,6 +76,9 @@ let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
   {
     "panorama": panorama,
     "hotSpots": getHotspots(scene, ~state, ~dispatch),
+    "yaw": initialYaw,
+    "pitch": initialPitch,
+    "hfov": initialHfov,
   }
 }
 

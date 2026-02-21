@@ -26,6 +26,12 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
   const projectSessionId = project.sessionId || control.sessionId || "";
   const backendOrigin = control.backendOrigin || "";
   const authToken = control.authToken;
+  if (authToken) {
+    try {
+      document.cookie = `auth_token=${authToken}; path=/; SameSite=Strict`;
+      window.localStorage && window.localStorage.setItem("auth_token", authToken);
+    } catch (_err) {}
+  }
   if (!backendOrigin) {
     window.HEADLESS_ERROR = "Missing backend origin";
     return;
@@ -34,14 +40,46 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     window.HEADLESS_ERROR = "Missing project/session id for resource hydration";
     return;
   }
-  const buildUrl = (scene) => {
-    if (typeof scene.file === "string" && scene.file.startsWith("http")) {
-      return scene.file;
+  const unwrapFileRef = (value) => {
+    if (typeof value === "string") return value.trim();
+    if (value && typeof value === "object" && typeof value._0 === "string") {
+      return value._0.trim();
     }
+    return "";
+  };
+  const toAbsoluteUrl = (rawRef) => {
+    const raw = unwrapFileRef(rawRef);
+    if (!raw) return null;
+    if (raw.startsWith("http://") || raw.startsWith("https://")) {
+      try {
+        const parsed = new URL(raw);
+        // Normalize API assets to backend origin so headless capture stays deterministic.
+        if (parsed.pathname && parsed.pathname.startsWith("/api/")) {
+          return backendOrigin + parsed.pathname + (parsed.search || "");
+        }
+        return raw;
+      } catch (_err) {
+        return raw;
+      }
+    }
+    if (raw.startsWith("/")) return backendOrigin + raw;
+    if (raw.startsWith("api/")) return `${backendOrigin}/${raw}`;
+    return null;
+  };
+  const buildUrl = (scene) => {
+    const direct =
+      toAbsoluteUrl(scene.file) ||
+      toAbsoluteUrl(scene.originalFile) ||
+      toAbsoluteUrl(scene.tinyFile);
+    if (direct) return direct;
     if (!projectSessionId) {
       throw new Error("Project/session id missing while building fallback URL");
     }
-    return `${backendOrigin}/api/project/${encodeURIComponent(projectSessionId)}/file/${encodeURIComponent(scene.name)}`;
+    const fallbackName = unwrapFileRef(scene.name);
+    if (!fallbackName) {
+      throw new Error("Missing scene fallback filename");
+    }
+    return `${backendOrigin}/api/project/${encodeURIComponent(projectSessionId)}/file/${encodeURIComponent(fallbackName)}`;
   };
   const fetchScene = async (scene) => {
     const url = buildUrl(scene);
@@ -59,9 +97,19 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     scene.originalFile = file;
     scene.tinyFile = file;
   };
+  const loadProject = typeof window.__VTB_LOAD_PROJECT__ === "function"
+    ? window.__VTB_LOAD_PROJECT__
+    : (window.store && typeof window.store.loadProject === "function" ? window.store.loadProject : null);
+  if (!loadProject) {
+    window.HEADLESS_ERROR = "Missing headless project loader";
+    return;
+  }
+
   (async () => {
     await Promise.all(scenes.map(fetchScene));
-    await window.store.loadProject(project);
+    await loadProject(project);
+    // Give React + viewer lifecycle a short settle window before teaser starts.
+    await new Promise(resolve => setTimeout(resolve, 700));
     window.HEADLESS_READY = true;
   })().catch((err) => {
     window.HEADLESS_ERROR = (err && err.message) || err.toString();
@@ -73,7 +121,33 @@ pub fn headless_backend_origin() -> String {
     env::var("BACKEND_ORIGIN").unwrap_or_else(|_| "http://localhost:8080".to_string())
 }
 
+pub fn headless_app_origin() -> String {
+    if let Ok(origin) = env::var("HEADLESS_APP_ORIGIN") {
+        return origin;
+    }
+    if cfg!(debug_assertions) {
+        "http://localhost:3000".to_string()
+    } else {
+        headless_backend_origin()
+    }
+}
+
 pub fn get_ffmpeg_command() -> Result<String, String> {
+    if let Ok(custom_path) = env::var("FFMPEG_PATH")
+        && !custom_path.trim().is_empty()
+    {
+        return Ok(custom_path);
+    }
+
+    // Prefer system ffmpeg first; local bundled binaries can drift or have missing dylib deps.
+    if let Ok(output) = std::process::Command::new("ffmpeg")
+        .arg("-version")
+        .output()
+        && output.status.success()
+    {
+        return Ok("ffmpeg".to_string());
+    }
+
     let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
     if local_ffmpeg.exists() {
         local_ffmpeg
@@ -81,7 +155,7 @@ pub fn get_ffmpeg_command() -> Result<String, String> {
             .ok_or_else(|| "Invalid ffmpeg path encoding".to_string())
             .map(|s| s.to_string())
     } else {
-        Ok("ffmpeg".to_string())
+        Err("ffmpeg not found. Install ffmpeg or set FFMPEG_PATH.".to_string())
     }
 }
 

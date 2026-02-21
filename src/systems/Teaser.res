@@ -6,6 +6,7 @@ include TeaserLogic
 
 let startAutoTeaser = Manager.startAutoTeaser
 let startCinematicTeaser = Manager.startCinematicTeaser
+let startHeadlessTeaser = Manager.startHeadlessTeaser
 
 // --- COMPATIBILITY ALIASES ---
 module TeaserRecorder = Recorder

@@ -10,6 +10,7 @@ module Types = {
     | Navigation
     | Simulation
     | Upload
+    | Teaser
     | Export
     | ThumbnailGeneration
     | SceneLoad
@@ -169,6 +170,7 @@ let start = (
   // Calibrated for long-task UI visibility: avoid flashing for short operations.
   | Navigation => 1200
   | Upload => 700
+  | Teaser => 250
   | ThumbnailGeneration => 1500
   | ProjectLoad
   | ProjectSave

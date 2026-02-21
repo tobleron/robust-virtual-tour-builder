@@ -67,3 +67,4 @@ backend/temp/
 backend/logs/
 .agent/current_file_structure.md
 _dev-system/tmp/
+tmp/

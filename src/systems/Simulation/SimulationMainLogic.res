@@ -17,6 +17,21 @@ type nextMove =
   | Complete({reason: string})
   | None
 
+let arrivalFromTargetScene = (state: state, targetIndex: int): option<(float, float, float)> => {
+  Belt.Array.get(state.scenes, targetIndex)->Option.flatMap(scene => {
+    let candidate =
+      scene.hotspots
+      ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+      ->Option.orElse(scene.hotspots->Belt.Array.get(0))
+
+    candidate->Option.map(h => (
+      h.startYaw->Option.getOr(h.yaw),
+      h.startPitch->Option.getOr(h.pitch),
+      h.startHfov->Option.getOr(h.targetHfov->Option.getOr(90.0)),
+    ))
+  })
+}
+
 let getNextMove = (state: state): nextMove => {
   let simulation = state.simulation
   let visitedScenes = simulation.visitedScenes
@@ -68,17 +83,20 @@ let getNextMove = (state: state): nextMove => {
         ->Option.map(vf => (vf.yaw, vf.pitch, vf.hfov))
         ->Option.getOr((0.0, 0.0, 90.0))
       } else {
-        hotspot.viewFrame
-        ->Option.map(vf => (vf.yaw, vf.pitch, vf.hfov))
-        ->Option.getOr(
-          hotspot.targetYaw
-          ->Option.map(y => (
-            y,
-            hotspot.targetPitch->Option.getOr(0.0),
-            hotspot.targetHfov->Option.getOr(90.0),
-          ))
-          ->Option.getOr((0.0, 0.0, 90.0)),
-        )
+        let sourceFallback =
+          hotspot.viewFrame
+          ->Option.map(vf => (vf.yaw, vf.pitch, vf.hfov))
+          ->Option.getOr(
+            hotspot.targetYaw
+            ->Option.map(y => (
+              y,
+              hotspot.targetPitch->Option.getOr(0.0),
+              hotspot.targetHfov->Option.getOr(90.0),
+            ))
+            ->Option.getOr((hotspot.yaw, hotspot.pitch, hotspot.targetHfov->Option.getOr(90.0))),
+          )
+
+        arrivalFromTargetScene(state, targetIndex)->Option.getOr(sourceFallback)
       }
 
       let isComplete = if targetIndex == 0 {

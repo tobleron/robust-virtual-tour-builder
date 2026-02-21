@@ -4,10 +4,10 @@
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 379/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 12.179683377308708,
+        "complexity": 12.380839895013123,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
@@ -18,97 +18,97 @@
                 {
                   "name": "operations",
                   "signature": "operations = ref(Belt.Map.String.empty)",
-                  "line": 51
+                  "line": 52
                 },
                 {
                   "name": "listeners",
                   "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
-                  "line": 52
+                  "line": 53
                 },
                 {
                   "name": "cancelCallbacks",
                   "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
-                  "line": 53
+                  "line": 54
                 },
                 {
                   "name": "notifyListeners",
                   "signature": "notifyListeners = () => {",
-                  "line": 57
+                  "line": 58
                 },
                 {
                   "name": "updateLoggerContext",
                   "signature": "updateLoggerContext = () => {",
-                  "line": 62
+                  "line": 63
                 },
                 {
                   "name": "reset",
                   "signature": "reset = () => {",
-                  "line": 95
+                  "line": 96
                 },
                 {
                   "name": "subscribe",
                   "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
-                  "line": 102
+                  "line": 103
                 },
                 {
                   "name": "registerCancel",
                   "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
-                  "line": 112
+                  "line": 113
                 },
                 {
                   "name": "getOperation",
                   "signature": "getOperation = (id: operationId): option<task> => {",
-                  "line": 116
+                  "line": 117
                 },
                 {
                   "name": "getOperations",
                   "signature": "getOperations = (): array<task> => {",
-                  "line": 120
+                  "line": 121
                 },
                 {
                   "name": "isActive",
                   "signature": "isActive = (id: operationId): bool => {",
-                  "line": 124
+                  "line": 125
                 },
                 {
                   "name": "isBusy",
                   "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
-                  "line": 135
+                  "line": 136
                 },
                 {
                   "name": "start",
                   "signature": "start = (",
-                  "line": 156
+                  "line": 157
                 },
                 {
                   "name": "progress",
                   "signature": "progress = (",
-                  "line": 218
+                  "line": 220
                 },
                 {
                   "name": "complete",
                   "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
-                  "line": 253
+                  "line": 255
                 },
                 {
                   "name": "fail",
                   "signature": "fail = (id: operationId, error: string): unit => {",
-                  "line": 297
+                  "line": 299
                 },
                 {
                   "name": "cancel",
                   "signature": "cancel = (id: operationId): unit => {",
-                  "line": 341
+                  "line": 343
                 },
                 {
                   "name": "useOperations",
                   "signature": "useOperations = () => {",
-                  "line": 409
+                  "line": 411
                 },
                 {
                   "name": "useIsBusy",
                   "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
-                  "line": 422
+                  "line": 424
                 }
               ],
               "fingerprint": "be040c29c53ce43d2e200948a53503deca8e0ea78decd4fba4d36d8457f46a04"
@@ -236,6 +236,14 @@
       }
     }
   ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
+      }
+    }
+  ],
   "rust": [
     {
       "Surgical": {
@@ -331,6 +339,88 @@
     },
     {
       "Surgical": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.07, Coupling: 0.02] | Drag: 3.78 | LOC: 488/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 22.581967213114755,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video_logic.rs",
+              "functions": [
+                {
+                  "name": "from_str",
+                  "signature": "pub fn from_str(raw: &str) -> Self {",
+                  "line": 81
+                },
+                {
+                  "name": "extension",
+                  "signature": "pub fn extension(self) -> &'static str {",
+                  "line": 88
+                },
+                {
+                  "name": "content_type",
+                  "signature": "pub fn content_type(self) -> &'static str {",
+                  "line": 95
+                },
+                {
+                  "name": "new",
+                  "signature": "fn new(child: std::process::Child) -> Self {",
+                  "line": 106
+                },
+                {
+                  "name": "take",
+                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
+                  "line": 110
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 116
+                },
+                {
+                  "name": "headless_backend_origin",
+                  "signature": "fn headless_backend_origin() -> String {",
+                  "line": 124
+                },
+                {
+                  "name": "apply_capture_mode",
+                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
+                  "line": 128
+                },
+                {
+                  "name": "resolve_capture_viewport",
+                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
+                  "line": 142
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
+                  "line": 163
+                },
+                {
+                  "name": "generate_teaser_sync",
+                  "signature": "pub fn generate_teaser_sync(",
+                  "line": 209
+                },
+                {
+                  "name": "get_ffmpeg_command",
+                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
+                  "line": 486
+                }
+              ],
+              "fingerprint": "467fe9dde1ed78ba4f149ececc19ad7abb2d171a4c3ee3ececb8c8d03180c90e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../backend/src/services/project/import_upload.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
@@ -404,14 +494,6 @@
             }
           ]
         }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
-        "strategy": ""
       }
     }
   ]

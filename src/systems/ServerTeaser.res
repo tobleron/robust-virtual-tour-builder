@@ -7,6 +7,7 @@ external anyToUnknown: 'a => 'b = "%identity"
 
 let generateServerTeaser = (
   state: state,
+  format: string,
   onProgress,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ) => {
@@ -29,6 +30,7 @@ let generateServerTeaser = (
   let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
+  FormData.append(formData, "format", format)
   FormData.append(formData, "width", "1920")
   FormData.append(formData, "height", "1080")
   let added = ref(0)
@@ -44,10 +46,24 @@ let generateServerTeaser = (
     }
   })
   progress(10, "Uploading " ++ Belt.Int.toString(added.contents) ++ " scenes...")
+  let headers = Dict.make()
+  let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+  let finalToken = switch token {
+  | Some(t) => Some(t)
+  | None if Constants.isDebugBuild() => Some("dev-token")
+  | None => None
+  }
+  finalToken->Option.forEach(t => {
+    Dict.set(headers, "Authorization", "Bearer " ++ t)
+    // Keep media GET routes compatible with cookie-based auth middleware.
+    let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
+    let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
+  })
+
   RequestQueue.schedule(() => {
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/generate-teaser",
-      Fetch.requestInit(~method="POST", ~body=formData, ~signal?, ()),
+      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ~signal?, ()),
     )
     ->Promise.then(BackendApi.handleResponse)
     ->Promise.then(resResult => {

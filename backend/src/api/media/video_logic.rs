@@ -1,12 +1,104 @@
 use super::video_logic_support::{
-    HeadlessControl, inject_headless_control, wait_for_headless_ready,
+    HeadlessControl, headless_app_origin, inject_headless_control, wait_for_headless_ready,
 };
-use headless_chrome::{Browser, LaunchOptions};
+use headless_chrome::{Browser, LaunchOptions, Tab, protocol::cdp::Page};
 use serde_json::Value;
 use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 use std::time::Duration;
+
+const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
+(function() {
+  try {
+    window.__VTB_TEASER_CAPTURE__ = true;
+    document.body.classList.add("vtb-teaser-capture");
+
+    const hiddenIds = [
+      "viewer-utility-bar",
+      "viewer-floor-nav",
+      "visual-pipeline-container",
+      "v-scene-persistent-label",
+      "v-scene-quality-indicator",
+      "viewer-notifications-container",
+      "cursor-guide"
+    ];
+    hiddenIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+
+    const sceneLayer = document.getElementById("viewer-scene-elements-layer");
+    if (sceneLayer) sceneLayer.style.display = "none";
+
+    const styleId = "__vtb_teaser_capture_style";
+    let style = document.getElementById(styleId);
+    if (!style) {
+      style = document.createElement("style");
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+    style.textContent = `
+      #viewer-utility-bar,
+      #viewer-floor-nav,
+      #visual-pipeline-container,
+      #v-scene-persistent-label,
+      #v-scene-quality-indicator,
+      #viewer-notifications-container,
+      #cursor-guide,
+      #viewer-scene-elements-layer { display: none !important; }
+      #viewer-logo {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: none !important;
+      }
+    `;
+
+    const logo = document.getElementById("viewer-logo");
+    if (logo) {
+      logo.style.display = "block";
+      logo.style.visibility = "visible";
+      logo.style.opacity = "1";
+      logo.style.pointerEvents = "none";
+    }
+
+    return true;
+  } catch (err) {
+    window.HEADLESS_ERROR = (err && err.message) ? err.message : String(err);
+    return false;
+  }
+})();
+"#;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TeaserOutputFormat {
+    Webm,
+    Mp4,
+}
+
+impl TeaserOutputFormat {
+    pub fn from_str(raw: &str) -> Self {
+        match raw.to_ascii_lowercase().as_str() {
+            "mp4" => Self::Mp4,
+            _ => Self::Webm,
+        }
+    }
+
+    pub fn extension(self) -> &'static str {
+        match self {
+            Self::Webm => "webm",
+            Self::Mp4 => "mp4",
+        }
+    }
+
+    pub fn content_type(self) -> &'static str {
+        match self {
+            Self::Webm => "video/webm",
+            Self::Mp4 => "video/mp4",
+        }
+    }
+}
 
 struct KillOnDrop(Option<std::process::Child>);
 
@@ -31,6 +123,41 @@ impl Drop for KillOnDrop {
 
 fn headless_backend_origin() -> String {
     super::video_logic_support::headless_backend_origin()
+}
+
+fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {
+    let result = tab
+        .evaluate(TEASER_CAPTURE_MODE_SCRIPT, false)
+        .map_err(|e| format!("Failed to apply teaser capture mode: {}", e))?;
+
+    let ok = result.value.and_then(|v| v.as_bool()).unwrap_or(false);
+    if ok {
+        Ok(())
+    } else {
+        tracing::error!(session_id=%session_id, stage="capture_mode", "Capture mode script reported failure");
+        Err("Capture mode initialization failed".to_string())
+    }
+}
+
+fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {
+    let element = tab
+        .wait_for_element("#viewer-stage")
+        .map_err(|e| format!("viewer-stage not found for capture: {}", e))?;
+    let model = element
+        .get_box_model()
+        .map_err(|e| format!("viewer-stage box model unavailable: {}", e))?;
+    let viewport = model.content_viewport();
+    if viewport.width <= 1.0 || viewport.height <= 1.0 {
+        tracing::error!(
+            session_id=%session_id,
+            stage="capture_mode",
+            width=viewport.width,
+            height=viewport.height,
+            "viewer-stage viewport invalid"
+        );
+        return Err("viewer-stage viewport invalid".to_string());
+    }
+    Ok(viewport)
 }
 
 pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {
@@ -86,6 +213,8 @@ pub fn generate_teaser_sync(
     height: u32,
     output_str: String,
     duration_limit: u64,
+    output_format: TeaserOutputFormat,
+    auth_token: Option<String>,
 ) -> Result<(), String> {
     let browser = Browser::new(LaunchOptions {
         headless: true,
@@ -94,6 +223,10 @@ pub fn generate_teaser_sync(
             std::ffi::OsStr::new("--force-device-scale-factor=1.0"),
             std::ffi::OsStr::new("--enable-webgl"),
             std::ffi::OsStr::new("--ignore-gpu-blacklist"),
+            std::ffi::OsStr::new("--ignore-gpu-blocklist"),
+            std::ffi::OsStr::new("--use-gl=swiftshader"),
+            std::ffi::OsStr::new("--use-angle=swiftshader"),
+            std::ffi::OsStr::new("--enable-unsafe-swiftshader"),
         ],
         ..LaunchOptions::default()
     })
@@ -107,9 +240,18 @@ pub fn generate_teaser_sync(
         }
     };
 
-    if let Err(e) = tab.navigate_to("http://localhost:8080") {
-        drop(browser);
-        return Err(format!("Nav failed: {}", e));
+    let app_origin = headless_app_origin();
+    if let Err(e) = tab.navigate_to(&app_origin) {
+        // Dev fallback when frontend dev server isn't available.
+        if app_origin != "http://localhost:8080" {
+            if let Err(e2) = tab.navigate_to("http://localhost:8080") {
+                drop(browser);
+                return Err(format!("Nav failed: {} / fallback failed: {}", e, e2));
+            }
+        } else {
+            drop(browser);
+            return Err(format!("Nav failed: {}", e));
+        }
     }
 
     if let Err(e) = tab.wait_until_navigated() {
@@ -127,7 +269,7 @@ pub fn generate_teaser_sync(
         project: project_data,
         backend_origin: headless_backend_origin(),
         session_id: fallback_session_id,
-        auth_token: env::var("HEADLESS_API_TOKEN").ok(),
+        auth_token: auth_token.or_else(|| env::var("HEADLESS_API_TOKEN").ok()),
     };
 
     if let Err(e) = inject_headless_control(&tab, &control) {
@@ -139,30 +281,62 @@ pub fn generate_teaser_sync(
         drop(browser);
         return Err(e);
     }
+    if let Err(e) = apply_capture_mode(&tab, &session_id_clone) {
+        drop(browser);
+        return Err(e);
+    }
+    let capture_viewport = resolve_capture_viewport(&tab, &session_id_clone)?;
 
     let ffmpeg_cmd = get_ffmpeg_command()?;
 
     let child_res = Command::new(&ffmpeg_cmd)
-        .args([
-            "-y",
-            "-f",
-            "image2pipe",
-            "-vcodec",
-            "png",
-            "-r",
-            "30",
-            "-i",
-            "-",
-            "-c:v",
-            "libx264",
-            "-preset",
-            "ultrafast",
-            "-pix_fmt",
-            "yuv420p",
-            "-movflags",
-            "+faststart",
-            &output_str,
-        ])
+        .args(match output_format {
+            TeaserOutputFormat::Mp4 => vec![
+                "-y",
+                "-f",
+                "image2pipe",
+                "-vcodec",
+                "png",
+                "-r",
+                "30",
+                "-i",
+                "-",
+                "-c:v",
+                "libx264",
+                "-preset",
+                "ultrafast",
+                "-pix_fmt",
+                "yuv420p",
+                "-movflags",
+                "+faststart",
+                &output_str,
+            ],
+            TeaserOutputFormat::Webm => vec![
+                "-y",
+                "-f",
+                "image2pipe",
+                "-vcodec",
+                "png",
+                "-r",
+                "30",
+                "-i",
+                "-",
+                "-an",
+                "-c:v",
+                "libvpx-vp9",
+                "-pix_fmt",
+                "yuv420p",
+                "-deadline",
+                "good",
+                "-cpu-used",
+                "2",
+                "-crf",
+                "30",
+                "-b:v",
+                "0",
+                &output_str,
+            ],
+        })
         .stdin(std::process::Stdio::piped())
         .stderr(std::process::Stdio::inherit())
         .spawn();
@@ -188,11 +362,30 @@ pub fn generate_teaser_sync(
 
     let mut guard = KillOnDrop::new(child);
 
-    if let Err(e) = tab.evaluate("window.startCinematicTeaser(true, 'mp4', true)", false) {
+    let start_script = match output_format {
+        TeaserOutputFormat::Mp4 => {
+            r#"(function(){
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "mp4", true);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "mp4", true);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "mp4", true);
+                throw new Error("No teaser start function found on window");
+            })()"#
+        }
+        TeaserOutputFormat::Webm => {
+            r#"(function(){
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "webm", true);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "webm", true);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "webm", true);
+                throw new Error("No teaser start function found on window");
+            })()"#
+        }
+    };
+    if let Err(e) = tab.evaluate(start_script, false) {
         drop(guard);
         drop(browser);
         return Err(format!("Failed to start teaser: {}", e));
     }
+    std::thread::sleep(Duration::from_millis(120));
 
     let start_sim = std::time::Instant::now();
     let max_dur = Duration::from_secs(duration_limit);
@@ -213,7 +406,7 @@ pub fn generate_teaser_sync(
         match tab.capture_screenshot(
             headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
             None,
-            None,
+            Some(capture_viewport.clone()),
             true,
         ) {
             Ok(png_data) => {

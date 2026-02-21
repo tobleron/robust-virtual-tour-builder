@@ -1,7 +1,7 @@
 /* backend/src/api/media/video.rs - Consolidated Video API */
 
 use actix_multipart::Multipart;
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
@@ -12,9 +12,24 @@ use crate::models::AppError;
 
 // --- HANDLERS ---
 
+fn extract_auth_token(req: &HttpRequest) -> Option<String> {
+    if let Some(header) = req.headers().get(actix_web::http::header::AUTHORIZATION)
+        && let Ok(header_str) = header.to_str()
+        && let Some(token) = header_str.strip_prefix("Bearer ")
+    {
+        return Some(token.to_string());
+    }
+
+    req.cookie("auth_token")
+        .map(|cookie| cookie.value().to_string())
+}
+
 /// Generates a cinematic teaser video of the virtual tour.
 #[tracing::instrument(skip(payload), name = "generate_teaser")]
-pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+pub async fn generate_teaser(
+    req: HttpRequest,
+    mut payload: Multipart,
+) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
     let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
     tokio::fs::create_dir_all(&session_path)
@@ -26,6 +41,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let mut project_data_value: Option<serde_json::Value> = None;
     let mut width = 1920;
     let mut height = 1080;
+    let mut output_format = video_logic::TeaserOutputFormat::Webm;
     let duration_limit = 120;
 
     while let Some(mut field) = payload.try_next().await? {
@@ -64,6 +80,14 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             {
                 height = val;
             }
+        } else if name == "format" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(s) = String::from_utf8(bytes) {
+                output_format = video_logic::TeaserOutputFormat::from_str(s.trim());
+            }
         } else if name == "files" {
             let filename = content_disposition
                 .get_filename()
@@ -84,9 +108,10 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
     let project_data = project_data_value
         .ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
-    let output_path = get_temp_path_async("mp4").await;
+    let output_path = get_temp_path_async(output_format.extension()).await;
     let output_str = output_path.to_string_lossy().to_string();
     let session_id_clone = session_id.clone();
+    let auth_token = extract_auth_token(&req);
 
     let result = web::block(move || {
         video_logic::generate_teaser_sync(
@@ -96,6 +121,8 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             height,
             output_str,
             duration_limit as u64,
+            output_format,
+            auth_token,
         )
     })
     .await
@@ -111,7 +138,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 .map_err(AppError::IoError)?;
             let _ = tokio::fs::remove_file(output_path).await;
             Ok(HttpResponse::Ok()
-                .content_type("video/mp4")
+                .content_type(output_format.content_type())
                 .body(file_bytes))
         }
         Err(e) => {

@@ -43,6 +43,7 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
   let isCriticalProgressType = (type_: OperationLifecycle.operationType) =>
     switch type_ {
     | Upload
+    | Teaser
     | Export
     | ProjectLoad
     | ProjectSave => true

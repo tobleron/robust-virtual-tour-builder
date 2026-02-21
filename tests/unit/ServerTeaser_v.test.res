@@ -81,7 +81,7 @@ describe("ServerTeaser - Remote Rendering", () => {
   }
 
   testAsync("generateServerTeaser sends correct FormData to backend", async t => {
-    let result = await generateServerTeaser(mockState, None)
+    let result = await generateServerTeaser(mockState, "webm", None)
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(true)
@@ -98,6 +98,7 @@ describe("ServerTeaser - Remote Rendering", () => {
     let getAllFromForm = (_fd, _key): array<'a> => %raw(`_fd.getAll(_key)`)
 
     // Check width/height in FormData
+    t->expect(getFromForm(body, "format"))->Expect.toBe("webm")
     t->expect(getFromForm(body, "width"))->Expect.toBe("1920")
     t->expect(getFromForm(body, "height"))->Expect.toBe("1080")
 
@@ -116,7 +117,7 @@ describe("ServerTeaser - Remote Rendering", () => {
       })
     `)
 
-    let result = await generateServerTeaser(mockState, None)
+    let result = await generateServerTeaser(mockState, "webm", None)
 
     switch result {
     | Ok(_) => t->expect("Success")->Expect.toBe("Error expected")
@@ -129,7 +130,7 @@ describe("ServerTeaser - Remote Rendering", () => {
       globalThis.fetch.mockRejectedValueOnce(new Error("Network Failure"))
     `)
 
-    let result = await generateServerTeaser(mockState, None)
+    let result = await generateServerTeaser(mockState, "webm", None)
 
     switch result {
     | Ok(_) => t->expect("Success")->Expect.toBe("Error expected")
@@ -146,7 +147,7 @@ describe("ServerTeaser - Remote Rendering", () => {
       callbackCount := callbackCount.contents + 1
     }
 
-    let _ = await generateServerTeaser(mockState, Some(onProgress))
+    let _ = await generateServerTeaser(mockState, "webm", Some(onProgress))
 
     t->expect(callbackCount.contents)->Expect.Int.toBeGreaterThanOrEqual(3)
     t->expect(lastMsg.contents)->Expect.toBe("Done!")

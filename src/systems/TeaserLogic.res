@@ -88,6 +88,108 @@ module Manager = {
     }
   }
 
+  let startHeadlessTeaser = async (
+    format: string,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+    ~onCancel: option<unit => unit>=?,
+  ) => {
+    let state = getState()
+    if state.isLinking {
+      Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
+    } else if Array.length(state.scenes) == 0 {
+      ()
+    } else if signalIsAborted(signal) {
+      ()
+    } else {
+      let safeFormat = switch format {
+      | "mp4" => "mp4"
+      | _ => "webm"
+      }
+      let safeName = String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_")
+      let filename = "Teaser_" ++ safeName ++ "." ++ safeFormat
+      let canCancel = switch onCancel {
+      | Some(_) => true
+      | None => false
+      }
+      let opId = OperationLifecycle.start(
+        ~type_=OperationLifecycle.Teaser,
+        ~scope=Ambient,
+        ~phase="Preparing",
+        ~cancellable=canCancel,
+        ~visibleAfterMs=250,
+        ~meta=Logger.castToJson({
+          "format": safeFormat,
+          "sceneCount": Belt.Array.length(state.scenes),
+        }),
+        (),
+      )
+      onCancel->Option.forEach(cb => OperationLifecycle.registerCancel(opId, cb))
+
+      dispatch(Actions.SetIsTeasing(true))
+      ProgressBar.updateProgressBar(0.0, "Preparing teaser...", ~visible=true, ~title="Teaser", ())
+
+      let result = await Server.generateServerTeaser(
+        state,
+        safeFormat,
+        Some((pct, msg) => {
+          let phase = if pct < 25 {
+            "Uploading"
+          } else if pct < 95 {
+            "Processing"
+          } else {
+            "Finalizing"
+          }
+          let pctF = Belt.Int.toFloat(pct)
+          OperationLifecycle.progress(opId, pctF, ~message=msg, ~phase=phase, ())
+          ProgressBar.updateProgressBar(Belt.Int.toFloat(pct), msg, ~visible=true, ~title=phase, ())
+        }),
+        ~signal?,
+      )
+
+      dispatch(Actions.SetIsTeasing(false))
+      ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
+
+      if signalIsAborted(signal) {
+        if OperationLifecycle.isActive(opId) {
+          OperationLifecycle.cancel(opId)
+        }
+        ()
+      } else {
+        switch result {
+        | Ok(blob) =>
+          if OperationLifecycle.isActive(opId) {
+            OperationLifecycle.complete(opId, ~result="Teaser ready", ())
+          }
+          DownloadSystem.saveBlob(blob, filename)
+        | Error(msg) =>
+          if msg == "AbortError" {
+            if OperationLifecycle.isActive(opId) {
+              OperationLifecycle.cancel(opId)
+            }
+            ()
+          } else {
+            if OperationLifecycle.isActive(opId) {
+              OperationLifecycle.fail(opId, msg)
+            }
+            NotificationManager.dispatch({
+              id: "",
+              importance: Error,
+              context: Operation("teaser"),
+              message: "Server Generation Failed: " ++ msg,
+              details: None,
+              action: None,
+              duration: NotificationTypes.defaultTimeoutMs(Error),
+              dismissible: true,
+              createdAt: Date.now(),
+            })
+          }
+        }
+      }
+    }
+  }
+
   let startAutoTeaser = async (
     style,
     includeLogo,
@@ -97,6 +199,10 @@ module Manager = {
     ~dispatch: Actions.action => unit,
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ) => {
+    if style == "fast" && format == "webm" {
+      await startHeadlessTeaser(format, ~getState, ~dispatch, ~signal?)
+      ()
+    } else {
     let state = getState()
     if state.isLinking {
       Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
@@ -116,6 +222,7 @@ module Manager = {
         )
         let _ = await Server.generateServerTeaser(
           state,
+          format,
           Some(
             (pct, msg) => {
               ProgressBar.updateProgressBar(
@@ -227,5 +334,60 @@ module Manager = {
         })
       }
     }
+    }
   }
 }
+
+let startHeadlessTeaserForWindow = (
+  _includeLogo: bool,
+  _format: string,
+  skipAutoForward: bool,
+) => {
+  let getState = AppContext.getBridgeState
+  let dispatch = AppContext.getBridgeDispatch()
+  if getState().simulation.status == Running {
+    Promise.resolve()
+  } else {
+    dispatch(Actions.SetIsTeasing(true))
+    dispatch(Actions.StartAutoPilot(getState().navigationState.currentJourneyId, skipAutoForward))
+
+    let startedAt = Date.now()
+    let rec waitForCompletion = (didStart: bool) => {
+      let status = getState().simulation.status
+      if status == Running {
+        Playback.wait(250)->Promise.then(_ => waitForCompletion(true))
+      } else if didStart {
+        dispatch(Actions.SetIsTeasing(false))
+        Promise.resolve()
+      } else if Date.now() -. startedAt > 120000.0 {
+        dispatch(Actions.SetIsTeasing(false))
+        Promise.resolve()
+      } else {
+        Playback.wait(120)->Promise.then(_ => waitForCompletion(false))
+      }
+    }
+
+    waitForCompletion(false)
+  }
+}
+
+let startCinematicTeaserForWindow = (
+  includeLogo: bool,
+  format: string,
+  skipAutoForward: bool,
+) => {
+  startHeadlessTeaserForWindow(includeLogo, format, skipAutoForward)
+}
+
+let isAutoPilotActiveForWindow = () => AppContext.getBridgeState().simulation.status == Running
+
+let _ = %raw(`
+  ((startHeadlessTeaser, startCinematicTeaser, isAutoPilotActive) => {
+    if (typeof window !== "undefined") {
+      window.startHeadlessTeaser = startHeadlessTeaser
+      window.startCinematicTeaser = startCinematicTeaser
+      window.__VTB_START_TEASER__ = startHeadlessTeaser
+      window.isAutoPilotActive = isAutoPilotActive
+    }
+  })
+`)(startHeadlessTeaserForWindow, startCinematicTeaserForWindow, isAutoPilotActiveForWindow)

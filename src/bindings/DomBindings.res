@@ -63,8 +63,8 @@ module Dom = {
   @set @scope("style") external setDisplay: (element, string) => unit = "display"
   @set @scope("style") external setMaxHeight: (element, string) => unit = "maxHeight"
   @set @scope("style") external setBackgroundColor: (element, string) => unit = "backgroundColor"
-  @set external setTransition: (element, string) => unit = "transition"
-  @set external setBackgroundImage: (element, string) => unit = "backgroundImage"
+  @set @scope("style") external setTransition: (element, string) => unit = "transition"
+  @set @scope("style") external setBackgroundImage: (element, string) => unit = "backgroundImage"
 
   module ClassList = {
     type t

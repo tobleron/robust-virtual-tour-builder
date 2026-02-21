@@ -60,8 +60,14 @@ let updateGlobalStateAndViewer = (~getState, nv, ~taskId: option<string>=?) => {
   let _ = Window.setTimeout(() => finalizeSwap(~getState, ~taskId?), 50)
 }
 
-let updateDomTransitions = (~transition: transition, av, iv) => {
+let updateDomTransitions = (~transition: transition, ~isSimulationActive: bool, av, iv) => {
   let isCut = transition.type_ == Cut
+  let transitionValue = if isSimulationActive && !isCut {
+    // Match export-style visible crossfade during simulation hops.
+    "opacity 1s ease-in-out"
+  } else {
+    ""
+  }
   switch (av, iv) {
   | (Some(act: viewport), Some(inact: viewport)) =>
     let (actEl, inactEl) = (
@@ -74,8 +80,8 @@ let updateDomTransitions = (~transition: transition, av, iv) => {
         Dom.setTransition(a, "none")
         Dom.setTransition(i, "none")
       } else {
-        Dom.setTransition(a, "")
-        Dom.setTransition(i, "")
+        Dom.setTransition(a, transitionValue)
+        Dom.setTransition(i, transitionValue)
       }
       Dom.remove(a, "active")
       Dom.add(i, "active")
@@ -92,7 +98,7 @@ let updateDomTransitions = (~transition: transition, av, iv) => {
     switch Dom.getElementById(inact.containerId)->Nullable.toOption {
     | Some(i) =>
       if !isCut {
-        Dom.setTransition(i, "")
+        Dom.setTransition(i, transitionValue)
       }
       Dom.add(i, "active")
       if isCut {
@@ -201,7 +207,8 @@ let performSwap = (
       | Some(newViewer) =>
         Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
         updateGlobalStateAndViewer(~getState, newViewer, ~taskId?)
-        updateDomTransitions(~transition, av, iv)
+        let isSimulationActive = getState().simulation.status == Running
+        updateDomTransitions(~transition, ~isSimulationActive, av, iv)
         scheduleCleanup(ov, ~taskId?)
         completeSwapTransition(~getState, ~loadedScene, ~dispatch)
       | None =>
