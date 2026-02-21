@@ -22,6 +22,11 @@
 - [x] Add headless capture UI mode to hide viewer overlays and keep logo visible during teaser recording.
 - [x] Harden hydration URL normalization so absolute `/api/...` scene URLs resolve against backend origin.
 - [x] Wire teaser generation into `OperationLifecycle` so sidebar progress/cancel UX is consistently visible.
+- [x] Align teaser/simulation motion semantics by introducing a backend-fed headless motion profile contract.
+- [x] Remove teaser overlay artifacts by suppressing hotspot-line SVG and simulation arrows while teasing.
+- [x] Fix arrival centering drift by selecting target-scene arrival frame from the next-link decision instead of static first-hotspot heuristic.
+- [x] Force simulation scene swaps to crossfade even when stale transition state marks `Cut`.
+- [x] Fix teaser duration warp by replacing variable-rate frame piping with real-time paced 60 FPS emission.
 
 ## Code Change Ledger
 - [x] `backend/src/api/media/video_logic_support.rs` - add robust headless loader fallback (`__VTB_LOAD_PROJECT__` or `window.store.loadProject`) and configurable `headless_app_origin`.
@@ -45,6 +50,16 @@
 - [x] `src/components/Sidebar/UseSidebarProcessing.res` - mark `Teaser` as critical progress type for processing panel visibility.
 - [x] `src/systems/TeaserLogic.res` - register teaser lifecycle operation, progress, completion/failure/cancel wiring.
 - [x] `src/components/Sidebar.res` - pass teaser cancel callback through to headless teaser logic.
+- [x] `src/utils/Constants.res` - add `Teaser.HeadlessMotion` policy constants for deterministic backend-run teaser semantics.
+- [x] `src/systems/ServerTeaser.res` - send `motion_profile` payload to backend (`skipAutoForward=false`, `startAtWaypoint=true`, `includeIntroPan=false`).
+- [x] `src/systems/TeaserLogic.res` - read backend motion profile, center first teaser frame on waypoint start, then start autopilot.
+- [x] `src/systems/Navigation/NavigationRenderer.res` - skip simulation-arrow/line rendering when `state.isTeasing` is active.
+- [x] `src/systems/Simulation/SimulationMainLogic.res` - compute arrival frame from predicted next-link on target scene.
+- [x] `src/systems/Scene/SceneTransition.res` - enforce crossfade transitions during simulation regardless of stale `Cut` transition state.
+- [x] `backend/src/api/media/video_logic_support.rs` - add `HeadlessMotionProfile` struct and inject `window.__VTB_HEADLESS_MOTION_PROFILE__`.
+- [x] `backend/src/api/media/video.rs` - parse incoming `motion_profile` multipart field and pass to sync teaser generator.
+- [x] `backend/src/api/media/video_logic.rs` - hide hotspot-line layers in capture mode and start teaser with profile-driven skip-auto-forward.
+- [x] `backend/src/api/media/video_logic.rs` - set FFmpeg input/output to 60 FPS and emit duplicate frames to preserve wall-clock simulation timing.
 
 ## Rollback Check
 - [x] Confirmed non-working iterations were replaced by validated working fixes (no extra debug artifacts kept).

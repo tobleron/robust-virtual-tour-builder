@@ -1,4 +1,5 @@
 use headless_chrome::Tab;
+use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use std::env;
@@ -12,6 +13,25 @@ pub struct HeadlessControl {
     pub backend_origin: String,
     pub session_id: String,
     pub auth_token: Option<String>,
+    pub motion_profile: HeadlessMotionProfile,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HeadlessMotionProfile {
+    pub skip_auto_forward: bool,
+    pub start_at_waypoint: bool,
+    pub include_intro_pan: bool,
+}
+
+impl Default for HeadlessMotionProfile {
+    fn default() -> Self {
+        Self {
+            skip_auto_forward: false,
+            start_at_waypoint: true,
+            include_intro_pan: false,
+        }
+    }
 }
 
 const HEADLESS_CONTROL_SCRIPT: &str = r#"
@@ -26,6 +46,12 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
   const projectSessionId = project.sessionId || control.sessionId || "";
   const backendOrigin = control.backendOrigin || "";
   const authToken = control.authToken;
+  const motionProfile = control.motionProfile || {
+    skipAutoForward: false,
+    startAtWaypoint: true,
+    includeIntroPan: false
+  };
+  window.__VTB_HEADLESS_MOTION_PROFILE__ = motionProfile;
   if (authToken) {
     try {
       document.cookie = `auth_token=${authToken}; path=/; SameSite=Strict`;

@@ -17,12 +17,27 @@ type nextMove =
   | Complete({reason: string})
   | None
 
-let arrivalFromTargetScene = (state: state, targetIndex: int): option<(float, float, float)> => {
+let selectArrivalHotspot = (
+  state: state,
+  scene: scene,
+  visitedAfterArrival: array<int>,
+): option<hotspot> => {
+  SimulationNavigation.findBestNextLink(scene, state, visitedAfterArrival)
+  ->Option.map(link => link.hotspot)
+  ->Option.orElse(
+    scene.hotspots
+    ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+    ->Option.orElse(scene.hotspots->Belt.Array.get(0)),
+  )
+}
+
+let arrivalFromTargetScene = (
+  state: state,
+  targetIndex: int,
+  visitedAfterArrival: array<int>,
+): option<(float, float, float)> => {
   Belt.Array.get(state.scenes, targetIndex)->Option.flatMap(scene => {
-    let candidate =
-      scene.hotspots
-      ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-      ->Option.orElse(scene.hotspots->Belt.Array.get(0))
+    let candidate = selectArrivalHotspot(state, scene, visitedAfterArrival)
 
     candidate->Option.map(h => (
       h.startYaw->Option.getOr(h.yaw),
@@ -77,6 +92,9 @@ let getNextMove = (state: state): nextMove => {
       let hotspot = finalLink.hotspot
       let targetIndex = finalLink.targetIndex
       let hotspotIndex = finalLink.hotspotIndex
+      let visitedAfterArrival = Belt.Array.concat(Belt.Array.concat(visitedScenes, extraVisited), [
+        targetIndex,
+      ])
 
       let (tYaw, tPitch, tHfov) = if finalLink.isReturn {
         hotspot.returnViewFrame
@@ -93,10 +111,12 @@ let getNextMove = (state: state): nextMove => {
               hotspot.targetPitch->Option.getOr(0.0),
               hotspot.targetHfov->Option.getOr(90.0),
             ))
-            ->Option.getOr((hotspot.yaw, hotspot.pitch, hotspot.targetHfov->Option.getOr(90.0))),
+          ->Option.getOr((hotspot.yaw, hotspot.pitch, hotspot.targetHfov->Option.getOr(90.0))),
           )
 
-        arrivalFromTargetScene(state, targetIndex)->Option.getOr(sourceFallback)
+        arrivalFromTargetScene(state, targetIndex, visitedAfterArrival)->Option.getOr(
+          sourceFallback,
+        )
       }
 
       let isComplete = if targetIndex == 0 {

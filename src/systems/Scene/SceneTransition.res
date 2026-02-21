@@ -61,9 +61,9 @@ let updateGlobalStateAndViewer = (~getState, nv, ~taskId: option<string>=?) => {
 }
 
 let updateDomTransitions = (~transition: transition, ~isSimulationActive: bool, av, iv) => {
-  let isCut = transition.type_ == Cut
-  let transitionValue = if isSimulationActive && !isCut {
-    // Match export-style visible crossfade during simulation hops.
+  let isCut = transition.type_ == Cut && !isSimulationActive
+  let transitionValue = if isSimulationActive {
+    // During simulation/teaser, always enforce a visible crossfade between scenes.
     "opacity 1s ease-in-out"
   } else {
     ""

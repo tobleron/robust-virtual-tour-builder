@@ -41,6 +41,12 @@ module Teaser = {
   let canvasWidth = 1920
   let canvasHeight = 1080
   let frameRate = 60
+  module HeadlessMotion = {
+    // Keep teaser deterministic with simulation math while skipping intro-pan capture.
+    let skipAutoForward = false
+    let startAtWaypoint = true
+    let includeIntroPan = false
+  }
 
   module StyleDissolve = {
     let clipDuration = 2000

@@ -1,5 +1,6 @@
 use super::video_logic_support::{
-    HeadlessControl, headless_app_origin, inject_headless_control, wait_for_headless_ready,
+    HeadlessControl, HeadlessMotionProfile, headless_app_origin, inject_headless_control,
+    wait_for_headless_ready,
 };
 use headless_chrome::{Browser, LaunchOptions, Tab, protocol::cdp::Page};
 use serde_json::Value;
@@ -18,6 +19,8 @@ const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
       "viewer-utility-bar",
       "viewer-floor-nav",
       "visual-pipeline-container",
+      "viewer-hotspot-lines",
+      "viewer-center-indicator",
       "v-scene-persistent-label",
       "v-scene-quality-indicator",
       "viewer-notifications-container",
@@ -42,6 +45,8 @@ const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
       #viewer-utility-bar,
       #viewer-floor-nav,
       #visual-pipeline-container,
+      #viewer-hotspot-lines,
+      #viewer-center-indicator,
       #v-scene-persistent-label,
       #v-scene-quality-indicator,
       #viewer-notifications-container,
@@ -76,6 +81,8 @@ pub enum TeaserOutputFormat {
     Webm,
     Mp4,
 }
+
+const TEASER_OUTPUT_FPS: f64 = 60.0;
 
 impl TeaserOutputFormat {
     pub fn from_str(raw: &str) -> Self {
@@ -215,6 +222,7 @@ pub fn generate_teaser_sync(
     duration_limit: u64,
     output_format: TeaserOutputFormat,
     auth_token: Option<String>,
+    motion_profile: HeadlessMotionProfile,
 ) -> Result<(), String> {
     let browser = Browser::new(LaunchOptions {
         headless: true,
@@ -270,6 +278,7 @@ pub fn generate_teaser_sync(
         backend_origin: headless_backend_origin(),
         session_id: fallback_session_id,
         auth_token: auth_token.or_else(|| env::var("HEADLESS_API_TOKEN").ok()),
+        motion_profile,
     };
 
     if let Err(e) = inject_headless_control(&tab, &control) {
@@ -297,8 +306,8 @@ pub fn generate_teaser_sync(
                 "image2pipe",
                 "-vcodec",
                 "png",
-                "-r",
-                "30",
+                "-framerate",
+                "60",
                 "-i",
                 "-",
                 "-c:v",
@@ -307,6 +316,8 @@ pub fn generate_teaser_sync(
                 "ultrafast",
                 "-pix_fmt",
                 "yuv420p",
+                "-r",
+                "60",
                 "-movflags",
                 "+faststart",
                 &output_str,
@@ -317,8 +328,8 @@ pub fn generate_teaser_sync(
                 "image2pipe",
                 "-vcodec",
                 "png",
-                "-r",
-                "30",
+                "-framerate",
+                "60",
                 "-i",
                 "-",
                 "-an",
@@ -326,6 +337,8 @@ pub fn generate_teaser_sync(
                 "libvpx-vp9",
                 "-pix_fmt",
                 "yuv420p",
+                "-r",
+                "60",
                 "-deadline",
                 "good",
                 "-cpu-used",
@@ -365,17 +378,21 @@ pub fn generate_teaser_sync(
     let start_script = match output_format {
         TeaserOutputFormat::Mp4 => {
             r#"(function(){
-                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "mp4", true);
-                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "mp4", true);
-                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "mp4", true);
+                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
+                const skip = !!profile.skipAutoForward;
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "mp4", skip);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "mp4", skip);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "mp4", skip);
                 throw new Error("No teaser start function found on window");
             })()"#
         }
         TeaserOutputFormat::Webm => {
             r#"(function(){
-                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "webm", true);
-                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "webm", true);
-                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "webm", true);
+                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
+                const skip = !!profile.skipAutoForward;
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "webm", skip);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "webm", skip);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "webm", skip);
                 throw new Error("No teaser start function found on window");
             })()"#
         }
@@ -390,11 +407,22 @@ pub fn generate_teaser_sync(
     let start_sim = std::time::Instant::now();
     let max_dur = Duration::from_secs(duration_limit);
     let mut screenshot_failed = false;
+    let frame_interval = Duration::from_secs_f64(1.0 / TEASER_OUTPUT_FPS);
+    let mut next_frame_deadline = start_sim;
+    let mut emitted_frames: u64 = 0;
+    let mut last_png: Option<Vec<u8>> = None;
 
     loop {
-        if std::time::Instant::now() - start_sim > max_dur {
+        let now = std::time::Instant::now();
+        if now - start_sim > max_dur {
             break;
         }
+
+        if now < next_frame_deadline {
+            std::thread::sleep(next_frame_deadline - now);
+            continue;
+        }
+
         if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
             && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
         {
@@ -403,24 +431,50 @@ pub fn generate_teaser_sync(
 
         use std::io::Write;
 
-        match tab.capture_screenshot(
+        let current_png = match tab.capture_screenshot(
             headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
             None,
             Some(capture_viewport.clone()),
             true,
         ) {
             Ok(png_data) => {
-                if stdin.write_all(&png_data).is_err() {
+                last_png = Some(png_data.clone());
+                png_data
+            }
+            Err(e) => {
+                if let Some(previous) = last_png.clone() {
+                    tracing::warn!(
+                        session_id=%session_id_clone,
+                        stage="frame_capture",
+                        error=%e,
+                        "Screenshot failed; reusing previous frame"
+                    );
+                    previous
+                } else {
+                    tracing::error!(session_id=%session_id_clone, stage="frame_capture", error=%e, "Screenshot capture failed");
+                    screenshot_failed = true;
                     break;
                 }
             }
-            Err(e) => {
-                tracing::error!(session_id=%session_id_clone, stage="frame_capture", error=%e, "Screenshot capture failed");
+        };
+
+        let elapsed_secs = std::time::Instant::now().duration_since(start_sim).as_secs_f64();
+        let expected_frames = (elapsed_secs * TEASER_OUTPUT_FPS).floor() as u64;
+        let frames_to_emit = std::cmp::max(1, expected_frames.saturating_sub(emitted_frames));
+        for _ in 0..frames_to_emit {
+            if stdin.write_all(&current_png).is_err() {
                 screenshot_failed = true;
                 break;
             }
         }
-        std::thread::sleep(Duration::from_millis(10));
+        if screenshot_failed {
+            break;
+        }
+        emitted_frames = emitted_frames.saturating_add(frames_to_emit);
+
+        while next_frame_deadline <= std::time::Instant::now() {
+            next_frame_deadline += frame_interval;
+        }
     }
 
     drop(stdin); // Close stdin to signal EOF to ffmpeg

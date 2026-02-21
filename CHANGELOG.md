@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V4.30.12+13 [TRIPLE]: fix post-simulation scene switch load abort by ignoring stale pannellum FileReader callbacks
 - Set auto-forward hotspot and pipeline squares to emerald
 - Teaser mp4-only capture-mode and progress lifecycle stabilization
+- Teaser motion profile + real-time 60fps pacing
 
 ## [4.30.14] - 2026-02-21
 

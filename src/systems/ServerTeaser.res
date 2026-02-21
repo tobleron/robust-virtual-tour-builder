@@ -11,6 +11,7 @@ let generateServerTeaser = (
   onProgress,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ) => {
+  let boolJson = b => b ? "true" : "false"
   let progress = (p, m) => onProgress->Option.forEach(cb => cb(p, m))
   progress(0, "Preparing Project Data...")
   let project: Types.project = {
@@ -33,6 +34,19 @@ let generateServerTeaser = (
   FormData.append(formData, "format", format)
   FormData.append(formData, "width", "1920")
   FormData.append(formData, "height", "1080")
+  let motionProfileJson =
+    "{\"skipAutoForward\":" ++
+    boolJson(Constants.Teaser.HeadlessMotion.skipAutoForward) ++
+    ",\"startAtWaypoint\":" ++
+    boolJson(Constants.Teaser.HeadlessMotion.startAtWaypoint) ++
+    ",\"includeIntroPan\":" ++
+    boolJson(Constants.Teaser.HeadlessMotion.includeIntroPan) ++
+    "}"
+  FormData.append(
+    formData,
+    "motion_profile",
+    motionProfileJson,
+  )
   let added = ref(0)
   state.scenes->Belt.Array.forEach(s => {
     switch s.file {

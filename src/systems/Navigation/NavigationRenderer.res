@@ -26,6 +26,7 @@ module AnimationLoop = {
     (),
   ) => {
     let state = getState()
+    let shouldRenderSimulationOverlay = !state.isTeasing
     if activeJourneyId.contents == Some(j.journeyId) && !cft.contents {
       try {
         let linearProg = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
@@ -77,40 +78,42 @@ module AnimationLoop = {
             Viewer.setYaw(v, pd.targetYawForPan, false)
             Viewer.setHfov(v, ViewerSystem.getCorrectHfov(), false)
 
-            HotspotLine.updateLines(v, state, ())
-            let arrowId = switch state.scenes[j.sourceIndex] {
-            | Some(s) =>
-              switch s.hotspots[j.hotspotIndex] {
-              | Some(h) => "arrow_" ++ h.linkId
+            if shouldRenderSimulationOverlay {
+              HotspotLine.updateLines(v, state, ())
+              let arrowId = switch state.scenes[j.sourceIndex] {
+              | Some(s) =>
+                switch s.hotspots[j.hotspotIndex] {
+                | Some(h) => "arrow_" ++ h.linkId
+                | None => "sim_arrow"
+                }
               | None => "sim_arrow"
               }
-            | None => "sim_arrow"
-            }
 
-            HotspotLine.updateSimulationArrow(
-              v,
-              pd.startPitch,
-              pd.startYaw,
-              pd.targetPitchForPan,
-              pd.targetYawForPan,
-              1.0,
-              ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
-              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                PathInterpolation.yaw: w.yaw,
-                pitch: w.pitch,
-              }),
-              ~colorOverride=?j.previewOnly ? Some("red") : None,
-              ~preComputedSegments=pd.segments->Belt.Array.map(s => (
-                s.dist,
-                s.yawDiff,
-                s.pitchDiff,
-                {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
-                {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
-              )),
-              ~preComputedTotalDistance=pd.totalPathDistance,
-              ~id=arrowId,
-              (),
-            )
+              HotspotLine.updateSimulationArrow(
+                v,
+                pd.startPitch,
+                pd.startYaw,
+                pd.targetPitchForPan,
+                pd.targetYawForPan,
+                1.0,
+                ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
+                ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                  PathInterpolation.yaw: w.yaw,
+                  pitch: w.pitch,
+                }),
+                ~colorOverride=?j.previewOnly ? Some("red") : None,
+                ~preComputedSegments=pd.segments->Belt.Array.map(s => (
+                  s.dist,
+                  s.yawDiff,
+                  s.pitchDiff,
+                  {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
+                  {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
+                )),
+                ~preComputedTotalDistance=pd.totalPathDistance,
+                ~id=arrowId,
+                (),
+              )
+            }
           }
 
           Logger.debug(
@@ -184,39 +187,41 @@ module AnimationLoop = {
             Viewer.setPitch(v, cp, false)
             Viewer.setYaw(v, cy, false)
             Viewer.setHfov(v, ViewerSystem.getCorrectHfov(), false)
-            HotspotLine.updateLines(v, state, ())
-            let arrowId = switch state.scenes[j.sourceIndex] {
-            | Some(s) =>
-              switch s.hotspots[j.hotspotIndex] {
-              | Some(h) => "arrow_" ++ h.linkId
+            if shouldRenderSimulationOverlay {
+              HotspotLine.updateLines(v, state, ())
+              let arrowId = switch state.scenes[j.sourceIndex] {
+              | Some(s) =>
+                switch s.hotspots[j.hotspotIndex] {
+                | Some(h) => "arrow_" ++ h.linkId
+                | None => "sim_arrow"
+                }
               | None => "sim_arrow"
               }
-            | None => "sim_arrow"
-            }
 
-            HotspotLine.updateSimulationArrow(
-              v,
-              pd.startPitch,
-              pd.startYaw,
-              pd.targetPitchForPan,
-              pd.targetYawForPan,
-              prog,
-              ~opacity=1.0,
-              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                PathInterpolation.yaw: w.yaw,
-                pitch: w.pitch,
-              }),
-              ~preComputedSegments=pd.segments->Belt.Array.map(s => (
-                s.dist,
-                s.yawDiff,
-                s.pitchDiff,
-                {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
-                {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
-              )),
-              ~preComputedTotalDistance=pd.totalPathDistance,
-              ~id=arrowId,
-              (),
-            )
+              HotspotLine.updateSimulationArrow(
+                v,
+                pd.startPitch,
+                pd.startYaw,
+                pd.targetPitchForPan,
+                pd.targetYawForPan,
+                prog,
+                ~opacity=1.0,
+                ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                  PathInterpolation.yaw: w.yaw,
+                  pitch: w.pitch,
+                }),
+                ~preComputedSegments=pd.segments->Belt.Array.map(s => (
+                  s.dist,
+                  s.yawDiff,
+                  s.pitchDiff,
+                  {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
+                  {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
+                )),
+                ~preComputedTotalDistance=pd.totalPathDistance,
+                ~id=arrowId,
+                (),
+              )
+            }
           }
 
           req.current = Some(

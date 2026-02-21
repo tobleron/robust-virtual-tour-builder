@@ -19,6 +19,75 @@ module Server = ServerTeaser.Server
 module State = TeaserStyleConfig
 module Playback = TeaserPlayback
 
+type headlessMotionProfile = {
+  skipAutoForward: bool,
+  startAtWaypoint: bool,
+  includeIntroPan: bool,
+}
+
+external castHeadlessMotionProfile: 'a => headlessMotionProfile = "%identity"
+
+let readHeadlessMotionProfile = (): headlessMotionProfile =>
+  castHeadlessMotionProfile(
+    %raw(`(() => {
+      const p = (typeof window !== "undefined" && window.__VTB_HEADLESS_MOTION_PROFILE__) ? window.__VTB_HEADLESS_MOTION_PROFILE__ : {};
+      return {
+        skipAutoForward: typeof p.skipAutoForward === "boolean" ? p.skipAutoForward : false,
+        startAtWaypoint: typeof p.startAtWaypoint === "boolean" ? p.startAtWaypoint : true,
+        includeIntroPan: typeof p.includeIntroPan === "boolean" ? p.includeIntroPan : false
+      };
+    })()`),
+  )
+
+let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
+  Belt.Array.get(state.scenes, state.activeIndex)->Option.flatMap(scene => {
+    let waypointCandidates =
+      scene.hotspots->Belt.Array.keep(h =>
+        switch h.waypoints {
+        | Some(w) => Belt.Array.length(w) > 0
+        | None => false
+        }
+      )
+    let candidate =
+      waypointCandidates
+      ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+      ->Option.orElse(waypointCandidates->Belt.Array.get(0))
+      ->Option.orElse(
+        scene.hotspots
+        ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+        ->Option.orElse(scene.hotspots->Belt.Array.get(0)),
+      )
+
+    candidate->Option.map(h => (
+      h.startYaw->Option.getOr(h.yaw),
+      h.startPitch->Option.getOr(h.pitch),
+      h.startHfov->Option.getOr(h.targetHfov->Option.getOr(ViewerSystem.getCorrectHfov())),
+    ))
+  })
+}
+
+let centerViewerAtWaypointStart = async (~getState: unit => state) => {
+  switch resolveTeaserStartView(getState()) {
+  | Some((yaw, pitch, hfov)) =>
+    let rec applyWhenReady = async (attemptsLeft: int) => {
+      switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+      | Some(v) if ViewerSystem.isViewerReady(v) =>
+        Viewer.setYaw(v, yaw, false)
+        Viewer.setPitch(v, pitch, false)
+        Viewer.setHfov(v, hfov, false)
+      | _ if attemptsLeft > 0 =>
+        await Playback.wait(80)
+        await applyWhenReady(attemptsLeft - 1)
+      | _ => ()
+      }
+    }
+
+    await applyWhenReady(20)
+    await Playback.wait(60)
+  | None => ()
+  }
+}
+
 // --- MODULE: MANAGER ---
 module Manager = {
   let signalIsAborted = signal =>
@@ -348,26 +417,39 @@ let startHeadlessTeaserForWindow = (
   if getState().simulation.status == Running {
     Promise.resolve()
   } else {
-    dispatch(Actions.SetIsTeasing(true))
-    dispatch(Actions.StartAutoPilot(getState().navigationState.currentJourneyId, skipAutoForward))
+    let profile = readHeadlessMotionProfile()
+    let effectiveSkipAutoForward = skipAutoForward || profile.skipAutoForward
+    let run = async () => {
+      dispatch(Actions.SetIsTeasing(true))
 
-    let startedAt = Date.now()
-    let rec waitForCompletion = (didStart: bool) => {
-      let status = getState().simulation.status
-      if status == Running {
-        Playback.wait(250)->Promise.then(_ => waitForCompletion(true))
-      } else if didStart {
-        dispatch(Actions.SetIsTeasing(false))
-        Promise.resolve()
-      } else if Date.now() -. startedAt > 120000.0 {
-        dispatch(Actions.SetIsTeasing(false))
-        Promise.resolve()
-      } else {
-        Playback.wait(120)->Promise.then(_ => waitForCompletion(false))
+      if profile.startAtWaypoint && !profile.includeIntroPan {
+        await centerViewerAtWaypointStart(~getState)
       }
+
+      dispatch(
+        Actions.StartAutoPilot(getState().navigationState.currentJourneyId, effectiveSkipAutoForward),
+      )
+
+      let startedAt = Date.now()
+      let rec waitForCompletion = (didStart: bool) => {
+        let status = getState().simulation.status
+        if status == Running {
+          Playback.wait(250)->Promise.then(_ => waitForCompletion(true))
+        } else if didStart {
+          dispatch(Actions.SetIsTeasing(false))
+          Promise.resolve()
+        } else if Date.now() -. startedAt > 120000.0 {
+          dispatch(Actions.SetIsTeasing(false))
+          Promise.resolve()
+        } else {
+          Playback.wait(120)->Promise.then(_ => waitForCompletion(false))
+        }
+      }
+
+      await waitForCompletion(false)
     }
 
-    waitForCompletion(false)
+    run()
   }
 }
 

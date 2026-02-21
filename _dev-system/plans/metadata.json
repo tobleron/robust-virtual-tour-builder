@@ -2,6 +2,201 @@
   "rescript": [
     {
       "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 29.57366482504604,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
+          "snapshots": [
+            {
+              "path": "src/components/Sidebar/SidebarLogicHandler.res",
+              "functions": [
+                {
+                  "name": "performUpload",
+                  "signature": "performUpload = async (",
+                  "line": 9
+                },
+                {
+                  "name": "handleUpload",
+                  "signature": "handleUpload = async (",
+                  "line": 67
+                },
+                {
+                  "name": "handleLoadProject",
+                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
+                  "line": 112
+                },
+                {
+                  "name": "handleDeleteScene",
+                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
+                  "line": 274
+                },
+                {
+                  "name": "isMissingPanoramaFile",
+                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
+                  "line": 286
+                },
+                {
+                  "name": "repairRestoredState",
+                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
+                  "line": 293
+                },
+                {
+                  "name": "handleDeleteSceneWithUndo",
+                  "signature": "handleDeleteSceneWithUndo = (",
+                  "line": 338
+                },
+                {
+                  "name": "handleClearLinksWithUndo",
+                  "signature": "handleClearLinksWithUndo = (",
+                  "line": 409
+                },
+                {
+                  "name": "handleExport",
+                  "signature": "handleExport = async (",
+                  "line": 480
+                }
+              ],
+              "fingerprint": "af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.489371980676328,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 6
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (",
+                  "line": 23
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 114
+                }
+              ],
+              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.12, Coupling: 0.09] | Drag: 3.52 | LOC: 441/300  🎯 Target: Function: `signalIsAborted` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.617913832199545,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserLogic.res",
+              "functions": [
+                {
+                  "name": "canvasWidth",
+                  "signature": "canvasWidth = Constants.Teaser.canvasWidth",
+                  "line": 7
+                },
+                {
+                  "name": "canvasHeight",
+                  "signature": "canvasHeight = Constants.Teaser.canvasHeight",
+                  "line": 8
+                },
+                {
+                  "name": "readHeadlessMotionProfile",
+                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
+                  "line": 30
+                },
+                {
+                  "name": "resolveTeaserStartView",
+                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
+                  "line": 42
+                },
+                {
+                  "name": "centerViewerAtWaypointStart",
+                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
+                  "line": 69
+                },
+                {
+                  "name": "signalIsAborted",
+                  "signature": "signalIsAborted = signal =>",
+                  "line": 93
+                },
+                {
+                  "name": "throwIfCancelled",
+                  "signature": "throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>",
+                  "line": 99
+                },
+                {
+                  "name": "finalizeTeaser",
+                  "signature": "finalizeTeaser = async (format, baseName) => {",
+                  "line": 106
+                },
+                {
+                  "name": "logoState",
+                  "signature": "logoState = await Recorder.loadLogo()",
+                  "line": 141
+                },
+                {
+                  "name": "check",
+                  "signature": "check = async () => {",
+                  "line": 145
+                },
+                {
+                  "name": "safeName",
+                  "signature": "safeName =",
+                  "line": 154
+                }
+              ],
+              "fingerprint": "65ecde93610e50a33b1394a6e4b31ca5d2f76c42046b30d3bf99d48be0b65f19"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
         "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
@@ -116,135 +311,91 @@
           ]
         }
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.489371980676328,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 6
-                },
-                {
-                  "name": "make",
-                  "signature": "make = (",
-                  "line": 23
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 114
-                }
-              ],
-              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 29.57366482504604,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogicHandler.res",
-              "functions": [
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 9
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 67
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 112
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 274
-                },
-                {
-                  "name": "isMissingPanoramaFile",
-                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
-                  "line": 286
-                },
-                {
-                  "name": "repairRestoredState",
-                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
-                  "line": 293
-                },
-                {
-                  "name": "handleDeleteSceneWithUndo",
-                  "signature": "handleDeleteSceneWithUndo = (",
-                  "line": 338
-                },
-                {
-                  "name": "handleClearLinksWithUndo",
-                  "signature": "handleClearLinksWithUndo = (",
-                  "line": 409
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 480
-                }
-              ],
-              "fingerprint": "af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
-        "strategy": ""
-      }
     }
   ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.06, Coupling: 0.01] | Drag: 3.85 | LOC: 542/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 28.05313653136531,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video_logic.rs",
+              "functions": [
+                {
+                  "name": "from_str",
+                  "signature": "pub fn from_str(raw: &str) -> Self {",
+                  "line": 88
+                },
+                {
+                  "name": "extension",
+                  "signature": "pub fn extension(self) -> &'static str {",
+                  "line": 95
+                },
+                {
+                  "name": "content_type",
+                  "signature": "pub fn content_type(self) -> &'static str {",
+                  "line": 102
+                },
+                {
+                  "name": "new",
+                  "signature": "fn new(child: std::process::Child) -> Self {",
+                  "line": 113
+                },
+                {
+                  "name": "take",
+                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
+                  "line": 117
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 123
+                },
+                {
+                  "name": "headless_backend_origin",
+                  "signature": "fn headless_backend_origin() -> String {",
+                  "line": 131
+                },
+                {
+                  "name": "apply_capture_mode",
+                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
+                  "line": 135
+                },
+                {
+                  "name": "resolve_capture_viewport",
+                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
+                  "line": 149
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
+                  "line": 170
+                },
+                {
+                  "name": "generate_teaser_sync",
+                  "signature": "pub fn generate_teaser_sync(",
+                  "line": 216
+                },
+                {
+                  "name": "get_ffmpeg_command",
+                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
+                  "line": 540
+                }
+              ],
+              "fingerprint": "467fe9dde1ed78ba4f149ececc19ad7abb2d171a4c3ee3ececb8c8d03180c90e"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/services/project/package.rs",
@@ -339,88 +490,6 @@
     },
     {
       "Surgical": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.07, Coupling: 0.02] | Drag: 3.78 | LOC: 488/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 22.581967213114755,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/media/video_logic.rs",
-              "functions": [
-                {
-                  "name": "from_str",
-                  "signature": "pub fn from_str(raw: &str) -> Self {",
-                  "line": 81
-                },
-                {
-                  "name": "extension",
-                  "signature": "pub fn extension(self) -> &'static str {",
-                  "line": 88
-                },
-                {
-                  "name": "content_type",
-                  "signature": "pub fn content_type(self) -> &'static str {",
-                  "line": 95
-                },
-                {
-                  "name": "new",
-                  "signature": "fn new(child: std::process::Child) -> Self {",
-                  "line": 106
-                },
-                {
-                  "name": "take",
-                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
-                  "line": 110
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 116
-                },
-                {
-                  "name": "headless_backend_origin",
-                  "signature": "fn headless_backend_origin() -> String {",
-                  "line": 124
-                },
-                {
-                  "name": "apply_capture_mode",
-                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
-                  "line": 128
-                },
-                {
-                  "name": "resolve_capture_viewport",
-                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
-                  "line": 142
-                },
-                {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
-                  "line": 163
-                },
-                {
-                  "name": "generate_teaser_sync",
-                  "signature": "pub fn generate_teaser_sync(",
-                  "line": 209
-                },
-                {
-                  "name": "get_ffmpeg_command",
-                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
-                  "line": 486
-                }
-              ],
-              "fingerprint": "467fe9dde1ed78ba4f149ececc19ad7abb2d171a4c3ee3ececb8c8d03180c90e"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../backend/src/services/project/import_upload.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
@@ -494,6 +563,14 @@
             }
           ]
         }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
       }
     }
   ]

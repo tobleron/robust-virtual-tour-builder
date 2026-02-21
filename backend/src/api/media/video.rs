@@ -7,6 +7,7 @@ use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
 
 use crate::api::media::video_logic;
+use crate::api::media::video_logic_support::HeadlessMotionProfile;
 use crate::api::utils::{MAX_UPLOAD_SIZE, TEMP_DIR, get_temp_path_async, sanitize_filename};
 use crate::models::AppError;
 
@@ -42,6 +43,7 @@ pub async fn generate_teaser(
     let mut width = 1920;
     let mut height = 1080;
     let mut output_format = video_logic::TeaserOutputFormat::Webm;
+    let mut motion_profile = HeadlessMotionProfile::default();
     let duration_limit = 120;
 
     while let Some(mut field) = payload.try_next().await? {
@@ -103,6 +105,14 @@ pub async fn generate_teaser(
                 writer.write_all(&chunk).await.map_err(AppError::IoError)?;
             }
             writer.flush().await.map_err(AppError::IoError)?;
+        } else if name == "motion_profile" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(decoded) = serde_json::from_slice::<HeadlessMotionProfile>(&bytes) {
+                motion_profile = decoded;
+            }
         }
     }
 
@@ -123,6 +133,7 @@ pub async fn generate_teaser(
             duration_limit as u64,
             output_format,
             auth_token,
+            motion_profile,
         )
     })
     .await
