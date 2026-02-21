@@ -149,48 +149,11 @@ let make = React.memo(() => {
       if canMutateProject {
         Logger.info(
           ~module_="SceneList",
-          ~message="SCENE_DELETE_REQUESTED",
+          ~message="SCENE_DELETE_REQUESTED_WITH_UNDO",
           ~data=Some({"index": index}),
           (),
         )
-        EventBus.dispatch(
-          ShowModal({
-            title: "Delete Scene",
-            description: Some("Are you sure you want to delete this scene?"),
-            content: None,
-            icon: Some("warning"),
-            className: Some("modal-blue"),
-            allowClose: Some(true),
-            onClose: None,
-            buttons: [
-              {
-                label: "Cancel",
-                class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                onClick: () => (),
-                autoClose: Some(true),
-              },
-              {
-                label: "Delete",
-                class_: "bg-red-500/20 text-white hover:bg-red-500/40",
-                onClick: () => {
-                  SidebarLogic.handleDeleteScene(index, ~getState)->ignore
-                  NotificationManager.dispatch({
-                    id: "",
-                    importance: Success,
-                    context: Operation("scene_list"),
-                    message: "Scene Removed",
-                    details: None,
-                    action: None,
-                    duration: NotificationTypes.defaultTimeoutMs(Success),
-                    dismissible: true,
-                    createdAt: Date.now(),
-                  })
-                },
-                autoClose: Some(true),
-              },
-            ],
-          }),
-        )
+        SidebarLogic.handleDeleteSceneWithUndo(index, ~getState, ~dispatch)
       } else {
         Logger.warn(
           ~module_="SceneList",
@@ -202,27 +165,16 @@ let make = React.memo(() => {
     }
   , [canMutateProject])
 
-  let handleClearLinks = React.useMemo2(() =>
+  let handleClearLinks = React.useMemo1(() =>
     index => {
       if canMutateProject {
         Logger.info(
           ~module_="SceneList",
-          ~message="SCENE_CLEAR_LINKS_REQUESTED",
+          ~message="SCENE_CLEAR_LINKS_REQUESTED_WITH_UNDO",
           ~data=Some({"index": index}),
           (),
         )
-        dispatch(Actions.ClearHotspots(index))
-        NotificationManager.dispatch({
-          id: "",
-          importance: Info,
-          context: Operation("scene_list"),
-          message: "Links Cleared",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        SidebarLogic.handleClearLinksWithUndo(index, ~getState, ~dispatch)
       } else {
         Logger.warn(
           ~module_="SceneList",
@@ -232,7 +184,7 @@ let make = React.memo(() => {
         )
       }
     }
-  , (dispatch, canMutateProject))
+  , [canMutateProject])
 
   let onDragStart = React.useMemo0(() =>
     (index, _e) => {

@@ -249,3 +249,31 @@ let clear = (): unit => {
   // Notify listeners
   notifyListeners(state.contents)
 }
+
+// Handle global keyboard shortcuts for active notifications
+// Returns true if a shortcut was handled
+let handleShortcut = (key: string): bool => {
+  let lowerKey = String.toLowerCase(key)
+  let activeWithShortcuts = Belt.Array.keep(state.contents.active, n => {
+    switch n.action {
+    | Some(a) =>
+      switch a.shortcut {
+      | Some(s) => String.toLowerCase(s) == lowerKey
+      | None => false
+      }
+    | None => false
+    }
+  })
+
+  // Trigger the most recent one (LIFO behavior for undo)
+  switch Belt.Array.get(activeWithShortcuts, Belt.Array.length(activeWithShortcuts) - 1) {
+  | Some(notif) =>
+    switch notif.action {
+    | Some(a) =>
+      a.onClick()
+      true
+    | None => false
+    }
+  | None => false
+  }
+}

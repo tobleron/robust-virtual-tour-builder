@@ -138,6 +138,11 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
       })()
     `)
   }
+
+  // 4. Notification Shortcuts (e.g., U for undo)
+  if !ctrlKey && !shiftKey && !Dom.isInput(Dom.getActiveElement()) {
+    let _ = NotificationManager.handleShortcut(key)
+  }
 }
 
 let initInputSystem = (~getState: unit => state, ~dispatch) => {

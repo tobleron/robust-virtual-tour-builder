@@ -4,13 +4,49 @@ open Actions
 
 /* --- Config --- */
 
+let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+
 let getHotspots = (scene: scene, ~state, ~dispatch) =>
   scene.hotspots->Belt.Array.mapWithIndex((idx, h) => {
     HotspotManager.createHotspotConfig(~hotspot=h, ~index=idx, ~state, ~scene, ~dispatch)
   })
 
+let isMissingPanoramaFile = (f: Types.file) => {
+  switch f {
+  | Url(u) => u == ""
+  | Blob(_) | File(_) => false
+  }
+}
+
+let resolveScenePanoramaFile = (scene: scene): Types.file => {
+  if !isMissingPanoramaFile(scene.file) {
+    scene.file
+  } else {
+    switch scene.originalFile {
+    | Some(f) if !isMissingPanoramaFile(f) => f
+    | _ =>
+      switch scene.tinyFile {
+      | Some(f) if !isMissingPanoramaFile(f) => f
+      | _ => scene.file
+      }
+    }
+  }
+}
+
 let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
-  let url = SceneCache.getSourceUrl(scene.id, scene.file)
+  let fileForLoad = resolveScenePanoramaFile(scene)
+  let url = SceneCache.getSourceUrl(scene.id, fileForLoad)
+  let panorama = if url == "" {
+    Logger.error(
+      ~module_="SceneLoader",
+      ~message="MISSING_PANORAMA_SOURCE_FALLBACK_BLANK",
+      ~data=Some({"id": scene.id}),
+      (),
+    )
+    blankPanorama
+  } else {
+    url
+  }
   Logger.debug(
     ~module_="SceneLoader",
     ~message="PREPARING_SCENE_INNER",
@@ -18,7 +54,7 @@ let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
     (),
   )
   {
-    "panorama": url,
+    "panorama": panorama,
     "hotSpots": getHotspots(scene, ~state, ~dispatch),
   }
 }
@@ -38,8 +74,6 @@ let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
     "showZoomCtrl": false,
   }
 }
-
-let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
 
 let backgroundViewerConfig = () => {
   {

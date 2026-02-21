@@ -21,6 +21,7 @@ type context =
 type action = {
   label: string, // Button text ("Retry", "Dismiss", etc.)
   onClick: unit => unit, // Callback when button clicked
+  shortcut: option<string>, // Optional keyboard shortcut (e.g., "u")
 }
 
 // Complete notification record - all data needed to display and manage a notification

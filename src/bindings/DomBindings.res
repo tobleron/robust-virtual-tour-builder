@@ -148,6 +148,11 @@ module Dom = {
     @send external removeItem: (t, string) => unit = "removeItem"
     @send external clear: t => unit = "clear"
   }
+  let getActiveElement = (): element => %raw(`document.activeElement`)
+  let isInput = (_el: element) => {
+    let tag = %raw(`(_el && _el.tagName) || ""`)
+    tag == "INPUT" || tag == "TEXTAREA" || %raw(`_el && _el.contentEditable === "true"`)
+  }
 }
 
 module ResizeObserver = {

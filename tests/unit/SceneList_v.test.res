@@ -237,6 +237,7 @@ describe("SceneList", () => {
     let mockState = {
       ...State.initialState,
       scenes: [s1],
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
 

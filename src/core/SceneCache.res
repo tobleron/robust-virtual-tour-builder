@@ -35,10 +35,19 @@ let setSnapshot = (sceneId: string, url: string) => {
 
 let getSourceUrl = (sceneId: string, file: Types.file) => {
   switch Belt.MutableMap.String.get(sourceUrls, sceneId) {
-  | Some(url) => url
+  | Some(url) if url != "" => url
+  | Some(_) =>
+    Belt.MutableMap.String.remove(sourceUrls, sceneId)
+    let url = UrlUtils.fileToUrl(file)
+    if url != "" {
+      Belt.MutableMap.String.set(sourceUrls, sceneId, url)
+    }
+    url
   | None =>
     let url = UrlUtils.fileToUrl(file)
-    Belt.MutableMap.String.set(sourceUrls, sceneId, url)
+    if url != "" {
+      Belt.MutableMap.String.set(sourceUrls, sceneId, url)
+    }
     url
   }
 }

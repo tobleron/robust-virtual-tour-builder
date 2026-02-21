@@ -283,6 +283,200 @@ let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
   })
 }
 
+let isMissingPanoramaFile = (f: Types.file) => {
+  switch f {
+  | Url(u) => u == ""
+  | Blob(_) | File(_) => false
+  }
+}
+
+let repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {
+  let repairedInventory =
+    restoredState.inventory
+    ->Belt.Map.String.toArray
+    ->Belt.Array.reduce(Belt.Map.String.empty, (acc, (id, entry)) => {
+      let restoredScene = entry.scene
+      let repairedFile = if !isMissingPanoramaFile(restoredScene.file) {
+        restoredScene.file
+      } else {
+        switch currentState.inventory->Belt.Map.String.get(id) {
+        | Some(currentEntry) if !isMissingPanoramaFile(currentEntry.scene.file) =>
+          currentEntry.scene.file
+        | _ =>
+          switch restoredScene.originalFile {
+          | Some(f) if !isMissingPanoramaFile(f) => f
+          | _ =>
+            switch restoredScene.tinyFile {
+            | Some(f) if !isMissingPanoramaFile(f) => f
+            | _ => restoredScene.file
+            }
+          }
+        }
+      }
+
+      let repairedScene = {...restoredScene, file: repairedFile}
+      acc->Belt.Map.String.set(id, {...entry, scene: repairedScene})
+    })
+
+  let rebuilt = {...restoredState, inventory: repairedInventory}->SceneInventory.rebuildLegacyFields
+  let sceneCount = Belt.Array.length(rebuilt.scenes)
+  let activeIndex = if sceneCount == 0 {
+    -1
+  } else {
+    let boundedHigh = rebuilt.activeIndex > sceneCount - 1 ? sceneCount - 1 : rebuilt.activeIndex
+    boundedHigh < 0 ? 0 : boundedHigh
+  }
+
+  {
+    ...rebuilt,
+    activeIndex,
+    activeYaw: activeIndex == -1 ? 0.0 : rebuilt.activeYaw,
+    activePitch: activeIndex == -1 ? 0.0 : rebuilt.activePitch,
+  }
+}
+
+let handleDeleteSceneWithUndo = (
+  index: int,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
+) => {
+  let state = getState()
+  let action = Actions.DeleteScene(index)
+
+  // 1. Capture state for potential undo
+  let snapId = StateSnapshot.capture(state, action)
+
+  // 2. Perform optimistic delete (local only)
+  dispatch(action)
+
+  let undoCalled = ref(false)
+
+  let performUndo = () => {
+    if !undoCalled.contents {
+      undoCalled := true
+      switch StateSnapshot.rollback(snapId) {
+      | Some(restoredState) =>
+        let repaired = repairRestoredState(~restoredState, ~currentState=getState())
+        AppContext.restoreState(repaired)
+        NotificationManager.dismiss("undo-delete-" ++ snapId)
+        NotificationManager.dispatch({
+          id: "undone-notif-" ++ snapId,
+          importance: Info,
+          context: UserAction("undo"),
+          message: "Scene deletion undone",
+          details: None,
+          action: None,
+          duration: 3000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      | None => ()
+      }
+    }
+  }
+
+  // 3. Set timer for backend synchronization (9.5s to give buffer for 9s notification)
+  let _ = Window.setTimeout(() => {
+    if !undoCalled.contents {
+      let currentState = getState()
+      switch currentState.sessionId {
+      | Some(sid) =>
+        let projectData = getProjectData(currentState)
+        Api.ProjectApi.saveProject(sid, projectData)->ignore
+      | None => ()
+      }
+    }
+  }, 9500)
+
+  // 4. Show notification with 9s timer and Undo shortcut
+  NotificationManager.dispatch({
+    id: "undo-delete-" ++ snapId,
+    importance: Success,
+    context: UserAction("delete_scene"),
+    message: "Scene deleted. Press U to undo.",
+    details: None,
+    action: Some({
+      label: "Undo",
+      onClick: performUndo,
+      shortcut: Some("u"),
+    }),
+    duration: 9000,
+    dismissible: true,
+    createdAt: Date.now(),
+  })
+}
+
+let handleClearLinksWithUndo = (
+  index: int,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
+) => {
+  let state = getState()
+  let action = Actions.ClearHotspots(index)
+
+  // 1. Capture state for potential undo
+  let snapId = StateSnapshot.capture(state, action)
+
+  // 2. Perform optimistic clear (local only)
+  dispatch(action)
+
+  let undoCalled = ref(false)
+
+  let performUndo = () => {
+    if !undoCalled.contents {
+      undoCalled := true
+      switch StateSnapshot.rollback(snapId) {
+      | Some(restoredState) =>
+        let repaired = repairRestoredState(~restoredState, ~currentState=getState())
+        AppContext.restoreState(repaired)
+        NotificationManager.dismiss("undo-clear-" ++ snapId)
+        NotificationManager.dispatch({
+          id: "undone-clear-notif-" ++ snapId,
+          importance: Info,
+          context: UserAction("undo"),
+          message: "Hotspots restored",
+          details: None,
+          action: None,
+          duration: 3000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      | None => ()
+      }
+    }
+  }
+
+  // 3. Set timer for backend synchronization
+  let _ = Window.setTimeout(() => {
+    if !undoCalled.contents {
+      let currentState = getState()
+      switch currentState.sessionId {
+      | Some(sid) =>
+        let projectData = getProjectData(currentState)
+        Api.ProjectApi.saveProject(sid, projectData)->ignore
+      | None => ()
+      }
+    }
+  }, 9500)
+
+  // 4. Show notification with 9s timer and Undo shortcut
+  NotificationManager.dispatch({
+    id: "undo-clear-" ++ snapId,
+    importance: Success,
+    context: UserAction("clear_links"),
+    message: "Links cleared. Press U to undo.",
+    details: None,
+    action: Some({
+      label: "Undo",
+      onClick: performUndo,
+      shortcut: Some("u"),
+    }),
+    duration: 9000,
+    dismissible: true,
+    createdAt: Date.now(),
+  })
+}
+
 let handleExport = async (
   scenes,
   ~tourName: string,

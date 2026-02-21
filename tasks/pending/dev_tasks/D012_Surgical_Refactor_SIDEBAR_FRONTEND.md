@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/components/Sidebar/SidebarLogicHandler.res** (Metric: [Nesting: 4.20, Density: 0.09, Coupling: 0.09] | Drag: 5.31 | LOC: 376/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/components/Sidebar/SidebarLogicHandler.res** (Metric: [Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -23,11 +23,15 @@ Baseline artifacts: `_dev-system/tmp/D012/verification.json` (files at `_dev-sys
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D012/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`
-- `src/components/Sidebar/SidebarLogicHandler.res` (5 functions, fingerprint 7e869842e215a066722def803cb055f2d0ecde32b1ef51cd66e5975119b0d72c)
+- `src/components/Sidebar/SidebarLogicHandler.res` (9 functions, fingerprint af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28)
     - Grouped summary:
+        - handleClearLinksWithUndo × 1 (lines: 409)
         - handleDeleteScene × 1 (lines: 274)
-        - handleExport × 1 (lines: 286)
+        - handleDeleteSceneWithUndo × 1 (lines: 338)
+        - handleExport × 1 (lines: 480)
         - handleLoadProject × 1 (lines: 112)
         - handleUpload × 1 (lines: 67)
+        - isMissingPanoramaFile × 1 (lines: 286)
         - performUpload × 1 (lines: 9)
+        - repairRestoredState × 1 (lines: 293)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

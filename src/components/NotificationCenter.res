@@ -36,10 +36,16 @@ module Toast = {
       | Some(action) =>
         <Shadcn.Button
           variant="secondary"
-          className="h-7 px-3 text-[10px] ml-auto bg-white/10 hover:bg-white/20 border-none text-white"
+          className="h-7 px-3 text-[10px] ml-auto bg-white/10 hover:bg-white/20 border-none text-white whitespace-nowrap"
           onClick={_ => action.onClick()}
         >
-          {React.string(action.label)}
+          {React.string(
+            action.label ++
+            switch action.shortcut {
+            | Some(s) => " (" ++ String.toUpperCase(s) ++ ")"
+            | None => ""
+            },
+          )}
         </Shadcn.Button>
       | None => React.null
       }}

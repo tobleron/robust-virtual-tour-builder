@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Update MAP.md with new test and API modules
+- V4.30.12+13 [TRIPLE]: fix post-simulation scene switch load abort by ignoring stale pannellum FileReader callbacks
 
 ## [4.30.14] - 2026-02-21
 
