@@ -280,3 +280,42 @@ let state = (s: Types.state) => {
     ),
   ])
 }
+
+let manifestStepAction = (a: SimulationManifest.stepAction) => {
+  switch a {
+  | Wait({duration}) =>
+    Encode.object([("type", Encode.string("Wait")), ("duration", Encode.int(duration))])
+  | Pan({yaw, pitch, duration}) =>
+    Encode.object([
+      ("type", Encode.string("Pan")),
+      ("yaw", Encode.float(yaw)),
+      ("pitch", Encode.float(pitch)),
+      ("duration", Encode.int(duration)),
+    ])
+  | Stop => Encode.object([("type", Encode.string("Stop"))])
+  }
+}
+
+let manifestStepTransition = (t: SimulationManifest.stepTransition) => {
+  Encode.object([
+    ("targetSceneId", Encode.string(t.targetSceneId)),
+    ("targetIndex", Encode.int(t.targetIndex)),
+    ("hotspotIndex", Encode.int(t.hotspotIndex)),
+    ("targetYaw", Encode.float(t.targetYaw)),
+    ("targetPitch", Encode.float(t.targetPitch)),
+    ("targetHfov", Encode.float(t.targetHfov)),
+  ])
+}
+
+let manifestStep = (s: SimulationManifest.step) => {
+  Encode.object([
+    ("sceneId", Encode.string(s.sceneId)),
+    ("sceneIndex", Encode.int(s.sceneIndex)),
+    ("action", manifestStepAction(s.action)),
+    ("transition", Encode.option(manifestStepTransition)(s.transition)),
+  ])
+}
+
+let manifest = (m: SimulationManifest.manifest) => {
+  Encode.object([("version", Encode.int(m.version)), ("steps", Encode.array(manifestStep)(m.steps))])
+}

@@ -39,6 +39,22 @@ let readHeadlessMotionProfile = (): headlessMotionProfile =>
     })()`),
   )
 
+let readHeadlessMotionManifest = (): option<SimulationManifest.manifest> => {
+  let raw = %raw(`(typeof window !== "undefined" && window.__VTB_HEADLESS_MOTION_MANIFEST__) ? window.__VTB_HEADLESS_MOTION_MANIFEST__ : null`)
+  if raw == Js.Nullable.null {
+    None
+  } else {
+    // Treat raw as JSON and decode
+    let json: JsonCombinators.Json.t = %raw(`raw`)
+    switch JsonCombinators.Json.decode(json, JsonParsers.Domain.manifest) {
+    | Ok(m) => Some(m)
+    | Error(msg) =>
+      Console.warn2("Failed to decode headless motion manifest:", msg)
+      None
+    }
+  }
+}
+
 let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
   Belt.Array.get(state.scenes, state.activeIndex)->Option.flatMap(scene => {
     let waypointCandidates = scene.hotspots->Belt.Array.keep(h =>
@@ -130,6 +146,30 @@ module Manager = {
     }
   }
 
+  let startManifestTeaser = async (
+    manifest: SimulationManifest.manifest,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ) => {
+    dispatch(Actions.SetIsTeasing(true))
+
+    try {
+      await TeaserManifestPlayer.play(manifest, ~getState, ~dispatch, ~signal?)
+    } catch {
+    | err =>
+      let msg = switch JsExn.fromException(err) {
+      | Some(jsErr) => JsExn.message(jsErr)->Option.getOr("Unknown error")
+      | None => "Unknown error"
+      }
+      if msg != "AbortError" {
+        Console.error2("Manifest playback failed:", msg)
+      }
+    }
+
+    dispatch(Actions.SetIsTeasing(false))
+  }
+
   let startCinematicTeaser = async (
     includeLogo,
     format,
@@ -140,14 +180,11 @@ module Manager = {
     let logoState = await Recorder.loadLogo()
     Recorder.startAnimationLoop(includeLogo, logoState)
     if Recorder.startRecording() {
-      dispatch(Actions.StartAutoPilot(getState().navigationState.currentJourneyId, skipAutoForward))
-      let rec check = async () => {
-        await Playback.wait(1000)
-        if getState().simulation.status == Running {
-          await check()
-        }
-      }
-      await check()
+      // Deterministic Manifest Generation
+      let manifest = SimulationManifest.generate(getState(), skipAutoForward)
+
+      await startManifestTeaser(manifest, ~getState, ~dispatch)
+
       await Playback.wait(500)
       Recorder.stopRecording()
       let safeName =
@@ -198,6 +235,8 @@ module Manager = {
       dispatch(Actions.SetIsTeasing(true))
       ProgressBar.updateProgressBar(0.0, "Preparing teaser...", ~visible=true, ~title="Teaser", ())
 
+      let manifest = SimulationManifest.generate(state, false)
+
       let result = await Server.generateServerTeaser(
         state,
         safeFormat,
@@ -222,6 +261,7 @@ module Manager = {
           },
         ),
         ~signal?,
+        ~manifest=Some(manifest),
       )
 
       dispatch(Actions.SetIsTeasing(false))
@@ -296,6 +336,9 @@ module Manager = {
             ~title="Uploading",
             (),
           )
+
+          let manifest = SimulationManifest.generate(state, skipAutoForward)
+
           let _ = await Server.generateServerTeaser(
             state,
             format,
@@ -311,6 +354,7 @@ module Manager = {
               },
             ),
             ~signal?,
+            ~manifest=Some(manifest),
           )->Promise.then(res => {
             dispatch(Actions.SetIsTeasing(false))
             ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
@@ -346,6 +390,7 @@ module Manager = {
           })
         }
       } else {
+        // ... legacy pathfinder code ...
         let config = State.getConfigForStyle(style)
         let logoState = await Recorder.loadLogo()
         let pathResult = await Pathfinder.getWalkPath(state.scenes, skipAutoForward, ~signal?)
@@ -421,42 +466,54 @@ let startHeadlessTeaserForWindow = (_includeLogo: bool, _format: string, skipAut
   if getState().simulation.status == Running {
     Promise.resolve()
   } else {
-    let profile = readHeadlessMotionProfile()
-    let effectiveSkipAutoForward = skipAutoForward || profile.skipAutoForward
-    let run = async () => {
-      dispatch(Actions.SetIsTeasing(true))
+    // Check for manifest first
+    let manifest = readHeadlessMotionManifest()
 
-      if profile.startAtWaypoint && !profile.includeIntroPan {
-        await centerViewerAtWaypointStart(~getState)
-      }
+    switch manifest {
+    | Some(m) =>
+       let run = async () => {
+         await Manager.startManifestTeaser(m, ~getState, ~dispatch)
+       }
+       run()
+    | None =>
+      // Fallback to profile
+      let profile = readHeadlessMotionProfile()
+      let effectiveSkipAutoForward = skipAutoForward || profile.skipAutoForward
+      let run = async () => {
+        dispatch(Actions.SetIsTeasing(true))
 
-      dispatch(
-        Actions.StartAutoPilot(
-          getState().navigationState.currentJourneyId,
-          effectiveSkipAutoForward,
-        ),
-      )
-
-      let startedAt = Date.now()
-      let rec waitForCompletion = (didStart: bool) => {
-        let status = getState().simulation.status
-        if status == Running {
-          Playback.wait(250)->Promise.then(_ => waitForCompletion(true))
-        } else if didStart {
-          dispatch(Actions.SetIsTeasing(false))
-          Promise.resolve()
-        } else if Date.now() -. startedAt > 120000.0 {
-          dispatch(Actions.SetIsTeasing(false))
-          Promise.resolve()
-        } else {
-          Playback.wait(120)->Promise.then(_ => waitForCompletion(false))
+        if profile.startAtWaypoint && !profile.includeIntroPan {
+          await centerViewerAtWaypointStart(~getState)
         }
+
+        dispatch(
+          Actions.StartAutoPilot(
+            getState().navigationState.currentJourneyId,
+            effectiveSkipAutoForward,
+          ),
+        )
+
+        let startedAt = Date.now()
+        let rec waitForCompletion = (didStart: bool) => {
+          let status = getState().simulation.status
+          if status == Running {
+            Playback.wait(250)->Promise.then(_ => waitForCompletion(true))
+          } else if didStart {
+            dispatch(Actions.SetIsTeasing(false))
+            Promise.resolve()
+          } else if Date.now() -. startedAt > 120000.0 {
+            dispatch(Actions.SetIsTeasing(false))
+            Promise.resolve()
+          } else {
+            Playback.wait(120)->Promise.then(_ => waitForCompletion(false))
+          }
+        }
+
+        await waitForCompletion(false)
       }
 
-      await waitForCompletion(false)
+      run()
     }
-
-    run()
   }
 }
 
@@ -464,7 +521,7 @@ let startCinematicTeaserForWindow = (includeLogo: bool, format: string, skipAuto
   startHeadlessTeaserForWindow(includeLogo, format, skipAutoForward)
 }
 
-let isAutoPilotActiveForWindow = () => AppContext.getBridgeState().simulation.status == Running
+let isAutoPilotActiveForWindow = () => AppContext.getBridgeState().simulation.status == Running || AppContext.getBridgeState().isTeasing
 
 let _ = %raw(`
   ((startHeadlessTeaser, startCinematicTeaser, isAutoPilotActive) => {

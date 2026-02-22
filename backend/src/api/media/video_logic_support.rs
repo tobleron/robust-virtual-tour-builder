@@ -14,6 +14,7 @@ pub struct HeadlessControl {
     pub session_id: String,
     pub auth_token: Option<String>,
     pub motion_profile: HeadlessMotionProfile,
+    pub motion_manifest: Option<Value>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -52,6 +53,10 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     includeIntroPan: false
   };
   window.__VTB_HEADLESS_MOTION_PROFILE__ = motionProfile;
+  if (control.motionManifest) {
+    window.__VTB_HEADLESS_MOTION_MANIFEST__ = control.motionManifest;
+  }
+
   if (authToken) {
     try {
       document.cookie = `auth_token=${authToken}; path=/; SameSite=Strict`;

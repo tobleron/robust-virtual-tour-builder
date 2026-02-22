@@ -44,6 +44,7 @@ pub async fn generate_teaser(
     let mut height = 1080;
     let mut output_format = video_logic::TeaserOutputFormat::Webm;
     let mut motion_profile = HeadlessMotionProfile::default();
+    let mut motion_manifest: Option<serde_json::Value> = None;
     let duration_limit = 120;
 
     while let Some(mut field) = payload.try_next().await? {
@@ -113,6 +114,14 @@ pub async fn generate_teaser(
             if let Ok(decoded) = serde_json::from_slice::<HeadlessMotionProfile>(&bytes) {
                 motion_profile = decoded;
             }
+        } else if name == "motion_manifest" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(decoded) = serde_json::from_slice::<serde_json::Value>(&bytes) {
+                motion_manifest = Some(decoded);
+            }
         }
     }
 
@@ -134,6 +143,7 @@ pub async fn generate_teaser(
             output_format,
             auth_token,
             motion_profile,
+            motion_manifest,
         )
     })
     .await

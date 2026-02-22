@@ -224,6 +224,7 @@ pub fn generate_teaser_sync(
     output_format: TeaserOutputFormat,
     auth_token: Option<String>,
     motion_profile: HeadlessMotionProfile,
+    motion_manifest: Option<Value>,
 ) -> Result<(), String> {
     let browser = Browser::new(LaunchOptions {
         headless: true,
@@ -286,6 +287,7 @@ pub fn generate_teaser_sync(
         session_id: fallback_session_id,
         auth_token: auth_token.or_else(|| env::var("HEADLESS_API_TOKEN").ok()),
         motion_profile,
+        motion_manifest,
     };
 
     if let Err(e) = inject_headless_control(&tab, &control) {

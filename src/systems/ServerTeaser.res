@@ -10,6 +10,7 @@ let generateServerTeaser = (
   format: string,
   onProgress,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~manifest: option<SimulationManifest.manifest>=?,
 ) => {
   let boolJson = b => b ? "true" : "false"
   let progress = (p, m) => onProgress->Option.forEach(cb => cb(p, m))
@@ -42,6 +43,12 @@ let generateServerTeaser = (
     ",\"includeIntroPan\":" ++
     boolJson(Constants.Teaser.HeadlessMotion.includeIntroPan) ++ "}"
   FormData.append(formData, "motion_profile", motionProfileJson)
+
+  manifest->Option.forEach(m => {
+    let manifestJson = JsonCombinators.Json.stringify(JsonParsers.Encoders.manifest(m))
+    FormData.append(formData, "motion_manifest", manifestJson)
+  })
+
   let added = ref(0)
   state.scenes->Belt.Array.forEach(s => {
     switch s.file {

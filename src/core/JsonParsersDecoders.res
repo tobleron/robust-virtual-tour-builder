@@ -329,3 +329,45 @@ module SessionState = {
     ])
   }
 }
+
+let manifestStepTransition = object(f => {
+  {
+    SimulationManifest.targetSceneId: f.required("targetSceneId", string),
+    targetIndex: f.required("targetIndex", int),
+    hotspotIndex: f.required("hotspotIndex", int),
+    targetYaw: f.required("targetYaw", float),
+    targetPitch: f.required("targetPitch", float),
+    targetHfov: f.required("targetHfov", float),
+  }
+})
+
+let manifestStepAction = object(f => {
+  let type_ = f.required("type", string)
+  switch type_ {
+  | "Wait" => SimulationManifest.Wait({duration: f.required("duration", int)})
+  | "Pan" =>
+    SimulationManifest.Pan({
+      yaw: f.required("yaw", float),
+      pitch: f.required("pitch", float),
+      duration: f.required("duration", int),
+    })
+  | "Stop" => SimulationManifest.Stop
+  | _ => SimulationManifest.Stop
+  }
+})
+
+let manifestStep = object(f => {
+  {
+    SimulationManifest.sceneId: f.required("sceneId", string),
+    sceneIndex: f.required("sceneIndex", int),
+    action: f.required("action", manifestStepAction),
+    transition: f.optional("transition", option(manifestStepTransition))->Option.flatMap(x => x),
+  }
+})
+
+let manifest = object(f => {
+  {
+    SimulationManifest.version: f.required("version", int),
+    steps: f.required("steps", array(manifestStep)),
+  }
+})
