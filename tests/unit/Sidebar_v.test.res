@@ -27,6 +27,7 @@ open ReBindings
 
   const teaserMock = {
     startAutoTeaser: globalThis.vi.fn().mockResolvedValue(),
+    startHeadlessTeaserWithStyle: globalThis.vi.fn().mockResolvedValue(),
   };
   globalThis.teaserMock = teaserMock;
   globalThis.vi.mock('../../src/systems/Teaser.bs.js', () => teaserMock);
@@ -71,7 +72,10 @@ module WrappedSidebar = {
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.GlobalProvider value=mockState>
         <AppContext.SceneSliceProvider value=sceneSlice>
-          <AppContext.UiSliceProvider value=uiSlice> {children} </AppContext.UiSliceProvider>
+          <AppContext.UiSliceProvider value=uiSlice>
+            {children}
+            <ModalContext />
+          </AppContext.UiSliceProvider>
         </AppContext.SceneSliceProvider>
       </AppContext.GlobalProvider>
     </AppContext.DispatchProvider>
@@ -281,7 +285,7 @@ describe("Sidebar", () => {
     let status = Dom.querySelector(container, "[role='status']")
     t->expect(Nullable.toOption(status)->Belt.Option.isSome)->Expect.toBe(true)
 
-    let progressText = Dom.querySelector(container, ".text-primary")
+    let progressText = Dom.querySelector(container, ".sidebar-progress-percentage")
     t->expect(Dom.getTextContent(Nullable.getUnsafe(progressText)))->Expect.toBe("45%")
 
     let messageText = Dom.querySelector(container, ".truncate")
@@ -475,15 +479,29 @@ describe("Sidebar", () => {
     let teaserBtn = Dom.querySelector(container, "button[aria-label='Create Teaser']")
     switch Nullable.toOption(teaserBtn) {
     | Some(btn) =>
-      let disabled = ReBindings.Dom.getAttribute(btn, "disabled")
-      Console.log2("Teaser Button disabled attr:", disabled)
       Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
+    await wait(100)
+
+    // Modal should be open, find the "Cinematic (WebM)" button
+    let modalButtons = Dom.querySelectorAll(container, ".modal-btn-premium")
+    let styleBtn = ref(None)
+    Belt.Array.forEach(JsHelpers.from(modalButtons), btn => {
+      if String.includes(Dom.getTextContent(btn), "Cinematic (WebM)") {
+        styleBtn := Some(btn)
+      }
+    })
+
+    switch styleBtn.contents {
+    | Some(btn) => Dom.click(btn)
+    | None => ()
+    }
+
     await wait(50)
 
-    let called = %raw(`globalThis.teaserMock.startAutoTeaser.mock.calls.length > 0`)
+    let called = %raw(`globalThis.teaserMock.startHeadlessTeaserWithStyle.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)
 
     Dom.removeElement(container)

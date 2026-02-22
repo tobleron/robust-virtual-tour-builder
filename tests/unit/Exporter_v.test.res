@@ -63,6 +63,23 @@ let mockFetch = (urlPart, status, bodyBlob) => {
   }`)(urlPart, status, bodyBlob)
 }
 
+%%raw(`
+vi.mock('../../src/utils/ImageOptimizer.bs.js', () => ({
+  compressToWebPConstrained: vi.fn().mockResolvedValue({
+    TAG: "Ok",
+    _0: new Blob(["mock"], {type: "image/webp"})
+  }),
+  compressToWebP: vi.fn().mockResolvedValue({
+    TAG: "Ok",
+    _0: new Blob(["mock"], {type: "image/webp"})
+  })
+}));
+
+vi.mock('../../src/systems/Resizer.bs.js', () => ({
+  checkBackendHealth: vi.fn().mockResolvedValue(true)
+}));
+`)
+
 /* Helper to create dummy scenes */
 let createScene = (id, name) => {
   {
@@ -274,7 +291,12 @@ describe("Exporter", () => {
     // Pass Types.File(logoFile)
     let _ = await exportTour([scene1], ~tourName="Test", ~logo=Some(File(logoFile)), ~signal, None)
 
-    expectCall(appendSpy)->toHaveBeenCalledWith3("logo.png", logoFile, "logo.png")
+    // The logo is optimized to WebP and appended as logo.webp
+    expectCall(appendSpy)->toHaveBeenCalledWith3(
+      Constants.Media.logoOutputFilename,
+      %raw(`expect.anything()`),
+      Constants.Media.logoOutputFilename,
+    )
   })
 
   testAsync("exportTour: aborts XHR on signal abort", async t => {

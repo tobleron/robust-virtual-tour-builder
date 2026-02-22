@@ -13,9 +13,19 @@ module WrappedFloorNavigation = {
       activeYaw: 0.0,
       activePitch: 0.0,
     }
+    let uiSlice: AppContext.uiSlice = {
+      isLinking,
+      isTeasing: false,
+      linkDraft: None,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      logo: None,
+      preloadingSceneIndex: -1,
+    }
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.SceneSliceProvider value=sceneSlice>
-        <FloorNavigation scenesLoaded activeIndex isLinking />
+        <AppContext.UiSliceProvider value=uiSlice>
+          <FloorNavigation scenesLoaded activeIndex isLinking />
+        </AppContext.UiSliceProvider>
       </AppContext.SceneSliceProvider>
     </AppContext.DispatchProvider>
   }
@@ -26,6 +36,11 @@ describe("FloorNavigation", () => {
     Promise.make((resolve, _) => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
+
+  beforeEach(() => {
+    OperationLifecycle.reset()
+    InteractionGuard.clear()
+  })
 
   let defaultScene: scene = {
     id: "s1",
@@ -61,7 +76,7 @@ describe("FloorNavigation", () => {
       />,
     )
 
-    await wait(50)
+    await wait(200)
 
     let buttons = Dom.querySelectorAll(container, "button")
     let buttonsArr = JsHelpers.from(buttons)
