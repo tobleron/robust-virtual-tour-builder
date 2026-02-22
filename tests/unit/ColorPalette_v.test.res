@@ -14,15 +14,15 @@ describe("ColorPalette", () => {
     test(
       "should return correct color for valid id",
       t => {
-        t->expect(ColorPalette.getGroupColor(Some("1")))->Expect.toBe("#3b82f6")
-        t->expect(ColorPalette.getGroupColor(Some("8")))->Expect.toBe("#84cc16")
+        t->expect(ColorPalette.getGroupColor(Some("1")))->Expect.toBe("#f97316")
+        t->expect(ColorPalette.getGroupColor(Some("8")))->Expect.toBe("#c2410c")
       },
     )
 
     test(
       "should return correct color for id requiring modulo",
       t => {
-        t->expect(ColorPalette.getGroupColor(Some("9")))->Expect.toBe("#3b82f6")
+        t->expect(ColorPalette.getGroupColor(Some("9")))->Expect.toBe("#9a3412")
       },
     )
 
@@ -60,14 +60,14 @@ describe("ColorPalette", () => {
       "should return correct class for valid id",
       t => {
         t->expect(ColorPalette.getGroupClass(Some("1")))->Expect.toBe("group-color-0")
-        t->expect(ColorPalette.getGroupClass(Some("8")))->Expect.toBe("group-color-7")
+        t->expect(ColorPalette.getGroupClass(Some("8")))->Expect.toBe("group-color-2")
       },
     )
 
     test(
       "should return correct class for id requiring modulo",
       t => {
-        t->expect(ColorPalette.getGroupClass(Some("9")))->Expect.toBe("group-color-0")
+        t->expect(ColorPalette.getGroupClass(Some("9")))->Expect.toBe("group-color-3")
       },
     )
 
