@@ -1,5 +1,110 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/import_session.rs",
+        "strategy": ""
+      }
+    }
+  ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 16.945283018867926,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video.rs",
+              "functions": [
+                {
+                  "name": "extract_auth_token",
+                  "signature": "fn extract_auth_token(req: &HttpRequest) -> Option<String> {",
+                  "line": 16
+                },
+                {
+                  "name": "parse_motion_profile",
+                  "signature": "fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {",
+                  "line": 28
+                },
+                {
+                  "name": "parse_motion_manifest",
+                  "signature": "fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {",
+                  "line": 32
+                },
+                {
+                  "name": "validate_motion_manifest",
+                  "signature": "fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {",
+                  "line": 36
+                },
+                {
+                  "name": "generate_teaser",
+                  "signature": "pub async fn generate_teaser(",
+                  "line": 54
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 232
+                },
+                {
+                  "name": "extract_auth_token_prefers_authorization_header",
+                  "signature": "fn extract_auth_token_prefers_authorization_header() {",
+                  "line": 292
+                },
+                {
+                  "name": "extract_auth_token_falls_back_to_cookie",
+                  "signature": "fn extract_auth_token_falls_back_to_cookie() {",
+                  "line": 301
+                },
+                {
+                  "name": "parse_motion_profile_decodes_camel_case_payload",
+                  "signature": "fn parse_motion_profile_decodes_camel_case_payload() {",
+                  "line": 309
+                },
+                {
+                  "name": "parse_motion_profile_rejects_invalid_payload",
+                  "signature": "fn parse_motion_profile_rejects_invalid_payload() {",
+                  "line": 318
+                },
+                {
+                  "name": "parse_motion_manifest_decodes_valid_payload",
+                  "signature": "fn parse_motion_manifest_decodes_valid_payload() {",
+                  "line": 324
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_invalid_version",
+                  "signature": "fn validate_motion_manifest_rejects_invalid_version() {",
+                  "line": 355
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_invalid_fps",
+                  "signature": "fn validate_motion_manifest_rejects_invalid_fps() {",
+                  "line": 368
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_empty_shots",
+                  "signature": "fn validate_motion_manifest_rejects_empty_shots() {",
+                  "line": 391
+                },
+                {
+                  "name": "validate_motion_manifest_accepts_valid_manifest",
+                  "signature": "fn validate_motion_manifest_accepts_valid_manifest() {",
+                  "line": 404
+                }
+              ],
+              "fingerprint": "10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/api/media/video_logic.rs",
@@ -104,96 +209,76 @@
     },
     {
       "Surgical": {
-        "file": "../../backend/src/api/media/video.rs",
+        "file": "../../backend/src/services/project/import_upload.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
         "strategy": "",
         "platform": "backend",
-        "complexity": 16.945283018867926,
+        "complexity": 19.6479302832244,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video.rs`",
+          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
           "snapshots": [
             {
-              "path": "backend/src/api/media/video.rs",
+              "path": "backend/src/services/project/import_upload.rs",
               "functions": [
                 {
-                  "name": "extract_auth_token",
-                  "signature": "fn extract_auth_token(req: &HttpRequest) -> Option<String> {",
-                  "line": 16
+                  "name": "new",
+                  "signature": "pub fn new() -> std::io::Result<Self> {",
+                  "line": 51
                 },
                 {
-                  "name": "parse_motion_profile",
-                  "signature": "fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {",
-                  "line": 28
+                  "name": "with_ttl",
+                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
+                  "line": 55
                 },
                 {
-                  "name": "parse_motion_manifest",
-                  "signature": "fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {",
-                  "line": 32
+                  "name": "init_session",
+                  "signature": "pub async fn init_session(",
+                  "line": 69
                 },
                 {
-                  "name": "validate_motion_manifest",
-                  "signature": "fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {",
-                  "line": 36
+                  "name": "save_chunk",
+                  "signature": "pub async fn save_chunk(",
+                  "line": 134
                 },
                 {
-                  "name": "generate_teaser",
-                  "signature": "pub async fn generate_teaser(",
-                  "line": 54
+                  "name": "status",
+                  "signature": "pub async fn status(",
+                  "line": 219
                 },
                 {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 232
+                  "name": "complete_session",
+                  "signature": "pub async fn complete_session(",
+                  "line": 243
                 },
                 {
-                  "name": "extract_auth_token_prefers_authorization_header",
-                  "signature": "fn extract_auth_token_prefers_authorization_header() {",
-                  "line": 292
-                },
-                {
-                  "name": "extract_auth_token_falls_back_to_cookie",
-                  "signature": "fn extract_auth_token_falls_back_to_cookie() {",
-                  "line": 301
-                },
-                {
-                  "name": "parse_motion_profile_decodes_camel_case_payload",
-                  "signature": "fn parse_motion_profile_decodes_camel_case_payload() {",
+                  "name": "abort_session",
+                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
                   "line": 309
                 },
                 {
-                  "name": "parse_motion_profile_rejects_invalid_payload",
-                  "signature": "fn parse_motion_profile_rejects_invalid_payload() {",
-                  "line": 318
+                  "name": "remove_session",
+                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
+                  "line": 314
                 },
                 {
-                  "name": "parse_motion_manifest_decodes_valid_payload",
-                  "signature": "fn parse_motion_manifest_decodes_valid_payload() {",
-                  "line": 324
+                  "name": "cleanup_expired",
+                  "signature": "async fn cleanup_expired(&self) {",
+                  "line": 334
                 },
                 {
-                  "name": "validate_motion_manifest_rejects_invalid_version",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_version() {",
-                  "line": 355
+                  "name": "completes_chunked_payload_and_reassembles_in_order",
+                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
+                  "line": 370
                 },
                 {
-                  "name": "validate_motion_manifest_rejects_invalid_fps",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_fps() {",
-                  "line": 368
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_empty_shots",
-                  "signature": "fn validate_motion_manifest_rejects_empty_shots() {",
-                  "line": 391
-                },
-                {
-                  "name": "validate_motion_manifest_accepts_valid_manifest",
-                  "signature": "fn validate_motion_manifest_accepts_valid_manifest() {",
-                  "line": 404
+                  "name": "rejects_invalid_chunk_byte_size",
+                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
+                  "line": 433
                 }
               ],
-              "fingerprint": "10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2"
+              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
             }
           ]
         }
@@ -280,94 +365,311 @@
           ]
         }
       }
-    },
+    }
+  ],
+  "rescript": [
     {
       "Surgical": {
-        "file": "../../backend/src/services/project/import_upload.rs",
+        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
+        "reason": "[Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
-        "platform": "backend",
-        "complexity": 19.6479302832244,
+        "platform": "frontend",
+        "complexity": 29.57366482504604,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
           "snapshots": [
             {
-              "path": "backend/src/services/project/import_upload.rs",
+              "path": "src/components/Sidebar/SidebarLogicHandler.res",
               "functions": [
                 {
-                  "name": "new",
-                  "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 51
+                  "name": "performUpload",
+                  "signature": "performUpload = async (",
+                  "line": 9
                 },
                 {
-                  "name": "with_ttl",
-                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 55
+                  "name": "handleUpload",
+                  "signature": "handleUpload = async (",
+                  "line": 67
                 },
                 {
-                  "name": "init_session",
-                  "signature": "pub async fn init_session(",
-                  "line": 69
+                  "name": "handleLoadProject",
+                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
+                  "line": 112
                 },
                 {
-                  "name": "save_chunk",
-                  "signature": "pub async fn save_chunk(",
-                  "line": 134
+                  "name": "handleDeleteScene",
+                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
+                  "line": 274
                 },
                 {
-                  "name": "status",
-                  "signature": "pub async fn status(",
-                  "line": 219
+                  "name": "isMissingPanoramaFile",
+                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
+                  "line": 286
                 },
                 {
-                  "name": "complete_session",
-                  "signature": "pub async fn complete_session(",
-                  "line": 243
+                  "name": "repairRestoredState",
+                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
+                  "line": 293
                 },
                 {
-                  "name": "abort_session",
-                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 309
+                  "name": "handleDeleteSceneWithUndo",
+                  "signature": "handleDeleteSceneWithUndo = (",
+                  "line": 338
                 },
                 {
-                  "name": "remove_session",
-                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 314
+                  "name": "handleClearLinksWithUndo",
+                  "signature": "handleClearLinksWithUndo = (",
+                  "line": 409
                 },
                 {
-                  "name": "cleanup_expired",
-                  "signature": "async fn cleanup_expired(&self) {",
-                  "line": 334
-                },
-                {
-                  "name": "completes_chunked_payload_and_reassembles_in_order",
-                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 370
-                },
-                {
-                  "name": "rejects_invalid_chunk_byte_size",
-                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 433
+                  "name": "handleExport",
+                  "signature": "handleExport = async (",
+                  "line": 480
                 }
               ],
-              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
+              "fingerprint": "af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28"
             }
           ]
         }
       }
-    }
-  ],
-  "system": [
+    },
     {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/import_session.rs",
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.489371980676328,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 6
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (",
+                  "line": 23
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 114
+                }
+              ],
+              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
         "strategy": ""
       }
-    }
-  ],
-  "rescript": [
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.12] | Drag: 3.42 | LOC: 378/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.218518518518518,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserLogic.res",
+              "functions": [
+                {
+                  "name": "readHeadlessMotionProfile",
+                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
+                  "line": 24
+                },
+                {
+                  "name": "readMotionManifest",
+                  "signature": "readMotionManifest = (): option<motionManifest> => {",
+                  "line": 36
+                },
+                {
+                  "name": "resolveTeaserStartView",
+                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
+                  "line": 55
+                },
+                {
+                  "name": "centerViewerAtWaypointStart",
+                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
+                  "line": 81
+                },
+                {
+                  "name": "signalIsAborted",
+                  "signature": "signalIsAborted = signal =>",
+                  "line": 105
+                },
+                {
+                  "name": "finalizeTeaser",
+                  "signature": "finalizeTeaser = async (format, baseName) => {",
+                  "line": 111
+                },
+                {
+                  "name": "logoState",
+                  "signature": "logoState = await Recorder.loadLogo()",
+                  "line": 146
+                },
+                {
+                  "name": "check",
+                  "signature": "check = async () => {",
+                  "line": 150
+                },
+                {
+                  "name": "safeName",
+                  "signature": "safeName =",
+                  "line": 159
+                }
+              ],
+              "fingerprint": "b2fa6a257ea8bc8f16d7df2ff3c40b4021578e4343a4af6911b58e4c8941ac17"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/OperationLifecycle.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.380839895013123,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/OperationLifecycle.res",
+              "functions": [
+                {
+                  "name": "operations",
+                  "signature": "operations = ref(Belt.Map.String.empty)",
+                  "line": 52
+                },
+                {
+                  "name": "listeners",
+                  "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
+                  "line": 53
+                },
+                {
+                  "name": "cancelCallbacks",
+                  "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
+                  "line": 54
+                },
+                {
+                  "name": "notifyListeners",
+                  "signature": "notifyListeners = () => {",
+                  "line": 58
+                },
+                {
+                  "name": "updateLoggerContext",
+                  "signature": "updateLoggerContext = () => {",
+                  "line": 63
+                },
+                {
+                  "name": "reset",
+                  "signature": "reset = () => {",
+                  "line": 96
+                },
+                {
+                  "name": "subscribe",
+                  "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
+                  "line": 103
+                },
+                {
+                  "name": "registerCancel",
+                  "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
+                  "line": 113
+                },
+                {
+                  "name": "getOperation",
+                  "signature": "getOperation = (id: operationId): option<task> => {",
+                  "line": 117
+                },
+                {
+                  "name": "getOperations",
+                  "signature": "getOperations = (): array<task> => {",
+                  "line": 121
+                },
+                {
+                  "name": "isActive",
+                  "signature": "isActive = (id: operationId): bool => {",
+                  "line": 125
+                },
+                {
+                  "name": "isBusy",
+                  "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
+                  "line": 136
+                },
+                {
+                  "name": "start",
+                  "signature": "start = (",
+                  "line": 157
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (",
+                  "line": 220
+                },
+                {
+                  "name": "complete",
+                  "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
+                  "line": 255
+                },
+                {
+                  "name": "fail",
+                  "signature": "fail = (id: operationId, error: string): unit => {",
+                  "line": 299
+                },
+                {
+                  "name": "cancel",
+                  "signature": "cancel = (id: operationId): unit => {",
+                  "line": 343
+                },
+                {
+                  "name": "useOperations",
+                  "signature": "useOperations = () => {",
+                  "line": 411
+                },
+                {
+                  "name": "useIsBusy",
+                  "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
+                  "line": 424
+                }
+              ],
+              "fingerprint": "be040c29c53ce43d2e200948a53503deca8e0ea78decd4fba4d36d8457f46a04"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../src/systems/TeaserPlayback.res",
@@ -465,140 +767,6 @@
                 }
               ],
               "fingerprint": "6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.12] | Drag: 3.42 | LOC: 378/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 11.218518518518518,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TeaserLogic.res",
-              "functions": [
-                {
-                  "name": "readHeadlessMotionProfile",
-                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
-                  "line": 24
-                },
-                {
-                  "name": "readMotionManifest",
-                  "signature": "readMotionManifest = (): option<motionManifest> => {",
-                  "line": 36
-                },
-                {
-                  "name": "resolveTeaserStartView",
-                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
-                  "line": 55
-                },
-                {
-                  "name": "centerViewerAtWaypointStart",
-                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
-                  "line": 81
-                },
-                {
-                  "name": "signalIsAborted",
-                  "signature": "signalIsAborted = signal =>",
-                  "line": 105
-                },
-                {
-                  "name": "finalizeTeaser",
-                  "signature": "finalizeTeaser = async (format, baseName) => {",
-                  "line": 111
-                },
-                {
-                  "name": "logoState",
-                  "signature": "logoState = await Recorder.loadLogo()",
-                  "line": 146
-                },
-                {
-                  "name": "check",
-                  "signature": "check = async () => {",
-                  "line": 150
-                },
-                {
-                  "name": "safeName",
-                  "signature": "safeName =",
-                  "line": 159
-                }
-              ],
-              "fingerprint": "b2fa6a257ea8bc8f16d7df2ff3c40b4021578e4343a4af6911b58e4c8941ac17"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 29.57366482504604,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogicHandler.res",
-              "functions": [
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 9
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 67
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 112
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 274
-                },
-                {
-                  "name": "isMissingPanoramaFile",
-                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
-                  "line": 286
-                },
-                {
-                  "name": "repairRestoredState",
-                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
-                  "line": 293
-                },
-                {
-                  "name": "handleDeleteSceneWithUndo",
-                  "signature": "handleDeleteSceneWithUndo = (",
-                  "line": 338
-                },
-                {
-                  "name": "handleClearLinksWithUndo",
-                  "signature": "handleClearLinksWithUndo = (",
-                  "line": 409
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 480
-                }
-              ],
-              "fingerprint": "af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28"
             }
           ]
         }
@@ -819,174 +987,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/OperationLifecycle.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.380839895013123,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/OperationLifecycle.res",
-              "functions": [
-                {
-                  "name": "operations",
-                  "signature": "operations = ref(Belt.Map.String.empty)",
-                  "line": 52
-                },
-                {
-                  "name": "listeners",
-                  "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
-                  "line": 53
-                },
-                {
-                  "name": "cancelCallbacks",
-                  "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
-                  "line": 54
-                },
-                {
-                  "name": "notifyListeners",
-                  "signature": "notifyListeners = () => {",
-                  "line": 58
-                },
-                {
-                  "name": "updateLoggerContext",
-                  "signature": "updateLoggerContext = () => {",
-                  "line": 63
-                },
-                {
-                  "name": "reset",
-                  "signature": "reset = () => {",
-                  "line": 96
-                },
-                {
-                  "name": "subscribe",
-                  "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
-                  "line": 103
-                },
-                {
-                  "name": "registerCancel",
-                  "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
-                  "line": 113
-                },
-                {
-                  "name": "getOperation",
-                  "signature": "getOperation = (id: operationId): option<task> => {",
-                  "line": 117
-                },
-                {
-                  "name": "getOperations",
-                  "signature": "getOperations = (): array<task> => {",
-                  "line": 121
-                },
-                {
-                  "name": "isActive",
-                  "signature": "isActive = (id: operationId): bool => {",
-                  "line": 125
-                },
-                {
-                  "name": "isBusy",
-                  "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
-                  "line": 136
-                },
-                {
-                  "name": "start",
-                  "signature": "start = (",
-                  "line": 157
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (",
-                  "line": 220
-                },
-                {
-                  "name": "complete",
-                  "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
-                  "line": 255
-                },
-                {
-                  "name": "fail",
-                  "signature": "fail = (id: operationId, error: string): unit => {",
-                  "line": 299
-                },
-                {
-                  "name": "cancel",
-                  "signature": "cancel = (id: operationId): unit => {",
-                  "line": 343
-                },
-                {
-                  "name": "useOperations",
-                  "signature": "useOperations = () => {",
-                  "line": 411
-                },
-                {
-                  "name": "useIsBusy",
-                  "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
-                  "line": 424
-                }
-              ],
-              "fingerprint": "be040c29c53ce43d2e200948a53503deca8e0ea78decd4fba4d36d8457f46a04"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.489371980676328,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 6
-                },
-                {
-                  "name": "make",
-                  "signature": "make = (",
-                  "line": 23
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 114
-                }
-              ],
-              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
       }
     }
   ]
