@@ -25,6 +25,10 @@ fn extract_auth_token(req: &HttpRequest) -> Option<String> {
         .map(|cookie| cookie.value().to_string())
 }
 
+fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {
+    serde_json::from_slice::<HeadlessMotionProfile>(raw).ok()
+}
+
 /// Generates a cinematic teaser video of the virtual tour.
 #[tracing::instrument(skip(payload), name = "generate_teaser")]
 pub async fn generate_teaser(
@@ -110,7 +114,7 @@ pub async fn generate_teaser(
             while let Some(chunk) = field.try_next().await? {
                 bytes.extend_from_slice(&chunk);
             }
-            if let Ok(decoded) = serde_json::from_slice::<HeadlessMotionProfile>(&bytes) {
+            if let Some(decoded) = parse_motion_profile(&bytes) {
                 motion_profile = decoded;
             }
         }
@@ -216,6 +220,39 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use actix_web::http::header::{AUTHORIZATION, COOKIE};
+    use actix_web::test::TestRequest;
+
     #[test]
-    fn placeholder() {}
+    fn extract_auth_token_prefers_authorization_header() {
+        let req = TestRequest::default()
+            .insert_header((AUTHORIZATION, "Bearer header-token"))
+            .insert_header((COOKIE, "auth_token=cookie-token"))
+            .to_http_request();
+        assert_eq!(extract_auth_token(&req), Some("header-token".to_string()));
+    }
+
+    #[test]
+    fn extract_auth_token_falls_back_to_cookie() {
+        let req = TestRequest::default()
+            .insert_header((COOKIE, "auth_token=cookie-token"))
+            .to_http_request();
+        assert_eq!(extract_auth_token(&req), Some("cookie-token".to_string()));
+    }
+
+    #[test]
+    fn parse_motion_profile_decodes_camel_case_payload() {
+        let payload = br#"{"skipAutoForward":true,"startAtWaypoint":false,"includeIntroPan":true}"#;
+        let parsed = parse_motion_profile(payload).expect("motion profile should parse");
+        assert!(parsed.skip_auto_forward);
+        assert!(!parsed.start_at_waypoint);
+        assert!(parsed.include_intro_pan);
+    }
+
+    #[test]
+    fn parse_motion_profile_rejects_invalid_payload() {
+        let payload = br#"{"skipAutoForward":"yes","startAtWaypoint":true}"#;
+        assert!(parse_motion_profile(payload).is_none());
+    }
 }

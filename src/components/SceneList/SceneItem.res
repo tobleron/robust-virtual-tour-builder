@@ -118,8 +118,6 @@ let make = React.memo((
     }
   }
 
-  let groupColorClass = ColorPalette.getGroupClass(scene.colorGroup)
-
   let throttleClasses = switch flickerState {
   | #Throttled => "ring-2 ring-primary/40 opacity-80 cursor-wait"
   | _ => ""
@@ -207,10 +205,6 @@ let make = React.memo((
         >
           {React.int(index + 1)}
         </div>
-
-        <div
-          className={`absolute top-0 right-0 h-full z-20 transition-all duration-500 w-1 ${groupColorClass}`}
-        />
       </div>
     </div>
 

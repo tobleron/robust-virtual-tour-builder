@@ -1,16 +1,12 @@
 /* src/utils/ColorPalette.res */
 
 let colors = [
-  "#3b82f6", // Blue 500
-  "#ef4444", // Red 500
-  "#10b981", // Emerald 500
-  "#f59e0b", // Amber 500
-  "#8b5cf6", // Violet 500
-  "#ec4899", // Pink 500
-  "#06b6d4", // Cyan 500
-  "#84cc16", // Lime 500
+  "#f97316", // Orange 500
+  "#ea580c", // Orange 600
+  "#c2410c", // Orange 700
+  "#9a3412", // Orange 800
+  "#78350f", // Orange 900
 ]
-
 let getGroupColor = (groupIdString: option<string>) => {
   switch groupIdString {
   | None => "#f1f5f9"
@@ -40,7 +36,7 @@ let getGroupClass = (groupIdString: option<string>) => {
       if id <= 0 {
         "group-color-default"
       } else {
-        let idx = mod(id - 1, 8)
+        let idx = mod(id - 1, 5)
         "group-color-" ++ Int.toString(idx)
       }
     | None => "group-color-default"

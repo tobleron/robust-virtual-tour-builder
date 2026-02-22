@@ -157,7 +157,7 @@ let script = `
         previousSceneId !== sceneId;
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.floorId = floorId;
-      if (!floorId || entries.length === 0) {
+      if (!floorId) {
         floorTagShortcutState.pageStart = 0;
         clearExportFloorTagShortcuts(panel);
         return;

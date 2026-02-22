@@ -1,44 +1,29 @@
 /* Group Colors for Scene List */
 .group-color-0 {
-    background-color: #3b82f6;
+    background-color: #f97316;
 }
 
-/* Blue 500 */
+/* Orange 500 */
 .group-color-1 {
-    background-color: #ef4444;
+    background-color: #ea580c;
 }
 
-/* Red 500 */
+/* Orange 600 */
 .group-color-2 {
-    background-color: #10b981;
+    background-color: #c2410c;
 }
 
-/* Emerald 500 */
+/* Orange 700 */
 .group-color-3 {
-    background-color: #f59e0b;
+    background-color: #9a3412;
 }
 
-/* Amber 500 */
+/* Orange 800 */
 .group-color-4 {
-    background-color: #8b5cf6;
+    background-color: #78350f;
 }
 
-/* Violet 500 */
-.group-color-5 {
-    background-color: #ec4899;
-}
-
-/* Pink 500 */
-.group-color-6 {
-    background-color: #06b6d4;
-}
-
-/* Cyan 500 */
-.group-color-7 {
-    background-color: #84cc16;
-}
-
-/* Lime 500 */
+/* Orange 900 */
 .group-color-default {
     background-color: var(--slate-100);
 }

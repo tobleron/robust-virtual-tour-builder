@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../backend/src/services/project/import_upload.rs** (Metric: [Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../backend/src/services/project/package.rs** (Metric: [Nesting: 3.60, Density: 0.03, Coupling: 0.01] | Drag: 5.05 | LOC: 609/300) → 🏗️ Split into 3 modules (target ~300 LOC each)
+- [ ] - **../../backend/src/services/project/package.rs** (Metric: [Nesting: 3.00, Density: 0.03, Coupling: 0.01] | Drag: 4.42 | LOC: 481/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -40,20 +40,18 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - with_ttl × 1 (lines: 55)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `backend/src/services/project/package.rs`
-- `backend/src/services/project/package.rs` (14 functions, fingerprint 445e44470ff2917cc13340ee287ccc82082e463dca9fd70063e59334df091b20)
+- `backend/src/services/project/package.rs` (12 functions, fingerprint 5c407ac13e17a0cfa3334fd80300caefab45f4b0ae69737bf0b1d7ae877a9fcd)
     - Grouped summary:
-        - build_desktop_blob_html × 1 (lines: 249)
-        - create_desktop_readme × 1 (lines: 167)
-        - create_mobile_hd_index × 1 (lines: 103)
-        - create_mobile_hd_readme × 1 (lines: 186)
-        - create_root_index × 1 (lines: 68)
-        - create_tour_package × 1 (lines: 284)
-        - create_web_only_deployment_readme × 1 (lines: 133)
-        - data_uri_for_bytes × 1 (lines: 245)
-        - infer_mime_from_filename × 1 (lines: 232)
-        - require_scene_policy × 1 (lines: 52)
-        - rewrite_tour_html_for_subfolder × 1 (lines: 215)
-        - rewrite_web_only_index_html × 1 (lines: 228)
-        - target_dimensions × 1 (lines: 30)
-        - write_zip_file × 1 (lines: 41)
+        - build_desktop_blob_html × 1 (lines: 188)
+        - create_desktop_readme × 1 (lines: 135)
+        - create_root_index × 1 (lines: 67)
+        - create_tour_package × 1 (lines: 223)
+        - create_web_only_deployment_readme × 1 (lines: 101)
+        - data_uri_for_bytes × 1 (lines: 184)
+        - infer_mime_from_filename × 1 (lines: 171)
+        - require_scene_policy × 1 (lines: 51)
+        - rewrite_tour_html_for_subfolder × 1 (lines: 154)
+        - rewrite_web_only_index_html × 1 (lines: 167)
+        - target_dimensions × 1 (lines: 29)
+        - write_zip_file × 1 (lines: 40)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

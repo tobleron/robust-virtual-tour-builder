@@ -8,7 +8,6 @@ use zip::ZipWriter;
 use zip::write::FileOptions;
 
 const WEBP_QUALITY: f32 = 92.0;
-const MOBILE_HD_WEBP_QUALITY: f32 = 65.0;
 const REQUIRED_SCENE_POLICY: &str = "browser-webp92-v1";
 const MAX_EXPORT_SOURCE_WIDTH: u32 = 4096;
 const MAX_EXPORT_SOURCE_HEIGHT: u32 = 4096;
@@ -18,7 +17,7 @@ const TARGETS: [(&str, &str, u32); 3] = [
     ("hd", "tour_hd", 1280),
 ];
 
-type ProcessedResult = Result<(Vec<ResolutionArtifact>, (String, Vec<u8>)), String>;
+type ProcessedResult = Result<Vec<ResolutionArtifact>, String>;
 
 #[derive(Debug)]
 struct ResolutionArtifact {
@@ -92,38 +91,7 @@ fn create_root_index() -> String {
     <div class="grid">
       <a href="web_only/index.html">Open Web Package<span>4K, 2K, and HD tours for website integration over HTTP/HTTPS.</span></a>
       <a href="desktop/index.html">Open Desktop Package<span>Single 2K standalone HTML with embedded scene blobs for direct local opening.</span></a>
-      <a href="mobile_hd/index.html">Open Mobile HD Package<span>HD-only package optimized for phones; run from a mini local webserver.</span></a>
     </div>
-  </main>
-</body>
-</html>"#,
-    )
-}
-
-fn create_mobile_hd_index() -> String {
-    String::from(
-        r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mobile HD Tour</title>
-  <style>
-    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(1200px 600px at 10% 10%, rgba(30,64,175,0.18), transparent), radial-gradient(1200px 600px at 90% 90%, rgba(22,78,99,0.18), transparent), #0b1220; color: #e5e7eb; display: grid; place-items: center; }
-    .wrap { width: min(860px, 92vw); background: rgba(16,26,47,0.86); border: 1px solid #24304a; border-radius: 18px; padding: 28px; backdrop-filter: blur(6px); }
-    h1 { margin: 0 0 10px; font-size: 1.65rem; }
-    p { margin: 0 0 20px; line-height: 1.5; color: #cbd5e1; }
-    a { display: inline-block; text-decoration: none; background: #162544; border: 1px solid #33486b; border-radius: 12px; padding: 16px 18px; color: #f8fafc; font-weight: 700; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
-    a:hover { transform: translateY(-2px); border-color: #f97316; background: #1a2f55; }
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <h1>Mobile HD Package</h1>
-    <p>This package is optimized for mobile with HD-only scenes (WebP quality 65).</p>
-    <a href="tour_hd/index.html">Open HD Tour</a>
-    <p style="margin-top:14px;font-size:0.92rem;">Use <code>README_LOCAL_SERVER.txt</code> for Android/iOS local server steps.</p>
   </main>
 </body>
 </html>"#,
@@ -179,35 +147,6 @@ Behavior:
 Notes:
 1) Keep desktop/libs beside desktop/index.html.
 2) No local webserver is required for desktop mode.
-"#,
-    )
-}
-
-fn create_mobile_hd_readme() -> String {
-    String::from(
-        r#"MOBILE HD PACKAGE - LOCAL SERVER GUIDE
-
-Why:
-- Mobile browsers are more reliable when the tour runs over HTTP.
-- Opening files directly via file:// can fail due to browser sandbox restrictions.
-
-Folder to serve:
-- mobile_hd/
-
-ANDROID (quick path):
-1) Install any "static web server" app from Play Store.
-2) Set document root to this exported folder's mobile_hd directory.
-3) Start server (example: http://127.0.0.1:8080).
-4) Open: http://127.0.0.1:8080/index.html
-
-iOS (quick path):
-1) Install any local static server app from App Store.
-2) Import/select the mobile_hd folder as server root.
-3) Start server (example: http://127.0.0.1:8080).
-4) Open: http://127.0.0.1:8080/index.html
-
-Tip:
-- If your app shows a local network IP (e.g. 192.168.x.x), open that URL instead.
 "#,
     )
 }
@@ -329,12 +268,6 @@ pub fn create_tour_package(
                 &format!("web_only/assets/logo/{}", name),
                 bytes,
             )?;
-            write_zip_file(
-                &mut zip,
-                options,
-                &format!("mobile_hd/assets/logo/{}", name),
-                bytes,
-            )?;
         }
 
         for (lib_name, bytes) in &lib_assets {
@@ -342,12 +275,6 @@ pub fn create_tour_package(
                 &mut zip,
                 options,
                 &format!("web_only/libs/{}", lib_name),
-                bytes,
-            )?;
-            write_zip_file(
-                &mut zip,
-                options,
-                &format!("mobile_hd/libs/{}", lib_name),
                 bytes,
             )?;
             write_zip_file(
@@ -397,7 +324,6 @@ pub fn create_tour_package(
                 }
 
                 let mut artifacts = Vec::new();
-                let mut mobile_hd_artifact: Option<(String, Vec<u8>)> = None;
                 for (resolution_key, _, width) in TARGETS {
                     let (target_w, target_h) = target_dimensions(src_w, src_h, width);
                     let is_source_dimensions = target_w == src_w && target_h == src_h;
@@ -409,18 +335,10 @@ pub fn create_tour_package(
                         .ok_or("Invalid filename")?;
 
                     let webp_bytes = if is_source_dimensions {
-                        if resolution_key == "hd" {
-                            let mobile_bytes = media::encode_webp(&img, MOBILE_HD_WEBP_QUALITY)?;
-                            mobile_hd_artifact = Some((fname.to_string(), mobile_bytes));
-                        }
                         source_bytes.clone()
                     } else {
                         let resized = media::resize_fast(&img, target_w, target_h)
                             .map_err(|e| format!("Resize failed: {}", e))?;
-                        if resolution_key == "hd" {
-                            let mobile_bytes = media::encode_webp(&resized, MOBILE_HD_WEBP_QUALITY)?;
-                            mobile_hd_artifact = Some((fname.to_string(), mobile_bytes));
-                        }
                         media::encode_webp(&resized, WEBP_QUALITY)?
                     };
 
@@ -430,22 +348,15 @@ pub fn create_tour_package(
                         data: webp_bytes,
                     });
                 }
-                let mobile_hd = mobile_hd_artifact.ok_or_else(|| {
-                    format!(
-                        "Missing HD artifact during mobile package generation for scene {}",
-                        name
-                    )
-                })?;
-                Ok((artifacts, mobile_hd))
+                Ok(artifacts)
             })
             .collect();
 
         let mut artifacts_by_resolution: HashMap<&'static str, Vec<(String, Vec<u8>)>> =
             HashMap::from([("4k", Vec::new()), ("2k", Vec::new()), ("hd", Vec::new())]);
-        let mut mobile_hd_assets: Vec<(String, Vec<u8>)> = Vec::new();
 
         for result in processed_results {
-            let (artifacts, mobile_hd_artifact) = result?;
+            let artifacts = result?;
             for artifact in artifacts {
                 let bucket = artifacts_by_resolution
                     .get_mut(artifact.resolution_key)
@@ -457,7 +368,6 @@ pub fn create_tour_package(
                     })?;
                 bucket.push((artifact.file_name, artifact.data));
             }
-            mobile_hd_assets.push(mobile_hd_artifact);
         }
 
         // 4) Write image assets.
@@ -472,14 +382,6 @@ pub fn create_tour_package(
                     )?;
                 }
             }
-        }
-        for (file_name, data) in &mobile_hd_assets {
-            write_zip_file(
-                &mut zip,
-                options,
-                &format!("mobile_hd/assets/images/hd/{}", file_name),
-                data,
-            )?;
         }
 
         // 5) Write tour HTMLs.
@@ -497,16 +399,6 @@ pub fn create_tour_package(
                     &format!("web_only/{}/index.html", folder),
                     web_only_html.as_bytes(),
                 )?;
-
-                if resolution_key == "hd" {
-                    let mobile_hd_html = rewrite_tour_html_for_subfolder(web_html, "hd");
-                    write_zip_file(
-                        &mut zip,
-                        options,
-                        "mobile_hd/tour_hd/index.html",
-                        mobile_hd_html.as_bytes(),
-                    )?;
-                }
             }
         }
 
@@ -540,12 +432,6 @@ pub fn create_tour_package(
         write_zip_file(
             &mut zip,
             options,
-            "mobile_hd/index.html",
-            create_mobile_hd_index().as_bytes(),
-        )?;
-        write_zip_file(
-            &mut zip,
-            options,
             "web_only/DEPLOYMENT_README.txt",
             create_web_only_deployment_readme().as_bytes(),
         )?;
@@ -554,12 +440,6 @@ pub fn create_tour_package(
             options,
             "desktop/README.txt",
             create_desktop_readme().as_bytes(),
-        )?;
-        write_zip_file(
-            &mut zip,
-            options,
-            "mobile_hd/README_LOCAL_SERVER.txt",
-            create_mobile_hd_readme().as_bytes(),
         )?;
 
         if let Some(embed) = fields.get("embed_codes") {
@@ -577,14 +457,6 @@ pub fn create_tour_package(
             options,
             "desktop/embed_codes.txt",
             desktop_embed.as_bytes(),
-        )?;
-
-        let mobile_embed = "MOBILE HD PACKAGE\n\nOpen:\nmobile_hd/tour_hd/index.html\n";
-        write_zip_file(
-            &mut zip,
-            options,
-            "mobile_hd/embed_codes.txt",
-            mobile_embed.as_bytes(),
         )?;
 
         // 7) Canonical project metadata for parity with .vt.zip saves.
