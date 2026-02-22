@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../backend/src/api/media/video.rs** (Metric: [Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 414/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../backend/src/api/media/video.rs** (Metric: [Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../backend/src/api/media/video_logic.rs** (Metric: [Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300) → 🏗️ Split into 4 modules (target ~300 LOC each)
 
@@ -28,20 +28,20 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 - `backend/src/api/media/video.rs` (15 functions, fingerprint 10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2)
     - Grouped summary:
         - extract_auth_token × 1 (lines: 16)
-        - extract_auth_token_falls_back_to_cookie × 1 (lines: 291)
-        - extract_auth_token_prefers_authorization_header × 1 (lines: 282)
-        - generate_teaser × 1 (lines: 51)
+        - extract_auth_token_falls_back_to_cookie × 1 (lines: 301)
+        - extract_auth_token_prefers_authorization_header × 1 (lines: 292)
+        - generate_teaser × 1 (lines: 54)
         - parse_motion_manifest × 1 (lines: 32)
-        - parse_motion_manifest_decodes_valid_payload × 1 (lines: 314)
+        - parse_motion_manifest_decodes_valid_payload × 1 (lines: 324)
         - parse_motion_profile × 1 (lines: 28)
-        - parse_motion_profile_decodes_camel_case_payload × 1 (lines: 299)
-        - parse_motion_profile_rejects_invalid_payload × 1 (lines: 308)
-        - transcode_video × 1 (lines: 222)
+        - parse_motion_profile_decodes_camel_case_payload × 1 (lines: 309)
+        - parse_motion_profile_rejects_invalid_payload × 1 (lines: 318)
+        - transcode_video × 1 (lines: 232)
         - validate_motion_manifest × 1 (lines: 36)
-        - validate_motion_manifest_accepts_valid_manifest × 1 (lines: 394)
-        - validate_motion_manifest_rejects_empty_shots × 1 (lines: 381)
-        - validate_motion_manifest_rejects_invalid_fps × 1 (lines: 358)
-        - validate_motion_manifest_rejects_invalid_version × 1 (lines: 345)
+        - validate_motion_manifest_accepts_valid_manifest × 1 (lines: 404)
+        - validate_motion_manifest_rejects_empty_shots × 1 (lines: 391)
+        - validate_motion_manifest_rejects_invalid_fps × 1 (lines: 368)
+        - validate_motion_manifest_rejects_invalid_version × 1 (lines: 355)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `backend/src/api/media/video_logic.rs`
 - `backend/src/api/media/video_logic.rs` (16 functions, fingerprint ffb3f85250c5367e7e71b3c7f9a5d1493aac2a1cc2799c96dd68a9f1cb80f177)
