@@ -1,6 +1,6 @@
 use super::video_logic_support::{
-    HeadlessControl, HeadlessMotionProfile, headless_app_origin, inject_headless_control,
-    wait_for_headless_ready,
+    HeadlessControl, HeadlessMotionProfile, MotionManifestV1, headless_app_origin,
+    inject_headless_control, wait_for_headless_ready,
 };
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use headless_chrome::{
@@ -110,8 +110,8 @@ pub enum TeaserOutputFormat {
 
 const TEASER_OUTPUT_FPS: f64 = 60.0;
 const TEASER_CAPTURE_JPEG_QUALITY: u32 = 92;
-const CDP_FRAME_TIMEOUT_MS: u64 = 120;
-const CDP_FRAME_STALL_MS: u64 = 1500;
+const CDP_FRAME_TIMEOUT_MS: u64 = 250;
+const CDP_FRAME_STALL_MS: u64 = 2500;
 const CDP_LATE_FRAME_FACTOR: f64 = 1.5;
 
 impl TeaserOutputFormat {
@@ -183,7 +183,7 @@ fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewpor
     let model = element
         .get_box_model()
         .map_err(|e| format!("viewer-stage box model unavailable: {}", e))?;
-    let viewport = model.content_viewport();
+    let mut viewport = model.content_viewport();
     if viewport.width <= 1.0 || viewport.height <= 1.0 {
         tracing::error!(
             session_id=%session_id,
@@ -194,6 +194,13 @@ fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewpor
         );
         return Err("viewer-stage viewport invalid".to_string());
     }
+
+    // H.264 encoder requires even dimensions. Normalize capture viewport eagerly.
+    let normalized_width = ((viewport.width.floor().max(2.0) as u32) / 2) * 2;
+    let normalized_height = ((viewport.height.floor().max(2.0) as u32) / 2) * 2;
+    viewport.width = normalized_width.max(2) as f64;
+    viewport.height = normalized_height.max(2) as f64;
+
     Ok(viewport)
 }
 
@@ -406,12 +413,6 @@ fn capture_frames_cdp(
                 last_frame_data = Some(frame_data);
             }
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-                if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
-                    && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
-                {
-                    break;
-                }
-
                 if !first_frame_received {
                     if std::time::Instant::now() - start_sim > Duration::from_secs(5) {
                         let _ = tab.call_method(Page::StopScreencast(None));
@@ -420,7 +421,16 @@ fn capture_frames_cdp(
                             emitted_frames: 0,
                         });
                     }
-                } else if last_frame_wall.elapsed() > Duration::from_millis(CDP_FRAME_STALL_MS) {
+                    continue;
+                }
+
+                if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
+                    && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
+                {
+                    break;
+                }
+
+                if last_frame_wall.elapsed() > Duration::from_millis(CDP_FRAME_STALL_MS) {
                     let _ = tab.call_method(Page::StopScreencast(None));
                     return Err(CaptureFailure {
                         message: "Screencast stalled waiting for frames".to_string(),
@@ -602,6 +612,7 @@ pub fn generate_teaser_sync(
     output_format: TeaserOutputFormat,
     auth_token: Option<String>,
     motion_profile: HeadlessMotionProfile,
+    motion_manifest: Option<MotionManifestV1>,
 ) -> Result<(), String> {
     let browser = Browser::new(LaunchOptions {
         headless: true,
@@ -652,18 +663,24 @@ pub fn generate_teaser_sync(
         return Err(format!("Nav timeout: {}", e));
     }
     let session_id_clone = session_id.clone();
-    let project_session_id = project_data
-        .get("sessionId")
-        .and_then(|v| v.as_str())
-        .map(|s| s.to_string());
-    let fallback_session_id = project_session_id.unwrap_or_else(|| session_id_clone.clone());
-
+    let resolved_auth_token = auth_token
+        .or_else(|| env::var("HEADLESS_API_TOKEN").ok())
+        .or_else(|| {
+            if cfg!(debug_assertions) {
+                Some("dev-token".to_string())
+            } else {
+                None
+            }
+        });
     let control = HeadlessControl {
         project: project_data,
         backend_origin: headless_backend_origin(),
-        session_id: fallback_session_id,
-        auth_token: auth_token.or_else(|| env::var("HEADLESS_API_TOKEN").ok()),
+        // Always use the request-scoped session for hydration fallback URLs because this request
+        // uploads files into TEMP_DIR/<session_id>.
+        session_id: session_id_clone.clone(),
+        auth_token: resolved_auth_token,
         motion_profile,
+        motion_manifest,
     };
 
     if let Err(e) = inject_headless_control(&tab, &control) {
@@ -695,6 +712,8 @@ pub fn generate_teaser_sync(
                 "60",
                 "-i",
                 "-",
+                "-vf",
+                "scale=trunc(iw/2)*2:trunc(ih/2)*2",
                 "-c:v",
                 "libx264",
                 "-preset",
@@ -782,39 +801,62 @@ pub fn generate_teaser_sync(
     );
 
     let stats = match stats_res {
-        Ok(s) => {
-            tracing::info!(session_id=%session_id_clone, mode="cdp", "Captured teaser using CDP");
+        Ok(s) if s.emitted_frames > 0 => {
+            tracing::info!(
+                session_id=%session_id_clone,
+                mode="cdp",
+                emitted_frames=%s.emitted_frames,
+                captured_frames=%s.captured_frames,
+                "Captured teaser using CDP"
+            );
             s
         }
+        Ok(_) => {
+            tracing::warn!(
+                session_id=%session_id_clone,
+                mode="cdp",
+                "CDP emitted zero frames; falling back to screenshot polling"
+            );
+            capture_frames_polling(
+                &tab,
+                &session_id_clone,
+                std::time::Instant::now(),
+                max_dur,
+                &mut stdin,
+                &capture_viewport,
+            )?
+        }
         Err(failure) => {
-            if failure.emitted_frames == 0 {
-                tracing::warn!(
-                    session_id=%session_id_clone,
-                    mode="cdp",
-                    error=%failure.message,
-                    "CDP capture failed before first frame; falling back to screenshot polling"
-                );
-                capture_frames_polling(
-                    &tab,
-                    &session_id_clone,
-                    std::time::Instant::now(),
-                    max_dur,
-                    &mut stdin,
-                    &capture_viewport,
-                )?
-            } else {
-                tracing::error!(
-                    session_id=%session_id_clone,
-                    mode="cdp",
-                    emitted_frames=%failure.emitted_frames,
-                    error=%failure.message,
-                    "CDP capture failed after frame emission; aborting without polling fallback"
-                );
+            tracing::warn!(
+                session_id=%session_id_clone,
+                mode="cdp",
+                emitted_frames=%failure.emitted_frames,
+                error=%failure.message,
+                "CDP capture failed; falling back to screenshot polling"
+            );
+            let elapsed = start_sim.elapsed();
+            let remaining = max_dur.saturating_sub(elapsed);
+            if remaining.is_zero() {
                 return Err(format!(
-                    "CDP capture failed after {} emitted frames: {}",
-                    failure.emitted_frames, failure.message
+                    "CDP capture failed with no fallback budget remaining: {}",
+                    failure.message
                 ));
             }
+            let mut fallback = capture_frames_polling(
+                &tab,
+                &session_id_clone,
+                std::time::Instant::now(),
+                remaining,
+                &mut stdin,
+                &capture_viewport,
+            )?;
+            if failure.emitted_frames > 0 {
+                fallback.mode = "cdp+polling";
+                fallback.emitted_frames = fallback
+                    .emitted_frames
+                    .saturating_add(failure.emitted_frames);
+            }
+            fallback
         }
     };
 

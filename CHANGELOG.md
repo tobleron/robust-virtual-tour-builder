@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Update color palette for visual pipeline and ensure home button displays on isolated floors
+- Complete tasks 1517-1520: Deterministic cinematic teaser and backend scaffold
 
 ## [4.30.15] - 2026-02-21
 

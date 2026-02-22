@@ -360,6 +360,40 @@ type sessionState = {
   activeTimelineStepId: option<string>,
 }
 
+/* --- Motion Manifest Types (motion-spec-v1) --- */
+
+type motionAnimationSegment = {
+  startYaw: float,
+  endYaw: float,
+  startPitch: float,
+  endPitch: float,
+  startHfov: float,
+  endHfov: float,
+  easing: string, // "linear", "cubic-bezier", etc.
+  durationMs: int,
+}
+
+type motionTransitionOut = {
+  @as("type") type_: string, // "crossfade"
+  durationMs: int,
+}
+
+type motionShot = {
+  sceneId: string,
+  arrivalPose: viewFrame,
+  animationSegments: array<motionAnimationSegment>,
+  transitionOut: option<motionTransitionOut>,
+}
+
+type motionManifest = {
+  version: string, // "motion-spec-v1"
+  fps: int,
+  canvasWidth: int,
+  canvasHeight: int,
+  includeIntroPan: bool,
+  shots: array<motionShot>,
+}
+
 let fileToUrl = (f: file): string => {
   switch f {
   | Url(u) => u

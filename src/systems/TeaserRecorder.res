@@ -8,10 +8,13 @@ let canvasHeight = Constants.Teaser.canvasHeight
 @val external cancelAnimationFrame: int => unit = "cancelAnimationFrame"
 
 type stream
+type track
 type mediaRecorder
 type blob = Blob.t
 
 @send external captureStream: (Dom.element, int) => stream = "captureStream"
+@send external getTracks: stream => array<track> = "getTracks"
+@send external requestFrame: track => unit = "requestFrame"
 @new external createMediaRecorder: (stream, {..}) => mediaRecorder = "MediaRecorder"
 @send external start: (mediaRecorder, int) => unit = "start"
 @send external stop: mediaRecorder => unit = "stop"
@@ -32,6 +35,7 @@ type logoResult = {img: option<Dom.element>, loaded: bool}
 
 type recorderState = {
   mediaRecorder: option<mediaRecorder>,
+  currentStream: option<stream>,
   chunks: array<blob>,
   streamLoopId: option<int>,
   startTime: float,
@@ -44,6 +48,7 @@ type recorderState = {
 
 let internalState = ref({
   mediaRecorder: (None: option<mediaRecorder>),
+  currentStream: (None: option<stream>),
   chunks: ([]: array<blob>),
   streamLoopId: (None: option<int>),
   startTime: 0.0,
@@ -53,6 +58,13 @@ let internalState = ref({
   ghostCtx: (None: option<Canvas.context2d>),
   snapshotCanvas: (None: option<Dom.element>),
 })
+
+let requestDeterministicFrame = () => {
+  internalState.contents.currentStream->Option.forEach(s => {
+    let tracks = getTracks(s)
+    tracks->Belt.Array.forEach(requestFrame)
+  })
+}
 
 module Overlay = {
   let getOrCreate = () => {
@@ -191,7 +203,7 @@ let startAnimationLoop = (includeLogo, logoState) => {
   internalState := {...internalState.contents, streamLoopId: Some(requestAnimationFrame(draw))}
 }
 
-let startRecording = () => {
+let startRecording = (~deterministic=false, ()) => {
   initGhost()
   let _ = Overlay.getOrCreate()
   switch internalState.contents.ghostCanvas {
@@ -199,7 +211,8 @@ let startRecording = () => {
     Logger.error(~module_="TeaserRecorder", ~message="GHOST_CANVAS_NOT_READY", ())
     false
   | Some(canvas) =>
-    let stream = captureStream(canvas, 60)
+    let fps = deterministic ? 0 : 60
+    let stream = captureStream(canvas, fps)
     let mimeType = if String.includes(Window.navigatorUserAgent, "Firefox") {
       "video/webm;codecs=vp8"
     } else if (
@@ -218,6 +231,7 @@ let startRecording = () => {
         "width": canvasWidth,
         "height": canvasHeight,
         "mimeType": mimeType,
+        "deterministic": deterministic,
       },
       (),
     )
@@ -227,6 +241,7 @@ let startRecording = () => {
           ...internalState.contents,
           chunks: [],
           mediaRecorder: Some(r),
+          currentStream: Some(stream),
           startTime: Date.now(),
           isTeasing: true,
         }
@@ -238,14 +253,6 @@ let startRecording = () => {
               ...internalState.contents,
               chunks: Array.concat(internalState.contents.chunks, [b]),
             }
-          if mod(Array.length(internalState.contents.chunks), 50) == 0 {
-            Logger.debug(
-              ~module_="TeaserRecorder",
-              ~message="CHUNK_RECEIVED",
-              ~data={"size": size, "count": Array.length(internalState.contents.chunks)},
-              (),
-            )
-          }
         }
       })
       r->start(100)
@@ -297,7 +304,18 @@ let getGhostCanvas = () => internalState.contents.ghostCanvas->Nullable.fromOpti
 let getRecordedBlobs = () => internalState.contents.chunks
 
 let setSnapshot = (canvas: Dom.element) => {
-  internalState := {...internalState.contents, snapshotCanvas: Some(canvas)}
+  let snap = switch internalState.contents.snapshotCanvas {
+  | Some(s) => s
+  | None =>
+    let c = Dom.createElement("canvas")
+    Dom.setWidth(c, canvasWidth)
+    Dom.setHeight(c, canvasHeight)
+    internalState := {...internalState.contents, snapshotCanvas: Some(c)}
+    c
+  }
+  switch Canvas.getContext2d(snap, "2d", {"alpha": false}) {
+  | ctx => drawImagePos(ctx, canvas, 0.0, 0.0)
+  }
 }
 
 let setFadeOpacity = (opacity: float) => {
@@ -316,5 +334,7 @@ module Recorder = {
   let setFadeOpacity = setFadeOpacity
   let loadLogo = loadLogo
   let startAnimationLoop = startAnimationLoop
+  let requestDeterministicFrame = requestDeterministicFrame
+  let renderFrame = renderFrame
   let internalState = internalState
 }

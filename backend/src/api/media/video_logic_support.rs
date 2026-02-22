@@ -14,6 +14,7 @@ pub struct HeadlessControl {
     pub session_id: String,
     pub auth_token: Option<String>,
     pub motion_profile: HeadlessMotionProfile,
+    pub motion_manifest: Option<MotionManifestV1>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -22,6 +23,55 @@ pub struct HeadlessMotionProfile {
     pub skip_auto_forward: bool,
     pub start_at_waypoint: bool,
     pub include_intro_pan: bool,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MotionAnimationSegment {
+    pub start_yaw: f64,
+    pub end_yaw: f64,
+    pub start_pitch: f64,
+    pub end_pitch: f64,
+    pub start_hfov: f64,
+    pub end_hfov: f64,
+    pub easing: String,
+    pub duration_ms: u32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MotionTransitionOut {
+    #[serde(rename = "type")]
+    pub transition_type: String,
+    pub duration_ms: u32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArrivalPose {
+    pub yaw: f64,
+    pub pitch: f64,
+    pub hfov: f64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MotionShot {
+    pub scene_id: String,
+    pub arrival_pose: ArrivalPose,
+    pub animation_segments: Vec<MotionAnimationSegment>,
+    pub transition_out: Option<MotionTransitionOut>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MotionManifestV1 {
+    pub version: String,
+    pub fps: u32,
+    pub canvas_width: u32,
+    pub canvas_height: u32,
+    pub include_intro_pan: bool,
+    pub shots: Vec<MotionShot>,
 }
 
 impl Default for HeadlessMotionProfile {
@@ -44,6 +94,7 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
   const project = control.project;
   const scenes = Array.isArray(project.scenes) ? project.scenes : [];
   const projectSessionId = project.sessionId || control.sessionId || "";
+  const requestSessionId = control.sessionId || "";
   const backendOrigin = control.backendOrigin || "";
   const authToken = control.authToken;
   const motionProfile = control.motionProfile || {
@@ -52,6 +103,7 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     includeIntroPan: false
   };
   window.__VTB_HEADLESS_MOTION_PROFILE__ = motionProfile;
+  window.__VTB_MOTION_MANIFEST__ = control.motionManifest || null;
   if (authToken) {
     try {
       document.cookie = `auth_token=${authToken}; path=/; SameSite=Strict`;
@@ -62,7 +114,7 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     window.HEADLESS_ERROR = "Missing backend origin";
     return;
   }
-  if (!projectSessionId && scenes.length > 0) {
+  if (!projectSessionId && !requestSessionId && scenes.length > 0) {
     window.HEADLESS_ERROR = "Missing project/session id for resource hydration";
     return;
   }
@@ -92,30 +144,56 @@ const HEADLESS_CONTROL_SCRIPT: &str = r#"
     if (raw.startsWith("api/")) return `${backendOrigin}/${raw}`;
     return null;
   };
-  const buildUrl = (scene) => {
-    const direct =
-      toAbsoluteUrl(scene.file) ||
-      toAbsoluteUrl(scene.originalFile) ||
-      toAbsoluteUrl(scene.tinyFile);
-    if (direct) return direct;
-    if (!projectSessionId) {
-      throw new Error("Project/session id missing while building fallback URL");
-    }
-    const fallbackName = unwrapFileRef(scene.name);
-    if (!fallbackName) {
-      throw new Error("Missing scene fallback filename");
-    }
-    return `${backendOrigin}/api/project/${encodeURIComponent(projectSessionId)}/file/${encodeURIComponent(fallbackName)}`;
+  const buildFallbackUrl = (sessionId, sceneName) => {
+    if (!sessionId || !sceneName) return null;
+    return `${backendOrigin}/api/project/${encodeURIComponent(sessionId)}/file/${encodeURIComponent(sceneName)}`;
+  };
+  const buildUrlCandidates = (scene) => {
+    const candidates = [];
+    const addCandidate = (url) => {
+      if (url && !candidates.includes(url)) candidates.push(url);
+    };
+
+    addCandidate(toAbsoluteUrl(scene.file));
+    addCandidate(toAbsoluteUrl(scene.originalFile));
+    addCandidate(toAbsoluteUrl(scene.tinyFile));
+
+    const sceneName = unwrapFileRef(scene.name);
+    if (!sceneName) return candidates;
+
+    // Prefer request-scoped session (this request's uploaded files).
+    addCandidate(buildFallbackUrl(requestSessionId, sceneName));
+    // Keep project session as secondary fallback for persisted URL projects.
+    addCandidate(buildFallbackUrl(projectSessionId, sceneName));
+    return candidates;
   };
   const fetchScene = async (scene) => {
-    const url = buildUrl(scene);
+    const candidates = buildUrlCandidates(scene);
+    if (candidates.length === 0) {
+      throw new Error(`No hydration URL candidates for ${scene && scene.name ? scene.name : "unknown scene"}`);
+    }
     const headers = {};
     if (authToken) {
       headers.Authorization = "Bearer " + authToken;
     }
-    const response = await fetch(url, { headers });
-    if (!response.ok) {
-      throw new Error(`Hydration fetch failed ${response.status} for ${scene.name}`);
+
+    let response = null;
+    let lastError = "";
+    for (const url of candidates) {
+      try {
+        const res = await fetch(url, { headers });
+        if (res.ok) {
+          response = res;
+          break;
+        }
+        lastError = `status ${res.status} @ ${url}`;
+      } catch (err) {
+        lastError = (err && err.message) ? err.message : String(err);
+      }
+    }
+
+    if (!response) {
+      throw new Error(`Hydration fetch failed for ${scene.name}: ${lastError}`);
     }
     const blob = await response.blob();
     const file = new File([blob], scene.name, { type: "image/webp" });

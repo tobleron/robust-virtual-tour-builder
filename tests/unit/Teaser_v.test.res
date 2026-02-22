@@ -100,6 +100,28 @@ let makeMockScene = (~id) => {
   };
   globalThis.globalStateMock = globalStateMock;
   globalThis.vi.mock('../../src/core/AppStateBridge.bs.js', () => globalStateMock);
+
+  // Mock Logger
+  globalThis.vi.mock('../../src/utils/Logger.bs.js', () => ({
+    info: globalThis.vi.fn(),
+    error: globalThis.vi.fn(),
+    debug: globalThis.vi.fn(),
+    warn: globalThis.vi.fn(),
+    initialized: globalThis.vi.fn(),
+    setOperationId: globalThis.vi.fn(),
+    castToJson: (obj) => obj,
+    getErrorDetails: () => ["", ""]
+  }));
+
+  globalThis.vi.mock('../../src/systems/OperationLifecycle.bs.js', () => ({
+    start: globalThis.vi.fn().mockReturnValue("op_123"),
+    complete: globalThis.vi.fn(),
+    fail: globalThis.vi.fn(),
+    progress: globalThis.vi.fn(),
+    registerCancel: globalThis.vi.fn(),
+    isActive: globalThis.vi.fn().mockReturnValue(true),
+    cancel: globalThis.vi.fn(),
+  }));
 })()
 `)
 
@@ -147,17 +169,11 @@ describe("Teaser System", () => {
     let teaser = await loadTeaser()
     let startAutoTeaser: (
       string,
-      bool,
-      string,
-      bool,
       ~getState: unit => Types.state,
       ~dispatch: Actions.action => unit,
     ) => promise<unit> = teaser["startAutoTeaser"]
     await startAutoTeaser(
-      "fast",
-      false,
       "webm",
-      false,
       ~getState=AppStateBridge.getState,
       ~dispatch=AppStateBridge.dispatch,
     )
@@ -182,17 +198,11 @@ describe("Teaser System", () => {
     let teaser = await loadTeaser()
     let startAutoTeaser: (
       string,
-      bool,
-      string,
-      bool,
       ~getState: unit => Types.state,
       ~dispatch: Actions.action => unit,
     ) => promise<unit> = teaser["startAutoTeaser"]
     await startAutoTeaser(
-      "fast",
-      false,
       "webm",
-      false,
       ~getState=AppStateBridge.getState,
       ~dispatch=AppStateBridge.dispatch,
     )

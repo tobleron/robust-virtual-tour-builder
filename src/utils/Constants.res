@@ -65,6 +65,11 @@ module Teaser = {
     let padding = 30
     let borderRadius = 12
   }
+
+  module Processing = {
+    let preflightSampleFrames = 5
+    let progressSmoothingAlpha = 0.2
+  }
 }
 
 let webpQuality = 0.92

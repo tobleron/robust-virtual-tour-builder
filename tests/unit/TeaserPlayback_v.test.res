@@ -111,6 +111,7 @@ external mockViewerSetPitch: mockFn = "__mockSetPitch"
     info: vi.fn(),
     error: vi.fn(),
     initialized: vi.fn(),
+    setOperationId: vi.fn(),
     startOperation: vi.fn(),
     endOperation: vi.fn(),
     getErrorDetails: () => ["", ""],
@@ -176,7 +177,7 @@ describe("TeaserPlayback", () => {
     let p = prepareFirstScene(
       step,
       "fast",
-      fastConfig,
+      standardConfig,
       ~getState=AppStateBridge.getState,
       ~dispatch=AppStateBridge.dispatch,
     )
@@ -217,7 +218,7 @@ describe("TeaserPlayback", () => {
       0,
       step,
       "fast",
-      fastConfig,
+      standardConfig,
       ~getState=AppStateBridge.getState,
       ~dispatch=AppStateBridge.dispatch,
     )

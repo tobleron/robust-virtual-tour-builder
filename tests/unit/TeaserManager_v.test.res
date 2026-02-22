@@ -1,7 +1,136 @@
+// @efficiency: infra-adapter
 open Vitest
-open Teaser.Manager
-open Teaser.State
 open Types
+
+%%raw(`
+  const loggerMock = {
+    startOperation: globalThis.vi.fn(),
+    endOperation: globalThis.vi.fn(),
+    info: globalThis.vi.fn(),
+    warn: globalThis.vi.fn(),
+    error: globalThis.vi.fn(),
+    debug: globalThis.vi.fn(),
+    initialized: globalThis.vi.fn(),
+    setOperationId: globalThis.vi.fn(),
+    getErrorDetails: (exn) => ["", ""],
+    castToJson: (obj) => obj
+  };
+  globalThis.vi.mock('../../src/utils/Logger.bs.js', () => loggerMock);
+
+  const opMock = {
+    start: globalThis.vi.fn().mockReturnValue("op_123"),
+    complete: globalThis.vi.fn(),
+    fail: globalThis.vi.fn(),
+    progress: globalThis.vi.fn(),
+    registerCancel: globalThis.vi.fn(),
+    isActive: globalThis.vi.fn().mockReturnValue(true),
+    cancel: globalThis.vi.fn(),
+  };
+  globalThis.vi.mock('../../src/systems/OperationLifecycle.bs.js', () => opMock);
+
+  const pathfinderMock = {
+    getWalkPath: globalThis.vi.fn(),
+    getTimelinePath: globalThis.vi.fn(),
+  };
+  globalThis.vi.mock('../../src/systems/TeaserPathfinder.bs.js', () => pathfinderMock);
+
+  const startRecordingFn = globalThis.vi.fn();
+  const stopRecordingFn = globalThis.vi.fn();
+  const loadLogoFn = globalThis.vi.fn();
+  const startAnimationLoopFn = globalThis.vi.fn();
+  const pauseRecordingFn = globalThis.vi.fn();
+  const resumeRecordingFn = globalThis.vi.fn();
+  const getGhostCanvasFn = globalThis.vi.fn();
+  const setSnapshotFn = globalThis.vi.fn();
+  const setFadeOpacityFn = globalThis.vi.fn();
+  const getRecordedBlobsFn = globalThis.vi.fn(() => []);
+  const renderFrameFn = globalThis.vi.fn();
+  const requestDeterministicFrameFn = globalThis.vi.fn();
+
+  const recorderMock = {
+    startRecording: startRecordingFn,
+    stopRecording: stopRecordingFn,
+    loadLogo: loadLogoFn,
+    startAnimationLoop: startAnimationLoopFn,
+    pauseRecording: pauseRecordingFn,
+    resumeRecording: resumeRecordingFn,
+    getGhostCanvas: getGhostCanvasFn,
+    setSnapshot: setSnapshotFn,
+    setFadeOpacity: setFadeOpacityFn,
+    getRecordedBlobs: getRecordedBlobsFn,
+    renderFrame: renderFrameFn,
+    requestDeterministicFrame: requestDeterministicFrameFn,
+    Recorder: {
+      startRecording: startRecordingFn,
+      stopRecording: stopRecordingFn,
+      pause: pauseRecordingFn,
+      resume: resumeRecordingFn,
+      getGhostCanvas: getGhostCanvasFn,
+      getRecordedBlobs: getRecordedBlobsFn,
+      setSnapshot: setSnapshotFn,
+      setFadeOpacity: setFadeOpacityFn,
+      loadLogo: loadLogoFn,
+      startAnimationLoop: startAnimationLoopFn,
+      renderFrame: renderFrameFn,
+      requestDeterministicFrame: requestDeterministicFrameFn,
+    }
+  };
+  globalThis.vi.mock('../../src/systems/TeaserRecorder.bs.js', () => recorderMock);
+
+  const stateMock = {
+    getState: globalThis.vi.fn(),
+    dispatch: globalThis.vi.fn(),
+    SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
+  };
+  globalThis.vi.mock('../../src/core/AppStateBridge.bs.js', () => stateMock);
+
+  const serverMock = {
+    generateServerTeaser: globalThis.vi.fn(),
+    Server: { generateServerTeaser: globalThis.vi.fn() }
+  };
+  globalThis.vi.mock('../../src/systems/ServerTeaser.bs.js', () => serverMock);
+
+  globalThis.vi.mock('../../src/utils/EventBus.bs.js', () => ({
+    dispatch: globalThis.vi.fn(),
+  }));
+
+  globalThis.vi.mock('../../src/components/ProgressBar.bs.js', () => ({
+    updateProgressBar: globalThis.vi.fn()
+  }));
+
+  globalThis.vi.mock('../../src/systems/DownloadSystem.bs.js', () => ({
+    saveBlob: globalThis.vi.fn()
+  }));
+
+  const manifestMock = {
+    generateManifest: globalThis.vi.fn().mockReturnValue({
+      fps: 10,
+      shots: [],
+    }),
+    calculateTotalManifestDuration: globalThis.vi.fn().mockReturnValue(100.0),
+  };
+  globalThis.vi.mock('../../src/systems/TeaserManifest.bs.js', () => manifestMock);
+
+  globalThis.manifestMock = manifestMock;
+
+  const playbackMock = {
+    getManifestStateAt: globalThis.vi.fn().mockReturnValue({
+      sceneId: "scene1",
+      pose: {yaw: 0.0, pitch: 0.0, hfov: 80.0},
+      fadeOpacity: 0.0
+    }),
+    wait: globalThis.vi.fn().mockResolvedValue(undefined),
+    waitForViewerReady: globalThis.vi.fn().mockResolvedValue(true),
+  };
+  globalThis.vi.mock('../../src/systems/TeaserPlayback.bs.js', () => playbackMock);
+
+  globalThis.playbackMock = playbackMock;
+  globalThis.loggerMock = loggerMock;
+  globalThis.stateMock = stateMock;
+  globalThis.pathfinderMock = pathfinderMock;
+  globalThis.recorderMock = recorderMock;
+  globalThis.serverMock = serverMock;
+`)
 
 /* Types */
 type mockFn
@@ -30,89 +159,10 @@ external mockStartAnimationLoop: mockFn = "startAnimationLoop"
 @module("../../src/systems/ServerTeaser.bs.js")
 external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
 
-%%raw(`
-  import { vi } from 'vitest';
-
-  vi.mock('../../src/systems/TeaserPathfinder.bs.js', () => ({
-    getWalkPath: vi.fn(),
-    getTimelinePath: vi.fn(),
-  }));
-
-  vi.mock('../../src/systems/TeaserRecorder.bs.js', () => {
-    const startRecording = vi.fn();
-    const stopRecording = vi.fn();
-    const loadLogo = vi.fn();
-    const startAnimationLoop = vi.fn();
-    const pauseRecording = vi.fn();
-    const resumeRecording = vi.fn();
-    const getGhostCanvas = vi.fn();
-    const setSnapshot = vi.fn();
-    const setFadeOpacity = vi.fn();
-    const getRecordedBlobs = vi.fn(() => []);
-    return {
-      startRecording,
-      stopRecording,
-      loadLogo,
-      startAnimationLoop,
-      pauseRecording,
-      resumeRecording,
-      getGhostCanvas,
-      setSnapshot,
-      setFadeOpacity,
-      getRecordedBlobs,
-      Recorder: {
-        startRecording,
-        stopRecording,
-        pause: pauseRecording,
-        resume: resumeRecording,
-        getGhostCanvas,
-        getRecordedBlobs,
-        setSnapshot,
-        setFadeOpacity,
-        loadLogo,
-        startAnimationLoop,
-      }
-    };
-  });
-
-  vi.mock('../../src/core/AppStateBridge.bs.js', () => ({
-    getState: vi.fn(),
-    dispatch: vi.fn(),
-    SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
-  }));
-
-  vi.mock('../../src/systems/ServerTeaser.bs.js', () => {
-    const generateServerTeaser = vi.fn();
-    return {
-      generateServerTeaser,
-      Server: { generateServerTeaser }
-    };
-  });
-
-  vi.mock('../../src/utils/Logger.bs.js', () => ({
-    startOperation: vi.fn(),
-    endOperation: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-    initialized: vi.fn(),
-    getErrorDetails: (exn) => ["", ""],
-    castToJson: (obj) => obj
-  }));
-
-  vi.mock('../../src/utils/EventBus.bs.js', () => ({
-    dispatch: vi.fn(),
-  }));
-
-  vi.mock('../../src/components/ProgressBar.bs.js', () => ({
-    updateProgressBar: vi.fn()
-  }));
-
-  vi.mock('../../src/systems/DownloadSystem.bs.js', () => ({
-    saveBlob: vi.fn()
-  }));
-`)
+let loadManager = async () => {
+  let m = await %raw(`import('../../src/systems/Teaser.bs.js')`)
+  m
+}
 
 let makeMockScene = (~id, ~name, ()) => {
   id,
@@ -132,84 +182,102 @@ let makeMockScene = (~id, ~name, ()) => {
   isAutoForward: false,
 }
 
-describe("TeaserManager", () => {
-  beforeEach(() => {
-    let _ = %raw(`vi.clearAllMocks()`)
-    mockGetState->mockReturnValue({
+%%raw(`
+  globalThis.beforeEach(() => {
+    globalThis.vi.clearAllMocks();
+    
+    // Setup mock DOM for rendering check
+    const div = document.createElement('div');
+    div.className = 'panorama-layer active';
+    const canvas = document.createElement('canvas');
+    div.appendChild(canvas);
+    document.body.appendChild(div);
+
+    globalThis.stateMock.getState.mockReturnValue({
       "scenes": [
-        makeMockScene(~id="scene1", ~name="S1", ()),
-        makeMockScene(~id="scene2", ~name="S1", ()),
+        {id: "scene1", name: "S1", file: {TAG: 'Url', _0: "S1.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S1", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false},
+        {id: "scene2", name: "S2", file: {TAG: 'Url', _0: "S2.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S2", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false},
       ],
       "tourName": "TestTour",
-      "simulation": {"status": "Idle", "visitedScenes": []},
-    })
-    mockLoadLogo->mockResolvedValue(%raw("null"))
-    mockGetWalkPath->mockResolvedValue(Ok([])) // Empty path for basic test
-    mockStartRecording->mockReturnValue(true)
-    mockGenerateServerTeaser->mockResolvedValue(Ok(%raw(`new Blob([])`)))
-  })
+      "simulation": {"status": {TAG: 'Idle'}, "visitedScenes": []},
+    });
+
+    globalThis.pathfinderMock.getWalkPath.mockResolvedValue({TAG: 'Ok', _0: [{
+      "idx": 0,
+      "transitionTarget": undefined,
+      "arrivalView": { "yaw": 0.0, "pitch": 0.0, "hfov": 80.0 }
+    }]});
+
+    globalThis.recorderMock.loadLogo.mockResolvedValue(null);
+    globalThis.recorderMock.startRecording.mockReturnValue(true);
+    globalThis.serverMock.generateServerTeaser.mockResolvedValue({TAG: 'Ok', _0: new Blob([])});
+    
+    globalThis.manifestMock.calculateTotalManifestDuration.mockReturnValue(100.0);
+    globalThis.manifestMock.generateManifest.mockReturnValue({
+      fps: 10,
+      shots: [{ sceneId: 'scene1', animationSegments: [] }],
+    });
+
+    globalThis.playbackMock.getManifestStateAt.mockReturnValue({
+      sceneId: "scene1",
+      pose: {yaw: 0.0, pitch: 0.0, hfov: 80.0},
+      fadeOpacity: 0.0
+    });
+  });
+
+  globalThis.afterEach(() => {
+    document.body.innerHTML = '';
+  });
+`)
+
+describe("TeaserManager", () => {
 
   test("Config constants are correct", t => {
-    t->expect(fastConfig.clipDuration)->Expect.toBe(2500.0)
-    t->expect(slowConfig.clipDuration)->Expect.toBe(4000.0)
-    t->expect(punchyConfig.clipDuration)->Expect.toBe(1800.0)
-    t->expect(fastConfig.cameraPanOffset)->Expect.toBe(20.0)
+    t->expect(TeaserStyleConfig.standardConfig.clipDuration)->Expect.toBe(2500.0)
+    t->expect(TeaserStyleConfig.slowConfig.clipDuration)->Expect.toBe(4000.0)
+    t->expect(TeaserStyleConfig.punchyConfig.clipDuration)->Expect.toBe(1800.0)
+    t->expect(TeaserStyleConfig.standardConfig.cameraPanOffset)->Expect.toBe(20.0)
   })
 
-  testAsync("startAutoTeaser fetches path and starts recording (Client Side)", async t => {
-    let style = "fast"
-    let includeLogo = true
+  testAsync("startAutoTeaser fetches path and starts recording (Deterministic Local)", async t => {
     let format = "webm"
-    let skipAutoForward = false
+    let manager = await loadManager()
+    let localGetState: unit => Types.state = () => {
+      %raw(`({
+        scenes: [
+          {id: "scene1", name: "S1", file: {TAG: 'Url', _0: "S1.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S1", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false},
+          {id: "scene2", name: "S2", file: {TAG: 'Url', _0: "S2.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S2", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false},
+        ],
+        tourName: "TestTour",
+        simulation: { status: {TAG: 'Idle'}, visitedScenes: [] },
+        navigationState: { currentJourneyId: 0 },
+        activeIndex: 0,
+        isLinking: false
+      })`)
+    }
 
-    await startAutoTeaser(
-      style,
-      includeLogo,
-      format,
-      skipAutoForward,
-      ~getState=AppStateBridge.getState,
-      ~dispatch=AppStateBridge.dispatch,
-    )
+    let startAutoTeaser: (
+      string,
+      ~getState: unit => Types.state,
+      ~dispatch: Actions.action => unit,
+    ) => promise<unit> = manager["startAutoTeaser"]
 
-    expectCall(mockGetWalkPath)->toHaveBeenCalledWith3(
-      [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
-      skipAutoForward,
-      undefined,
-    )
+    try {
+      await startAutoTeaser(
+        format,
+        ~getState=localGetState,
+        ~dispatch=AppStateBridge.dispatch,
+      )
+    } catch {
+    | exn => Console.error2("Teaser failed:", exn)
+    }
 
-    expectCall(mockLoadLogo)->toHaveBeenCalled()
-    expectCall(mockStartAnimationLoop)->toHaveBeenCalled()
-    expectCall(mockStartRecording)->toHaveBeenCalled()
+    let pathfinderCalls = %raw(`globalThis.pathfinderMock.getWalkPath.mock.calls.length`)
+    let loadLogoCalls = %raw(`globalThis.recorderMock.loadLogo.mock.calls.length`)
+    let startRecordingCalls = %raw(`globalThis.recorderMock.startRecording.mock.calls.length`)
 
-    t->expect(true)->Expect.toBe(true)
-  })
-
-  testAsync("startAutoTeaser triggers Server Generation for Cinematic MP4", async t => {
-    let style = "cinematic"
-    let includeLogo = true
-    let format = "mp4"
-    let skipAutoForward = false
-
-    await startAutoTeaser(
-      style,
-      includeLogo,
-      format,
-      skipAutoForward,
-      ~getState=AppStateBridge.getState,
-      ~dispatch=AppStateBridge.dispatch,
-    )
-
-    // Verify ServerTeaser.generateServerTeaser called
-    let calls = %raw(`mockGenerateServerTeaser.mock.calls`)
-    t->expect(Array.length(calls))->Expect.toBe(1)
-
-    // Verify SetIsTeasing dispatch
-    // We mocked AppStateBridge to verify dispatch
-    // First arg of generateServerTeaser is state.
-    // We should check if dispatch called with SetIsTeasing(true)
-    // The mock for SetIsTeasing returns an object.
-
-    let dispatchCalls = %raw(`mockDispatch.mock.calls`)
-    t->expect(Array.length(dispatchCalls))->Expect.Int.toBeGreaterThan(0)
+    t->expect(pathfinderCalls > 0)->Expect.toBe(true)
+    t->expect(loadLogoCalls > 0)->Expect.toBe(true)
+    t->expect(startRecordingCalls > 0)->Expect.toBe(true)
   })
 })

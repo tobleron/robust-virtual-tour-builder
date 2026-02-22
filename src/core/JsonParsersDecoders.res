@@ -329,3 +329,43 @@ module SessionState = {
     ])
   }
 }
+
+let motionAnimationSegment = object(f => {
+  {
+    Types.startYaw: f->opt("startYaw", float, 0.0),
+    endYaw: f->opt("endYaw", float, 0.0),
+    startPitch: f->opt("startPitch", float, 0.0),
+    endPitch: f->opt("endPitch", float, 0.0),
+    startHfov: f->opt("startHfov", float, 0.0),
+    endHfov: f->opt("endHfov", float, 0.0),
+    easing: f->opt("easing", string, "linear"),
+    durationMs: f->opt("durationMs", int, 0),
+  }
+})
+
+let motionTransitionOut = object(f => {
+  {
+    Types.type_: f->opt("type", string, "crossfade"),
+    durationMs: f->opt("durationMs", int, 0),
+  }
+})
+
+let motionShot = object(f => {
+  {
+    Types.sceneId: f->opt("sceneId", string, ""),
+    arrivalPose: f->opt("arrivalPose", viewFrame, {yaw: 0.0, pitch: 0.0, hfov: 0.0}),
+    animationSegments: f->opt("animationSegments", array(motionAnimationSegment), []),
+    transitionOut: f.optional("transitionOut", option(motionTransitionOut))->Option.flatMap(x => x),
+  }
+})
+
+let motionManifest = object(f => {
+  {
+    Types.version: f->opt("version", string, "motion-spec-v1"),
+    fps: f->opt("fps", int, 60),
+    canvasWidth: f->opt("canvasWidth", int, 1920),
+    canvasHeight: f->opt("canvasHeight", int, 1080),
+    includeIntroPan: f->opt("includeIntroPan", bool, false),
+    shots: f->opt("shots", array(motionShot), []),
+  }
+})

@@ -399,6 +399,9 @@ CI job
 - `[src/components/Sidebar/SidebarBase.res]`
 - `[src/components/Sidebar/SidebarLogicHandler.res]`
 
+### 📂 src/systems
+- `[src/systems/TeaserManifest.res]`
+
 ### 📂 src/systems/Api
 - `[src/systems/Api/AuthenticatedClientBase.res]`
 - `[src/systems/Api/AuthenticatedClientRequest.res]`

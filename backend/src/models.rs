@@ -39,6 +39,7 @@ pub enum AppError {
     FFmpegError(String),
     ZipError(String),
     InternalError(String),
+    NotImplemented(String),
     #[allow(dead_code)]
     ValidationError(String),
     Unauthorized(String),
@@ -53,6 +54,7 @@ impl fmt::Display for AppError {
             AppError::FFmpegError(e) => write!(f, "FFmpeg Error: {}", e),
             AppError::ZipError(e) => write!(f, "Zip Error: {}", e),
             AppError::InternalError(e) => write!(f, "Internal Error: {}", e),
+            AppError::NotImplemented(e) => write!(f, "Not Implemented: {}", e),
             AppError::ValidationError(e) => write!(f, "Validation Error: {}", e),
             AppError::Unauthorized(e) => write!(f, "Unauthorized: {}", e),
         }
@@ -95,6 +97,11 @@ impl ResponseError for AppError {
             AppError::InternalError(e) => (
                 actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal Server Error",
+                Some(e.clone()),
+            ),
+            AppError::NotImplemented(e) => (
+                actix_web::http::StatusCode::NOT_IMPLEMENTED,
+                "Not Implemented",
                 Some(e.clone()),
             ),
             AppError::ValidationError(e) => (

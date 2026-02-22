@@ -20,9 +20,9 @@ This update finalizes the backend CDP teaser capture path and closes the main en
 1. `cd backend && cargo check`
 2. `cd backend && cargo test --lib video::tests -- --nocapture`
 3. `cd backend && cargo test --lib teaser_output_format_parses_mp4_and_defaults_to_webm -- --nocapture`
-4. `npm run build`
+4. `npm run build` (passes when no concurrent ReScript watch process is holding the build lock)
 
-All commands passed in this session.
+Backend checks/tests passed in this session.
 
 ## Runtime Telemetry to Inspect
 `TEASER_CAPTURE_STATS` now reports:
@@ -60,6 +60,26 @@ Use these thresholds during manual runs (`x445.zip`, then `x700.zip` subset):
    - no non-logo builder overlays.
 6. Check backend logs for `TEASER_CAPTURE_STATS`.
 7. Repeat with a heavier path subset from `x700.zip`.
+
+## Post-Migration Hardening (T1516)
+Follow-up troubleshooting added two guardrails to avoid intermittent `500` failures:
+
+1. First-frame grace:
+   - CDP capture now waits for first frame readiness before interpreting autopilot inactive state.
+   - Prevents early empty-stream termination that can make FFmpeg fail.
+2. Resilient fallback:
+   - Any CDP runtime failure now degrades to polling capture when time budget remains.
+   - If CDP already emitted frames, fallback continues the same output stream with `capture_mode` marked as `cdp+polling`.
+
+Additional hardening:
+3. Session hydration reliability:
+   - Headless hydration now prefers request-scoped session id and tries multiple URL candidates.
+   - Prevents stale ZIP `project.sessionId` from breaking file hydration.
+4. MP4 encoder safety:
+   - Capture viewport is normalized to even dimensions.
+   - MP4 FFmpeg path applies an even-dimension scale filter (`scale=trunc(iw/2)*2:trunc(ih/2)*2`) to avoid x264 odd-height failures.
+5. Dev auth fallback:
+   - In debug builds, missing request/env auth token falls back to `dev-token` for internal hydration routes.
 
 ## Operational Tuning Knobs
 Current constants in `backend/src/api/media/video_logic.rs`:

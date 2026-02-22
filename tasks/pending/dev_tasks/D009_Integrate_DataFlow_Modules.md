@@ -16,6 +16,7 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 - [ ] [backend/src/services/project/validate_utils.rs]
 - [ ] [src/components/Sidebar/SidebarBase.res]
 - [ ] [src/components/Sidebar/SidebarLogicHandler.res]
+- [ ] [src/systems/TeaserManifest.res]
 - [ ] [src/systems/Api/AuthenticatedClientBase.res]
 - [ ] [src/systems/Api/AuthenticatedClientRequest.res]
 - [ ] [src/systems/Api/ProjectImportApi.res]

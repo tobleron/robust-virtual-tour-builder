@@ -149,6 +149,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Core playback, recording orchestration, and cinematic movement logic for teasers. `#teaser` `#playback` `#logic`
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Extracted playback helpers for viewer readiness waits, pan animation, and shot transitions. `#teaser` `#playback` `#helpers`
 *   [src/systems/TeaserStyleConfig.res](src/systems/TeaserStyleConfig.res): Style-specific teaser timing and camera offset configuration. `#teaser` `#config`
+*   [src/systems/TeaserManifest.res](src/systems/TeaserManifest.res): Deterministic motion manifest (`motion-spec-v1`) generation for teaser consistency. `#teaser` `#manifest` `#logic`
 
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`

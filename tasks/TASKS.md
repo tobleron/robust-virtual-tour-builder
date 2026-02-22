@@ -31,10 +31,68 @@
 - **Workflow**: Follows the active→completed workflow.
 - **Cleanup**: Mandatory completion of the "Rollback Check" before moving to `completed/`.
 
+### Agent-Delegated Tasks (Conditional: Jules / Any AI Agent) 🤖
+- **Trigger**: Apply this section only when a task is explicitly delegated to Jules (or another AI coding agent).
+- **Observed Capability Profile (evidence-based)**:
+  - Strong: focused implementation in bounded modules, adding fallback/telemetry when scope is constrained.
+  - Weak: broad multi-phase closure in one session (cross-domain implementation + full validation + documentation + benchmark proof).
+- **Mandatory Task Header Fields** (must exist inside the task file):
+  - `Assignee`
+  - `Capacity Class` (`A` or `B` only)
+  - `Objective` (single dominant success condition)
+  - `Boundary` (allowed modules/directories)
+  - `Owned Interfaces` (contracts that may be changed)
+  - `No-Touch Zones` (shared files/modules forbidden for edits)
+  - `Independent Verification` (proof that does not depend on unfinished parallel work)
+  - `Depends On` (previous task ID, if sequential)
+- **Capacity Model**:
+  - `Capacity A` (default): one subsystem focus, one primary objective, one verification dimension.
+  - `Capacity B` (allowed with strict bounds): up to two tightly-coupled objectives, second subsystem only for thin integration.
+  - `Capacity C` (not assignable as a single task): multi-phase epics or cross-domain closure campaigns.
+- **Capacity Gate**:
+  - If a draft task is `Capacity C`, split into sequential tasks before assignment.
+  - Never combine broad implementation + full QA campaign + rollout documentation in one delegated task.
+- **Mandatory Sizing Rules**:
+  - One delegated task must have one dominant success condition.
+  - Limit expected file-touch radius before assignment.
+  - Quantitative validation (FPS, drift, latency, memory) is a separate task unless trivially scoped.
+  - Broad analytical documentation is a separate closure task.
+- **Parallel Safety Rule**:
+  - Every delegated task must be isolated enough to run in parallel without touching the same shared architecture files.
+  - If conflict risk is high, enforce sequential execution and declare dependency explicitly.
+  - Every delegated task must declare:
+    - `Boundary`
+    - `Owned Interfaces`
+    - `No-Touch Zones`
+    - `Merge Risk` (expected conflict files)
+- **Decomposition Rule for Large Features**:
+  - Split into ordered slices:
+    1. implementation slice,
+    2. stability/fallback slice,
+    3. validation/metrics slice,
+    4. documentation/rollout slice.
+  - Each slice must have independent acceptance and verification evidence.
+- **Review Policy for Delegated Work**:
+  - Verify acceptance criteria line-by-line against the task text.
+  - Classify result strictly:
+    - `Complete`: all criteria and required evidence delivered.
+    - `Partial`: code exists but closure gates/evidence missing.
+    - `Not Ready`: compile/runtime correctness not met.
+- **Practical Assignment Limits (default)**:
+  - Maximum one major behavior change per delegated task.
+  - Maximum one fallback mechanism per delegated task.
+  - Maximum one runtime environment assumption per delegated task.
+  - Maximum one performance target per delegated task.
+
 
 ## Workflow Instructions (Must be followed sequentially)
 
 ⚠️ **NOTE**: These instructions apply to **main project tasks only** (numbered 1XX, 2XX, etc.). Dev-system tasks (prefixed D###) are auto-generated guidance and do **NOT** follow this workflow.
+
+0. **Conditional Delegation Pre-Flight (AI-assigned tasks only)**:
+   - Confirm mandatory delegated-task header fields are present.
+   - Confirm `Capacity Class` is `A` or `B`; if not, split before execution.
+   - Confirm `Boundary` / `No-Touch Zones` isolate the task from parallel work.
 
 1. **Move the task to active folder first**: Before starting any work, move the intended task file from `pending/` (not `dev_tasks/`) or `postponed/` to the `active/` folder.
 
@@ -61,4 +119,3 @@
 - `active/`: The single main project task currently being worked on.
 - `completed/`: All finished main project tasks (`_DONE`, `_UPDATED`, etc.) and cancelled tasks (`_ABORTED`).
 - `postponed/`: Main project tasks deferred for later.
-

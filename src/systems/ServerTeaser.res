@@ -9,6 +9,8 @@ let generateServerTeaser = (
   state: state,
   format: string,
   onProgress,
+  ~motionManifest: option<motionManifest>=?,
+  ~renderEngine: string="frontend_webm",
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ) => {
   let boolJson = b => b ? "true" : "false"
@@ -34,6 +36,13 @@ let generateServerTeaser = (
   FormData.append(formData, "format", format)
   FormData.append(formData, "width", "1920")
   FormData.append(formData, "height", "1080")
+  FormData.append(formData, "render_engine", renderEngine)
+
+  motionManifest->Option.forEach(m => {
+    let mJson = JsonCombinators.Json.stringify(JsonParsers.Encoders.motionManifest(m))
+    FormData.append(formData, "motion_manifest", mJson)
+  })
+
   let motionProfileJson =
     "{\"skipAutoForward\":" ++
     boolJson(Constants.Teaser.HeadlessMotion.skipAutoForward) ++

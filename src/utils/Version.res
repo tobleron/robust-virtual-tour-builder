@@ -5,7 +5,7 @@
  */
 
 let version = "4.30.15"
-let buildNumber = 8
+let buildNumber = 9
 let buildInfo = "[Development Build]"
 
 /**

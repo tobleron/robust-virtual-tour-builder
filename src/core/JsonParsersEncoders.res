@@ -280,3 +280,43 @@ let state = (s: Types.state) => {
     ),
   ])
 }
+
+let motionAnimationSegment = (s: Types.motionAnimationSegment) => {
+  Encode.object([
+    ("startYaw", Encode.float(s.startYaw)),
+    ("endYaw", Encode.float(s.endYaw)),
+    ("startPitch", Encode.float(s.startPitch)),
+    ("endPitch", Encode.float(s.endPitch)),
+    ("startHfov", Encode.float(s.startHfov)),
+    ("endHfov", Encode.float(s.endHfov)),
+    ("easing", Encode.string(s.easing)),
+    ("durationMs", Encode.int(s.durationMs)),
+  ])
+}
+
+let motionTransitionOut = (t: Types.motionTransitionOut) => {
+  Encode.object([
+    ("type", Encode.string(t.type_)),
+    ("durationMs", Encode.int(t.durationMs)),
+  ])
+}
+
+let motionShot = (s: Types.motionShot) => {
+  Encode.object([
+    ("sceneId", Encode.string(s.sceneId)),
+    ("arrivalPose", viewFrame(s.arrivalPose)),
+    ("animationSegments", Encode.array(motionAnimationSegment)(s.animationSegments)),
+    ("transitionOut", Encode.option(motionTransitionOut)(s.transitionOut)),
+  ])
+}
+
+let motionManifest = (m: Types.motionManifest) => {
+  Encode.object([
+    ("version", Encode.string(m.version)),
+    ("fps", Encode.int(m.fps)),
+    ("canvasWidth", Encode.int(m.canvasWidth)),
+    ("canvasHeight", Encode.int(m.canvasHeight)),
+    ("includeIntroPan", Encode.bool(m.includeIntroPan)),
+    ("shots", Encode.array(motionShot)(m.shots)),
+  ])
+}
