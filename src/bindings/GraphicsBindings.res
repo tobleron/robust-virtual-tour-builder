@@ -8,6 +8,9 @@ module Canvas = {
   @set external setStrokeStyle: (context2d, string) => unit = "strokeStyle"
   @set external setLineWidth: (context2d, float) => unit = "lineWidth"
   @set external setGlobalAlpha: (context2d, float) => unit = "globalAlpha"
+  @set external setFont: (context2d, string) => unit = "font"
+  @set external setTextAlign: (context2d, string) => unit = "textAlign"
+  @set external setTextBaseline: (context2d, string) => unit = "textBaseline"
   @set external setShadowColor: (context2d, string) => unit = "shadowColor"
   @set external setShadowBlur: (context2d, float) => unit = "shadowBlur"
   @set external setShadowOffsetX: (context2d, float) => unit = "shadowOffsetX"
@@ -42,6 +45,9 @@ module Canvas = {
   @send external closePath: context2d => unit = "closePath"
   @send external stroke: context2d => unit = "stroke"
   @send external fill: context2d => unit = "fill"
+  type textMetrics
+  @send external fillText: (context2d, string, float, float) => unit = "fillText"
+  @send external measureText: (context2d, string) => textMetrics = "measureText"
   @send external save: context2d => unit = "save"
   @send external restore: context2d => unit = "restore"
 
@@ -56,6 +62,7 @@ module Canvas = {
 
   @send external roundRect: (context2d, float, float, float, float, float) => unit = "roundRect"
   @send external rect: (context2d, float, float, float, float) => unit = "rect"
+  @get external textMetricsWidth: textMetrics => float = "width"
 }
 
 module Svg = {

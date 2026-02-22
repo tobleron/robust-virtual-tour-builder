@@ -1,5 +1,10 @@
 // @efficiency-role: ui-component
 
+type teaserRequest = {
+  format: string,
+  styleId: string,
+}
+
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
@@ -9,6 +14,7 @@ let make = React.memo((
   ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onTeaser: (
     ~format: string,
+    ~styleId: string,
     ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
@@ -17,7 +23,10 @@ let make = React.memo((
   ~isLinking: bool,
 ) => {
   let isPermitted = Hooks.useIsInteractionPermitted()
-  let (teaserFormat, setTeaserFormat) = React.useState(_ => "webm")
+  let teaserStyleRequestRef: React.ref<teaserRequest> = React.useRef({
+    format: "webm",
+    styleId: TeaserStyleCatalog.toString(TeaserStyleCatalog.defaultStyle),
+  })
 
   let saveAbortRef = React.useRef(None)
   let (saveExecute, savePending, _saveThrottled) = UseInteraction.useInteraction(
@@ -98,7 +107,12 @@ let make = React.memo((
         | None => ()
         }
       }
-      await onTeaser(~format=teaserFormat, ~signal, ~onCancel)
+      await onTeaser(
+        ~format=teaserStyleRequestRef.current.format,
+        ~styleId=teaserStyleRequestRef.current.styleId,
+        ~signal,
+        ~onCancel,
+      )
       teaserAbortRef.current = None
     },
   )
@@ -182,8 +196,69 @@ let make = React.memo((
             : ""}`}
         disabled={!teaserReady || !isPermitted || isLinking || teaserPending}
         onClick={_ => {
-          setTeaserFormat(_ => "webm")
-          let _ = teaserExecute()
+          let styleButtons: array<
+            EventBus.button,
+          > = TeaserStyleCatalog.options->Belt.Array.map(opt => {
+            if opt.available {
+              (
+                {
+                  label: opt.label ++ " (WebM)",
+                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
+                  onClick: () => {
+                    teaserStyleRequestRef.current = {format: "webm", styleId: opt.id}
+                    let _ = teaserExecute()
+                  },
+                  autoClose: Some(true),
+                }: EventBus.button
+              )
+            } else {
+              (
+                {
+                  label: opt.label ++ " (Soon)",
+                  class_: "bg-slate-100/10 text-white/55 cursor-not-allowed",
+                  onClick: () => {
+                    NotificationManager.dispatch({
+                      id: "",
+                      importance: Info,
+                      context: Operation("teaser"),
+                      message: opt.label ++ " teaser style is not available yet.",
+                      details: Some(opt.description),
+                      action: None,
+                      duration: NotificationTypes.defaultTimeoutMs(Info),
+                      dismissible: true,
+                      createdAt: Date.now(),
+                    })
+                  },
+                  autoClose: Some(false),
+                }: EventBus.button
+              )
+            }
+          })
+
+          EventBus.dispatch(
+            ShowModal({
+              title: "Choose Teaser Style",
+              description: Some(
+                "Select the teaser rendering style. Only Cinematic is currently available.",
+              ),
+              icon: Some("info"),
+              content: None,
+              onClose: None,
+              allowClose: Some(true),
+              className: Some("modal-blue modal-teaser-style"),
+              buttons: Belt.Array.concat(
+                styleButtons,
+                [
+                  {
+                    label: "Cancel",
+                    class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                    onClick: () => (),
+                    autoClose: Some(true),
+                  },
+                ],
+              ),
+            }),
+          )
         }}
         ariaLabel="Create Teaser"
       >

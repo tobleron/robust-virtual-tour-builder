@@ -10,108 +10,6 @@
   "rust": [
     {
       "Surgical": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 71.36608066184075,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/media/video_logic.rs",
-              "functions": [
-                {
-                  "name": "from_str",
-                  "signature": "pub fn from_str(raw: &str) -> Self {",
-                  "line": 118
-                },
-                {
-                  "name": "extension",
-                  "signature": "pub fn extension(self) -> &'static str {",
-                  "line": 125
-                },
-                {
-                  "name": "content_type",
-                  "signature": "pub fn content_type(self) -> &'static str {",
-                  "line": 132
-                },
-                {
-                  "name": "new",
-                  "signature": "fn new(child: std::process::Child) -> Self {",
-                  "line": 143
-                },
-                {
-                  "name": "take",
-                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
-                  "line": 147
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 153
-                },
-                {
-                  "name": "headless_backend_origin",
-                  "signature": "fn headless_backend_origin() -> String {",
-                  "line": 161
-                },
-                {
-                  "name": "apply_capture_mode",
-                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
-                  "line": 165
-                },
-                {
-                  "name": "resolve_capture_viewport",
-                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
-                  "line": 179
-                },
-                {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
-                  "line": 207
-                },
-                {
-                  "name": "start_script_content",
-                  "signature": "fn start_script_content(format: TeaserOutputFormat) -> &'static str {",
-                  "line": 270
-                },
-                {
-                  "name": "capture_frames_cdp",
-                  "signature": "fn capture_frames_cdp(",
-                  "line": 295
-                },
-                {
-                  "name": "capture_frames_polling",
-                  "signature": "fn capture_frames_polling(",
-                  "line": 494
-                },
-                {
-                  "name": "generate_teaser_sync",
-                  "signature": "pub fn generate_teaser_sync(",
-                  "line": 605
-                },
-                {
-                  "name": "get_ffmpeg_command",
-                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
-                  "line": 946
-                },
-                {
-                  "name": "teaser_output_format_parses_mp4_and_defaults_to_webm",
-                  "signature": "fn teaser_output_format_parses_mp4_and_defaults_to_webm() {",
-                  "line": 955
-                }
-              ],
-              "fingerprint": "ffb3f85250c5367e7e71b3c7f9a5d1493aac2a1cc2799c96dd68a9f1cb80f177"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../backend/src/services/project/package.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.01] | Drag: 4.42 | LOC: 481/300",
@@ -365,6 +263,108 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 71.36608066184075,
+        "recommended_splits": 4,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video_logic.rs",
+              "functions": [
+                {
+                  "name": "from_str",
+                  "signature": "pub fn from_str(raw: &str) -> Self {",
+                  "line": 118
+                },
+                {
+                  "name": "extension",
+                  "signature": "pub fn extension(self) -> &'static str {",
+                  "line": 125
+                },
+                {
+                  "name": "content_type",
+                  "signature": "pub fn content_type(self) -> &'static str {",
+                  "line": 132
+                },
+                {
+                  "name": "new",
+                  "signature": "fn new(child: std::process::Child) -> Self {",
+                  "line": 143
+                },
+                {
+                  "name": "take",
+                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
+                  "line": 147
+                },
+                {
+                  "name": "drop",
+                  "signature": "fn drop(&mut self) {",
+                  "line": 153
+                },
+                {
+                  "name": "headless_backend_origin",
+                  "signature": "fn headless_backend_origin() -> String {",
+                  "line": 161
+                },
+                {
+                  "name": "apply_capture_mode",
+                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
+                  "line": 165
+                },
+                {
+                  "name": "resolve_capture_viewport",
+                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
+                  "line": 179
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
+                  "line": 207
+                },
+                {
+                  "name": "start_script_content",
+                  "signature": "fn start_script_content(format: TeaserOutputFormat) -> &'static str {",
+                  "line": 270
+                },
+                {
+                  "name": "capture_frames_cdp",
+                  "signature": "fn capture_frames_cdp(",
+                  "line": 295
+                },
+                {
+                  "name": "capture_frames_polling",
+                  "signature": "fn capture_frames_polling(",
+                  "line": 494
+                },
+                {
+                  "name": "generate_teaser_sync",
+                  "signature": "pub fn generate_teaser_sync(",
+                  "line": 605
+                },
+                {
+                  "name": "get_ffmpeg_command",
+                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
+                  "line": 946
+                },
+                {
+                  "name": "teaser_output_format_parses_mp4_and_defaults_to_webm",
+                  "signature": "fn teaser_output_format_parses_mp4_and_defaults_to_webm() {",
+                  "line": 955
+                }
+              ],
+              "fingerprint": "ffb3f85250c5367e7e71b3c7f9a5d1493aac2a1cc2799c96dd68a9f1cb80f177"
+            }
+          ]
+        }
+      }
     }
   ],
   "rescript": [
@@ -487,149 +487,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.489371980676328,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 6
-                },
-                {
-                  "name": "make",
-                  "signature": "make = (",
-                  "line": 23
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 114
-                }
-              ],
-              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.03, Coupling: 0.11] | Drag: 3.43 | LOC: 409/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.326894865525674,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TeaserLogic.res",
-              "functions": [
-                {
-                  "name": "canvasWidth",
-                  "signature": "canvasWidth = Constants.Teaser.canvasWidth",
-                  "line": 7
-                },
-                {
-                  "name": "canvasHeight",
-                  "signature": "canvasHeight = Constants.Teaser.canvasHeight",
-                  "line": 8
-                },
-                {
-                  "name": "readHeadlessMotionProfile",
-                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
-                  "line": 31
-                },
-                {
-                  "name": "readMotionManifest",
-                  "signature": "readMotionManifest = (): option<motionManifest> => {",
-                  "line": 43
-                },
-                {
-                  "name": "resolveTeaserStartView",
-                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
-                  "line": 62
-                },
-                {
-                  "name": "centerViewerAtWaypointStart",
-                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
-                  "line": 88
-                },
-                {
-                  "name": "signalIsAborted",
-                  "signature": "signalIsAborted = signal =>",
-                  "line": 112
-                },
-                {
-                  "name": "throwIfCancelled",
-                  "signature": "throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>",
-                  "line": 118
-                },
-                {
-                  "name": "formatEta",
-                  "signature": "formatEta = (etaMs: float) => {",
-                  "line": 125
-                },
-                {
-                  "name": "renderDeterministicWebM",
-                  "signature": "renderDeterministicWebM = async (",
-                  "line": 140
-                },
-                {
-                  "name": "finalizeTeaser",
-                  "signature": "finalizeTeaser = async (format, baseName) => {",
-                  "line": 237
-                },
-                {
-                  "name": "logoState",
-                  "signature": "logoState = await Recorder.loadLogo()",
-                  "line": 272
-                },
-                {
-                  "name": "check",
-                  "signature": "check = async () => {",
-                  "line": 276
-                },
-                {
-                  "name": "safeName",
-                  "signature": "safeName =",
-                  "line": 285
-                }
-              ],
-              "fingerprint": "d8406fee93985e78d1f79e4a2145d856999553409bf2779684e5b7d5a2043706"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)",
@@ -690,6 +547,443 @@
                 }
               ],
               "fingerprint": "af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.11] | Drag: 3.42 | LOC: 385/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.918181818181818,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserLogic.res",
+              "functions": [
+                {
+                  "name": "readHeadlessMotionProfile",
+                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
+                  "line": 24
+                },
+                {
+                  "name": "readMotionManifest",
+                  "signature": "readMotionManifest = (): option<motionManifest> => {",
+                  "line": 36
+                },
+                {
+                  "name": "resolveTeaserStartView",
+                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
+                  "line": 55
+                },
+                {
+                  "name": "centerViewerAtWaypointStart",
+                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
+                  "line": 81
+                },
+                {
+                  "name": "signalIsAborted",
+                  "signature": "signalIsAborted = signal =>",
+                  "line": 105
+                },
+                {
+                  "name": "finalizeTeaser",
+                  "signature": "finalizeTeaser = async (format, baseName) => {",
+                  "line": 112
+                },
+                {
+                  "name": "logoState",
+                  "signature": "logoState = await Recorder.loadLogo()",
+                  "line": 147
+                },
+                {
+                  "name": "check",
+                  "signature": "check = async () => {",
+                  "line": 151
+                },
+                {
+                  "name": "safeName",
+                  "signature": "safeName =",
+                  "line": 160
+                }
+              ],
+              "fingerprint": "b2fa6a257ea8bc8f16d7df2ff3c40b4021578e4343a4af6911b58e4c8941ac17"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserRecorder.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.24 | LOC: 478/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 25.042677824267784,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserRecorder.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserRecorder.res",
+              "functions": [
+                {
+                  "name": "canvasWidth",
+                  "signature": "canvasWidth = Constants.Teaser.canvasWidth",
+                  "line": 4
+                },
+                {
+                  "name": "canvasHeight",
+                  "signature": "canvasHeight = Constants.Teaser.canvasHeight",
+                  "line": 5
+                },
+                {
+                  "name": "internalState",
+                  "signature": "internalState = ref({",
+                  "line": 59
+                },
+                {
+                  "name": "requestDeterministicFrame",
+                  "signature": "requestDeterministicFrame = () => {",
+                  "line": 72
+                },
+                {
+                  "name": "getOrCreate",
+                  "signature": "getOrCreate = () => {",
+                  "line": 80
+                },
+                {
+                  "name": "setOpacity",
+                  "signature": "setOpacity = (opacity: float) => {",
+                  "line": 96
+                },
+                {
+                  "name": "loadLogo",
+                  "signature": "loadLogo = () =>",
+                  "line": 110
+                },
+                {
+                  "name": "initGhost",
+                  "signature": "initGhost = () => {",
+                  "line": 118
+                },
+                {
+                  "name": "checkRoundRect",
+                  "signature": "checkRoundRect: 'a => bool = %raw(\"function(x) { return typeof x === 'function'; }\")",
+                  "line": 131
+                },
+                {
+                  "name": "drawRoundedRect",
+                  "signature": "drawRoundedRect = (ctx, x, y, width, height, radius) => {",
+                  "line": 133
+                },
+                {
+                  "name": "hdReferenceWidth",
+                  "signature": "hdReferenceWidth = Constants.Teaser.HudReference.stageWidth",
+                  "line": 145
+                },
+                {
+                  "name": "hdReferenceHeight",
+                  "signature": "hdReferenceHeight = Constants.Teaser.HudReference.stageHeight",
+                  "line": 146
+                },
+                {
+                  "name": "getHudScale",
+                  "signature": "getHudScale = (): hudScale => {",
+                  "line": 148
+                },
+                {
+                  "name": "renderWatermark",
+                  "signature": "renderWatermark = (ctx, logoImg, scale: hudScale) => {",
+                  "line": 161
+                },
+                {
+                  "name": "renderRoomLabel",
+                  "signature": "renderRoomLabel = (ctx, roomLabel: string, scale: hudScale) => {",
+                  "line": 186
+                },
+                {
+                  "name": "renderFloorNav",
+                  "signature": "renderFloorNav = (",
+                  "line": 250
+                },
+                {
+                  "name": "renderFrame",
+                  "signature": "renderFrame = (",
+                  "line": 322
+                },
+                {
+                  "name": "startAnimationLoop",
+                  "signature": "startAnimationLoop = (includeLogo, logoState) => {",
+                  "line": 373
+                },
+                {
+                  "name": "startRecording",
+                  "signature": "startRecording = (~deterministic=false, ()) => {",
+                  "line": 385
+                },
+                {
+                  "name": "stopRecording",
+                  "signature": "stopRecording = () => {",
+                  "line": 445
+                },
+                {
+                  "name": "pauseRecording",
+                  "signature": "pauseRecording = () => {",
+                  "line": 468
+                },
+                {
+                  "name": "resumeRecording",
+                  "signature": "resumeRecording = () => {",
+                  "line": 475
+                },
+                {
+                  "name": "getGhostCanvas",
+                  "signature": "getGhostCanvas = () => internalState.contents.ghostCanvas->Nullable.fromOption",
+                  "line": 482
+                },
+                {
+                  "name": "getRecordedBlobs",
+                  "signature": "getRecordedBlobs = () => internalState.contents.chunks",
+                  "line": 483
+                },
+                {
+                  "name": "setSnapshot",
+                  "signature": "setSnapshot = (canvas: Dom.element) => {",
+                  "line": 485
+                },
+                {
+                  "name": "setFadeOpacity",
+                  "signature": "setFadeOpacity = (opacity: float) => {",
+                  "line": 500
+                },
+                {
+                  "name": "startRecording",
+                  "signature": "startRecording = startRecording",
+                  "line": 506
+                },
+                {
+                  "name": "stopRecording",
+                  "signature": "stopRecording = stopRecording",
+                  "line": 507
+                },
+                {
+                  "name": "pause",
+                  "signature": "pause = pauseRecording",
+                  "line": 508
+                },
+                {
+                  "name": "resume",
+                  "signature": "resume = resumeRecording",
+                  "line": 509
+                },
+                {
+                  "name": "getGhostCanvas",
+                  "signature": "getGhostCanvas = getGhostCanvas",
+                  "line": 510
+                },
+                {
+                  "name": "getRecordedBlobs",
+                  "signature": "getRecordedBlobs = getRecordedBlobs",
+                  "line": 511
+                },
+                {
+                  "name": "setSnapshot",
+                  "signature": "setSnapshot = setSnapshot",
+                  "line": 512
+                },
+                {
+                  "name": "setFadeOpacity",
+                  "signature": "setFadeOpacity = setFadeOpacity",
+                  "line": 513
+                },
+                {
+                  "name": "loadLogo",
+                  "signature": "loadLogo = loadLogo",
+                  "line": 514
+                },
+                {
+                  "name": "startAnimationLoop",
+                  "signature": "startAnimationLoop = startAnimationLoop",
+                  "line": 515
+                },
+                {
+                  "name": "requestDeterministicFrame",
+                  "signature": "requestDeterministicFrame = requestDeterministicFrame",
+                  "line": 516
+                },
+                {
+                  "name": "renderFrame",
+                  "signature": "renderFrame = renderFrame",
+                  "line": 517
+                },
+                {
+                  "name": "internalState",
+                  "signature": "internalState = internalState",
+                  "line": 518
+                }
+              ],
+              "fingerprint": "4053465960cf994bad833424f273eb8868bc7f07786553018bfce6627f2b2886"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.09, Coupling: 0.08] | Drag: 4.09 | LOC: 414/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.489371980676328,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 6
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (",
+                  "line": 23
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 114
+                }
+              ],
+              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserPlayback.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 385/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.923376623376623,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserPlayback.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserPlayback.res",
+              "functions": [
+                {
+                  "name": "wait",
+                  "signature": "wait = (ms: int) =>",
+                  "line": 11
+                },
+                {
+                  "name": "waitForViewerReady",
+                  "signature": "waitForViewerReady = async (sceneId: string) => {",
+                  "line": 16
+                },
+                {
+                  "name": "animatePose",
+                  "signature": "animatePose = async (startPose: Types.viewFrame, endPose: Types.viewFrame, durationMs: float) => {",
+                  "line": 47
+                },
+                {
+                  "name": "animatePan",
+                  "signature": "animatePan = async (fromYaw, toYaw, pitch, duration) => {",
+                  "line": 74
+                },
+                {
+                  "name": "prepareFirstScene",
+                  "signature": "prepareFirstScene = async (",
+                  "line": 82
+                },
+                {
+                  "name": "recordShot",
+                  "signature": "recordShot = async (_i, step: Pathfinder.step, style, config: State.teaserConfig) => {",
+                  "line": 113
+                },
+                {
+                  "name": "transitionToNextShot",
+                  "signature": "transitionToNextShot = async (",
+                  "line": 125
+                },
+                {
+                  "name": "clamp01",
+                  "signature": "clamp01 = (v: float): float =>",
+                  "line": 191
+                },
+                {
+                  "name": "getShotMotionDuration",
+                  "signature": "getShotMotionDuration = (shot: motionShot): float => {",
+                  "line": 200
+                },
+                {
+                  "name": "getShotTiming",
+                  "signature": "getShotTiming = (shot: motionShot): shotTiming => {",
+                  "line": 209
+                },
+                {
+                  "name": "getLastSegmentPose",
+                  "signature": "getLastSegmentPose = (shot: motionShot): viewFrame => {",
+                  "line": 223
+                },
+                {
+                  "name": "getShotTargetPose",
+                  "signature": "getShotTargetPose = (shot: motionShot): viewFrame => {",
+                  "line": 230
+                },
+                {
+                  "name": "interpolateSegments",
+                  "signature": "interpolateSegments = (shot: motionShot, localMotionMs: float): viewFrame => {",
+                  "line": 241
+                },
+                {
+                  "name": "resolveShotPoseAt",
+                  "signature": "resolveShotPoseAt = (shot: motionShot, localMs: float): viewFrame => {",
+                  "line": 270
+                },
+                {
+                  "name": "getManifestStateAt",
+                  "signature": "getManifestStateAt = (manifest: motionManifest, timeMs: float): manifestFrameState => {",
+                  "line": 289
+                },
+                {
+                  "name": "playManifest",
+                  "signature": "playManifest = async (",
+                  "line": 352
+                }
+              ],
+              "fingerprint": "d7ef418ef3fe601e5093142b072094210f40a67fb5d8103408bc57348c5a2b2b"
             }
           ]
         }

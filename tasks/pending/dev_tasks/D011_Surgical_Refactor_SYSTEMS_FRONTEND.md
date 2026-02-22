@@ -17,7 +17,11 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.03, Coupling: 0.11] | Drag: 3.43 | LOC: 409/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.11] | Drag: 3.42 | LOC: 385/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
+- [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 385/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
+- [ ] - **../../src/systems/TeaserRecorder.res** (Metric: [Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.24 | LOC: 478/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -48,20 +52,67 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - useOperations × 1 (lines: 411)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
-- `src/systems/TeaserLogic.res` (14 functions, fingerprint d8406fee93985e78d1f79e4a2145d856999553409bf2779684e5b7d5a2043706)
+- `src/systems/TeaserLogic.res` (9 functions, fingerprint b2fa6a257ea8bc8f16d7df2ff3c40b4021578e4343a4af6911b58e4c8941ac17)
     - Grouped summary:
-        - canvasHeight × 1 (lines: 8)
-        - canvasWidth × 1 (lines: 7)
-        - centerViewerAtWaypointStart × 1 (lines: 88)
-        - check × 1 (lines: 276)
-        - finalizeTeaser × 1 (lines: 237)
-        - formatEta × 1 (lines: 125)
-        - logoState × 1 (lines: 272)
-        - readHeadlessMotionProfile × 1 (lines: 31)
-        - readMotionManifest × 1 (lines: 43)
-        - renderDeterministicWebM × 1 (lines: 140)
-        - resolveTeaserStartView × 1 (lines: 62)
-        - safeName × 1 (lines: 285)
-        - signalIsAborted × 1 (lines: 112)
-        - throwIfCancelled × 1 (lines: 118)
+        - centerViewerAtWaypointStart × 1 (lines: 81)
+        - check × 1 (lines: 151)
+        - finalizeTeaser × 1 (lines: 112)
+        - logoState × 1 (lines: 147)
+        - readHeadlessMotionProfile × 1 (lines: 24)
+        - readMotionManifest × 1 (lines: 36)
+        - resolveTeaserStartView × 1 (lines: 55)
+        - safeName × 1 (lines: 160)
+        - signalIsAborted × 1 (lines: 105)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/systems/TeaserPlayback.res`
+- `src/systems/TeaserPlayback.res` (16 functions, fingerprint d7ef418ef3fe601e5093142b072094210f40a67fb5d8103408bc57348c5a2b2b)
+    - Grouped summary:
+        - animatePan × 1 (lines: 74)
+        - animatePose × 1 (lines: 47)
+        - clamp01 × 1 (lines: 191)
+        - getLastSegmentPose × 1 (lines: 223)
+        - getManifestStateAt × 1 (lines: 289)
+        - getShotMotionDuration × 1 (lines: 200)
+        - getShotTargetPose × 1 (lines: 230)
+        - getShotTiming × 1 (lines: 209)
+        - interpolateSegments × 1 (lines: 241)
+        - playManifest × 1 (lines: 352)
+        - prepareFirstScene × 1 (lines: 82)
+        - recordShot × 1 (lines: 113)
+        - resolveShotPoseAt × 1 (lines: 270)
+        - transitionToNextShot × 1 (lines: 125)
+        - wait × 1 (lines: 11)
+        - waitForViewerReady × 1 (lines: 16)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/systems/TeaserRecorder.res`
+- `src/systems/TeaserRecorder.res` (39 functions, fingerprint 4053465960cf994bad833424f273eb8868bc7f07786553018bfce6627f2b2886)
+    - Grouped summary:
+        - canvasHeight × 1 (lines: 5)
+        - canvasWidth × 1 (lines: 4)
+        - checkRoundRect × 1 (lines: 131)
+        - drawRoundedRect × 1 (lines: 133)
+        - getGhostCanvas × 2 (lines: 482, 510)
+        - getHudScale × 1 (lines: 148)
+        - getOrCreate × 1 (lines: 80)
+        - getRecordedBlobs × 2 (lines: 483, 511)
+        - hdReferenceHeight × 1 (lines: 146)
+        - hdReferenceWidth × 1 (lines: 145)
+        - initGhost × 1 (lines: 118)
+        - internalState × 2 (lines: 59, 518)
+        - loadLogo × 2 (lines: 110, 514)
+        - pause × 1 (lines: 508)
+        - pauseRecording × 1 (lines: 468)
+        - renderFloorNav × 1 (lines: 250)
+        - renderFrame × 2 (lines: 322, 517)
+        - renderRoomLabel × 1 (lines: 186)
+        - renderWatermark × 1 (lines: 161)
+        - requestDeterministicFrame × 2 (lines: 72, 516)
+        - resume × 1 (lines: 509)
+        - resumeRecording × 1 (lines: 475)
+        - setFadeOpacity × 2 (lines: 500, 513)
+        - setOpacity × 1 (lines: 96)
+        - setSnapshot × 2 (lines: 485, 512)
+        - startAnimationLoop × 2 (lines: 373, 515)
+        - startRecording × 2 (lines: 385, 506)
+        - stopRecording × 2 (lines: 445, 507)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

@@ -244,4 +244,67 @@ describe("TeaserPlayback", () => {
     let fadeCalls = %raw(`mockSetFadeOpacity.mock.calls`)
     t->expect(Array.length(fadeCalls))->Expect.Int.toBeGreaterThan(1)
   })
+
+  test("getManifestStateAt applies wait->motion->blink->crossfade timeline", t => {
+    let shot1: Types.motionShot = {
+      sceneId: "scene1",
+      arrivalPose: {yaw: 0.0, pitch: 0.0, hfov: 90.0},
+      animationSegments: [
+        {
+          startYaw: 0.0,
+          endYaw: 10.0,
+          startPitch: 0.0,
+          endPitch: 0.0,
+          startHfov: 90.0,
+          endHfov: 90.0,
+          easing: "linear",
+          durationMs: 1000,
+        },
+      ],
+      transitionOut: Some({type_: "crossfade", durationMs: 300}),
+      pathData: None,
+      waitBeforePanMs: 100,
+      blinkAfterPanMs: 200,
+    }
+
+    let shot2: Types.motionShot = {
+      sceneId: "scene2",
+      arrivalPose: {yaw: 50.0, pitch: 5.0, hfov: 90.0},
+      animationSegments: [],
+      transitionOut: None,
+      pathData: None,
+      waitBeforePanMs: 0,
+      blinkAfterPanMs: 0,
+    }
+
+    let manifest: Types.motionManifest = {
+      version: "motion-spec-v1",
+      fps: 60,
+      canvasWidth: 1920,
+      canvasHeight: 1080,
+      includeIntroPan: false,
+      shots: [shot1, shot2],
+    }
+
+    let duringWait = getManifestStateAt(manifest, 50.0)
+    t->expect(duringWait.sceneId)->Expect.toBe("scene1")
+    t->expect(duringWait.pose.yaw)->Expect.toBe(0.0)
+    t->expect(duringWait.fadeOpacity)->Expect.toBe(0.0)
+
+    let duringMotion = getManifestStateAt(manifest, 600.0)
+    t->expect(duringMotion.sceneId)->Expect.toBe("scene1")
+    t->expect(duringMotion.pose.yaw)->Expect.Float.toBeGreaterThan(0.0)
+    t->expect(duringMotion.fadeOpacity)->Expect.toBe(0.0)
+
+    let duringBlink = getManifestStateAt(manifest, 1250.0)
+    t->expect(duringBlink.sceneId)->Expect.toBe("scene1")
+    t->expect(duringBlink.pose.yaw)->Expect.toBe(10.0)
+    t->expect(duringBlink.fadeOpacity)->Expect.toBe(0.0)
+
+    let duringTransition = getManifestStateAt(manifest, 1400.0)
+    t->expect(duringTransition.sceneId)->Expect.toBe("scene2")
+    t->expect(duringTransition.pose.yaw)->Expect.toBe(50.0)
+    t->expect(duringTransition.fadeOpacity)->Expect.Float.toBeGreaterThan(0.0)
+    t->expect(duringTransition.fadeOpacity)->Expect.Float.toBeLessThan(1.0)
+  })
 })

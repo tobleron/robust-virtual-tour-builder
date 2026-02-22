@@ -383,6 +383,9 @@ type motionShot = {
   arrivalPose: viewFrame,
   animationSegments: array<motionAnimationSegment>,
   transitionOut: option<motionTransitionOut>,
+  pathData: option<pathData>,
+  waitBeforePanMs: int,
+  blinkAfterPanMs: int,
 }
 
 type motionManifest = {

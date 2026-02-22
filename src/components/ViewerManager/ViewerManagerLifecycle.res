@@ -125,6 +125,7 @@ let useInitialization = (~getState, ~dispatch) => {
 
 let useLinkingAndSimUI = (
   ~isLinking: bool,
+  ~isTeasing: bool,
   ~simulation: simulationState,
   ~navigationState: navigationState,
   ~scenes: array<scene>,
@@ -132,7 +133,7 @@ let useLinkingAndSimUI = (
   ~getState: unit => state,
   ~dispatch: action => unit,
 ) => {
-  React.useEffect3(() => {
+  React.useEffect4(() => {
     let body = Dom.documentBody
     let guide = Dom.getElementById("cursor-guide")
     let currentState = getState()
@@ -154,6 +155,12 @@ let useLinkingAndSimUI = (
       | Some(g) => Dom.setProperty(g, "display", "none")
       | None => ()
       }
+    }
+
+    if isTeasing {
+      Dom.classList(body)->Dom.ClassList.add("teaser-mode")
+    } else {
+      Dom.classList(body)->Dom.ClassList.remove("teaser-mode")
     }
 
     // Redraw hotspot lines when linking mode changes to immediately clear/show draft lines
@@ -190,5 +197,5 @@ let useLinkingAndSimUI = (
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
     None
-  }, (isLinking, simulation.status, navigationState.navigation))
+  }, (isLinking, isTeasing, simulation.status, navigationState.navigation))
 }

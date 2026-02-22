@@ -87,9 +87,31 @@ body.viewer-state-portrait #viewer-stage {
     --viewer-ui-scale: clamp(0.56, calc((100vw - 260px) / 360), 0.8);
 }
 
-body.auto-pilot-active #sidebar {
-    pointer-events: none;
+body.auto-pilot-active #sidebar,
+body.teaser-mode #sidebar,
+body.export-mode #sidebar {
     opacity: 0.85;
-    filter: grayscale(100%);
     transition: all var(--transition-normal) ease;
+}
+
+body.auto-pilot-active #sidebar > :not(.sidebar-processing-card),
+body.teaser-mode #sidebar > :not(.sidebar-processing-card),
+body.export-mode #sidebar > :not(.sidebar-processing-card) {
+    filter: grayscale(100%);
+    pointer-events: none;
+}
+
+body.auto-pilot-active #sidebar .sidebar-processing-card,
+body.teaser-mode #sidebar .sidebar-processing-card,
+body.export-mode #sidebar .sidebar-processing-card,
+body.auto-pilot-active #sidebar .sidebar-processing-card *,
+body.teaser-mode #sidebar .sidebar-processing-card *,
+body.export-mode #sidebar .sidebar-processing-card * {
+    filter: none !important;
+    pointer-events: auto !important;
+}
+
+/* Keep system lock over viewer during export, but allow sidebar progress cancel actions */
+body.export-mode .interaction-lock-overlay {
+    left: 340px;
 }

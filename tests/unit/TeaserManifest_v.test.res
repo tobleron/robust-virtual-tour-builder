@@ -59,9 +59,7 @@ describe("TeaserManifest", () => {
   })
 
   test("JsonParsers decodes valid manifest", t => {
-    let json =
-      JsonCombinators.Json.parse(
-        `{
+    let json = JsonCombinators.Json.parse(`{
       "version": "motion-spec-v1",
       "fps": 60,
       "canvasWidth": 1920,
@@ -83,8 +81,7 @@ describe("TeaserManifest", () => {
           "transitionOut": {"type": "crossfade", "durationMs": 500}
         }
       ]
-    }`,
-      )->Result.getOrThrow
+    }`)->Result.getOrThrow
 
     let result = JsonCombinators.Json.decode(json, JsonParsers.Domain.motionManifest)
     t->expect(result->Result.isOk)->Expect.toEqual(true)
@@ -120,6 +117,9 @@ describe("TeaserManifest", () => {
             type_: "crossfade",
             durationMs: 1000,
           }),
+          pathData: None,
+          waitBeforePanMs: 0,
+          blinkAfterPanMs: 0,
         },
       ],
     }

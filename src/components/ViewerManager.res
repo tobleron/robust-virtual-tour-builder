@@ -47,6 +47,7 @@ let make = () => {
   let navSlice = AppContext.useNavigationSlice()
   ViewerManagerLifecycle.useLinkingAndSimUI(
     ~isLinking=uiSlice.isLinking,
+    ~isTeasing=uiSlice.isTeasing,
     ~simulation=simSlice.simulation,
     ~navigationState=navSlice,
     ~scenes=sceneSlice.scenes,

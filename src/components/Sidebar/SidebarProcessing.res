@@ -10,15 +10,26 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
   })
 
   if procState["active"] {
+    let phaseKey = procState["phase"]->String.toLowerCase
+    let themeClass = if String.includes(phaseKey, "teaser") {
+      "processing-theme-teaser"
+    } else if String.includes(phaseKey, "export") {
+      "processing-theme-export"
+    } else {
+      "processing-theme-default"
+    }
+
     <div
-      className="mx-4 mb-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in"
+      className={`sidebar-processing-card mx-4 mb-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in ${themeClass}`}
       role="status"
       ariaLive=#polite
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="spinner !w-3 !h-3 !border-2" />
-          <div className="font-semibold text-slate-700 text-[10px] uppercase tracking-widest">
+          <div className="spinner sidebar-progress-spinner !w-3 !h-3 !border-2" />
+          <div
+            className="font-semibold sidebar-progress-phase text-[10px] uppercase tracking-widest"
+          >
             {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
           </div>
         </div>
@@ -26,14 +37,14 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
           {if procState["cancellable"] {
             <button
               onClick={_ => procState["onCancel"]()}
-              className="text-[9px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+              className="pointer-events-auto text-[9px] font-bold text-red-600 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors uppercase tracking-widest px-2 py-0.5 rounded"
             >
               {React.string("Cancel")}
             </button>
           } else {
             React.null
           }}
-          <div className="font-heading font-semibold text-primary text-[11px]">
+          <div className="font-heading font-semibold sidebar-progress-percentage text-[11px]">
             {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
           </div>
         </div>

@@ -351,11 +351,49 @@ let motionTransitionOut = object(f => {
 })
 
 let motionShot = object(f => {
+  let motionPathPoint = object(pp => {
+    {
+      Types.yaw: pp->opt("yaw", float, 0.0),
+      pitch: pp->opt("pitch", float, 0.0),
+    }
+  })
+
+  let motionPathSegment = object(ps => {
+    {
+      Types.dist: ps->opt("dist", float, 0.0),
+      yawDiff: ps->opt("yawDiff", float, 0.0),
+      pitchDiff: ps->opt("pitchDiff", float, 0.0),
+      p1: ps->opt("p1", motionPathPoint, {yaw: 0.0, pitch: 0.0}),
+      p2: ps->opt("p2", motionPathPoint, {yaw: 0.0, pitch: 0.0}),
+    }
+  })
+
+  let motionPathData = object(pd => {
+    {
+      Types.startPitch: pd->opt("startPitch", float, 0.0),
+      startYaw: pd->opt("startYaw", float, 0.0),
+      startHfov: pd->opt("startHfov", float, 0.0),
+      targetPitchForPan: pd->opt("targetPitchForPan", float, 0.0),
+      targetYawForPan: pd->opt("targetYawForPan", float, 0.0),
+      targetHfovForPan: pd->opt("targetHfovForPan", float, 0.0),
+      totalPathDistance: pd->opt("totalPathDistance", float, 0.0),
+      segments: pd->opt("segments", array(motionPathSegment), []),
+      waypoints: pd->opt("waypoints", array(motionPathPoint), []),
+      panDuration: pd->opt("panDuration", float, 0.0),
+      arrivalYaw: pd->opt("arrivalYaw", float, 0.0),
+      arrivalPitch: pd->opt("arrivalPitch", float, 0.0),
+      arrivalHfov: pd->opt("arrivalHfov", float, 0.0),
+    }
+  })
+
   {
     Types.sceneId: f->opt("sceneId", string, ""),
     arrivalPose: f->opt("arrivalPose", viewFrame, {yaw: 0.0, pitch: 0.0, hfov: 0.0}),
     animationSegments: f->opt("animationSegments", array(motionAnimationSegment), []),
     transitionOut: f.optional("transitionOut", option(motionTransitionOut))->Option.flatMap(x => x),
+    pathData: f.optional("pathData", option(motionPathData))->Option.flatMap(x => x),
+    waitBeforePanMs: f->opt("waitBeforePanMs", int, 0),
+    blinkAfterPanMs: f->opt("blinkAfterPanMs", int, 0),
   }
 })
 

@@ -103,6 +103,22 @@ open Types
   }));
 
   const manifestMock = {
+    generateSimulationParityManifest: globalThis.vi.fn().mockReturnValue({
+      version: "motion-spec-v1",
+      fps: 10,
+      canvasWidth: 1920,
+      canvasHeight: 1080,
+      includeIntroPan: false,
+      shots: [{
+        sceneId: "scene1",
+        arrivalPose: { yaw: 0.0, pitch: 0.0, hfov: 80.0 },
+        animationSegments: [],
+        transitionOut: null,
+        pathData: null,
+        waitBeforePanMs: 0,
+        blinkAfterPanMs: 0,
+      }],
+    }),
     generateManifest: globalThis.vi.fn().mockReturnValue({
       fps: 10,
       shots: [],
@@ -202,12 +218,6 @@ let makeMockScene = (~id, ~name, ()) => {
       "simulation": {"status": {TAG: 'Idle'}, "visitedScenes": []},
     });
 
-    globalThis.pathfinderMock.getWalkPath.mockResolvedValue({TAG: 'Ok', _0: [{
-      "idx": 0,
-      "transitionTarget": undefined,
-      "arrivalView": { "yaw": 0.0, "pitch": 0.0, "hfov": 80.0 }
-    }]});
-
     globalThis.recorderMock.loadLogo.mockResolvedValue(null);
     globalThis.recorderMock.startRecording.mockReturnValue(true);
     globalThis.serverMock.generateServerTeaser.mockResolvedValue({TAG: 'Ok', _0: new Blob([])});
@@ -216,6 +226,22 @@ let makeMockScene = (~id, ~name, ()) => {
     globalThis.manifestMock.generateManifest.mockReturnValue({
       fps: 10,
       shots: [{ sceneId: 'scene1', animationSegments: [] }],
+    });
+    globalThis.manifestMock.generateSimulationParityManifest.mockReturnValue({
+      version: "motion-spec-v1",
+      fps: 10,
+      canvasWidth: 1920,
+      canvasHeight: 1080,
+      includeIntroPan: false,
+      shots: [{
+        sceneId: "scene1",
+        arrivalPose: { yaw: 0.0, pitch: 0.0, hfov: 80.0 },
+        animationSegments: [],
+        transitionOut: null,
+        pathData: null,
+        waitBeforePanMs: 0,
+        blinkAfterPanMs: 0,
+      }],
     });
 
     globalThis.playbackMock.getManifestStateAt.mockReturnValue({
@@ -231,7 +257,6 @@ let makeMockScene = (~id, ~name, ()) => {
 `)
 
 describe("TeaserManager", () => {
-
   test("Config constants are correct", t => {
     t->expect(TeaserStyleConfig.standardConfig.clipDuration)->Expect.toBe(2500.0)
     t->expect(TeaserStyleConfig.slowConfig.clipDuration)->Expect.toBe(4000.0)
@@ -263,20 +288,18 @@ describe("TeaserManager", () => {
     ) => promise<unit> = manager["startAutoTeaser"]
 
     try {
-      await startAutoTeaser(
-        format,
-        ~getState=localGetState,
-        ~dispatch=AppStateBridge.dispatch,
-      )
+      await startAutoTeaser(format, ~getState=localGetState, ~dispatch=AppStateBridge.dispatch)
     } catch {
     | exn => Console.error2("Teaser failed:", exn)
     }
 
     let pathfinderCalls = %raw(`globalThis.pathfinderMock.getWalkPath.mock.calls.length`)
+    let manifestCalls = %raw(`globalThis.manifestMock.generateSimulationParityManifest.mock.calls.length`)
     let loadLogoCalls = %raw(`globalThis.recorderMock.loadLogo.mock.calls.length`)
     let startRecordingCalls = %raw(`globalThis.recorderMock.startRecording.mock.calls.length`)
 
-    t->expect(pathfinderCalls > 0)->Expect.toBe(true)
+    t->expect(pathfinderCalls)->Expect.toBe(0)
+    t->expect(manifestCalls > 0)->Expect.toBe(true)
     t->expect(loadLogoCalls > 0)->Expect.toBe(true)
     t->expect(startRecordingCalls > 0)->Expect.toBe(true)
   })

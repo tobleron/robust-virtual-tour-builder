@@ -401,6 +401,12 @@ CI job
 
 ### 📂 src/systems
 - `[src/systems/TeaserManifest.res]`
+- `[src/systems/TeaserOfflineCfrRenderer.res]`
+- `[src/systems/TeaserRendererRegistry.res]`
+- `[src/systems/TeaserStyleCatalog.res]`
+- `[src/systems/TeaserStyleCinematic.res]`
+- `[src/systems/TeaserStyleFastShots.res]`
+- `[src/systems/TeaserStyleSimpleCrossfade.res]`
 
 ### 📂 src/systems/Api
 - `[src/systems/Api/AuthenticatedClientBase.res]`

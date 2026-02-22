@@ -1,3 +1,6 @@
+open Types
+open ReBindings
+
 module InnerApp = {
   module HeadlessWindow = {
     type t
@@ -11,6 +14,10 @@ module InnerApp = {
     let state = AppContext.useAppState()
     let dispatch = AppContext.useAppDispatch()
     let isSystemLocked = Capability.useIsSystemLocked()
+    let isExporting = switch state.appMode {
+    | SystemBlocking(Exporting(_)) => true
+    | _ => false
+    }
 
     React.useEffect1(() => {
       Logger.info(
@@ -20,6 +27,16 @@ module InnerApp = {
       )
       None
     }, [isSystemLocked])
+
+    React.useEffect1(() => {
+      let bodyClasses = Dom.classList(Dom.documentBody)
+      if isExporting {
+        bodyClasses->Dom.ClassList.add("export-mode")
+      } else {
+        bodyClasses->Dom.ClassList.remove("export-mode")
+      }
+      None
+    }, [isExporting])
 
     React.useEffect0(() => {
       Logger.info(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())

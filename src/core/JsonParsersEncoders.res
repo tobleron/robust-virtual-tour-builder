@@ -295,9 +295,38 @@ let motionAnimationSegment = (s: Types.motionAnimationSegment) => {
 }
 
 let motionTransitionOut = (t: Types.motionTransitionOut) => {
+  Encode.object([("type", Encode.string(t.type_)), ("durationMs", Encode.int(t.durationMs))])
+}
+
+let motionPathPoint = (p: Types.pathPoint) => {
+  Encode.object([("yaw", Encode.float(p.yaw)), ("pitch", Encode.float(p.pitch))])
+}
+
+let motionPathSegment = (s: Types.pathSegment) => {
   Encode.object([
-    ("type", Encode.string(t.type_)),
-    ("durationMs", Encode.int(t.durationMs)),
+    ("dist", Encode.float(s.dist)),
+    ("yawDiff", Encode.float(s.yawDiff)),
+    ("pitchDiff", Encode.float(s.pitchDiff)),
+    ("p1", motionPathPoint(s.p1)),
+    ("p2", motionPathPoint(s.p2)),
+  ])
+}
+
+let motionPathData = (pd: Types.pathData) => {
+  Encode.object([
+    ("startPitch", Encode.float(pd.startPitch)),
+    ("startYaw", Encode.float(pd.startYaw)),
+    ("startHfov", Encode.float(pd.startHfov)),
+    ("targetPitchForPan", Encode.float(pd.targetPitchForPan)),
+    ("targetYawForPan", Encode.float(pd.targetYawForPan)),
+    ("targetHfovForPan", Encode.float(pd.targetHfovForPan)),
+    ("totalPathDistance", Encode.float(pd.totalPathDistance)),
+    ("segments", Encode.array(motionPathSegment)(pd.segments)),
+    ("waypoints", Encode.array(motionPathPoint)(pd.waypoints)),
+    ("panDuration", Encode.float(pd.panDuration)),
+    ("arrivalYaw", Encode.float(pd.arrivalYaw)),
+    ("arrivalPitch", Encode.float(pd.arrivalPitch)),
+    ("arrivalHfov", Encode.float(pd.arrivalHfov)),
   ])
 }
 
@@ -307,6 +336,9 @@ let motionShot = (s: Types.motionShot) => {
     ("arrivalPose", viewFrame(s.arrivalPose)),
     ("animationSegments", Encode.array(motionAnimationSegment)(s.animationSegments)),
     ("transitionOut", Encode.option(motionTransitionOut)(s.transitionOut)),
+    ("pathData", Encode.option(motionPathData)(s.pathData)),
+    ("waitBeforePanMs", Encode.int(s.waitBeforePanMs)),
+    ("blinkAfterPanMs", Encode.int(s.blinkAfterPanMs)),
   ])
 }
 

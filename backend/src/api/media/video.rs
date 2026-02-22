@@ -35,7 +35,10 @@ fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {
 
 fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {
     if manifest.version != "motion-spec-v1" {
-        return Err(format!("Unsupported manifest version: {}", manifest.version));
+        return Err(format!(
+            "Unsupported manifest version: {}",
+            manifest.version
+        ));
     }
     if manifest.fps == 0 || manifest.fps > 120 {
         return Err(format!("Invalid FPS: {}", manifest.fps));
@@ -152,9 +155,15 @@ pub async fn generate_teaser(
             if let Some(decoded) = parse_motion_manifest(&bytes) {
                 if let Err(e) = validate_motion_manifest(&decoded) {
                     tracing::warn!(module = "TeaserGenerator", error = %e, "MOTION_MANIFEST_VALIDATION_FAILED");
-                    return Err(AppError::ValidationError(format!("Invalid motion manifest: {}", e)));
+                    return Err(AppError::ValidationError(format!(
+                        "Invalid motion manifest: {}",
+                        e
+                    )));
                 } else {
-                    tracing::info!(module = "TeaserGenerator", "MOTION_MANIFEST_VALIDATION_SUCCESS");
+                    tracing::info!(
+                        module = "TeaserGenerator",
+                        "MOTION_MANIFEST_VALIDATION_SUCCESS"
+                    );
                 }
                 motion_manifest = Some(decoded);
             }
@@ -169,11 +178,12 @@ pub async fn generate_teaser(
     );
 
     if render_engine == "backend_mp4" {
-        return Err(AppError::NotImplemented("Backend MP4 rendering engine is not yet implemented".into()));
+        return Err(AppError::NotImplemented(
+            "Backend MP4 rendering engine is not yet implemented".into(),
+        ));
     }
 
     let project_data = project_data_value
-
         .ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
     let output_path = get_temp_path_async(output_format.extension()).await;
     let output_str = output_path.to_string_lossy().to_string();

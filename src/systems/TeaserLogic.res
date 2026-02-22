@@ -3,22 +3,15 @@
 open ReBindings
 open Types
 
-// --- CONSTANTS ---
-let canvasWidth = Constants.Teaser.canvasWidth
-let canvasHeight = Constants.Teaser.canvasHeight
-
-// --- BINDINGS (INTERNAL) ---
-@val external requestAnimationFrame: (unit => unit) => int = "requestAnimationFrame"
-@val external cancelAnimationFrame: int => unit = "cancelAnimationFrame"
-@val external clearTimeout: int => unit = "clearTimeout"
-
 // --- MODULE ALIASES (extracted for testability) ---
 module Recorder = TeaserRecorder.Recorder
 module Pathfinder = TeaserPathfinder
 module Server = ServerTeaser.Server
 module State = TeaserStyleConfig
 module Playback = TeaserPlayback
-module Manifest = TeaserManifest
+module StyleCatalog = TeaserStyleCatalog
+module RenderRegistry = TeaserRendererRegistry
+module OfflineCfrRenderer = TeaserOfflineCfrRenderer
 
 type headlessMotionProfile = {
   skipAutoForward: bool,
@@ -115,125 +108,6 @@ module Manager = {
     | None => false
     }
 
-  let throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>
-    signal->Option.forEach(sig => {
-      if BrowserBindings.AbortSignal.aborted(sig) {
-        JsError.throwWithMessage("AbortError")
-      }
-    })
-
-  let formatEta = (etaMs: float) => {
-    let seconds = Belt.Float.toInt(etaMs /. 1000.0)
-    if seconds <= 0 {
-      "Almost done"
-    } else {
-      let m = seconds / 60
-      let s = mod(seconds, 60)
-      if m > 0 {
-        "ETA " ++ Belt.Int.toString(m) ++ "m " ++ Belt.Int.toString(s) ++ "s"
-      } else {
-        "ETA " ++ Belt.Int.toString(s) ++ "s"
-      }
-    }
-  }
-
-  let renderDeterministicWebM = async (
-    manifest: motionManifest,
-    includeLogo,
-    ~getState: unit => state,
-    ~dispatch: Actions.action => unit,
-    ~signal: option<BrowserBindings.AbortSignal.t>=?,
-    ~onProgress: option<(float, string, string) => unit>=?,
-  ) => {
-    let logoState = await Recorder.loadLogo()
-    let fps = manifest.fps->Belt.Int.toFloat
-    let totalDurationMs = Manifest.calculateTotalManifestDuration(manifest)
-    let totalFrames = Belt.Float.toInt(totalDurationMs /. 1000.0 *. fps)
-
-    if Recorder.startRecording(~deterministic=true, ()) {
-      let scenes = getState().scenes
-      let currentSceneId = ref("")
-
-      let benchmarkFrames = Constants.Teaser.Processing.preflightSampleFrames
-      let rollingThroughput = ref(0.0)
-
-      for frameIndex in 0 to totalFrames {
-        throwIfCancelled(~signal?)
-        let frameStart = Date.now()
-        
-        let t = Belt.Int.toFloat(frameIndex) /. fps *. 1000.0
-        let frameState = Playback.getManifestStateAt(manifest, t)
-
-        let isBenchmarking = frameIndex < benchmarkFrames
-        let phaseName = isBenchmarking ? "Benchmarking" : "Rendering Frames"
-
-        if frameState.sceneId != currentSceneId.contents {
-          if currentSceneId.contents != "" {
-            Recorder.internalState.contents.ghostCanvas->Option.forEach(Recorder.setSnapshot)
-          }
-          currentSceneId := frameState.sceneId
-          let idx =
-            scenes->Belt.Array.getIndexBy(s => s.id == currentSceneId.contents)->Option.getOr(0)
-          dispatch(Actions.SetActiveScene(idx, frameState.pose.yaw, frameState.pose.pitch, None))
-          await Playback.wait(500)
-          let _ = await Playback.waitForViewerReady(currentSceneId.contents)
-          await Playback.wait(300)
-        }
-
-        ViewerSystem.getActiveViewer()
-        ->Nullable.toOption
-        ->Option.forEach(v => {
-          Viewer.setYaw(v, frameState.pose.yaw, false)
-          Viewer.setPitch(v, frameState.pose.pitch, false)
-          Viewer.setHfov(v, frameState.pose.hfov, false)
-        })
-
-        Recorder.setFadeOpacity(frameState.fadeOpacity)
-
-        switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
-        | Some(sc) =>
-          Recorder.renderFrame(sc, includeLogo, logoState)
-          Recorder.requestDeterministicFrame()
-        | None => ()
-        }
-
-        await Playback.wait(5)
-        let actualDuration = Date.now() -. frameStart
-
-        if frameIndex == 0 {
-          rollingThroughput := actualDuration
-        } else {
-          let alpha = Constants.Teaser.Processing.progressSmoothingAlpha
-          rollingThroughput := (rollingThroughput.contents *. (1.0 -. alpha)) +. (actualDuration *. alpha)
-        }
-
-        if mod(frameIndex, 12) == 0 || isBenchmarking {
-          let pct = Belt.Int.toFloat(frameIndex) /. Belt.Int.toFloat(totalFrames) *. 100.0
-          
-          let framesLeft = totalFrames - frameIndex
-          let etaMs = Belt.Int.toFloat(framesLeft) *. rollingThroughput.contents
-          let etaStr = frameIndex > 0 ? formatEta(etaMs) : "Estimating..."
-          
-          onProgress->Option.forEach(cb =>
-            cb(
-              pct,
-              "Rendering frame " ++ Belt.Int.toString(frameIndex) ++ " / " ++ Belt.Int.toString(totalFrames) ++ "|" ++ etaStr,
-              phaseName,
-            )
-          )
-        }
-      }
-      
-      onProgress->Option.forEach(cb => cb(98.0, "Encoding container...|Almost done", "Encoding WebM"))
-      Recorder.stopRecording()
-      await Playback.wait(500)
-      true
-    } else {
-      false
-    }
-  }
-
-
   let finalizeTeaser = async (format, baseName) => {
     let chunks = Recorder.getRecordedBlobs()
     if Array.length(chunks) > 0 {
@@ -288,8 +162,9 @@ module Manager = {
     }
   }
 
-  let startHeadlessTeaser = async (
+  let startHeadlessTeaserWithStyle = async (
     format: string,
+    ~styleId: option<string>,
     ~getState: unit => Types.state,
     ~dispatch: Actions.action => unit,
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
@@ -303,101 +178,170 @@ module Manager = {
     } else if signalIsAborted(signal) {
       ()
     } else {
-      let canCancel = switch onCancel {
-      | Some(_) => true
-      | None => false
-      }
-      let opId = OperationLifecycle.start(
-        ~type_=OperationLifecycle.Teaser,
-        ~scope=Ambient,
-        ~phase="Preparing",
-        ~cancellable=canCancel,
-        ~visibleAfterMs=250,
-        ~meta=Logger.castToJson({
-          "format": format,
-          "sceneCount": Belt.Array.length(state.scenes),
-        }),
-        (),
-      )
-      onCancel->Option.forEach(cb => OperationLifecycle.registerCancel(opId, cb))
+      let selectedStyle =
+        styleId
+        ->Option.map(raw => StyleCatalog.fromString(raw))
+        ->Option.getOr(StyleCatalog.defaultStyle)
+      if !StyleCatalog.isAvailable(selectedStyle) {
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: Operation("teaser"),
+          message: StyleCatalog.label(selectedStyle) ++ " teaser style is not available yet.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Warning),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        ()
+      } else {
+        let canCancel = switch onCancel {
+        | Some(_) => true
+        | None => false
+        }
+        let opId = OperationLifecycle.start(
+          ~type_=OperationLifecycle.Teaser,
+          ~scope=Ambient,
+          ~phase="Preparing",
+          ~cancellable=canCancel,
+          ~visibleAfterMs=250,
+          ~meta=Logger.castToJson({
+            "format": format,
+            "style": StyleCatalog.toString(selectedStyle),
+            "sceneCount": Belt.Array.length(state.scenes),
+          }),
+          (),
+        )
+        onCancel->Option.forEach(cb => OperationLifecycle.registerCancel(opId, cb))
 
-      dispatch(Actions.SetIsTeasing(true))
-      ProgressBar.updateProgressBar(
-        0.0,
-        "Calculating teaser path...",
-        ~visible=true,
-        ~title="Teaser",
-        (),
-      )
+        dispatch(Actions.SetIsTeasing(true))
+        ProgressBar.updateProgressBar(
+          0.0,
+          "Calculating teaser path...",
+          ~visible=true,
+          ~title="Teaser",
+          (),
+        )
 
-      try {
-        let pathResult = await Pathfinder.getWalkPath(state.scenes, false, ~signal?)
-        switch pathResult {
-        | Ok(steps) =>
-          let config = State.getConfigForStyle("cinematic")
-          let manifest = Manifest.generateManifest(state.scenes, steps, "cinematic", config)
-
-          let success = await renderDeterministicWebM(
-            manifest,
-            true,
-            ~getState,
-            ~dispatch,
-            ~signal?,
-            ~onProgress=(pct, msg, phaseName) => {
-              OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phaseName, ())
-              ProgressBar.updateProgressBar(pct, msg, ~visible=true, ~title="Teaser", ())
-            },
+        try {
+          OperationLifecycle.progress(
+            opId,
+            5.0,
+            ~message="Building simulation motion manifest|Preparing deterministic timeline",
+            ~phase="Preparing",
+            (),
           )
-
-          if success {
-            OperationLifecycle.progress(opId, 99.0, ~message="Finalizing teaser package|Almost done", ~phase="Finalizing", ())
-            ProgressBar.updateProgressBar(99.0, "Finalizing teaser package|Almost done", ~visible=true, ~title="Teaser", ())
-            
-            let safeName =
-              String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
-            await finalizeTeaser("webm", "Teaser_" ++ safeName)
-            
+          ProgressBar.updateProgressBar(
+            5.0,
+            "Building " ++
+            StyleCatalog.label(
+              selectedStyle,
+            ) ++ " motion manifest|Preparing deterministic timeline",
+            ~visible=true,
+            ~title="Teaser",
+            (),
+          )
+          switch RenderRegistry.buildManifestForStyle(
+            state,
+            ~style=selectedStyle,
+            ~skipAutoForward=Constants.Teaser.HeadlessMotion.skipAutoForward,
+            ~includeIntroPan=Constants.Teaser.HeadlessMotion.includeIntroPan,
+          ) {
+          | Error(reason) =>
             if OperationLifecycle.isActive(opId) {
-              OperationLifecycle.complete(opId, ~result="Teaser ready", ())
+              OperationLifecycle.fail(opId, reason)
             }
-          } else {
-            if OperationLifecycle.isActive(opId) {
+            dispatch(Actions.SetIsTeasing(false))
+            ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
+          | Ok(manifest) =>
+            let success = await OfflineCfrRenderer.renderWebMDeterministic(
+              manifest,
+              true,
+              ~getState,
+              ~dispatch,
+              ~signal?,
+              ~onProgress=(pct, msg, phaseName) => {
+                OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phaseName, ())
+                ProgressBar.updateProgressBar(pct, msg, ~visible=true, ~title="Teaser", ())
+              },
+            )
+
+            if success {
+              OperationLifecycle.progress(
+                opId,
+                99.0,
+                ~message="Finalizing teaser package|Almost done",
+                ~phase="Finalizing",
+                (),
+              )
+              ProgressBar.updateProgressBar(
+                99.0,
+                "Finalizing teaser package|Almost done",
+                ~visible=true,
+                ~title="Teaser",
+                (),
+              )
+
+              let safeName =
+                String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
+              await finalizeTeaser(
+                format,
+                "Teaser_" ++ StyleCatalog.toString(selectedStyle) ++ "_" ++ safeName,
+              )
+
+              if OperationLifecycle.isActive(opId) {
+                OperationLifecycle.complete(opId, ~result="Teaser ready", ())
+              }
+            } else if OperationLifecycle.isActive(opId) {
               OperationLifecycle.fail(opId, "Rendering failed")
             }
+            dispatch(Actions.SetIsTeasing(false))
+            ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
           }
+        } catch {
+        | exn =>
           dispatch(Actions.SetIsTeasing(false))
           ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
-        | Error(msg) =>
-          dispatch(Actions.SetIsTeasing(false))
-          ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
-          if OperationLifecycle.isActive(opId) {
-            OperationLifecycle.fail(opId, "Pathfinding failed: " ++ msg)
-          }
-        }
-      } catch {
-      | exn =>
-        dispatch(Actions.SetIsTeasing(false))
-        ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
-        Recorder.stopRecording()
-        
-        let (msg, _) = Logger.getErrorDetails(exn)
-        if String.includes(msg, "AbortError") || signalIsAborted(signal) {
-          if OperationLifecycle.isActive(opId) {
-            OperationLifecycle.cancel(opId)
-          }
-        } else {
-          Logger.error(~module_="TeaserLogic", ~message="TEASER_FAILED", ~data=Some(Logger.castToJson({"error": msg})), ())
-          if OperationLifecycle.isActive(opId) {
-            OperationLifecycle.fail(opId, "Teaser generation failed: " ++ msg)
+          Recorder.stopRecording()
+
+          let (msg, _) = Logger.getErrorDetails(exn)
+          if String.includes(msg, "AbortError") || signalIsAborted(signal) {
+            if OperationLifecycle.isActive(opId) {
+              OperationLifecycle.cancel(opId)
+            }
+          } else {
+            Logger.error(
+              ~module_="TeaserLogic",
+              ~message="TEASER_FAILED",
+              ~data=Some(Logger.castToJson({"error": msg})),
+              (),
+            )
+            if OperationLifecycle.isActive(opId) {
+              OperationLifecycle.fail(opId, "Teaser generation failed: " ++ msg)
+            }
           }
         }
       }
-
-
     }
   }
 
-  let startAutoTeaser = startHeadlessTeaser
+  let startHeadlessTeaser = (
+    format: string,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+    ~onCancel: option<unit => unit>=?,
+  ) =>
+    startHeadlessTeaserWithStyle(format, ~styleId=None, ~getState, ~dispatch, ~signal?, ~onCancel?)
+
+  let startAutoTeaser = (
+    format: string,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+    ~onCancel: option<unit => unit>=?,
+  ) => startHeadlessTeaser(format, ~getState, ~dispatch, ~signal?, ~onCancel?)
 }
 
 let startHeadlessTeaserForWindow = (_includeLogo: bool, _format: string, skipAutoForward: bool) => {

@@ -64,6 +64,76 @@
     animation: progress-shimmer 2s ease-in-out infinite;
 }
 
+.processing-theme-default .sidebar-progress-phase {
+    color: #334155;
+}
+
+.processing-theme-default .sidebar-progress-percentage {
+    color: #0f4c8a;
+}
+
+.processing-theme-export {
+    border-color: rgba(14, 45, 82, 0.25);
+    background:
+        linear-gradient(135deg, rgba(14, 45, 82, 0.08) 0%, rgba(255, 255, 255, 0.96) 55%);
+}
+
+.processing-theme-export .sidebar-progress-fill {
+    background: linear-gradient(
+        90deg,
+        #0e2d52 0%,
+        #1d4ed8 35%,
+        #06b6d4 70%,
+        #22d3ee 100%
+    );
+    background-size: 220% 100%;
+    animation: progress-shimmer 1.4s linear infinite;
+}
+
+.processing-theme-export .sidebar-progress-spinner {
+    border-color: rgba(14, 45, 82, 0.2);
+    border-top-color: #1d4ed8;
+}
+
+.processing-theme-export .sidebar-progress-phase {
+    color: #0e2d52;
+}
+
+.processing-theme-export .sidebar-progress-percentage {
+    color: #1d4ed8;
+}
+
+.processing-theme-teaser {
+    border-color: rgba(5, 150, 105, 0.24);
+    background:
+        linear-gradient(135deg, rgba(5, 150, 105, 0.1) 0%, rgba(255, 255, 255, 0.95) 55%);
+}
+
+.processing-theme-teaser .sidebar-progress-fill {
+    background: linear-gradient(
+        90deg,
+        #059669 0%,
+        #06b6d4 40%,
+        #f59e0b 75%,
+        #f97316 100%
+    );
+    background-size: 220% 100%;
+    animation: progress-shimmer 1.2s linear infinite;
+}
+
+.processing-theme-teaser .sidebar-progress-spinner {
+    border-color: rgba(5, 150, 105, 0.2);
+    border-top-color: #0ea5e9;
+}
+
+.processing-theme-teaser .sidebar-progress-phase {
+    color: #065f46;
+}
+
+.processing-theme-teaser .sidebar-progress-percentage {
+    color: #c2410c;
+}
+
 @keyframes progress-shimmer {
     0% {
         background-position: 200% 0;

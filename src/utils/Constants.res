@@ -70,6 +70,28 @@ module Teaser = {
     let preflightSampleFrames = 5
     let progressSmoothingAlpha = 0.2
   }
+
+  module HudReference = {
+    let stageWidth = 640.0
+    let stageHeight = 400.0
+
+    let logoHeight = 40.0
+    let logoBottomInset = 12.0
+    let logoRightInset = 13.0
+
+    let roomTagTopInset = 12.0
+    let roomTagHeight = 20.0
+    let roomTagHorizontalPadding = 5.6
+    let roomTagMinWidth = 58.0
+    let roomTagBorderRadius = 5.0
+    let roomTagFontSize = 9.0
+
+    let floorButtonSize = 22.0
+    let floorGap = 6.0
+    let floorBottomInset = 12.0
+    let floorLeftInset = 13.0
+    let floorButtonFontSize = 8.5
+  }
 }
 
 let webpQuality = 0.92

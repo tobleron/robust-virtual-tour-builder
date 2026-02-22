@@ -110,3 +110,28 @@
 .modal-btn-full {
     width: 100%;
 }
+
+.modal-box-premium.modal-teaser-style {
+    width: min(360px, 92vw);
+    min-height: 320px;
+    height: auto;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-description-custom {
+    margin-bottom: 12px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-actions {
+    margin-top: 10px;
+    gap: 6px;
+    max-height: min(240px, 48vh);
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-btn-premium {
+    white-space: normal;
+    line-height: 1.25;
+}

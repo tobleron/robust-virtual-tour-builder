@@ -1,12 +1,6 @@
 /* src/utils/ColorPalette.res */
 
-let colors = [
-  "#f97316", // Orange 500
-  "#ea580c", // Orange 600
-  "#c2410c", // Orange 700
-  "#9a3412", // Orange 800
-  "#78350f", // Orange 900
-]
+let colors = ["#f97316", "#ea580c", "#c2410c", "#9a3412", "#78350f"] // Orange 500 // Orange 600 // Orange 700 // Orange 800 // Orange 900
 let getGroupColor = (groupIdString: option<string>) => {
   switch groupIdString {
   | None => "#f1f5f9"
