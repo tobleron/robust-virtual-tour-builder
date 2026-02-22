@@ -299,6 +299,11 @@ module Exporter = {
 module Media = {
   // Frontend pre-upload compression quality for WebP conversion (0.0 - 1.0)
   let uploadWebpQuality = 0.92
+  // Upload processing defaults; heavy folders are dynamically downshifted at runtime.
+  let uploadMaxConcurrencyDefault = 5
+  let uploadMaxConcurrencyMin = 2
+  let uploadHeavyFolderThresholdMb = 900.0
+  let uploadVeryLargeFileThresholdMb = 40.0
   // Export scene normalization policy
   let exportSceneWebpQuality = 0.92
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)

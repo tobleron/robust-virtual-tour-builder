@@ -5,6 +5,42 @@ open UploadTypes
 
 external castToJson: 'a => JSON.t = "%identity"
 
+let processImageWithTimeout = (
+  file: ReBindings.File.t,
+  ~onStatus: string => unit,
+  ~timeoutMs: int=180000,
+) => {
+  Promise.make((resolve, _reject) => {
+    let settled = ref(false)
+    let timeoutId = ReBindings.Window.setTimeout(() => {
+      if !settled.contents {
+        settled := true
+        resolve(Error("Processing timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms"))
+      }
+    }, timeoutMs)
+
+    Resizer.processAndAnalyzeImage(file, ~onStatus=Some(onStatus))
+    ->Promise.then(result => {
+      if !settled.contents {
+        settled := true
+        ReBindings.Window.clearTimeout(timeoutId)
+        resolve(result)
+      }
+      Promise.resolve()
+    })
+    ->Promise.catch(err => {
+      if !settled.contents {
+        settled := true
+        ReBindings.Window.clearTimeout(timeoutId)
+        let (msg, _) = Logger.getErrorDetails(err)
+        resolve(Error(msg))
+      }
+      Promise.resolve()
+    })
+    ->ignore
+  })
+}
+
 let handleProcessSuccess = (res: Resizer.processResult, item: uploadItem) => {
   Logger.debug(
     ~module_="UploadLogic",
@@ -52,7 +88,7 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     ~data=Some({"filename": File.name(item.original)}),
     (),
   )
-  Resizer.processAndAnalyzeImage(item.original, ~onStatus=Some(onStatus))
+  processImageWithTimeout(item.original, ~onStatus)
   ->Promise.then(processResult => {
     let newItem = switch processResult {
     | Ok(res) => handleProcessSuccess(res, item)

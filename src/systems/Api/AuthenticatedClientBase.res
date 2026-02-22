@@ -24,15 +24,22 @@ let toUpper: string => string = %raw("(s) => String(s || '').toUpperCase()")
 
 let circuitBreaker = CircuitBreaker.make()
 
-let getTimeoutMs = (method: string): int => {
-  switch toUpper(method) {
-  | "GET"
-  | "HEAD" => 10000
-  | "DELETE" => 15000
-  | "POST"
-  | "PUT"
-  | "PATCH" => 25000
-  | _ => 15000
+let getTimeoutMs = (~method: string, ~url: string): int => {
+  // Long-running media/project endpoints need larger budgets than generic API calls.
+  if String.includes(url, "/api/media/process-full")
+    || String.includes(url, "/api/media/resize-batch")
+    || String.includes(url, "/api/project/import") {
+    180000
+  } else {
+    switch toUpper(method) {
+    | "GET"
+    | "HEAD" => 10000
+    | "DELETE" => 15000
+    | "POST"
+    | "PUT"
+    | "PATCH" => 25000
+    | _ => 15000
+    }
   }
 }
 

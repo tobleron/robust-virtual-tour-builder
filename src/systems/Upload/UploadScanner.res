@@ -1,5 +1,47 @@
 open Actions
 
+let bytesToMb = (sizeBytes: float): float => sizeBytes /. 1024.0 /. 1024.0
+
+let pickUploadConcurrency = (files: array<UploadTypes.file>): int => {
+  let totalBytes = files->Belt.Array.reduce(0.0, (acc, file) => acc +. BrowserBindings.File.size(file))
+  let largestBytes = files->Belt.Array.reduce(0.0, (acc, file) => {
+    let size = BrowserBindings.File.size(file)
+    if size > acc {
+      size
+    } else {
+      acc
+    }
+  })
+
+  let totalMb = bytesToMb(totalBytes)
+  let largestMb = bytesToMb(largestBytes)
+
+  let selected =
+    if totalMb >= Constants.Media.uploadHeavyFolderThresholdMb
+      || largestMb >= Constants.Media.uploadVeryLargeFileThresholdMb {
+      Constants.Media.uploadMaxConcurrencyMin
+    } else if totalMb >= 600.0 {
+      3
+    } else if totalMb >= 350.0 {
+      4
+    } else {
+      Constants.Media.uploadMaxConcurrencyDefault
+    }
+
+  Logger.info(
+    ~module_="UploadLogic",
+    ~message="UPLOAD_CONCURRENCY_SELECTED",
+    ~data=Some({
+      "fileCount": Belt.Array.length(files),
+      "totalMb": Float.toFixed(totalMb, ~digits=1),
+      "largestMb": Float.toFixed(largestMb, ~digits=1),
+      "maxConcurrency": selected,
+    }),
+    (),
+  )
+  selected
+}
+
 let handleFingerprinting = (
   validFiles: array<UploadTypes.file>,
   startTime: float,
@@ -21,9 +63,10 @@ let handleFingerprinting = (
       ~onRestore=id => dispatch(RemoveDeletedSceneId(id)),
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
+    let uploadConcurrency = pickUploadConcurrency(validFiles)
     UploadFinalizer.executeProcessingChain(
       uniqueItems,
-      6,
+      uploadConcurrency,
       startTime,
       updateProgress,
       skippedFromFingerprint,

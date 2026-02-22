@@ -100,7 +100,7 @@ let request = async (
         }
         Dict.set(headers, "X-Request-ID", finalRequestId)
 
-        let timeoutMs = getTimeoutMs(method)
+        let timeoutMs = getTimeoutMs(~method, ~url)
         let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
 
         let bodyVal = switch (body, formData) {
