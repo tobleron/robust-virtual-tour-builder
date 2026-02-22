@@ -88,11 +88,19 @@ describe("ViewerUI", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
+  beforeEach(() => {
+    OperationLifecycle.reset()
+    InteractionGuard.clear()
+  })
+
   testAsync("should render viewer UI with utility bar and static elements", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = State.initialState
+    let mockState = {
+      ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -115,6 +123,7 @@ describe("ViewerUI", () => {
 
     let mockState = {
       ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       scenes: [defaultScene],
       activeIndex: 0,
     }
@@ -126,12 +135,8 @@ describe("ViewerUI", () => {
     await wait(150)
 
     let labelEl = Dom.getElementById("v-scene-persistent-label")
-    let currentScenes = mockState.scenes
-    let currentScenesStr = JSON.stringifyAny(currentScenes)->Option.getOr("None")
-    Console.log2("Scenes passed:", currentScenesStr)
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
-      Console.log2("Label El TextContent:", Dom.getTextContent(el))
       t->expect(Dom.getTextContent(el))->Expect.toBe("# " ++ defaultScene.label)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
@@ -213,6 +218,7 @@ describe("ViewerUI", () => {
 
     let mockState = {
       ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       scenes: [{...defaultScene, quality: Some(qualityJson)}],
       activeIndex: 0,
     }
@@ -241,6 +247,7 @@ describe("ViewerUI", () => {
 
     let mockState = {
       ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       scenes: [defaultScene],
       activeIndex: 0,
     }
@@ -250,7 +257,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
-    await wait(150)
+    await wait(200)
 
     let list = %raw(`Array.from(container.querySelectorAll('button'))`)
     let firstFloorBtn = ref(None)
@@ -283,6 +290,7 @@ describe("ViewerUI", () => {
 
     let mockState = {
       ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       scenes: [defaultScene],
       activeIndex: 0,
     }
