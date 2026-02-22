@@ -1,12 +1,18 @@
 use super::video_logic_support::{
-    HeadlessControl, HeadlessMotionProfile, headless_app_origin, inject_headless_control,
-    wait_for_headless_ready,
+    headless_app_origin, inject_headless_control, wait_for_headless_ready, HeadlessControl,
+    HeadlessMotionProfile,
 };
-use headless_chrome::{Browser, LaunchOptions, Tab, protocol::cdp::Page};
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
+use headless_chrome::{
+    protocol::cdp::{types::Event, Page},
+    Browser, LaunchOptions, Tab,
+};
 use serde_json::Value;
 use std::env;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::Arc;
 use std::time::Duration;
 
 const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
@@ -214,6 +220,262 @@ pub async fn transcode_video(input_str: String, output_str: String) -> Result<Pa
     Ok(PathBuf::from(output_str))
 }
 
+struct CaptureStats {
+    duration_s: f64,
+    emitted_frames: u64,
+    captured_frames: u64,
+    duplicated_frames: u64,
+    emitted_fps: f64,
+    captured_fps: f64,
+}
+
+fn start_script_content(format: TeaserOutputFormat) -> &'static str {
+    match format {
+        TeaserOutputFormat::Mp4 => {
+            r#"(function(){
+                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
+                const skip = !!profile.skipAutoForward;
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "mp4", skip);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "mp4", skip);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "mp4", skip);
+                throw new Error("No teaser start function found on window");
+            })()"#
+        }
+        TeaserOutputFormat::Webm => {
+            r#"(function(){
+                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
+                const skip = !!profile.skipAutoForward;
+                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "webm", skip);
+                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "webm", skip);
+                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "webm", skip);
+                throw new Error("No teaser start function found on window");
+            })()"#
+        }
+    }
+}
+
+fn capture_frames_cdp(
+    tab: &Tab,
+    _session_id: &str,
+    start_sim: std::time::Instant,
+    max_dur: Duration,
+    stdin: &mut std::process::ChildStdin,
+) -> Result<CaptureStats, String> {
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    tab.call_method(Page::StartScreencast {
+        format: Some(headless_chrome::protocol::cdp::Page::StartScreencastFormatOption::Jpeg),
+        quality: Some(TEASER_CAPTURE_JPEG_QUALITY),
+        max_width: None,
+        max_height: None,
+        every_nth_frame: Some(1),
+    })
+    .map_err(|e| format!("Failed to enable screencast: {}", e))?;
+
+    let listener_tx = tx.clone();
+    tab.add_event_listener(Arc::new(move |event: &Event| {
+        if let Event::PageScreencastFrame(e) = event {
+            let _ = listener_tx.send(e.clone());
+        }
+    }))
+    .map_err(|e| format!("Failed to add event listener: {}", e))?;
+
+    let mut emitted_frames: u64 = 0;
+    let mut captured_frames: u64 = 0;
+    let mut duplicated_frames: u64 = 0;
+    let mut last_frame_data: Option<Vec<u8>> = None;
+    let frame_interval = Duration::from_secs_f64(1.0 / TEASER_OUTPUT_FPS);
+    let mut next_frame_deadline = start_sim;
+
+    let mut first_frame_received = false;
+
+    loop {
+        let now = std::time::Instant::now();
+        if now - start_sim > max_dur {
+            break;
+        }
+
+        if now < next_frame_deadline {
+             std::thread::sleep(next_frame_deadline - now);
+        }
+
+        // Check simulation status periodically
+        if emitted_frames % 60 == 0 {
+             if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
+                && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
+            {
+                break;
+            }
+        }
+
+        // Try to get the latest frame.
+        loop {
+            match rx.try_recv() {
+                Ok(event) => {
+                    let _ = tab.ack_screencast(event.params.session_id);
+                    if let Ok(bytes) = BASE64.decode(&event.params.data) {
+                        last_frame_data = Some(bytes);
+                        captured_frames += 1;
+                        if !first_frame_received {
+                            first_frame_received = true;
+                        }
+                    }
+                },
+                Err(std::sync::mpsc::TryRecvError::Empty) => break,
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    let _ = tab.call_method(Page::StopScreencast(None));
+                    return Err("Screencast channel disconnected".to_string());
+                },
+            }
+        }
+
+        if !first_frame_received {
+             if now - start_sim > Duration::from_secs(5) {
+                 let _ = tab.call_method(Page::StopScreencast(None));
+                 return Err("Timeout waiting for first screencast frame".to_string());
+             }
+             continue;
+        }
+
+        if let Some(frame_data) = &last_frame_data {
+             let elapsed_secs = std::time::Instant::now()
+                .duration_since(start_sim)
+                .as_secs_f64();
+            let expected_frames = (elapsed_secs * TEASER_OUTPUT_FPS).floor() as u64;
+            let frames_to_emit = std::cmp::max(1, expected_frames.saturating_sub(emitted_frames));
+
+            if frames_to_emit > 1 {
+                duplicated_frames = duplicated_frames.saturating_add(frames_to_emit - 1);
+            }
+
+            for _ in 0..frames_to_emit {
+                if stdin.write_all(frame_data).is_err() {
+                    let _ = tab.call_method(Page::StopScreencast(None));
+                    return Err("Failed to write to ffmpeg".to_string());
+                }
+            }
+            emitted_frames = emitted_frames.saturating_add(frames_to_emit);
+        }
+
+        while next_frame_deadline <= std::time::Instant::now() {
+            next_frame_deadline += frame_interval;
+        }
+    }
+
+    let _ = tab.call_method(Page::StopScreencast(None));
+
+    let elapsed_secs = start_sim.elapsed().as_secs_f64();
+    Ok(CaptureStats {
+        duration_s: elapsed_secs,
+        emitted_frames,
+        captured_frames,
+        duplicated_frames,
+        emitted_fps: if elapsed_secs > 0.0 { emitted_frames as f64 / elapsed_secs } else { 0.0 },
+        captured_fps: if elapsed_secs > 0.0 { captured_frames as f64 / elapsed_secs } else { 0.0 },
+    })
+}
+
+
+fn capture_frames_polling(
+    tab: &Tab,
+    session_id: &str,
+    start_sim: std::time::Instant,
+    max_dur: Duration,
+    stdin: &mut std::process::ChildStdin,
+    capture_viewport: &Page::Viewport,
+) -> Result<CaptureStats, String> {
+    let mut screenshot_failed = false;
+    let frame_interval = Duration::from_secs_f64(1.0 / TEASER_OUTPUT_FPS);
+    let mut next_frame_deadline = start_sim;
+    let mut emitted_frames: u64 = 0;
+    let mut captured_frames: u64 = 0;
+    let mut duplicated_frames: u64 = 0;
+    let mut last_png: Option<Vec<u8>> = None;
+
+    loop {
+        let now = std::time::Instant::now();
+        if now - start_sim > max_dur {
+            break;
+        }
+
+        if now < next_frame_deadline {
+            std::thread::sleep(next_frame_deadline - now);
+            continue;
+        }
+
+        if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
+            && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
+        {
+            break;
+        }
+
+        let current_frame = match tab.capture_screenshot(
+            headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Jpeg,
+            Some(TEASER_CAPTURE_JPEG_QUALITY),
+            Some(capture_viewport.clone()),
+            true,
+        ) {
+            Ok(frame_data) => {
+                last_png = Some(frame_data.clone());
+                captured_frames = captured_frames.saturating_add(1);
+                frame_data
+            }
+            Err(e) => {
+                if let Some(previous) = last_png.clone() {
+                    tracing::warn!(
+                        session_id=%session_id,
+                        stage="frame_capture",
+                        error=%e,
+                        "Screenshot failed; reusing previous frame"
+                    );
+                    previous
+                } else {
+                    tracing::error!(session_id=%session_id, stage="frame_capture", error=%e, "Screenshot capture failed");
+                    screenshot_failed = true;
+                    break;
+                }
+            }
+        };
+
+        let elapsed_secs = std::time::Instant::now()
+            .duration_since(start_sim)
+            .as_secs_f64();
+        let expected_frames = (elapsed_secs * TEASER_OUTPUT_FPS).floor() as u64;
+        let frames_to_emit = std::cmp::max(1, expected_frames.saturating_sub(emitted_frames));
+        if frames_to_emit > 1 {
+            duplicated_frames = duplicated_frames.saturating_add(frames_to_emit - 1);
+        }
+        for _ in 0..frames_to_emit {
+            if stdin.write_all(&current_frame).is_err() {
+                screenshot_failed = true;
+                break;
+            }
+        }
+        if screenshot_failed {
+            break;
+        }
+        emitted_frames = emitted_frames.saturating_add(frames_to_emit);
+
+        while next_frame_deadline <= std::time::Instant::now() {
+            next_frame_deadline += frame_interval;
+        }
+    }
+
+    if screenshot_failed {
+        return Err("Screenshot failed during generation".to_string());
+    }
+
+    let elapsed_secs = start_sim.elapsed().as_secs_f64();
+    Ok(CaptureStats {
+        duration_s: elapsed_secs,
+        emitted_frames,
+        captured_frames,
+        duplicated_frames,
+        emitted_fps: if elapsed_secs > 0.0 { emitted_frames as f64 / elapsed_secs } else { 0.0 },
+        captured_fps: if elapsed_secs > 0.0 { captured_frames as f64 / elapsed_secs } else { 0.0 },
+    })
+}
+
 pub fn generate_teaser_sync(
     project_data: Value,
     session_id: String,
@@ -382,28 +644,7 @@ pub fn generate_teaser_sync(
 
     let mut guard = KillOnDrop::new(child);
 
-    let start_script = match output_format {
-        TeaserOutputFormat::Mp4 => {
-            r#"(function(){
-                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
-                const skip = !!profile.skipAutoForward;
-                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "mp4", skip);
-                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "mp4", skip);
-                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "mp4", skip);
-                throw new Error("No teaser start function found on window");
-            })()"#
-        }
-        TeaserOutputFormat::Webm => {
-            r#"(function(){
-                const profile = window.__VTB_HEADLESS_MOTION_PROFILE__ || {};
-                const skip = !!profile.skipAutoForward;
-                if (typeof window.__VTB_START_TEASER__ === "function") return window.__VTB_START_TEASER__(true, "webm", skip);
-                if (typeof window.startHeadlessTeaser === "function") return window.startHeadlessTeaser(true, "webm", skip);
-                if (typeof window.startCinematicTeaser === "function") return window.startCinematicTeaser(true, "webm", skip);
-                throw new Error("No teaser start function found on window");
-            })()"#
-        }
-    };
+    let start_script = start_script_content(output_format);
     if let Err(e) = tab.evaluate(start_script, false) {
         drop(guard);
         drop(browser);
@@ -413,93 +654,24 @@ pub fn generate_teaser_sync(
 
     let start_sim = std::time::Instant::now();
     let max_dur = Duration::from_secs(duration_limit);
-    let mut screenshot_failed = false;
-    let frame_interval = Duration::from_secs_f64(1.0 / TEASER_OUTPUT_FPS);
-    let mut next_frame_deadline = start_sim;
-    let mut emitted_frames: u64 = 0;
-    let mut captured_frames: u64 = 0;
-    let mut duplicated_frames: u64 = 0;
-    let mut last_png: Option<Vec<u8>> = None;
 
-    loop {
-        let now = std::time::Instant::now();
-        if now - start_sim > max_dur {
-            break;
-        }
+    // Try CDP first
+    let stats_res = capture_frames_cdp(&tab, &session_id_clone, start_sim, max_dur, &mut stdin);
 
-        if now < next_frame_deadline {
-            std::thread::sleep(next_frame_deadline - now);
-            continue;
+    let stats = match stats_res {
+        Ok(s) => {
+             tracing::info!(session_id=%session_id_clone, mode="cdp", "Captured teaser using CDP");
+             s
+        },
+        Err(e) => {
+             tracing::warn!(session_id=%session_id_clone, mode="cdp", error=%e, "CDP capture failed; falling back to screenshot polling");
+             let elapsed = start_sim.elapsed();
+             let remaining = max_dur.saturating_sub(elapsed);
+             capture_frames_polling(&tab, &session_id_clone, std::time::Instant::now(), remaining, &mut stdin, &capture_viewport)?
         }
-
-        if let Ok(v) = tab.evaluate("window.isAutoPilotActive()", false)
-            && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
-        {
-            break;
-        }
-
-        use std::io::Write;
-
-        let current_frame = match tab.capture_screenshot(
-            headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Jpeg,
-            Some(TEASER_CAPTURE_JPEG_QUALITY),
-            Some(capture_viewport.clone()),
-            true,
-        ) {
-            Ok(frame_data) => {
-                last_png = Some(frame_data.clone());
-                captured_frames = captured_frames.saturating_add(1);
-                frame_data
-            }
-            Err(e) => {
-                if let Some(previous) = last_png.clone() {
-                    tracing::warn!(
-                        session_id=%session_id_clone,
-                        stage="frame_capture",
-                        error=%e,
-                        "Screenshot failed; reusing previous frame"
-                    );
-                    previous
-                } else {
-                    tracing::error!(session_id=%session_id_clone, stage="frame_capture", error=%e, "Screenshot capture failed");
-                    screenshot_failed = true;
-                    break;
-                }
-            }
-        };
-
-        let elapsed_secs = std::time::Instant::now()
-            .duration_since(start_sim)
-            .as_secs_f64();
-        let expected_frames = (elapsed_secs * TEASER_OUTPUT_FPS).floor() as u64;
-        let frames_to_emit = std::cmp::max(1, expected_frames.saturating_sub(emitted_frames));
-        if frames_to_emit > 1 {
-            duplicated_frames = duplicated_frames.saturating_add(frames_to_emit - 1);
-        }
-        for _ in 0..frames_to_emit {
-            if stdin.write_all(&current_frame).is_err() {
-                screenshot_failed = true;
-                break;
-            }
-        }
-        if screenshot_failed {
-            break;
-        }
-        emitted_frames = emitted_frames.saturating_add(frames_to_emit);
-
-        while next_frame_deadline <= std::time::Instant::now() {
-            next_frame_deadline += frame_interval;
-        }
-    }
+    };
 
     drop(stdin); // Close stdin to signal EOF to ffmpeg
-
-    if screenshot_failed {
-        tracing::error!(session_id=%session_id_clone, stage="frame_capture", "Screenshot failed during generation");
-        drop(guard); // Kills child
-        drop(browser);
-        return Err("Screenshot failed during generation".to_string());
-    }
 
     // Now wait for ffmpeg to finish
     // We take child out of guard so guard doesn't kill it
@@ -548,26 +720,15 @@ pub fn generate_teaser_sync(
     }
 
     // Success
-    let elapsed_secs = start_sim.elapsed().as_secs_f64();
-    let emitted_fps = if elapsed_secs > 0.0 {
-        emitted_frames as f64 / elapsed_secs
-    } else {
-        0.0
-    };
-    let captured_fps = if elapsed_secs > 0.0 {
-        captured_frames as f64 / elapsed_secs
-    } else {
-        0.0
-    };
     tracing::info!(
         module = "TeaserGenerator",
         session_id = %session_id_clone,
-        duration_s = elapsed_secs,
-        emitted_frames = emitted_frames,
-        captured_frames = captured_frames,
-        duplicated_frames = duplicated_frames,
-        emitted_fps = emitted_fps,
-        captured_fps = captured_fps,
+        duration_s = stats.duration_s,
+        emitted_frames = stats.emitted_frames,
+        captured_frames = stats.captured_frames,
+        duplicated_frames = stats.duplicated_frames,
+        emitted_fps = stats.emitted_fps,
+        captured_fps = stats.captured_fps,
         "TEASER_CAPTURE_STATS"
     );
 
