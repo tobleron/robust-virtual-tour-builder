@@ -478,8 +478,7 @@ describe("Sidebar", () => {
 
     let teaserBtn = Dom.querySelector(container, "button[aria-label='Create Teaser']")
     switch Nullable.toOption(teaserBtn) {
-    | Some(btn) =>
-      Dom.click(btn)
+    | Some(btn) => Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
@@ -488,11 +487,14 @@ describe("Sidebar", () => {
     // Modal should be open, find the "Cinematic (WebM)" button
     let modalButtons = Dom.querySelectorAll(container, ".modal-btn-premium")
     let styleBtn = ref(None)
-    Belt.Array.forEach(JsHelpers.from(modalButtons), btn => {
-      if String.includes(Dom.getTextContent(btn), "Cinematic (WebM)") {
-        styleBtn := Some(btn)
-      }
-    })
+    Belt.Array.forEach(
+      JsHelpers.from(modalButtons),
+      btn => {
+        if String.includes(Dom.getTextContent(btn), "Cinematic (WebM)") {
+          styleBtn := Some(btn)
+        }
+      },
+    )
 
     switch styleBtn.contents {
     | Some(btn) => Dom.click(btn)

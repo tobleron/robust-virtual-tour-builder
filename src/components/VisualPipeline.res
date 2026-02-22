@@ -294,7 +294,7 @@ let make = () => {
     )
   })
 
-  React.useLayoutEffect2(() => {
+  React.useLayoutEffect3(() => {
     let paths = Dict.make()
     activeFloors->Belt.Array.forEachWithIndex((_idx, fid) => {
       let btn = Dom.getElementById("floor-nav-button-" ++ fid)
@@ -375,7 +375,7 @@ let make = () => {
       }
     })
     None
-  }, (activeFloors, pipelineSlice.timeline))
+  }, (activeFloors, pipelineSlice.timeline, uiSlice.isLinking))
 
   if uiSlice.isLinking || activeFloors->Belt.Array.length == 0 {
     React.null

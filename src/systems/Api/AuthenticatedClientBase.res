@@ -26,9 +26,11 @@ let circuitBreaker = CircuitBreaker.make()
 
 let getTimeoutMs = (~method: string, ~url: string): int => {
   // Long-running media/project endpoints need larger budgets than generic API calls.
-  if String.includes(url, "/api/media/process-full")
-    || String.includes(url, "/api/media/resize-batch")
-    || String.includes(url, "/api/project/import") {
+  if (
+    String.includes(url, "/api/media/process-full") ||
+    String.includes(url, "/api/media/resize-batch") ||
+    String.includes(url, "/api/project/import")
+  ) {
     180000
   } else {
     switch toUpper(method) {
