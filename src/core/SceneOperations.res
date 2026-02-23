@@ -117,6 +117,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   | SystemBlocking(Uploading(_))
   | Initializing =>
     let wasEmpty = Belt.Map.String.isEmpty(state.inventory)
+    let nextSceneSeq = ref(state.nextSceneSequenceId)
 
     // 1. Parse and add to inventory
     Logger.info(
@@ -130,12 +131,24 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       dataJson,
     ) => {
       let newScene = SceneHelpers.parseScene(dataJson)
-      if inv->Belt.Map.String.has(newScene.id) {
+      let finalSeq =
+        if newScene.sequenceId > 0 {
+          newScene.sequenceId
+        } else {
+          let seq = nextSceneSeq.contents
+          nextSceneSeq.contents = seq + 1
+          seq
+        }
+      if finalSeq >= nextSceneSeq.contents {
+        nextSceneSeq.contents = finalSeq + 1
+      }
+      let sequencedScene = {...newScene, sequenceId: finalSeq}
+      if inv->Belt.Map.String.has(sequencedScene.id) {
         (inv, ids)
       } else {
         (
-          inv->Belt.Map.String.set(newScene.id, {scene: newScene, status: Active}),
-          Belt.Array.concat(ids, [newScene.id]),
+          inv->Belt.Map.String.set(sequencedScene.id, {scene: sequencedScene, status: Active}),
+          Belt.Array.concat(ids, [sequencedScene.id]),
         )
       }
     })
@@ -180,6 +193,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       inventory: finalizedInventory,
       sceneOrder: sortedOrder,
       activeIndex,
+      nextSceneSequenceId: nextSceneSeq.contents,
       isLinking: false,
       linkDraft: None,
     }
@@ -254,7 +268,7 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
         // Check if we need to update filename based on manual base name preservation
         let finalScene = switch manualBaseName {
         | Some(base) if base != "" =>
-          let newName = TourLogic.computeSceneFilename(index, newLabel, base)
+          let newName = TourLogic.computeSceneFilename(scene.sequenceId, newLabel, base)
           {...updatedScene, name: newName}
         | _ => updatedScene
         }

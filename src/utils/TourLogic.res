@@ -167,8 +167,46 @@ let getBaseNameFromId = id => {
 /**
  * Calculate the standardized filename for a scene based on its index, label, and original base name.
  */
-let computeSceneFilename = (index, label, _baseName) => {
-  let prefix = Belt.Int.toString(index + 1)->padStart(3, "0")
+let sequencePrefix = seq => Belt.Int.toString(seq)->padStart(3, "0")
+
+let extractSequenceId = name => {
+  switch String.split(name, "_")->Belt.Array.get(0) {
+  | Some(prefix) if prefix != "" =>
+    let chars = Js.String.split("", prefix)
+    if chars->Belt.Array.every(c => c >= "0" && c <= "9") {
+      Belt.Int.fromString(prefix)
+    } else {
+      None
+    }
+  | _ => None
+  }
+}
+
+let normalizeSequenceId = seq =>
+  if seq > 0 {
+    seq
+  } else {
+    1
+  }
+
+let formatDisplayLabel = (scene: Types.scene) => {
+  let label =
+    if scene.label != "" {
+      scene.label
+    } else {
+      UrlUtils.stripExtension(scene.name)
+    }
+  if scene.label != "" {
+    let seq = normalizeSequenceId(scene.sequenceId)
+    sequencePrefix(seq) ++ "_" ++ label
+  } else {
+    label
+  }
+}
+
+let computeSceneFilename = (sequenceId, label, _baseName) => {
+  let seq = normalizeSequenceId(sequenceId)
+  let prefix = sequencePrefix(seq)
   if label == "" {
     prefix ++ "_Untagged.webp"
   } else {

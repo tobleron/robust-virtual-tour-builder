@@ -22,6 +22,7 @@ module WrappedUtilityBar = {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: false,
+      sequenceId: 0,
     }
     let mockState = TestUtils.createMockState(
       ~scenes=[scene1],

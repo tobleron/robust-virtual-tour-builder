@@ -209,12 +209,13 @@ let executeProcessingChain = (
 
       let sortedItems = Belt.Array.map(scored, scored => scored.item)
 
-      let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
-      let existingScenesCount = Belt.Array.length(existingScenes)
+let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+let _existingScenesCount = Belt.Array.length(existingScenes)
+      let seqStart = getState().nextSceneSequenceId
 
       let finalItems = Belt.Array.mapWithIndex(sortedItems, (i, item) => {
-        let newIndex = existingScenesCount + i
-        let newName = TourLogic.computeSceneFilename(newIndex, "", "")
+        let seq = seqStart + i
+        let newName = TourLogic.computeSceneFilename(seq, "", "")
 
         {
           ...item,

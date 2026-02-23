@@ -18,6 +18,7 @@ describe("SimulationMainLogic", () => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
+    sequenceId: 0,
   }
 
   let mockHotspot = (target): Types.hotspot => {

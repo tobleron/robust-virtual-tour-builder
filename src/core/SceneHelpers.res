@@ -38,6 +38,7 @@ let parseScene = (dataJson: JSON.t): scene => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
   }
 }
@@ -54,6 +55,7 @@ let parseProject = (projectDataJson: JSON.t): result<project, string> => {
       sessionId: pd.sessionId,
       timeline: pd.timeline,
       logo: pd.logo,
+      nextSceneSequenceId: pd.nextSceneSequenceId,
     })
   | Error(msg) =>
     Logger.error(

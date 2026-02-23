@@ -30,11 +30,12 @@ describe("ReturnPrompt", () => {
     floor: "ground",
     quality: None,
     colorGroup: None,
-    categorySet: false,
-    labelSet: false,
-    _metadataSource: "user",
-    isAutoForward: false,
-  }
+  categorySet: false,
+  labelSet: false,
+  _metadataSource: "user",
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
   testAsync("should handle click and dispatch action", async t => {
     let container = Dom.createElement("div")

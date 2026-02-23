@@ -54,11 +54,12 @@ describe("FloorNavigation", () => {
     floor: "ground",
     quality: None,
     colorGroup: None,
-    categorySet: false,
-    labelSet: false,
-    _metadataSource: "user",
-    isAutoForward: false,
-  }
+  categorySet: false,
+  labelSet: false,
+  _metadataSource: "user",
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
   testAsync("should handle floor button clicks", async t => {
     let container = Dom.createElement("div")

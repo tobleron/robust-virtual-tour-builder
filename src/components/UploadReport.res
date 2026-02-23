@@ -185,9 +185,10 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
         sceneOrder: [],
         lastUsedCategory: "",
         exifReport: None,
-        sessionId: None,
-        timeline: [],
-        logo: None,
+      sessionId: None,
+      timeline: [],
+      logo: None,
+      nextSceneSequenceId: getState().nextSceneSequenceId,
       }
     }
   }

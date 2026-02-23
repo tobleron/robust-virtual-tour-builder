@@ -111,6 +111,7 @@ testAsync(
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
 
     let modelBase = TestUtils.createMockState(

@@ -20,6 +20,7 @@ describe("NavigationGraph", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
     sc
   }
@@ -99,6 +100,7 @@ describe("NavigationGraph", () => {
       sessionId: None,
       logo: None,
       structuralRevision: 0,
+      nextSceneSequenceId: 1,
     }
   }
 

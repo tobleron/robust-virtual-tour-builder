@@ -20,6 +20,7 @@ describe("Reducer", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
     sc
   }

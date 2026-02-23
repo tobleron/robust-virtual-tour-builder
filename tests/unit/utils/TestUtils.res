@@ -41,6 +41,7 @@ let createMockScene = (
   ~category="room",
   ~categorySet=false,
   ~label="",
+  ~sequenceId=0,
   (),
 ) => {
   {
@@ -59,6 +60,7 @@ let createMockScene = (
     _metadataSource: "default",
     categorySet,
     labelSet: label != "",
+    sequenceId,
   }
 }
 
@@ -83,6 +85,7 @@ let createMockState = (
     tourName,
     lastUsedCategory,
     appMode,
+    nextSceneSequenceId: sceneOrder->Belt.Array.length + 1,
   }
 }
 

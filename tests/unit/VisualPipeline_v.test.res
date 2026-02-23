@@ -93,11 +93,12 @@ describe("VisualPipeline", () => {
       floor: "1",
       quality: None,
       colorGroup: None,
-      categorySet: false,
-      labelSet: false,
-      _metadataSource: "user",
-      isAutoForward: false,
-    }
+  categorySet: false,
+  labelSet: false,
+  _metadataSource: "user",
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
     let mockState = TestUtils.createMockState(
       ~scenes=[scene],
@@ -144,11 +145,12 @@ describe("VisualPipeline", () => {
       floor: "1",
       quality: None,
       colorGroup: None,
-      categorySet: false,
-      labelSet: false,
-      _metadataSource: "user",
-      isAutoForward: false,
-    }
+  categorySet: false,
+  labelSet: false,
+  _metadataSource: "user",
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
     let _ = OperationLifecycle.start(
       ~type_=OperationLifecycle.ProjectLoad,

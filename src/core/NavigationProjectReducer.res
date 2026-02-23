@@ -96,10 +96,13 @@ module Project = {
           }),
           (),
         )
+        let (inventoryWithSeq, nextSeqId) =
+          SceneNaming.ensureSequenceIds(pd.inventory, pd.nextSceneSequenceId)
+
         {
           ...state,
           tourName: pd.tourName,
-          inventory: pd.inventory,
+          inventory: inventoryWithSeq,
           sceneOrder: pd.sceneOrder,
           lastUsedCategory: pd.lastUsedCategory,
           exifReport: pd.exifReport,
@@ -120,6 +123,7 @@ module Project = {
           isTeasing: false,
           isLinking: false,
           linkDraft: None,
+          nextSceneSequenceId: nextSeqId,
         }
       }
     | Error(e) => {

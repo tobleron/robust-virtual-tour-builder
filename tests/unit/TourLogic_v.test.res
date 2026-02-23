@@ -38,17 +38,17 @@ describe("TourLogic", () => {
   test("computeSceneFilename", t => {
     // Standard case: Prefix + Slug (baseName ignored)
     t
-    ->expect(computeSceneFilename(0, "Living Room", "DSC001"))
+    ->expect(computeSceneFilename(1, "Living Room", "DSC001"))
     ->Expect.toBe("001_Living_Room.webp")
 
     // Empty label case: Just Prefix
-    t->expect(computeSceneFilename(9, "", "img_555"))->Expect.toBe("010_Untagged.webp")
+    t->expect(computeSceneFilename(10, "", "img_555"))->Expect.toBe("010_Untagged.webp")
 
     // Dedup case: Doesn't matter anymore as baseName is ignored
-    t->expect(computeSceneFilename(1, "Kitchen", "Kitchen"))->Expect.toBe("002_Kitchen.webp")
+    t->expect(computeSceneFilename(2, "Kitchen", "Kitchen"))->Expect.toBe("002_Kitchen.webp")
 
     // Sanitization check
-    t->expect(computeSceneFilename(2, "Bed/Bath", "orig"))->Expect.toBe("003_Bed_Bath.webp")
+    t->expect(computeSceneFilename(3, "Bed/Bath", "orig"))->Expect.toBe("003_Bed_Bath.webp")
   })
 
   test("validateTourIntegrity", t => {

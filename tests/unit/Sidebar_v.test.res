@@ -213,6 +213,7 @@ describe("Sidebar", () => {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: false,
+      sequenceId: 0,
     }
 
     let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
@@ -371,6 +372,7 @@ describe("Sidebar", () => {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: false,
+      sequenceId: 0,
     }
 
     let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
@@ -446,6 +448,7 @@ describe("Sidebar", () => {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: false,
+      sequenceId: 0,
     }
 
     let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())

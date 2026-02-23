@@ -140,6 +140,7 @@ describe("PanoramaClusterer", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
 
     /* Mock backend response: High similarity with existing */

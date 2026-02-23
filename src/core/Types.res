@@ -171,6 +171,7 @@ type scene = {
   categorySet: bool,
   labelSet: bool,
   isAutoForward: bool,
+  sequenceId: int,
 }
 
 type sceneStatus = Active | Deleted(float) // timestamp of deletion
@@ -215,6 +216,7 @@ type project = {
   sessionId: option<string>,
   timeline: array<timelineItem>,
   logo: option<file>,
+  nextSceneSequenceId: int,
 }
 
 type editorState =
@@ -317,6 +319,7 @@ type state = {
   sessionId: option<string>,
   logo: option<file>,
   structuralRevision: int,
+  nextSceneSequenceId: int,
 }
 
 /* --- Pathfinder API Types --- */

@@ -41,6 +41,7 @@ let makeInitialState = (): Types.state => {
     sessionId: None,
     logo: None,
     structuralRevision: 0,
+    nextSceneSequenceId: 1,
   }
 }
 

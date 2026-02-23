@@ -28,6 +28,7 @@ describe("LabelMenu", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
     let mockState = TestUtils.createMockState(~scenes=[mockScene], ~activeIndex=0, ())
     let mockDispatch = _ => ()
@@ -72,6 +73,7 @@ describe("LabelMenu", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
     let mockState = TestUtils.createMockState(~scenes=[mockScene], ~activeIndex=0, ())
     let mockDispatch = _ => ()

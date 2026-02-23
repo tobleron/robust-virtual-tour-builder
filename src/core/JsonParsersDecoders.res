@@ -109,6 +109,7 @@ let scene = object(f => {
     categorySet: f.optional("categorySet", bool)->Option.getOr(cat->Option.isSome),
     labelSet: f.optional("labelSet", bool)->Option.getOr(lbl->Option.isSome),
     isAutoForward: f->opt("isAutoForward", bool, false),
+    sequenceId: f.optional("sequenceId", int)->Option.getOr(0),
   }
 })
 
@@ -225,6 +226,7 @@ let project = object(f => {
     sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
     timeline: f->opt("timeline", array(timelineItem), []),
     logo: f.optional("logo", option(file))->Option.flatMap(x => x)->normalizeLogo,
+    nextSceneSequenceId: f.optional("nextSceneSequenceId", int)->Option.getOr(1),
   }
 })
 
@@ -282,6 +284,7 @@ let importScene = object(field => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
+    sequenceId: field.optional("sequenceId", int)->Option.getOr(0),
   }
 })
 

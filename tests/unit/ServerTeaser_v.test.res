@@ -36,6 +36,7 @@ describe("ServerTeaser - Remote Rendering", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
   }
 

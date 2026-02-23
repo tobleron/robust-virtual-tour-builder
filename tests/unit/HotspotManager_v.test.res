@@ -19,6 +19,7 @@ describe("HotspotManager", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId: 0,
     }
   }
 

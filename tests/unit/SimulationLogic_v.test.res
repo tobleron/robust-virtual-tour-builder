@@ -35,14 +35,15 @@ describe("SimulationLogic", () => {
     hotspots: [],
     category: "",
     floor: "",
-    label: "",
-    quality: None,
-    colorGroup: None,
-    _metadataSource: "",
-    categorySet: false,
-    labelSet: false,
-    isAutoForward: false,
-  }
+      label: "",
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
+      sequenceId: 0,
+    }
 
   test("getNextMove returns Move when a link is found", t => {
     let scene1: scene = {

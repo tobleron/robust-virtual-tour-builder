@@ -98,6 +98,7 @@ let createScene = (id, name) => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
+    sequenceId: 0,
   }
 }
 

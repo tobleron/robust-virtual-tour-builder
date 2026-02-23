@@ -196,6 +196,7 @@ let makeMockScene = (~id, ~name, ()) => {
   categorySet: false,
   labelSet: false,
   isAutoForward: false,
+  sequenceId: 0,
 }
 
 %%raw(`
@@ -211,8 +212,8 @@ let makeMockScene = (~id, ~name, ()) => {
 
     globalThis.stateMock.getState.mockReturnValue({
       "inventory": new Map([
-        ["scene1", {scene: {id: "scene1", name: "S1", file: {TAG: 'Url', _0: "S1.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S1", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false}, status: 0}],
-        ["scene2", {scene: {id: "scene2", name: "S2", file: {TAG: 'Url', _0: "S2.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S2", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false}, status: 0}]
+        ["scene1", {scene: {id: "scene1", name: "S1", file: {TAG: 'Url', _0: "S1.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S1", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false, sequenceId: 0}, status: 0}],
+        ["scene2", {scene: {id: "scene2", name: "S2", file: {TAG: 'Url', _0: "S2.jpg"}, hotspots: [], category: "default", floor: "ground", label: "S2", _metadataSource: "test", categorySet: false, labelSet: false, isAutoForward: false, sequenceId: 0}, status: 0}]
       ]),
       "sceneOrder": ["scene1", "scene2"],
       "tourName": "TestTour",

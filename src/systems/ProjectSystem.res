@@ -15,6 +15,7 @@ let projectFromState = (state: state): Types.project => {
     sessionId: state.sessionId,
     timeline: state.timeline,
     logo: state.logo,
+    nextSceneSequenceId: state.nextSceneSequenceId,
   }
 }
 
@@ -123,10 +124,14 @@ let processLoadedProjectData = (
       }
 
 
+      let (inventoryWithSeq, nextSeqId) =
+        SceneNaming.ensureSequenceIds(updatedInventory, pd.nextSceneSequenceId)
+
       let loadedProject: Types.project = {
         ...pd,
-        inventory: updatedInventory,
+        inventory: inventoryWithSeq,
         sceneOrder: finalOrder,
+        nextSceneSequenceId: nextSeqId,
       }
 
       progress(100, 100, "Project Loaded!")

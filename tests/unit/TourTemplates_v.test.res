@@ -45,11 +45,12 @@ let _ = describe("TourTemplates", () => {
     label: "Main Entry",
     quality: None,
     colorGroup: None,
-    _metadataSource: "test",
-    categorySet: true,
-    labelSet: true,
-    isAutoForward: false,
-  }
+  _metadataSource: "test",
+  categorySet: true,
+  labelSet: true,
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
   let mockScene2: scene = {
     id: "sc2",
@@ -63,11 +64,12 @@ let _ = describe("TourTemplates", () => {
     label: "Kitchen Area",
     quality: None,
     colorGroup: None,
-    _metadataSource: "test",
-    categorySet: true,
-    labelSet: true,
-    isAutoForward: false,
-  }
+  _metadataSource: "test",
+  categorySet: true,
+  labelSet: true,
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
   let mockScene3Auto: scene = {
     ...mockScene2,

@@ -156,6 +156,7 @@ let makeMockScene = (~id, ~name, ()) => {
   categorySet: false,
   labelSet: false,
   isAutoForward: false,
+  sequenceId: 0,
 }
 
 /* SKIPPED: Task 1197 */

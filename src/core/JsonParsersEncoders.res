@@ -69,6 +69,7 @@ let scene = (s: Types.scene) => {
     ("categorySet", Encode.bool(s.categorySet)),
     ("labelSet", Encode.bool(s.labelSet)),
     ("isAutoForward", Encode.bool(s.isAutoForward)),
+    ("sequenceId", Encode.int(s.sequenceId)),
   ])
 }
 
@@ -117,6 +118,7 @@ let project = (p: Types.project) => {
     ),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
     ("logo", Encode.option(file)(p.logo)),
+    ("nextSceneSequenceId", Encode.int(p.nextSceneSequenceId)),
   ])
 }
 

@@ -23,9 +23,10 @@ describe("HotspotActionMenu", () => {
     colorGroup: None,
     categorySet: false,
     labelSet: false,
-    _metadataSource: "user",
-    isAutoForward: false,
-  }
+  _metadataSource: "user",
+  isAutoForward: false,
+  sequenceId: 0,
+}
 
   let defaultHotspot: hotspot = {
     linkId: "",

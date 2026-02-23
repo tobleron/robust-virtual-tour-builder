@@ -193,6 +193,7 @@ describe("Types", () => {
       categorySet: true,
       labelSet: true,
       isAutoForward: false,
+      sequenceId: 0,
     }
     t->expect(s.name)->Expect.toBe("Scene 1")
     t->expect(s.category)->Expect.toBe("Room")
@@ -262,6 +263,7 @@ describe("Types", () => {
       sessionId: None,
       logo: None,
       structuralRevision: 0,
+      nextSceneSequenceId: 1,
     }
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)

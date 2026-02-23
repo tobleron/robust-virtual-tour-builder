@@ -31,7 +31,14 @@ describe("SceneHelpers", () => {
     hs
   }
 
-  let makeDummyScene = (~id="id", ~name="name.webp", ~label="", ~hotspots=[], ()) => {
+  let makeDummyScene = (
+    ~id="id",
+    ~name="name.webp",
+    ~label="",
+    ~hotspots=[],
+    ~sequenceId=0,
+    (),
+  ) => {
     let sc: Types.scene = {
       id,
       name,
@@ -48,6 +55,7 @@ describe("SceneHelpers", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
+      sequenceId,
     }
     sc
   }

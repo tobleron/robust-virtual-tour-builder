@@ -26,7 +26,6 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="spinner sidebar-progress-spinner !w-3 !h-3 !border-2" />
           <div
             className="font-semibold sidebar-progress-phase text-[10px] uppercase tracking-widest"
           >

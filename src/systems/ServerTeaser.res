@@ -25,6 +25,7 @@ let generateServerTeaser = (
     sessionId: state.sessionId,
     timeline: state.timeline,
     logo: state.logo,
+    nextSceneSequenceId: state.nextSceneSequenceId,
   }
 
   // Encoded with strict combinators

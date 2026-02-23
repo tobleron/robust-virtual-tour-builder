@@ -5,14 +5,19 @@
  */
 
 let version = "4.5.4"
-let buildNumber = 2
+let buildNumber = 3
 let generatedBuildInfo = "[Development Build]"
-let buildInfo = generatedBuildInfo
+let buildInfo = "[Development Build 3]"
 
 /**
  * Returns the current application version.
  */
 let getVersion = () => version
+
+/**
+ * Returns the build number for the current build.
+ */
+let getBuildNumber = () => buildNumber
 
 /**
  * Returns the build information (e.g., "[Stable Release]").
@@ -25,6 +30,11 @@ let getBuildInfo = () => buildInfo
 let getGeneratedBuildInfo = () => generatedBuildInfo
 
 /**
- * Returns a full version string for display.
+ * Returns a full version string for display (version + build).
  */
-let getFullVersion = () => `${version} ${buildInfo}`
+let getFullVersion = () => `${version}+${Belt.Int.toString(buildNumber)}`
+
+/**
+ * Returns the version label with the `v` prefix (e.g., "v1.2.3").
+ */
+let getVersionLabel = () => `v${version}`

@@ -20,6 +20,7 @@ let makeMockScene = (~id) => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
+    sequenceId: 0,
   }
 }
 

@@ -47,6 +47,7 @@ describe("PreviewArrow", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward,
+      sequenceId: 0,
     }
   }
 

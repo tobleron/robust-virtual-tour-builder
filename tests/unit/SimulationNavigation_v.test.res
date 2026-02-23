@@ -44,6 +44,7 @@ describe("SimulationNavigation", () => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
+    sequenceId: 0,
   }
 
   let scene1: scene = {

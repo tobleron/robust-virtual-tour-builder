@@ -5,23 +5,24 @@ open Types
 
 describe("Simulation.PathGenerator", () => {
   let createScene = (id, name, isAutoForward) => {
-    {
-      id,
-      name,
+  {
+    id,
+    name,
       file: Url(""),
       tinyFile: None,
       originalFile: None,
       hotspots: [],
       category: "indoor",
       floor: "ground",
-      label: "",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "test",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward,
-    }
+    label: "",
+    quality: None,
+    colorGroup: None,
+    _metadataSource: "test",
+    categorySet: false,
+    labelSet: false,
+    isAutoForward,
+    sequenceId: 0,
+  }
   }
 
   let createHotspot = (target, ~isReturn=false, ()) => {

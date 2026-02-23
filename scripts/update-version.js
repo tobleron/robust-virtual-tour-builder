@@ -43,14 +43,18 @@ try {
         console.warn('⚠️ Could not detect git branch, defaulting to unknown.');
     }
 
-    let buildInfo = "[Experimental Build]";
+    let buildInfoLabel = "[Experimental Build]";
     if (currentBranch === 'main') {
-        buildInfo = "[Stable Release]";
+        buildInfoLabel = "[Stable Release]";
     } else if (currentBranch === 'testing') {
-        buildInfo = "[Testing Release]";
+        buildInfoLabel = "[Testing Release]";
     } else if (currentBranch === 'development') {
-        buildInfo = "[Development Build]";
+        buildInfoLabel = "[Development Build]";
     }
+    const withoutBracket = buildInfoLabel.endsWith(']')
+        ? buildInfoLabel.slice(0, -1)
+        : buildInfoLabel;
+    const decoratedBuildInfo = `${withoutBracket} ${buildNumber}]`;
 
     const versionResPath = join(process.cwd(), 'src', 'utils', 'Version.res');
     const versionResContent = [
@@ -62,13 +66,18 @@ try {
         "",
         `let version = "${version}"`,
         `let buildNumber = ${buildNumber}`,
-        `let generatedBuildInfo = "${buildInfo}"`,
-        "let buildInfo = generatedBuildInfo",
+        `let generatedBuildInfo = "${buildInfoLabel}"`,
+        `let buildInfo = "${decoratedBuildInfo}"`,
         "",
         "/**",
         " * Returns the current application version.",
         " */",
         "let getVersion = () => version",
+        "",
+        "/**",
+        " * Returns the build number for the current build.",
+        " */",
+        "let getBuildNumber = () => buildNumber",
         "",
         "/**",
         " * Returns the build information (e.g., \"[Stable Release]\").",
@@ -81,13 +90,18 @@ try {
         "let getGeneratedBuildInfo = () => generatedBuildInfo",
         "",
         "/**",
-        " * Returns a full version string for display.",
+        " * Returns a full version string for display (version + build).",
         " */",
-        "let getFullVersion = () => `${version} ${buildInfo}`",
+        "let getFullVersion = () => `${version}+${Belt.Int.toString(buildNumber)}`",
+        "",
+        "/**",
+        " * Returns the version label with the `v` prefix (e.g., \"v1.2.3\").",
+        " */",
+        "let getVersionLabel = () => `v${version}`",
     ].join("\n") + "\n";
 
     writeFileSync(versionResPath, versionResContent);
-    console.log(`✅ Updated src/utils/Version.res (Branch: ${currentBranch} -> ${buildInfo})`);
+    console.log(`✅ Updated src/utils/Version.res (Branch: ${currentBranch} -> ${decoratedBuildInfo})`);
 
     console.log(`Successfully updated version to ${version}`);
 } catch (error) {
