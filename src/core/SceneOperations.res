@@ -303,6 +303,8 @@ let handleSetActiveScene = (
       activeYaw: yaw,
       activePitch: pitch,
       transition: newTransition,
+      isLinking: false,
+      linkDraft: None,
     }->SceneInventory.rebuildLegacyFields
   } else {
     state

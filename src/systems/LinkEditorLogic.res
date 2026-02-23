@@ -16,8 +16,15 @@ let configure = (~getState: unit => state, ~dispatch: action => unit) => {
 let handleStageClick = (e: Dom.event) => {
   let currentState = getStateRef.contents()
   let isModifier = Dom.altKey(e) || Dom.metaKey(e)
+  let isNavBusy =
+    currentState.navigationState.navigation != Idle ||
+      currentState.navigationState.navigationFsm != IdleFsm
 
-  if (currentState.isLinking || isModifier) && currentState.simulation.status != Running {
+  if (
+    (currentState.isLinking || isModifier) &&
+    currentState.simulation.status != Running &&
+    !isNavBusy
+  ) {
     let viewer = ViewerSystem.getActiveViewer()
 
     switch Nullable.toOption(viewer) {
@@ -132,56 +139,62 @@ let handleEnter = (~getState: unit => state=getStateRef.contents) => {
   let currentState = getState()
 
   if currentState.isLinking && currentState.simulation.status != Running {
-    let viewer = ViewerSystem.getActiveViewer()
+    let isNavBusy =
+      currentState.navigationState.navigation != Idle ||
+        currentState.navigationState.navigationFsm != IdleFsm
 
-    switch (Nullable.toOption(viewer), currentState.linkDraft) {
-    | (Some(v), Some(d)) =>
-      let camPitch = Viewer.getPitch(v)
-      let camYaw = Viewer.getYaw(v)
-      let camHfov = Viewer.getHfov(v)
+    if isNavBusy {
+      Logger.warn(~module_="LinkEditorLogic", ~message="ENTER_IGNORED_NAV_BUSY", ())
+    } else {
+      let viewer = ViewerSystem.getActiveViewer()
 
-      // Use the LAST point in the draft as the hotspot position if available
-      let (finalPitch, finalYaw) = switch d.intermediatePoints {
-      | Some(points) =>
-        let count = Belt.Array.length(points)
-        if count > 0 {
-          switch Belt.Array.get(points, count - 1) {
-          | Some(lastPoint) => (lastPoint.pitch, lastPoint.yaw)
-          | None => (d.pitch, d.yaw)
+      switch (Nullable.toOption(viewer), currentState.linkDraft) {
+      | (Some(v), Some(d)) =>
+        let camPitch = Viewer.getPitch(v)
+        let camYaw = Viewer.getYaw(v)
+        let camHfov = Viewer.getHfov(v)
+
+        // Use the LAST point in the draft as the hotspot position if available
+        let (finalPitch, finalYaw) = switch d.intermediatePoints {
+        | Some(points) =>
+          let count = Belt.Array.length(points)
+          if count > 0 {
+            switch Belt.Array.get(points, count - 1) {
+            | Some(lastPoint) => (lastPoint.pitch, lastPoint.yaw)
+            | None => (d.pitch, d.yaw)
+            }
+          } else {
+            (d.pitch, d.yaw)
           }
-        } else {
-          (d.pitch, d.yaw)
+        | None => (d.pitch, d.yaw)
         }
-      | None => (d.pitch, d.yaw)
-      }
 
-      LinkModal.showLinkModal(
-        ~pitch=finalPitch,
-        ~yaw=finalYaw,
-        ~camPitch,
-        ~camYaw,
-        ~camHfov,
-        ~linkDraft=Nullable.make(d),
-        ~getState=getStateRef.contents,
-        ~dispatch=dispatchRef.contents(),
-        (),
-      )
-    | _ =>
-      // If no draft (no clicks yet), we could either ignore or use center.
-      // Notification said "Enter to save", implying clicking first is required or center is used.
-      // For now, let's notify if they try to save without any points.
-      if currentState.linkDraft == None {
-        NotificationManager.dispatch({
-          id: "",
-          importance: Warning,
-          context: Operation("link_editor"),
-          message: "Add at least one point before saving.",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Warning),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        LinkModal.showLinkModal(
+          ~pitch=finalPitch,
+          ~yaw=finalYaw,
+          ~camPitch,
+          ~camYaw,
+          ~camHfov,
+          ~linkDraft=Nullable.make(d),
+          ~getState=getStateRef.contents,
+          ~dispatch=dispatchRef.contents(),
+          (),
+        )
+      | _ =>
+        // If no draft (no clicks yet), we could either ignore or use center.
+        if currentState.linkDraft == None {
+          NotificationManager.dispatch({
+            id: "",
+            importance: Warning,
+            context: Operation("link_editor"),
+            message: "Add at least one point before saving.",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        }
       }
     }
   }
