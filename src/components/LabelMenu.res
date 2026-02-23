@@ -71,8 +71,26 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }
 
   let handleApplyCustom = () => {
-    let val = customLabel->String.trim
-    if val != "" {
+    let rawVal = customLabel->String.trim
+    if rawVal != "" {
+      let isAllCaps = String.toUpperCase(rawVal) == rawVal && String.toLowerCase(rawVal) != rawVal
+      let val = if isAllCaps {
+        rawVal
+        ->String.split(" ")
+        ->Belt.Array.map(word => {
+          let len = String.length(word)
+          if len > 0 {
+            String.toUpperCase(String.substring(word, ~start=0, ~end=1)) ++
+            String.toLowerCase(String.substring(word, ~start=1, ~end=len))
+          } else {
+            word
+          }
+        })
+        ->Array.joinUnsafe(" ")
+      } else {
+        rawVal
+      }
+
       // Recover base name using current state (before label change)
       let baseName = switch currentScene {
       | Some(s) => TourLogic.recoverBaseName(s.name, s.label)

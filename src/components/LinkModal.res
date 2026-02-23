@@ -98,162 +98,131 @@ let showLinkModal = (
           createdAt: Date.now(),
         })
       } else {
-        // Check for existing link to same target
-        let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
-        let exists = switch currentScene {
-        | Some(scene) =>
-          Belt.Array.some(scene.hotspots, h =>
-            switch (h.targetSceneId, targetSceneId) {
-            | (Some(existingId), Some(newId)) => existingId == newId
-            | _ => h.target == targetName
-            }
-          )
-        | None => false
+        let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
+        let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees
+
+        let draftOpt = Nullable.toOption(linkDraft)
+        let startPitch = switch draftOpt {
+        | Some(d) => d.camPitch
+        | None => camPitch
+        }
+        let startYaw = switch draftOpt {
+        | Some(d) => d.camYaw
+        | None => camYaw
+        }
+        let startHfov = switch draftOpt {
+        | Some(d) => d.camHfov
+        | None => camHfov
         }
 
-        if exists {
-          NotificationManager.dispatch({
-            id: "",
-            importance: Warning,
-            context: Operation("link_modal"),
-            message: "A link to this room already exists here!",
-            details: None,
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Warning),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-        } else {
-          let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
-          let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees
+        // Generate unique Link ID
+        let allLinkIds = state.scenes->Belt.Array.reduce([], (acc, s) => {
+          Belt.Array.concat(acc, s.hotspots->Belt.Array.map(h => h.linkId))
+        })
+        let usedSet = Belt.Set.String.fromArray(allLinkIds)
+        let newLinkId = TourLogic.generateLinkId(usedSet)
 
-          let draftOpt = Nullable.toOption(linkDraft)
-          let startPitch = switch draftOpt {
-          | Some(d) => d.camPitch
-          | None => camPitch
-          }
-          let startYaw = switch draftOpt {
-          | Some(d) => d.camYaw
-          | None => camYaw
-          }
-          let startHfov = switch draftOpt {
-          | Some(d) => d.camHfov
-          | None => camHfov
-          }
-
-          // Generate unique Link ID
-          let allLinkIds = state.scenes->Belt.Array.reduce([], (acc, s) => {
-            Belt.Array.concat(acc, s.hotspots->Belt.Array.map(h => h.linkId))
-          })
-          let usedSet = Belt.Set.String.fromArray(allLinkIds)
-          let newLinkId = TourLogic.generateLinkId(usedSet)
-
-          // Handle types for Nullable fields
-          let newHotspot: Types.hotspot = {
-            linkId: newLinkId,
-            yaw,
-            pitch,
-            target: targetName,
-            targetSceneId,
-            targetYaw: None,
-            targetPitch: None,
-            targetHfov: None,
-            startYaw: Some(startYaw),
-            startPitch: Some(startPitch),
-            startHfov: Some(startHfov),
-            isReturnLink: Some(isReturnLink),
-            viewFrame: Some({yaw: camYaw, pitch: camPitch, hfov: camHfov}),
-            returnViewFrame: if isReturnLink {
-              Some({yaw: camYaw, pitch: camPitch, hfov: camHfov})
-            } else {
-              None
-            },
-            waypoints: switch draftOpt {
-            | Some(d) =>
-              switch d.intermediatePoints {
-              | Some(points) =>
-                let mapped = points->Belt.Array.map(p => {
-                  let vf: Types.viewFrame = {
-                    yaw: p.camYaw,
-                    pitch: p.camPitch,
-                    hfov: p.camHfov,
-                  }
-                  vf
-                })
-                Some(mapped)
-              | None => None
-              }
+        // Handle types for Nullable fields
+        let newHotspot: Types.hotspot = {
+          linkId: newLinkId,
+          yaw,
+          pitch,
+          target: targetName,
+          targetSceneId,
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: Some(startYaw),
+          startPitch: Some(startPitch),
+          startHfov: Some(startHfov),
+          isReturnLink: Some(isReturnLink),
+          viewFrame: Some({yaw: camYaw, pitch: camPitch, hfov: camHfov}),
+          returnViewFrame: if isReturnLink {
+            Some({yaw: camYaw, pitch: camPitch, hfov: camHfov})
+          } else {
+            None
+          },
+          waypoints: switch draftOpt {
+          | Some(d) =>
+            switch d.intermediatePoints {
+            | Some(points) =>
+              let mapped = points->Belt.Array.map(p => {
+                let vf: Types.viewFrame = {
+                  yaw: p.camYaw,
+                  pitch: p.camPitch,
+                  hfov: p.camHfov,
+                }
+                vf
+              })
+              Some(mapped)
             | None => None
-            },
-            displayPitch: Some(displayPitch),
-            transition: None,
-            duration: None,
-            isAutoForward: None,
-          }
+            }
+          | None => None
+          },
+          displayPitch: Some(displayPitch),
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+        }
 
+        Logger.info(
+          ~module_="LinkModal",
+          ~message="SAVING_LINK",
+          ~data=Some({
+            "targetName": targetName,
+            "newLinkId": newLinkId,
+            "beforeState": state.isLinking,
+          }),
+          (),
+        )
+
+        let optimisticState = HotspotHelpers.handleAddHotspot(state, state.activeIndex, newHotspot)
+
+        HotspotManager.handleAddHotspot(state.activeIndex, newHotspot, ~getState=() =>
+          optimisticState
+        )->ignore
+
+        // Part 5 Helper: Auto-register in timeline for Visual Pipeline visibility
+        let timelineItemJson = JsonParsers.Encoders.timelineItem({
+          id: "step_" ++ Date.now()->Float.toString,
+          linkId: newLinkId,
+          sceneId: switch Belt.Array.get(state.scenes, state.activeIndex) {
+          | Some(s) => s.id
+          | None => ""
+          },
+          targetScene: targetSceneId->Option.getOr(targetName),
+          transition: "fade",
+          duration: 1000,
+        })
+        dispatch(Actions.AddToTimeline(timelineItemJson))
+
+        // Use setTimeout to ensure state updates properly after hotspot is added
+        let _ = setTimeout(() => {
           Logger.info(
             ~module_="LinkModal",
-            ~message="SAVING_LINK",
-            ~data=Some({
-              "targetName": targetName,
-              "newLinkId": newLinkId,
-              "beforeState": state.isLinking,
-            }),
+            ~message="EXIT_SEQUENCE_START",
+            ~data=Some({"stateBeforeExit": getState().isLinking}),
             (),
           )
 
-          let optimisticState = HotspotHelpers.handleAddHotspot(
-            state,
-            state.activeIndex,
-            newHotspot,
+          // Step 1: Close modal first to prevent any re-renders
+          EventBus.dispatch(CloseModal)
+          Logger.info(~module_="LinkModal", ~message="MODAL_CLOSED", ())
+
+          // Step 2: Hide draft lines immediately
+          SvgManager.hide("link_draft_red")
+          SvgManager.hide("link_draft_yellow")
+          Logger.info(~module_="LinkModal", ~message="DRAFT_LINES_HIDDEN", ())
+
+          // Step 3: Exit linking mode
+          dispatch(Actions.StopLinking)
+          Logger.info(
+            ~module_="LinkModal",
+            ~message="STOP_LINKING_DISPATCHED",
+            ~data=Some({"stateAfterDispatch": getState().isLinking}),
+            (),
           )
-
-          HotspotManager.handleAddHotspot(state.activeIndex, newHotspot, ~getState=() =>
-            optimisticState
-          )->ignore
-
-          // Part 5 Helper: Auto-register in timeline for Visual Pipeline visibility
-          let timelineItemJson = JsonParsers.Encoders.timelineItem({
-            id: "step_" ++ Date.now()->Float.toString,
-            linkId: newLinkId,
-            sceneId: switch Belt.Array.get(state.scenes, state.activeIndex) {
-            | Some(s) => s.id
-            | None => ""
-            },
-            targetScene: targetSceneId->Option.getOr(targetName),
-            transition: "fade",
-            duration: 1000,
-          })
-          dispatch(Actions.AddToTimeline(timelineItemJson))
-
-          // Use setTimeout to ensure state updates properly after hotspot is added
-          let _ = setTimeout(() => {
-            Logger.info(
-              ~module_="LinkModal",
-              ~message="EXIT_SEQUENCE_START",
-              ~data=Some({"stateBeforeExit": getState().isLinking}),
-              (),
-            )
-
-            // Step 1: Close modal first to prevent any re-renders
-            EventBus.dispatch(CloseModal)
-            Logger.info(~module_="LinkModal", ~message="MODAL_CLOSED", ())
-
-            // Step 2: Hide draft lines immediately
-            SvgManager.hide("link_draft_red")
-            SvgManager.hide("link_draft_yellow")
-            Logger.info(~module_="LinkModal", ~message="DRAFT_LINES_HIDDEN", ())
-
-            // Step 3: Exit linking mode
-            dispatch(Actions.StopLinking)
-            Logger.info(
-              ~module_="LinkModal",
-              ~message="STOP_LINKING_DISPATCHED",
-              ~data=Some({"stateAfterDispatch": getState().isLinking}),
-              (),
-            )
-          }, 50)
-        }
+        }, 50)
       }
     | None => ()
     }

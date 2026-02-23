@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Deprecate triple-commit defaults and prune branch surface
 
+### Fixed
+- Link modal test failures and restore save logic
+
 ## [4.5.0] - 2026-02-23
 
 ### Changed

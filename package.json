@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "4.5.1",
-  "buildNumber": 0,
+  "buildNumber": 1,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -33,12 +33,13 @@
     "rust:fmt": "cd backend && cargo fmt",
     "format": "npm run rs:fmt && npm run rust:fmt",
     "lint": "npm run format && npm run res:build",
-    "predev": "./scripts/setup.sh",
+    "predev": "./scripts/predev.sh",
     "dev": "npm run dev:all",
     "dev:system": "./scripts/dev-system.sh",
     "dev:all": "concurrently --kill-others -n \"RES,SW,BACK,FRONT,GOV\" -c \"yellow,cyan,blue,green,magenta\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:system\"",
     "dev:frontend": "rsbuild dev",
-    "dev:backend": "cd backend && (command -v cargo-watch >/dev/null 2>&1 && cargo watch -w src -w Cargo.toml -w Cargo.lock -w migrations -x run || cargo run)"
+    "dev:backend": "cd backend && (command -v cargo-watch >/dev/null 2>&1 && cargo watch -w src -w Cargo.toml -w Cargo.lock -w migrations -x run || cargo run)",
+    "start": "./scripts/start-prod.sh"
   },
   "repository": {
     "type": "git",

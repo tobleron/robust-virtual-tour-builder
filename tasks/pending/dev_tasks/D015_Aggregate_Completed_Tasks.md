@@ -1,7 +1,7 @@
 # Task D015: Aggregate Completed Tasks
 
 ## 🚨 Trigger
-Completed tasks count exceeds 20 (Current: 28).
+Completed tasks count exceeds 20 (Current: 34).
 
 ## Objective
 Aggregate all but the last 10 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.

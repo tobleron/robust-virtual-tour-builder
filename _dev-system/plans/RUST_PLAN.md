@@ -9,10 +9,10 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (4)
-- [ ] **../../backend/src/services/project/import_upload.rs**
-  - *Reason:* [Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300
 - [ ] **../../backend/src/api/media/video_logic.rs**
   - *Reason:* [Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300
+- [ ] **../../backend/src/services/project/import_upload.rs**
+  - *Reason:* [Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300
 - [ ] **../../backend/src/api/media/video.rs**
   - *Reason:* [Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300
 - [ ] **../../backend/src/services/project/package.rs**

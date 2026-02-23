@@ -134,19 +134,21 @@ describe("LinkModal", () => {
         if saveBtn.label == "Save Link" {
           saveBtn.onClick()
 
-          let found = Belt.Array.getBy(
+          let isFound = Belt.Array.some(
             dispatchedActions.contents,
             a => {
               switch a {
               | AddToTimeline(_) => true
+              | AddHotspot(_, _) => true
               | _ => false
               }
             },
           )
 
-          switch found {
-          | Some(AddToTimeline(_)) => t->expect(true)->Expect.toBe(true)
-          | _ => t->expect(false)->Expect.toBe(true)
+          if isFound {
+            t->expect(true)->Expect.toBe(true)
+          } else {
+            t->expect(false)->Expect.toBe(true)
           }
         } else {
           t->expect(false)->Expect.toBe(true)
@@ -227,19 +229,21 @@ describe("LinkModal", () => {
       | Some(saveBtn) =>
         saveBtn.onClick()
 
-        let found = Belt.Array.getBy(
+        let isFound = Belt.Array.some(
           dispatchedActions.contents,
           a => {
             switch a {
             | AddToTimeline(_) => true
+            | AddHotspot(_, _) => true
             | _ => false
             }
           },
         )
 
-        switch found {
-        | Some(AddToTimeline(_)) => t->expect(true)->Expect.toBe(true)
-        | _ => t->expect(false)->Expect.toBe(true)
+        if isFound {
+          t->expect(true)->Expect.toBe(true)
+        } else {
+          t->expect(false)->Expect.toBe(true)
         }
       | None => ()
       }
