@@ -13,6 +13,7 @@ let processUploads = (
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
   ~opId: option<OperationLifecycle.operationId>=?,
+  ~onCancel: option<unit => unit>=?,
 ): Promise.t<UploadTypes.processResult> => {
   // Start OperationLifecycle
   let opId = switch opId {
@@ -32,11 +33,34 @@ let processUploads = (
     )
   }
 
+  let cancelled = ref(false)
+  let journalIdRef: ref<option<string>> = ref(None)
+
+  OperationLifecycle.registerCancel(opId, () => {
+    if !cancelled.contents {
+      cancelled := true
+      onCancel->Option.forEach(cb => cb())
+      switch journalIdRef.contents {
+      | Some(journalId) =>
+        let _ = OperationJournal.removeOperation(journalId)
+      | None => ()
+      }
+      Logger.info(
+        ~module_="UploadProcessor",
+        ~message="UPLOAD_CANCELLED_BY_USER",
+        ~data=Some({"opId": opId}),
+        (),
+      )
+    }
+  })
+
   let updateProgress = (pct, msg, isProc, phase) => {
-    OperationLifecycle.progress(opId, pct, ~message=msg, ~phase, ())
-    switch progressCallback {
-    | Some(cb) => cb(pct, msg, isProc, phase)
-    | None => ()
+    if !cancelled.contents {
+      OperationLifecycle.progress(opId, pct, ~message=msg, ~phase, ())
+      switch progressCallback {
+      | Some(cb) => cb(pct, msg, isProc, phase)
+      | None => ()
+      }
     }
   }
 
@@ -63,7 +87,11 @@ let processUploads = (
     }),
     ~retryable=true,
   )->Promise.then(journalId => {
-    if !NetworkStatus.isOnline() {
+    journalIdRef := Some(journalId)
+
+    if cancelled.contents {
+      OperationJournal.removeOperation(journalId)->Promise.then(() => Promise.resolve(emptyResult))
+    } else if !NetworkStatus.isOnline() {
       updateProgress(100.0, "Error: No Internet Connection", false, "Error")
       UploadProcessorLogic.Utils.notify(
         "You appear to be offline. Please check your internet connection and try again.",
@@ -100,7 +128,7 @@ let processUploads = (
             if Belt.Array.length(validFiles) == 0 {
               UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
               OperationLifecycle.complete(opId, ~result="No valid files", ())
-              OperationJournal.completeOperation(journalId)->Promise.then(
+              OperationJournal.removeOperation(journalId)->Promise.then(
                 () => Promise.resolve(emptyResult),
               )
             } else {
@@ -115,7 +143,7 @@ let processUploads = (
               ->Promise.then(
                 result => {
                   OperationLifecycle.complete(opId, ~result="Success", ())
-                  OperationJournal.completeOperation(journalId)->Promise.then(
+                  OperationJournal.removeOperation(journalId)->Promise.then(
                     () => Promise.resolve(result),
                   )
                 },
@@ -123,10 +151,16 @@ let processUploads = (
               ->Promise.catch(
                 err => {
                   let (msg, _) = Logger.getErrorDetails(err)
-                  OperationLifecycle.fail(opId, msg)
-                  OperationJournal.failOperation(journalId, msg)->Promise.then(
-                    () => Promise.reject(err),
-                  )
+                  if cancelled.contents || msg == "CANCELLED" {
+                    OperationJournal.removeOperation(journalId)->Promise.then(
+                      () => Promise.resolve(emptyResult),
+                    )
+                  } else {
+                    OperationLifecycle.fail(opId, msg)
+                    OperationJournal.failOperation(journalId, msg)->Promise.then(
+                      () => Promise.reject(err),
+                    )
+                  }
                 },
               )
             }

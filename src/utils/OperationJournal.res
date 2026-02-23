@@ -127,6 +127,15 @@ let failOperation = (id: string, reason: string): Promise.t<unit> => {
   updateStatus(id, Failed(reason))
 }
 
+let removeOperation = (id: string): Promise.t<unit> => {
+  JournalLogic.clearEmergencyQueueForId(id)
+  currentJournal := {
+      ...currentJournal.contents,
+      entries: currentJournal.contents.entries->Belt.Array.keep(entry => entry.id != id),
+    }
+  saveCurrent()
+}
+
 let getInterrupted = (journal: t) => {
   Belt.Array.keep(journal.entries, entry => {
     switch entry.status {

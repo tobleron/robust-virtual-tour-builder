@@ -61,27 +61,23 @@ let updateLatencyEma = (sampleMs: float) => {
 let noteProcessFullSuccess = (~durationMs: float, ~attempts: int) => {
   updateLatencyEma(durationMs)
 
-  if attempts > 1 || processFullLatencyEmaMs.contents > Constants.Media.processFullLatencyHighMs {
+  if attempts > 1 {
     processFullStableSuccessStreak := 0
     updateSpacing(
-      ~nextSpacingMs=processFullDynamicSpacingMs.contents +. Constants.Media.processFullSpacingStepUpMs,
-      ~reason=
-        if attempts > 1 {
-          "retry-success"
-        } else {
-          "high-latency"
-        },
+      ~nextSpacingMs=processFullDynamicSpacingMs.contents +.
+      Constants.Media.processFullSpacingStepUpMs,
+      ~reason="retry-success",
     )
   } else {
     processFullStableSuccessStreak := processFullStableSuccessStreak.contents + 1
     let reachedWindow =
       processFullStableSuccessStreak.contents >= Constants.Media.processFullAutotuneSuccessWindow
-    let lowLatency = processFullLatencyEmaMs.contents < Constants.Media.processFullLatencyLowMs
-    if reachedWindow && lowLatency {
+    if reachedWindow {
       processFullStableSuccessStreak := 0
       updateSpacing(
-        ~nextSpacingMs=processFullDynamicSpacingMs.contents -. Constants.Media.processFullSpacingStepDownMs,
-        ~reason="stable-low-latency",
+        ~nextSpacingMs=processFullDynamicSpacingMs.contents -.
+        Constants.Media.processFullSpacingStepDownMs,
+        ~reason="stable-success-window",
       )
     }
   }
@@ -123,7 +119,8 @@ let applyProcessFullBackoff = (seconds: int) => {
   }
   processFullStableSuccessStreak := 0
   updateSpacing(
-    ~nextSpacingMs=processFullDynamicSpacingMs.contents +. Constants.Media.processFullSpacingStepUpMs,
+    ~nextSpacingMs=processFullDynamicSpacingMs.contents +.
+    Constants.Media.processFullSpacingStepUpMs,
     ~reason="rate-limited",
   )
 }
@@ -233,10 +230,7 @@ let processImageFull = (
         resultResponse => {
           switch resultResponse {
           | Retry.Success(response, attempts) =>
-            noteProcessFullSuccess(
-              ~durationMs=Date.now() -. requestStartedAtMs,
-              ~attempts,
-            )
+            noteProcessFullSuccess(~durationMs=Date.now() -. requestStartedAtMs, ~attempts)
             response.blob()
             ->Promise.then(blob => Promise.resolve(Ok(blob)))
             ->Promise.catch(

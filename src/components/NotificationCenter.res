@@ -6,6 +6,13 @@
 // open NotificationTypes (Removed to avoid shadowing Error global)
 
 module Toast = {
+  let getContextClass = (context: NotificationTypes.context): string => {
+    switch context {
+    | NotificationTypes.Operation(op) if String.startsWith(op, "eta_") => " eta"
+    | _ => ""
+    }
+  }
+
   @react.component
   let make = (~notification: NotificationTypes.notification, ~isFadingOut: bool) => {
     let icon = switch notification.importance {
@@ -18,14 +25,17 @@ module Toast = {
     }
 
     let importanceKey = NotificationTypes.importanceToString(notification.importance)
+    let contextClass = getContextClass(notification.context)
 
     <div
       className={"viewer-toast " ++
-      importanceKey ++ if isFadingOut {
+      importanceKey ++
+      if isFadingOut {
         " dismissing"
       } else {
         ""
-      }}
+      } ++
+      contextClass}
     >
       <div className="viewer-toast-icon"> icon </div>
 

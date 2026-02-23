@@ -1,4 +1,4 @@
-# Architecture & Standards
+# Architecture Overview
 
 ## 📌 Anchor-Based Positioning Standards
 **Objective**: Ensure hotspots and UI overlays remain visually pinned to their panoramic coordinates regardless of the user's zoom level or viewport size.
@@ -20,4 +20,28 @@
 ---
 
 ## 🏗️ System Architecture
-*(To be populated with overall system diagram)*
+
+```mermaid
+graph TD
+    subgraph Frontend [React / ReScript Application]
+        UI[User Interface Components]
+        VP[Visual Pipeline & 3D Renderer]
+        State[State Management / Reducers]
+        API[API Client / Circuit Breaker]
+        
+        UI --> State
+        UI --> VP
+        State --> API
+        VP --> State
+    end
+
+    subgraph Backend [Rust API & Services]
+        Gateway[API Gateway]
+        Services[Media / Geocoding / Projects]
+        Storage[(PostgreSQL / Asset Storage)]
+        
+        API -->|HTTP / JSON| Gateway
+        Gateway --> Services
+        Services --> Storage
+    end
+```

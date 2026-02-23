@@ -429,6 +429,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/systems/EtaSupport.res](src/systems/EtaSupport.res): New module detected. Please classify. #new
 * [src/systems/TeaserStyleCinematic.res](src/systems/TeaserStyleCinematic.res): New module detected. Please classify. #new
 * [src/systems/TeaserStyleFastShots.res](src/systems/TeaserStyleFastShots.res): New module detected. Please classify. #new
 * [src/systems/TeaserStyleSimpleCrossfade.res](src/systems/TeaserStyleSimpleCrossfade.res): New module detected. Please classify. #new

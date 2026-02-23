@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.12] | Drag: 3.42 | LOC: 378/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 576/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 396/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -52,17 +52,19 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - useOperations × 1 (lines: 411)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
-- `src/systems/TeaserLogic.res` (9 functions, fingerprint b2fa6a257ea8bc8f16d7df2ff3c40b4021578e4343a4af6911b58e4c8941ac17)
+- `src/systems/TeaserLogic.res` (11 functions, fingerprint 7ec647effd8951188e55dfc8e394aebe77ed67479f4f16c57e3a31dbc1848d37)
     - Grouped summary:
         - centerViewerAtWaypointStart × 1 (lines: 81)
-        - check × 1 (lines: 150)
-        - finalizeTeaser × 1 (lines: 111)
-        - logoState × 1 (lines: 146)
+        - check × 1 (lines: 193)
+        - finalizeTeaser × 1 (lines: 154)
+        - logoState × 1 (lines: 189)
+        - parseTeaserProgressMetrics × 1 (lines: 111)
         - readHeadlessMotionProfile × 1 (lines: 24)
         - readMotionManifest × 1 (lines: 36)
         - resolveTeaserStartView × 1 (lines: 55)
-        - safeName × 1 (lines: 159)
-        - signalIsAborted × 1 (lines: 105)
+        - safeName × 1 (lines: 202)
+        - signalIsAborted × 1 (lines: 148)
+        - teaserEtaToastId × 1 (lines: 103)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserPlayback.res`
 - `src/systems/TeaserPlayback.res` (16 functions, fingerprint 6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb)

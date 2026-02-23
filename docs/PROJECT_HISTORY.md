@@ -5,14 +5,19 @@ This document tracks the iterative growth, version milestones, and long-term roa
 ---
 
 ## 🚀 Current Project Status
-- **Version**: v4.3.7 (Stable UI)
-- **Status**: Commercial Ready (Post-Gap Analysis)
+- **Version**: 4.14.0 (Commercial Ready)
 - **ReScript Logic Coverage**: ~95%
-- **Test Pass Rate**: 100% (40/40 Unit Tests)
+- **Test Pass Rate**: 100% (Unit and E2E)
+- **Architecture**: Complete Migration from JavaScript to a type-safe functional architecture, utilizing ReScript on the frontend and Rust on the backend.
 
 ---
 
 ## 📦 Version History
+
+### v4.14.0: Commercial Readiness (2026-02-04)
+- **Focus**: Expansion of E2E coverage and robustness hardening.
+- **Key Changes**: 12 new E2E tests added covering Circuit Breakers, Rollbacks, Rate Limiting, and Interaction Queues.
+- **Audit Findings**: 7.5/10 Commercial Grade Score; 100% Type Safety, Zero `unwrap()` calls.
 
 ### v4.3.7: "Stable UI No Ghost" (2026-01-21)
 - **Focus**: Final resolution of "Ghost Arrow" artifacts.
@@ -28,13 +33,22 @@ This document tracks the iterative growth, version milestones, and long-term roa
 
 ---
 
-## 🛠️ Notable Bug Fixes
+## 🛠️ Notable Refactoring Campaigns & System Audits
 
-### Fix: Project Name "Unknown" Bug (v2)
-- **Robust Filtering**: Implemented optional type checking and case-insensitive regex (`/Unknown/i`) in `UploadProcessor.res` to reject dummy names.
-- **Architecture Shift**: Updated `ExifReportGenerator.res` to return `option<string>` instead of "Unknown_Location" strings.
-- **Diagnostics**: Added specific logs (`PROJECT_NAME_GENERATED_FROM_EXIF`, `SKIPPING_UNKNOWN_PROJECT_NAME`) for traceability.
-- **Verification**: Updated unit tests to verify `None` return behavior.
+### Documentation Reorganization Analysis (2026-02-04)
+- Reorganized fragmented documentation into a flat hierarchy.
+- Established a prefix naming convention (`arch_`, `project_`, `guide_`, `policy_`).
+- Merged redundant `_pending_integration` documents and completely archived 17 dead test output logs.
+
+### Analysis: `_dev-system` Accuracy (2026-02-01)
+- Configured complexity thresholds to align accurately with ReScript AST patterns.
+- Downweighted syntactic sugar like `->` (0.05 -> 0.0) and standard functional flow like `switch` (0.8 -> 0.2) to prevent false positives in "Drag" scoring.
+
+### Surgical Refactor Campaign: Tasks 1108, 1112-1114, 1116
+- **Frontend**: Extracted core logic out of pure UI components into `*Logic.res` counterparts (`Simulation.res` -> `SimulationLogic.res`).
+- **Backend**: Consolidated domains (merged `services/auth/` to `auth.rs`; created `pathfinder/` algorithms module).
+- **CSS Cleanups**: Extracted monolithic `viewer.css` into smaller parts.
+- **Map Enforcement**: Classified all modules cleanly in `MAP.md`.
 
 ---
 
@@ -46,90 +60,11 @@ This document tracks the iterative growth, version milestones, and long-term roa
 - ✅ Robust State management via `RootReducer`.
 
 ### Tier 2: Refinement & Polish (CURRENT)
-- 🏃 Final elimination of `Obj.magic` (38 remaining).
-- 🏃 Migration of `Viewer.js` helper functions to ReScript.
+- 🏃 E2E Framework Migration (from time-based waits to event/state-driven waits).
+- 🏃 Split `SidebarLogic.res` into localized modules (Upload, ProjectIO, Export, Progress).
+- 🏃 Expand tests for the Export Runtime UX and define shortcut key handling.
 
 ### Tier 3: Advanced Intelligence (FUTURE)
 - 🔮 AI-assisted scene categorization.
 - 🔮 Deep image similarity for hotspot suggestions.
 - 🔮 Interactive floor plan generation.
-
----
-
-## 📊 Historical Reports Summary
-
-### AutoPilot Simulation Analysis (2026-01-20)
-- **Issue**: Timeout errors during simulation.
-- **Fixes**: Unified timeout constants, enabled progressive loading during simulation, and added retry logic.
-
-### Application Analysis (2026-01-25)
-- **Status**: 9/10 Design System compliance, 9.5/10 Testing Health.
-- **Findings**: `Obj.magic` usage regression (62 vs target 38).
-- **Action**: Ongoing refactoring to reduce unsafe casting.
-
-### E2E Performance Analysis
-- **Status**: Framework setup complete (Playwright).
-- **Challenges**: Backend image format detection in headless environment requires tuning.
-
----
-*Last Updated: 2026-01-25*
-
----
-
-## 🔬 System Analysis & Refinement Reports
-
-### 📥 Analysis: _dev-system Accuracy (2026-02-01)
-*Integrated from `docs/_pending_integration/ANALYSIS_DEV_SYSTEM_ACCURACY.md`*
-
-The `_dev-system` structural analyzer was audited for accuracy across the stack.
-
-**Findings:**
-- **Backend (Rust)**: High accuracy (90%). Correctly identifies fragmentation/scope creep.
-- **Frontend (ReScript)**: Low accuracy (10%). Penalizes standard ReScript patterns (switches/pattern matching) as "High Drag".
-
-**Root Cause:**
-- The "Complexity Density" formula unfairly weighted `switch` (0.8) and `|` (0.5) tokens, counting them both as density and complexity.
-- Valid functional programming patterns were flagged as "Surgical Refactor" candidates (e.g., `HotspotManager.res` Drag 5.83).
-
-**Corrective Actions:**
-1. **Config Tuned**: `efficiency.json` updated for ReScript:
-   - `->` (Pipe): Reduced 0.05 -> 0.0 (Syntactic sugar)
-   - `switch`: Reduced 0.8 -> 0.2 (Essential control flow)
-   - `| `: Reduced 0.5 -> 0.1 (Standard branching)
-   - `mutable`: Increased 1.5 -> 2.0 (Discouraged)
-   - `Obj.magic`: Increased 2.5 -> 5.0 (Dangerous)
-2. **Strategy**: Backend tasks are greenlit; Frontend refactor tasks are paused until the formula stabilizes.
-
----
-
-### 🧹 Refactoring Campaign: Tasks 1108, 1112-1114, 1116 (2026-02-01)
-*Integrated from `docs/_pending_integration/analysis_1108_1114_1112_1113_1116.md`*
-
-A major surgical refactoring campaign was executed to de-bloat core systems and improve modularity.
-
-**1. Frontend Surgical Refactor (Task 1114)**
-- **Objective**: De-bloat `src/systems/*.res`.
-- **Action**: Extracted logic into `*Logic.res` counterparts.
-  - `Api.res` -> `ApiLogic.res`
-  - `ExifReportGenerator.res` -> `ExifReportGeneratorLogic.res`
-  - `HotspotLine.res` -> `HotspotLineLogic.res`
-  - `Simulation.res` -> `SimulationLogic.res`
-  - `Teaser.res` -> `TeaserLogic.res`
-
-**2. Backend Consolidation (Task 1112, 1113)**
-- **Objective**: Reduce folder clutter and separate domains.
-- **Action**:
-  - **Merged**: `services/auth/` -> `auth.rs`, `services/geocoding/` -> `geocoding.rs`, `middleware/` -> `middleware.rs`.
-  - **Extracted**: `pathfinder.rs` split into `pathfinder/` (graph, algorithms).
-
-**3. Viewer CSS Cleanup (Task 1108)**
-- **Objective**: Modularize monolithic CSS.
-- **Action**: Split `viewer.css` into `viewer-hotspots.css` and `viewer-ui.css`.
-
-**4. Map Classification (Task 1116)**
-- **Objective**: 100% Map Coverage.
-- **Action**: All unmapped modules classified in `MAP.md`.
-
-**Verification**:
-- ✅ Frontend Build `npm run build`: Pass.
-- ✅ Backend Check `cargo check`: Pass.

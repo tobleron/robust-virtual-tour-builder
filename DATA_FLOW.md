@@ -400,6 +400,7 @@ CI job
 - `[src/components/Sidebar/SidebarLogicHandler.res]`
 
 ### 📂 src/systems
+- `[src/systems/EtaSupport.res]`
 - `[src/systems/TeaserManifest.res]`
 - `[src/systems/TeaserOfflineCfrRenderer.res]`
 - `[src/systems/TeaserRendererRegistry.res]`

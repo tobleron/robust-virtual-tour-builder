@@ -50,6 +50,19 @@
 - [x] `src/utils/Constants.res`: Added adaptive pacing constants for `/api/media/process-full` autotuning (bounds, step sizes, EMA/latency thresholds).
 - [x] `src/systems/Api/MediaApi.res`: Implemented throughput autotuning loop for `process-full` pacing (dynamic spacing, EMA latency feedback, success-window step-down, and rate-limit/retry step-up logic).
 - [x] Compile check after throughput autotuning integration: `npm run -s res:build` passed.
+- [x] `src/systems/Api/MediaApi.res`: Calibrated autotune to prioritize reliability signals (retry/rate-limit) and stable-success windows over raw latency-only escalation.
+- [x] `src/components/Sidebar/SidebarLogicHandler.res`: Added upload ETA in progress toast (`Uploading... X% • ETA ...`) with throttled refresh and auto-dismiss on completion/failure.
+- [x] `src/components/Sidebar/SidebarLogicHandler.res`: Reworked ETA estimator for reliability using multi-signal blending:
+  - parsed processed counters (`completed/total`) from queue message,
+  - EMA of seconds-per-item on actual completion events,
+  - global average seconds-per-item,
+  - EMA progress slope fallback,
+  - in-flight utilization correction,
+  - warm-up gating + bounded smoothing to prevent wild jumps.
+- [x] Direct API calibration with `/Users/r2/Desktop/X3_Layan_1007_Villa` files:
+  - Sequential probe: `200` with ~47-49s per request.
+  - Parallel probe (3 files): all `200`, ~63-64s each (no `429`).
+- [x] Verification note: one-shot ReScript build blocked by active watcher PID `55843`; latest changes validated via live API stress calls.
 - [x] Direct API stress probe (curl, 2-way parallel) against `/api/media/process-full` on `X3_Layan_1007_Villa`: slow but responsive; observed requests returned `200` with large per-image latency.
 - [x] E2E sanity run `tests/e2e/ingestion.spec.ts`: `5 passed`, `1 failed` (chromium expects `Start Building` button visibility in a path that no longer consistently presents it).
 - [x] Compile check after weighted scheduler integration: `npm run -s res:build` passed.

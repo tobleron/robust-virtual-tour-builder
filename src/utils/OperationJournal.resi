@@ -25,6 +25,7 @@ let make: unit => t
 let startOperation: (~operation: string, ~context: JSON.t, ~retryable: bool) => Promise.t<string> // Returns ID
 let completeOperation: string => Promise.t<unit>
 let failOperation: (string, string) => Promise.t<unit>
+let removeOperation: string => Promise.t<unit>
 let updateStatus: (string, operationStatus) => Promise.t<unit>
 let updateContext: (string, JSON.t) => Promise.t<unit>
 let getInterrupted: t => array<journalEntry>
