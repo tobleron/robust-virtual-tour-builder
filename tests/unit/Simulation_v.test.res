@@ -16,10 +16,14 @@ describe("Simulation", () => {
   })
 
   test("should render without crashing with running simulation state", t => {
-    let mockState: Types.state = {
-      ...State.initialState,
+    let mockState = TestUtils.createMockState(
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+    let mockState = {
+      ...mockState,
       simulation: {
-        ...State.initialState.simulation,
+        ...mockState.simulation,
         status: Running,
       },
     }
@@ -39,12 +43,15 @@ describe("Simulation", () => {
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
     let scene1 = TestUtils.createMockScene(~id="s1", ~name="S1", ())
-    let mockState: Types.state = {
-      ...State.initialState,
-      activeIndex: 0,
-      scenes: [scene1],
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene1],
+      ~activeIndex=0,
+      (),
+    )
+    let mockState = {
+      ...mockState,
       simulation: {
-        ...State.initialState.simulation,
+        ...mockState.simulation,
         status: Running,
         visitedScenes: [], // 0 is NOT visited
       },

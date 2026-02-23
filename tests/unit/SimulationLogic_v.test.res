@@ -53,12 +53,15 @@ describe("SimulationLogic", () => {
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      ~activeIndex=0,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0],
       },
     }
@@ -87,12 +90,15 @@ describe("SimulationLogic", () => {
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      ~activeIndex=0,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0],
       },
     }
@@ -128,12 +134,15 @@ describe("SimulationLogic", () => {
     }
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2, scene3],
-      activeIndex: 1,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2, scene3],
+      ~activeIndex=1,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0, 1], // Scene 3 remains unvisited
       },
     }
@@ -165,12 +174,15 @@ describe("SimulationLogic", () => {
     }
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2, scene3],
-      activeIndex: 0,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2, scene3],
+      ~activeIndex=0,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0],
         skipAutoForwardGlobal: true,
       },
@@ -205,10 +217,13 @@ describe("SimulationLogic", () => {
       duration: 0,
     }
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      ~activeIndex=0,
+      (),
+    )
+    let state = {
+      ...state,
       timeline: [timelineItem],
     }
 
@@ -236,12 +251,15 @@ describe("SimulationLogic", () => {
       hotspots: [createHotspot("Scene 1", true)],
     }
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 1,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      ~activeIndex=1,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0, 1],
       },
     }
@@ -273,12 +291,15 @@ describe("SimulationLogic", () => {
       hotspots: [],
     }
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2, scene3],
-      activeIndex: 1,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2, scene3],
+      ~activeIndex=1,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0, 1], // Scene 3 is NOT visited
       },
     }
@@ -298,11 +319,11 @@ describe("SimulationLogic", () => {
       hotspots: [],
     }
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1],
-      activeIndex: 0,
-    }
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1],
+      ~activeIndex=0,
+      (),
+    )
 
     let move = getNextMove(state)
     switch move {
@@ -312,11 +333,11 @@ describe("SimulationLogic", () => {
   })
 
   test("getNextMove returns Complete when invalid active index", t => {
-    let state: state = {
-      ...State.initialState,
-      scenes: [],
-      activeIndex: 0,
-    }
+    let state = TestUtils.createMockState(
+      ~scenes=[],
+      ~activeIndex=0,
+      (),
+    )
 
     let move = getNextMove(state)
     switch move {
@@ -335,12 +356,15 @@ describe("SimulationLogic", () => {
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2, scene3],
-      activeIndex: 0,
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2, scene3],
+      ~activeIndex=0,
+      (),
+    )
+    let state = {
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         visitedScenes: [0, 1], // Scene 1 and 2 are visited, Scene 3 is not
       },
     }

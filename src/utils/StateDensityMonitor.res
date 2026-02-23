@@ -29,12 +29,13 @@ let classifyScore = (score: float): densityLevel => {
 }
 
 let toSnapshot = (state: state): densitySnapshot => {
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   let hotspotCount =
-    state.scenes->Belt.Array.reduce(0, (acc, scene) => acc + Belt.Array.length(scene.hotspots))
+    scenes->Belt.Array.reduce(0, (acc, scene) => acc + Belt.Array.length(scene.hotspots))
   let inventoryCount = Belt.Map.String.size(state.inventory)
   let timelineCount = Belt.Array.length(state.timeline)
-  let deletedSceneCount = Belt.Array.length(state.deletedSceneIds)
-  let sceneCount = Belt.Array.length(state.scenes)
+  let deletedSceneCount = Array.length(SceneInventory.getDeletedIds(state.inventory))
+  let sceneCount = Array.length(scenes)
   let score =
     sceneCount->Int.toFloat +.
     hotspotCount->Int.toFloat *. 0.35 +.

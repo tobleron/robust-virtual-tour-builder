@@ -124,7 +124,7 @@ describe("UploadProcessorLogic", () => {
       }
 
       // Set state with activeIndex = -1 and one scene (simulating added scene)
-      let stateWithScenes = {...State.initialState, scenes: [scene], activeIndex: -1}
+      let stateWithScenes = TestUtils.createMockState(~scenes=[scene], ~activeIndex=-1, ())
       AppStateBridge.updateState(stateWithScenes)
 
       let item1 = {

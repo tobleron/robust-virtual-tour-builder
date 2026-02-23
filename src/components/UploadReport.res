@@ -147,7 +147,7 @@ let show = (
       onClick: () => {
         let state = getState()
         dispatch(DispatchAppFsmEvent(CloseSummary))
-        if state.activeIndex == -1 && Array.length(state.scenes) > 0 {
+        if state.activeIndex == -1 && Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) > 0 {
           dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
       },
@@ -181,21 +181,20 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
       // Return empty/safe default if parse fails
       {
         tourName: "",
-        scenes: [],
         inventory: Belt.Map.String.empty,
         sceneOrder: [],
         lastUsedCategory: "",
         exifReport: None,
         sessionId: None,
-        deletedSceneIds: [],
         timeline: [],
         logo: None,
       }
     }
   }
 
-  let successNames = Belt.Array.map(project.scenes, s => s.name)
-  let qualityResults = Belt.Array.map(project.scenes, s => {
+  let scenes = SceneInventory.getActiveScenes(project.inventory, project.sceneOrder)
+  let successNames = Belt.Array.map(scenes, s => s.name)
+  let qualityResults = Belt.Array.map(scenes, s => {
     let q = switch s.quality {
     | Some(qJson) =>
       switch JsonCombinators.Json.decode(qJson, JsonParsers.Shared.qualityAnalysis) {

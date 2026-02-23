@@ -106,7 +106,7 @@ let make = React.memo(() => {
         onExport={(~signal, ~onCancel) => {
           let state = getState()
           SidebarLogic.handleExport(
-            state.scenes,
+            sceneSlice.scenes,
             ~tourName=state.tourName,
             ~projectData=ProjectSystem.encodeProjectFromState(state),
             ~dispatch,

@@ -9,7 +9,7 @@ describe("SceneMutations", () => {
     let s2 = createMockScene(~id="s2", ~name="old_name2.webp", ~label="Living Room", ())
     let scenes = [s1, s2]
 
-    let updated = syncSceneNames(scenes)
+    let updated = SceneNaming.syncSceneNames(scenes)
 
     let u1 = updated[0]->Option.getOrThrow
     let u2 = updated[1]->Option.getOrThrow
@@ -24,7 +24,7 @@ describe("SceneMutations", () => {
     let s2 = createMockScene(~id="s2", ~name="old_s2.webp", ~label="Scene 2", ~hotspots=[h1], ())
     let scenes = [s1, s2]
 
-    let updated = syncSceneNames(scenes)
+    let updated = SceneNaming.syncSceneNames(scenes)
 
     let updatedS2 = updated[1]->Option.getOrThrow
     let updatedH1 = updatedS2.hotspots[0]->Option.getOrThrow
@@ -61,13 +61,14 @@ describe("SceneMutations", () => {
 
     let result = handleDeleteScene(state, 0)
 
-    t->expect(result.scenes->Array.length)->Expect.toBe(1)
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    t->expect(resultScenes->Array.length)->Expect.toBe(1)
     t->expect(result.activeIndex)->Expect.toBe(0)
 
-    let remainingScene = result.scenes[0]->Option.getOrThrow
+    let remainingScene = resultScenes[0]->Option.getOrThrow
     t->expect(remainingScene.id)->Expect.toBe("s2")
     t->expect(remainingScene.hotspots->Array.length)->Expect.toBe(0) // Hotspot to s1 removed
-    t->expect(result.deletedSceneIds)->Expect.toContain("s1")
+    t->expect(SceneInventory.getDeletedIds(result.inventory))->Expect.toContain("s1")
   })
 
   test("handleReorderScenes moves items and updates activeIndex", t => {
@@ -83,13 +84,15 @@ describe("SceneMutations", () => {
 
     // Move 1 to end: [0, 2, 1]
     let result = handleReorderScenes(state, 1, 2)
-    let lastScene = result.scenes[2]->Option.getOrThrow
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    let lastScene = resultScenes[2]->Option.getOrThrow
     t->expect(lastScene.id)->Expect.toBe("1")
     t->expect(result.activeIndex)->Expect.toBe(2)
 
     // Move 2 to front: [2, 0, 1] (result from previous was [0, 2, 1])
     let result2 = handleReorderScenes(result, 1, 0)
-    let firstScene = result2.scenes[0]->Option.getOrThrow
+    let result2Scenes = SceneInventory.getActiveScenes(result2.inventory, result2.sceneOrder)
+    let firstScene = result2Scenes[0]->Option.getOrThrow
     t->expect(firstScene.id)->Expect.toBe("2")
     t->expect(result2.activeIndex)->Expect.toBe(2) // 1 stayed at 2
   })

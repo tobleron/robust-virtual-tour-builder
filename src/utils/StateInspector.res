@@ -25,7 +25,7 @@ type stateSnapshot = {
 let createSnapshot = (state: Types.state): stateSnapshot => {
   {
     tourName: state.tourName,
-    sceneCount: Belt.Array.length(state.scenes),
+    sceneCount: Belt.Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
     activeSceneIndex: state.activeIndex,
     isLinking: state.isLinking,
     ui: {

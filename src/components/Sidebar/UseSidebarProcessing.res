@@ -271,7 +271,7 @@ let handleSave = async (~getState, ~signal, ~onCancel, ~dispatch) => {
       ~type_=ProjectSave,
       ~scope=Blocking,
       ~phase="Initializing",
-      ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
+      ~meta=Logger.castToJson({"sceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder))}),
       (),
     )
     opIdRef := Some(opId)

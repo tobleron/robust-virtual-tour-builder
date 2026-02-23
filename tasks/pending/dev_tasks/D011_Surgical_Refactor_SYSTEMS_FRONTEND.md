@@ -15,11 +15,11 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 6.42 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 576/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 578/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 396/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserRecorder.res** (Metric: [Nesting: 6.00, Density: 0.22, Coupling: 0.05] | Drag: 7.24 | LOC: 481/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -54,35 +54,35 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
 - `src/systems/TeaserLogic.res` (11 functions, fingerprint 7ec647effd8951188e55dfc8e394aebe77ed67479f4f16c57e3a31dbc1848d37)
     - Grouped summary:
-        - centerViewerAtWaypointStart × 1 (lines: 81)
-        - check × 1 (lines: 193)
-        - finalizeTeaser × 1 (lines: 154)
-        - logoState × 1 (lines: 189)
-        - parseTeaserProgressMetrics × 1 (lines: 111)
+        - centerViewerAtWaypointStart × 1 (lines: 82)
+        - check × 1 (lines: 194)
+        - finalizeTeaser × 1 (lines: 155)
+        - logoState × 1 (lines: 190)
+        - parseTeaserProgressMetrics × 1 (lines: 112)
         - readHeadlessMotionProfile × 1 (lines: 24)
         - readMotionManifest × 1 (lines: 36)
         - resolveTeaserStartView × 1 (lines: 55)
-        - safeName × 1 (lines: 202)
-        - signalIsAborted × 1 (lines: 148)
-        - teaserEtaToastId × 1 (lines: 103)
+        - safeName × 1 (lines: 203)
+        - signalIsAborted × 1 (lines: 149)
+        - teaserEtaToastId × 1 (lines: 104)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserPlayback.res`
 - `src/systems/TeaserPlayback.res` (16 functions, fingerprint 6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb)
     - Grouped summary:
         - animatePan × 1 (lines: 78)
         - animatePose × 1 (lines: 47)
-        - clamp01 × 1 (lines: 195)
-        - getLastSegmentPose × 1 (lines: 229)
-        - getManifestStateAt × 1 (lines: 295)
-        - getShotMotionDuration × 1 (lines: 204)
-        - getShotTargetPose × 1 (lines: 236)
-        - getShotTiming × 1 (lines: 214)
-        - interpolateSegments × 1 (lines: 247)
-        - playManifest × 1 (lines: 360)
+        - clamp01 × 1 (lines: 197)
+        - getLastSegmentPose × 1 (lines: 231)
+        - getManifestStateAt × 1 (lines: 297)
+        - getShotMotionDuration × 1 (lines: 206)
+        - getShotTargetPose × 1 (lines: 238)
+        - getShotTiming × 1 (lines: 216)
+        - interpolateSegments × 1 (lines: 249)
+        - playManifest × 1 (lines: 362)
         - prepareFirstScene × 1 (lines: 86)
-        - recordShot × 1 (lines: 117)
-        - resolveShotPoseAt × 1 (lines: 276)
-        - transitionToNextShot × 1 (lines: 129)
+        - recordShot × 1 (lines: 118)
+        - resolveShotPoseAt × 1 (lines: 278)
+        - transitionToNextShot × 1 (lines: 130)
         - wait × 1 (lines: 11)
         - waitForViewerReady × 1 (lines: 16)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

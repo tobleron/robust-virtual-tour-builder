@@ -29,7 +29,7 @@ describe("LabelMenu", () => {
       labelSet: false,
       isAutoForward: false,
     }
-    let mockState = {...State.initialState, scenes: [mockScene], activeIndex: 0}
+    let mockState = TestUtils.createMockState(~scenes=[mockScene], ~activeIndex=0, ())
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -73,7 +73,7 @@ describe("LabelMenu", () => {
       labelSet: false,
       isAutoForward: false,
     }
-    let mockState = {...State.initialState, scenes: [mockScene], activeIndex: 0}
+    let mockState = TestUtils.createMockState(~scenes=[mockScene], ~activeIndex=0, ())
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)

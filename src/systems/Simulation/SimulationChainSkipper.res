@@ -19,7 +19,8 @@ let skipAutoForwardChain = (
   let loop = ref(true)
 
   while loop.contents && chainCounter.contents < 10 {
-    switch Belt.Array.get(state.scenes, currentLink.contents.targetIndex) {
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    switch Belt.Array.get(activeScenes, currentLink.contents.targetIndex) {
     | Some(targetScene) =>
       if !targetScene.isAutoForward {
         loop := false

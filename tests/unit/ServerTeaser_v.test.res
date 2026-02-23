@@ -39,45 +39,13 @@ describe("ServerTeaser - Remote Rendering", () => {
     }
   }
 
-  let mockState: state = {
-    tourName: "Test Tour",
-    scenes: [makeScene("1", "Scene 1"), makeScene("2", "Scene 2")],
-    inventory: Belt.Map.String.empty,
-    sceneOrder: [],
-    activeIndex: 0,
-    activeYaw: 0.0,
-    activePitch: 0.0,
-    appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    isLinking: false,
-    transition: {type_: Fade, targetHotspotIndex: -1, fromSceneName: None},
-    exifReport: None,
-    linkDraft: None,
-    preloadingSceneIndex: -1,
-    isTeasing: false,
-    deletedSceneIds: [],
-    timeline: [],
-    activeTimelineStepId: None,
-    navigationState: {
-      navigation: Idle,
-      navigationFsm: IdleFsm,
-      incomingLink: None,
-      autoForwardChain: [],
-      currentJourneyId: 0,
-    },
-    simulation: {
-      status: Idle,
-      visitedScenes: [],
-      stoppingOnArrival: false,
-      skipAutoForwardGlobal: false,
-      lastAdvanceTime: 0.0,
-      pendingAdvanceId: None,
-      autoPilotJourneyId: 0,
-    },
-    pendingReturnSceneName: None,
-    lastUsedCategory: "outdoor",
-    sessionId: None,
-    logo: None,
-    structuralRevision: 0,
+  let mockState = {
+    let s = TestUtils.createMockState(
+      ~scenes=[makeScene("1", "Scene 1"), makeScene("2", "Scene 2")],
+      ~activeIndex=0,
+      (),
+    )
+    {...s, tourName: "Test Tour"}
   }
 
   testAsync("generateServerTeaser sends correct FormData to backend", async t => {

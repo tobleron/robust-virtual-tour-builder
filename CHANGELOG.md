@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Patch 4.5.5
+- State normalization & teaser fixes
 
 ## [4.5.3] - 2026-02-23
 

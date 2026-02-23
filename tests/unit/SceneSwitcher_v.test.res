@@ -28,7 +28,7 @@ describe("Scene.Switcher", () => {
 
     let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
     let s2 = TestUtils.createMockScene(~id="s2", ~name="s2", ())
-    let state = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
+    let state = TestUtils.createMockState(~scenes=[s1, s2], ~activeIndex=0, ())
 
     Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())
 
@@ -86,10 +86,10 @@ describe("Scene.Switcher", () => {
       }),
     }
 
+    let state = TestUtils.createMockState(~scenes=[s1], ())
     let state = {
-      ...State.initialState,
-      scenes: [s1],
-      navigationState: {...State.initialState.navigationState, navigation: Navigating(journey)},
+      ...state,
+      navigationState: {...state.navigationState, navigation: Navigating(journey)},
     }
 
     Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())

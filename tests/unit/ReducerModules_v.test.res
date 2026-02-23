@@ -38,7 +38,8 @@ describe("Reducer.Scene", () => {
     let action = ReorderScenes(1, 2)
     let result = Reducer.reducer(state, action)
 
-    let scene = result.scenes[2]->Option.getOrThrow
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    let scene = resultScenes[2]->Option.getOrThrow
     t->expect(scene.id)->Expect.toBe("1")
     t->expect(result.activeIndex)->Expect.toBe(2)
   })
@@ -57,8 +58,9 @@ describe("Reducer.Scene", () => {
     let action = DeleteScene(1)
     let result = Reducer.reducer(state, action)
 
-    t->expect(result.scenes->Array.length)->Expect.toBe(1)
-    let remainingScene = result.scenes[0]->Option.getOrThrow
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    t->expect(resultScenes->Array.length)->Expect.toBe(1)
+    let remainingScene = resultScenes[0]->Option.getOrThrow
     t->expect(remainingScene.hotspots->Array.length)->Expect.toBe(0)
   })
 })
@@ -77,7 +79,8 @@ describe("Reducer.Hotspot", () => {
     let action = AddHotspot(0, hotspot)
     let result = Reducer.reducer(state, action)
 
-    let scene = result.scenes[0]->Option.getOrThrow
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    let scene = resultScenes[0]->Option.getOrThrow
     let hs = Belt.Array.get(scene.hotspots, 0)->Option.getOrThrow
     t->expect(hs.linkId)->Expect.toBe("h1")
   })
@@ -95,7 +98,8 @@ describe("Reducer.Hotspot", () => {
     let action = UpdateHotspotTargetView(0, 0, 120.0, -20.0, 60.0)
     let result = Reducer.reducer(state, action)
 
-    let scene = result.scenes[0]->Option.getOrThrow
+    let resultScenes = SceneInventory.getActiveScenes(result.inventory, result.sceneOrder)
+    let scene = resultScenes[0]->Option.getOrThrow
     let hs = Belt.Array.get(scene.hotspots, 0)->Option.getOrThrow
     t->expect(hs.targetYaw)->Expect.toEqual(Some(120.0))
     t->expect(hs.targetPitch)->Expect.toEqual(Some(-20.0))

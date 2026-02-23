@@ -9,7 +9,9 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
   let lastId = Nullable.toOption(ViewerState.state.contents.lastSceneId)
 
   let isLastIdValid = switch lastId {
-  | Some(id) => Belt.Array.some(state.scenes, s => s.id == id)
+  | Some(id) =>
+    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    Belt.Array.some(scenes, s => s.id == id)
   | None => true
   }
 
@@ -103,7 +105,6 @@ let useMainSceneLoading = (
         // Guard against bridge lag: use latest render values for linking/pose-sensitive paths.
         let currentState = {
           ...bridgeState,
-          scenes,
           activeIndex,
           activeYaw,
           activePitch,

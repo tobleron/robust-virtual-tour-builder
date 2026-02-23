@@ -32,7 +32,7 @@ let showLinkModal = (
 
   // Determine next sequential index for smart selection
   let nextIndex = state.activeIndex + 1
-  let scenes = state.scenes
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
 
   let defaultTargetName =
     scenes
@@ -122,7 +122,7 @@ let showLinkModal = (
         }
 
         // Generate unique Link ID
-        let allLinkIds = state.scenes->Belt.Array.reduce([], (acc, s) => {
+        let allLinkIds = scenes->Belt.Array.reduce([], (acc, s) => {
           Belt.Array.concat(acc, s.hotspots->Belt.Array.map(h => h.linkId))
         })
         let usedSet = Belt.Set.String.fromArray(allLinkIds)
@@ -192,7 +192,7 @@ let showLinkModal = (
         let timelineItemJson = JsonParsers.Encoders.timelineItem({
           id: "step_" ++ Date.now()->Float.toString,
           linkId: newLinkId,
-          sceneId: switch Belt.Array.get(state.scenes, state.activeIndex) {
+          sceneId: switch Belt.Array.get(scenes, state.activeIndex) {
           | Some(s) => s.id
           | None => ""
           },

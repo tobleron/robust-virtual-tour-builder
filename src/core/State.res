@@ -2,7 +2,6 @@ open Types
 
 let initialState: state = {
   tourName: "Untitled Tour",
-  scenes: [],
   inventory: Belt.Map.String.empty,
   sceneOrder: [],
   activeIndex: -1,
@@ -19,7 +18,6 @@ let initialState: state = {
   linkDraft: None,
   preloadingSceneIndex: -1,
   isTeasing: false,
-  deletedSceneIds: [],
   timeline: [],
   activeTimelineStepId: None,
   // Domain Slices

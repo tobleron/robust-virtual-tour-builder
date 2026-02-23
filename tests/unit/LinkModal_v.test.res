@@ -28,12 +28,7 @@ describe("LinkModal", () => {
     // Setup State
     let scene1 = createScene("Scene1")
     let scene2 = createScene("Scene2")
-    let initialState: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
-      tourName: "Test Tour",
-    }
+    let initialState = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     AppStateBridge.updateState(initialState)
 
     // Capture EventBus
@@ -77,11 +72,7 @@ describe("LinkModal", () => {
     // Setup State
     let scene1 = createScene("Scene1")
     let scene2 = createScene("Scene2")
-    let initialState: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
-    }
+    let initialState = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     AppStateBridge.updateState(initialState)
 
     // Capture Dispatch
@@ -165,11 +156,7 @@ describe("LinkModal", () => {
   test("should handle return link and waypoints from linkDraft", t => {
     let scene1 = createScene("Scene1")
     let scene2 = createScene("Scene2")
-    let initialState: state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 0,
-    }
+    let initialState = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     AppStateBridge.updateState(initialState)
 
     let dispatchedActions = ref([])

@@ -239,21 +239,7 @@ describe("App", () => {
     let app = await %raw(`import("../../src/App.bs.js").then(m => m.make)`)
 
     let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.js").then(m => m.useAppState)`)
-    useAppStateMock->mockReturnValue(
-      %raw(`{
-         scenes: [],
-         inventory: {},
-         sceneOrder: [],
-         tourName: "Test",
-         activeIndex: 0,
-         activeYaw: 0,
-         activePitch: 0,
-         isLinking: false,
-         isTeasing: false,
-         appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
-         simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
-      }`),
-    )
+    useAppStateMock->mockReturnValue(TestUtils.createMockState(~scenes=[], ()))
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))
@@ -279,20 +265,8 @@ describe("App", () => {
     let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.js").then(m => m.useAppState)`)
 
     // Update mock implementation to return scenes
-    useAppStateMock->mockReturnValue(
-      %raw(`{
-       scenes: [{id: "1"}],
-       inventory: {"1": {id: "1", name: "Scene 1", file: {}}},
-       sceneOrder: ["1"],
-       tourName: "Test",
-       activeIndex: 0,
-       activeYaw: 0,
-       activePitch: 0,
-       isLinking: false,
-       isTeasing: false,
-       simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
-    }`),
-    )
+    let scene1 = TestUtils.createMockScene(~id="1", ~name="Scene 1", ())
+    useAppStateMock->mockReturnValue(TestUtils.createMockState(~scenes=[scene1], ()))
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))

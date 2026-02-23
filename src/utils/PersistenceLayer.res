@@ -40,18 +40,17 @@ let normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {
 
 let performSave = (state: Types.state) => {
   /* Only save if we have scenes or a project name that differs from default */
-  let hasContent = Array.length(state.scenes) > 0 || state.tourName != "Tour Name"
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  let hasContent = Array.length(activeScenes) > 0 || state.tourName != "Tour Name"
 
   if hasContent {
     let project: Types.project = {
       tourName: state.tourName,
-      scenes: state.scenes,
       inventory: state.inventory,
       sceneOrder: state.sceneOrder,
       lastUsedCategory: state.lastUsedCategory,
       exifReport: state.exifReport,
       sessionId: state.sessionId,
-      deletedSceneIds: state.deletedSceneIds,
       timeline: state.timeline,
       logo: state.logo,
     }
@@ -75,7 +74,7 @@ let performSave = (state: Types.state) => {
           ~message="Auto-saved session via IndexedDB",
           ~data={
             "timestamp": timestamp,
-            "scenes": Array.length(state.scenes),
+            "scenes": Array.length(activeScenes),
             "version": currentSchemaVersion,
           },
           (),

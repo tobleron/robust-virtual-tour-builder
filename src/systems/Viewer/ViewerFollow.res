@@ -27,8 +27,9 @@ let rec updateFollowLoop = (~getState: unit => state) => {
   if !busy {
     let vOpt = ViewerPool.getActiveViewer()
     let s = getState()
-    let hasHotspots = if s.activeIndex >= 0 && s.activeIndex < Array.length(s.scenes) {
-      s.scenes[s.activeIndex]
+    let scenes = SceneInventory.getActiveScenes(s.inventory, s.sceneOrder)
+    let hasHotspots = if s.activeIndex >= 0 && s.activeIndex < Array.length(scenes) {
+      scenes[s.activeIndex]
       ->Option.map(sc => Array.length(sc.hotspots) > 0)
       ->Option.getOr(false)
     } else {

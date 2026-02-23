@@ -105,13 +105,16 @@ let inventory = (inv: Belt.Map.String.t<Types.sceneEntry>) => {
 let project = (p: Types.project) => {
   Encode.object([
     ("tourName", Encode.string(p.tourName)),
-    ("scenes", Encode.array(scene)(p.scenes)),
+    ("scenes", Encode.array(scene)(SceneInventory.getActiveScenes(p.inventory, p.sceneOrder))),
     ("inventory", inventory(p.inventory)),
     ("sceneOrder", Encode.array(Encode.string)(p.sceneOrder)),
     ("lastUsedCategory", Encode.string(p.lastUsedCategory)),
     ("exifReport", Encode.option(value)(p.exifReport)),
     ("sessionId", Encode.option(Encode.string)(p.sessionId)),
-    ("deletedSceneIds", Encode.array(Encode.string)(p.deletedSceneIds)),
+    (
+      "deletedSceneIds",
+      Encode.array(Encode.string)(SceneInventory.getDeletedIds(p.inventory)),
+    ),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
     ("logo", Encode.option(file)(p.logo)),
   ])
@@ -237,7 +240,7 @@ let simulationState = (s: Types.simulationState) => {
 let state = (s: Types.state) => {
   Encode.object([
     ("tourName", Encode.string(s.tourName)),
-    ("scenes", Encode.array(scene)(s.scenes)),
+    ("scenes", Encode.array(scene)(SceneInventory.getActiveScenes(s.inventory, s.sceneOrder))),
     ("inventory", inventory(s.inventory)),
     ("sceneOrder", Encode.array(Encode.string)(s.sceneOrder)),
     ("activeIndex", Encode.int(s.activeIndex)),
@@ -249,7 +252,10 @@ let state = (s: Types.state) => {
     ("linkDraft", Encode.option(linkDraft)(s.linkDraft)),
     ("preloadingSceneIndex", Encode.int(s.preloadingSceneIndex)),
     ("isTeasing", Encode.bool(s.isTeasing)),
-    ("deletedSceneIds", Encode.array(Encode.string)(s.deletedSceneIds)),
+    (
+      "deletedSceneIds",
+      Encode.array(Encode.string)(SceneInventory.getDeletedIds(s.inventory)),
+    ),
     ("timeline", Encode.array(timelineItem)(s.timeline)),
     ("activeTimelineStepId", Encode.option(Encode.string)(s.activeTimelineStepId)),
     ("navigation", navigationStatus(s.navigationState.navigation)),

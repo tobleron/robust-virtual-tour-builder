@@ -646,8 +646,9 @@ let repairRestoredState = (~restoredState: Types.state, ~currentState: Types.sta
       acc->Belt.Map.String.set(id, {...entry, scene: repairedScene})
     })
 
-  let rebuilt = {...restoredState, inventory: repairedInventory}->SceneInventory.rebuildLegacyFields
-  let sceneCount = Belt.Array.length(rebuilt.scenes)
+  let rebuilt = {...restoredState, inventory: repairedInventory}
+  let activeScenes = SceneInventory.getActiveScenes(rebuilt.inventory, rebuilt.sceneOrder)
+  let sceneCount = Belt.Array.length(activeScenes)
   let activeIndex = if sceneCount == 0 {
     -1
   } else {

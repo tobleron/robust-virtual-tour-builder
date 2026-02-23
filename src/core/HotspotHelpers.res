@@ -30,7 +30,7 @@ let handleAddHotspot = (state: state, sceneIndex: int, hotspot: hotspot): state 
         {
           ...state,
           inventory: state.inventory->Belt.Map.String.set(id, {...entry, scene: updatedScene}),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state
@@ -59,7 +59,7 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
               {...entry, scene: {...sourceScene, hotspots: newSourceHotspots}},
             )
 
-          {...state, inventory: updatedInventory}->SceneMutations.rebuildLegacyFields
+          {...state, inventory: updatedInventory}
         | None => state
         }
       | None => state
@@ -92,7 +92,7 @@ let handleClearHotspots = (state: state, sceneIndex: int): state => {
             id,
             {...entry, scene: {...entry.scene, hotspots: []}},
           ),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state
@@ -128,7 +128,7 @@ let handleUpdateHotspotTargetView = (
             id,
             {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
           ),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state
@@ -165,7 +165,7 @@ let handleUpdateHotspotReturnView = (
             id,
             {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
           ),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state
@@ -200,7 +200,7 @@ let handleToggleHotspotReturnLink = (state: state, sceneIndex: int, hotspotIndex
             id,
             {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
           ),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state
@@ -248,7 +248,7 @@ let handleUpdateHotspotMetadata = (
             id,
             {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
           ),
-        }->SceneMutations.rebuildLegacyFields
+        }
       | None => state
       }
     | None => state

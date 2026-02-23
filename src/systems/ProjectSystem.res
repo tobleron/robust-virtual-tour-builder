@@ -8,13 +8,11 @@ type apiError = string
 let projectFromState = (state: state): Types.project => {
   {
     tourName: state.tourName,
-    scenes: state.scenes,
     inventory: state.inventory,
     sceneOrder: state.sceneOrder,
     lastUsedCategory: state.lastUsedCategory,
     exifReport: state.exifReport,
     sessionId: state.sessionId,
-    deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
     logo: state.logo,
   }
@@ -124,17 +122,9 @@ let processLoadedProjectData = (
         validScenes->Belt.Array.map(s => s.id)
       }
 
-      // Filter active scenes for the legacy array and order verification
-      let resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {
-        switch updatedInventory->Belt.Map.String.get(id) {
-        | Some({scene, status: Active}) => Some(scene)
-        | _ => None
-        }
-      })
 
       let loadedProject: Types.project = {
         ...pd,
-        scenes: resolvedActiveScenes,
         inventory: updatedInventory,
         sceneOrder: finalOrder,
       }
@@ -252,7 +242,9 @@ let createSavePackage = (
       ~type_=ProjectSave,
       ~scope=Blocking,
       ~phase="Preparing",
-      ~meta=Logger.castToJson({"sceneCount": Array.length(state.scenes)}),
+      ~meta=Logger.castToJson({
+        "sceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
+      }),
       (),
     )
   }
@@ -275,7 +267,8 @@ let createSavePackage = (
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
 
-  Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  Belt.Array.forEachWithIndex(activeScenes, (_index, scene) => {
     switch scene.file {
     | File(f) => FormData.appendWithFilename(formData, "files", f, scene.name)
     | Blob(b) => FormData.appendWithFilename(formData, "files", b, scene.name)

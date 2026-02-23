@@ -223,7 +223,6 @@ describe("Types", () => {
   test("should define state correctly", t => {
     let st: state = {
       tourName: "Test Tour",
-      scenes: [],
       inventory: Belt.Map.String.empty,
       sceneOrder: [],
       activeIndex: 0,
@@ -240,7 +239,6 @@ describe("Types", () => {
       linkDraft: None,
       preloadingSceneIndex: -1,
       isTeasing: false,
-      deletedSceneIds: [],
       timeline: [],
       activeTimelineStepId: None,
       navigationState: {

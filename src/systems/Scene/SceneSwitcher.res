@@ -21,6 +21,7 @@ let navigateToScene = (
     navStartTime := Date.now()
     let njid = state.navigationState.currentJourneyId + 1
     let currView = NavigationGraph.getCurrentView()
+    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     let actions = []
     let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
 
@@ -55,7 +56,7 @@ let navigateToScene = (
       }
       let _ = Js.Array.push(SetNavigationStatus(Navigating(j)), actions)
 
-      state.scenes[targetIdx]->Option.forEach(ts => {
+      scenes[targetIdx]->Option.forEach(ts => {
         // Call Supervisor to manage navigation lifecycle and dispatch FSM event
         NavigationSupervisor.requestNavigation(ts.id, ~previewOnly)
       })
@@ -73,7 +74,7 @@ let navigateToScene = (
         )
       )
     } else {
-      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
+      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(scenes, targetIdx)
       let _ = Js.Array.push(
         SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
         actions,
@@ -87,7 +88,7 @@ let navigateToScene = (
         ),
         actions,
       )
-      state.scenes[targetIdx]->Option.forEach(ts => {
+      scenes[targetIdx]->Option.forEach(ts => {
         // Call Supervisor to manage navigation lifecycle and dispatch FSM event
         NavigationSupervisor.requestNavigation(ts.id)
       })
@@ -140,7 +141,10 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
         dispatch(ResetAutoForwardChain)
       } else {
         dispatch(AddToAutoForwardChain(state.activeIndex))
-        HotspotTarget.resolveSceneIndex(state.scenes, h)->Option.forEach(tIdx => {
+        HotspotTarget.resolveSceneIndex(
+          SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+          h,
+        )->Option.forEach(tIdx => {
           let hIdx =
             currentScene.hotspots
             ->Belt.Array.getIndexBy(hh => hh.linkId == h.linkId)
@@ -164,7 +168,8 @@ let setSimulationMode = (dispatch, state: state, val) => {
   dispatch(Batch(actions))
 
   if val && state.activeIndex >= 0 {
-    state.scenes[state.activeIndex]->Option.forEach(s => handleAutoForward(dispatch, state, s))
+    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    scenes[state.activeIndex]->Option.forEach(s => handleAutoForward(dispatch, state, s))
   }
 }
 

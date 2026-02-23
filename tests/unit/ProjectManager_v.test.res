@@ -58,13 +58,11 @@ describe("ProjectManager.Logic", () => {
   test("validateProjectStructure accepts valid project", t => {
     let project: Types.project = {
       tourName: "Valid Tour",
-      scenes: [],
       inventory: Belt.Map.String.empty,
       sceneOrder: [],
       lastUsedCategory: "indoor",
       exifReport: None,
       sessionId: Some("sess1"),
-      deletedSceneIds: [],
       timeline: [],
       logo: None,
     }
@@ -109,13 +107,11 @@ describe("ProjectManager.Logic", () => {
     let sessionId = "session_123"
     let project: Types.project = {
       tourName: "Loaded Tour",
-      scenes: [],
       inventory: Belt.Map.String.empty,
       sceneOrder: [],
       lastUsedCategory: "indoor",
       exifReport: None,
       sessionId: Some(sessionId),
-      deletedSceneIds: [],
       timeline: [],
       logo: None,
     }

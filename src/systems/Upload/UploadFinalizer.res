@@ -29,7 +29,7 @@ let finalizeUploads = (
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
-  let existingScenes = getState().scenes
+  let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
 
   PanoramaClusterer.clusterScenes(
     validProcessed,
@@ -40,7 +40,7 @@ let finalizeUploads = (
 
     let wasEmpty = getState().activeIndex == -1
     if wasEmpty {
-      let currentScenes = getState().scenes
+      let currentScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
       if Belt.Array.length(currentScenes) > 0 {
         dispatch(SetPreloadingScene(0))
       }
@@ -209,7 +209,8 @@ let executeProcessingChain = (
 
       let sortedItems = Belt.Array.map(scored, scored => scored.item)
 
-      let existingScenesCount = Belt.Array.length(getState().scenes)
+      let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+      let existingScenesCount = Belt.Array.length(existingScenes)
 
       let finalItems = Belt.Array.mapWithIndex(sortedItems, (i, item) => {
         let newIndex = existingScenesCount + i
@@ -225,7 +226,6 @@ let executeProcessingChain = (
         }
       })
 
-      let existingScenes = getState().scenes
       PanoramaClusterer.clusterScenes(finalItems, ~existingScenes, ~updateProgress=(_, _, _, _) =>
         ()
       )->Promise.then(clustered => {

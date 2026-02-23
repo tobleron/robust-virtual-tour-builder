@@ -66,9 +66,13 @@ describe("SimulationChainSkipper", () => {
     let hotspot = createMockHotspot("scene2")
     let initialLink = createMockEnrichedLink(hotspot, 1, false)
 
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      (),
+    )
     let state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
+      ...state,
+      activeIndex: State.initialState.activeIndex,
     }
 
     let visitedCallbackCount = ref(0)
@@ -95,10 +99,10 @@ describe("SimulationChainSkipper", () => {
       hotspots: [h1_to_2],
     }
 
-    let state = {
-      ...State.initialState,
-      scenes: [scene0, scene1, scene2],
-    }
+    let state = TestUtils.createMockState(
+      ~scenes=[scene0, scene1, scene2],
+      (),
+    )
 
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 
@@ -126,10 +130,10 @@ describe("SimulationChainSkipper", () => {
     let h2_to_3 = createMockHotspot("s3")
     let s2 = {...s2, hotspots: [h2_to_3]}
 
-    let state = {
-      ...State.initialState,
-      scenes: [s0, s1, s2, s3],
-    }
+    let state = TestUtils.createMockState(
+      ~scenes=[s0, s1, s2, s3],
+      (),
+    )
 
     let h0_to_1 = createMockHotspot("s1")
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
@@ -150,7 +154,10 @@ describe("SimulationChainSkipper", () => {
     let s1 = createMockScene("1", "s1", true)
     // s1 has no hotspots
 
-    let state = {...State.initialState, scenes: [s0, s1]}
+    let state = TestUtils.createMockState(
+      ~scenes=[s0, s1],
+      (),
+    )
     let h0_to_1 = createMockHotspot("s1")
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 

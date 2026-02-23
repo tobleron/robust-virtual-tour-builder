@@ -71,10 +71,11 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
       if rect.width > 0.0 && state.activeIndex >= 0 {
         let cam = Logic.getCamState(viewer, rect)
         let viewerSceneId = asCustom(viewer).sceneId
-        let sceneToRender = switch Belt.Array.getBy(state.scenes, s => s.id == viewerSceneId) {
+        let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+        let sceneToRender = switch Belt.Array.getBy(scenes, s => s.id == viewerSceneId) {
         | Some(s) => Some(s)
         | None =>
-          switch Belt.Array.get(state.scenes, state.activeIndex) {
+          switch Belt.Array.get(scenes, state.activeIndex) {
           | Some(activeS) if activeS.id == viewerSceneId => Some(activeS)
           | _ => None
           }

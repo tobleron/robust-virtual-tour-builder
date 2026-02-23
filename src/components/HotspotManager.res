@@ -28,7 +28,8 @@ let createHotspotConfig = (
   // NAVIGATION LOGIC
   let isReturnLink = switch incomingLink {
   | Some(inc) =>
-    switch Belt.Array.get(state.scenes, inc.sceneIndex) {
+    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    switch Belt.Array.get(scenes, inc.sceneIndex) {
     | Some(prevScene) => HotspotTarget.pointsToScene(hotspot, prevScene)
     | None => false
     }
@@ -113,7 +114,7 @@ let createHotspotConfig = (
             dispatch={dispatch}
             elementId={elementId}
             isTargetAutoForward={isAutoForward}
-            scenes={state.scenes}
+            scenes={SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)}
             state={state}
           />,
         )
@@ -161,13 +162,11 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
 let getProjectData = (state: Types.state) => {
   let project: Types.project = {
     tourName: state.tourName,
-    scenes: state.scenes,
     inventory: state.inventory,
     sceneOrder: state.sceneOrder,
     lastUsedCategory: state.lastUsedCategory,
     exifReport: state.exifReport,
     sessionId: state.sessionId,
-    deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
     logo: state.logo,
   }

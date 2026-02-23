@@ -52,19 +52,17 @@ describe("TourLogic", () => {
   })
 
   test("validateTourIntegrity", t => {
-    let state: state = {
-      scenes: [
-        {
-          name: "Scene1",
-          hotspots: [{target: "Scene2"}],
-        },
-        {
-          name: "Scene2",
-          hotspots: [{target: "Scene3"}], // Missing
-        },
-      ],
-    }
-    let integrity = validateTourIntegrity(state)
+    let scenes = [
+      {
+        name: "Scene1",
+        hotspots: [{target: "Scene2"}],
+      },
+      {
+        name: "Scene2",
+        hotspots: [{target: "Scene3"}], // Missing
+      },
+    ]
+    let integrity = validateTourIntegrity(scenes)
     t->expect(integrity.totalHotspots)->Expect.toBe(2)
     t->expect(integrity.orphanedLinks)->Expect.toBe(1)
     t->expect(Array.getUnsafe(integrity.details, 0)["sourceScene"])->Expect.toBe("Scene2")

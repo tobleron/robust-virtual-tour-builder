@@ -138,20 +138,10 @@ describe("TeaserPlayback", () => {
     mockInternalState.contents = {ghostCanvas: None, snapshotCanvas: None}
 
     // Setup Default State
-    mockGetState->mockReturnValue({
-      "scenes": [
-        {
-          "id": "scene1",
-          "name": "Scene 1",
-          "file": null, // Simplified
-        },
-        {
-          "id": "scene2",
-          "name": "Scene 2",
-          "file": null,
-        },
-      ],
-    })
+    let scene1 = TestUtils.createMockScene(~id="scene1", ~name="Scene 1", ())
+    let scene2 = TestUtils.createMockScene(~id="scene2", ~name="Scene 2", ())
+    let mockState = TestUtils.createMockState(~scenes=[scene1, scene2], ())
+    mockGetState->mockReturnValue(mockState)
 
     // Setup Viewer
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene1"`)

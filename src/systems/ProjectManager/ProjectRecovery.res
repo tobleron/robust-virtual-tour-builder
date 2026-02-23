@@ -15,7 +15,7 @@ let recoverSaveProject = (
     }
 
     let hasRecoverableScenes = (candidate: state) => {
-      let count = Array.length(candidate.scenes)
+      let count = Array.length(SceneInventory.getActiveScenes(candidate.inventory, candidate.sceneOrder))
       switch expectedSceneCount {
       | Some(expected) => expected > 0 && count >= expected
       | None => count > 0
@@ -51,7 +51,7 @@ let recoverSaveProject = (
       ~data=Some({
         "entryId": entry.id,
         "expectedSceneCount": expectedSceneCount->Option.getOr(-1),
-        "currentSceneCount": Array.length(state.scenes),
+        "currentSceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
       }),
       (),
     )
@@ -88,7 +88,12 @@ let recoverSaveProject = (
         Logger.info(
           ~module_="ProjectManager",
           ~message="SAVE_RECOVERY_RETRY",
-          ~data=Some({"entryId": entry.id, "sceneCount": Array.length(finalState.scenes)}),
+          ~data=Some({
+            "entryId": entry.id,
+            "sceneCount": Array.length(
+              SceneInventory.getActiveScenes(finalState.inventory, finalState.sceneOrder),
+            ),
+          }),
           (),
         )
         ProjectSave.saveProject(finalState)

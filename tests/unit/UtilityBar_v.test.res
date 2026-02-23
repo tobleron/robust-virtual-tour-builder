@@ -1,33 +1,34 @@
 // @efficiency: infra-adapter
 open Vitest
 open ReBindings
+open Types
 
 module WrappedUtilityBar = {
   @react.component
   let make = (~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId, ~mockDispatch) => {
-    let mockState: Types.state = {
-      ...State.initialState,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      scenes: [
-        {
-          id: "s1",
-          name: "Scene 1",
-          label: "Living Room",
-          file: Url("test.webp"),
-          tinyFile: None,
-          originalFile: None,
-          hotspots: [],
-          category: "indoor",
-          floor: "ground",
-          quality: None,
-          colorGroup: None,
-          categorySet: false,
-          labelSet: false,
-          _metadataSource: "user",
-          isAutoForward: false,
-        },
-      ],
+    let scene1 = {
+      id: "s1",
+      name: "Scene 1",
+      label: "Living Room",
+      file: Url("test.webp"),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [],
+      category: "indoor",
+      floor: "ground",
+      quality: None,
+      colorGroup: None,
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
     }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene1],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,

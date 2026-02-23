@@ -133,10 +133,17 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
       return window.store ? window.store.state : null;
     });
 
-    if (state && state.scenes && state.scenes.length > 0) {
-      console.log('State Scenes:', state.scenes.length);
-      // Verify at least one scene has hotspots
-      const hasHotspots = state.scenes.some(s => s.hotspots && s.hotspots.length > 0);
+    if (state && state.inventory && state.sceneOrder) {
+      const scenes = state.sceneOrder
+        .map((id: string) => state.inventory.get(id))
+        .filter(Boolean)
+        .map((entry: any) => entry.scene)
+        .filter(scene => scene);
+
+      console.log('State Scenes:', scenes.length);
+      const hasHotspots = scenes.some(
+        (s: any) => Array.isArray(s.hotspots) && s.hotspots.length > 0,
+      );
       if (!hasHotspots) console.warn('No hotspots found in state dump');
       expect(hasHotspots).toBeTruthy();
     } else {

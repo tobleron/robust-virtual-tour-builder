@@ -5,7 +5,6 @@ open Types
 describe("State", () => {
   test("initialState should have correct default values", t => {
     t->expect(initialState.tourName)->Expect.toBe("Untitled Tour")
-    t->expect(initialState.scenes)->Expect.toEqual([])
     t->expect(initialState.activeIndex)->Expect.toBe(-1)
     t->expect(initialState.activeYaw)->Expect.toBe(0.0)
     t->expect(initialState.activePitch)->Expect.toBe(0.0)
@@ -16,7 +15,6 @@ describe("State", () => {
     t->expect(initialState.linkDraft)->Expect.toEqual(None)
     t->expect(initialState.preloadingSceneIndex)->Expect.toBe(-1)
     t->expect(initialState.isTeasing)->Expect.toBe(false)
-    t->expect(initialState.deletedSceneIds)->Expect.toEqual([])
     t->expect(initialState.timeline)->Expect.toEqual([])
     t->expect(initialState.activeTimelineStepId)->Expect.toEqual(None)
     t->expect(initialState.navigationState.navigation)->Expect.toEqual(Idle)

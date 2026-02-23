@@ -54,7 +54,7 @@ module WrappedSidebar = {
   @react.component
   let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit, ~children) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
@@ -215,11 +215,7 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -377,11 +373,7 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -456,11 +448,7 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)

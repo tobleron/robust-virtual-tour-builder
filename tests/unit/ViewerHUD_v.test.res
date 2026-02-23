@@ -6,7 +6,7 @@ module WrappedViewerHUD = {
   @react.component
   let make = (~mockState: Types.state) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,

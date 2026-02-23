@@ -10,7 +10,8 @@ let saveProject = (
   ~onProgress: option<onProgress>=?,
   ~opId: option<OperationLifecycle.operationId>=?,
 ) => {
-  if Array.length(state.scenes) == 0 {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  if Array.length(activeScenes) == 0 {
     Logger.warn(~module_="ProjectManager", ~message="SAVE_SKIPPED_NO_SCENES", ())
     Promise.resolve(false)
   } else {
@@ -34,7 +35,7 @@ let saveProject = (
       ~module_="ProjectManager",
       ~operation="PROJECT_SAVE",
       ~data=Some({
-        "sceneCount": Array.length(state.scenes),
+        "sceneCount": Array.length(activeScenes),
         "tourName": tourName,
         "filename": filename,
       }),
@@ -44,7 +45,7 @@ let saveProject = (
     OperationJournal.startOperation(
       ~operation="SaveProject",
       ~context=asJson({
-        "sceneCount": Array.length(state.scenes),
+        "sceneCount": Array.length(activeScenes),
         "tourName": state.tourName,
         "filename": filename,
         "stage": "started",

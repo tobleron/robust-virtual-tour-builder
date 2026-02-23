@@ -6,7 +6,6 @@ open Types
 let makeInitialState = (): Types.state => {
   {
     tourName: "Original Name",
-    scenes: [],
     inventory: Belt.Map.String.empty,
     sceneOrder: [],
     activeIndex: 0,
@@ -19,7 +18,6 @@ let makeInitialState = (): Types.state => {
     linkDraft: None,
     preloadingSceneIndex: -1,
     isTeasing: false,
-    deletedSceneIds: [],
     timeline: [],
     activeTimelineStepId: None,
     navigationState: {

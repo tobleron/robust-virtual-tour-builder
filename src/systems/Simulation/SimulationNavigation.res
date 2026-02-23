@@ -89,7 +89,8 @@ let waitForViewerScene = async (
   (),
 ): result<unit, string> => {
   let state = getState()
-  switch Belt.Array.get(state.scenes, sceneIndex) {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  switch Belt.Array.get(activeScenes, sceneIndex) {
   | Some(expectedScene) =>
     let rec attemptLoad = async (attempt: int) => {
       let result = await pollForViewer(
@@ -148,13 +149,14 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
   if Array.length(hotspots) == 0 {
     None
   } else {
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     let allLinks =
       hotspots
       ->Belt.Array.mapWithIndex((i, hotspot) => {
-        let targetIdx = HotspotTarget.resolveSceneIndex(state.scenes, hotspot)
+        let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
         switch targetIdx {
         | Some(idx) =>
-          switch Belt.Array.get(state.scenes, idx) {
+          switch Belt.Array.get(activeScenes, idx) {
           | Some(targetScene) =>
             Some({
               hotspot,
@@ -200,7 +202,8 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
           | Some(l) => Some(l)
           | None =>
             let uniqueVisitedCount = visited->Belt.Set.Int.fromArray->Belt.Set.Int.size
-            if uniqueVisitedCount >= Belt.Array.length(state.scenes) {
+            let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+            if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
               Array.find(allLinks, l => l.targetIndex == 0)
             } else {
               let p5 = Array.find(allLinks, l => !l.isReturn)

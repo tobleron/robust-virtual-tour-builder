@@ -11,7 +11,10 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   let targetIndex = sceneIndex->Option.getOr(state.activeIndex)
 
   // Get current scene data
-  let currentScene = Belt.Array.get(state.scenes, targetIndex)
+  let currentScene = Belt.Array.get(
+    SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+    targetIndex,
+  )
   let currentCategory = switch currentScene {
   | Some(s) => s.category == "" ? "outdoor" : s.category
   | None => "outdoor"

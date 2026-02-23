@@ -39,7 +39,7 @@ let ensureBackgroundViewer = (~_state: state, ~_dispatch) => {
 let toPathRequest = (state: state): pathRequest => {
   {
     type_: "navigation",
-    scenes: state.scenes,
+    scenes: SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
     skipAutoForward: state.simulation.skipAutoForwardGlobal,
     timeline: Some(state.timeline),
   }
@@ -87,7 +87,8 @@ let loadNewScene = (
   }
 
   cleanupLoadTimeout()
-  let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  let targetSceneOpt = scenes->Belt.Array.getBy(s => s.id == targetSceneId)
 
   switch targetSceneOpt {
   | None =>
@@ -110,7 +111,7 @@ let loadNewScene = (
       dispatch(DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})))
     }
 
-    let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
+    let tIdx = scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
 
     switch if isAnticipatory {
       None

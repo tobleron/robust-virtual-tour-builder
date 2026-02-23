@@ -10,7 +10,8 @@ let getSimulationPath = (
   ~getState: unit => state=AppContext.getBridgeState,
 ): array<pathStep> => {
   let state = getState()
-  if Array.length(state.scenes) == 0 {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  if Array.length(activeScenes) == 0 {
     []
   } else {
     let path = []
@@ -19,7 +20,7 @@ let getSimulationPath = (
     let loopCount = ref(0)
     let maxSteps = 50
 
-    let initialArrivalView = switch Belt.Array.get(state.scenes, 0) {
+    let initialArrivalView = switch Belt.Array.get(activeScenes, 0) {
     | Some(firstScene) if Array.length(firstScene.hotspots) > 0 =>
       switch Belt.Array.get(firstScene.hotspots, 0) {
       | Some(startHotspot) =>
@@ -49,7 +50,7 @@ let getSimulationPath = (
         )
         loop := false
       } else {
-        switch Belt.Array.get(state.scenes, currentIdx.contents) {
+        switch Belt.Array.get(activeScenes, currentIdx.contents) {
         | Some(currentScene) =>
           let nextLinkOpt = ref(
             SimulationNavigation.findBestNextLink(currentScene, state, localVisited),
@@ -108,7 +109,7 @@ let getSimulationPath = (
                   transitionTarget: Some({
                     yaw: transYaw,
                     pitch: transPitch,
-                    targetName: Belt.Array.get(state.scenes, targetIdx)
+                    targetName: Belt.Array.get(activeScenes, targetIdx)
                     ->Option.map(s => s.name)
                     ->Option.getOr(hotspot.target),
                     startYaw: hotspot.startYaw->Option.getOr(0.0),

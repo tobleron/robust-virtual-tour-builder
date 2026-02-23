@@ -36,7 +36,8 @@ let resolveScenePanoramaFile = (scene: scene): Types.file => {
 let resolveArrivalView = (~state: state, ~scene: scene): option<viewFrame> => {
   switch state.navigationState.navigation {
   | Navigating(journey) =>
-    switch Belt.Array.get(state.scenes, journey.targetIndex) {
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    switch Belt.Array.get(activeScenes, journey.targetIndex) {
     | Some(targetScene) if targetScene.id == scene.id =>
       Some({
         yaw: journey.arrivalYaw,

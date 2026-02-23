@@ -120,7 +120,7 @@ module InnerApp = {
           </div>
         </div>
 
-        {if Belt.Array.length(state.scenes) == 0 {
+        {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) == 0 {
           <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
             <h3> {React.string("Ready to build.")} </h3>
           </div>

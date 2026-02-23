@@ -59,11 +59,7 @@ describe("PreviewArrow", () => {
 
     let mockScenes = [scene1, scene2]
 
-    let mockState = {
-      ...State.initialState,
-      scenes: mockScenes,
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(~scenes=mockScenes, ~activeIndex=0, ())
 
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
@@ -159,7 +155,7 @@ describe("PreviewArrow", () => {
 
     let scene1 = createMockScene("s1", "Scene1.webp", "Scene2.webp", false)
     let mockScenes = [scene1]
-    let mockState = {...State.initialState, scenes: mockScenes}
+    let mockState = TestUtils.createMockState(~scenes=mockScenes, ())
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 

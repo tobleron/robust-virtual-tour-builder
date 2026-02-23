@@ -31,7 +31,8 @@ let performSnapshot = (~getState: unit => Types.state=AppContext.getBridgeState)
               let storeState = getState()
               let activeIndex = storeState.activeIndex
 
-              switch Belt.Array.get(storeState.scenes, activeIndex) {
+              let activeScenes = SceneInventory.getActiveScenes(storeState.inventory, storeState.sceneOrder)
+              switch Belt.Array.get(activeScenes, activeIndex) {
               | Some(currentScene) =>
                 // cleanup old
                 SceneCache.setSnapshot(currentScene.id, snapshotUrl)

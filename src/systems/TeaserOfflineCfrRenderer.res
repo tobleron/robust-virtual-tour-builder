@@ -104,7 +104,8 @@ let renderWebMDeterministic = async (
   let totalFrames = Belt.Float.toInt(totalDurationMs /. 1000.0 *. fps)
 
   if Recorder.startRecording(~deterministic=true, ()) {
-    let scenes = getState().scenes
+    let state = getState()
+    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     let visibleFloorIds = floorLevelsInUse(scenes)
     let currentSceneId = ref("")
     let benchmarkFrames = Constants.Teaser.Processing.preflightSampleFrames

@@ -56,7 +56,6 @@ describe("Reducer", () => {
     let sceneOrder = scenes->Belt.Array.map(s => s.id)
     {
       ...State.initialState,
-      scenes,
       inventory,
       sceneOrder,
       activeIndex: 0,
@@ -82,7 +81,8 @@ describe("Reducer", () => {
     let actionAdd = AddHotspot(0, hotspot)
     let resultAdd = Reducer.reducer(state, actionAdd)
 
-    let sceneWithHotspot = Array.getUnsafe(resultAdd.scenes, 0)
+    let resultAddScenes = SceneInventory.getActiveScenes(resultAdd.inventory, resultAdd.sceneOrder)
+    let sceneWithHotspot = Array.getUnsafe(resultAddScenes, 0)
     t->expect(Array.length(sceneWithHotspot.hotspots))->Expect.toEqual(1)
   })
 

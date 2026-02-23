@@ -20,30 +20,6 @@ let getDeletedIds = inventory => {
   })
 }
 
-let rebuildLegacyFields = (state: state): state => {
-  let activeScenes = getActiveScenes(state.inventory, state.sceneOrder)
-  let hydratedScenes = HotspotTarget.hydrateScenesHotspots(activeScenes)
-  let sceneById =
-    hydratedScenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, scene) =>
-      acc->Belt.Map.String.set(scene.id, scene)
-    )
-  let inventory = state.inventory->Belt.Map.String.map(entry =>
-    switch entry.status {
-    | Active =>
-      switch sceneById->Belt.Map.String.get(entry.scene.id) {
-      | Some(scene) => {...entry, scene}
-      | None => entry
-      }
-    | Deleted(_) => entry
-    }
-  )
-  {
-    ...state,
-    inventory,
-    scenes: hydratedScenes,
-    deletedSceneIds: getDeletedIds(inventory),
-  }
-}
 
 let calculateActiveIndexAfterDelete = (
   currentIndex: int,

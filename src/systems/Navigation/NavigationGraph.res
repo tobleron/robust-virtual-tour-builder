@@ -53,13 +53,14 @@ let getPreviousScene = (scenes, cur) => {
 }
 
 let calculatePathData = (state: state, sIdx, sHIdx, tIdx, tYaw, tPitch, _tHfov, currView) => {
-  state.scenes[sIdx]->Option.flatMap(src => {
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  scenes[sIdx]->Option.flatMap(src => {
     src.hotspots[sHIdx]->Option.flatMap(h => {
       let (cy, cp, ch) = currView
       let (ay, ap, ah) = if state.simulation.status == Running {
         (tYaw, tPitch, ViewerSystem.getCorrectHfov())
       } else {
-        calculateSmartArrivalTarget(state.scenes, tIdx)
+        calculateSmartArrivalTarget(scenes, tIdx)
       }
       let (sy, sp) = (h.startYaw->Option.getOr(cy), h.startPitch->Option.getOr(cp))
       let (ty, tp) = h.viewFrame->Option.map(vf => (vf.yaw, vf.pitch))->Option.getOr((tYaw, tPitch))

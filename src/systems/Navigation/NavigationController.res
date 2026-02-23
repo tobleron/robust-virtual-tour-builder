@@ -7,7 +7,8 @@ open React
 
 module ControllerHooks = {
   let useNavigationFSM = (
-    ~scenes: array<scene>,
+    ~inventory: Belt.Map.String.t<sceneEntry>,
+    ~sceneOrder: array<string>,
     ~activeIndex,
     ~navigationState,
     ~transition,
@@ -15,6 +16,7 @@ module ControllerHooks = {
     ~getState,
   ) => {
     React.useEffect2(() => {
+      let scenes = SceneInventory.getActiveScenes(inventory, sceneOrder)
       let taskInfo = NavigationSupervisor.getCurrentTask()
       switch navigationState.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
@@ -33,7 +35,8 @@ module ControllerHooks = {
         // TODO: Refactor Scene.Loader to take granular dependencies
         let mockState: state = {
           ...State.initialState,
-          scenes,
+          inventory,
+          sceneOrder,
           activeIndex,
           navigationState,
         }
@@ -256,7 +259,8 @@ let make = () => {
   }, [state])
   let getState = () => stateRef.current
   ControllerHooks.useNavigationFSM(
-    ~scenes=sceneSlice.scenes,
+    ~inventory=state.inventory,
+    ~sceneOrder=state.sceneOrder,
     ~activeIndex=sceneSlice.activeIndex,
     ~navigationState=navSlice,
     ~transition=state.transition,

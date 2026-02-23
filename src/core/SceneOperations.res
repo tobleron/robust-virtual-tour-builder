@@ -44,10 +44,8 @@ let handleDeleteScene = (state: state, index: int): state => {
           activeIndex: newActiveIndex,
           activeYaw: newActiveIndex == -1 ? 0.0 : state.activeYaw,
           activePitch: newActiveIndex == -1 ? 0.0 : state.activePitch,
-          linkDraft: None,
           isLinking: false,
-          deletedSceneIds: state.deletedSceneIds->Belt.Array.concat([idToDelete]),
-        }->SceneInventory.rebuildLegacyFields
+        }
 
       | None => state
       }
@@ -82,9 +80,8 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
           inventory: finalizedInventory,
           sceneOrder: updatedOrder,
           activeIndex: newActiveIndex,
-          isLinking: false,
           linkDraft: None,
-        }->SceneInventory.rebuildLegacyFields
+        }
       | None => state
       }
     } else {
@@ -191,7 +188,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       {...nextState, activeYaw: 0.0, activePitch: 0.0}
     } else {
       nextState
-    }->SceneInventory.rebuildLegacyFields
+    }
 
   | _ => state
   }
@@ -275,7 +272,7 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
           | Some(c) => c
           | None => state.lastUsedCategory
           },
-        }->SceneInventory.rebuildLegacyFields
+        }
 
       | None => state
       }
@@ -310,7 +307,7 @@ let handleSetActiveScene = (
       transition: newTransition,
       isLinking: false,
       linkDraft: None,
-    }->SceneInventory.rebuildLegacyFields
+    }
   } else {
     state
   }
@@ -324,7 +321,7 @@ let handleApplyLazyRename = (state: state, index: int, name: string): state => {
       let updatedInventory =
         state.inventory->Belt.Map.String.set(id, {...entry, scene: {...scene, label: name}})
       let finalizedInventory = SceneNaming.syncInventoryNames(updatedInventory, state.sceneOrder)
-      {...state, inventory: finalizedInventory}->SceneInventory.rebuildLegacyFields
+      {...state, inventory: finalizedInventory}
     | None => state
     }
   | None => state
@@ -339,7 +336,7 @@ let handlePatchSceneThumbnail = (state: state, id: string, file: file): state =>
     // Invalidate caches so UI detects the change
     SceneCache.clearThumbUrl(id)
     SceneCache.clearThumbUrl(id ++ "_tiny")
-    {...state, inventory: updatedInventory}->SceneInventory.rebuildLegacyFields
+    {...state, inventory: updatedInventory}
   | None => state
   }
 }

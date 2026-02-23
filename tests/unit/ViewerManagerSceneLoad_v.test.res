@@ -58,7 +58,7 @@ module HookHarness = {
   @react.component
   let make = (~model: state, ~dispatch: Actions.action => unit) => {
     ViewerManagerSceneLoad.useMainSceneLoading(
-      ~scenes=model.scenes,
+      ~scenes=SceneInventory.getActiveScenes(model.inventory, model.sceneOrder),
       ~activeIndex=model.activeIndex,
       ~isLinking=model.isLinking,
       ~activeYaw=model.activeYaw,
@@ -113,10 +113,13 @@ testAsync(
       isAutoForward: false,
     }
 
+    let modelBase = TestUtils.createMockState(
+      ~scenes=[sceneA],
+      ~activeIndex=0,
+      (),
+    )
     let modelBase = {
-      ...State.initialState,
-      scenes: [sceneA],
-      activeIndex: 0,
+      ...modelBase,
       activeYaw: hotspot.yaw,
       activePitch: hotspot.pitch,
       isLinking: false,
@@ -137,7 +140,11 @@ testAsync(
 
     // 2) Add Link toggle (isLinking -> true), nav idle
     setIdle(true)
-    let modelAddLink = {...modelBase, isLinking: true}
+    let modelAddLink = {
+      ...modelBase,
+      isLinking: true,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     ReactDOMClient.Root.render(root, <HookHarness model=modelAddLink dispatch=noopDispatch />)
     await wait(30)
 

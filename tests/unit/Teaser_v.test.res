@@ -163,7 +163,7 @@ describe("Teaser System", () => {
   })
 
   testAsync("startAutoTeaser should do nothing if no scenes exist", async t => {
-    let mockState = {...State.initialState, scenes: []}
+    let mockState = State.initialState
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     let teaser = await loadTeaser()
@@ -187,7 +187,7 @@ describe("Teaser System", () => {
 
   testAsync("startAutoTeaser should handle pathfinder failure", async t => {
     let scene = makeMockScene(~id="s1")
-    let mockState = {...State.initialState, scenes: [scene]}
+    let mockState = TestUtils.createMockState(~scenes=[scene], ())
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     // Mock Pathfinder error

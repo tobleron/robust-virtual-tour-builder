@@ -34,7 +34,6 @@ describe("Reducer (Root Re-export)", () => {
     let sceneOrder = scenes->Belt.Array.map(s => s.id)
     {
       ...State.initialState,
-      scenes,
       inventory,
       sceneOrder,
       activeIndex,
@@ -101,7 +100,8 @@ describe("Reducer (Root Re-export)", () => {
     }
     let action4 = AddHotspot(0, hotspot)
     let state4 = Reducer.reducer(stateWithScenes, action4)
-    let firstScene = Array.getUnsafe(state4.scenes, 0)
+    let state4Scenes = SceneInventory.getActiveScenes(state4.inventory, state4.sceneOrder)
+    let firstScene = Array.getUnsafe(state4Scenes, 0)
     t->expect(Array.length(firstScene.hotspots))->Expect.toEqual(1)
     t->expect(Array.getUnsafe(firstScene.hotspots, 0).linkId)->Expect.toEqual("A01")
   })
@@ -117,9 +117,10 @@ describe("Reducer (Root Re-export)", () => {
     )
     let action6 = DeleteScene(1)
     let state6 = Reducer.reducer(stateBeforeDelete, action6)
-    t->expect(Array.length(state6.scenes))->Expect.toEqual(1)
+    let state6Scenes = SceneInventory.getActiveScenes(state6.inventory, state6.sceneOrder)
+    t->expect(Array.length(state6Scenes))->Expect.toEqual(1)
     t->expect(state6.activeIndex)->Expect.toEqual(0)
-    t->expect(Array.getUnsafe(state6.deletedSceneIds, 0))->Expect.toEqual("2")
+    t->expect(Array.getUnsafe(SceneInventory.getDeletedIds(state6.inventory), 0))->Expect.toEqual("2")
   })
 
   test("LoadProject", t => {
@@ -137,8 +138,9 @@ describe("Reducer (Root Re-export)", () => {
     let action7 = LoadProject(projectJson)
     let state7 = Reducer.reducer(initialState, action7)
     t->expect(state7.tourName)->Expect.toEqual("New Project")
-    t->expect(Array.length(state7.scenes))->Expect.toEqual(1)
-    t->expect(Array.getUnsafe(state7.scenes, 0).id)->Expect.toEqual("p1")
+    let state7Scenes = SceneInventory.getActiveScenes(state7.inventory, state7.sceneOrder)
+    t->expect(Array.length(state7Scenes))->Expect.toEqual(1)
+    t->expect(Array.getUnsafe(state7Scenes, 0).id)->Expect.toEqual("p1")
   })
 
   test("SyncSceneNames", t => {
@@ -150,7 +152,8 @@ describe("Reducer (Root Re-export)", () => {
     )
     let action8 = SyncSceneNames
     let state8 = Reducer.reducer(stateWithLabel, action8)
-    let updatedScene = Array.getUnsafe(state8.scenes, 0)
+    let state8Scenes = SceneInventory.getActiveScenes(state8.inventory, state8.sceneOrder)
+    let updatedScene = Array.getUnsafe(state8Scenes, 0)
     t->expect(updatedScene.name)->Expect.toEqual("001_Living_Room.webp")
   })
 })

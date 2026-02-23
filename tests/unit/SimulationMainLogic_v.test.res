@@ -46,12 +46,16 @@ describe("SimulationMainLogic", () => {
     let s1 = mockScene("s1", "Scene 1", [mockHotspot("Scene 2")])
     let s2 = mockScene("s2", "Scene 2", [])
 
+    let state = TestUtils.createMockState(
+      ~scenes=[s1, s2],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let state = {
-      ...State.initialState,
-      scenes: [s1, s2],
-      activeIndex: 0,
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         status: Running,
         visitedScenes: [0],
       },
@@ -67,12 +71,16 @@ describe("SimulationMainLogic", () => {
 
   test("getNextMove should return Complete when no path is found", t => {
     let s1 = mockScene("s1", "Scene 1", [])
+    let state = TestUtils.createMockState(
+      ~scenes=[s1],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let state = {
-      ...State.initialState,
-      scenes: [s1],
-      activeIndex: 0,
+      ...state,
       simulation: {
-        ...State.initialState.simulation,
+        ...state.simulation,
         status: Running,
         visitedScenes: [0],
       },

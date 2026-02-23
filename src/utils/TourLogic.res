@@ -183,8 +183,6 @@ type scene = {
   name: string,
   hotspots: array<hotspot>,
 }
-type state = {scenes: array<scene>}
-
 type integrityResult = {
   totalHotspots: int,
   orphanedLinks: int,
@@ -192,15 +190,15 @@ type integrityResult = {
 }
 
 /**
- * Perform a structural integrity check on a tour state.
+ * Perform a structural integrity check on a tour scene list.
  */
-let validateTourIntegrity = (state: state) => {
-  let sceneNames = state.scenes->Belt.Array.map(s => s.name)->Belt.Set.String.fromArray
+let validateTourIntegrity = (scenes: array<scene>) => {
+  let sceneNames = scenes->Belt.Array.map(s => s.name)->Belt.Set.String.fromArray
   let totalHotspots = ref(0)
   let orphanedLinks = ref(0)
   let details = []
 
-  state.scenes->Belt.Array.forEach(scene => {
+  scenes->Belt.Array.forEach(scene => {
     scene.hotspots->Belt.Array.forEach(hs => {
       totalHotspots.contents = totalHotspots.contents + 1
       if !Belt.Set.String.has(sceneNames, hs.target) {

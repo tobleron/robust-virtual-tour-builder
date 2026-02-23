@@ -12,9 +12,6 @@ let syncInventoryNames = (inventory, sceneOrder) => {
   SceneNaming.syncInventoryNames(inventory, sceneOrder)
 }
 
-let rebuildLegacyFields = (state: state): state => {
-  SceneInventory.rebuildLegacyFields(state)
-}
 
 let calculateActiveIndexAfterDelete = (
   currentIndex: int,
@@ -71,6 +68,3 @@ let handlePatchSceneThumbnail = (state: state, id: string, file: file): state =>
   SceneOperations.handlePatchSceneThumbnail(state, id, file)
 }
 
-let syncSceneNames = (scenes: array<Types.scene>) => {
-  SceneNaming.syncSceneNames(scenes)
-}

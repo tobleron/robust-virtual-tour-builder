@@ -76,11 +76,12 @@ let make = (
   let handleMainClick = e => {
     e->JsxEvent.Mouse.stopPropagation
     let currentState = AppContext.getBridgeState()
-    switch Belt.Array.get(currentState.scenes, sceneIndex) {
+    let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+    switch Belt.Array.get(activeScenes, sceneIndex) {
     | Some(currentScene) =>
       switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
       | Some(hotspot) =>
-        let targetIdx = HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot)
+        let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
         switch targetIdx {
         | Some(tIdx) =>
           let (ny, np, nh) = Logic.calculateNavParams(hotspot)
@@ -145,7 +146,8 @@ let make = (
 
   React.useEffect1(() => {
     let currentState = AppContext.getBridgeState()
-    let nextIsAF = switch Belt.Array.get(currentState.scenes, sceneIndex) {
+    let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+    let nextIsAF = switch Belt.Array.get(activeScenes, sceneIndex) {
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {
       | Some(hotspot) =>

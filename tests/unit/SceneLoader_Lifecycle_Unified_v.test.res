@@ -106,7 +106,7 @@ describe("SceneLoader Lifecycle Unified", () => {
     let s1 = TestUtils.createMockScene(~id="s1", ~name="Scene 1", ())
     let s2 = TestUtils.createMockScene(~id="s2", ~name="Scene 2", ())
 
-    let newState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
+    let newState = TestUtils.createMockState(~scenes=[s1, s2], ~activeIndex=0, ())
     AppStateBridge.updateState(newState)
 
     Scene.Loader.loadNewScene(

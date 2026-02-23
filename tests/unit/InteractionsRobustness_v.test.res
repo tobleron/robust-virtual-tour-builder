@@ -13,7 +13,8 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
     }
 
     // Rule: activeIndex must be valid or -1
-    let sceneCount = Belt.Array.length(state.scenes)
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let sceneCount = Belt.Array.length(activeScenes)
     if state.activeIndex >= sceneCount {
       t
       ->expect("Index " ++ Belt.Int.toString(state.activeIndex))
@@ -41,7 +42,8 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
 
   let pickRandomAction = (state: state): action => {
     let roll = Math.random() *. 10.0
-    let sceneCount = Belt.Array.length(state.scenes)
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let sceneCount = Belt.Array.length(activeScenes)
 
     if roll < 1.0 {
       // Add Scene

@@ -80,7 +80,8 @@ module AnimationLoop = {
 
             if shouldRenderSimulationOverlay {
               HotspotLine.updateLines(v, state, ())
-              let arrowId = switch state.scenes[j.sourceIndex] {
+              let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+              let arrowId = switch activeScenes[j.sourceIndex] {
               | Some(s) =>
                 switch s.hotspots[j.hotspotIndex] {
                 | Some(h) => "arrow_" ++ h.linkId
@@ -189,7 +190,8 @@ module AnimationLoop = {
             Viewer.setHfov(v, ViewerSystem.getCorrectHfov(), false)
             if shouldRenderSimulationOverlay {
               HotspotLine.updateLines(v, state, ())
-              let arrowId = switch state.scenes[j.sourceIndex] {
+              let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+              let arrowId = switch activeScenes[j.sourceIndex] {
               | Some(s) =>
                 switch s.hotspots[j.hotspotIndex] {
                 | Some(h) => "arrow_" ++ h.linkId

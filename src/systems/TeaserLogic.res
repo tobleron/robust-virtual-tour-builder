@@ -53,7 +53,8 @@ let readMotionManifest = (): option<motionManifest> => {
 }
 
 let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
-  Belt.Array.get(state.scenes, state.activeIndex)->Option.flatMap(scene => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  Belt.Array.get(activeScenes, state.activeIndex)->Option.flatMap(scene => {
     let waypointCandidates = scene.hotspots->Belt.Array.keep(h =>
       switch h.waypoints {
       | Some(w) => Belt.Array.length(w) > 0
@@ -214,9 +215,10 @@ module Manager = {
     ~onCancel: option<unit => unit>=?,
   ) => {
     let state = getState()
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     if state.isLinking {
       Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
-    } else if Array.length(state.scenes) == 0 {
+    } else if Array.length(activeScenes) == 0 {
       ()
     } else if signalIsAborted(signal) {
       ()
@@ -252,7 +254,7 @@ module Manager = {
           ~meta=Logger.castToJson({
             "format": format,
             "style": StyleCatalog.toString(selectedStyle),
-            "sceneCount": Belt.Array.length(state.scenes),
+            "sceneCount": Belt.Array.length(activeScenes),
           }),
           (),
         )

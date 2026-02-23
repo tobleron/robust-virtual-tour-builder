@@ -12,7 +12,7 @@ module WrappedSceneList = {
   @react.component
   let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit, ~sceneListCmp) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
@@ -78,10 +78,7 @@ describe("SceneList", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [],
-    }
+    let mockState = TestUtils.createMockState(~scenes=[], ())
     let mockDispatch = _ => ()
 
     let sceneListCmp = await loadSceneList()
@@ -108,11 +105,7 @@ describe("SceneList", () => {
     Dom.appendChild(Dom.documentBody, container)
 
     let s1 = createScene("1", "Scene 1")
-    let mockState = {
-      ...State.initialState,
-      scenes: [s1],
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(~scenes=[s1], ~activeIndex=0, ())
     let mockDispatch = _ => ()
 
     let sceneListCmp = await loadSceneList()
@@ -143,10 +136,7 @@ describe("SceneList", () => {
       ~length=50,
       i => createScene(Int.toString(i), "Scene " ++ Int.toString(i)),
     )
-    let mockState = {
-      ...State.initialState,
-      scenes,
-    }
+    let mockState = TestUtils.createMockState(~scenes, ())
     let mockDispatch = _ => ()
 
     let sceneListCmp = await loadSceneList()
@@ -169,12 +159,12 @@ describe("SceneList", () => {
 
     let s1 = createScene("1", "S1")
     let s2 = createScene("2", "S2")
-    let mockState = {
-      ...State.initialState,
-      scenes: [s1, s2],
-      activeIndex: 0,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[s1, s2],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let lastAction = ref(None)
     let mockDispatch = action => lastAction.contents = Some(action)
     AppStateBridge.registerDispatch(mockDispatch)
@@ -234,11 +224,11 @@ describe("SceneList", () => {
       ),
     }
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [s1],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[s1],
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
 
     let sceneListCmp = await loadSceneList()

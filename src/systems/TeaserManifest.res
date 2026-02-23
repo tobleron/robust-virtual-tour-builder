@@ -48,7 +48,8 @@ let getInitialPose = (state: state, activeIndex: int, includeIntroPan: bool): vi
       hfov: ViewerSystem.getCorrectHfov(),
     }
   } else {
-    switch Belt.Array.get(state.scenes, activeIndex) {
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    switch Belt.Array.get(activeScenes, activeIndex) {
     | Some(scene) => getSceneWaypointPose(scene)
     | None => {
         yaw: state.activeYaw,
@@ -112,7 +113,8 @@ let generateSimulationParityManifest = (
   ~skipAutoForward: bool=false,
   ~includeIntroPan: bool=false,
 ): motionManifest => {
-  let sceneCount = Belt.Array.length(initialState.scenes)
+  let activeScenes = SceneInventory.getActiveScenes(initialState.inventory, initialState.sceneOrder)
+  let sceneCount = Belt.Array.length(activeScenes)
   let startIndex = if sceneCount == 0 {
     -1
   } else if initialState.activeIndex >= 0 && initialState.activeIndex < sceneCount {
@@ -160,7 +162,8 @@ let generateSimulationParityManifest = (
         )
         acc
       } else {
-        switch Belt.Array.get(currentState.scenes, currentState.activeIndex) {
+        let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+        switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | None => acc
         | Some(currentScene) =>
           let visitedWithCurrent = addVisited(

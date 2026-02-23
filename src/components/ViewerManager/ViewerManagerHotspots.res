@@ -62,9 +62,10 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           _ => {
             let v = ViewerSystem.getActiveViewer()
             let currentState = getState()
+            let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
             switch (
               Nullable.toOption(v),
-              Belt.Array.get(currentState.scenes, currentState.activeIndex),
+              Belt.Array.get(activeScenes, currentState.activeIndex),
             ) {
             | (Some(viewer), Some(scene)) =>
               // During forced sync, we allow it even if Stabilizing as long as it's not Loading/Swapping
@@ -94,13 +95,14 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
         )
       | PreviewLinkId(linkId) =>
         let currentState = getState()
-        switch Belt.Array.get(currentState.scenes, currentState.activeIndex) {
+        let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+        switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | Some(currentScene) =>
           switch Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId) {
           | Some(hIdx) =>
             switch currentScene.hotspots[hIdx] {
             | Some(hotspot) =>
-              switch HotspotTarget.resolveSceneIndex(currentState.scenes, hotspot) {
+              switch HotspotTarget.resolveSceneIndex(activeScenes, hotspot) {
               | Some(tIdx) =>
                 let (ny, np, nh) = PreviewArrow.Logic.calculateNavParams(hotspot)
                 Scene.Switcher.navigateToScene(

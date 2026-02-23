@@ -73,10 +73,7 @@ describe("HotspotManager", () => {
     let sourceScene = createScene("SourceScene")
     let targetScene = {...createScene("TargetScene"), isAutoForward: false}
 
-    let state = {
-      ...State.initialState,
-      scenes: [sourceScene, targetScene],
-    }
+    let state = TestUtils.createMockState(~scenes=[sourceScene, targetScene], ())
 
     let config = HotspotManager.createHotspotConfig(
       ~hotspot,
@@ -95,10 +92,7 @@ describe("HotspotManager", () => {
     let sourceScene = createScene("SourceScene")
     let targetScene = {...createScene("TargetScene"), isAutoForward: true}
 
-    let state = {
-      ...State.initialState,
-      scenes: [sourceScene, targetScene],
-    }
+    let state = TestUtils.createMockState(~scenes=[sourceScene, targetScene], ())
 
     let config = HotspotManager.createHotspotConfig(
       ~hotspot,
@@ -193,10 +187,13 @@ describe("HotspotManager", () => {
     let scene1 = createScene("Scene1")
     let scene2 = createScene("Scene2")
 
+    let state = TestUtils.createMockState(
+      ~scenes=[scene1, scene2],
+      ~activeIndex=1,
+      (),
+    )
     let state = {
-      ...State.initialState,
-      scenes: [scene1, scene2],
-      activeIndex: 1, // At Scene2
+      ...state,
       navigationState: {
         ...NavigationState.initial(),
         incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}), // Came from Scene1

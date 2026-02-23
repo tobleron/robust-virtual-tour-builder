@@ -77,7 +77,6 @@ let createMockState = (
 
   {
     ...State.initialState,
-    scenes,
     inventory,
     sceneOrder,
     activeIndex,
@@ -90,9 +89,11 @@ let createMockState = (
 /* --- ASSERTION HELPERS --- */
 
 let hasSceneWithId = (state: state, id) => {
-  Belt.Array.some(state.scenes, s => s.id == id)
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  Belt.Array.some(scenes, s => s.id == id)
 }
 
 let getSceneById = (state: state, id) => {
-  Belt.Array.getBy(state.scenes, s => s.id == id)
+  let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  Belt.Array.getBy(scenes, s => s.id == id)
 }

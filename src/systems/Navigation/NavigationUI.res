@@ -13,7 +13,8 @@ let updateReturnPrompt = (state: state, scene: scene) => {
     } else {
       switch state.navigationState.incomingLink {
       | Some(inc) =>
-        state.scenes[inc.sceneIndex]->Option.forEach(src => {
+        let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+        scenes[inc.sceneIndex]->Option.forEach(src => {
           let has = Array.some(
             scene.hotspots,
             h => HotspotTarget.pointsToScene(h, src) && h.isReturnLink == Some(true),

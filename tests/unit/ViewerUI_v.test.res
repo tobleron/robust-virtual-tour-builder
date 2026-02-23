@@ -47,7 +47,7 @@ module WrappedViewerUI = {
   @react.component
   let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
@@ -121,12 +121,12 @@ describe("ViewerUI", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      scenes: [defaultScene],
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[defaultScene],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -216,12 +216,12 @@ describe("ViewerUI", () => {
       // analysis omitted
     ])
 
-    let mockState = {
-      ...State.initialState,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      scenes: [{...defaultScene, quality: Some(qualityJson)}],
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[{...defaultScene, quality: Some(qualityJson)}],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -245,12 +245,12 @@ describe("ViewerUI", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      scenes: [defaultScene],
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[defaultScene],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 
@@ -288,12 +288,12 @@ describe("ViewerUI", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      scenes: [defaultScene],
-      activeIndex: 0,
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[defaultScene],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)

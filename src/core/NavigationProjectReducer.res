@@ -90,7 +90,7 @@ module Project = {
           ~message="PROJECT_LOADED_INTO_STATE",
           ~data=Some({
             "tourName": pd.tourName,
-            "sceneCount": Array.length(pd.scenes),
+            "sceneCount": Array.length(SceneInventory.getActiveScenes(pd.inventory, pd.sceneOrder)),
             "inventorySize": pd.inventory->Belt.Map.String.size,
             "orderLength": Array.length(pd.sceneOrder),
           }),
@@ -120,7 +120,7 @@ module Project = {
           isTeasing: false,
           isLinking: false,
           linkDraft: None,
-        }->SceneMutations.rebuildLegacyFields
+        }
       }
     | Error(e) => {
         Logger.error(
@@ -136,16 +136,11 @@ module Project = {
 
   let handleRemoveDeletedSceneId = (state: state, id: string): state => {
     switch state.inventory->Belt.Map.String.get(id) {
-    | Some(entry) =>
-      {
+    | Some(entry) => {
         ...state,
         inventory: state.inventory->Belt.Map.String.set(id, {...entry, status: Active}),
-        deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
-      }->SceneMutations.rebuildLegacyFields
-    | None => {
-        ...state,
-        deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
       }
+    | None => state
     }
   }
 

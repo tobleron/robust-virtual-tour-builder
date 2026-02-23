@@ -108,17 +108,17 @@ describe("HotspotActionMenu", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      activeIndex: 0,
-      scenes: [
+    let mockState = TestUtils.createMockState(
+      ~scenes=[
         {
           ...defaultScene,
           id: "s1",
           name: "Source",
         },
       ],
-    }
+      ~activeIndex=0,
+      (),
+    )
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
     AppStateBridge.registerDispatch(mockDispatch)

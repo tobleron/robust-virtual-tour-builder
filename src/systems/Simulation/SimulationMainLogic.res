@@ -34,7 +34,8 @@ let arrivalFromTargetScene = (
   targetIndex: int,
   visitedAfterArrival: array<int>,
 ): option<(float, float, float)> => {
-  Belt.Array.get(state.scenes, targetIndex)->Option.flatMap(scene => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  Belt.Array.get(activeScenes, targetIndex)->Option.flatMap(scene => {
     let candidate = selectArrivalHotspot(state, scene, visitedAfterArrival)
 
     candidate->Option.map(h => (
@@ -49,7 +50,8 @@ let getNextMove = (state: state): nextMove => {
   let simulation = state.simulation
   let visitedScenes = simulation.visitedScenes
 
-  switch Belt.Array.get(state.scenes, state.activeIndex) {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  switch Belt.Array.get(activeScenes, state.activeIndex) {
   | Some(currentScene) =>
     Logger.debug(
       ~module_="SimulationMainLogic",
@@ -119,10 +121,11 @@ let getNextMove = (state: state): nextMove => {
       }
 
       let isComplete = if targetIndex == 0 {
-        switch Belt.Array.get(state.scenes, 0) {
+        let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+        switch Belt.Array.get(activeScenes, 0) {
         | Some(startScene) =>
           !Belt.Array.some(startScene.hotspots, h => {
-            HotspotTarget.resolveSceneIndex(state.scenes, h)
+            HotspotTarget.resolveSceneIndex(activeScenes, h)
             ->Option.map(i => !Array.includes(visitedScenes, i))
             ->Option.getOr(false)
           })

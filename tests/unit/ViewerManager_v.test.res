@@ -222,7 +222,7 @@ describe("ViewerManager", () => {
 
   let renderWrappedViewerManager = (root, mockState: Types.state, mockDispatch) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
@@ -265,11 +265,11 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [],
-      activeIndex: -1,
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[],
+      ~activeIndex=-1,
+      (),
+    )
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -299,8 +299,12 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
+    let mockState = TestUtils.createMockState(
+      ~scenes=[],
+      (),
+    )
     let mockState = {
-      ...State.initialState,
+      ...mockState,
       isLinking: true,
     }
     let mockDispatch = %raw(`vi.fn()`)
@@ -371,11 +375,14 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene1],
+      ~activeIndex=0,
+      (),
+    )
     let mockState = {
-      ...State.initialState,
+      ...mockState,
       isLinking: true,
-      activeIndex: 0,
-      scenes: [scene1],
     }
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)
@@ -405,11 +412,11 @@ describe("ViewerManager", () => {
     // Set an old lastSceneId that is not in the new scenes list
     ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make("old-stale-id")}
 
-    let mockState = {
-      ...State.initialState,
-      activeIndex: 0,
-      scenes: [scene1],
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene1],
+      ~activeIndex=0,
+      (),
+    )
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -453,10 +460,13 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
+    let mockState = TestUtils.createMockState(
+      ~scenes=[makeMockScene(~id="s1", ~name="S1", ()), makeMockScene(~id="s2", ~name="S2", ())],
+      (),
+    )
     let mockState = {
-      ...State.initialState,
+      ...mockState,
       preloadingSceneIndex: 1,
-      scenes: [makeMockScene(~id="s1", ~name="S1", ()), makeMockScene(~id="s2", ~name="S2", ())],
     }
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)

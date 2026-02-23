@@ -52,7 +52,7 @@ module Scene = {
   }
 
   let handleSyncSceneNames = (state: state): state => {
-    {...state, scenes: SceneMutations.syncSceneNames(state.scenes)}
+    {...state, inventory: SceneMutations.syncInventoryNames(state.inventory, state.sceneOrder)}
   }
 
   let handleApplyLazyRename = (state: state, index: int, name: string): state => {

@@ -57,12 +57,15 @@ describe("NavigationGraph", () => {
     }
   }
 
-  let createMockState = (scenes): state => {
+  let createMockState = (scenes: array<scene>): state => {
+    let inventory = scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) => {
+      acc->Belt.Map.String.set(s.id, {scene: s, status: Active})
+    })
+    let sceneOrder = scenes->Belt.Array.map(s => s.id)
     {
       tourName: "Test Tour",
-      scenes,
-      inventory: Belt.Map.String.empty,
-      sceneOrder: [],
+      inventory,
+      sceneOrder,
       activeIndex: 0,
       activeYaw: 0.0,
       activePitch: 0.0,
@@ -73,7 +76,6 @@ describe("NavigationGraph", () => {
       linkDraft: None,
       preloadingSceneIndex: -1,
       isTeasing: false,
-      deletedSceneIds: [],
       timeline: [],
       activeTimelineStepId: None,
       navigationState: {

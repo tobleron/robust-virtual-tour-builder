@@ -97,8 +97,9 @@ let prepareFirstScene = async (
     ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
     ->Option.getOr((0.0, 0.0))
   }
-  let scenes = getState().scenes
-  switch Belt.Array.get(scenes, step.idx) {
+  let state = getState()
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  switch Belt.Array.get(activeScenes, step.idx) {
   | Some(scene) =>
     dispatch(Actions.SetActiveScene(step.idx, iy, ip, None))
     await wait(500)
@@ -148,8 +149,9 @@ let transitionToNextShot = async (
     ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
     ->Option.getOr((nextStep.arrivalView.yaw, nextStep.arrivalView.pitch))
   }
-  let scenes = getState().scenes
-  switch Belt.Array.get(scenes, nextStep.idx) {
+  let state = getState()
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  switch Belt.Array.get(activeScenes, nextStep.idx) {
   | Some(scene) =>
     dispatch(Actions.SetActiveScene(nextStep.idx, ny, np, None))
     await wait(500)
@@ -366,7 +368,8 @@ let playManifest = async (
   if shotCount == 0 {
     ()
   } else {
-    let scenes = getState().scenes
+    let state = getState()
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     let frameRate = if manifest.fps > 0 {
       manifest.fps
     } else {
@@ -397,7 +400,7 @@ let playManifest = async (
         }
 
         let sceneIndex =
-          scenes->Belt.Array.getIndexBy(s => s.id == frameState.sceneId)->Option.getOr(-1)
+          activeScenes->Belt.Array.getIndexBy(s => s.id == frameState.sceneId)->Option.getOr(-1)
         if sceneIndex >= 0 {
           dispatch(
             Actions.SetActiveScene(sceneIndex, frameState.pose.yaw, frameState.pose.pitch, None),

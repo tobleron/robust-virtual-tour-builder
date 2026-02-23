@@ -61,10 +61,10 @@ describe("SimulationNavigation", () => {
   let scene4: scene = {...baseScene, id: "s4", name: "Scene 4", hotspots: [], isAutoForward: false}
   let scene5: scene = {...baseScene, id: "s5", name: "Scene 5", hotspots: [], isAutoForward: true}
 
-  let state: state = {
-    ...State.initialState,
-    scenes: [scene1, scene2, scene3, scene4, scene5],
-  }
+  let state = TestUtils.createMockState(
+    ~scenes=[scene1, scene2, scene3, scene4, scene5],
+    (),
+  )
 
   test("Priority 1: Pick non-visited, non-return, non-bridge (Scene 2)", t => {
     switch findBestNextLink(scene1, state, []) {

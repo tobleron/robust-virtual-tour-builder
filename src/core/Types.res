@@ -208,13 +208,11 @@ type timelineUpdate = {
 
 type project = {
   tourName: string,
-  scenes: array<scene>, // TODO: Deprecate
   inventory: Belt.Map.String.t<sceneEntry>,
   sceneOrder: array<string>,
   lastUsedCategory: string,
   exifReport: option<JSON.t>,
   sessionId: option<string>,
-  deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
   logo: option<file>,
 }
@@ -296,7 +294,6 @@ type appMode =
 
 type state = {
   tourName: string,
-  scenes: array<scene>, // TODO: Deprecate
   inventory: Belt.Map.String.t<sceneEntry>,
   sceneOrder: array<string>,
   activeIndex: int,
@@ -309,7 +306,6 @@ type state = {
   linkDraft: option<linkDraft>,
   preloadingSceneIndex: int,
   isTeasing: bool,
-  deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
   activeTimelineStepId: option<string>,
   // Domain Slices

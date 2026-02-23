@@ -53,7 +53,7 @@ module WrappedSidebar = {
   @react.component
   let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit, ~children) => {
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder),
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,

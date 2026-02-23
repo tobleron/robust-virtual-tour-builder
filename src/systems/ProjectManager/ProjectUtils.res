@@ -30,7 +30,7 @@ let updateSaveContext = (
   OperationJournal.updateContext(
     journalId,
     asJson({
-      "sceneCount": Array.length(state.scenes),
+      "sceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
       "tourName": state.tourName,
       "stage": stage,
       "filename": filename->Option.getOr(""),

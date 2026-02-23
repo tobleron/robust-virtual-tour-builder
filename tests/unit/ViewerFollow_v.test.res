@@ -23,7 +23,6 @@ describe("ViewerFollow", () => {
     let mockState = {
       ...State.initialState,
       isLinking: false,
-      scenes: [],
     }
     AppStateBridge.updateState(mockState)
 
@@ -45,7 +44,6 @@ describe("ViewerFollow", () => {
     let mockState = {
       ...State.initialState,
       isLinking: true,
-      scenes: [],
     }
     AppStateBridge.updateState(mockState)
 

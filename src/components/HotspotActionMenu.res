@@ -6,7 +6,10 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
-  let currentHotspot = switch Belt.Array.get(state.scenes, state.activeIndex) {
+  let currentHotspot = switch Belt.Array.get(
+    SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+    state.activeIndex,
+  ) {
   | Some(scene) => Belt.Array.get(scene.hotspots, index)
   | None => None
   }
@@ -94,7 +97,10 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleNavigate = () => {
-    let targetIdx = HotspotTarget.resolveSceneIndex(state.scenes, hotspot)
+    let targetIdx = HotspotTarget.resolveSceneIndex(
+      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+      hotspot,
+    )
     switch targetIdx {
     | Some(idx) =>
       let navYaw = ref(0.0)

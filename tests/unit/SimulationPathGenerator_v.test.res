@@ -64,10 +64,10 @@ describe("Simulation.PathGenerator", () => {
     }
     let scene1 = createScene("1", "scene1", false)
 
-    AppStateBridge.updateState({
-      ...State.initialState,
-      scenes: [scene0, scene1],
-    })
+    AppStateBridge.updateState(TestUtils.createMockState(
+      ~scenes=[scene0, scene1],
+      (),
+    ))
 
     let path = Simulation.PathGenerator.getSimulationPath(false, ~getState=AppStateBridge.getState)
     t->expect(Array.length(path))->Expect.toBe(2)
@@ -96,10 +96,10 @@ describe("Simulation.PathGenerator", () => {
     let scene0 = {...createScene("0", "scene0", false), hotspots: [hotspot]}
     let scene1 = createScene("1", "scene1", false)
 
-    AppStateBridge.updateState({
-      ...State.initialState,
-      scenes: [scene0, scene1],
-    })
+    AppStateBridge.updateState(TestUtils.createMockState(
+      ~scenes=[scene0, scene1],
+      (),
+    ))
 
     let path = Simulation.PathGenerator.getSimulationPath(false, ~getState=AppStateBridge.getState)
     t->expect(Belt.Array.getExn(path, 1).arrivalView.yaw)->Expect.toBe(111.0)
@@ -117,10 +117,10 @@ describe("Simulation.PathGenerator", () => {
     }
     let scene2 = createScene("2", "scene2", false)
 
-    AppStateBridge.updateState({
-      ...State.initialState,
-      scenes: [scene0, scene1_auto, scene2],
-    })
+    AppStateBridge.updateState(TestUtils.createMockState(
+      ~scenes=[scene0, scene1_auto, scene2],
+      (),
+    ))
 
     // Skip enabled
     let path = Simulation.PathGenerator.getSimulationPath(true, ~getState=AppStateBridge.getState)
@@ -144,10 +144,10 @@ describe("Simulation.PathGenerator", () => {
       hotspots: [createHotspot("scene0", ())],
     }
 
-    AppStateBridge.updateState({
-      ...State.initialState,
-      scenes: [scene0, scene1],
-    })
+    AppStateBridge.updateState(TestUtils.createMockState(
+      ~scenes=[scene0, scene1],
+      (),
+    ))
 
     let path = Simulation.PathGenerator.getSimulationPath(false, ~getState=AppStateBridge.getState)
     // scene0 -> scene1 -> scene0

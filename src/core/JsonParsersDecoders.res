@@ -218,13 +218,11 @@ let project = object(f => {
     Types.tourName: f
     ->opt("tourName", string, "Untitled Tour")
     ->(s => s == "" ? "Untitled Tour" : s),
-    scenes,
     inventory: finalInventory,
     sceneOrder: finalOrder,
     lastUsedCategory: f->opt("lastUsedCategory", string, "outdoor"),
     exifReport: f.optional("exifReport", id),
     sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
-    deletedSceneIds: f->opt("deletedSceneIds", array(string), []),
     timeline: f->opt("timeline", array(timelineItem), []),
     logo: f.optional("logo", option(file))->Option.flatMap(x => x)->normalizeLogo,
   }

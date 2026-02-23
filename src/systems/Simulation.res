@@ -86,7 +86,8 @@ let make = () => {
       let runTick = async () => {
         let isCurrentRun = () => !cancel.contents && runIdRef.current == currentRunId
         let s = stateRef.current
-        let currentSceneId = s.scenes->Belt.Array.get(s.activeIndex)->Option.map(ss => ss.id)
+        let scenes = SceneInventory.getActiveScenes(s.inventory, s.sceneOrder)
+        let currentSceneId = scenes->Belt.Array.get(s.activeIndex)->Option.map(ss => ss.id)
 
         switch currentSceneId {
         | None => ()
@@ -104,7 +105,7 @@ let make = () => {
             }
 
             let delay = if stateRef.current.simulation.skipAutoForwardGlobal {
-              switch stateRef.current.scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
+              switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
               | Some(scene) if scene.isAutoForward => 0
               | _ => Constants.Simulation.stepDelay
               }
@@ -125,7 +126,7 @@ let make = () => {
               sAfterInitial.simulation.status == Running &&
               !sAfterInitial.simulation.stoppingOnArrival
             let stillInSameScene =
-              sAfterInitial.scenes
+              scenes
               ->Belt.Array.get(sAfterInitial.activeIndex)
               ->Option.map(ss => ss.id) == Some(sceneId)
 
@@ -146,14 +147,14 @@ let make = () => {
                 let stillOk =
                   isCurrentRun() &&
                   sAfterWait.simulation.status == Running &&
-                  sAfterWait.scenes
+                  scenes
                   ->Belt.Array.get(sAfterWait.activeIndex)
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 if stillOk {
                   let isFirstScene = sAfterWait.simulation.visitedScenes->Belt.Array.length <= 1
                   let delay = if sAfterWait.simulation.skipAutoForwardGlobal {
-                    switch sAfterWait.scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
+                    switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
                     | Some(scene) if scene.isAutoForward => isFirstScene ? 3000 : 0
                     | _ => Constants.Simulation.stepDelay
                     }
@@ -181,7 +182,7 @@ let make = () => {
                 let finalOk =
                   isCurrentRun() &&
                   sFinal.simulation.status == Running &&
-                  sFinal.scenes
+                  scenes
                   ->Belt.Array.get(sFinal.activeIndex)
                   ->Option.map(ss => ss.id) == Some(sceneId)
 

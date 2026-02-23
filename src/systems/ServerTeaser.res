@@ -18,13 +18,11 @@ let generateServerTeaser = (
   progress(0, "Preparing Project Data...")
   let project: Types.project = {
     tourName: state.tourName,
-    scenes: state.scenes,
     inventory: state.inventory,
     sceneOrder: state.sceneOrder,
     lastUsedCategory: state.lastUsedCategory,
     exifReport: state.exifReport,
     sessionId: state.sessionId,
-    deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
     logo: state.logo,
   }
@@ -52,7 +50,8 @@ let generateServerTeaser = (
     boolJson(Constants.Teaser.HeadlessMotion.includeIntroPan) ++ "}"
   FormData.append(formData, "motion_profile", motionProfileJson)
   let added = ref(0)
-  state.scenes->Belt.Array.forEach(s => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  activeScenes->Belt.Array.forEach(s => {
     switch s.file {
     | File(f) =>
       FormData.appendWithFilename(formData, "files", f, s.name)

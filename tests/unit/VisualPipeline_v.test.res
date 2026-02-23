@@ -7,8 +7,9 @@ open Types
 module WrappedVisualPipeline = {
   @react.component
   let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit) => {
+    let activeScenes = SceneInventory.getActiveScenes(mockState.inventory, mockState.sceneOrder)
     let sceneSlice: AppContext.sceneSlice = {
-      scenes: mockState.scenes,
+      scenes: activeScenes,
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
@@ -23,7 +24,7 @@ module WrappedVisualPipeline = {
       preloadingSceneIndex: mockState.preloadingSceneIndex,
     }
     let pipelineSlice: AppContext.pipelineSlice = {
-      scenes: mockState.scenes,
+      scenes: activeScenes,
       activeIndex: mockState.activeIndex,
       timeline: mockState.timeline,
       activeTimelineStepId: mockState.activeTimelineStepId,
@@ -98,11 +99,13 @@ describe("VisualPipeline", () => {
       isAutoForward: false,
     }
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      activeIndex: 0,
-      timeline: [
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+    let mockState = {...mockState, timeline: [
         {
           id: "t1",
           sceneId: "s1",
@@ -111,9 +114,7 @@ describe("VisualPipeline", () => {
           transition: "cut",
           duration: 0,
         },
-      ],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+      ]}
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -155,11 +156,11 @@ describe("VisualPipeline", () => {
       (),
     )
 
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-    }
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene],
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
