@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. **Root-Relative Paths**: All file references must be relative to repository root
 
 **Commitment Constraint:**
-- NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
+- NEVER run `commit.sh`, `fast-commit.sh`, or `triple-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
 - Only commit when the user explicitly provides a message or instruction
 
 **Task Protocol (BLOCKING REQUIREMENT):**
@@ -121,7 +121,7 @@ npm run rust:fmt
 - **Explicit Permission Required**: Only commit when the user provides a message or instruction ("save", "checkpoint", or "commit")
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` - Quick, local-only, no tests/push
 - **Standard Path (Push to Branch)**: `./scripts/commit.sh "msg" [branch]` - Build guard, commit, and push. Note: Tests are currently bypassed/manual
-- **Triple Path (Full Sync)**: `./scripts/triple-commit.sh "msg"` - Syncs and pushes to main/testing/dev branches
+- **Triple Path (Deprecated/Explicit Override Only)**: `ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh "msg"` - Use only when explicitly requested to sync main/testing/development
 - **Manual Verification**: `./scripts/pre-push.sh` is available for manual pre-push verification if needed
 
 ## Architecture Overview

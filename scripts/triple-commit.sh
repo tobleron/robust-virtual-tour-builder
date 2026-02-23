@@ -1,5 +1,5 @@
 #!/bin/bash
-# USAGE: ./scripts/triple-commit.sh "feat: Description" [bump-override]
+# USAGE: ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh "feat: Description" [bump-override]
 # This script commits to the current branch and force-updates main, testing, and development branches.
 # Optional second argument: 'major', 'minor', 'patch' to override auto-detection.
 # RESTRICTION: Only runs on 'development' branch.
@@ -9,6 +9,14 @@ MSG="$1"
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
 # --- VALIDATION PHASE ---
+
+if [ "${ALLOW_TRIPLE_COMMIT:-0}" != "1" ]; then
+    echo "⚠️  triple-commit is deprecated and disabled by default."
+    echo "   ► Use standard workflow: ./scripts/commit.sh \"<message>\""
+    echo "   ► Only run triple sync when explicitly requested:"
+    echo "     ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh \"<message>\" [bump-override]"
+    exit 1
+fi
 
 # 0. Branch Guard
 CURRENT_BRANCH=$(git branch --show-current)

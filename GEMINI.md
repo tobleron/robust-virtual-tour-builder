@@ -3,7 +3,7 @@
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
 1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` and `DATA_FLOW.md` FIRST**.
 2. **MAP.md Integrity**: When updating `MAP.md`, ALWAYS use **root-relative paths** (e.g., `[src/Main.res](src/Main.res)`). NEVER use absolute paths or `file:///` URIs.
-3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
+3. **Commitment Constraint**: NEVER run `commit.sh`, `fast-commit.sh`, or `triple-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
 4. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.
 5. **Conditional Context Loading**:
    - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`.
@@ -37,6 +37,6 @@
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
 - **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push. Note: Tests are currently Bypassed/Manual).
-- **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/testing/dev).
+- **Triple Path (Deprecated/Explicit Override Only)**: `ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh "msg"` (Use only when explicitly requested to sync main/testing/development).
 - **Storage Check**: Before committing, audit for unnecessary large files (logs, temp zips, etc.) and ask the user for cleanup permission.
 - **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.
