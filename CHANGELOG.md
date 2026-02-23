@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Ultra stable backend upload images
+- Snapshot before autotune calibration and ETA notifications
 
 ## [4.30.23] - 2026-02-22
 

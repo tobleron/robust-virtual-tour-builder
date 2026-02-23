@@ -47,6 +47,9 @@
 - [x] `backend/src/startup.rs`: Added production defaults for `media_heavy` limiter class.
 - [x] `backend/src/api/mod.rs`: Split `/api/media` endpoint limiter wiring so `/process-full` uses dedicated `media_heavy` governor while other media routes remain on `write`.
 - [x] Backend compile check after limiter split: `cargo check` passed.
+- [x] `src/utils/Constants.res`: Added adaptive pacing constants for `/api/media/process-full` autotuning (bounds, step sizes, EMA/latency thresholds).
+- [x] `src/systems/Api/MediaApi.res`: Implemented throughput autotuning loop for `process-full` pacing (dynamic spacing, EMA latency feedback, success-window step-down, and rate-limit/retry step-up logic).
+- [x] Compile check after throughput autotuning integration: `npm run -s res:build` passed.
 - [x] Direct API stress probe (curl, 2-way parallel) against `/api/media/process-full` on `X3_Layan_1007_Villa`: slow but responsive; observed requests returned `200` with large per-image latency.
 - [x] E2E sanity run `tests/e2e/ingestion.spec.ts`: `5 passed`, `1 failed` (chromium expects `Start Building` button visibility in a path that no longer consistently presents it).
 - [x] Compile check after weighted scheduler integration: `npm run -s res:build` passed.

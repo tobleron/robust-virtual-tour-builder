@@ -7,12 +7,85 @@ open ReBindings
 external castJson: 'a => JSON.t = "%identity"
 
 let processFullNextAllowedAtMs = ref(0.0)
-let processFullMinSpacingMs = 1200.0
+let processFullDynamicSpacingMs = ref(Constants.Media.processFullSpacingStartMs)
+let processFullLatencyEmaMs = ref(0.0)
+let processFullStableSuccessStreak = ref(0)
 
 let sleepMs = (delayMs: int): Promise.t<unit> =>
   Promise.make((resolve, _reject) => {
     let _ = Window.setTimeout(() => resolve(), delayMs)
   })
+
+let clamp = (~value: float, ~minValue: float, ~maxValue: float) =>
+  if value < minValue {
+    minValue
+  } else if value > maxValue {
+    maxValue
+  } else {
+    value
+  }
+
+let updateSpacing = (~nextSpacingMs: float, ~reason: string) => {
+  let bounded = clamp(
+    ~value=nextSpacingMs,
+    ~minValue=Constants.Media.processFullSpacingMinMs,
+    ~maxValue=Constants.Media.processFullSpacingMaxMs,
+  )
+  let previous = processFullDynamicSpacingMs.contents
+  if bounded != previous {
+    processFullDynamicSpacingMs := bounded
+    Logger.info(
+      ~module_="MediaApi",
+      ~message="PROCESS_FULL_AUTOTUNE_SPACING_UPDATED",
+      ~data=Some({
+        "reason": reason,
+        "fromMs": Float.toFixed(previous, ~digits=0),
+        "toMs": Float.toFixed(bounded, ~digits=0),
+        "emaLatencyMs": Float.toFixed(processFullLatencyEmaMs.contents, ~digits=0),
+      }),
+      (),
+    )
+  }
+}
+
+let updateLatencyEma = (sampleMs: float) => {
+  if processFullLatencyEmaMs.contents <= 0.0 {
+    processFullLatencyEmaMs := sampleMs
+  } else {
+    let alpha = Constants.Media.processFullLatencyEmaAlpha
+    processFullLatencyEmaMs :=
+      (1.0 -. alpha) *. processFullLatencyEmaMs.contents +. alpha *. sampleMs
+  }
+}
+
+let noteProcessFullSuccess = (~durationMs: float, ~attempts: int) => {
+  updateLatencyEma(durationMs)
+
+  if attempts > 1 || processFullLatencyEmaMs.contents > Constants.Media.processFullLatencyHighMs {
+    processFullStableSuccessStreak := 0
+    updateSpacing(
+      ~nextSpacingMs=processFullDynamicSpacingMs.contents +. Constants.Media.processFullSpacingStepUpMs,
+      ~reason=
+        if attempts > 1 {
+          "retry-success"
+        } else {
+          "high-latency"
+        },
+    )
+  } else {
+    processFullStableSuccessStreak := processFullStableSuccessStreak.contents + 1
+    let reachedWindow =
+      processFullStableSuccessStreak.contents >= Constants.Media.processFullAutotuneSuccessWindow
+    let lowLatency = processFullLatencyEmaMs.contents < Constants.Media.processFullLatencyLowMs
+    if reachedWindow && lowLatency {
+      processFullStableSuccessStreak := 0
+      updateSpacing(
+        ~nextSpacingMs=processFullDynamicSpacingMs.contents -. Constants.Media.processFullSpacingStepDownMs,
+        ~reason="stable-low-latency",
+      )
+    }
+  }
+}
 
 let reserveProcessFullSlot = async () => {
   let now = Date.now()
@@ -21,7 +94,7 @@ let reserveProcessFullSlot = async () => {
   } else {
     now
   }
-  processFullNextAllowedAtMs := slotAt +. processFullMinSpacingMs
+  processFullNextAllowedAtMs := slotAt +. processFullDynamicSpacingMs.contents
   let waitMs = slotAt -. now
   if waitMs > 1.0 {
     let _ = await sleepMs(Belt.Float.toInt(waitMs))
@@ -48,6 +121,11 @@ let applyProcessFullBackoff = (seconds: int) => {
   if resumeAt > processFullNextAllowedAtMs.contents {
     processFullNextAllowedAtMs := resumeAt
   }
+  processFullStableSuccessStreak := 0
+  updateSpacing(
+    ~nextSpacingMs=processFullDynamicSpacingMs.contents +. Constants.Media.processFullSpacingStepUpMs,
+    ~reason="rate-limited",
+  )
 }
 
 /* Helper functions to reduce nesting */
@@ -122,6 +200,7 @@ let processImageFull = (
 ): Promise.t<apiResult<Blob.t>> => {
   RequestQueue.schedule(() => {
     reserveProcessFullSlot()->Promise.then(() => {
+      let requestStartedAtMs = Date.now()
       let formData = FormData.newFormData()
       FormData.append(formData, "file", file)
       if isOptimized {
@@ -153,7 +232,11 @@ let processImageFull = (
       ->Promise.then(
         resultResponse => {
           switch resultResponse {
-          | Retry.Success(response, _) =>
+          | Retry.Success(response, attempts) =>
+            noteProcessFullSuccess(
+              ~durationMs=Date.now() -. requestStartedAtMs,
+              ~attempts,
+            )
             response.blob()
             ->Promise.then(blob => Promise.resolve(Ok(blob)))
             ->Promise.catch(

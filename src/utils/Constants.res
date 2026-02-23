@@ -306,6 +306,16 @@ module Media = {
   let uploadVeryLargeFileThresholdMb = 40.0
   let uploadInFlightBudgetMbDefault = 120.0
   let uploadInFlightBudgetMbHeavy = 80.0
+  // Adaptive pacing controls for /api/media/process-full requests.
+  let processFullSpacingStartMs = 1200.0
+  let processFullSpacingMinMs = 450.0
+  let processFullSpacingMaxMs = 8000.0
+  let processFullSpacingStepUpMs = 300.0
+  let processFullSpacingStepDownMs = 80.0
+  let processFullAutotuneSuccessWindow = 4
+  let processFullLatencyLowMs = 1400.0
+  let processFullLatencyHighMs = 2600.0
+  let processFullLatencyEmaAlpha = 0.2
   // Export scene normalization policy
   let exportSceneWebpQuality = 0.92
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)
