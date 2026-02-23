@@ -200,7 +200,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
     t->expectToContain(
       html,
-      "navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId);",
+      "navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);",
     )
     t
     ->expect(String.includes(html, "const autoForward = primary.targetIsAutoForward === true;"))
@@ -232,6 +232,51 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "\"isAutoForward\":true")
     t->expectToContain(html, "\"autoForwardHotspotIndex\":-1")
     t->expectToContain(html, "\"autoForwardTargetSceneId\":\"\"")
+  })
+
+  test("generateTourHTML guards exported auto-forward loops and resets chain on manual navigation", t => {
+    let autoHotspotA = {
+      ...mockHotspot,
+      linkId: "auto-a",
+      target: "scene2",
+      targetSceneId: Some("sc2"),
+      isAutoForward: Some(true),
+    }
+    let autoHotspotB = {
+      ...mockHotspot,
+      linkId: "auto-b",
+      target: "scene1",
+      targetSceneId: Some("sc1"),
+      isAutoForward: Some(true),
+    }
+    let autoSceneA = {...mockScene1, hotspots: [autoHotspotA], isAutoForward: true}
+    let autoSceneB = {...mockScene2, hotspots: [autoHotspotB], isAutoForward: true}
+
+    let html = generateTourHTML(
+      [autoSceneA, autoSceneB],
+      "Loop Guard Tour",
+      None,
+      "4k",
+      32,
+      40,
+      "1.0",
+    )
+
+    t->expectToContain(html, "const AUTO_FORWARD_MAX_HOPS = 24;")
+    t->expectToContain(html, "let autoForwardChainVisited = [];")
+    t->expectToContain(html, "let autoForwardChainActive = false;")
+    t->expectToContain(html, "function resetAutoForwardLoopGuard()")
+    t->expectToContain(html, "function shouldBlockAutoForward(sourceSceneId, targetSceneId)")
+    t->expectToContain(html, "if (sourceSceneId === targetSceneId) return true;")
+    t->expectToContain(html, "return autoForwardChainVisited.includes(targetSceneId);")
+    t->expectToContain(html, "if (shouldBlockAutoForward(sourceSceneId, targetSceneId))")
+    t->expectToContain(html, "trackAutoForwardSource(sourceSceneId);")
+    t->expectToContain(
+      html,
+      "const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };",
+    )
+    t->expectToContain(html, "anyReady.__navigateNext(autoForwardOptions);")
+    t->expectToContain(html, "hotSpotDiv.__navigateNext = function(options)")
   })
 
   test("delegated functions exist and return strings", t => {

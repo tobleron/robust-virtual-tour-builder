@@ -123,6 +123,58 @@ module Styles = {
     background: var(--slate-900);
   }
 
+  /* --- Local Node Tooltip (LinkID) --- */
+  .pipeline-node-tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0e2d52;
+    border: 1px solid var(--orange-brand, #f97316);
+    border-radius: 4px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    animation: localTooltipIn 0.2s ease-out forwards;
+    pointer-events: none;
+  }
+
+  .pipeline-node-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--orange-brand, #f97316) transparent transparent transparent;
+  }
+
+  .tooltip-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    color: white;
+  }
+
+  .tooltip-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--orange-brand, #f97316);
+  }
+
+  @keyframes localTooltipIn {
+    from { opacity: 0; transform: translate(-50%, 4px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+
   /* --- Electronic Board Lines --- */
   .pipeline-svg-overlay {
     position: absolute;

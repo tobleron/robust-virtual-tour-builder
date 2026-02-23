@@ -61,7 +61,7 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
-      if !state.isLinking && !(!NavigationSupervisor.isIdle()) {
+      if !(!NavigationSupervisor.isIdle()) {
         // Orientation Sync: Force view position if state changed but scene didn't (e.g. ESC/Stop)
         let currentYaw = Viewer.getYaw(viewer)
         let currentPitch = Viewer.getPitch(viewer)
@@ -76,7 +76,9 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
 
         HotspotManager.syncHotspots(viewer, state, scene, dispatch)
         HotspotLine.updateLines(viewer, state, ())
-        Scene.Switcher.handleAutoForward(dispatch, state, scene)
+        if !state.isLinking {
+          Scene.Switcher.handleAutoForward(dispatch, state, scene)
+        }
       }
     | None => ()
     }
@@ -93,11 +95,20 @@ let useMainSceneLoading = (
   ~getState: unit => state,
   ~dispatch: action => unit,
 ) => {
-  React.useEffect3(() => {
+  React.useEffect2(() => {
     if activeIndex != -1 {
       switch Belt.Array.get(scenes, activeIndex) {
       | Some(scene) =>
-        let currentState = getState()
+        let bridgeState = getState()
+        // Guard against bridge lag: use latest render values for linking/pose-sensitive paths.
+        let currentState = {
+          ...bridgeState,
+          scenes,
+          activeIndex,
+          activeYaw,
+          activePitch,
+          isLinking,
+        }
         handleMainSceneLoad(currentState, scene, dispatch)
       | None => ()
       }
@@ -105,7 +116,6 @@ let useMainSceneLoading = (
     None
   }, (
     Belt.Int.toString(activeIndex) ++ "_" ++ Belt.Int.toString(Belt.Array.length(scenes)),
-    isLinking,
     Float.toString(activeYaw) ++ "_" ++ Float.toString(activePitch),
   ))
 }

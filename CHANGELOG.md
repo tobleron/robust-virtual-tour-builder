@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Harden linking state management and prevent stale view capture during transitions
 
+### Changed
+- Patch 4.5.5
+
 ## [4.5.3] - 2026-02-23
 
 ### Fixed

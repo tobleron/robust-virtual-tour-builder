@@ -43,6 +43,8 @@ let script = `
             if (window.viewer.getScene() !== sceneId) return;
             attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
           }, 360);
+        } else {
+          resetAutoForwardLoopGuard();
         }
 
         // Keep Looking mode OFF when this scene auto-forwards immediately.
@@ -121,7 +123,7 @@ let script = `
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(root);
       hotSpotDiv.__navInFlight = false;
-      hotSpotDiv.__navigateNext = function() { navigateToNextScene(args, null); };
+      hotSpotDiv.__navigateNext = function(options) { navigateToNextScene(args, null, options); };
       bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
       bindNavigateHandlers(root, hotSpotDiv);
       bindNavigateHandlers(btn, hotSpotDiv);

@@ -138,17 +138,6 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
 
       if Array.includes(chain, state.activeIndex) {
         dispatch(ResetAutoForwardChain)
-        NotificationManager.dispatch({
-          id: "",
-          importance: Warning,
-          context: Operation("scene_switcher"),
-          message: "Loop detected",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Warning),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
       } else {
         dispatch(AddToAutoForwardChain(state.activeIndex))
         HotspotTarget.resolveSceneIndex(state.scenes, h)->Option.forEach(tIdx => {

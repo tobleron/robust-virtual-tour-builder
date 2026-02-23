@@ -28,7 +28,7 @@ module PipelineNode = {
     ~targetScene: option<Types.scene>,
     ~onActivate: string => unit,
     ~onRemove: string => unit,
-    ~onHoverStart: option<Types.scene> => unit,
+    ~onHoverStart: (option<Types.scene>, string) => unit,
     ~onHoverEnd: unit => unit,
   ) => {
     let handleClick = (e: ReactEvent.Mouse.t) => {
@@ -55,14 +55,58 @@ module PipelineNode = {
 
     let handleMouseEnter = (_e: ReactEvent.Mouse.t) =>
       if !interactionDisabled {
-        onHoverStart(scene)
+        onHoverStart(scene, item.linkId)
       }
     let handleMouseLeave = (_e: ReactEvent.Mouse.t) => onHoverEnd()
     let handleFocus = (_e: ReactEvent.Focus.t) =>
       if !interactionDisabled {
-        onHoverStart(scene)
+        onHoverStart(scene, item.linkId)
       }
     let handleBlur = (_e: ReactEvent.Focus.t) => onHoverEnd()
+
+    let (linkIdVisible, setLinkIdVisible) = React.useState(_ => false)
+    let linkIdTimerRef = React.useRef((None: option<int>))
+
+    React.useEffect2(() => {
+      // isActive is used here as a proxy for "is being hovered/focused" 
+      // based on the parent component's onHoverStart/End calls if we wanted to sync,
+      // but simpler to just use local hover state if we want it local to the node.
+      None
+    }, (isActive, interactionDisabled))
+
+    // Local hover/timer management for the 3s LinkID requirement
+    let startLinkIdTimer = () => {
+      switch linkIdTimerRef.current {
+      | Some(id) => ReBindings.Window.clearTimeout(id)
+      | None => ()
+      }
+      linkIdTimerRef.current = Some(
+        ReBindings.Window.setTimeout(() => {
+          setLinkIdVisible(_ => true)
+        }, 3000),
+      )
+    }
+
+    let stopLinkIdTimer = () => {
+      switch linkIdTimerRef.current {
+      | Some(id) => ReBindings.Window.clearTimeout(id)
+      | None => ()
+      }
+      linkIdTimerRef.current = None
+      setLinkIdVisible(_ => false)
+    }
+
+    let localHandleMouseEnter = e => {
+      if !interactionDisabled {
+        startLinkIdTimer()
+        handleMouseEnter(e)
+      }
+    }
+
+    let localHandleMouseLeave = e => {
+      stopLinkIdTimer()
+      handleMouseLeave(e)
+    }
 
     let isAutoForward = switch scene {
     | Some(s) =>
@@ -101,12 +145,19 @@ module PipelineNode = {
       onClick=handleClick
       onKeyDown=handleKeyDown
       onContextMenu=handleContextMenu
-      onMouseEnter=handleMouseEnter
-      onMouseLeave=handleMouseLeave
+      onMouseEnter=localHandleMouseEnter
+      onMouseLeave=localHandleMouseLeave
       onFocus=handleFocus
       onBlur=handleBlur
       style
-    />
+    >
+      {linkIdVisible
+        ? <div className="pipeline-node-tooltip">
+            <span className="tooltip-label"> {React.string("ID")} </span>
+            <span className="tooltip-value"> {React.string(item.linkId)} </span>
+          </div>
+        : React.null}
+    </div>
   }
 }
 
@@ -245,7 +296,7 @@ let make = () => {
     setHoverPreview(_ => None)
   }
 
-  let showHoverPreview = (sceneOpt: option<Types.scene>) => {
+  let showHoverPreview = (sceneOpt: option<Types.scene>, _linkId: string) => {
     if isSystemLocked {
       hideHoverPreview()
       ()

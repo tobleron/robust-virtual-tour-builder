@@ -103,6 +103,31 @@ let script = `
     function hasExportScene(sceneId) {
       return resolveExistingSceneId(sceneId) !== null;
     }
+    const AUTO_FORWARD_MAX_HOPS = 24;
+    let autoForwardChainVisited = [];
+    let autoForwardChainActive = false;
+    function resetAutoForwardLoopGuard() {
+      autoForwardChainVisited = [];
+      autoForwardChainActive = false;
+    }
+    function beginAutoForwardChain() {
+      if (!autoForwardChainActive) {
+        autoForwardChainVisited = [];
+      }
+      autoForwardChainActive = true;
+    }
+    function trackAutoForwardSource(sceneId) {
+      if (!sceneId) return;
+      if (!autoForwardChainVisited.includes(sceneId)) {
+        autoForwardChainVisited.push(sceneId);
+      }
+    }
+    function shouldBlockAutoForward(sourceSceneId, targetSceneId) {
+      if (!sourceSceneId || !targetSceneId) return false;
+      if (sourceSceneId === targetSceneId) return true;
+      if (autoForwardChainVisited.length >= AUTO_FORWARD_MAX_HOPS) return true;
+      return autoForwardChainVisited.includes(targetSceneId);
+    }
     function resolveTargetSceneId(args, forceTargetSceneId) {
       const ownerSceneId = resolveExistingSceneId(args?.sourceSceneId) ?? normalizeSceneId(args?.sourceSceneId);
       const hotspotIndex = Number.isInteger(args?.i) ? args.i : null;
@@ -126,10 +151,29 @@ let script = `
       }
       return null;
     }
-    function navigateToNextScene(args, forceTargetSceneId) {
+    function navigateToNextScene(args, forceTargetSceneId, options) {
       const destination = resolveDestinationView(args);
-      const targetSceneId = resolveTargetSceneId(args, forceTargetSceneId);
+      const requestedTargetSceneId = options?.targetSceneId ?? forceTargetSceneId;
+      const targetSceneId = resolveTargetSceneId(args, requestedTargetSceneId);
       if (!targetSceneId) return;
+      const fromAutoForward = options?.fromAutoForward === true;
+      const sourceSceneId =
+        resolveExistingSceneId(options?.sourceSceneId)
+        ?? resolveExistingSceneId(args?.sourceSceneId)
+        ?? resolveExistingSceneId(window.viewer.getScene())
+        ?? normalizeSceneId(window.viewer.getScene());
+      if (fromAutoForward) {
+        beginAutoForwardChain();
+        if (shouldBlockAutoForward(sourceSceneId, targetSceneId)) {
+          resetAutoForwardLoopGuard();
+          lookingMode = manualLookingMode;
+          updateLookingModeUI();
+          return;
+        }
+        trackAutoForwardSource(sourceSceneId);
+      } else {
+        resetAutoForwardLoopGuard();
+      }
       transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
       setTimeout(() => {
         const verifiedTarget = resolveExistingSceneId(targetSceneId);
@@ -180,15 +224,16 @@ let script = `
     }
     function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
       if (window.viewer.getScene() !== sceneId) return;
+      const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };
       if (playbackTarget.targetSceneId) {
-        navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId);
+        navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);
         return;
       }
       const hotspotsNow = getSceneHotspots(sceneId);
       const preferred = hotspotsNow.find(el => el.dataset.hotspotIndex === String(playbackTarget.hotspotIndex));
       const anyReady = preferred ?? hotspotsNow.find(el => typeof el.__navigateNext === 'function');
       if (anyReady && typeof anyReady.__navigateNext === 'function') {
-        anyReady.__navigateNext();
+        anyReady.__navigateNext(autoForwardOptions);
         return;
       }
       if (retriesLeft <= 0) return;
