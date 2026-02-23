@@ -45,6 +45,7 @@ let handleDeleteScene = (state: state, index: int): state => {
           activeYaw: newActiveIndex == -1 ? 0.0 : state.activeYaw,
           activePitch: newActiveIndex == -1 ? 0.0 : state.activePitch,
           linkDraft: None,
+          isLinking: false,
           deletedSceneIds: state.deletedSceneIds->Belt.Array.concat([idToDelete]),
         }->SceneInventory.rebuildLegacyFields
 
@@ -81,6 +82,8 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
           inventory: finalizedInventory,
           sceneOrder: updatedOrder,
           activeIndex: newActiveIndex,
+          isLinking: false,
+          linkDraft: None,
         }->SceneInventory.rebuildLegacyFields
       | None => state
       }
@@ -180,6 +183,8 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       inventory: finalizedInventory,
       sceneOrder: sortedOrder,
       activeIndex,
+      isLinking: false,
+      linkDraft: None,
     }
 
     if wasEmpty && activeIndex == 0 {

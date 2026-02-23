@@ -26,6 +26,18 @@ let handleStageClick = (e: Dom.event) => {
     !isNavBusy
   ) {
     let viewer = ViewerSystem.getActiveViewer()
+    let activeVp = ViewerSystem.Pool.getActive()
+
+    Logger.info(
+      ~module_="LinkEditorLogic",
+      ~message="CAPTURE_VIEW_ATTEMPT",
+      ~data=Some({
+        "viewerId": activeVp->Option.map(v => v.id)->Option.getOr("none"),
+        "container": activeVp->Option.map(v => v.containerId)->Option.getOr("none"),
+        "isLinking": currentState.isLinking,
+      }),
+      (),
+    )
 
     switch Nullable.toOption(viewer) {
     | Some(v) =>

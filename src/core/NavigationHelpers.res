@@ -51,6 +51,8 @@ let handleNavigationCompleted = (state: state, journey: journeyData): state => {
         activeYaw: journey.arrivalYaw,
         activePitch: journey.arrivalPitch,
         transition,
+        isLinking: false,
+        linkDraft: None,
       }
     }
   } else {

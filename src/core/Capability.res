@@ -56,7 +56,11 @@ module Policy = {
     ~appMode: Types.appMode,
     operations: array<OperationLifecycle.task>,
   ): bool => {
-    isSystemLockedByMode(appMode) || isSystemLockedByOps(operations)
+    let fsmBusy = switch appMode {
+    | Interactive(s) => s.navigation != IdleFsm
+    | _ => false
+    }
+    isSystemLockedByMode(appMode) || isSystemLockedByOps(operations) || fsmBusy
   }
 
   let evaluate = (
@@ -73,14 +77,20 @@ module Policy = {
       let hasExport = isTypeActive(operations, Export)
       let hasProjectSave = isTypeActive(operations, ProjectSave)
 
+      let fsmBusy = switch appMode {
+      | Interactive(s) => s.navigation != IdleFsm
+      | _ => false
+      }
+
       switch capability {
       | CanNavigate => true
-      | CanEditHotspots => !(hasNavigation || hasSimulation)
+      | CanEditHotspots => !(hasNavigation || hasSimulation || fsmBusy)
       | CanUpload => !hasUpload
       | CanExport => !(hasUpload || hasExport)
-      | CanMutateProject => !(hasUpload || hasSimulation || hasNavigation || hasProjectSave)
-      | CanStartSimulation => !(hasSimulation || hasNavigation)
-      | CanInteractWithViewer => !hasNavigation
+      | CanMutateProject =>
+        !(hasUpload || hasSimulation || hasNavigation || hasProjectSave || fsmBusy)
+      | CanStartSimulation => !(hasSimulation || hasNavigation || fsmBusy)
+      | CanInteractWithViewer => !(hasNavigation || fsmBusy)
       }
     }
   }
