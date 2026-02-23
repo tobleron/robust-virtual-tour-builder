@@ -42,18 +42,55 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
             )
             .service(
                 web::scope("/media")
-                    .wrap(RateLimitResponseTransformer::new("write"))
-                    .wrap(Governor::new(&limiters.write))
-                    .route("/optimize", web::post().to(media::optimize_image))
-                    .route("/process-full", web::post().to(media::process_image_full))
-                    .route("/transcode-video", web::post().to(media::transcode_video))
-                    .route("/extract-metadata", web::post().to(media::extract_metadata))
+                    .route(
+                        "/optimize",
+                        web::post()
+                            .to(media::optimize_image)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/process-full",
+                        web::post()
+                            .to(media::process_image_full)
+                            .wrap(RateLimitResponseTransformer::new("media_heavy"))
+                            .wrap(Governor::new(&limiters.media_heavy)),
+                    )
+                    .route(
+                        "/transcode-video",
+                        web::post()
+                            .to(media::transcode_video)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
                     .route(
                         "/similarity",
-                        web::post().to(media::batch_calculate_similarity),
+                        web::post()
+                            .to(media::batch_calculate_similarity)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
                     )
-                    .route("/resize-batch", web::post().to(media::resize_image_batch))
-                    .route("/generate-teaser", web::post().to(media::generate_teaser)),
+                    .route(
+                        "/resize-batch",
+                        web::post()
+                            .to(media::resize_image_batch)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/generate-teaser",
+                        web::post()
+                            .to(media::generate_teaser)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/extract-metadata",
+                        web::post()
+                            .to(media::extract_metadata)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    ),
             )
             .service(
                 web::scope("/project")

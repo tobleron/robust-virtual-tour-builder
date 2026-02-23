@@ -127,8 +127,8 @@ let request = async (
 
           if res.status == 429 {
             signalScope.cleanup()
-            // Treat 429 as failure for circuit breaker stats to help global backoff if needed
-            CircuitBreaker.recordFailure(circuitBreaker)
+            // 429 is a controlled throttling response, not a transport failure.
+            // Do not trip the circuit breaker; rely on Retry-After backoff.
 
             let retryAfter =
               res.headers

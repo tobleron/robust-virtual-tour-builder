@@ -21,7 +21,7 @@ let pickUploadConcurrency = (files: array<UploadTypes.file>): int => {
     totalMb >= Constants.Media.uploadHeavyFolderThresholdMb ||
       largestMb >= Constants.Media.uploadVeryLargeFileThresholdMb
   ) {
-    Constants.Media.uploadMaxConcurrencyMin
+    1
   } else if totalMb >= 600.0 {
     3
   } else if totalMb >= 350.0 {

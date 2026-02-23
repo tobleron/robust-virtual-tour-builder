@@ -203,6 +203,7 @@ pub fn rate_limit_settings_for_class(class: &str) -> (u64, u32) {
             "health" => (10_u64, 100_u32),
             "read" => (50_u64, 200_u32),
             "write" => (20_u64, 100_u32),
+            "media_heavy" => (60_u64, 240_u32),
             "admin" => (10_u64, 50_u32),
             _ => (20_u64, 100_u32),
         }

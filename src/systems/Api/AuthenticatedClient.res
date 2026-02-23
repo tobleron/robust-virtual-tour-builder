@@ -47,7 +47,11 @@ let requestWithRetry = (
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
     ~shouldRetry=error => {
-      if error == "NetworkOffline" || error == "OperationCancelled" {
+      if (
+        error == "NetworkOffline" ||
+        error == "OperationCancelled" ||
+        error == "Circuit breaker is open"
+      ) {
         false
       } else if String.startsWith(error, "RateLimited: ") {
         true

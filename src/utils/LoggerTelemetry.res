@@ -28,6 +28,42 @@ let isTelemetrySuspended = () => {
 let suspendTelemetry = () =>
   telemetrySuspendedUntil := nowMs() + Constants.Telemetry.suspendDurationMs
 
+let suspendTelemetryForMs = (durationMs: float) => {
+  let boundedDurationMs = if durationMs <= 0.0 {
+    Constants.Telemetry.suspendDurationMs
+  } else {
+    durationMs
+  }
+  telemetrySuspendedUntil := nowMs() + boundedDurationMs
+  ignore(%raw(`telemetryQueue.splice(0, telemetryQueue.length)`))
+}
+
+let parseRetryAfterHeaderMs = (res: Fetch.response): option<float> => {
+  let headers = WebApiBindings.Fetch.headers(res)
+  let direct = WebApiBindings.Fetch.getHeader(headers, "retry-after")->Nullable.toOption
+  let xRate = WebApiBindings.Fetch.getHeader(headers, "x-ratelimit-after")->Nullable.toOption
+  let raw = direct->Option.orElse(xRate)
+  raw->Option.flatMap(raw => {
+    switch Belt.Int.fromString(raw) {
+    | Some(seconds) if seconds > 0 => Some(Belt.Int.toFloat(seconds) *. 1000.0)
+    | _ => None
+    }
+  })
+}
+
+let validateTelemetryResponse = async (res: Fetch.response): Promise.t<unit> => {
+  let status = WebApiBindings.Fetch.status(res)
+  if status == 429 {
+    let retryMs = parseRetryAfterHeaderMs(res)->Option.getOr(Constants.Telemetry.suspendDurationMs)
+    suspendTelemetryForMs(retryMs)
+    Promise.reject(Failure(`TelemetryRateLimited:${Belt.Int.toString(status)}`))
+  } else if status >= 400 {
+    Promise.reject(Failure(`TelemetryHttpError:${Belt.Int.toString(status)}`))
+  } else {
+    Promise.resolve()
+  }
+}
+
 let canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()
 
 type transportTask = {
@@ -158,8 +194,8 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
     false
   } else {
     try {
-      let _ = await scheduleTransport(() =>
-        Fetch.fetch(
+      let _ = await scheduleTransport(async () => {
+        let res = await Fetch.fetch(
           Constants.backendUrl ++ "/api/telemetry/batch",
           Fetch.requestInit(
             ~method="POST",
@@ -167,8 +203,9 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
             ~body=JsonCombinators.Json.stringify(encodeTelemetryBatch(payload)),
             (),
           ),
-        )->Promise.then(_ => Promise.resolve())
-      )
+        )
+        let _ = await validateTelemetryResponse(res)
+      })
       true
     } catch {
     | err if isTransportQueueOverflow(err) => false
@@ -246,8 +283,8 @@ let sendTelemetry = async entry => {
     switch p {
     | Critical =>
       try {
-        let _ = await scheduleTransport(() =>
-          Fetch.fetch(
+        let _ = await scheduleTransport(async () => {
+          let res = await Fetch.fetch(
             Constants.backendUrl ++ "/api/telemetry/error",
             Fetch.requestInit(
               ~method="POST",
@@ -255,8 +292,9 @@ let sendTelemetry = async entry => {
               ~body=JsonCombinators.Json.stringify(encodeLogEntry(sanitizedEntry)),
               (),
             ),
-          )->Promise.then(_ => Promise.resolve())
-        )
+          )
+          let _ = await validateTelemetryResponse(res)
+        })
       } catch {
       | err if isTransportQueueOverflow(err) => ()
       | err => {

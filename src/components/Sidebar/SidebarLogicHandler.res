@@ -27,20 +27,40 @@ let performUpload = async (
 
     let qualityResults = result.qualityResults
     let report = result.report
+    let successfulCount = Belt.Array.length(report.success)
+    let hasAnySuccess = successfulCount > 0
 
-    dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
-    UploadReport.show(report, qualityResults, ~getState, ~dispatch)
-    NotificationManager.dispatch({
-      id: "",
-      importance: Success,
-      context: Operation("sidebar_upload"),
-      message: "Upload Complete",
-      details: None,
-      action: None,
-      duration: NotificationTypes.defaultTimeoutMs(Success),
-      dismissible: true,
-      createdAt: Date.now(),
-    })
+    if hasAnySuccess {
+      dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
+      UploadReport.show(report, qualityResults, ~getState, ~dispatch)
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("sidebar_upload"),
+        message: "Upload Complete",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    } else {
+      dispatch(
+        Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload failed: no files processed")),
+      )
+      NotificationManager.dispatch({
+        id: "",
+        importance: Error,
+        context: Operation("sidebar_upload"),
+        message: "Upload failed: no files processed",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+      updateProgress(~dispatch, 100.0, "Upload failed", false, "Error")
+    }
   } catch {
   | JsExn(obj) =>
     let msg = switch JsExn.message(obj) {

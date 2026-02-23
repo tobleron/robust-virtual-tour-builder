@@ -304,6 +304,8 @@ module Media = {
   let uploadMaxConcurrencyMin = 2
   let uploadHeavyFolderThresholdMb = 900.0
   let uploadVeryLargeFileThresholdMb = 40.0
+  let uploadInFlightBudgetMbDefault = 120.0
+  let uploadInFlightBudgetMbHeavy = 80.0
   // Export scene normalization policy
   let exportSceneWebpQuality = 0.92
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)
@@ -327,9 +329,15 @@ module Telemetry = {
   let isDevStr = getEnv("DEV", "false")
   let debugBuild = mode == "development" || isDevStr == "true"
   let diagnosticEnvOverride = getEnv("VITE_TELEMETRY_DIAGNOSTIC", "false") == "true"
-  let startInDiagnosticMode = debugBuild || diagnosticEnvOverride
+  let startInDiagnosticMode = diagnosticEnvOverride
 
-  let enabled = getEnv("VITE_TELEMETRY_ENABLED", "true") == "true"
+  // In development, default telemetry network transport to OFF unless explicitly enabled.
+  let enabledDefault = if debugBuild {
+    "false"
+  } else {
+    "true"
+  }
+  let enabled = getEnv("VITE_TELEMETRY_ENABLED", enabledDefault) == "true"
 
   // Micro-management: Add keys here to allow Trace/Debug logs for specific modules only
   // If array is empty ["*"] or diagnosticMode is true, ALL logs are sent.
@@ -343,7 +351,7 @@ module Telemetry = {
   let retryMaxAttempts = 3
   let retryBackoffMs = 1000
   let diagnosticMode = ref(startInDiagnosticMode)
-  let suspendDurationMs = 30000.0
+  let suspendDurationMs = 120000.0
 
   // --- BACKPRESSURE CONFIG ---
   let transportMaxConcurrent = 2

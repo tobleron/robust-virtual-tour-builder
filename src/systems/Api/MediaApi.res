@@ -6,6 +6,50 @@ open ReBindings
 
 external castJson: 'a => JSON.t = "%identity"
 
+let processFullNextAllowedAtMs = ref(0.0)
+let processFullMinSpacingMs = 1200.0
+
+let sleepMs = (delayMs: int): Promise.t<unit> =>
+  Promise.make((resolve, _reject) => {
+    let _ = Window.setTimeout(() => resolve(), delayMs)
+  })
+
+let reserveProcessFullSlot = async () => {
+  let now = Date.now()
+  let slotAt = if processFullNextAllowedAtMs.contents > now {
+    processFullNextAllowedAtMs.contents
+  } else {
+    now
+  }
+  processFullNextAllowedAtMs := slotAt +. processFullMinSpacingMs
+  let waitMs = slotAt -. now
+  if waitMs > 1.0 {
+    let _ = await sleepMs(Belt.Float.toInt(waitMs))
+  } else {
+    ()
+  }
+}
+
+let parseRateLimitedSeconds = (msg: string): option<int> => {
+  if String.startsWith(msg, "RateLimited: ") {
+    let parts = String.split(msg, ": ")
+    if Array.length(parts) == 2 {
+      parts[1]->Option.flatMap(Belt.Int.fromString)
+    } else {
+      None
+    }
+  } else {
+    None
+  }
+}
+
+let applyProcessFullBackoff = (seconds: int) => {
+  let resumeAt = Date.now() +. Belt.Int.toFloat(seconds * 1000)
+  if resumeAt > processFullNextAllowedAtMs.contents {
+    processFullNextAllowedAtMs := resumeAt
+  }
+}
+
 /* Helper functions to reduce nesting */
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -77,44 +121,57 @@ let processImageFull = (
   ~metadata: option<exifMetadata>=?,
 ): Promise.t<apiResult<Blob.t>> => {
   RequestQueue.schedule(() => {
-    let formData = FormData.newFormData()
-    FormData.append(formData, "file", file)
-    if isOptimized {
-      FormData.append(formData, "is_optimized", "true")
-    }
-    switch metadata {
-    | Some(m) =>
-      FormData.append(
-        formData,
-        "metadata",
-        JsonCombinators.Json.stringify(JsonParsers.Encoders.exifMetadata(m)),
-      )
-    | None => ()
-    }
-
-    AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/media/process-full",
-      ~method="POST",
-      ~formData,
-      (),
-    )
-    ->Promise.then(resultResponse => {
-      switch resultResponse {
-      | Retry.Success(response, _) =>
-        response.blob()
-        ->Promise.then(blob => Promise.resolve(Ok(blob)))
-        ->Promise.catch(
-          e =>
-            handleError(
-              e,
-              "Image processing failed: Blob conversion error",
-              "PROCESSING_ERROR_BLOB_CONVERSION",
-            ),
-        )
-      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+    reserveProcessFullSlot()->Promise.then(() => {
+      let formData = FormData.newFormData()
+      FormData.append(formData, "file", file)
+      if isOptimized {
+        FormData.append(formData, "is_optimized", "true")
       }
+      switch metadata {
+      | Some(m) =>
+        FormData.append(
+          formData,
+          "metadata",
+          JsonCombinators.Json.stringify(JsonParsers.Encoders.exifMetadata(m)),
+        )
+      | None => ()
+      }
+
+      AuthenticatedClient.requestWithRetry(
+        Constants.backendUrl ++ "/api/media/process-full",
+        ~method="POST",
+        ~formData,
+        ~retryConfig={
+          maxRetries: 1,
+          initialDelayMs: 1200,
+          maxDelayMs: 5000,
+          backoffMultiplier: 2.0,
+          jitter: true,
+        },
+        (),
+      )
+      ->Promise.then(
+        resultResponse => {
+          switch resultResponse {
+          | Retry.Success(response, _) =>
+            response.blob()
+            ->Promise.then(blob => Promise.resolve(Ok(blob)))
+            ->Promise.catch(
+              e =>
+                handleError(
+                  e,
+                  "Image processing failed: Blob conversion error",
+                  "PROCESSING_ERROR_BLOB_CONVERSION",
+                ),
+            )
+          | Retry.Exhausted(msg) =>
+            msg->parseRateLimitedSeconds->Option.forEach(applyProcessFullBackoff)
+            Promise.resolve(Error(msg))
+          }
+        },
+      )
+      ->Promise.catch(e => handleError(e, "Image processing failed", "PROCESSING_ERROR"))
     })
-    ->Promise.catch(e => handleError(e, "Image processing failed", "PROCESSING_ERROR"))
   })
 }
 

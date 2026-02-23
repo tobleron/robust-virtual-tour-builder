@@ -24,6 +24,7 @@ pub struct RateLimiters {
     pub health: RateLimitConfig,
     pub read: RateLimitConfig,
     pub write: RateLimitConfig,
+    pub media_heavy: RateLimitConfig,
     pub admin: RateLimitConfig,
 }
 
@@ -33,6 +34,7 @@ impl RateLimiters {
             health: Self::create_config("health"),
             read: Self::create_config("read"),
             write: Self::create_config("write"),
+            media_heavy: Self::create_config("media_heavy"),
             admin: Self::create_config("admin"),
         }
     }

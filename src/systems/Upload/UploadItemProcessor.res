@@ -5,6 +5,24 @@ open UploadTypes
 
 external castToJson: 'a => JSON.t = "%identity"
 
+let sleepMs = (delayMs: int): Promise.t<unit> =>
+  Promise.make((resolve, _reject) => {
+    let _ = ReBindings.Window.setTimeout(() => resolve(), delayMs)
+  })
+
+let parseRateLimitedSeconds = (msg: string): option<int> => {
+  if String.startsWith(msg, "RateLimited: ") {
+    let parts = String.split(msg, ": ")
+    if Array.length(parts) == 2 {
+      parts[1]->Option.flatMap(Belt.Int.fromString)
+    } else {
+      None
+    }
+  } else {
+    None
+  }
+}
+
 let processImageWithTimeout = (
   file: ReBindings.File.t,
   ~onStatus: string => unit,
@@ -88,15 +106,22 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     ~data=Some({"filename": File.name(item.original)}),
     (),
   )
-  processImageWithTimeout(item.original, ~onStatus)
-  ->Promise.then(processResult => {
-    let newItem = switch processResult {
-    | Ok(res) => handleProcessSuccess(res, item)
-    | Error(msg) => handleProcessError(msg, item)
-    }
-    Promise.resolve(newItem)
-  })
-  ->Promise.catch(err => {
+  let rec attemptProcess = (remainingRateLimitRetries: int) =>
+    processImageWithTimeout(item.original, ~onStatus)->Promise.then(processResult => {
+      switch processResult {
+      | Ok(res) => Promise.resolve(handleProcessSuccess(res, item))
+      | Error(msg) =>
+        switch parseRateLimitedSeconds(msg) {
+        | Some(seconds) if remainingRateLimitRetries > 0 =>
+          onStatus("Rate-limited, retrying in " ++ Belt.Int.toString(seconds) ++ "s")
+          let waitMs = seconds * 1000 + 250
+          sleepMs(waitMs)->Promise.then(() => attemptProcess(remainingRateLimitRetries - 1))
+        | _ => Promise.resolve(handleProcessError(msg, item))
+        }
+      }
+    })
+
+  attemptProcess(2)->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
     Logger.error(
       ~module_="UploadLogic",

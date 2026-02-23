@@ -7,6 +7,20 @@ type filenameItem = {item: uploadItem, name: string, index: int}
 
 external unsafeCastToQuality: JSON.t => SharedTypes.qualityAnalysis = "%identity"
 
+let bytesToMb = (sizeBytes: float): float => sizeBytes /. 1024.0 /. 1024.0
+
+let selectInFlightBudgetMb = (items: array<uploadItem>): float => {
+  let totalMb =
+    items
+    ->Belt.Array.reduce(0.0, (acc, item) => acc +. BrowserBindings.File.size(item.original))
+    ->bytesToMb
+  if totalMb >= Constants.Media.uploadHeavyFolderThresholdMb {
+    Constants.Media.uploadInFlightBudgetMbHeavy
+  } else {
+    Constants.Media.uploadInFlightBudgetMbDefault
+  }
+}
+
 let finalizeUploads = (
   validProcessed: array<uploadItem>,
   startTime: float,
@@ -110,10 +124,24 @@ let executeProcessingChain = (
   let processedCount = ref(0)
   let allProcessedItems = ref([])
   let lastJournalUpdate = ref(Date.now())
+  let inFlightBudgetMb = selectInFlightBudgetMb(uniqueItems)
 
-  AsyncQueue.execute(
+  Logger.info(
+    ~module_="UploadLogic",
+    ~message="UPLOAD_BYTE_BUDGET_SELECTED",
+    ~data=Some({
+      "fileCount": Belt.Array.length(uniqueItems),
+      "budgetMb": inFlightBudgetMb,
+      "maxConcurrency": maxConcurrency,
+    }),
+    (),
+  )
+
+  AsyncQueue.executeWeighted(
     uniqueItems,
-    maxConcurrency,
+    ~maxConcurrency,
+    ~weightOf=item => bytesToMb(BrowserBindings.File.size(item.original)),
+    ~maxInFlightWeight=inFlightBudgetMb,
     (i, item, updateStatus) => {
       updateStatus("Optimizing")
       UploadItemProcessor.processItem(i, item, updateStatus)->Promise.then(processedItem => {

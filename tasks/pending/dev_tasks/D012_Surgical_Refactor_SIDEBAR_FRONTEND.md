@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/components/Sidebar/SidebarLogicHandler.res** (Metric: [Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 543/300  🎯 Target: Function: `msg` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/components/Sidebar/SidebarLogicHandler.res** (Metric: [Nesting: 4.20, Density: 0.06, Coupling: 0.07] | Drag: 5.27 | LOC: 561/300  🎯 Target: Function: `fileArray` (High Local Complexity (3.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -25,13 +25,13 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`
 - `src/components/Sidebar/SidebarLogicHandler.res` (9 functions, fingerprint af591ed5e8a5a1e6f038f51b28e440568d7342304fb7eaf3c98cbe1a83e1aa28)
     - Grouped summary:
-        - handleClearLinksWithUndo × 1 (lines: 409)
-        - handleDeleteScene × 1 (lines: 274)
-        - handleDeleteSceneWithUndo × 1 (lines: 338)
-        - handleExport × 1 (lines: 480)
-        - handleLoadProject × 1 (lines: 112)
-        - handleUpload × 1 (lines: 67)
-        - isMissingPanoramaFile × 1 (lines: 286)
+        - handleClearLinksWithUndo × 1 (lines: 427)
+        - handleDeleteScene × 1 (lines: 292)
+        - handleDeleteSceneWithUndo × 1 (lines: 356)
+        - handleExport × 1 (lines: 498)
+        - handleLoadProject × 1 (lines: 130)
+        - handleUpload × 1 (lines: 85)
+        - isMissingPanoramaFile × 1 (lines: 304)
         - performUpload × 1 (lines: 9)
-        - repairRestoredState × 1 (lines: 293)
+        - repairRestoredState × 1 (lines: 311)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
