@@ -70,7 +70,13 @@ let showLinkModal = (
             React.null
           } else {
             <option key={s.name} value={s.name} className="bg-slate-800">
-              {React.string(s.name)}
+              {React.string(
+                if s.label != "" {
+                  s.label
+                } else {
+                  s.name
+                },
+              )}
             </option>
           }
         })

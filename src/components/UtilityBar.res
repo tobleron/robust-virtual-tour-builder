@@ -26,67 +26,44 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           createdAt: Date.now(),
         })
       } else if canEditHotspots {
-        let currentState = AppContext.getBridgeState()
-        let hasExistingHotspotLink = switch Belt.Array.get(
-          currentState.scenes,
-          currentState.activeIndex,
-        ) {
-        | Some(scene) => Belt.Array.length(scene.hotspots) > 0
-        | None => false
-        }
+        let cx = JsxEvent.Mouse.clientX(e)
+        let cy = JsxEvent.Mouse.clientY(e)
+        ViewerState.state := {
+            ...ViewerState.state.contents,
+            linkingStartPoint: Nullable.make({
+              "x": Belt.Int.toFloat(cx),
+              "y": Belt.Int.toFloat(cy),
+            }),
+          }
 
-        if hasExistingHotspotLink {
+        let v = Nullable.toOption(ViewerSystem.getActiveViewer())
+        switch v {
+        | Some(_viewer) =>
+          dispatch(Actions.StartLinking(None))
+
           NotificationManager.dispatch({
-            id: "",
-            importance: Warning,
+            id: "linking-info",
+            importance: Info,
             context: Operation("utility_bar"),
-            message: "Scene already has hotspot link!",
+            message: "Linking mode ON",
             details: None,
             action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            duration: NotificationTypes.defaultTimeoutMs(Info),
             dismissible: true,
             createdAt: Date.now(),
           })
-        } else {
-          let cx = JsxEvent.Mouse.clientX(e)
-          let cy = JsxEvent.Mouse.clientY(e)
-          ViewerState.state := {
-              ...ViewerState.state.contents,
-              linkingStartPoint: Nullable.make({
-                "x": Belt.Int.toFloat(cx),
-                "y": Belt.Int.toFloat(cy),
-              }),
-            }
-
-          let v = Nullable.toOption(ViewerSystem.getActiveViewer())
-          switch v {
-          | Some(_viewer) =>
-            dispatch(Actions.StartLinking(None))
-
-            NotificationManager.dispatch({
-              id: "linking-info",
-              importance: Info,
-              context: Operation("utility_bar"),
-              message: "Linking mode ON",
-              details: None,
-              action: None,
-              duration: NotificationTypes.defaultTimeoutMs(Info),
-              dismissible: true,
-              createdAt: Date.now(),
-            })
-          | None =>
-            NotificationManager.dispatch({
-              id: "viewer-not-found",
-              importance: Error,
-              context: Operation("utility_bar"),
-              message: "Viewer not initialized",
-              details: None,
-              action: None,
-              duration: NotificationTypes.defaultTimeoutMs(Error),
-              dismissible: true,
-              createdAt: Date.now(),
-            })
-          }
+        | None =>
+          NotificationManager.dispatch({
+            id: "viewer-not-found",
+            importance: Error,
+            context: Operation("utility_bar"),
+            message: "Viewer not initialized",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
       } else {
         Logger.debug(~module_="UtilityBar", ~message="START_LINKING_REJECTED_LOCK_HELD", ())

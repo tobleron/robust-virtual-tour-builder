@@ -1,18 +1,18 @@
 #!/bin/bash
-# USAGE: ./scripts/commit.sh "feat: Description" [bump-override]
-# RESTRICTION: Only runs on 'development' branch.
-# Optional second argument: 'major', 'minor', 'patch' to override auto-detection.
+# USAGE: ./scripts/commit.sh "feat: Description" [target-branch] [bump-override]
+# Default target-branch is 'development'.
+# Optional third argument: 'major', 'minor', 'patch' to override auto-detection.
 
 MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
 CURRENT_BRANCH=$(git branch --show-current)
+TARGET_BRANCH="${2:-development}"
 
-if [ "$CURRENT_BRANCH" != "development" ]; then
-    echo "❌ Wrong Branch: Standard commits are restricted to 'development'."
-    echo "   ► Current branch: $CURRENT_BRANCH"
-    echo "   ► Switch branches: git checkout development"
+if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
+    echo "❌ Wrong Branch: Target is '$TARGET_BRANCH' but current is '$CURRENT_BRANCH'."
+    echo "   ► To commit to this branch, use: ./scripts/commit.sh \"$MSG\" $CURRENT_BRANCH"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ fi
 ./scripts/project-guard.sh
 
 # 2. Versioning (Smart Detection)
-BUMP_REQUEST="${2:-$MSG}"
+BUMP_REQUEST="${3:-$MSG}"
 echo "📈 Processing versioning..."
 node scripts/bump-version.js "$BUMP_REQUEST"
 node scripts/update-version.js

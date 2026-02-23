@@ -218,7 +218,13 @@ let make = React.memo((
                 "text-slate-700"
               }}`}
           >
-            {React.string(UrlUtils.stripExtension(scene.name))}
+            {React.string(
+              if scene.label != "" {
+                scene.label
+              } else {
+                UrlUtils.stripExtension(scene.name)
+              },
+            )}
           </h4>
           {if Array.length(scene.hotspots) > 0 {
             <div
