@@ -101,7 +101,19 @@ let make = () => {
 
             let delay = if stateRef.current.simulation.skipAutoForwardGlobal {
               switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
-              | Some(scene) if scene.isAutoForward => 0
+              | Some(scene) =>
+                // Check if any hotspot in this scene has isAutoForward (link-level)
+                let hasAutoForwardLink = Belt.Array.some(scene.hotspots, h =>
+                  switch h.isAutoForward {
+                  | Some(true) => true
+                  | _ => false
+                  }
+                )
+                if hasAutoForwardLink || scene.isAutoForward {
+                  0
+                } else {
+                  Constants.Simulation.stepDelay
+                }
               | _ => Constants.Simulation.stepDelay
               }
             } else {
@@ -151,7 +163,19 @@ let make = () => {
                   let isFirstLink = sAfterWait.simulation.visitedLinkIds->Belt.Array.length <= 1
                   let delay = if sAfterWait.simulation.skipAutoForwardGlobal {
                     switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
-                    | Some(scene) if scene.isAutoForward => isFirstLink ? 3000 : 0
+                    | Some(scene) =>
+                      // Check if any hotspot has isAutoForward (link-level takes priority)
+                      let hasAutoForwardLink = Belt.Array.some(scene.hotspots, h =>
+                        switch h.isAutoForward {
+                        | Some(true) => true
+                        | _ => false
+                        }
+                      )
+                      if hasAutoForwardLink || scene.isAutoForward {
+                        isFirstLink ? 3000 : 0
+                      } else {
+                        Constants.Simulation.stepDelay
+                      }
                     | _ => Constants.Simulation.stepDelay
                     }
                   } else {

@@ -22,7 +22,13 @@ let skipAutoForwardChain = (
     let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     switch Belt.Array.get(activeScenes, currentLink.contents.targetIndex) {
     | Some(targetScene) =>
-      if !targetScene.isAutoForward {
+      // Check hotspot-level isAutoForward (the link we're traversing)
+      let linkIsAutoForward = switch currentLink.contents.hotspot.isAutoForward {
+      | Some(af) => af
+      | None => targetScene.isAutoForward // Fallback to scene-level for backward compatibility
+      }
+      
+      if !linkIsAutoForward {
         loop := false
       } else {
         if !Array.includes(visitedScenes, currentLink.contents.targetIndex) {

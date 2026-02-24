@@ -11,6 +11,27 @@ type cleanupResult = {
 }
 
 /**
+ * Migrate scene-level isAutoForward to hotspot-level for backward compatibility.
+ * If a scene has isAutoForward: true, set all its hotspots to isAutoForward: Some(true).
+ * This ensures link-level auto-forward works correctly with existing projects.
+ */
+let migrateSceneAutoForwardToHotspots = (state: state): state => {
+  let updatedInventory = state.inventory->Belt.Map.String.map(entry => {
+    let scene = entry.scene
+    if scene.isAutoForward && Belt.Array.length(scene.hotspots) > 0 {
+      // Migrate: set all hotspots to isAutoForward: Some(true)
+      let updatedHotspots = scene.hotspots->Belt.Array.map(h => {
+        {...h, isAutoForward: Some(true)}
+      })
+      {...entry, scene: {...scene, hotspots: updatedHotspots, isAutoForward: false}}
+    } else {
+      entry
+    }
+  })
+  {...state, inventory: updatedInventory}
+}
+
+/**
  * Collect all valid linkIds from all scenes in the inventory
  */
 let collectValidLinkIds = (inventory: Belt.Map.String.t<sceneEntry>): Belt.Set.String.t => {
@@ -50,7 +71,11 @@ let simulateTourOrder = (state: state): array<string> => {
             | Some(idx) =>
               let isVisited = Array.includes(visitedLinkIds.contents, hs.linkId)
               let isReturn = hs.isReturnLink->Option.getOr(false)
-              let isBridge = Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false)
+              // Use hotspot-level isAutoForward (link-level takes priority)
+              let isBridge = switch hs.isAutoForward {
+              | Some(af) => af
+              | None => Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false)
+              }
               Some((hs.linkId, idx, isVisited, isReturn, isBridge))
             | None => None
             }

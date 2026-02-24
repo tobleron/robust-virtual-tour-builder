@@ -157,14 +157,18 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
         switch targetIdx {
         | Some(idx) =>
           switch Belt.Array.get(activeScenes, idx) {
-          | Some(targetScene) =>
+          | Some(_targetScene) =>
             Some({
               hotspot,
               hotspotIndex: i,
               targetIndex: idx,
               isVisited: Array.includes(visited, idx),
               isReturn: hotspot.isReturnLink->Option.getOr(false),
-              isBridge: targetScene.isAutoForward,
+              // Use hotspot-level isAutoForward (more granular than scene-level)
+              isBridge: switch hotspot.isAutoForward {
+              | Some(af) => af
+              | None => false
+              },
             })
           | None => None
           }
@@ -238,7 +242,7 @@ let findBestNextLinkByLinkId = (currentScene: scene, state: state, visitedLinkId
         switch targetIdx {
         | Some(idx) =>
           switch Belt.Array.get(activeScenes, idx) {
-          | Some(targetScene) =>
+          | Some(_targetScene) =>
             Some({
               hotspot,
               hotspotIndex: i,
@@ -246,7 +250,11 @@ let findBestNextLinkByLinkId = (currentScene: scene, state: state, visitedLinkId
               // KEY CHANGE: Check if linkId was traversed, not if scene was visited
               isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
               isReturn: hotspot.isReturnLink->Option.getOr(false),
-              isBridge: targetScene.isAutoForward,
+              // Use hotspot-level isAutoForward (more granular than scene-level)
+              isBridge: switch hotspot.isAutoForward {
+              | Some(af) => af
+              | None => false
+              },
             })
           | None => None
           }

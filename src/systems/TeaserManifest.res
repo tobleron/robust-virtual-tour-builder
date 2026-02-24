@@ -83,8 +83,17 @@ let calculateSimulationWaitDuration = (
   skipAutoForward: bool,
   includeIntroPan: bool,
 ): int => {
+  // Check if any hotspot has isAutoForward (link-level takes priority)
+  let hasAutoForwardLink = Belt.Array.some(scene.hotspots, h =>
+    switch h.isAutoForward {
+    | Some(true) => true
+    | _ => false
+    }
+  )
+  let isAutoForward = hasAutoForwardLink || scene.isAutoForward
+  
   let baseWait = if skipAutoForward {
-    if scene.isAutoForward {
+    if isAutoForward {
       if isFirstScene {
         3000
       } else {

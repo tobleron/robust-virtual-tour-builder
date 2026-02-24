@@ -155,9 +155,12 @@ module Project = {
     | LoadProject(projectDataJson) =>
       // Load the project first
       let loadedState = handleLoadProject(state, projectDataJson)
-      
+
+      // Migrate scene-level isAutoForward to hotspot-level (backward compatibility)
+      let migratedState = TimelineCleanup.migrateSceneAutoForwardToHotspots(loadedState)
+
       // Then auto-cleanup timeline (fixes old polluted projects)
-      let (cleanedState, result) = TimelineCleanup.applyCleanup(loadedState)
+      let (cleanedState, result) = TimelineCleanup.applyCleanup(migratedState)
       if result.removedCount > 0 {
         // Only log if we actually cleaned something
         Logger.info(
