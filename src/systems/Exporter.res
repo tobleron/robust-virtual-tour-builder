@@ -110,7 +110,7 @@ let exportTour = async (
     progress(3.0, 100.0, "Packaging logo...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
 
-    let logoFilename = await ExporterPackaging.appendLogo(~formData, ~logo, ~authToken=finalToken)
+    let logoFilename = await ExporterPackaging.appendLogo(~formData, ~logo, ~authToken=finalToken, ~signal=Some(signal))
 
     /* 2. Generate HTML Templates */
     currentPhase := "TEMPLATES"
@@ -129,7 +129,7 @@ let exportTour = async (
     currentPhase := "LIBRARIES"
     progress(12.0, 100.0, "Bundling viewer engine...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LIBRARIES", ())
-    await ExporterPackaging.appendLibraries(~formData)
+    await ExporterPackaging.appendLibraries(~formData, ~signal=Some(signal))
 
     /* 4. Append Scene Images */
     currentPhase := "SCENES"
@@ -146,6 +146,7 @@ let exportTour = async (
       ~exportScenes,
       ~authToken=finalToken,
       ~progress,
+      ~signal=Some(signal),
     ) {
     | Ok() => ()
     | Error(msg) => JsError.throwWithMessage(msg)

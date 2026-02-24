@@ -115,3 +115,8 @@ body.export-mode #sidebar .sidebar-processing-card * {
 body.export-mode .interaction-lock-overlay {
     left: 340px;
 }
+
+/* Hide the floating spinner during export - sidebar already shows progress */
+body.export-mode .interaction-lock-overlay .spinner {
+    display: none;
+}
