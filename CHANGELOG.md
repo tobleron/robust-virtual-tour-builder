@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - T1540: Fix floating progress spinner
+- T1540: hide floating progress overlay
 
 ## [4.5.4] - 2026-02-23
 

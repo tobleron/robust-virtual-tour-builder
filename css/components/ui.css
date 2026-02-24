@@ -9,6 +9,7 @@
     padding: 16px;
     box-shadow: var(--shadow-lg);
     z-index: 10000;
+    display: none !important;
 }
 
 #progress-bar {

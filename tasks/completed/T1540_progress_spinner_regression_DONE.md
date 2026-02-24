@@ -26,7 +26,7 @@
 
 ## Code Change Ledger
 - [x] `src/components/Sidebar/SidebarProcessing.res` – Render the spinner near the phase label so it stays inside the progress card.
-- [x] `css/components/ui.css` – Hide the spinner inside `#processing-ui` and ensure the sidebar spinner inherits the proper shadow/animation.
+- [x] `css/components/ui.css` – Hide the spinner inside `#processing-ui`, force the overlay hidden so it can’t float around, and ensure the sidebar spinner inherits the proper shadow/animation.
 
 ## Rollback Check
 - [x] Ensure the floating spinner disappears and the sidebar card animation remains visible before leaving the change.
