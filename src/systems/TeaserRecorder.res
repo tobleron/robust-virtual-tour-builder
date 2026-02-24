@@ -110,9 +110,8 @@ module Overlay = {
 let loadLogo = (logo: option<Types.file>) =>
   Promise.make((resolve, _) => {
     let src = switch logo {
-    | Some(File(f)) => Types.fileToUrl(f)
-    | Some(Blob(b)) => URL.createObjectURL(b)
-    | _ => "images/logo.png"
+    | Some(f) => Types.fileToUrl(f)
+    | None => "images/logo.png"
     }
     let img = Dom.createElement("img")
     Dom.setAttribute(img, "src", src)

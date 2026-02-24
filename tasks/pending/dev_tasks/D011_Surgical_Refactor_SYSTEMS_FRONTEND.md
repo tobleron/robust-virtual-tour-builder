@@ -17,11 +17,11 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 6.42 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 578/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 579/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserRecorder.res** (Metric: [Nesting: 6.00, Density: 0.22, Coupling: 0.05] | Drag: 7.24 | LOC: 481/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserRecorder.res** (Metric: [Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.25 | LOC: 486/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -52,18 +52,19 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - useOperations × 1 (lines: 411)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
-- `src/systems/TeaserLogic.res` (11 functions, fingerprint 7ec647effd8951188e55dfc8e394aebe77ed67479f4f16c57e3a31dbc1848d37)
+- `src/systems/TeaserLogic.res` (12 functions, fingerprint 12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970)
     - Grouped summary:
         - centerViewerAtWaypointStart × 1 (lines: 82)
-        - check × 1 (lines: 194)
+        - check × 1 (lines: 195)
         - finalizeTeaser × 1 (lines: 155)
-        - logoState × 1 (lines: 190)
+        - logoState × 1 (lines: 191)
         - parseTeaserProgressMetrics × 1 (lines: 112)
         - readHeadlessMotionProfile × 1 (lines: 24)
         - readMotionManifest × 1 (lines: 36)
         - resolveTeaserStartView × 1 (lines: 55)
-        - safeName × 1 (lines: 203)
+        - safeName × 1 (lines: 204)
         - signalIsAborted × 1 (lines: 149)
+        - state × 1 (lines: 190)
         - teaserEtaToastId × 1 (lines: 104)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserPlayback.res`
@@ -87,34 +88,34 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - waitForViewerReady × 1 (lines: 16)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserRecorder.res`
-- `src/systems/TeaserRecorder.res` (39 functions, fingerprint 4053465960cf994bad833424f273eb8868bc7f07786553018bfce6627f2b2886)
+- `src/systems/TeaserRecorder.res` (39 functions, fingerprint 4b476d015fdd65e36e6021b1d17fa9a16e2587cab224be759e84a418515dc0ed)
     - Grouped summary:
         - canvasHeight × 1 (lines: 5)
         - canvasWidth × 1 (lines: 4)
-        - checkRoundRect × 1 (lines: 131)
-        - drawRoundedRect × 1 (lines: 133)
-        - getGhostCanvas × 2 (lines: 485, 513)
-        - getHudScale × 1 (lines: 148)
+        - checkRoundRect × 1 (lines: 136)
+        - drawRoundedRect × 1 (lines: 138)
+        - getGhostCanvas × 2 (lines: 490, 518)
+        - getHudScale × 1 (lines: 153)
         - getOrCreate × 1 (lines: 80)
-        - getRecordedBlobs × 2 (lines: 486, 514)
-        - hdReferenceHeight × 1 (lines: 146)
-        - hdReferenceWidth × 1 (lines: 145)
-        - initGhost × 1 (lines: 118)
-        - internalState × 2 (lines: 59, 521)
-        - loadLogo × 2 (lines: 110, 517)
-        - pause × 1 (lines: 511)
-        - pauseRecording × 1 (lines: 471)
-        - renderFloorNav × 1 (lines: 254)
-        - renderFrame × 2 (lines: 325, 520)
-        - renderRoomLabel × 1 (lines: 187)
-        - renderWatermark × 1 (lines: 165)
-        - requestDeterministicFrame × 2 (lines: 72, 519)
-        - resume × 1 (lines: 512)
-        - resumeRecording × 1 (lines: 478)
-        - setFadeOpacity × 2 (lines: 503, 516)
+        - getRecordedBlobs × 2 (lines: 491, 519)
+        - hdReferenceHeight × 1 (lines: 151)
+        - hdReferenceWidth × 1 (lines: 150)
+        - initGhost × 1 (lines: 123)
+        - internalState × 2 (lines: 59, 526)
+        - loadLogo × 2 (lines: 110, 522)
+        - pause × 1 (lines: 516)
+        - pauseRecording × 1 (lines: 476)
+        - renderFloorNav × 1 (lines: 259)
+        - renderFrame × 2 (lines: 330, 525)
+        - renderRoomLabel × 1 (lines: 192)
+        - renderWatermark × 1 (lines: 170)
+        - requestDeterministicFrame × 2 (lines: 72, 524)
+        - resume × 1 (lines: 517)
+        - resumeRecording × 1 (lines: 483)
+        - setFadeOpacity × 2 (lines: 508, 521)
         - setOpacity × 1 (lines: 96)
-        - setSnapshot × 2 (lines: 488, 515)
-        - startAnimationLoop × 2 (lines: 376, 518)
-        - startRecording × 2 (lines: 388, 509)
-        - stopRecording × 2 (lines: 448, 510)
+        - setSnapshot × 2 (lines: 493, 520)
+        - startAnimationLoop × 2 (lines: 381, 523)
+        - startRecording × 2 (lines: 393, 514)
+        - stopRecording × 2 (lines: 453, 515)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
