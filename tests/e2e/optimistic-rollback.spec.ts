@@ -15,11 +15,17 @@ test.describe('Optimistic Update Rollback', () => {
           id: 'scene-0',
           name: 'Scene 0',
           file: 'images/image.jpg',
-          hotspots: [],
+          hotspots: [{ 
+            linkId: 'l-0', 
+            yaw: 0, 
+            pitch: 0, 
+            target: 'Scene 1',
+            isAutoForward: false, // Link-level (new architecture)
+          }],
           category: 'outdoor',
           floor: 'ground',
           label: 'Scene 0',
-          isAutoForward: false,
+          isAutoForward: false, // Scene-level (legacy, will be migrated)
         },
         {
           id: 'scene-1',

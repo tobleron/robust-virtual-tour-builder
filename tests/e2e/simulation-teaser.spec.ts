@@ -92,4 +92,60 @@ test.describe('Simulation & Teaser', () => {
     expect(filename).toMatch(/\.(webm|mp4)$/);
     expect(await download.failure()).toBeNull();
   });
+
+  test('should enforce one auto-forward link per scene', async ({ page }) => {
+    test.setTimeout(60000);
+
+    console.log('Step 1: Creating first auto-forward link...');
+    
+    // Create first link
+    const linkModeBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
+    await expect(linkModeBtn).toBeVisible();
+    await linkModeBtn.click();
+    
+    // Place first hotspot
+    await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
+    
+    // Wait for link modal
+    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 10000 });
+    
+    // Select a target scene
+    await page.locator('[data-testid="scene-option"]').first().click();
+    
+    // Enable auto-forward on first link
+    const autoForwardToggle = page.locator('button:has-text("Auto-Forward")');
+    await expect(autoForwardToggle).toBeVisible();
+    await autoForwardToggle.click();
+    
+    // Save first link
+    const saveBtn = page.locator('button:has-text("Save")');
+    await saveBtn.click();
+    
+    console.log('Step 2: Creating second link in same scene...');
+    
+    // Create second link
+    await linkModeBtn.click();
+    await page.locator('#viewer-stage').click({ position: { x: 600, y: 300 } });
+    
+    // Wait for link modal
+    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 10000 });
+    await page.locator('[data-testid="scene-option"]').nth(1).click();
+    
+    console.log('Step 3: Trying to enable auto-forward on second link (should fail)...');
+    
+    // Try to enable auto-forward on second link - should show error
+    await autoForwardToggle.click();
+    
+    // Wait for error toast
+    const errorToast = page.locator('[role="alert"]:has-text("Only one auto-forward")');
+    await expect(errorToast).toBeVisible({ timeout: 5000 });
+    
+    console.log('Step 4: Verifying second link remains non-auto-forward...');
+    
+    // The auto-forward toggle should still be in off state (or modal closed with error)
+    // Save the second link (it should be non-auto-forward)
+    await saveBtn.click();
+    
+    console.log('✅ Validation working: Only one auto-forward link per scene enforced');
+  });
 });

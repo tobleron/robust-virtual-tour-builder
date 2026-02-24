@@ -53,11 +53,17 @@ test.describe.serial('@budget Runtime Budgets', () => {
           id: `import-${i}`,
           name,
           file: 'images/image.jpg',
-          hotspots: [{ linkId: `l-${i}`, yaw: 0, pitch: 0, target: next }],
+          hotspots: [{ 
+            linkId: `l-${i}`, 
+            yaw: 0, 
+            pitch: 0, 
+            target: next,
+            isAutoForward: false, // Link-level auto-forward (new architecture)
+          }],
           category: 'outdoor',
           floor: 'ground',
           label: '',
-          isAutoForward: false,
+          isAutoForward: false, // Scene-level (legacy, will be migrated to hotspots)
         });
       }
 
