@@ -28,6 +28,16 @@
     animation: spin 1s linear infinite;
 }
 
+#processing-ui .spinner {
+    display: none;
+}
+
+.sidebar-progress-spinner {
+    width: 18px;
+    height: 18px;
+    margin-left: 0.25rem;
+}
+
 /* Sidebar Branding & UI */
 .sidebar-branding-header {
     background: #0e2d52;
