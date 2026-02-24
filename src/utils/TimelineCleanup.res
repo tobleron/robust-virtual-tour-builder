@@ -44,44 +44,37 @@ let simulateTourOrder = (state: state): array<string> => {
         // Find best next link using linkId-based tracking
         let allLinks =
           currentScene.hotspots
-          ->Belt.Array.mapWithIndex((i, hotspot) => {
-            let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
+          ->Belt.Array.mapWithIndex((_i, hs) => {
+            let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hs)
             switch targetIdx {
             | Some(idx) =>
-              Some({
-                hotspot,
-                hotspotIndex: i,
-                targetIndex: idx,
-                isVisited: Array.includes(visitedLinkIds.contents, hotspot.linkId),
-                isReturn: hotspot.isReturnLink->Option.getOr(false),
-                isBridge: Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false),
-              })
+              let isVisited = Array.includes(visitedLinkIds.contents, hs.linkId)
+              let isReturn = hs.isReturnLink->Option.getOr(false)
+              let isBridge = Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false)
+              Some((hs.linkId, idx, isVisited, isReturn, isBridge))
             | None => None
             }
           })
           ->Belt.Array.keepMap(x => x)
 
         // Find first unvisited link (same priority logic as SimulationNavigation)
-        let nextLink =
-          allLinks
-          ->Belt.Array.find(l => !l.isVisited && !l.isReturn && !l.isBridge)
+        let nextLinkOpt =
+          Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && !r && !b })
           ->Option.orElse(
-            allLinks
-            ->Belt.Array.find(l => !l.isVisited && !l.isReturn && l.isBridge)
+            Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && !r && b })
             ->Option.orElse(
-              allLinks
-              ->Belt.Array.find(l => !l.isVisited && l.isReturn && !l.isBridge)
+              Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && r && !b })
               ->Option.orElse(
-                allLinks->Belt.Array.find(l => !l.isVisited && l.isReturn && l.isBridge),
+                Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && r && b }),
               ),
             ),
           )
 
-        switch nextLink {
-        | Some(link) =>
+        switch nextLinkOpt {
+        | Some((linkId, targetIdx, _, _, _)) =>
           // Mark this link as visited
-          visitedLinkIds.contents = Belt.Array.concat(visitedLinkIds.contents, [link.hotspot.linkId])
-          currentSceneIdx := link.targetIndex
+          visitedLinkIds.contents = Belt.Array.concat(visitedLinkIds.contents, [linkId])
+          currentSceneIdx := targetIdx
         | None =>
           // No more unvisited links - tour complete
           step := maxSteps
@@ -166,13 +159,12 @@ let applyCleanup = (state: state): (state, cleanupResult) => {
     ->Belt.Array.mapWithIndex((i, lid) => (lid, i))
     ->Belt.Map.String.fromArray
 
-  let reorderedTimeline =
-    dedupedTimeline
-    ->Belt.Array.sort((a, b) => {
-      let idxA = linkIdToOrderIndex->Belt.Map.String.get(a.linkId)->Option.getOr(999999)
-      let idxB = linkIdToOrderIndex->Belt.Map.String.get(b.linkId)->Option.getOr(999999)
-      idxA - idxB
-    })
+  let reorderedTimeline = Belt.Array.copy(dedupedTimeline)
+  reorderedTimeline->Array.sort((a, b) => {
+    let idxA = linkIdToOrderIndex->Belt.Map.String.get(a.linkId)->Option.getOr(999999)
+    let idxB = linkIdToOrderIndex->Belt.Map.String.get(b.linkId)->Option.getOr(999999)
+    Belt.Int.toFloat(idxA - idxB)
+  })
 
   let timelineItemsAfter = Belt.Array.length(reorderedTimeline)
   let removedCount = timelineItemsBefore - timelineItemsAfter
