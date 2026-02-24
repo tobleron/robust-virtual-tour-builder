@@ -23,6 +23,78 @@ let collectValidLinkIds = (inventory: Belt.Map.String.t<sceneEntry>): Belt.Set.S
 }
 
 /**
+ * Simulate tour traversal to determine the correct timeline order.
+ * This follows the same logic as the simulation (findBestNextLinkByLinkId).
+ * Returns linkIds in visit order.
+ */
+let simulateTourOrder = (state: state): array<string> => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  if Belt.Array.length(activeScenes) == 0 {
+    []
+  } else {
+    let visitedLinkIds = ref([])
+    let currentSceneIdx = ref(0)
+    let maxSteps = Belt.Array.length(activeScenes) * 3 // Safety limit
+    let step = ref(0)
+
+    while step.contents < maxSteps {
+      step := step.contents + 1
+      switch Belt.Array.get(activeScenes, currentSceneIdx.contents) {
+      | Some(currentScene) =>
+        // Find best next link using linkId-based tracking
+        let allLinks =
+          currentScene.hotspots
+          ->Belt.Array.mapWithIndex((i, hotspot) => {
+            let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
+            switch targetIdx {
+            | Some(idx) =>
+              Some({
+                hotspot,
+                hotspotIndex: i,
+                targetIndex: idx,
+                isVisited: Array.includes(visitedLinkIds.contents, hotspot.linkId),
+                isReturn: hotspot.isReturnLink->Option.getOr(false),
+                isBridge: Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false),
+              })
+            | None => None
+            }
+          })
+          ->Belt.Array.keepMap(x => x)
+
+        // Find first unvisited link (same priority logic as SimulationNavigation)
+        let nextLink =
+          allLinks
+          ->Belt.Array.find(l => !l.isVisited && !l.isReturn && !l.isBridge)
+          ->Option.orElse(
+            allLinks
+            ->Belt.Array.find(l => !l.isVisited && !l.isReturn && l.isBridge)
+            ->Option.orElse(
+              allLinks
+              ->Belt.Array.find(l => !l.isVisited && l.isReturn && !l.isBridge)
+              ->Option.orElse(
+                allLinks->Belt.Array.find(l => !l.isVisited && l.isReturn && l.isBridge),
+              ),
+            ),
+          )
+
+        switch nextLink {
+        | Some(link) =>
+          // Mark this link as visited
+          visitedLinkIds.contents = Belt.Array.concat(visitedLinkIds.contents, [link.hotspot.linkId])
+          currentSceneIdx := link.targetIndex
+        | None =>
+          // No more unvisited links - tour complete
+          step := maxSteps
+        }
+      | None => step := maxSteps
+      }
+    }
+
+    visitedLinkIds.contents
+  }
+}
+
+/**
  * Clean timeline by removing items with linkIds that don't exist in any scene
  * This fixes the "timeline pollution" bug where old timeline entries weren't cleaned up
  * when hotspots were edited or deleted
@@ -57,26 +129,25 @@ let cleanupTimeline = (state: state): cleanupResult => {
 }
 
 /**
- * Apply timeline cleanup to state
- * Returns the new state and cleanup result
- * 
+ * Apply timeline cleanup and reorder by tour traversal order.
+ *
  * Cleanup strategy:
  * 1. Remove timeline items with linkIds that don't exist in any hotspot (orphaned)
- * 2. Keep only the LAST timeline item for each unique linkId (removes duplicates from edits)
+ * 2. Reorder remaining items by simulation tour order (chronological visit order)
+ * 3. Keep only the LAST timeline item for each unique linkId (removes duplicates from edits)
  */
 let applyCleanup = (state: state): (state, cleanupResult) => {
   let timelineItemsBefore = Belt.Array.length(state.timeline)
-  
+
   // Collect all valid linkIds from all scenes
   let validLinkIds = collectValidLinkIds(state.inventory)
-  
+
   // Step 1: Remove orphaned items (linkIds not in any hotspot)
   let afterOrphanRemoval = state.timeline->Belt.Array.keep(t =>
     Belt.Set.String.has(validLinkIds, t.linkId)
   )
-  
+
   // Step 2: Remove duplicates - keep only the LAST item for each linkId
-  // We do this by reversing, keeping first occurrence of each linkId, then reversing back
   let seenLinkIds = ref(Belt.Set.String.empty)
   let dedupedTimeline =
     afterOrphanRemoval
@@ -87,33 +158,48 @@ let applyCleanup = (state: state): (state, cleanupResult) => {
       !alreadySeen
     })
     ->Belt.Array.reverse
-  
-  let timelineItemsAfter = Belt.Array.length(dedupedTimeline)
+
+  // Step 3: Reorder by tour traversal order (TIMELINE = CHRONOLOGICAL ORDER)
+  let tourOrder = simulateTourOrder(state)
+  let linkIdToOrderIndex =
+    tourOrder
+    ->Belt.Array.mapWithIndex((i, lid) => (lid, i))
+    ->Belt.Map.String.fromArray
+
+  let reorderedTimeline =
+    dedupedTimeline
+    ->Belt.Array.sort((a, b) => {
+      let idxA = linkIdToOrderIndex->Belt.Map.String.get(a.linkId)->Option.getOr(999999)
+      let idxB = linkIdToOrderIndex->Belt.Map.String.get(b.linkId)->Option.getOr(999999)
+      idxA - idxB
+    })
+
+  let timelineItemsAfter = Belt.Array.length(reorderedTimeline)
   let removedCount = timelineItemsBefore - timelineItemsAfter
-  
+
   // Collect removed linkIds for reporting
   let removedLinkIds =
     state.timeline
-    ->Belt.Array.keep(t => !Belt.Array.some(dedupedTimeline, dt => dt.id == t.id))
+    ->Belt.Array.keep(t => !Belt.Array.some(reorderedTimeline, dt => dt.id == t.id))
     ->Belt.Array.map(t => t.linkId)
-  
+
   // Clear active timeline step if it was removed
   let activeTimelineStepId = switch state.activeTimelineStepId {
   | Some(stepId) =>
-    let stillExists = dedupedTimeline->Belt.Array.some(t => t.id == stepId)
+    let stillExists = reorderedTimeline->Belt.Array.some(t => t.id == stepId)
     stillExists ? Some(stepId) : None
   | None => None
   }
-  
+
   let result = {
     timelineItemsBefore,
     timelineItemsAfter,
     removedCount,
     removedLinkIds,
   }
-  
+
   (
-    {...state, timeline: dedupedTimeline, activeTimelineStepId},
+    {...state, timeline: reorderedTimeline, activeTimelineStepId},
     result,
   )
 }
