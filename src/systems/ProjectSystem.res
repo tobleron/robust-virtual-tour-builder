@@ -123,9 +123,10 @@ let processLoadedProjectData = (
         validScenes->Belt.Array.map(s => s.id)
       }
 
-
-      let (inventoryWithSeq, nextSeqId) =
-        SceneNaming.ensureSequenceIds(updatedInventory, pd.nextSceneSequenceId)
+      let (inventoryWithSeq, nextSeqId) = SceneNaming.ensureSequenceIds(
+        updatedInventory,
+        pd.nextSceneSequenceId,
+      )
 
       let loadedProject: Types.project = {
         ...pd,
@@ -135,7 +136,7 @@ let processLoadedProjectData = (
         sessionId: Some(sessionId),
         logo: pd.logo->Option.map(l => ProjectManagerUrl.rebuildUrl(l, ~sessionId)),
       }
-      
+
       loadedProject.logo->Option.forEach(l => {
         Logger.debug(
           ~module_="ProjectManager",
@@ -259,7 +260,9 @@ let createSavePackage = (
       ~scope=Blocking,
       ~phase="Preparing",
       ~meta=Logger.castToJson({
-        "sceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
+        "sceneCount": Array.length(
+          SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+        ),
       }),
       (),
     )
@@ -292,39 +295,83 @@ let createSavePackage = (
     }
   })
   state.sessionId->Option.forEach(id => FormData.append(formData, "session_id", id))
-  
-  // Include Logo in the package
-  state.logo->Option.forEach(l => {
-    switch l {
-    | File(f) => FormData.appendWithFilename(formData, "files", f, "logo_upload")
-    | Blob(b) => FormData.appendWithFilename(formData, "files", b, "logo_upload")
-    | Url(_) => ()
+
+  // Include Logo in the package (handles Url variant for save/load cycle persistence)
+  let appendLogoPromise = switch state.logo {
+  | Some(File(f)) =>
+    FormData.appendWithFilename(formData, "files", f, "logo_upload")
+    Promise.resolve()
+  | Some(Blob(b)) =>
+    FormData.appendWithFilename(formData, "files", b, "logo_upload")
+    Promise.resolve()
+  | Some(Url(u)) if u != "" =>
+    let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+    let authToken = switch token {
+    | Some(t) => Some(t)
+    | None if Constants.isDebugBuild() => Some("dev-token")
+    | None => None
     }
-  })
-
-  progress(10, 100, "Uploading to backend...")
-  OperationLifecycle.progress(
-    opId,
-    10.0,
-    ~message="Uploading to backend...",
-    ~phase="Uploading",
-    (),
-  )
-
-  RequestQueue.schedule(() => {
-    AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/project/save",
-      ~method="POST",
-      ~formData,
-      ~signal?,
-      ~operationId=opId,
-      (),
-    )->Promise.then(retryResult => {
-      switch retryResult {
-      | Retry.Success(response, _att) =>
-        AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
-      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+    ExporterUtils.fetchSceneUrlBlob(~url=u, ~authToken)
+    ->Promise.then(result => {
+      switch result {
+      | Ok(blob) =>
+        FormData.appendWithFilename(formData, "files", blob, "logo_upload")
+        Logger.debug(
+          ~module_="ProjectSystem",
+          ~message="LOGO_URL_RESOLVED_FOR_SAVE",
+          ~data=Some({"url": u}),
+          (),
+        )
+      | Error(msg) =>
+        Logger.warn(
+          ~module_="ProjectSystem",
+          ~message="LOGO_URL_FETCH_FAILED_FOR_SAVE",
+          ~data=Some({"url": u, "error": msg}),
+          (),
+        )
       }
+      Promise.resolve()
+    })
+    ->Promise.catch(_ => {
+      Logger.warn(
+        ~module_="ProjectSystem",
+        ~message="LOGO_URL_FETCH_EXCEPTION_FOR_SAVE",
+        ~data=Some({"url": u}),
+        (),
+      )
+      Promise.resolve()
+    })
+  | _ => Promise.resolve()
+  }
+
+  appendLogoPromise
+  ->Promise.then(_ => {
+    progress(10, 100, "Uploading to backend...")
+    OperationLifecycle.progress(
+      opId,
+      10.0,
+      ~message="Uploading to backend...",
+      ~phase="Uploading",
+      (),
+    )
+
+    RequestQueue.schedule(() => {
+      AuthenticatedClient.requestWithRetry(
+        Constants.backendUrl ++ "/api/project/save",
+        ~method="POST",
+        ~formData,
+        ~signal?,
+        ~operationId=opId,
+        (),
+      )->Promise.then(
+        retryResult => {
+          switch retryResult {
+          | Retry.Success(response, _att) =>
+            AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
+          | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+          }
+        },
+      )
     })
   })
   ->Promise.then(blobResult => {

@@ -12,7 +12,6 @@ let syncInventoryNames = (inventory, sceneOrder) => {
   SceneNaming.syncInventoryNames(inventory, sceneOrder)
 }
 
-
 let calculateActiveIndexAfterDelete = (
   currentIndex: int,
   deletedIndex: int,
@@ -67,4 +66,3 @@ let handleApplyLazyRename = (state: state, index: int, name: string): state => {
 let handlePatchSceneThumbnail = (state: state, id: string, file: file): state => {
   SceneOperations.handlePatchSceneThumbnail(state, id, file)
 }
-

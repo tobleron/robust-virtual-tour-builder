@@ -266,11 +266,7 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = TestUtils.createMockState(
-      ~scenes=[],
-      ~activeIndex=-1,
-      (),
-    )
+    let mockState = TestUtils.createMockState(~scenes=[], ~activeIndex=-1, ())
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -300,10 +296,7 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = TestUtils.createMockState(
-      ~scenes=[],
-      (),
-    )
+    let mockState = TestUtils.createMockState(~scenes=[], ())
     let mockState = {
       ...mockState,
       isLinking: true,
@@ -376,11 +369,7 @@ describe("ViewerManager", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = TestUtils.createMockState(
-      ~scenes=[scene1],
-      ~activeIndex=0,
-      (),
-    )
+    let mockState = TestUtils.createMockState(~scenes=[scene1], ~activeIndex=0, ())
     let mockState = {
       ...mockState,
       isLinking: true,
@@ -413,11 +402,7 @@ describe("ViewerManager", () => {
     // Set an old lastSceneId that is not in the new scenes list
     ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make("old-stale-id")}
 
-    let mockState = TestUtils.createMockState(
-      ~scenes=[scene1],
-      ~activeIndex=0,
-      (),
-    )
+    let mockState = TestUtils.createMockState(~scenes=[scene1], ~activeIndex=0, ())
     let mockDispatch = %raw(`vi.fn()`)
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)

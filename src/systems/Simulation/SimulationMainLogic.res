@@ -66,7 +66,11 @@ let getNextMove = (state: state): nextMove => {
       }),
       (),
     )
-    let nextLinkFound = SimulationNavigation.findBestNextLinkByLinkId(currentScene, state, visitedLinkIds)
+    let nextLinkFound = SimulationNavigation.findBestNextLinkByLinkId(
+      currentScene,
+      state,
+      visitedLinkIds,
+    )
     Logger.debug(
       ~module_="SimulationMainLogic",
       ~message="NEXT_LINK_RESULT",
@@ -82,12 +86,7 @@ let getNextMove = (state: state): nextMove => {
         // Note: skipAutoForwardChain uses scene-based tracking internally for chain detection
         // The main visited tracking is via visitedLinkIds (AddVisitedLink action)
         // We pass [] here since chain skipping is an optimization, not the main traversal logic
-        let skipResult = SimulationChainSkipper.skipAutoForwardChain(
-          link,
-          state,
-          [],
-          _ => (),
-        )
+        let skipResult = SimulationChainSkipper.skipAutoForwardChain(link, state, [], _ => ())
         (skipResult.finalLink, skipResult.skippedScenes)
       } else {
         (link, [])

@@ -45,12 +45,12 @@ let _ = describe("TourTemplates", () => {
     label: "Main Entry",
     quality: None,
     colorGroup: None,
-  _metadataSource: "test",
-  categorySet: true,
-  labelSet: true,
-  isAutoForward: false,
-  sequenceId: 0,
-}
+    _metadataSource: "test",
+    categorySet: true,
+    labelSet: true,
+    isAutoForward: false,
+    sequenceId: 0,
+  }
 
   let mockScene2: scene = {
     id: "sc2",
@@ -64,12 +64,12 @@ let _ = describe("TourTemplates", () => {
     label: "Kitchen Area",
     quality: None,
     colorGroup: None,
-  _metadataSource: "test",
-  categorySet: true,
-  labelSet: true,
-  isAutoForward: false,
-  sequenceId: 0,
-}
+    _metadataSource: "test",
+    categorySet: true,
+    labelSet: true,
+    isAutoForward: false,
+    sequenceId: 0,
+  }
 
   let mockScene3Auto: scene = {
     ...mockScene2,
@@ -183,9 +183,18 @@ let _ = describe("TourTemplates", () => {
     )
     // New priority-based link selection
     t->expectToContain(html, "// PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)")
-    t->expectToContain(html, "// PRIORITY 2: Unvisited, non-return, IS auto-forward (exit - taken LAST)")
-    t->expectToContain(html, "const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward)")
-    t->expectToContain(html, "const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward)")
+    t->expectToContain(
+      html,
+      "// PRIORITY 2: Unvisited, non-return, IS auto-forward (exit - taken LAST)",
+    )
+    t->expectToContain(
+      html,
+      "const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward)",
+    )
+    t->expectToContain(
+      html,
+      "const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward)",
+    )
     t->expectToContain(html, "const autoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
     t->expectToContain(
@@ -224,50 +233,53 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "\"autoForwardTargetSceneId\":\"\"")
   })
 
-  test("generateTourHTML guards exported auto-forward loops and resets chain on manual navigation", t => {
-    let autoHotspotA = {
-      ...mockHotspot,
-      linkId: "auto-a",
-      target: "scene2",
-      targetSceneId: Some("sc2"),
-      isAutoForward: Some(true),
-    }
-    let autoHotspotB = {
-      ...mockHotspot,
-      linkId: "auto-b",
-      target: "scene1",
-      targetSceneId: Some("sc1"),
-      isAutoForward: Some(true),
-    }
-    let autoSceneA = {...mockScene1, hotspots: [autoHotspotA], isAutoForward: true}
-    let autoSceneB = {...mockScene2, hotspots: [autoHotspotB], isAutoForward: true}
+  test(
+    "generateTourHTML guards exported auto-forward loops and resets chain on manual navigation",
+    t => {
+      let autoHotspotA = {
+        ...mockHotspot,
+        linkId: "auto-a",
+        target: "scene2",
+        targetSceneId: Some("sc2"),
+        isAutoForward: Some(true),
+      }
+      let autoHotspotB = {
+        ...mockHotspot,
+        linkId: "auto-b",
+        target: "scene1",
+        targetSceneId: Some("sc1"),
+        isAutoForward: Some(true),
+      }
+      let autoSceneA = {...mockScene1, hotspots: [autoHotspotA], isAutoForward: true}
+      let autoSceneB = {...mockScene2, hotspots: [autoHotspotB], isAutoForward: true}
 
-    let html = generateTourHTML(
-      [autoSceneA, autoSceneB],
-      "Loop Guard Tour",
-      None,
-      "4k",
-      32,
-      40,
-      "1.0",
-    )
+      let html = generateTourHTML(
+        [autoSceneA, autoSceneB],
+        "Loop Guard Tour",
+        None,
+        "4k",
+        32,
+        40,
+        "1.0",
+      )
 
-    t->expectToContain(html, "const AUTO_FORWARD_MAX_HOPS = 24;")
-    t->expectToContain(html, "let autoForwardChainVisited = [];")
-    t->expectToContain(html, "let autoForwardChainActive = false;")
-    t->expectToContain(html, "function resetAutoForwardLoopGuard()")
-    t->expectToContain(html, "function shouldBlockAutoForward(sourceSceneId, targetSceneId)")
-    t->expectToContain(html, "if (sourceSceneId === targetSceneId) return true;")
-    t->expectToContain(html, "return autoForwardChainVisited.includes(targetSceneId);")
-    t->expectToContain(html, "if (shouldBlockAutoForward(sourceSceneId, targetSceneId))")
-    t->expectToContain(html, "trackAutoForwardSource(sourceSceneId);")
-    t->expectToContain(
-      html,
-      "const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };",
-    )
-    t->expectToContain(html, "anyReady.__navigateNext(autoForwardOptions);")
-    t->expectToContain(html, "hotSpotDiv.__navigateNext = function(options)")
-  })
+      t->expectToContain(html, "const AUTO_FORWARD_MAX_HOPS = 24;")
+      t->expectToContain(html, "let autoForwardChainVisited = [];")
+      t->expectToContain(html, "let autoForwardChainActive = false;")
+      t->expectToContain(html, "function resetAutoForwardLoopGuard()")
+      t->expectToContain(html, "function shouldBlockAutoForward(sourceSceneId, targetSceneId)")
+      t->expectToContain(html, "if (sourceSceneId === targetSceneId) return true;")
+      t->expectToContain(html, "return autoForwardChainVisited.includes(targetSceneId);")
+      t->expectToContain(html, "if (shouldBlockAutoForward(sourceSceneId, targetSceneId))")
+      t->expectToContain(html, "trackAutoForwardSource(sourceSceneId);")
+      t->expectToContain(
+        html,
+        "const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };",
+      )
+      t->expectToContain(html, "anyReady.__navigateNext(autoForwardOptions);")
+      t->expectToContain(html, "hotSpotDiv.__navigateNext = function(options)")
+    },
+  )
 
   test("delegated functions exist and return strings", t => {
     let embed = generateEmbedCodes("MyTour", "1.0")

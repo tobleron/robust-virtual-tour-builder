@@ -26,7 +26,7 @@ let handleDeleteScene = (state: state, index: int): state => {
 
         // 4. Remove timeline items for the deleted scene (prevents orphaned entries)
         let filteredTimeline = Belt.Array.keep(state.timeline, t => t.sceneId != idToDelete)
-        
+
         // 5. Clear active timeline step if it was removed
         let activeTimelineStepId = switch state.activeTimelineStepId {
         | Some(stepId) =>
@@ -144,14 +144,13 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       dataJson,
     ) => {
       let newScene = SceneHelpers.parseScene(dataJson)
-      let finalSeq =
-        if newScene.sequenceId > 0 {
-          newScene.sequenceId
-        } else {
-          let seq = nextSceneSeq.contents
-          nextSceneSeq.contents = seq + 1
-          seq
-        }
+      let finalSeq = if newScene.sequenceId > 0 {
+        newScene.sequenceId
+      } else {
+        let seq = nextSceneSeq.contents
+        nextSceneSeq.contents = seq + 1
+        seq
+      }
       if finalSeq >= nextSceneSeq.contents {
         nextSceneSeq.contents = finalSeq + 1
       }

@@ -114,11 +114,7 @@ testAsync(
       sequenceId: 0,
     }
 
-    let modelBase = TestUtils.createMockState(
-      ~scenes=[sceneA],
-      ~activeIndex=0,
-      (),
-    )
+    let modelBase = TestUtils.createMockState(~scenes=[sceneA], ~activeIndex=0, ())
     let modelBase = {
       ...modelBase,
       activeYaw: hotspot.yaw,

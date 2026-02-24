@@ -27,7 +27,7 @@ let skipAutoForwardChain = (
       | Some(af) => af
       | None => targetScene.isAutoForward // Fallback to scene-level for backward compatibility
       }
-      
+
       if !linkIsAutoForward {
         loop := false
       } else {

@@ -120,10 +120,7 @@ let project = (p: Types.project) => {
     ("lastUsedCategory", Encode.string(p.lastUsedCategory)),
     ("exifReport", Encode.option(value)(p.exifReport)),
     ("sessionId", Encode.option(Encode.string)(p.sessionId)),
-    (
-      "deletedSceneIds",
-      Encode.array(Encode.string)(SceneInventory.getDeletedIds(p.inventory)),
-    ),
+    ("deletedSceneIds", Encode.array(Encode.string)(SceneInventory.getDeletedIds(p.inventory))),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
     ("logo", Encode.option(logoFile)(p.logo)),
     ("nextSceneSequenceId", Encode.int(p.nextSceneSequenceId)),
@@ -262,10 +259,7 @@ let state = (s: Types.state) => {
     ("linkDraft", Encode.option(linkDraft)(s.linkDraft)),
     ("preloadingSceneIndex", Encode.int(s.preloadingSceneIndex)),
     ("isTeasing", Encode.bool(s.isTeasing)),
-    (
-      "deletedSceneIds",
-      Encode.array(Encode.string)(SceneInventory.getDeletedIds(s.inventory)),
-    ),
+    ("deletedSceneIds", Encode.array(Encode.string)(SceneInventory.getDeletedIds(s.inventory))),
     ("timeline", Encode.array(timelineItem)(s.timeline)),
     ("activeTimelineStepId", Encode.option(Encode.string)(s.activeTimelineStepId)),
     ("navigation", navigationStatus(s.navigationState.navigation)),

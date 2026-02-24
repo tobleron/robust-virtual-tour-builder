@@ -93,12 +93,12 @@ describe("VisualPipeline", () => {
       floor: "1",
       quality: None,
       colorGroup: None,
-  categorySet: false,
-  labelSet: false,
-  _metadataSource: "user",
-  isAutoForward: false,
-  sequenceId: 0,
-}
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
+      sequenceId: 0,
+    }
 
     let mockState = TestUtils.createMockState(
       ~scenes=[scene],
@@ -106,7 +106,9 @@ describe("VisualPipeline", () => {
       ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       (),
     )
-    let mockState = {...mockState, timeline: [
+    let mockState = {
+      ...mockState,
+      timeline: [
         {
           id: "t1",
           sceneId: "s1",
@@ -115,7 +117,8 @@ describe("VisualPipeline", () => {
           transition: "cut",
           duration: 0,
         },
-      ]}
+      ],
+    }
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
@@ -145,12 +148,12 @@ describe("VisualPipeline", () => {
       floor: "1",
       quality: None,
       colorGroup: None,
-  categorySet: false,
-  labelSet: false,
-  _metadataSource: "user",
-  isAutoForward: false,
-  sequenceId: 0,
-}
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
+      sequenceId: 0,
+    }
 
     let _ = OperationLifecycle.start(
       ~type_=OperationLifecycle.ProjectLoad,

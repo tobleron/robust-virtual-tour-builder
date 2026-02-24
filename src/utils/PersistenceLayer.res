@@ -52,9 +52,9 @@ let performSave = (state: Types.state) => {
       exifReport: state.exifReport,
       sessionId: state.sessionId,
       timeline: state.timeline,
-    logo: state.logo,
-    nextSceneSequenceId: state.nextSceneSequenceId,
-  }
+      logo: state.logo,
+      nextSceneSequenceId: state.nextSceneSequenceId,
+    }
 
     // Encoded to JSON value using combinators
     let projectData = JsonParsers.Encoders.project(project)

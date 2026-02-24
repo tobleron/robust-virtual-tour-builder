@@ -22,11 +22,11 @@ describe("PersistentLabel", () => {
     quality: None,
     colorGroup: None,
     categorySet: false,
-  labelSet: false,
-  _metadataSource: "user",
-  isAutoForward: false,
-  sequenceId: 0,
-}
+    labelSet: false,
+    _metadataSource: "user",
+    isAutoForward: false,
+    sequenceId: 0,
+  }
 
   testAsync("should render label with correctly", async t => {
     let container = Dom.createElement("div")

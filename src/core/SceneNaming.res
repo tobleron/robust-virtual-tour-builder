@@ -10,7 +10,7 @@ let ensureSequenceIds = (inventory: Belt.Map.String.t<sceneEntry>, startId: int)
       }
     } else {
       switch TourLogic.extractSequenceId(entry.scene.name) {
-      | Some(parsed) when parsed > 0 =>
+      | Some(parsed) if parsed > 0 =>
         if parsed > maxId.contents {
           maxId.contents = parsed
         }
@@ -23,10 +23,9 @@ let ensureSequenceIds = (inventory: Belt.Map.String.t<sceneEntry>, startId: int)
     if entry.scene.sequenceId > 0 {
       entry
     } else {
-    let parsed = TourLogic.extractSequenceId(entry.scene.name)->Option.getOr(0)
-    if parsed > 0 {
-      maxId.contents =
-        if parsed > maxId.contents {
+      let parsed = TourLogic.extractSequenceId(entry.scene.name)->Option.getOr(0)
+      if parsed > 0 {
+        maxId.contents = if parsed > maxId.contents {
           parsed
         } else {
           maxId.contents
@@ -40,10 +39,7 @@ let ensureSequenceIds = (inventory: Belt.Map.String.t<sceneEntry>, startId: int)
     }
   }
 
-  (
-    inventory->Belt.Map.String.map(allocateIfMissing),
-    maxId.contents + 1,
-  )
+  (inventory->Belt.Map.String.map(allocateIfMissing), maxId.contents + 1)
 }
 
 let syncInventoryNames = (inventory, sceneOrder) => {
@@ -104,7 +100,7 @@ let syncSceneNames = (scenes: array<Types.scene>) => {
   let renameMap = Belt.MutableMap.String.make()
   let updatedScenes = Belt.Array.mapWithIndex(scenes, (_index, scene) => {
     let oldName = scene.name
-      let newName = TourLogic.computeSceneFilename(scene.sequenceId, scene.label, "")
+    let newName = TourLogic.computeSceneFilename(scene.sequenceId, scene.label, "")
     if newName != oldName {
       let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
       {...scene, name: newName}

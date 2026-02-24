@@ -40,7 +40,10 @@ let finalizeUploads = (
 
     let wasEmpty = getState().activeIndex == -1
     if wasEmpty {
-      let currentScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+      let currentScenes = SceneInventory.getActiveScenes(
+        getState().inventory,
+        getState().sceneOrder,
+      )
       if Belt.Array.length(currentScenes) > 0 {
         dispatch(SetPreloadingScene(0))
       }
@@ -209,8 +212,11 @@ let executeProcessingChain = (
 
       let sortedItems = Belt.Array.map(scored, scored => scored.item)
 
-let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
-let _existingScenesCount = Belt.Array.length(existingScenes)
+      let existingScenes = SceneInventory.getActiveScenes(
+        getState().inventory,
+        getState().sceneOrder,
+      )
+      let _existingScenesCount = Belt.Array.length(existingScenes)
       let seqStart = getState().nextSceneSequenceId
 
       let finalItems = Belt.Array.mapWithIndex(sortedItems, (i, item) => {

@@ -49,7 +49,10 @@ type navigationSlice = navigationState
 
 // Default values for initialization
 let defaultSceneSlice: sceneSlice = {
-  scenes: SceneInventory.getActiveScenes(State.initialState.inventory, State.initialState.sceneOrder),
+  scenes: SceneInventory.getActiveScenes(
+    State.initialState.inventory,
+    State.initialState.sceneOrder,
+  ),
   activeIndex: State.initialState.activeIndex,
   tourName: State.initialState.tourName,
   activeYaw: State.initialState.activeYaw,
@@ -80,7 +83,10 @@ let simContext = React.createContext(defaultSimSlice)
 let navigationContext = React.createContext(NavigationState.initial())
 let pipelineContext = React.createContext({
   timeline: State.initialState.timeline,
-  scenes: SceneInventory.getActiveScenes(State.initialState.inventory, State.initialState.sceneOrder),
+  scenes: SceneInventory.getActiveScenes(
+    State.initialState.inventory,
+    State.initialState.sceneOrder,
+  ),
   activeIndex: State.initialState.activeIndex,
   activeTimelineStepId: State.initialState.activeTimelineStepId,
 })
@@ -162,7 +168,14 @@ module Provider = {
         activeYaw: state.activeYaw,
         activePitch: state.activePitch,
       }
-    }, (state.inventory, state.sceneOrder, state.activeIndex, state.tourName, state.activeYaw, state.activePitch))
+    }, (
+      state.inventory,
+      state.sceneOrder,
+      state.activeIndex,
+      state.tourName,
+      state.activeYaw,
+      state.activePitch,
+    ))
 
     let uiSlice = React.useMemo6(() => {
       {
@@ -203,7 +216,13 @@ module Provider = {
         activeIndex: state.activeIndex,
         activeTimelineStepId: state.activeTimelineStepId,
       }
-    }, (state.timeline, state.inventory, state.sceneOrder, state.activeIndex, state.activeTimelineStepId))
+    }, (
+      state.timeline,
+      state.inventory,
+      state.sceneOrder,
+      state.activeIndex,
+      state.activeTimelineStepId,
+    ))
 
     let navigationSlice = React.useMemo1(() => state.navigationState, [state.navigationState])
 

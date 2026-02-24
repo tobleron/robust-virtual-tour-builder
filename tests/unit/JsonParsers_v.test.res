@@ -14,7 +14,9 @@ describe("JsonParsers Domain", () => {
     switch JsonCombinators.Json.decode(json, JsonParsers.Domain.project) {
     | Ok(p) => {
         t->expect(p.tourName)->Expect.toBe("Test Tour")
-        t->expect(Array.length(SceneInventory.getActiveScenes(p.inventory, p.sceneOrder)))->Expect.toBe(0)
+        t
+        ->expect(Array.length(SceneInventory.getActiveScenes(p.inventory, p.sceneOrder)))
+        ->Expect.toBe(0)
       }
     | Error(msg) => {
         Console.log("project decoder failed: " ++ msg)

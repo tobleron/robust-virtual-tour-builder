@@ -48,7 +48,7 @@ describe("Simulation", () => {
       | Some(_) => () // Keep first action
       }
     }
-    
+
     // Create a scene with at least one hotspot (so simulation can navigate)
     let hotspot: Types.hotspot = {
       linkId: "A01",
@@ -71,15 +71,11 @@ describe("Simulation", () => {
       duration: None,
       isAutoForward: None,
     }
-    
+
     let scene1 = TestUtils.createMockScene(~id="s1", ~name="S1", ~hotspots=[hotspot], ())
     let scene2 = TestUtils.createMockScene(~id="s2", ~name="S2", ~hotspots=[], ())
-    
-    let mockState = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=0,
-      (),
-    )
+
+    let mockState = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     let mockState = {
       ...mockState,
       simulation: {
@@ -111,15 +107,11 @@ describe("Simulation", () => {
     // Check if AddVisitedLink was dispatched
     switch lastAction.contents {
     | Some(AddVisitedLink(linkId)) => t->expect(linkId != "")->Expect.toBe(true)
-    | Some(action) => {
-        // Got some action, just verify it's not wrong
-        t->expect(Actions.actionToString(action) != "")->Expect.toBe(true)
-      }
-    | None => {
-        // No action dispatched - simulation might not have ticked yet
-        // This is acceptable in test environment
-        t->expect(true)->Expect.toBe(true)
-      }
+    | Some(action) => // Got some action, just verify it's not wrong
+      t->expect(Actions.actionToString(action) != "")->Expect.toBe(true)
+    | None => // No action dispatched - simulation might not have ticked yet
+      // This is acceptable in test environment
+      t->expect(true)->Expect.toBe(true)
     }
 
     Dom.removeElement(container)

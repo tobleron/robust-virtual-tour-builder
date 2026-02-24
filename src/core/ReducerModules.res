@@ -278,11 +278,13 @@ module Timeline = {
       Logger.info(
         ~module_="ReducerModules",
         ~message="TIMELINE_CLEANUP",
-        ~data=Some(Logger.castToJson({
-          "before": result.timelineItemsBefore,
-          "after": result.timelineItemsAfter,
-          "removed": result.removedCount,
-        })),
+        ~data=Some(
+          Logger.castToJson({
+            "before": result.timelineItemsBefore,
+            "after": result.timelineItemsAfter,
+            "removed": result.removedCount,
+          }),
+        ),
         (),
       )
       Some(newState)

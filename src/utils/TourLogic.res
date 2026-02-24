@@ -190,12 +190,11 @@ let normalizeSequenceId = seq =>
   }
 
 let formatDisplayLabel = (scene: Types.scene) => {
-  let label =
-    if scene.label != "" {
-      scene.label
-    } else {
-      UrlUtils.stripExtension(scene.name)
-    }
+  let label = if scene.label != "" {
+    scene.label
+  } else {
+    UrlUtils.stripExtension(scene.name)
+  }
   if scene.label != "" {
     let seq = normalizeSequenceId(scene.sequenceId)
     sequencePrefix(seq) ++ "_" ++ label

@@ -227,9 +227,11 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
  * Find the best next link using linkId-based visited tracking.
  * This is the correct approach for graph traversal - tracks edges (links), not nodes (scenes).
  */
-let findBestNextLinkByLinkId = (currentScene: scene, state: state, visitedLinkIds: array<string>): option<
-  enrichedLink,
-> => {
+let findBestNextLinkByLinkId = (
+  currentScene: scene,
+  state: state,
+  visitedLinkIds: array<string>,
+): option<enrichedLink> => {
   let hotspots = currentScene.hotspots
   if Array.length(hotspots) == 0 {
     None

@@ -25,14 +25,14 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
       ariaLive=#polite
     >
       <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-2">
-        <div
-          className="font-semibold sidebar-progress-phase text-[10px] uppercase tracking-widest"
-        >
-          {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
+        <div className="flex items-center gap-2">
+          <div
+            className="font-semibold sidebar-progress-phase text-[10px] uppercase tracking-widest"
+          >
+            {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
+          </div>
+          <div className="sidebar-progress-spinner spinner" />
         </div>
-        <div className="sidebar-progress-spinner spinner" />
-      </div>
         <div className="flex items-center gap-3">
           {if procState["cancellable"] {
             <button

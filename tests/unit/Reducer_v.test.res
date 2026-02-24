@@ -121,7 +121,9 @@ describe("Reducer (Root Re-export)", () => {
     let state6Scenes = SceneInventory.getActiveScenes(state6.inventory, state6.sceneOrder)
     t->expect(Array.length(state6Scenes))->Expect.toEqual(1)
     t->expect(state6.activeIndex)->Expect.toEqual(0)
-    t->expect(Array.getUnsafe(SceneInventory.getDeletedIds(state6.inventory), 0))->Expect.toEqual("2")
+    t
+    ->expect(Array.getUnsafe(SceneInventory.getDeletedIds(state6.inventory), 0))
+    ->Expect.toEqual("2")
   })
 
   test("LoadProject", t => {

@@ -35,15 +35,15 @@ describe("SimulationLogic", () => {
     hotspots: [],
     category: "",
     floor: "",
-      label: "",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-      sequenceId: 0,
-    }
+    label: "",
+    quality: None,
+    colorGroup: None,
+    _metadataSource: "",
+    categorySet: false,
+    labelSet: false,
+    isAutoForward: false,
+    sequenceId: 0,
+  }
 
   test("getNextMove returns Move when a link is found", t => {
     let scene1: scene = {
@@ -54,11 +54,7 @@ describe("SimulationLogic", () => {
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     let state = {
       ...state,
       simulation: {
@@ -91,11 +87,7 @@ describe("SimulationLogic", () => {
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     let state = {
       ...state,
       simulation: {
@@ -135,11 +127,7 @@ describe("SimulationLogic", () => {
     }
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2, scene3],
-      ~activeIndex=1,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2, scene3], ~activeIndex=1, ())
     let state = {
       ...state,
       simulation: {
@@ -175,11 +163,7 @@ describe("SimulationLogic", () => {
     }
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2, scene3],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2, scene3], ~activeIndex=0, ())
     let state = {
       ...state,
       simulation: {
@@ -218,11 +202,7 @@ describe("SimulationLogic", () => {
       duration: 0,
     }
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=0, ())
     let state = {
       ...state,
       timeline: [timelineItem],
@@ -252,11 +232,7 @@ describe("SimulationLogic", () => {
       hotspots: [createHotspot("Scene 1", true)],
     }
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=1,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=1, ())
     let state = {
       ...state,
       simulation: {
@@ -292,11 +268,7 @@ describe("SimulationLogic", () => {
       hotspots: [],
     }
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2, scene3],
-      ~activeIndex=1,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2, scene3], ~activeIndex=1, ())
     let state = {
       ...state,
       simulation: {
@@ -320,11 +292,7 @@ describe("SimulationLogic", () => {
       hotspots: [],
     }
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1], ~activeIndex=0, ())
 
     let move = getNextMove(state)
     switch move {
@@ -334,11 +302,7 @@ describe("SimulationLogic", () => {
   })
 
   test("getNextMove returns Complete when invalid active index", t => {
-    let state = TestUtils.createMockState(
-      ~scenes=[],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[], ~activeIndex=0, ())
 
     let move = getNextMove(state)
     switch move {
@@ -357,11 +321,7 @@ describe("SimulationLogic", () => {
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2, scene3],
-      ~activeIndex=0,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2, scene3], ~activeIndex=0, ())
     let state = {
       ...state,
       simulation: {

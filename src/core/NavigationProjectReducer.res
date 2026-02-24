@@ -96,8 +96,10 @@ module Project = {
           }),
           (),
         )
-        let (inventoryWithSeq, nextSeqId) =
-          SceneNaming.ensureSequenceIds(pd.inventory, pd.nextSceneSequenceId)
+        let (inventoryWithSeq, nextSeqId) = SceneNaming.ensureSequenceIds(
+          pd.inventory,
+          pd.nextSceneSequenceId,
+        )
 
         {
           ...state,
@@ -167,11 +169,13 @@ module Project = {
         Logger.info(
           ~module_="NavigationProjectReducer",
           ~message="PROJECT_LOAD_AUTO_CLEANUP",
-          ~data=Some(Logger.castToJson({
-            "before": result.timelineItemsBefore,
-            "after": result.timelineItemsAfter,
-            "removed": result.removedCount,
-          })),
+          ~data=Some(
+            Logger.castToJson({
+              "before": result.timelineItemsBefore,
+              "after": result.timelineItemsAfter,
+              "removed": result.removedCount,
+            }),
+          ),
           (),
         )
       }

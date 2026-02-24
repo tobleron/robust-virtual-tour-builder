@@ -68,7 +68,7 @@ module PipelineNode = {
     let linkIdTimerRef = React.useRef((None: option<int>))
 
     React.useEffect2(() => {
-      // isActive is used here as a proxy for "is being hovered/focused" 
+      // isActive is used here as a proxy for "is being hovered/focused"
       // based on the parent component's onHoverStart/End calls if we wanted to sync,
       // but simpler to just use local hover state if we want it local to the node.
       None
@@ -80,11 +80,9 @@ module PipelineNode = {
       | Some(id) => ReBindings.Window.clearTimeout(id)
       | None => ()
       }
-      linkIdTimerRef.current = Some(
-        ReBindings.Window.setTimeout(() => {
+      linkIdTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
           setLinkIdVisible(_ => true)
-        }, 3000),
-      )
+        }, 3000))
     }
 
     let stopLinkIdTimer = () => {

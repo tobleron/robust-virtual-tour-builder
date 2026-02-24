@@ -15,7 +15,9 @@ let recoverSaveProject = (
     }
 
     let hasRecoverableScenes = (candidate: state) => {
-      let count = Array.length(SceneInventory.getActiveScenes(candidate.inventory, candidate.sceneOrder))
+      let count = Array.length(
+        SceneInventory.getActiveScenes(candidate.inventory, candidate.sceneOrder),
+      )
       switch expectedSceneCount {
       | Some(expected) => expected > 0 && count >= expected
       | None => count > 0
@@ -51,7 +53,9 @@ let recoverSaveProject = (
       ~data=Some({
         "entryId": entry.id,
         "expectedSceneCount": expectedSceneCount->Option.getOr(-1),
-        "currentSceneCount": Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
+        "currentSceneCount": Array.length(
+          SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+        ),
       }),
       (),
     )

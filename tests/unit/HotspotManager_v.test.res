@@ -188,11 +188,7 @@ describe("HotspotManager", () => {
     let scene1 = createScene("Scene1")
     let scene2 = createScene("Scene2")
 
-    let state = TestUtils.createMockState(
-      ~scenes=[scene1, scene2],
-      ~activeIndex=1,
-      (),
-    )
+    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=1, ())
     let state = {
       ...state,
       navigationState: {

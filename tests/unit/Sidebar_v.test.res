@@ -216,7 +216,11 @@ describe("Sidebar", () => {
       sequenceId: 0,
     }
 
-    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene],
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -375,7 +379,11 @@ describe("Sidebar", () => {
       sequenceId: 0,
     }
 
-    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene],
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)
@@ -451,7 +459,11 @@ describe("Sidebar", () => {
       sequenceId: 0,
     }
 
-    let mockState = TestUtils.createMockState(~scenes=[scene], ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}), ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=[scene],
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)

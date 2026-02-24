@@ -64,17 +64,15 @@ let backendOfflineExportMessage = () =>
   "Export backend is unreachable at " ++
   Constants.backendUrl ++ ". Start backend server (`npm run dev:backend`) and retry."
 
-let fetchSceneUrlBlob = async (~url: string, ~authToken: option<string>, ~signal: option<BrowserBindings.AbortSignal.t>=?): result<
-  Blob.t,
-  string,
-> => {
+let fetchSceneUrlBlob = async (
+  ~url: string,
+  ~authToken: option<string>,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): result<Blob.t, string> => {
   try {
     let headers = Dict.make()
     authToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
-    let response = await Fetch.fetch(
-      url,
-      Fetch.requestInit(~method="GET", ~headers, ~signal?, ()),
-    )
+    let response = await Fetch.fetch(url, Fetch.requestInit(~method="GET", ~headers, ~signal?, ()))
     if Fetch.ok(response) {
       let b = await Fetch.blob(response)
       Ok(b)
@@ -133,7 +131,10 @@ let isLikelyImageBlob = (~blob: Blob.t, ~urlHint: option<string>): bool => {
 
 let fetchLib = async (filename, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
   try {
-    let response = await Fetch.fetch("/libs/" ++ filename, Fetch.requestInit(~method="GET", ~signal?, ()))
+    let response = await Fetch.fetch(
+      "/libs/" ++ filename,
+      Fetch.requestInit(~method="GET", ~signal?, ()),
+    )
 
     if !Fetch.ok(response) {
       Error("Missing Library: " ++ filename)

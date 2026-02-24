@@ -76,7 +76,10 @@ let make = (
   let handleMainClick = e => {
     e->JsxEvent.Mouse.stopPropagation
     let currentState = AppContext.getBridgeState()
-    let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+    let activeScenes = SceneInventory.getActiveScenes(
+      currentState.inventory,
+      currentState.sceneOrder,
+    )
     switch Belt.Array.get(activeScenes, sceneIndex) {
     | Some(currentScene) =>
       switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
@@ -146,7 +149,10 @@ let make = (
 
   React.useEffect1(() => {
     let currentState = AppContext.getBridgeState()
-    let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+    let activeScenes = SceneInventory.getActiveScenes(
+      currentState.inventory,
+      currentState.sceneOrder,
+    )
     let nextIsAF = switch Belt.Array.get(activeScenes, sceneIndex) {
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {

@@ -218,7 +218,7 @@ let make = React.memo((
                 "text-slate-700"
               }}`}
           >
-          {React.string(TourLogic.formatDisplayLabel(scene))}
+            {React.string(TourLogic.formatDisplayLabel(scene))}
           </h4>
           {if Array.length(scene.hotspots) > 0 {
             <div

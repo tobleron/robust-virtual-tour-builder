@@ -220,10 +220,15 @@ let updateSimulationArrow = (
         | None => "var(--orange-brand)"
         }
       }
-      
+
       if totalDist < Constants.waypointScreenshotThreshold {
         // Draw a cross at the starting point if it's a "screenshot" (short distance)
-        let (startX, startY) = switch ProjectionMath.getScreenCoords(cam, startPitch, startYaw, rect) {
+        let (startX, startY) = switch ProjectionMath.getScreenCoords(
+          cam,
+          startPitch,
+          startYaw,
+          rect,
+        ) {
         | Some(coords) => (coords.x, coords.y)
         | None => (s.x, s.y)
         }

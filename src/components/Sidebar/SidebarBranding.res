@@ -17,7 +17,9 @@ let make = React.memo(() => {
     <div className="font-normal text-white tracking-[0.25em] text-[13px] uppercase">
       {React.string("Virtual Tour Builder")}
     </div>
-    <div className="flex items-center text-slate-400 mt-1 sidebar-version-line font-normal font-mono">
+    <div
+      className="flex items-center text-slate-400 mt-1 sidebar-version-line font-normal font-mono"
+    >
       <span className="text-[10px] tracking-wider">
         {React.string(`${Version.getVersionLabel()} • ${Version.getBuildInfo()}`)}
       </span>

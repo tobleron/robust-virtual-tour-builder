@@ -79,22 +79,24 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
     )
     let currentSceneHotspots = switch sceneHotspotsOpt {
     | Some(scene) => scene.hotspots
-    | None => let empty: array<hotspot> = []; empty
+    | None =>
+      let empty: array<hotspot> = []
+      empty
     }
 
     // Count existing auto-forward hotspots in THIS scene
-    let existingAutoForwardCount = Belt.Array.keep(
-      currentSceneHotspots,
-      h => switch h.isAutoForward {
+    let existingAutoForwardCount = Belt.Array.keep(currentSceneHotspots, h =>
+      switch h.isAutoForward {
       | Some(true) => true
       | _ => false
-      },
+      }
     )->Belt.Array.length
 
     // Get the CURRENT hotspot data (from state, not props)
     let currentHotspotFromState = Belt.Array.get(currentSceneHotspots, index)
     let isCurrentAlreadyAutoForward = switch currentHotspotFromState {
-    | Some(h) => switch h.isAutoForward {
+    | Some(h) =>
+      switch h.isAutoForward {
       | Some(true) => true
       | _ => false
       }
@@ -112,7 +114,9 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         importance: Error,
         context: Operation("hotspot_action"),
         message: "Only one auto-forward link per scene",
-        details: Some("Disable auto-forward on the existing link first, then enable it on this link."),
+        details: Some(
+          "Disable auto-forward on the existing link first, then enable it on this link.",
+        ),
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Error),
         dismissible: true,

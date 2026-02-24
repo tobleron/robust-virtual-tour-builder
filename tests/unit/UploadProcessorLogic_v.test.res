@@ -114,15 +114,15 @@ describe("UploadProcessorLogic", () => {
         hotspots: [],
         category: "0",
         floor: "1",
-      label: "",
-      quality: None,
-      colorGroup: Some("0"),
-      _metadataSource: "",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-      sequenceId: 0,
-    }
+        label: "",
+        quality: None,
+        colorGroup: Some("0"),
+        _metadataSource: "",
+        categorySet: false,
+        labelSet: false,
+        isAutoForward: false,
+        sequenceId: 0,
+      }
 
       // Set state with activeIndex = -1 and one scene (simulating added scene)
       let stateWithScenes = TestUtils.createMockState(~scenes=[scene], ~activeIndex=-1, ())

@@ -17,11 +17,11 @@ describe("TeaserManifest", () => {
         quality: None,
         colorGroup: None,
         _metadataSource: "user",
-      categorySet: true,
-      labelSet: true,
-      isAutoForward: false,
-      sequenceId: 0,
-    },
+        categorySet: true,
+        labelSet: true,
+        isAutoForward: false,
+        sequenceId: 0,
+      },
     ]
 
     let steps: array<Types.step> = [

@@ -244,7 +244,10 @@ describe("SceneHelpers", () => {
 
     // Delete s2 (index 1)
     let stateAfterDelete = handleDeleteScene(stateWithScenes, 1)
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterDelete.inventory, stateAfterDelete.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterDelete.inventory,
+      stateAfterDelete.sceneOrder,
+    )
     t->expect(Belt.Array.length(stateScenes))->Expect.toEqual(2)
     t->expect(Belt.Array.getExn(stateScenes, 0).id)->Expect.toEqual("s1")
     t->expect(Belt.Array.getExn(stateScenes, 1).id)->Expect.toEqual("s3")
@@ -255,7 +258,9 @@ describe("SceneHelpers", () => {
 
     // Check deletedSceneIds
     t
-    ->expect(Belt.Array.some(SceneInventory.getDeletedIds(stateAfterDelete.inventory), id => id == "s2"))
+    ->expect(
+      Belt.Array.some(SceneInventory.getDeletedIds(stateAfterDelete.inventory), id => id == "s2"),
+    )
     ->Expect.toEqual(true)
 
     // Check activeIndex adjustment
@@ -276,7 +281,10 @@ describe("SceneHelpers", () => {
       activePitch: 10.0,
     }
     let stateAfterLastDelete = handleDeleteScene(stateWithOneScene, 0)
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterLastDelete.inventory, stateAfterLastDelete.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterLastDelete.inventory,
+      stateAfterLastDelete.sceneOrder,
+    )
     t->expect(Belt.Array.length(stateScenes))->Expect.toEqual(0)
     t->expect(stateAfterLastDelete.activeIndex)->Expect.toEqual(-1)
     t->expect(stateAfterLastDelete.activeYaw)->Expect.toEqual(0.0)
@@ -296,7 +304,10 @@ describe("SceneHelpers", () => {
     }`)
 
     let stateAfterAdd = handleAddScenes(stateBeforeAdd, [newSceneJson])
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterAdd.inventory, stateAfterAdd.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterAdd.inventory,
+      stateAfterAdd.sceneOrder,
+    )
     t->expect(Belt.Array.length(stateScenes))->Expect.toEqual(2)
     t->expect(Belt.Array.some(stateScenes, s => s.id == "new"))->Expect.toEqual(true)
   })
@@ -330,7 +341,10 @@ describe("SceneHelpers", () => {
       "file": "file_b"
     }`)
     let stateAfterRobustAdd = handleAddScenes(stateEmptyWithMuckIndex, [newSceneJson])
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterRobustAdd.inventory, stateAfterRobustAdd.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterRobustAdd.inventory,
+      stateAfterRobustAdd.sceneOrder,
+    )
     t->expect(Belt.Array.length(stateScenes))->Expect.toEqual(1)
     t->expect(stateAfterRobustAdd.activeIndex)->Expect.toEqual(0)
     t->expect(stateAfterRobustAdd.activeYaw)->Expect.toEqual(0.0)
@@ -359,7 +373,10 @@ describe("SceneHelpers", () => {
       "isAutoForward": true
     }`)
     let stateAfterMeta = handleUpdateSceneMetadata(stateWithScenes, 0, metaJson)
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterMeta.inventory, stateAfterMeta.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterMeta.inventory,
+      stateAfterMeta.sceneOrder,
+    )
     let updatedS1 = Belt.Array.getExn(stateScenes, 0)
     t->expect(updatedS1.category)->Expect.toEqual("outdoor")
     t->expect(updatedS1.floor)->Expect.toEqual("roof")
@@ -389,7 +406,10 @@ describe("SceneHelpers", () => {
     )
 
     let stateAfterRemove = handleRemoveHotspot(stateWithScenes, 0, 0)
-    let stateScenes = SceneInventory.getActiveScenes(stateAfterRemove.inventory, stateAfterRemove.sceneOrder)
+    let stateScenes = SceneInventory.getActiveScenes(
+      stateAfterRemove.inventory,
+      stateAfterRemove.sceneOrder,
+    )
     let s1After = Belt.Array.getExn(stateScenes, 0)
     t->expect(Belt.Array.length(s1After.hotspots))->Expect.toEqual(1)
     t->expect(Belt.Array.getExn(s1After.hotspots, 0).target)->Expect.toEqual("s3.webp")

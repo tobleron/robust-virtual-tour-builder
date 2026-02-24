@@ -280,7 +280,6 @@ describe("TeaserManager", () => {
 
     let localGetState: unit => Types.state = () => createLocalState()
 
-
     let startAutoTeaser: (
       string,
       ~getState: unit => Types.state,

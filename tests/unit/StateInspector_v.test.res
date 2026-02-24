@@ -17,7 +17,11 @@ describe("StateInspector", _ => {
 
     t->expect(snapshot.tourName)->Expect.toBe(state.tourName)
     t->expect(snapshot.activeSceneIndex)->Expect.toBe(state.activeIndex)
-    t->expect(snapshot.sceneCount)->Expect.toBe(Belt.Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)))
+    t
+    ->expect(snapshot.sceneCount)
+    ->Expect.toBe(
+      Belt.Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)),
+    )
     t->expect(snapshot.isLinking)->Expect.toBe(state.isLinking)
 
     let expectedSim = switch state.simulation.status {

@@ -74,7 +74,10 @@ let simulateTourOrder = (state: state): array<string> => {
               // Use hotspot-level isAutoForward (link-level takes priority)
               let isBridge = switch hs.isAutoForward {
               | Some(af) => af
-              | None => Belt.Array.get(activeScenes, idx)->Option.map(s => s.isAutoForward)->Option.getOr(false)
+              | None =>
+                Belt.Array.get(activeScenes, idx)
+                ->Option.map(s => s.isAutoForward)
+                ->Option.getOr(false)
               }
               Some((hs.linkId, idx, isVisited, isReturn, isBridge))
             | None => None
@@ -83,17 +86,25 @@ let simulateTourOrder = (state: state): array<string> => {
           ->Belt.Array.keepMap(x => x)
 
         // Find first unvisited link (same priority logic as SimulationNavigation)
-        let nextLinkOpt =
-          Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && !r && !b })
-          ->Option.orElse(
-            Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && !r && b })
-            ->Option.orElse(
-              Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && r && !b })
-              ->Option.orElse(
-                Array.find(allLinks, (l) => { let (_, _, v, r, b) = l; !v && r && b }),
-              ),
+        let nextLinkOpt = Array.find(allLinks, l => {
+          let (_, _, v, r, b) = l
+          !v && !r && !b
+        })->Option.orElse(
+          Array.find(allLinks, l => {
+            let (_, _, v, r, b) = l
+            !v && !r && b
+          })->Option.orElse(
+            Array.find(allLinks, l => {
+              let (_, _, v, r, b) = l
+              !v && r && !b
+            })->Option.orElse(
+              Array.find(allLinks, l => {
+                let (_, _, v, r, b) = l
+                !v && r && b
+              }),
             ),
-          )
+          ),
+        )
 
         switch nextLinkOpt {
         | Some((linkId, targetIdx, _, _, _)) =>
@@ -125,9 +136,8 @@ let cleanupTimeline = (state: state): cleanupResult => {
   let validLinkIds = collectValidLinkIds(state.inventory)
 
   // Keep only timeline items with valid linkIds
-  let cleanedTimeline = state.timeline->Belt.Array.keep(t =>
-    Belt.Set.String.has(validLinkIds, t.linkId)
-  )
+  let cleanedTimeline =
+    state.timeline->Belt.Array.keep(t => Belt.Set.String.has(validLinkIds, t.linkId))
 
   let timelineItemsAfter = Belt.Array.length(cleanedTimeline)
   let removedCount = timelineItemsBefore - timelineItemsAfter
@@ -161,9 +171,8 @@ let applyCleanup = (state: state): (state, cleanupResult) => {
   let validLinkIds = collectValidLinkIds(state.inventory)
 
   // Step 1: Remove orphaned items (linkIds not in any hotspot)
-  let afterOrphanRemoval = state.timeline->Belt.Array.keep(t =>
-    Belt.Set.String.has(validLinkIds, t.linkId)
-  )
+  let afterOrphanRemoval =
+    state.timeline->Belt.Array.keep(t => Belt.Set.String.has(validLinkIds, t.linkId))
 
   // Step 2: Remove duplicates - keep only the LAST item for each linkId
   let seenLinkIds = ref(Belt.Set.String.empty)
@@ -215,8 +224,5 @@ let applyCleanup = (state: state): (state, cleanupResult) => {
     removedLinkIds,
   }
 
-  (
-    {...state, timeline: reorderedTimeline, activeTimelineStepId},
-    result,
-  )
+  ({...state, timeline: reorderedTimeline, activeTimelineStepId}, result)
 }

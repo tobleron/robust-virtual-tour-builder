@@ -20,7 +20,6 @@ let getDeletedIds = inventory => {
   })
 }
 
-
 let calculateActiveIndexAfterDelete = (
   currentIndex: int,
   deletedIndex: int,

@@ -147,7 +147,10 @@ let show = (
       onClick: () => {
         let state = getState()
         dispatch(DispatchAppFsmEvent(CloseSummary))
-        if state.activeIndex == -1 && Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) > 0 {
+        if (
+          state.activeIndex == -1 &&
+            Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) > 0
+        ) {
           dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
       },
@@ -185,10 +188,10 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
         sceneOrder: [],
         lastUsedCategory: "",
         exifReport: None,
-      sessionId: None,
-      timeline: [],
-      logo: None,
-      nextSceneSequenceId: getState().nextSceneSequenceId,
+        sessionId: None,
+        timeline: [],
+        logo: None,
+        nextSceneSequenceId: getState().nextSceneSequenceId,
       }
     }
   }

@@ -100,7 +100,10 @@ let appendLogo = async (
     )
   | Some(Blob(b)) => ignore(await appendOptimizedLogoBlob(~blob=b, ~filenameHint="logo-upload"))
   | Some(Url(url)) =>
-    if url == "" || !ExporterUtils.isLikelyImageUrl(url) {
+    // Internal API URLs (e.g. /api/project/{sid}/file/logo_upload) are extensionless
+    // but trusted — blob content is validated downstream by isLikelyImageBlob
+    let isInternalApiUrl = String.includes(url, "/api/project/") && String.includes(url, "/file/")
+    if url == "" || (!ExporterUtils.isLikelyImageUrl(url) && !isInternalApiUrl) {
       Logger.warn(
         ~module_="Exporter",
         ~message="LOGO_URL_SKIPPED_INVALID",
@@ -156,7 +159,10 @@ let appendLogo = async (
               if Fetch.ok(res) {
                 let logoBlob = await Fetch.blob(res)
                 if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
-                  let applied = await appendOptimizedLogoBlob(~blob=logoBlob, ~filenameHint=filename)
+                  let applied = await appendOptimizedLogoBlob(
+                    ~blob=logoBlob,
+                    ~filenameHint=filename,
+                  )
                   if !applied {
                     await findLogo(rest)
                   }
@@ -238,7 +244,10 @@ let appendTemplates = (
   )
 }
 
-let appendLibraries = async (~formData: FormData.t, ~signal: option<BrowserBindings.AbortSignal.t>): unit => {
+let appendLibraries = async (
+  ~formData: FormData.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>,
+): unit => {
   try {
     let panJSRes: result<Blob.t, string> = await ExporterUtils.fetchLib("pannellum.js", ~signal?)
     let isAborted = switch signal {
@@ -248,7 +257,10 @@ let appendLibraries = async (~formData: FormData.t, ~signal: option<BrowserBindi
     if isAborted {
       ()
     } else {
-      let panCSSRes: result<Blob.t, string> = await ExporterUtils.fetchLib("pannellum.css", ~signal?)
+      let panCSSRes: result<Blob.t, string> = await ExporterUtils.fetchLib(
+        "pannellum.css",
+        ~signal?,
+      )
       let isAborted2 = switch signal {
       | Some(s) => BrowserBindings.AbortSignal.aborted(s)
       | None => false

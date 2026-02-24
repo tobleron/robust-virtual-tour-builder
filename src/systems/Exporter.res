@@ -110,7 +110,12 @@ let exportTour = async (
     progress(3.0, 100.0, "Packaging logo...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
 
-    let logoFilename = await ExporterPackaging.appendLogo(~formData, ~logo, ~authToken=finalToken, ~signal=Some(signal))
+    let logoFilename = await ExporterPackaging.appendLogo(
+      ~formData,
+      ~logo,
+      ~authToken=finalToken,
+      ~signal=Some(signal),
+    )
 
     /* 2. Generate HTML Templates */
     currentPhase := "TEMPLATES"

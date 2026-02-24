@@ -68,7 +68,9 @@ let addVisited = (visited: array<string>, linkId: string): array<string> => {
   }
 }
 
-let applyVisitedActions = (visited: array<string>, actions: array<Actions.action>): array<string> => {
+let applyVisitedActions = (visited: array<string>, actions: array<Actions.action>): array<
+  string,
+> => {
   actions->Belt.Array.reduce(visited, (acc, a) =>
     switch a {
     | AddVisitedLink(linkId) => addVisited(acc, linkId)
@@ -91,7 +93,7 @@ let calculateSimulationWaitDuration = (
     }
   )
   let isAutoForward = hasAutoForwardLink || scene.isAutoForward
-  
+
   let baseWait = if skipAutoForward {
     if isAutoForward {
       if isFirstScene {
@@ -171,7 +173,10 @@ let generateSimulationParityManifest = (
         )
         acc
       } else {
-        let activeScenes = SceneInventory.getActiveScenes(currentState.inventory, currentState.sceneOrder)
+        let activeScenes = SceneInventory.getActiveScenes(
+          currentState.inventory,
+          currentState.sceneOrder,
+        )
         switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | None => acc
         | Some(currentScene) =>
