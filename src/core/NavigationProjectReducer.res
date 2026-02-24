@@ -111,6 +111,7 @@ module Project = {
           | None => state.sessionId
           },
           timeline: pd.timeline,
+          logo: pd.logo,
           activeIndex: if Belt.Array.length(pd.sceneOrder) > 0 {
             0
           } else {

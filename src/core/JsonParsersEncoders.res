@@ -103,6 +103,14 @@ let inventory = (inv: Belt.Map.String.t<Types.sceneEntry>) => {
   inv->Belt.Map.String.toArray->Belt.Array.map(toObj)->Encode.jsonArray
 }
 
+let logoFile = (f: Types.file) => {
+  switch f {
+  | Url(u) => Encode.string(u)
+  | File(_) => Encode.string("logo_upload")
+  | Blob(_) => Encode.string("logo_upload")
+  }
+}
+
 let project = (p: Types.project) => {
   Encode.object([
     ("tourName", Encode.string(p.tourName)),
@@ -117,7 +125,7 @@ let project = (p: Types.project) => {
       Encode.array(Encode.string)(SceneInventory.getDeletedIds(p.inventory)),
     ),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
-    ("logo", Encode.option(file)(p.logo)),
+    ("logo", Encode.option(logoFile)(p.logo)),
     ("nextSceneSequenceId", Encode.int(p.nextSceneSequenceId)),
   ])
 }
@@ -269,7 +277,7 @@ let state = (s: Types.state) => {
     ("currentJourneyId", Encode.int(s.navigationState.currentJourneyId)),
     ("lastUsedCategory", Encode.string(s.lastUsedCategory)),
     ("sessionId", Encode.option(Encode.string)(s.sessionId)),
-    ("logo", Encode.option(file)(s.logo)),
+    ("logo", Encode.option(logoFile)(s.logo)),
     (
       "appMode",
       switch s.appMode {

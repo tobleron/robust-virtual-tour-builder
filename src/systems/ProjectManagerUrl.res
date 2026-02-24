@@ -20,6 +20,8 @@ let rebuildUrl = (f: Types.file, ~sessionId: string) => {
     // We return Empty to force the scene-name fallback within validScenes loop.
     if String.startsWith(url, "blob:") {
       Types.Url("")
+    } else if url == "logo_upload" {
+      Types.Url(buildProjectFileUrl(~sessionId, ~filename="logo_upload"))
     } else if isLegacyBackend {
       // Extract filename from old backend URL and rebuild with current sessionId
       let parts = String.split(url, "/file/")

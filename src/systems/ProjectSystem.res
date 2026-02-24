@@ -132,7 +132,18 @@ let processLoadedProjectData = (
         inventory: inventoryWithSeq,
         sceneOrder: finalOrder,
         nextSceneSequenceId: nextSeqId,
+        sessionId: Some(sessionId),
+        logo: pd.logo->Option.map(l => ProjectManagerUrl.rebuildUrl(l, ~sessionId)),
       }
+      
+      loadedProject.logo->Option.forEach(l => {
+        Logger.debug(
+          ~module_="ProjectManager",
+          ~message="LOGO_URL_REBUILT",
+          ~data=Some({"url": Types.fileToUrl(l)}),
+          (),
+        )
+      })
 
       progress(100, 100, "Project Loaded!")
       Logger.endOperation(
@@ -281,6 +292,15 @@ let createSavePackage = (
     }
   })
   state.sessionId->Option.forEach(id => FormData.append(formData, "session_id", id))
+  
+  // Include Logo in the package
+  state.logo->Option.forEach(l => {
+    switch l {
+    | File(f) => FormData.appendWithFilename(formData, "files", f, "logo_upload")
+    | Blob(b) => FormData.appendWithFilename(formData, "files", b, "logo_upload")
+    | Url(_) => ()
+    }
+  })
 
   progress(10, 100, "Uploading to backend...")
   OperationLifecycle.progress(

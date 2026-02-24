@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implement screenshot-style waypoint indicator (+) for short distances
 
+### Changed
+- Fix logo persistence and URL reconstruction in saved projects
+
 ## [4.5.4] - 2026-02-24
 
 ### Changed

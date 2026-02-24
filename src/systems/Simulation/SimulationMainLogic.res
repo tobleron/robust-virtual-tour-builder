@@ -123,8 +123,8 @@ let getNextMove = (state: state): nextMove => {
         )
       }
 
-      // Check if tour is complete: all links from start scene have been traversed
-      let isComplete = if targetIndex == 0 {
+      // Check if tour is complete: we are taking a visited link back to start and all links from start have been traversed
+      let isComplete = if targetIndex == 0 && finalLink.isVisited {
         let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
         switch Belt.Array.get(activeScenes, 0) {
         | Some(startScene) =>
