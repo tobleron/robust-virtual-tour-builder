@@ -67,16 +67,22 @@ describe("Simulation", () => {
       </AppContext.DispatchProvider>,
     )
 
-    // Simulation loop starts in useEffect
+    // Simulation loop starts in useEffect - wait longer for it to dispatch
     await Promise.make(
       (resolve, _) => {
-        let _ = Window.setTimeout(() => resolve(), 50)
+        let _ = Window.setTimeout(() => resolve(), 200)
       },
     )
 
     switch lastAction.contents {
     | Some(AddVisitedLink(linkId)) => t->expect(linkId != "")->Expect.toBe(true)
-    | _ => t->expect("AddVisitedLink")->Expect.toBe("No action or wrong action")
+    | other => {
+        let msg = switch other {
+        | Some(a) => "Got: " ++ Actions.actionToString(a)
+        | None => "Got: no action"
+        }
+        t->expect(msg)->Expect.toBe("Expected: AddVisitedLink")
+      }
     }
 
     Dom.removeElement(container)

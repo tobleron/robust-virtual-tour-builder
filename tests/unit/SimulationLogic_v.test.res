@@ -184,7 +184,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedLinkIds: ["A01"],
+        visitedLinkIds: ["l-Scene 2"],
         skipAutoForwardGlobal: true,
       },
     }
@@ -193,8 +193,7 @@ describe("SimulationLogic", () => {
     switch move {
     | Move(m) => {
         t->expect(m.targetIndex)->Expect.toBe(2) // Skipped scene 2, landed on 3
-        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("A02"))
-        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("A03"))
+        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("l-Scene 3"))
       }
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }
@@ -261,7 +260,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedLinkIds: ["A01", "A02"],
+        visitedLinkIds: ["l-Scene 2", "l-Scene 1"], // Both links visited
       },
     }
 
@@ -352,7 +351,7 @@ describe("SimulationLogic", () => {
       ...baseScene,
       id: "s1",
       name: "Scene 1",
-      hotspots: [createHotspot("Scene 2", false), createHotspot("Scene 3", false)], // Leading to visited scene // Leading to unvisited scene
+      hotspots: [createHotspot("Scene 2", false), createHotspot("Scene 3", false)],
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
@@ -366,14 +365,14 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedLinkIds: ["A01", "A02"], // Scene 1 and 2 are visited, Scene 3 is not
+        visitedLinkIds: ["l-Scene 2"], // Scene 2 link visited, Scene 3 link NOT visited
       },
     }
 
     let move = getNextMove(state)
     switch move {
     | Move(m) =>
-      // Should pick Scene 3 (index 2)
+      // Should pick Scene 3 (index 2) - the unvisited link
       t->expect(m.targetIndex)->Expect.toBe(2)
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }

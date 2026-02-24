@@ -181,23 +181,11 @@ let _ = describe("TourTemplates", () => {
       html,
       "function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft)",
     )
-    t->expectToContain(
-      html,
-      "const routeIndex = Number.isInteger(sceneData?.autoForwardHotspotIndex)",
-    )
-    t->expectToContain(
-      html,
-      "const routeTarget = resolveExistingSceneId(sceneData?.autoForwardTargetSceneId);",
-    )
-    t->expectToContain(
-      html,
-      "if (routeIndex >= 0 && routeIndex < resolvedHotspots.length && routeTarget)",
-    )
-    t
-    ->expect(String.includes(html, "const sceneAutoForward = sceneData?.isAutoForward === true;"))
-    ->Expect.toBe(false)
-    t->expect(String.includes(html, "const preferred = resolvedHotspots.find"))->Expect.toBe(false)
-    t->expect(String.includes(html, "const fallback = resolvedHotspots.find"))->Expect.toBe(false)
+    // New priority-based link selection
+    t->expectToContain(html, "// PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)")
+    t->expectToContain(html, "// PRIORITY 2: Unvisited, non-return, IS auto-forward (exit - taken LAST)")
+    t->expectToContain(html, "const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward)")
+    t->expectToContain(html, "const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward)")
     t->expectToContain(html, "const autoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
     t->expectToContain(
