@@ -101,7 +101,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
 
     let alreadyHasAutoForward = existingAutoForwardCount > 0 && !isCurrentAutoForward
 
-    // Validation 1: Only ONE auto-forward link per scene
+    // Validation: Only ONE auto-forward link per scene
     if alreadyHasAutoForward && !isAutoForward {
       // User is trying to ENABLE auto-forward on a second link
       NotificationManager.dispatch({
@@ -109,7 +109,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         importance: Error,
         context: Operation("hotspot_action"),
         message: "Only one auto-forward link per scene",
-        details: Some("Auto-forward link must be the LAST link in the scene (the exit path). Disable auto-forward on the existing link first."),
+        details: Some("Disable auto-forward on the existing link first, then enable it on this link."),
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Error),
         dismissible: true,
@@ -117,49 +117,29 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       })
       onClose()
     } else {
-      // Validation 2: Auto-forward link must be the LAST link (highest index)
-      // When enabling, check if this is the last hotspot
-      let isLastHotspot = index >= Belt.Array.length(currentSceneHotspots) - 1
-
-      if !isAutoForward && !isLastHotspot {
-        // User is trying to enable auto-forward on a non-last link
-        NotificationManager.dispatch({
-          id: "autoforward-order-error",
-          importance: Error,
-          context: Operation("hotspot_action"),
-          message: "Auto-forward link must be last",
-          details: Some("The auto-forward link should be the last link created in this scene (the exit path). Create your other links first, then set the last one as auto-forward."),
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Error),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-        onClose()
-      } else {
-        // Validation passed - toggle auto-forward
-        let newVal = !isAutoForward
-        HotspotManager.handleUpdateHotspotMetadata(
-          state.activeIndex,
-          index,
-          Logger.castToJson({"isAutoForward": newVal}),
-        )->ignore
-        let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
-        NotificationManager.dispatch({
-          id: "",
-          importance: Success,
-          context: Operation("hotspot_action"),
-          message: "Auto-forward: " ++ if newVal {
-            "ENABLED"
-          } else {
-            "DISABLED"
-          },
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Success),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }
+      // Validation passed - toggle auto-forward
+      let newVal = !isAutoForward
+      HotspotManager.handleUpdateHotspotMetadata(
+        state.activeIndex,
+        index,
+        Logger.castToJson({"isAutoForward": newVal}),
+      )->ignore
+      let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("hotspot_action"),
+        message: "Auto-forward: " ++ if newVal {
+          "ENABLED"
+        } else {
+          "DISABLED"
+        },
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
   }
 
