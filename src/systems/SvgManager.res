@@ -211,5 +211,33 @@ module Renderer = {
     }
   }
 
+  let drawPlus = (id, x, y, color, opacity) => {
+    if Float.isFinite(x) && Float.isFinite(y) {
+      switch getOrCreate(id, "path") {
+      | Some(plus) =>
+        Svg.setAttribute(plus, "d", "M -7,0 L 7,0 M 0,-7 L 0,7")
+        Svg.setAttribute(plus, "stroke", color)
+        Svg.setAttribute(plus, "stroke-width", "4.0")
+        Svg.setAttribute(plus, "stroke-linecap", "round")
+        Svg.setAttribute(
+          plus,
+          "transform",
+          "translate(" ++ Float.toString(x) ++ ", " ++ Float.toString(y) ++ ")",
+        )
+        Dom.setProperty(plus, "display", "block")
+        Svg.setAttribute(plus, "cursor", "pointer")
+        Svg.setAttribute(plus, "pointer-events", "auto")
+        if opacity < 1.0 {
+          Svg.setAttribute(plus, "opacity", Float.toString(opacity))
+        } else {
+          Dom.removeAttribute(plus, "opacity")
+        }
+      | None => ()
+      }
+    } else {
+      hide(id)
+    }
+  }
+
   let hide = hide
 }

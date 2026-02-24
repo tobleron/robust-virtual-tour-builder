@@ -269,6 +269,7 @@ let blinkRatePreview = 300
 let blinkRateSimulation = 600
 let idleSnapshotDelay = 2000
 let waypointSmoothingFactor = 0.3 // 0.0 (raw) to 1.0 (max smoothing)
+let waypointScreenshotThreshold = 1.8 // Degrees - Below this, it renders as a cross (screenshot)
 
 module Simulation = {
   let stepDelay = 5000

@@ -220,7 +220,17 @@ let updateSimulationArrow = (
         | None => "var(--orange-brand)"
         }
       }
-      SvgManager.Renderer.drawArrow(id, s.x, s.y, angle, color, opacity)
+      
+      if totalDist < Constants.waypointScreenshotThreshold {
+        // Draw a cross at the starting point if it's a "screenshot" (short distance)
+        let (startX, startY) = switch ProjectionMath.getScreenCoords(cam, startPitch, startYaw, rect) {
+        | Some(coords) => (coords.x, coords.y)
+        | None => (s.x, s.y)
+        }
+        SvgManager.Renderer.drawPlus(id, startX, startY, color, opacity)
+      } else {
+        SvgManager.Renderer.drawArrow(id, s.x, s.y, angle, color, opacity)
+      }
     | None => SvgManager.Renderer.hide(id)
     }
   | None => SvgManager.Renderer.hide(id)
