@@ -184,7 +184,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedLinkIds: ["l-Scene 2"],
+        visitedLinkIds: [], // No links visited yet - should navigate to scene 2, skip to 3
         skipAutoForwardGlobal: true,
       },
     }
@@ -193,7 +193,8 @@ describe("SimulationLogic", () => {
     switch move {
     | Move(m) => {
         t->expect(m.targetIndex)->Expect.toBe(2) // Skipped scene 2, landed on 3
-        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("l-Scene 3"))
+        // triggerActions should include the link we're traversing (scene 1 → scene 2)
+        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("l-Scene 2"))
       }
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }
