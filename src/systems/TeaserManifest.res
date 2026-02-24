@@ -60,18 +60,18 @@ let getInitialPose = (state: state, activeIndex: int, includeIntroPan: bool): vi
   }
 }
 
-let addVisited = (visited: array<int>, idx: int): array<int> => {
-  if Array.includes(visited, idx) {
+let addVisited = (visited: array<string>, linkId: string): array<string> => {
+  if Array.includes(visited, linkId) {
     visited
   } else {
-    Belt.Array.concat(visited, [idx])
+    Belt.Array.concat(visited, [linkId])
   }
 }
 
-let applyVisitedActions = (visited: array<int>, actions: array<Actions.action>): array<int> => {
+let applyVisitedActions = (visited: array<string>, actions: array<Actions.action>): array<string> => {
   actions->Belt.Array.reduce(visited, (acc, a) =>
     switch a {
-    | AddVisitedScene(idx) => addVisited(acc, idx)
+    | AddVisitedLink(linkId) => addVisited(acc, linkId)
     | _ => acc
     }
   )
@@ -140,7 +140,7 @@ let generateSimulationParityManifest = (
       simulation: {
         ...initialState.simulation,
         status: Running,
-        visitedScenes: [],
+        visitedLinkIds: [],
         skipAutoForwardGlobal: skipAutoForward,
       },
     }
@@ -166,18 +166,17 @@ let generateSimulationParityManifest = (
         switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | None => acc
         | Some(currentScene) =>
-          let visitedWithCurrent = addVisited(
-            currentState.simulation.visitedScenes,
-            currentState.activeIndex,
-          )
-          let stateWithCurrent = {
+          // Note: We track linkIds, not scene indices
+          // The visitedLinkIds is updated by getNextMove via AddVisitedLink action
+          let visitedLinkIds = currentState.simulation.visitedLinkIds
+          let stateWithVisited = {
             ...currentState,
             simulation: {
               ...currentState.simulation,
-              visitedScenes: visitedWithCurrent,
+              visitedLinkIds,
             },
           }
-          let isFirstScene = Belt.Array.length(visitedWithCurrent) <= 1
+          let isFirstScene = Belt.Array.length(visitedLinkIds) <= 1
           let waitBeforePanMs = calculateSimulationWaitDuration(
             currentScene,
             isFirstScene,
@@ -185,11 +184,11 @@ let generateSimulationParityManifest = (
             includeIntroPan,
           )
 
-          switch SimulationMainLogic.getNextMove(stateWithCurrent) {
+          switch SimulationMainLogic.getNextMove(stateWithVisited) {
           | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
             let pathData = NavigationGraph.calculatePathData(
-              stateWithCurrent,
-              stateWithCurrent.activeIndex,
+              stateWithVisited,
+              stateWithVisited.activeIndex,
               hotspotIndex,
               targetIndex,
               yaw,
@@ -208,13 +207,13 @@ let generateSimulationParityManifest = (
               blinkAfterPanMs: Constants.blinkDurationSimulation,
             }
 
-            let visitedAfterMove = applyVisitedActions(visitedWithCurrent, triggerActions)
+            let visitedAfterMove = applyVisitedActions(visitedLinkIds, triggerActions)
             let nextState = {
-              ...stateWithCurrent,
+              ...stateWithVisited,
               activeIndex: targetIndex,
               simulation: {
-                ...stateWithCurrent.simulation,
-                visitedScenes: visitedAfterMove,
+                ...stateWithVisited.simulation,
+                visitedLinkIds: visitedAfterMove,
               },
             }
             let nextPose = {yaw, pitch, hfov}

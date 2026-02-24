@@ -45,8 +45,8 @@ type rec action =
   // Simulation Actions
   | StartAutoPilot(int, bool) // journeyId, skipAutoForward
   | StopAutoPilot
-  | AddVisitedScene(int)
-  | ClearVisitedScenes
+  | AddVisitedLink(string)
+  | ClearVisitedLinks
   | SetStoppingOnArrival(bool)
   | SetSkipAutoForward(bool)
   | UpdateAdvanceTime(float)
@@ -58,6 +58,7 @@ type rec action =
   | SetLogo(option<file>)
   | Batch(array<action>)
   | PatchSceneThumbnail(string, file) // sceneId, newTinyFile
+  | CleanupTimeline // Remove duplicate/orphaned timeline items
 
 let sceneActionToString = (action: action): option<string> =>
   switch action {
@@ -123,8 +124,8 @@ let simulationActionToString = (action: action): option<string> =>
   | SetSimulationMode(b) => Some(`SetSimulationMode(${b ? "true" : "false"})`)
   | StartAutoPilot(_, _) => Some("StartAutoPilot")
   | StopAutoPilot => Some("StopAutoPilot")
-  | AddVisitedScene(_) => Some("AddVisitedScene")
-  | ClearVisitedScenes => Some("ClearVisitedScenes")
+  | AddVisitedLink(linkId) => Some(`AddVisitedLink(${linkId})`)
+  | ClearVisitedLinks => Some("ClearVisitedLinks")
   | SetStoppingOnArrival(_) => Some("SetStoppingOnArrival")
   | SetSkipAutoForward(_) => Some("SetSkipAutoForward")
   | UpdateAdvanceTime(_) => Some("UpdateAdvanceTime")
@@ -147,6 +148,7 @@ let uiActionToString = (action: action): option<string> =>
   | SetSessionId(id) => Some(`SetSessionId(${id})`)
   | SetLogo(_) => Some("SetLogo")
   | DispatchAppFsmEvent(_) => Some("DispatchAppFsmEvent")
+  | CleanupTimeline => Some("CleanupTimeline")
   | _ => None
   }
 

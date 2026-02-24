@@ -24,7 +24,18 @@ let handleDeleteScene = (state: state, index: int): state => {
           {...e, scene: {...s, hotspots: newHotspots}}
         })
 
-        // 4. Adjust activeIndex
+        // 4. Remove timeline items for the deleted scene (prevents orphaned entries)
+        let filteredTimeline = Belt.Array.keep(state.timeline, t => t.sceneId != idToDelete)
+        
+        // 5. Clear active timeline step if it was removed
+        let activeTimelineStepId = switch state.activeTimelineStepId {
+        | Some(stepId) =>
+          let stillExists = filteredTimeline->Belt.Array.some(t => t.id == stepId)
+          stillExists ? Some(stepId) : None
+        | None => None
+        }
+
+        // 6. Adjust activeIndex
         let newLen = Belt.Array.length(updatedOrder)
         let newActiveIndex = SceneInventory.calculateActiveIndexAfterDelete(
           state.activeIndex,
@@ -32,7 +43,7 @@ let handleDeleteScene = (state: state, index: int): state => {
           newLen,
         )
 
-        // 5. Sync names & Rebuild legacy
+        // 7. Sync names & Rebuild legacy
         let finalizedInventory = SceneNaming.syncInventoryNames(
           inventoryWithCleanHotspots,
           updatedOrder,
@@ -45,6 +56,8 @@ let handleDeleteScene = (state: state, index: int): state => {
           activeYaw: newActiveIndex == -1 ? 0.0 : state.activeYaw,
           activePitch: newActiveIndex == -1 ? 0.0 : state.activePitch,
           isLinking: false,
+          timeline: filteredTimeline,
+          activeTimelineStepId,
         }
 
       | None => state

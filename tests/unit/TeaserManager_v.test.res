@@ -217,7 +217,7 @@ let makeMockScene = (~id, ~name, ()) => {
       ]),
       "sceneOrder": ["scene1", "scene2"],
       "tourName": "TestTour",
-      "simulation": {"status": {TAG: 'Idle'}, "visitedScenes": []},
+      "simulation": {"status": {TAG: 'Idle'}, "visitedLinkIds": []},
     });
 
     globalThis.recorderMock.loadLogo.mockResolvedValue(null);

@@ -95,14 +95,9 @@ let make = () => {
           if advancingForIndex.current != stateRef.current.activeIndex {
             advancingForIndex.current = stateRef.current.activeIndex
 
-            if (
-              !Array.includes(
-                stateRef.current.simulation.visitedScenes,
-                stateRef.current.activeIndex,
-              )
-            ) {
-              dispatch(AddVisitedScene(stateRef.current.activeIndex))
-            }
+            // Note: visitedLinkIds tracking is now handled by SimulationMainLogic.getNextMove()
+            // which dispatches AddVisitedLink(hotspot.linkId) when traversing each link
+            // This removed the duplicate scene-index based tracking
 
             let delay = if stateRef.current.simulation.skipAutoForwardGlobal {
               switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
@@ -152,10 +147,11 @@ let make = () => {
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 if stillOk {
-                  let isFirstScene = sAfterWait.simulation.visitedScenes->Belt.Array.length <= 1
+                  // Check if this is the first link traversed (for intro pan timing)
+                  let isFirstLink = sAfterWait.simulation.visitedLinkIds->Belt.Array.length <= 1
                   let delay = if sAfterWait.simulation.skipAutoForwardGlobal {
                     switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
-                    | Some(scene) if scene.isAutoForward => isFirstScene ? 3000 : 0
+                    | Some(scene) if scene.isAutoForward => isFirstLink ? 3000 : 0
                     | _ => Constants.Simulation.stepDelay
                     }
                   } else {

@@ -29,7 +29,7 @@ let makeInitialState = (): Types.state => {
     },
     simulation: {
       status: Idle,
-      visitedScenes: [],
+      visitedLinkIds: [],
       stoppingOnArrival: false,
       skipAutoForwardGlobal: false,
       lastAdvanceTime: 0.0,

@@ -58,7 +58,7 @@ describe("SimulationMainLogic", () => {
       simulation: {
         ...state.simulation,
         status: Running,
-        visitedScenes: [0],
+        visitedLinkIds: ["A01"],
       },
     }
 
@@ -83,7 +83,7 @@ describe("SimulationMainLogic", () => {
       simulation: {
         ...state.simulation,
         status: Running,
-        visitedScenes: [0],
+        visitedLinkIds: ["A01"],
       },
     }
 

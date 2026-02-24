@@ -117,7 +117,7 @@ describe("Types", () => {
   test("should define simulationState correctly", t => {
     let ss: simulationState = {
       status: Running,
-      visitedScenes: [1, 2],
+      visitedLinkIds: ["A01", "A02"],
       stoppingOnArrival: false,
       skipAutoForwardGlobal: true,
       lastAdvanceTime: 12345.6,
@@ -125,7 +125,7 @@ describe("Types", () => {
       autoPilotJourneyId: 42,
     }
     t->expect(ss.status)->Expect.toEqual(Running)
-    t->expect(ss.visitedScenes)->Expect.toEqual([1, 2])
+    t->expect(ss.visitedLinkIds)->Expect.toEqual(["A01", "A02"])
   })
 
   test("should define viewFrame correctly", t => {
@@ -251,7 +251,7 @@ describe("Types", () => {
       },
       simulation: {
         status: Idle,
-        visitedScenes: [],
+        visitedLinkIds: [],
         stoppingOnArrival: false,
         skipAutoForwardGlobal: false,
         lastAdvanceTime: 0.0,

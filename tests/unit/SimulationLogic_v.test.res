@@ -63,7 +63,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0],
+        visitedLinkIds: ["A01"],
       },
     }
 
@@ -100,7 +100,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0],
+        visitedLinkIds: ["A01"],
       },
     }
 
@@ -144,7 +144,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0, 1], // Scene 3 remains unvisited
+        visitedLinkIds: ["A01", "A02"], // Scene 3 remains unvisited
       },
     }
 
@@ -184,7 +184,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0],
+        visitedLinkIds: ["A01"],
         skipAutoForwardGlobal: true,
       },
     }
@@ -193,8 +193,8 @@ describe("SimulationLogic", () => {
     switch move {
     | Move(m) => {
         t->expect(m.targetIndex)->Expect.toBe(2) // Skipped scene 2, landed on 3
-        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedScene(1))
-        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedScene(2))
+        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("A02"))
+        t->expect(m.triggerActions)->Expect.toContainEqual(AddVisitedLink("A03"))
       }
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }
@@ -261,7 +261,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0, 1],
+        visitedLinkIds: ["A01", "A02"],
       },
     }
 
@@ -301,7 +301,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0, 1], // Scene 3 is NOT visited
+        visitedLinkIds: ["A01", "A02"], // Scene 3 is NOT visited
       },
     }
 
@@ -366,7 +366,7 @@ describe("SimulationLogic", () => {
       ...state,
       simulation: {
         ...state.simulation,
-        visitedScenes: [0, 1], // Scene 1 and 2 are visited, Scene 3 is not
+        visitedLinkIds: ["A01", "A02"], // Scene 1 and 2 are visited, Scene 3 is not
       },
     }
 

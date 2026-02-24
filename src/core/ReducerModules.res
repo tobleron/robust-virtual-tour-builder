@@ -197,13 +197,13 @@ module Simulation = {
       Some(SimulationHelpers.handleStartAutoPilot(state, journeyId, skip))
     | StartLinking(draft) => Some(SimulationHelpers.handleStartLinking(state, draft))
     | StopAutoPilot => Some(SimulationHelpers.handleStopAutoPilot(state))
-    | AddVisitedScene(sceneIdx) => Some(SimulationHelpers.handleAddVisitedScene(state, sceneIdx))
-    | ClearVisitedScenes =>
+    | AddVisitedLink(linkId) => Some(SimulationHelpers.handleAddVisitedLink(state, linkId))
+    | ClearVisitedLinks =>
       Some({
         ...state,
         simulation: {
           ...state.simulation,
-          visitedScenes: [],
+          visitedLinkIds: [],
         },
       })
     | SetStoppingOnArrival(value) =>
@@ -272,6 +272,20 @@ module Timeline = {
 
     | UpdateTimelineStep(id, dataJson) =>
       Some(SimHelpers.handleUpdateTimelineStep(state, id, dataJson))
+
+    | CleanupTimeline =>
+      let (newState, result) = TimelineCleanup.applyCleanup(state)
+      Logger.info(
+        ~module_="ReducerModules",
+        ~message="TIMELINE_CLEANUP",
+        ~data=Some(Logger.castToJson({
+          "before": result.timelineItemsBefore,
+          "after": result.timelineItemsAfter,
+          "removed": result.removedCount,
+        })),
+        (),
+      )
+      Some(newState)
 
     | _ => None
     }

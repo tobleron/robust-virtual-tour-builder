@@ -25,7 +25,7 @@ let initialState: state = {
   // isSimulationMode: false,
   simulation: {
     status: Idle,
-    visitedScenes: [],
+    visitedLinkIds: [],
     stoppingOnArrival: false,
     skipAutoForwardGlobal: false,
     lastAdvanceTime: 0.0,

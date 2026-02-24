@@ -53,7 +53,7 @@ describe("Simulation", () => {
       simulation: {
         ...mockState.simulation,
         status: Running,
-        visitedScenes: [], // 0 is NOT visited
+        visitedLinkIds: [], // 0 is NOT visited
       },
     }
 
@@ -75,8 +75,8 @@ describe("Simulation", () => {
     )
 
     switch lastAction.contents {
-    | Some(AddVisitedScene(idx)) => t->expect(idx)->Expect.toBe(0)
-    | _ => t->expect("AddVisitedScene")->Expect.toBe("No action or wrong action")
+    | Some(AddVisitedLink(linkId)) => t->expect(linkId != "")->Expect.toBe(true)
+    | _ => t->expect("AddVisitedLink")->Expect.toBe("No action or wrong action")
     }
 
     Dom.removeElement(container)

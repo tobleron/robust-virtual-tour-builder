@@ -7,7 +7,7 @@ let handleStartAutoPilot = (state: state, journeyId: int, skip: bool): state => 
       ...state.simulation,
       status: Running,
       autoPilotJourneyId: journeyId,
-      visitedScenes: [],
+      visitedLinkIds: [],
       skipAutoForwardGlobal: skip,
       stoppingOnArrival: false,
     },
@@ -22,7 +22,7 @@ let handleStartLinking = (state: state, _draft: option<linkDraft>): state => {
       ...state.simulation,
       status: Idle,
       pendingAdvanceId: None,
-      visitedScenes: [],
+      visitedLinkIds: [],
       stoppingOnArrival: false,
       skipAutoForwardGlobal: false,
     },
@@ -41,19 +41,19 @@ let handleStopAutoPilot = (state: state): state => {
       ...state.simulation,
       status: Idle,
       pendingAdvanceId: None,
-      visitedScenes: [],
+      visitedLinkIds: [],
       stoppingOnArrival: false,
       skipAutoForwardGlobal: false,
     },
   }
 }
 
-let handleAddVisitedScene = (state: state, sceneIdx: int): state => {
+let handleAddVisitedLink = (state: state, linkId: string): state => {
   {
     ...state,
     simulation: {
       ...state.simulation,
-      visitedScenes: Belt.Array.concat(state.simulation.visitedScenes, [sceneIdx]),
+      visitedLinkIds: Belt.Array.concat(state.simulation.visitedLinkIds, [linkId]),
     },
   }
 }

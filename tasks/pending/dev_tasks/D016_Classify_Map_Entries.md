@@ -7,6 +7,7 @@ New modules were detected and added to the 'Unmapped Modules' section of `MAP.md
 Move the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.
 
 ## Tasks
+- [ ] [src/utils/TimelineCleanup.res](src/utils/TimelineCleanup.res): New module detected. Please classify. #new
 - [ ] [src/systems/EtaSupport.res](src/systems/EtaSupport.res): New module detected. Please classify. #new
 - [ ] [src/systems/TeaserStyleCinematic.res](src/systems/TeaserStyleCinematic.res): New module detected. Please classify. #new
 - [ ] [src/systems/TeaserStyleFastShots.res](src/systems/TeaserStyleFastShots.res): New module detected. Please classify. #new

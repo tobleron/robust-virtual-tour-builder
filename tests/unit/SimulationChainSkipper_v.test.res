@@ -107,16 +107,16 @@ describe("SimulationChainSkipper", () => {
 
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 
-    let visitedScenesRef = ref([])
+    let visitedLinkIdsRef = ref([])
     let onVisit = idx => {
-      let _ = Js.Array.push(idx, visitedScenesRef.contents)
+      let _ = Js.Array.push(idx, visitedLinkIdsRef.contents)
     }
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)
 
     t->expect(result.finalLink.targetIndex)->Expect.toBe(2)
     t->expect(result.skippedScenes)->Expect.toEqual([1])
-    t->expect(visitedScenesRef.contents)->Expect.toEqual([1])
+    t->expect(visitedLinkIdsRef.contents)->Expect.toEqual([1])
   })
 
   test("Should skip multiple auto-forward scenes", t => {
@@ -139,9 +139,9 @@ describe("SimulationChainSkipper", () => {
     let h0_to_1 = createMockHotspot("s1")
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 
-    let visitedScenesRef = ref([])
+    let visitedLinkIdsRef = ref([])
     let onVisit = idx => {
-      let _ = Js.Array.push(idx, visitedScenesRef.contents)
+      let _ = Js.Array.push(idx, visitedLinkIdsRef.contents)
     }
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)
@@ -162,9 +162,9 @@ describe("SimulationChainSkipper", () => {
     let h0_to_1 = createMockHotspot("s1")
     let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 
-    let visitedScenesRef = ref([])
+    let visitedLinkIdsRef = ref([])
     let onVisit = idx => {
-      let _ = Js.Array.push(idx, visitedScenesRef.contents)
+      let _ = Js.Array.push(idx, visitedLinkIdsRef.contents)
     }
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)

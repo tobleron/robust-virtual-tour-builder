@@ -14,7 +14,7 @@ test("SimulationHelpers: handleStartAutoPilot starts simulation", t => {
 
   t->expect(next.simulation.autoPilotJourneyId)->Expect.toBe(123)
   t->expect(next.simulation.skipAutoForwardGlobal)->Expect.toBe(true)
-  t->expect(Array.length(next.simulation.visitedScenes))->Expect.toBe(0)
+  t->expect(Array.length(next.simulation.visitedLinkIds))->Expect.toBe(0)
   t->expect(next.simulation.stoppingOnArrival)->Expect.toBe(false)
 })
 
@@ -60,11 +60,11 @@ test("SimulationHelpers: handleStartLinking resets simulation", t => {
   }
 })
 
-test("SimulationHelpers: handleAddVisitedScene appends scene", t => {
+test("SimulationHelpers: handleAddVisitedLink appends linkId", t => {
   let state = createMockState()
-  let next = SimulationHelpers.handleAddVisitedScene(state, 5)
-  t->expect(next.simulation.visitedScenes)->Expect.toEqual([5])
+  let next = SimulationHelpers.handleAddVisitedLink(state, "A01")
+  t->expect(next.simulation.visitedLinkIds)->Expect.toEqual(["A01"])
 
-  let next2 = SimulationHelpers.handleAddVisitedScene(next, 10)
-  t->expect(next2.simulation.visitedScenes)->Expect.toEqual([5, 10])
+  let next2 = SimulationHelpers.handleAddVisitedLink(next, "A02")
+  t->expect(next2.simulation.visitedLinkIds)->Expect.toEqual(["A01", "A02"])
 })

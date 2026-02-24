@@ -117,7 +117,7 @@ open Vitest
            isTeasing: false,
            tourName: "Test",
            appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
-           simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+           simulation: { status: "Idle", visitedLinkIds: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
         })),
         useUiSlice: vi.fn(() => ({
           isLinking: false,
@@ -135,7 +135,7 @@ open Vitest
           activePitch: 0
         })),
         useSimSlice: vi.fn(() => ({
-          simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 },
+          simulation: { status: "Idle", visitedLinkIds: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 },
           navigation: "Idle",
           currentJourneyId: 0,
           incomingLink: undefined
@@ -295,6 +295,6 @@ useAppStateMock->mockReturnValue(
          isLinking: false,
          isTeasing: false,
          appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
-         simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+         simulation: { status: "Idle", visitedLinkIds: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
       }`),
 )

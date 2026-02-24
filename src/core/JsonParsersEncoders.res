@@ -234,7 +234,7 @@ let simulationState = (s: Types.simulationState) => {
         },
       ),
     ),
-    ("visitedScenes", Encode.array(Encode.int)(s.visitedScenes)),
+    ("visitedLinkIds", Encode.array(Encode.string)(s.visitedLinkIds)),
     ("autoPilotJourneyId", Encode.int(s.autoPilotJourneyId)),
   ])
 }

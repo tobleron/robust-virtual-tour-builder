@@ -17,10 +17,11 @@ type nextMove =
   | Complete({reason: string})
   | None
 
-let selectArrivalHotspot = (state: state, scene: scene, visitedAfterArrival: array<int>): option<
+let selectArrivalHotspot = (state: state, scene: scene, _visited: array<string>): option<
   hotspot,
 > => {
-  SimulationNavigation.findBestNextLink(scene, state, visitedAfterArrival)
+  // Use linkId-based link finding
+  SimulationNavigation.findBestNextLinkByLinkId(scene, state, _visited)
   ->Option.map(link => link.hotspot)
   ->Option.orElse(
     scene.hotspots
@@ -32,11 +33,11 @@ let selectArrivalHotspot = (state: state, scene: scene, visitedAfterArrival: arr
 let arrivalFromTargetScene = (
   state: state,
   targetIndex: int,
-  visitedAfterArrival: array<int>,
+  visitedLinkIds: array<string>,
 ): option<(float, float, float)> => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   Belt.Array.get(activeScenes, targetIndex)->Option.flatMap(scene => {
-    let candidate = selectArrivalHotspot(state, scene, visitedAfterArrival)
+    let candidate = selectArrivalHotspot(state, scene, visitedLinkIds)
 
     candidate->Option.map(h => (
       h.startYaw->Option.getOr(h.yaw),
@@ -48,7 +49,7 @@ let arrivalFromTargetScene = (
 
 let getNextMove = (state: state): nextMove => {
   let simulation = state.simulation
-  let visitedScenes = simulation.visitedScenes
+  let visitedLinkIds = simulation.visitedLinkIds
 
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   switch Belt.Array.get(activeScenes, state.activeIndex) {
@@ -60,12 +61,12 @@ let getNextMove = (state: state): nextMove => {
         "currentSceneId": currentScene.id,
         "currentSceneName": currentScene.name,
         "activeIndex": state.activeIndex,
-        "visitedScenes": visitedScenes,
+        "visitedLinkIds": visitedLinkIds,
         "hotspotCount": Belt.Array.length(currentScene.hotspots),
       }),
       (),
     )
-    let nextLinkFound = SimulationNavigation.findBestNextLink(currentScene, state, visitedScenes)
+    let nextLinkFound = SimulationNavigation.findBestNextLinkByLinkId(currentScene, state, visitedLinkIds)
     Logger.debug(
       ~module_="SimulationMainLogic",
       ~message="NEXT_LINK_RESULT",
@@ -78,10 +79,13 @@ let getNextMove = (state: state): nextMove => {
     switch nextLinkFound {
     | Some(link) =>
       let (finalLink, extraVisited) = if simulation.skipAutoForwardGlobal {
+        // Note: skipAutoForwardChain uses scene-based tracking internally for chain detection
+        // The main visited tracking is via visitedLinkIds (AddVisitedLink action)
+        // We pass [] here since chain skipping is an optimization, not the main traversal logic
         let skipResult = SimulationChainSkipper.skipAutoForwardChain(
           link,
           state,
-          visitedScenes,
+          [],
           _ => (),
         )
         (skipResult.finalLink, skipResult.skippedScenes)
@@ -92,10 +96,9 @@ let getNextMove = (state: state): nextMove => {
       let hotspot = finalLink.hotspot
       let targetIndex = finalLink.targetIndex
       let hotspotIndex = finalLink.hotspotIndex
-      let visitedAfterArrival = Belt.Array.concat(
-        Belt.Array.concat(visitedScenes, extraVisited),
-        [targetIndex],
-      )
+      // Note: visitedAfterArrival kept for backward compatibility with helper functions
+      // Main tracking is via visitedLinkIds which is updated by AddVisitedLink action
+      let visitedAfterArrival = visitedLinkIds
 
       let (tYaw, tPitch, tHfov) = if finalLink.isReturn {
         hotspot.returnViewFrame
@@ -120,14 +123,14 @@ let getNextMove = (state: state): nextMove => {
         )
       }
 
+      // Check if tour is complete: all links from start scene have been traversed
       let isComplete = if targetIndex == 0 {
         let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
         switch Belt.Array.get(activeScenes, 0) {
         | Some(startScene) =>
+          // Check if all hotspots from start scene have their linkId in visitedLinkIds
           !Belt.Array.some(startScene.hotspots, h => {
-            HotspotTarget.resolveSceneIndex(activeScenes, h)
-            ->Option.map(i => !Array.includes(visitedScenes, i))
-            ->Option.getOr(false)
+            !Array.includes(visitedLinkIds, h.linkId)
           })
         | None => false
         }
@@ -139,8 +142,11 @@ let getNextMove = (state: state): nextMove => {
         Complete({reason: "returned_to_start"})
       } else {
         let actions = []
+        // Note: extraVisited is for auto-forward chain skipping (scene indices)
+        // We still process these but the main tracking is by linkId
         extraVisited->Belt.Array.forEach(idx => {
-          let _ = Array.push(actions, AddVisitedScene(idx))
+          // Skip scene-based tracking, linkId tracking handles this
+          let _ = idx
         })
         let timelineItem = Array.find(state.timeline, item =>
           item.sceneId == currentScene.id && item.linkId == hotspot.linkId
@@ -149,7 +155,8 @@ let getNextMove = (state: state): nextMove => {
           actions,
           SetActiveTimelineStep(timelineItem->Option.map(item => item.id)),
         )
-        let finalActions = Belt.Array.concat(actions, [AddVisitedScene(targetIndex)])
+        // KEY CHANGE: Add the linkId to visited, not the scene index
+        let finalActions = Belt.Array.concat(actions, [AddVisitedLink(hotspot.linkId)])
 
         Move({
           targetIndex,

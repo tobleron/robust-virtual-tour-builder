@@ -154,7 +154,7 @@ describe("Reducer.Simulation", () => {
         let sim = newState.simulation
         t->expect(sim.status)->Expect.toBe(Running)
         t->expect(sim.autoPilotJourneyId)->Expect.toBe(42)
-        t->expect(Array.length(sim.visitedScenes))->Expect.toBe(0)
+        t->expect(Array.length(sim.visitedLinkIds))->Expect.toBe(0)
         t->expect(sim.skipAutoForwardGlobal)->Expect.toBe(true)
       }
     | None => t->expect(true)->Expect.toBe(false)

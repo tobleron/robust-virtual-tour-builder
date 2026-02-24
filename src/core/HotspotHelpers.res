@@ -48,18 +48,33 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
       | Some(entry) =>
         let sourceScene = entry.scene
         switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
-        | Some(_hotspotToDelete) =>
-          // 1. Remove the hotspot
+        | Some(hotspotToDelete) =>
+          // 1. Extract the linkId to clean up timeline
+          let linkIdToRemove = hotspotToDelete.linkId
+          
+          // 2. Remove the hotspot from the scene
           let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
             i != hotspotIndex
           )
+          
+          // 3. Remove all timeline items with this linkId (prevents duplicate entries)
+          let filteredTimeline = Belt.Array.keep(state.timeline, t => t.linkId != linkIdToRemove)
+          
+          // 4. Clear active timeline step if it was removed
+          let activeTimelineStepId = switch state.activeTimelineStepId {
+          | Some(stepId) =>
+            let stillExists = filteredTimeline->Belt.Array.some(t => t.id == stepId)
+            stillExists ? Some(stepId) : None
+          | None => None
+          }
+          
           let updatedInventory =
             state.inventory->Belt.Map.String.set(
               id,
               {...entry, scene: {...sourceScene, hotspots: newSourceHotspots}},
             )
 
-          {...state, inventory: updatedInventory}
+          {...state, inventory: updatedInventory, timeline: filteredTimeline, activeTimelineStepId}
         | None => state
         }
       | None => state

@@ -110,7 +110,7 @@ type simulationStatus =
 
 type simulationState = {
   status: simulationStatus,
-  visitedScenes: array<int>,
+  visitedLinkIds: array<string>,
   stoppingOnArrival: bool,
   skipAutoForwardGlobal: bool,
   lastAdvanceTime: float,

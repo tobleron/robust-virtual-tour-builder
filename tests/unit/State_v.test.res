@@ -19,7 +19,7 @@ describe("State", () => {
     t->expect(initialState.activeTimelineStepId)->Expect.toEqual(None)
     t->expect(initialState.navigationState.navigation)->Expect.toEqual(Idle)
     t->expect(initialState.simulation.status)->Expect.toEqual(Idle)
-    t->expect(initialState.simulation.visitedScenes)->Expect.toEqual([])
+    t->expect(initialState.simulation.visitedLinkIds)->Expect.toEqual([])
     t->expect(initialState.simulation.stoppingOnArrival)->Expect.toBe(false)
     t->expect(initialState.simulation.skipAutoForwardGlobal)->Expect.toBe(false)
     t->expect(initialState.simulation.lastAdvanceTime)->Expect.toBe(0.0)

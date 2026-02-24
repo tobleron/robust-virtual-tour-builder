@@ -152,7 +152,26 @@ module Project = {
     switch action {
     | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
-    | LoadProject(projectDataJson) => Some(handleLoadProject(state, projectDataJson))
+    | LoadProject(projectDataJson) =>
+      // Load the project first
+      let loadedState = handleLoadProject(state, projectDataJson)
+      
+      // Then auto-cleanup timeline (fixes old polluted projects)
+      let (cleanedState, result) = TimelineCleanup.applyCleanup(loadedState)
+      if result.removedCount > 0 {
+        // Only log if we actually cleaned something
+        Logger.info(
+          ~module_="NavigationProjectReducer",
+          ~message="PROJECT_LOAD_AUTO_CLEANUP",
+          ~data=Some(Logger.castToJson({
+            "before": result.timelineItemsBefore,
+            "after": result.timelineItemsAfter,
+            "removed": result.removedCount,
+          })),
+          (),
+        )
+      }
+      Some(cleanedState)
 
     | Actions.Reset => Some(State.initialState)
 

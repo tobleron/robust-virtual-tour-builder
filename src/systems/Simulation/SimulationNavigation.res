@@ -218,3 +218,77 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
     }
   }
 }
+
+/**
+ * Find the best next link using linkId-based visited tracking.
+ * This is the correct approach for graph traversal - tracks edges (links), not nodes (scenes).
+ */
+let findBestNextLinkByLinkId = (currentScene: scene, state: state, visitedLinkIds: array<string>): option<
+  enrichedLink,
+> => {
+  let hotspots = currentScene.hotspots
+  if Array.length(hotspots) == 0 {
+    None
+  } else {
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let allLinks =
+      hotspots
+      ->Belt.Array.mapWithIndex((i, hotspot) => {
+        let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
+        switch targetIdx {
+        | Some(idx) =>
+          switch Belt.Array.get(activeScenes, idx) {
+          | Some(targetScene) =>
+            Some({
+              hotspot,
+              hotspotIndex: i,
+              targetIndex: idx,
+              // KEY CHANGE: Check if linkId was traversed, not if scene was visited
+              isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
+              isReturn: hotspot.isReturnLink->Option.getOr(false),
+              isBridge: targetScene.isAutoForward,
+            })
+          | None => None
+          }
+        | None => None
+        }
+      })
+      ->Belt.Array.keepMap(x => x)
+
+    Logger.debug(
+      ~module_="SimulationNavigation",
+      ~message="FIND_BEST_NEXT_LINK_BY_LINKID",
+      ~data=Some({
+        "currentScene": currentScene.name,
+        "hotspotCount": Array.length(hotspots),
+        "allLinksCount": Belt.Array.length(allLinks),
+        "visitedLinkIds": visitedLinkIds,
+      }),
+      (),
+    )
+
+    // Same priority logic, but now correctly identifies untraversed links
+    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && !l.isBridge)
+    switch p1 {
+    | Some(l) => Some(l)
+    | None =>
+      let p2 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && l.isBridge)
+      switch p2 {
+      | Some(l) => Some(l)
+      | None =>
+        let p3 = Array.find(allLinks, l => !l.isVisited && l.isReturn && !l.isBridge)
+        switch p3 {
+        | Some(l) => Some(l)
+        | None =>
+          let p4 = Array.find(allLinks, l => !l.isVisited && l.isReturn && l.isBridge)
+          switch p4 {
+          | Some(l) => Some(l)
+          | None =>
+            // All links traversed - return to start
+            Array.find(allLinks, l => l.targetIndex == 0)
+          }
+        }
+      }
+    }
+  }
+}

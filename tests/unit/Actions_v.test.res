@@ -229,12 +229,12 @@ describe("Actions", _ => {
     t->expect(actionToString(StopAutoPilot))->Expect.toBe("StopAutoPilot")
   })
 
-  test("AddVisitedScene matches string representation", t => {
-    t->expect(actionToString(AddVisitedScene(3)))->Expect.toBe("AddVisitedScene")
+  test("AddVisitedLink matches string representation", t => {
+    t->expect(actionToString(AddVisitedLink("A01")))->Expect.toBe("AddVisitedLink(A01)")
   })
 
-  test("ClearVisitedScenes matches string representation", t => {
-    t->expect(actionToString(ClearVisitedScenes))->Expect.toBe("ClearVisitedScenes")
+  test("ClearVisitedLinks matches string representation", t => {
+    t->expect(actionToString(ClearVisitedLinks))->Expect.toBe("ClearVisitedLinks")
   })
 
   test("SetStoppingOnArrival matches string representation", t => {
