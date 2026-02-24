@@ -200,27 +200,32 @@ let script = `
           target: hotspot?.target,
           targetName: hotspot?.target,
         }, null) ?? directTarget;
-        return { hotspot, hotspotIndex, resolvedTarget };
+        const isAutoForward = hotspotIndex === sceneData?.autoForwardHotspotIndex;
+        const isReturn = hotspot?.isReturnLink === true;
+        return { hotspot, hotspotIndex, resolvedTarget, isAutoForward, isReturn };
       });
-      const routeIndex = Number.isInteger(sceneData?.autoForwardHotspotIndex)
-        ? sceneData.autoForwardHotspotIndex
-        : -1;
-      const routeTarget = resolveExistingSceneId(sceneData?.autoForwardTargetSceneId);
-      if (routeIndex >= 0 && routeIndex < resolvedHotspots.length && routeTarget) {
-        const routeHotspot = resolvedHotspots[routeIndex]?.hotspot ?? hotspots[routeIndex];
-        return {
-          hotspot: routeHotspot,
-          hotspotIndex: routeIndex,
-          autoForward: true,
-          targetSceneId: routeTarget,
-        };
-      }
-      return {
-        hotspot: hotspots[0],
-        hotspotIndex: 0,
-        autoForward: false,
-        targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
-      };
+      
+      // PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)
+      const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward);
+      if (p1) { p1.hotspot.__visited = true; return { hotspot: p1.hotspot, hotspotIndex: p1.hotspotIndex, autoForward: false, targetSceneId: p1.resolvedTarget }; }
+      
+      // PRIORITY 2: Unvisited, non-return, IS auto-forward (exit - taken LAST)
+      const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward);
+      if (p2) { p2.hotspot.__visited = true; return { hotspot: p2.hotspot, hotspotIndex: p2.hotspotIndex, autoForward: true, targetSceneId: p2.resolvedTarget }; }
+      
+      // PRIORITY 3: Unvisited, return, non-auto-forward
+      const p3 = resolvedHotspots.find(h => !h.hotspot.__visited && h.isReturn && !h.isAutoForward);
+      if (p3) { p3.hotspot.__visited = true; return { hotspot: p3.hotspot, hotspotIndex: p3.hotspotIndex, autoForward: false, targetSceneId: p3.resolvedTarget }; }
+      
+      // PRIORITY 4: Unvisited, return, auto-forward
+      const p4 = resolvedHotspots.find(h => !h.hotspot.__visited && h.isReturn && h.isAutoForward);
+      if (p4) { p4.hotspot.__visited = true; return { hotspot: p4.hotspot, hotspotIndex: p4.hotspotIndex, autoForward: true, targetSceneId: p4.resolvedTarget }; }
+      
+      // All visited - return to start
+      const startLink = resolvedHotspots.find(h => h.hotspotIndex === 0);
+      if (startLink) return { hotspot: startLink.hotspot, hotspotIndex: 0, autoForward: false, targetSceneId: startLink.resolvedTarget };
+      
+      return { hotspot: hotspots[0], hotspotIndex: 0, autoForward: false, targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null };
     }
     function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
       if (window.viewer.getScene() !== sceneId) return;
