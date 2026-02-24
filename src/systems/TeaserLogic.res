@@ -187,10 +187,11 @@ module Manager = {
     ~getState: unit => Types.state,
     ~dispatch: Actions.action => unit,
   ) => {
-    let logoState = await Recorder.loadLogo()
+    let state = getState()
+    let logoState = await Recorder.loadLogo(state.logo)
     Recorder.startAnimationLoop(includeLogo, logoState)
     if Recorder.startRecording() {
-      dispatch(Actions.StartAutoPilot(getState().navigationState.currentJourneyId, skipAutoForward))
+      dispatch(Actions.StartAutoPilot(state.navigationState.currentJourneyId, skipAutoForward))
       let rec check = async () => {
         await Playback.wait(1000)
         if getState().simulation.status == Running {

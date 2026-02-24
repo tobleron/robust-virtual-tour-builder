@@ -93,7 +93,8 @@ let renderWebMDeterministic = async (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~onProgress: option<(float, string, string) => unit>=?,
 ) => {
-  let logoState = await Recorder.loadLogo()
+  let state = getState()
+  let logoState = await Recorder.loadLogo(state.logo)
   let fps = if manifest.fps > 0 {
     manifest.fps->Belt.Int.toFloat
   } else {

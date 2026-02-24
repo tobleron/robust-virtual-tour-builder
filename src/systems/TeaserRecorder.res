@@ -107,10 +107,15 @@ module Overlay = {
   }
 }
 
-let loadLogo = () =>
+let loadLogo = (logo: option<Types.file>) =>
   Promise.make((resolve, _) => {
+    let src = switch logo {
+    | Some(File(f)) => Types.fileToUrl(f)
+    | Some(Blob(b)) => URL.createObjectURL(b)
+    | _ => "images/logo.png"
+    }
     let img = Dom.createElement("img")
-    Dom.setAttribute(img, "src", "images/logo.png")
+    Dom.setAttribute(img, "src", src)
     asDynamic(img)["onload"] = () => resolve({img: Some(img), loaded: true})
     asDynamic(img)["onerror"] = () => resolve({img: None, loaded: false})
   })
