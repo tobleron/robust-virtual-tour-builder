@@ -247,10 +247,19 @@
 }
 
 @keyframes flicker-yellow-flat {
+    0%,
+    30%,
+    60%,
+    100% {
+        filter: brightness(1);
+        transform: scale(1);
+    }
 
     15%,
     45% {
-        background-color: #fef9c3;
+        background-color: #facc15;
+        filter: brightness(1.8);
+        transform: scale(1.15);
     }
 }
 

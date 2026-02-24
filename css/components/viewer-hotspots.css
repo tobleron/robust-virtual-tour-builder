@@ -134,6 +134,16 @@
     filter: brightness(1.1) drop-shadow(0 20px 10px rgba(0, 0, 0, 0.4));
 }
 
+/* FREELY PLACED / PINPOINT ACCURACY - Removes floor perspective and centers on click */
+.pnlm-hotspot.flat-arrow.freely-placed .hotspot-nav-btn {
+    transform: translate(-50%, -50%) rotateX(0deg);
+}
+
+.pnlm-hotspot.flat-arrow.freely-placed .hotspot-forward-btn {
+    /* Stack the forward button below the centered main button */
+    transform: translate(-50%, 25px) rotateX(0deg);
+}
+
 .hotspot-nav-btn:hover::after {
     /* Speed up shine on hover (1.0s) */
     animation-duration: 1.0s;

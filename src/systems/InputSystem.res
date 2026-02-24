@@ -71,6 +71,24 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
       })
     }
 
+    // 0a. Handle Moving Hotspot Cancellation
+    switch storeState.movingHotspot {
+    | Some(_) =>
+      dispatch(StopMovingHotspot)
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("input_system"),
+        message: "Move Cancelled",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    | None => ()
+    }
+
     // 0b. Handle Navigation Interruption
     switch storeState.navigationState.navigationFsm {
     | IdleFsm | ErrorFsm(_) => ()

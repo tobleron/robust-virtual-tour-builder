@@ -61,6 +61,9 @@ let createHotspotConfig = (
   if isTargetOfActiveNav {
     cssClass := cssClass.contents ++ " active-sim-target"
   }
+  if hotspot.displayPitch == None {
+    cssClass := cssClass.contents ++ " freely-placed"
+  }
 
   {
     "id": if hotspot.linkId != "" {
@@ -248,4 +251,26 @@ let handleUpdateHotspotMetadata = async (
       }
     },
   )
+}
+
+let handleCommitHotspotMove = async (
+  sceneIndex: int,
+  hotspotIndex: int,
+  yaw: float,
+  pitch: float,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+) => {
+  let _ = await OptimisticAction.execute(
+    ~action=Actions.CommitHotspotMove(sceneIndex, hotspotIndex, yaw, pitch),
+    ~apiCall=() => {
+      let state = getState()
+      switch state.sessionId {
+      | Some(sid) =>
+        let projectData = getProjectData(state)
+        Api.ProjectApi.saveProject(sid, projectData)
+      | None => Promise.resolve(Ok())
+      }
+    },
+  )
+  let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
 }

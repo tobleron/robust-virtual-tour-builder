@@ -179,15 +179,15 @@ describe("PreviewArrow", () => {
     await wait(100)
     let arrow = Dom.getElementById("arrow-delete")
 
-    // 3rd div is delete button
+    // 4th div is delete button (after adding Move button)
     let deleteBtn = switch Nullable.toOption(arrow) {
     | Some(el) =>
       let wrapper = Dom.querySelector(el, ".relative")
       switch Nullable.toOption(wrapper) {
       | Some(w) =>
         let childArr: array<Dom.element> = %raw(`(w) => Array.from(w.children)`)(w)
-        if Belt.Array.length(childArr) >= 3 {
-          Some(Belt.Array.getExn(childArr, 2))
+        if Belt.Array.length(childArr) >= 4 {
+          Some(Belt.Array.getExn(childArr, 3))
         } else {
           None
         }

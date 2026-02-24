@@ -115,11 +115,17 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
     }
   , (simActive, currentJourneyId, canStartSimulation))
 
+  let state = AppContext.useAppState()
+  let isMovingHotspot = switch state.movingHotspot {
+  | Some(_) => true
+  | None => false
+  }
+
   let utilBarClass =
     "absolute top-5 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
-      !scenesLoaded || isSystemLocked
+      !scenesLoaded || isSystemLocked || isMovingHotspot
     ) {
-      "opacity-80 pointer-events-none"
+      "opacity-20 pointer-events-none"
     } else {
       ""
     }

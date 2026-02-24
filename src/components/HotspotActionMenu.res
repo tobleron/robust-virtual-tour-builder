@@ -6,6 +6,13 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
+  let isMovingThis = switch state.movingHotspot {
+  | Some(mh) => mh.sceneIndex == state.activeIndex && mh.hotspotIndex == index
+  | None => false
+  }
+
+  let isMovingAny = state.movingHotspot != None
+
   let currentHotspot = switch Belt.Array.get(
     SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
     state.activeIndex,
@@ -28,195 +35,232 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleDelete = () => {
-    EventBus.dispatch(
-      ShowModal({
-        title: "Delete Link",
-        description: Some("Are you sure you want to delete this link?"),
-        content: None,
-        icon: Some("warning"),
-        className: Some("modal-blue"),
-        allowClose: Some(true),
-        onClose: None,
-        buttons: [
-          {
-            label: "Cancel",
-            class_: "bg-slate-100/10 text-white hover:bg-white/20",
-            onClick: () => (),
-            autoClose: Some(true),
-          },
-          {
-            label: "Delete",
-            class_: "bg-red-500/20 text-white hover:bg-red-500/40",
-            onClick: () => {
-              HotspotManager.handleDeleteHotspot(state.activeIndex, index, ~getState=() =>
-                state
-              )->ignore
-              NotificationManager.dispatch({
-                id: "",
-                importance: Success,
-                context: Operation("hotspot_action"),
-                message: "Link deleted",
-                details: None,
-                action: None,
-                duration: NotificationTypes.defaultTimeoutMs(Success),
-                dismissible: true,
-                createdAt: Date.now(),
-              })
+    if isMovingAny {
+      ()
+    } else {
+      EventBus.dispatch(
+        ShowModal({
+          title: "Delete Link",
+          description: Some("Are you sure you want to delete this link?"),
+          content: None,
+          icon: Some("warning"),
+          className: Some("modal-blue"),
+          allowClose: Some(true),
+          onClose: None,
+          buttons: [
+            {
+              label: "Cancel",
+              class_: "bg-slate-100/10 text-white hover:bg-white/20",
+              onClick: () => (),
+              autoClose: Some(true),
             },
-            autoClose: Some(true),
-          },
-        ],
-      }),
-    )
-    onClose()
+            {
+              label: "Delete",
+              class_: "bg-red-500/20 text-white hover:bg-red-500/40",
+              onClick: () => {
+                HotspotManager.handleDeleteHotspot(state.activeIndex, index, ~getState=() =>
+                  state
+                )->ignore
+                NotificationManager.dispatch({
+                  id: "",
+                  importance: Success,
+                  context: Operation("hotspot_action"),
+                  message: "Link deleted",
+                  details: None,
+                  action: None,
+                  duration: NotificationTypes.defaultTimeoutMs(Success),
+                  dismissible: true,
+                  createdAt: Date.now(),
+                })
+              },
+              autoClose: Some(true),
+            },
+          ],
+        }),
+      )
+      onClose()
+    }
   }
 
   let handleToggleAutoForward = () => {
-    // Get current scene's hotspots FRESH from state
-    let sceneHotspotsOpt = Belt.Array.get(
-      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
-      state.activeIndex,
-    )
-    let currentSceneHotspots = switch sceneHotspotsOpt {
-    | Some(scene) => scene.hotspots
-    | None =>
-      let empty: array<hotspot> = []
-      empty
-    }
-
-    // Count existing auto-forward hotspots in THIS scene
-    let existingAutoForwardCount = Belt.Array.keep(currentSceneHotspots, h =>
-      switch h.isAutoForward {
-      | Some(true) => true
-      | _ => false
-      }
-    )->Belt.Array.length
-
-    // Get the CURRENT hotspot data (from state, not props)
-    let currentHotspotFromState = Belt.Array.get(currentSceneHotspots, index)
-    let isCurrentAlreadyAutoForward = switch currentHotspotFromState {
-    | Some(h) =>
-      switch h.isAutoForward {
-      | Some(true) => true
-      | _ => false
-      }
-    | None => false
-    }
-
-    // User is trying to ENABLE (current state is false, they want true)
-    let isTryingToEnable = !isCurrentAlreadyAutoForward
-
-    // Validation: ONLY ONE auto-forward per scene
-    if existingAutoForwardCount > 0 && isTryingToEnable {
-      // There's already an auto-forward link, and user wants to enable another
-      NotificationManager.dispatch({
-        id: "autoforward-validation-error",
-        importance: Error,
-        context: Operation("hotspot_action"),
-        message: "Only one auto-forward link per scene",
-        details: Some(
-          "Disable auto-forward on the existing link first, then enable it on this link.",
-        ),
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Error),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-      onClose()
+    if isMovingAny {
+      ()
     } else {
-      // Validation passed - toggle auto-forward
-      let newVal = !isCurrentAlreadyAutoForward
-      HotspotManager.handleUpdateHotspotMetadata(
+      // Get current scene's hotspots FRESH from state
+      let sceneHotspotsOpt = Belt.Array.get(
+        SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
         state.activeIndex,
-        index,
-        Logger.castToJson({"isAutoForward": newVal}),
-      )->ignore
-      let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
-      NotificationManager.dispatch({
-        id: "",
-        importance: Success,
-        context: Operation("hotspot_action"),
-        message: "Auto-forward: " ++ if newVal {
-          "ENABLED"
-        } else {
-          "DISABLED"
-        },
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Success),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
+      )
+      let currentSceneHotspots = switch sceneHotspotsOpt {
+      | Some(scene) => scene.hotspots
+      | None =>
+        let empty: array<hotspot> = []
+        empty
+      }
+
+      // Count existing auto-forward hotspots in THIS scene
+      let existingAutoForwardCount = Belt.Array.keep(currentSceneHotspots, h =>
+        switch h.isAutoForward {
+        | Some(true) => true
+        | _ => false
+        }
+      )->Belt.Array.length
+
+      // Get the CURRENT hotspot data (from state, not props)
+      let currentHotspotFromState = Belt.Array.get(currentSceneHotspots, index)
+      let isCurrentAlreadyAutoForward = switch currentHotspotFromState {
+      | Some(h) =>
+        switch h.isAutoForward {
+        | Some(true) => true
+        | _ => false
+        }
+      | None => false
+      }
+
+      // User is trying to ENABLE (current state is false, they want true)
+      let isTryingToEnable = !isCurrentAlreadyAutoForward
+
+      // Validation: ONLY ONE auto-forward per scene
+      if existingAutoForwardCount > 0 && isTryingToEnable {
+        // There's already an auto-forward link, and user wants to enable another
+        NotificationManager.dispatch({
+          id: "autoforward-validation-error",
+          importance: Error,
+          context: Operation("hotspot_action"),
+          message: "Only one auto-forward link per scene",
+          details: Some(
+            "Disable auto-forward on the existing link first, then enable it on this link.",
+          ),
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        onClose()
+      } else {
+        // Validation passed - toggle auto-forward
+        let newVal = !isCurrentAlreadyAutoForward
+        HotspotManager.handleUpdateHotspotMetadata(
+          state.activeIndex,
+          index,
+          Logger.castToJson({"isAutoForward": newVal}),
+        )->ignore
+        let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("hotspot_action"),
+          message: "Auto-forward: " ++ if newVal {
+            "ENABLED"
+          } else {
+            "DISABLED"
+          },
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      }
     }
   }
 
   let handleNavigate = () => {
-    let targetIdx = HotspotTarget.resolveSceneIndex(
-      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
-      hotspot,
-    )
-    switch targetIdx {
-    | Some(idx) =>
-      let navYaw = ref(0.0)
-      let navPitch = ref(0.0)
-      let navHfov = ref(90.0)
+    if isMovingAny {
+      ()
+    } else {
+      let targetIdx = HotspotTarget.resolveSceneIndex(
+        SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+        hotspot,
+      )
+      switch targetIdx {
+      | Some(idx) =>
+        let navYaw = ref(0.0)
+        let navPitch = ref(0.0)
+        let navHfov = ref(90.0)
 
-      let isRet = switch hotspot.isReturnLink {
-      | Some(b) => b
-      | None => false
-      }
-
-      if isRet && hotspot.returnViewFrame != None {
-        let rvf = hotspot.returnViewFrame
-        switch rvf {
-        | Some(r) =>
-          navYaw := r.yaw
-          navPitch := r.pitch
-          navHfov := r.hfov
-        | None => ()
+        let isRet = switch hotspot.isReturnLink {
+        | Some(b) => b
+        | None => false
         }
-      } else {
-        switch hotspot.targetYaw {
-        | Some(ty) =>
-          navYaw := ty
-          navPitch :=
-            switch hotspot.targetPitch {
-            | Some(p) => p
-            | None => 0.0
-            }
-          navHfov :=
-            switch hotspot.targetHfov {
-            | Some(h) => h
-            | None => 90.0
-            }
-        | None =>
-          switch hotspot.viewFrame {
-          | Some(vf) =>
-            navYaw := vf.yaw
-            navPitch := vf.pitch
-            navHfov := vf.hfov
+
+        if isRet && hotspot.returnViewFrame != None {
+          let rvf = hotspot.returnViewFrame
+          switch rvf {
+          | Some(r) =>
+            navYaw := r.yaw
+            navPitch := r.pitch
+            navHfov := r.hfov
           | None => ()
           }
+        } else {
+          switch hotspot.targetYaw {
+          | Some(ty) =>
+            navYaw := ty
+            navPitch :=
+              switch hotspot.targetPitch {
+              | Some(p) => p
+              | None => 0.0
+              }
+            navHfov :=
+              switch hotspot.targetHfov {
+              | Some(h) => h
+              | None => 90.0
+              }
+          | None =>
+            switch hotspot.viewFrame {
+            | Some(vf) =>
+              navYaw := vf.yaw
+              navPitch := vf.pitch
+              navHfov := vf.hfov
+            | None => ()
+            }
+          }
         }
-      }
 
-      Scene.Switcher.navigateToScene(
-        dispatch,
-        state,
-        idx,
-        state.activeIndex,
-        index,
-        ~targetYaw=navYaw.contents,
-        ~targetPitch=navPitch.contents,
-        ~targetHfov=navHfov.contents,
-        (),
-      )
-    | None => ()
+        Scene.Switcher.navigateToScene(
+          dispatch,
+          state,
+          idx,
+          state.activeIndex,
+          index,
+          ~targetYaw=navYaw.contents,
+          ~targetPitch=navPitch.contents,
+          ~targetHfov=navHfov.contents,
+          (),
+        )
+      | None => ()
+      }
+      onClose()
+    }
+  }
+
+  let handleStartMove = () => {
+    if isMovingThis {
+      dispatch(StopMovingHotspot)
+    } else {
+      dispatch(StartMovingHotspot(state.activeIndex, index))
+      NotificationManager.dispatch({
+        id: "hotspot-move-mode",
+        importance: Info,
+        context: Operation("preview_arrow"),
+        message: "Move Mode Active",
+        details: Some("Click anywhere on the panorama to place the link. ESC to cancel."),
+        action: None,
+        duration: 5000,
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
     onClose()
   }
 
-  <div className="flex flex-col p-1.5 gap-1.5 min-w-[160px]">
+  <div
+    className={`flex flex-col p-1.5 gap-1.5 min-w-[160px] transition-opacity duration-300 ${isMovingAny &&
+      !isMovingThis
+        ? "opacity-20 pointer-events-none"
+        : "opacity-100"}`}
+  >
     /* Nav Button */
     <button
       onClick={_ => handleNavigate()}
@@ -252,6 +296,17 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
             },
           )}
         </span>
+      </button>
+
+      /* Move Button */
+      <button
+        onClick={_ => handleStartMove()}
+        className={`w-10 flex items-center justify-center rounded-xl transition-all border ${isMovingThis
+            ? "bg-yellow-500 text-white border-yellow-400"
+            : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-white border-yellow-500/20"}`}
+        title={isMovingThis ? "Cancel Move" : "Move Link"}
+      >
+        {isMovingThis ? <LucideIcons.X className="text-lg" /> : <LucideIcons.Move className="text-lg" />}
       </button>
 
       /* Delete Button */

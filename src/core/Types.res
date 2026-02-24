@@ -294,6 +294,8 @@ type appMode =
   | Interactive(interactiveState)
   | SystemBlocking(blockingState)
 
+type movingHotspot = linkInfo
+
 type state = {
   tourName: string,
   inventory: Belt.Map.String.t<sceneEntry>,
@@ -306,6 +308,7 @@ type state = {
   transition: transition,
   exifReport: option<JSON.t>,
   linkDraft: option<linkDraft>,
+  movingHotspot: option<movingHotspot>,
   preloadingSceneIndex: int,
   isTeasing: bool,
   timeline: array<timelineItem>,

@@ -86,6 +86,14 @@ module Hotspot = {
     | RemoveHotspot(sceneIndex, hotspotIndex) =>
       Some(HotspotHelpers.handleRemoveHotspot(state, sceneIndex, hotspotIndex))
 
+    | StartMovingHotspot(sceneIndex, hotspotIndex) =>
+      Some(HotspotHelpers.handleStartMovingHotspot(state, sceneIndex, hotspotIndex))
+
+    | StopMovingHotspot => Some(HotspotHelpers.handleStopMovingHotspot(state))
+
+    | CommitHotspotMove(sceneIndex, hotspotIndex, yaw, pitch) =>
+      Some(HotspotHelpers.handleCommitHotspotMove(state, sceneIndex, hotspotIndex, yaw, pitch))
+
     | ClearHotspots(index) => Some(HotspotHelpers.handleClearHotspots(state, index))
 
     | UpdateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>

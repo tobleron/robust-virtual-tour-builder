@@ -12,6 +12,9 @@ type rec action =
   | SetActiveScene(int, float, float, option<transition>)
   | AddHotspot(int, hotspot)
   | RemoveHotspot(int, int)
+  | StartMovingHotspot(int, int)
+  | StopMovingHotspot
+  | CommitHotspotMove(int, int, float, float)
   | ReorderScenes(int, int)
   | ClearHotspots(int)
   | DeleteScene(int)
@@ -79,6 +82,11 @@ let hotspotActionToString = (action: action): option<string> =>
   | AddHotspot(idx, _) => Some(`AddHotspot(${Belt.Int.toString(idx)})`)
   | RemoveHotspot(sIdx, hIdx) =>
     Some(`RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | StartMovingHotspot(sIdx, hIdx) =>
+    Some(`StartMovingHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | StopMovingHotspot => Some("StopMovingHotspot")
+  | CommitHotspotMove(sIdx, hIdx, _, _) =>
+    Some(`CommitHotspotMove(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | ClearHotspots(idx) => Some(`ClearHotspots(${Belt.Int.toString(idx)})`)
   | UpdateHotspotMetadata(sIdx, hIdx, _) =>
     Some(`UpdateHotspotMetadata(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)

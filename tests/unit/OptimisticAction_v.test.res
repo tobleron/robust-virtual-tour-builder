@@ -16,6 +16,7 @@ let makeInitialState = (): Types.state => {
     appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     exifReport: None,
     linkDraft: None,
+    movingHotspot: None,
     preloadingSceneIndex: -1,
     isTeasing: false,
     timeline: [],

@@ -26,6 +26,7 @@ type uiSlice = {
   isLinking: bool,
   isTeasing: bool,
   linkDraft: option<linkDraft>,
+  movingHotspot: option<movingHotspot>,
   appMode: appMode,
   logo: option<file>,
   preloadingSceneIndex: int,
@@ -63,6 +64,7 @@ let defaultUiSlice: uiSlice = {
   isLinking: State.initialState.isLinking,
   isTeasing: State.initialState.isTeasing,
   linkDraft: State.initialState.linkDraft,
+  movingHotspot: State.initialState.movingHotspot,
   appMode: State.initialState.appMode,
   logo: State.initialState.logo,
   preloadingSceneIndex: State.initialState.preloadingSceneIndex,
@@ -177,11 +179,12 @@ module Provider = {
       state.activePitch,
     ))
 
-    let uiSlice = React.useMemo6(() => {
+    let uiSlice = React.useMemo7(() => {
       {
         isLinking: state.isLinking,
         isTeasing: state.isTeasing,
         linkDraft: state.linkDraft,
+        movingHotspot: state.movingHotspot,
         appMode: state.appMode,
         logo: state.logo,
         preloadingSceneIndex: state.preloadingSceneIndex,
@@ -190,6 +193,7 @@ module Provider = {
       state.isLinking,
       state.isTeasing,
       state.linkDraft,
+      state.movingHotspot,
       state.appMode,
       state.logo,
       state.preloadingSceneIndex,

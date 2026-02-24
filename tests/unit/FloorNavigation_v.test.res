@@ -17,6 +17,7 @@ module WrappedFloorNavigation = {
       isLinking,
       isTeasing: false,
       linkDraft: None,
+      movingHotspot: None,
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       logo: None,
       preloadingSceneIndex: -1,

@@ -238,6 +238,7 @@ describe("Types", () => {
       appMode: Initializing,
       exifReport: None,
       linkDraft: None,
+      movingHotspot: None,
       preloadingSceneIndex: -1,
       isTeasing: false,
       timeline: [],

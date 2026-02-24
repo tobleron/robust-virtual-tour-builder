@@ -63,6 +63,7 @@ module WrappedSidebar = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,
       linkDraft: mockState.linkDraft,
+      movingHotspot: mockState.movingHotspot,
       appMode: mockState.appMode,
       logo: mockState.logo,
       preloadingSceneIndex: mockState.preloadingSceneIndex,

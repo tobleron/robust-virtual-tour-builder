@@ -16,6 +16,7 @@ let initialState: state = {
   },
   exifReport: None,
   linkDraft: None,
+  movingHotspot: None,
   preloadingSceneIndex: -1,
   isTeasing: false,
   timeline: [],

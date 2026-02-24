@@ -306,6 +306,19 @@ let init = async () => {
               }
               AppStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
             }
+          } else {
+            switch state.movingHotspot {
+            | Some({sceneIndex, hotspotIndex}) =>
+              let customEvent = ViewerClickEvent.fromEvent(e)
+              let detail = ViewerClickEvent.detail(customEvent)
+              HotspotManager.handleCommitHotspotMove(
+                sceneIndex,
+                hotspotIndex,
+                detail.yaw,
+                detail.pitch,
+              )->ignore
+            | None => ()
+            }
           }
         }
       })

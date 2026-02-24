@@ -90,7 +90,7 @@ module InnerApp = {
         role="main"
         className={`viewer-main-container relative w-full h-full overflow-hidden select-none touch-none ${state.isLinking
             ? "linking-mode"
-            : ""}`}
+            : ""} ${state.movingHotspot != None ? "moving-hotspot" : ""}`}
       >
         <div id="viewer-stage" className="relative w-full h-full">
           /* Panorama Layers */

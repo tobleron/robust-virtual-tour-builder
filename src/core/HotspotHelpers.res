@@ -271,3 +271,46 @@ let handleUpdateHotspotMetadata = (
   | _ => state
   }
 }
+
+let handleStartMovingHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
+  {...state, movingHotspot: Some({sceneIndex, hotspotIndex}), isLinking: false}
+}
+
+let handleStopMovingHotspot = (state: state): state => {
+  {...state, movingHotspot: None}
+}
+
+let handleCommitHotspotMove = (
+  state: state,
+  sceneIndex: int,
+  hotspotIndex: int,
+  yaw: float,
+  pitch: float,
+): state => {
+  switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+  | Some(id) =>
+    switch state.inventory->Belt.Map.String.get(id) {
+    | Some(entry) =>
+      let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
+        if hi == hotspotIndex {
+          // Commit ONLY the button position change. 
+          // Preserve the waypoint (viewFrame and waypoints) exactly as it was.
+          // Clear displayPitch to ensure the button renders at the exact clicked pitch (no floor snap).
+          {...h, yaw, pitch, displayPitch: None}
+        } else {
+          h
+        }
+      })
+      {
+        ...state,
+        movingHotspot: None,
+        inventory: state.inventory->Belt.Map.String.set(
+          id,
+          {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
+        ),
+      }
+    | None => {...state, movingHotspot: None}
+    }
+  | None => {...state, movingHotspot: None}
+  }
+}
