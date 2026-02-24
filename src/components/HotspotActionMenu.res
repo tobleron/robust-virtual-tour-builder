@@ -73,12 +73,13 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
 
   let handleToggleAutoForward = () => {
     // Get current scene's hotspots
-    let currentSceneHotspots = switch Belt.Array.get(
+    let sceneHotspotsOpt = Belt.Array.get(
       SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
       state.activeIndex,
-    ) {
+    )
+    let currentSceneHotspots = switch sceneHotspotsOpt {
     | Some(scene) => scene.hotspots
-    | None => [||]
+    | None => let empty: array<hotspot> = []; empty
     }
 
     // Count existing auto-forward hotspots (excluding current one)
@@ -108,9 +109,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         importance: Error,
         context: Operation("hotspot_action"),
         message: "Only one auto-forward link per scene",
-        details: Some(Logger.castToJson({
-          "reason": "Auto-forward link must be the LAST link in the scene (the exit path). Disable auto-forward on the existing link first.",
-        })),
+        details: Some("Auto-forward link must be the LAST link in the scene (the exit path). Disable auto-forward on the existing link first."),
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Error),
         dismissible: true,
@@ -121,7 +120,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       // Validation 2: Auto-forward link must be the LAST link (highest index)
       // When enabling, check if this is the last hotspot
       let isLastHotspot = index >= Belt.Array.length(currentSceneHotspots) - 1
-      
+
       if !isAutoForward && !isLastHotspot {
         // User is trying to enable auto-forward on a non-last link
         NotificationManager.dispatch({
@@ -129,11 +128,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
           importance: Error,
           context: Operation("hotspot_action"),
           message: "Auto-forward link must be last",
-          details: Some(Logger.castToJson({
-            "reason": "The auto-forward link should be the last link created in this scene (the exit path). Create your other links first, then set the last one as auto-forward.",
-            "currentLinkIndex": index,
-            "totalLinks": Belt.Array.length(currentSceneHotspots),
-          })),
+          details: Some("The auto-forward link should be the last link created in this scene (the exit path). Create your other links first, then set the last one as auto-forward."),
           action: None,
           duration: NotificationTypes.defaultTimeoutMs(Error),
           dismissible: true,
