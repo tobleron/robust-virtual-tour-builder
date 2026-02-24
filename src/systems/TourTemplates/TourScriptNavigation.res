@@ -191,6 +191,10 @@ let script = `
     function resolveScenePlaybackHotspot(sceneId, sceneData) {
       const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
       if (!hotspots.length) return null;
+      
+      // Reset __visited flags for this scene's hotspots to ensure auto-forward exits work on re-entry
+      hotspots.forEach(h => { if (h) h.__visited = false; });
+      
       const resolvedHotspots = hotspots.map((hotspot, hotspotIndex) => {
         const directTarget = resolveExistingSceneId(hotspot?.targetSceneId);
         const resolvedTarget = resolveTargetSceneId({
