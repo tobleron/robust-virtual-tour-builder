@@ -72,28 +72,100 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleToggleAutoForward = () => {
-    let newVal = !isAutoForward
-    HotspotManager.handleUpdateHotspotMetadata(
+    // Get current scene's hotspots
+    let currentSceneHotspots = switch Belt.Array.get(
+      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
       state.activeIndex,
-      index,
-      Logger.castToJson({"isAutoForward": newVal}),
-    )->ignore
-    let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
-    NotificationManager.dispatch({
-      id: "",
-      importance: Success,
-      context: Operation("hotspot_action"),
-      message: "Auto-forward: " ++ if newVal {
-        "ENABLED"
-      } else {
-        "DISABLED"
+    ) {
+    | Some(scene) => scene.hotspots
+    | None => [||]
+    }
+
+    // Count existing auto-forward hotspots (excluding current one)
+    let existingAutoForwardCount = Belt.Array.keep(
+      currentSceneHotspots,
+      h => switch h.isAutoForward {
+      | Some(true) => true
+      | _ => false
       },
-      details: None,
-      action: None,
-      duration: NotificationTypes.defaultTimeoutMs(Success),
-      dismissible: true,
-      createdAt: Date.now(),
-    })
+    )->Belt.Array.length
+
+    let isCurrentAutoForward = switch currentHotspot {
+      | Some(h) => switch h.isAutoForward {
+        | Some(true) => true
+        | _ => false
+        }
+      | None => false
+      }
+
+    let alreadyHasAutoForward = existingAutoForwardCount > 0 && !isCurrentAutoForward
+
+    // Validation 1: Only ONE auto-forward link per scene
+    if alreadyHasAutoForward && !isAutoForward {
+      // User is trying to ENABLE auto-forward on a second link
+      NotificationManager.dispatch({
+        id: "autoforward-validation-error",
+        importance: Error,
+        context: Operation("hotspot_action"),
+        message: "Only one auto-forward link per scene",
+        details: Some(Logger.castToJson({
+          "reason": "Auto-forward link must be the LAST link in the scene (the exit path). Disable auto-forward on the existing link first.",
+        })),
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+      onClose()
+    } else {
+      // Validation 2: Auto-forward link must be the LAST link (highest index)
+      // When enabling, check if this is the last hotspot
+      let isLastHotspot = index >= Belt.Array.length(currentSceneHotspots) - 1
+      
+      if !isAutoForward && !isLastHotspot {
+        // User is trying to enable auto-forward on a non-last link
+        NotificationManager.dispatch({
+          id: "autoforward-order-error",
+          importance: Error,
+          context: Operation("hotspot_action"),
+          message: "Auto-forward link must be last",
+          details: Some(Logger.castToJson({
+            "reason": "The auto-forward link should be the last link created in this scene (the exit path). Create your other links first, then set the last one as auto-forward.",
+            "currentLinkIndex": index,
+            "totalLinks": Belt.Array.length(currentSceneHotspots),
+          })),
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        onClose()
+      } else {
+        // Validation passed - toggle auto-forward
+        let newVal = !isAutoForward
+        HotspotManager.handleUpdateHotspotMetadata(
+          state.activeIndex,
+          index,
+          Logger.castToJson({"isAutoForward": newVal}),
+        )->ignore
+        let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("hotspot_action"),
+          message: "Auto-forward: " ++ if newVal {
+            "ENABLED"
+          } else {
+            "DISABLED"
+          },
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      }
+    }
   }
 
   let handleNavigate = () => {
