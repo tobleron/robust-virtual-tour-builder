@@ -45,6 +45,7 @@ pub fn sanitize_asset_path(path: &str) -> String {
 /// Normalizes a project file entry to ensure it lives in the correct location.
 ///
 /// * `project.json` stays at root.
+/// * `logo_upload` stays at root (custom logo file).
 /// * Images (.webp, .jpg, .png) are forced into `images/`.
 /// * Everything else is considered invalid/unsafe for now (or ignored by the caller).
 pub fn normalize_project_entry_path(filename: &str) -> Option<String> {
@@ -52,6 +53,11 @@ pub fn normalize_project_entry_path(filename: &str) -> Option<String> {
 
     if sanitized_name == "project.json" {
         return Some("project.json".to_string());
+    }
+
+    // Preserve logo file at root level
+    if sanitized_name == "logo_upload" {
+        return Some("logo_upload".to_string());
     }
 
     if sanitized_name.ends_with(".webp")
@@ -92,6 +98,16 @@ mod tests {
         assert_eq!(
             normalize_project_entry_path("../../project.json"),
             Some("project.json".to_string())
+        );
+
+        // Logo file should be preserved at root level
+        assert_eq!(
+            normalize_project_entry_path("logo_upload"),
+            Some("logo_upload".to_string())
+        );
+        assert_eq!(
+            normalize_project_entry_path("../../logo_upload"),
+            Some("logo_upload".to_string())
         );
 
         assert_eq!(
