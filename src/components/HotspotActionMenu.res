@@ -72,7 +72,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleToggleAutoForward = () => {
-    // Get current scene's hotspots
+    // Get current scene's hotspots FRESH from state
     let sceneHotspotsOpt = Belt.Array.get(
       SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
       state.activeIndex,
@@ -82,7 +82,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
     | None => let empty: array<hotspot> = []; empty
     }
 
-    // Count existing auto-forward hotspots (excluding current one)
+    // Count existing auto-forward hotspots in THIS scene
     let existingAutoForwardCount = Belt.Array.keep(
       currentSceneHotspots,
       h => switch h.isAutoForward {
@@ -91,19 +91,22 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       },
     )->Belt.Array.length
 
-    let isCurrentAutoForward = switch currentHotspot {
-      | Some(h) => switch h.isAutoForward {
-        | Some(true) => true
-        | _ => false
-        }
-      | None => false
+    // Get the CURRENT hotspot data (from state, not props)
+    let currentHotspotFromState = Belt.Array.get(currentSceneHotspots, index)
+    let isCurrentAlreadyAutoForward = switch currentHotspotFromState {
+    | Some(h) => switch h.isAutoForward {
+      | Some(true) => true
+      | _ => false
       }
+    | None => false
+    }
 
-    let alreadyHasAutoForward = existingAutoForwardCount > 0 && !isCurrentAutoForward
+    // User is trying to ENABLE (current state is false, they want true)
+    let isTryingToEnable = !isCurrentAlreadyAutoForward
 
-    // Validation: Only ONE auto-forward link per scene
-    if alreadyHasAutoForward && !isAutoForward {
-      // User is trying to ENABLE auto-forward on a second link
+    // Validation: ONLY ONE auto-forward per scene
+    if existingAutoForwardCount > 0 && isTryingToEnable {
+      // There's already an auto-forward link, and user wants to enable another
       NotificationManager.dispatch({
         id: "autoforward-validation-error",
         importance: Error,
@@ -118,7 +121,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       onClose()
     } else {
       // Validation passed - toggle auto-forward
-      let newVal = !isAutoForward
+      let newVal = !isCurrentAlreadyAutoForward
       HotspotManager.handleUpdateHotspotMetadata(
         state.activeIndex,
         index,
