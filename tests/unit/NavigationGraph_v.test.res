@@ -99,7 +99,7 @@ describe("NavigationGraph", () => {
       logo: None,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
-      visitedHubScenes: [],
+      visitedScenes: [],
     }
   }
 

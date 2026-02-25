@@ -38,5 +38,5 @@ let initialState: state = {
   logo: None,
   structuralRevision: 0,
   nextSceneSequenceId: 1,
-  visitedHubScenes: [], // Hub scenes animate only once for better UX
+  visitedScenes: [], // Scenes animate only once for better UX
 }

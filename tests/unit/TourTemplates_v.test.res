@@ -167,7 +167,7 @@ let _ = describe("TourTemplates", () => {
       "1.0",
     )
     t->expectToContain(html, "\"targetIsAutoForward\":true")
-    t->expectToContain(html, "if (args.targetIsAutoForward)")
+    t->expectToContain(html, "if (isAutoForwardVisual)")
     t->expectToContain(html, "M6 17 L11 12 L6 7")
     t->expectToContain(html, "M6 14 L12 8 L18 14")
   })

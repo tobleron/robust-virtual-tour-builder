@@ -320,7 +320,7 @@ type state = {
   logo: option<file>,
   structuralRevision: int,
   nextSceneSequenceId: int,
-  visitedHubScenes: array<string>, // Track hub scenes that have been animated (for one-time animation)
+  visitedScenes: array<string>, // Track scenes that have been animated (for one-time animation)
 }
 
 /* --- Pathfinder API Types --- */

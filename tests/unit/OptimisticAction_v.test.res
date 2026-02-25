@@ -42,7 +42,7 @@ let makeInitialState = (): Types.state => {
     logo: None,
     structuralRevision: 0,
     nextSceneSequenceId: 1,
-    visitedHubScenes: [],
+    visitedScenes: [],
   }
 }
 

@@ -148,6 +148,8 @@ module Ui = {
         isTeasing: val,
         appMode: AppFSM.transition(state.appMode, val ? StartTeasing : StopTeasing),
       })
+    | Actions.MarkSceneVisited(id) => Some(HubScene.markSceneAsAnimated(id, state))
+    | Actions.Reset => Some(HubScene.resetVisitedScenes(state))
     | _ => None
     }
   }

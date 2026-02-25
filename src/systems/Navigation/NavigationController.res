@@ -189,13 +189,40 @@ module ControllerHooks = {
           viewerOpt->Option.forEach(v => {
             switch j.pathData {
             | Some(pd) =>
-              Logger.debug(
-                ~module_="NavigationController",
-                ~message="STARTING_ANIMATION_LOOP",
-                ~data=Some({"journeyId": j.journeyId}),
-                (),
+              let currentState = getState()
+              let scenes = SceneInventory.getActiveScenes(
+                currentState.inventory,
+                currentState.sceneOrder,
               )
-              NavigationRenderer.AnimationLoop.startLoop(v, j, pd, getState, dispatch, req)
+              let targetSceneId = scenes->Belt.Array.get(j.targetIndex)->Option.map(s => s.id)
+
+              let hasAnimated = switch targetSceneId {
+              | Some(id) => HubScene.hasSceneAnimated(id, currentState)
+              | None => false
+              }
+
+              if hasAnimated {
+                Logger.info(
+                  ~module_="NavigationController",
+                  ~message="SCENE_ANIMATION_SKIPPED_REVISIT",
+                  ~data=Some({"sceneId": targetSceneId->Option.getOr("unknown")}),
+                  (),
+                )
+                // Skip animation - snap to target immediately and complete
+                Viewer.setPitch(v, pd.targetPitchForPan, false)
+                Viewer.setYaw(v, pd.targetYawForPan, false)
+                dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+              } else {
+                Logger.debug(
+                  ~module_="NavigationController",
+                  ~message="STARTING_ANIMATION_LOOP",
+                  ~data=Some({"journeyId": j.journeyId}),
+                  (),
+                )
+                NavigationRenderer.AnimationLoop.startLoop(v, j, pd, getState, dispatch, req)
+
+                targetSceneId->Option.forEach(id => dispatch(MarkSceneVisited(id)))
+              }
             | None =>
               Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
               dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))

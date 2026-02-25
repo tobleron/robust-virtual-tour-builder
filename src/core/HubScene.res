@@ -15,20 +15,20 @@ let isHubScene = (scene: scene): bool => {
 }
 
 /**
- * Check if a hub scene has already been visited (animated)
+ * Check if a scene has already been visited (animated)
  */
-let hasHubSceneAnimated = (sceneId: string, state: state): bool => {
-  Array.includes(state.visitedHubScenes, sceneId)
+let hasSceneAnimated = (sceneId: string, state: state): bool => {
+  Array.includes(state.visitedScenes, sceneId)
 }
 
 /**
- * Mark a hub scene as having completed its first animation
+ * Mark a scene as having completed its first animation
  */
-let markHubSceneAsAnimated = (sceneId: string, state: state): state => {
-  if Array.includes(state.visitedHubScenes, sceneId) {
+let markSceneAsAnimated = (sceneId: string, state: state): state => {
+  if Array.includes(state.visitedScenes, sceneId) {
     state // Already marked
   } else {
-    {...state, visitedHubScenes: [...state.visitedHubScenes, sceneId]}
+    {...state, visitedScenes: [...state.visitedScenes, sceneId]}
   }
 }
 
@@ -40,8 +40,8 @@ let getExitLinkCount = (scene: scene): int => {
 }
 
 /**
- * Reset hub scene tracking (e.g., when starting a new tour session)
+ * Reset visited scene tracking (e.g., when starting a new tour session)
  */
-let resetVisitedHubScenes = (state: state): state => {
-  {...state, visitedHubScenes: []}
+let resetVisitedScenes = (state: state): state => {
+  {...state, visitedScenes: []}
 }

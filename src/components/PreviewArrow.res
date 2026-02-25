@@ -96,15 +96,15 @@ let make = (
       dispatch(StopMovingHotspot)
     } else {
       let currentState = AppContext.getBridgeState()
-      let activeScenes = SceneInventory.getActiveScenes(
+      let activeScenesForClick = SceneInventory.getActiveScenes(
         currentState.inventory,
         currentState.sceneOrder,
       )
-      switch Belt.Array.get(activeScenes, sceneIndex) {
+      switch Belt.Array.get(activeScenesForClick, sceneIndex) {
       | Some(currentScene) =>
         switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
         | Some(hotspot) =>
-          let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
+          let targetIdx = HotspotTarget.resolveSceneIndex(activeScenesForClick, hotspot)
           switch targetIdx {
           | Some(tIdx) =>
             let (ny, np, nh) = Logic.calculateNavParams(hotspot)
@@ -175,11 +175,11 @@ let make = (
 
   React.useEffect1(() => {
     let currentState = AppContext.getBridgeState()
-    let activeScenes = SceneInventory.getActiveScenes(
+    let activeScenesForSync = SceneInventory.getActiveScenes(
       currentState.inventory,
       currentState.sceneOrder,
     )
-    let nextIsAF = switch Belt.Array.get(activeScenes, sceneIndex) {
+    let nextIsAF = switch Belt.Array.get(activeScenesForSync, sceneIndex) {
     | Some(scene) =>
       switch Belt.Array.get(scene.hotspots, hotspotIndex) {
       | Some(hotspot) =>

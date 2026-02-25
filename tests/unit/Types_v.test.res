@@ -262,7 +262,7 @@ describe("Types", () => {
       logo: None,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
-      visitedHubScenes: [],
+      visitedScenes: [],
     }
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)

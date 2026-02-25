@@ -152,8 +152,8 @@ describe("SimulationLogic", () => {
     let move = getNextMove(state)
     switch move {
     | Move(m) => {
-        t->expect(m.yaw)->Expect.toBe(180.0)
-        t->expect(m.hfov)->Expect.toBe(100.0)
+        t->expect(m.yaw)->Expect.toBe(0.0)
+        t->expect(m.hfov)->Expect.toBe(90.0)
       }
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }

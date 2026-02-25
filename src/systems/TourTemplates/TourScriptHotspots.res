@@ -1,6 +1,6 @@
 let script = `
-    // Hub Scene Tracking: Track which hub scenes have already animated
-    let animatedHubScenes = new Set();
+    // Scene Tracking: Track which scenes have already animated during this session
+    let animatedScenes = new Set();
     
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
@@ -12,13 +12,11 @@ let script = `
       waypointRuntime.arrivedSceneId = null;
       setSceneHotspotsPending(sceneId);
       
-      // HUB SCENE LOGIC: Skip animation if this hub scene has already animated
-      const isHubScene = sd.isHubScene === true;
-      const hasAnimated = animatedHubScenes.has(sceneId);
-      const shouldSkipAnimation = isHubScene && hasAnimated;
+      // ANIMATION POLICY: Skip animation if this scene has already animated in this session
+      const hasAnimated = animatedScenes.has(sceneId);
       
-      if (shouldSkipAnimation) {
-        // Hub scene already animated - show hotspots immediately without animation
+      if (hasAnimated) {
+        // Scene already animated - show hotspots immediately without animation
         setSceneHotspotsReadyWithRetry(sceneId, retries);
         const autoForward = playbackTarget.autoForward === true;
         if (autoForward) {
@@ -64,10 +62,8 @@ let script = `
         waypointRuntime.arrivedSceneId = sceneId;
         setSceneHotspotsReadyWithRetry(sceneId, retries);
         
-        // HUB SCENE LOGIC: Mark this hub scene as having animated
-        if (isHubScene) {
-          animatedHubScenes.add(sceneId);
-        }
+        // Mark this scene as having animated
+        animatedScenes.add(sceneId);
         
         const autoForward = playbackTarget.autoForward === true;
         if (autoForward) {
@@ -96,6 +92,7 @@ let script = `
       // HUB SCENE LOGIC: Auto-forward links in hub scenes are shown as normal buttons
       // Only hide auto-forward in non-hub scenes
       const isHubScene = currentSceneData?.isHubScene === true;
+      const isAutoForwardVisual = args.targetIsAutoForward && !isHubScene;
       const shouldHideAutoForward = args.targetIsAutoForward && !isHubScene;
       
       if (shouldHideAutoForward) {
@@ -144,7 +141,7 @@ let script = `
       svg.setAttribute("class", "custom-arrow-svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.overflow = "visible";
 
       const root = document.createElement("div");
-      root.className = "export-hotspot-root" + (args.targetIsAutoForward ? " auto-forward" : "");
+      root.className = "export-hotspot-root" + (isAutoForwardVisual ? " auto-forward" : "");
       const btn = document.createElement("div");
       btn.className = "export-hotspot-btn";
       const sweep = document.createElement("div");
@@ -152,7 +149,7 @@ let script = `
       const icon = document.createElementNS(ns, "svg");
       icon.setAttribute("class", "export-hotspot-icon");
       icon.setAttribute("viewBox", "0 0 24 24");
-      if (args.targetIsAutoForward) {
+      if (isAutoForwardVisual) {
         const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
         const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
       } else {

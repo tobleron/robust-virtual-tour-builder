@@ -59,6 +59,7 @@ type rec action =
   | Batch(array<action>)
   | PatchSceneThumbnail(string, file) // sceneId, newTinyFile
   | CleanupTimeline // Remove duplicate/orphaned timeline items
+  | MarkSceneVisited(string)
 
 let sceneActionToString = (action: action): option<string> =>
   switch action {

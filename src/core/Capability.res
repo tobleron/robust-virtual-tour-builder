@@ -75,7 +75,7 @@ module Policy = {
       let hasProjectSave = isTypeActive(operations, ProjectSave)
 
       switch capability {
-      | CanNavigate => !(hasNavigation || hasTeaser)
+      | CanNavigate => !hasTeaser
       | CanEditHotspots => !(hasNavigation || hasSimulation || hasTeaser)
       | CanUpload => !hasUpload
       | CanExport => !(hasUpload || hasExport)

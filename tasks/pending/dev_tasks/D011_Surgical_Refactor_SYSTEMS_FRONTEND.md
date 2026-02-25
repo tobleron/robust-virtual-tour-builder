@@ -15,9 +15,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 6.42 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.09] | Drag: 3.41 | LOC: 574/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.09] | Drag: 3.41 | LOC: 572/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -54,18 +54,18 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
 - `src/systems/TeaserLogic.res` (12 functions, fingerprint 12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970)
     - Grouped summary:
-        - centerViewerAtWaypointStart × 1 (lines: 78)
-        - check × 1 (lines: 191)
-        - finalizeTeaser × 1 (lines: 151)
-        - logoState × 1 (lines: 187)
-        - parseTeaserProgressMetrics × 1 (lines: 108)
+        - centerViewerAtWaypointStart × 1 (lines: 76)
+        - check × 1 (lines: 189)
+        - finalizeTeaser × 1 (lines: 149)
+        - logoState × 1 (lines: 185)
+        - parseTeaserProgressMetrics × 1 (lines: 106)
         - readHeadlessMotionProfile × 1 (lines: 24)
         - readMotionManifest × 1 (lines: 36)
         - resolveTeaserStartView × 1 (lines: 55)
-        - safeName × 1 (lines: 200)
-        - signalIsAborted × 1 (lines: 145)
-        - state × 1 (lines: 186)
-        - teaserEtaToastId × 1 (lines: 100)
+        - safeName × 1 (lines: 198)
+        - signalIsAborted × 1 (lines: 143)
+        - state × 1 (lines: 184)
+        - teaserEtaToastId × 1 (lines: 98)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserPlayback.res`
 - `src/systems/TeaserPlayback.res` (16 functions, fingerprint 6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb)

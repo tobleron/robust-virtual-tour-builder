@@ -84,7 +84,7 @@ let createMockState = (
     lastUsedCategory,
     appMode,
     nextSceneSequenceId: sceneOrder->Belt.Array.length + 1,
-    visitedHubScenes: [], // Hub scene tracking for one-time animation
+    visitedScenes: [], // Scenes animate only once for better UX
   }
 }
 

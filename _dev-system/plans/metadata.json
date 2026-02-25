@@ -10,6 +10,88 @@
   "rescript": [
     {
       "Surgical": {
+        "file": "../../src/systems/TeaserLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.01, Coupling: 0.09] | Drag: 3.41 | LOC: 572/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 30.61223776223776,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserLogic.res",
+              "functions": [
+                {
+                  "name": "readHeadlessMotionProfile",
+                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
+                  "line": 24
+                },
+                {
+                  "name": "readMotionManifest",
+                  "signature": "readMotionManifest = (): option<motionManifest> => {",
+                  "line": 36
+                },
+                {
+                  "name": "resolveTeaserStartView",
+                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
+                  "line": 55
+                },
+                {
+                  "name": "centerViewerAtWaypointStart",
+                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
+                  "line": 76
+                },
+                {
+                  "name": "teaserEtaToastId",
+                  "signature": "teaserEtaToastId = \"sidebar-teaser-progress\"",
+                  "line": 98
+                },
+                {
+                  "name": "parseTeaserProgressMetrics",
+                  "signature": "parseTeaserProgressMetrics = (msg: string): teaserProgressMetrics => {",
+                  "line": 106
+                },
+                {
+                  "name": "signalIsAborted",
+                  "signature": "signalIsAborted = signal =>",
+                  "line": 143
+                },
+                {
+                  "name": "finalizeTeaser",
+                  "signature": "finalizeTeaser = async (format, baseName) => {",
+                  "line": 149
+                },
+                {
+                  "name": "state",
+                  "signature": "state = getState()",
+                  "line": 184
+                },
+                {
+                  "name": "logoState",
+                  "signature": "logoState = await Recorder.loadLogo(state.logo)",
+                  "line": 185
+                },
+                {
+                  "name": "check",
+                  "signature": "check = async () => {",
+                  "line": 189
+                },
+                {
+                  "name": "safeName",
+                  "signature": "safeName =",
+                  "line": 198
+                }
+              ],
+              "fingerprint": "12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/TeaserRecorder.res",
         "action": "De-bloat",
         "reason": "[Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.25 | LOC: 485/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)",
@@ -227,226 +309,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TeaserLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.01, Coupling: 0.09] | Drag: 3.41 | LOC: 574/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 30.81219512195122,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TeaserLogic.res",
-              "functions": [
-                {
-                  "name": "readHeadlessMotionProfile",
-                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
-                  "line": 24
-                },
-                {
-                  "name": "readMotionManifest",
-                  "signature": "readMotionManifest = (): option<motionManifest> => {",
-                  "line": 36
-                },
-                {
-                  "name": "resolveTeaserStartView",
-                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
-                  "line": 55
-                },
-                {
-                  "name": "centerViewerAtWaypointStart",
-                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
-                  "line": 78
-                },
-                {
-                  "name": "teaserEtaToastId",
-                  "signature": "teaserEtaToastId = \"sidebar-teaser-progress\"",
-                  "line": 100
-                },
-                {
-                  "name": "parseTeaserProgressMetrics",
-                  "signature": "parseTeaserProgressMetrics = (msg: string): teaserProgressMetrics => {",
-                  "line": 108
-                },
-                {
-                  "name": "signalIsAborted",
-                  "signature": "signalIsAborted = signal =>",
-                  "line": 145
-                },
-                {
-                  "name": "finalizeTeaser",
-                  "signature": "finalizeTeaser = async (format, baseName) => {",
-                  "line": 151
-                },
-                {
-                  "name": "state",
-                  "signature": "state = getState()",
-                  "line": 186
-                },
-                {
-                  "name": "logoState",
-                  "signature": "logoState = await Recorder.loadLogo(state.logo)",
-                  "line": 187
-                },
-                {
-                  "name": "check",
-                  "signature": "check = async () => {",
-                  "line": 191
-                },
-                {
-                  "name": "safeName",
-                  "signature": "safeName =",
-                  "line": 200
-                }
-              ],
-              "fingerprint": "12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.13 | LOC: 453/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 19.434657836644593,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 6
-                },
-                {
-                  "name": "make",
-                  "signature": "make = (",
-                  "line": 23
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 163
-                }
-              ],
-              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.15, Coupling: 0.04] | Drag: 6.06 | LOC: 1027/300  🎯 Target: Function: `parseExportMetrics` (High Local Complexity (16.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 78.76192794547225,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogicHandler.res",
-              "functions": [
-                {
-                  "name": "uploadProgressToastId",
-                  "signature": "uploadProgressToastId = \"sidebar-upload-progress\"",
-                  "line": 9
-                },
-                {
-                  "name": "exportProgressToastId",
-                  "signature": "exportProgressToastId = \"sidebar-export-progress\"",
-                  "line": 10
-                },
-                {
-                  "name": "parseProcessingMetrics",
-                  "signature": "parseProcessingMetrics = (msg: string): option<etaRuntimeMetrics> => {",
-                  "line": 23
-                },
-                {
-                  "name": "parseExportMetrics",
-                  "signature": "parseExportMetrics = (msg: string): exportRuntimeMetrics => {",
-                  "line": 68
-                },
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 123
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
-                  "line": 400
-                },
-                {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 440
-                },
-                {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 602
-                },
-                {
-                  "name": "isMissingPanoramaFile",
-                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
-                  "line": 614
-                },
-                {
-                  "name": "repairRestoredState",
-                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
-                  "line": 621
-                },
-                {
-                  "name": "handleDeleteSceneWithUndo",
-                  "signature": "handleDeleteSceneWithUndo = (",
-                  "line": 667
-                },
-                {
-                  "name": "handleClearLinksWithUndo",
-                  "signature": "handleClearLinksWithUndo = (",
-                  "line": 738
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 809
-                }
-              ],
-              "fingerprint": "735dad7fd2cf7ec2bc53d5c218af7eeb324908ad4e072ee52b55e82799e6dced"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/TeaserPlayback.res",
         "action": "De-bloat",
         "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)",
@@ -549,12 +411,150 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/OperationLifecycle.res",
+        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 6.42 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
+        "reason": "[Nesting: 4.80, Density: 0.15, Coupling: 0.04] | Drag: 6.06 | LOC: 1027/300  🎯 Target: Function: `parseExportMetrics` (High Local Complexity (16.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.521259842519685,
+        "complexity": 78.76192794547225,
+        "recommended_splits": 4,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
+          "snapshots": [
+            {
+              "path": "src/components/Sidebar/SidebarLogicHandler.res",
+              "functions": [
+                {
+                  "name": "uploadProgressToastId",
+                  "signature": "uploadProgressToastId = \"sidebar-upload-progress\"",
+                  "line": 9
+                },
+                {
+                  "name": "exportProgressToastId",
+                  "signature": "exportProgressToastId = \"sidebar-export-progress\"",
+                  "line": 10
+                },
+                {
+                  "name": "parseProcessingMetrics",
+                  "signature": "parseProcessingMetrics = (msg: string): option<etaRuntimeMetrics> => {",
+                  "line": 23
+                },
+                {
+                  "name": "parseExportMetrics",
+                  "signature": "parseExportMetrics = (msg: string): exportRuntimeMetrics => {",
+                  "line": 68
+                },
+                {
+                  "name": "performUpload",
+                  "signature": "performUpload = async (",
+                  "line": 123
+                },
+                {
+                  "name": "handleUpload",
+                  "signature": "handleUpload = async (",
+                  "line": 400
+                },
+                {
+                  "name": "handleLoadProject",
+                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
+                  "line": 440
+                },
+                {
+                  "name": "handleDeleteScene",
+                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
+                  "line": 602
+                },
+                {
+                  "name": "isMissingPanoramaFile",
+                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
+                  "line": 614
+                },
+                {
+                  "name": "repairRestoredState",
+                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
+                  "line": 621
+                },
+                {
+                  "name": "handleDeleteSceneWithUndo",
+                  "signature": "handleDeleteSceneWithUndo = (",
+                  "line": 667
+                },
+                {
+                  "name": "handleClearLinksWithUndo",
+                  "signature": "handleClearLinksWithUndo = (",
+                  "line": 738
+                },
+                {
+                  "name": "handleExport",
+                  "signature": "handleExport = async (",
+                  "line": 809
+                }
+              ],
+              "fingerprint": "735dad7fd2cf7ec2bc53d5c218af7eeb324908ad4e072ee52b55e82799e6dced"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.13 | LOC: 453/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 19.434657836644593,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 6
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (",
+                  "line": 23
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 163
+                }
+              ],
+              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/OperationLifecycle.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.380839895013123,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
@@ -668,103 +668,6 @@
   "rust": [
     {
       "Surgical": {
-        "file": "../../backend/src/api/media/video.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 16.945283018867926,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/media/video.rs",
-              "functions": [
-                {
-                  "name": "extract_auth_token",
-                  "signature": "fn extract_auth_token(req: &HttpRequest) -> Option<String> {",
-                  "line": 16
-                },
-                {
-                  "name": "parse_motion_profile",
-                  "signature": "fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {",
-                  "line": 28
-                },
-                {
-                  "name": "parse_motion_manifest",
-                  "signature": "fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {",
-                  "line": 32
-                },
-                {
-                  "name": "validate_motion_manifest",
-                  "signature": "fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {",
-                  "line": 36
-                },
-                {
-                  "name": "generate_teaser",
-                  "signature": "pub async fn generate_teaser(",
-                  "line": 54
-                },
-                {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 232
-                },
-                {
-                  "name": "extract_auth_token_prefers_authorization_header",
-                  "signature": "fn extract_auth_token_prefers_authorization_header() {",
-                  "line": 292
-                },
-                {
-                  "name": "extract_auth_token_falls_back_to_cookie",
-                  "signature": "fn extract_auth_token_falls_back_to_cookie() {",
-                  "line": 301
-                },
-                {
-                  "name": "parse_motion_profile_decodes_camel_case_payload",
-                  "signature": "fn parse_motion_profile_decodes_camel_case_payload() {",
-                  "line": 309
-                },
-                {
-                  "name": "parse_motion_profile_rejects_invalid_payload",
-                  "signature": "fn parse_motion_profile_rejects_invalid_payload() {",
-                  "line": 318
-                },
-                {
-                  "name": "parse_motion_manifest_decodes_valid_payload",
-                  "signature": "fn parse_motion_manifest_decodes_valid_payload() {",
-                  "line": 324
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_invalid_version",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_version() {",
-                  "line": 355
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_invalid_fps",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_fps() {",
-                  "line": 368
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_empty_shots",
-                  "signature": "fn validate_motion_manifest_rejects_empty_shots() {",
-                  "line": 391
-                },
-                {
-                  "name": "validate_motion_manifest_accepts_valid_manifest",
-                  "signature": "fn validate_motion_manifest_accepts_valid_manifest() {",
-                  "line": 404
-                }
-              ],
-              "fingerprint": "10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../backend/src/api/media/video_logic.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300",
@@ -867,83 +770,6 @@
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 19.6479302832244,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/import_upload.rs",
-              "functions": [
-                {
-                  "name": "new",
-                  "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 51
-                },
-                {
-                  "name": "with_ttl",
-                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 55
-                },
-                {
-                  "name": "init_session",
-                  "signature": "pub async fn init_session(",
-                  "line": 69
-                },
-                {
-                  "name": "save_chunk",
-                  "signature": "pub async fn save_chunk(",
-                  "line": 134
-                },
-                {
-                  "name": "status",
-                  "signature": "pub async fn status(",
-                  "line": 219
-                },
-                {
-                  "name": "complete_session",
-                  "signature": "pub async fn complete_session(",
-                  "line": 243
-                },
-                {
-                  "name": "abort_session",
-                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 309
-                },
-                {
-                  "name": "remove_session",
-                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 314
-                },
-                {
-                  "name": "cleanup_expired",
-                  "signature": "async fn cleanup_expired(&self) {",
-                  "line": 334
-                },
-                {
-                  "name": "completes_chunked_payload_and_reassembles_in_order",
-                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 370
-                },
-                {
-                  "name": "rejects_invalid_chunk_byte_size",
-                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../backend/src/services/project/package.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.01] | Drag: 4.42 | LOC: 481/300",
@@ -1019,6 +845,180 @@
                 }
               ],
               "fingerprint": "5c407ac13e17a0cfa3334fd80300caefab45f4b0ae69737bf0b1d7ae877a9fcd"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 16.945283018867926,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/media/video.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/media/video.rs",
+              "functions": [
+                {
+                  "name": "extract_auth_token",
+                  "signature": "fn extract_auth_token(req: &HttpRequest) -> Option<String> {",
+                  "line": 16
+                },
+                {
+                  "name": "parse_motion_profile",
+                  "signature": "fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {",
+                  "line": 28
+                },
+                {
+                  "name": "parse_motion_manifest",
+                  "signature": "fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {",
+                  "line": 32
+                },
+                {
+                  "name": "validate_motion_manifest",
+                  "signature": "fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {",
+                  "line": 36
+                },
+                {
+                  "name": "generate_teaser",
+                  "signature": "pub async fn generate_teaser(",
+                  "line": 54
+                },
+                {
+                  "name": "transcode_video",
+                  "signature": "pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {",
+                  "line": 232
+                },
+                {
+                  "name": "extract_auth_token_prefers_authorization_header",
+                  "signature": "fn extract_auth_token_prefers_authorization_header() {",
+                  "line": 292
+                },
+                {
+                  "name": "extract_auth_token_falls_back_to_cookie",
+                  "signature": "fn extract_auth_token_falls_back_to_cookie() {",
+                  "line": 301
+                },
+                {
+                  "name": "parse_motion_profile_decodes_camel_case_payload",
+                  "signature": "fn parse_motion_profile_decodes_camel_case_payload() {",
+                  "line": 309
+                },
+                {
+                  "name": "parse_motion_profile_rejects_invalid_payload",
+                  "signature": "fn parse_motion_profile_rejects_invalid_payload() {",
+                  "line": 318
+                },
+                {
+                  "name": "parse_motion_manifest_decodes_valid_payload",
+                  "signature": "fn parse_motion_manifest_decodes_valid_payload() {",
+                  "line": 324
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_invalid_version",
+                  "signature": "fn validate_motion_manifest_rejects_invalid_version() {",
+                  "line": 355
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_invalid_fps",
+                  "signature": "fn validate_motion_manifest_rejects_invalid_fps() {",
+                  "line": 368
+                },
+                {
+                  "name": "validate_motion_manifest_rejects_empty_shots",
+                  "signature": "fn validate_motion_manifest_rejects_empty_shots() {",
+                  "line": 391
+                },
+                {
+                  "name": "validate_motion_manifest_accepts_valid_manifest",
+                  "signature": "fn validate_motion_manifest_accepts_valid_manifest() {",
+                  "line": 404
+                }
+              ],
+              "fingerprint": "10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/import_upload.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 19.6479302832244,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/import_upload.rs",
+              "functions": [
+                {
+                  "name": "new",
+                  "signature": "pub fn new() -> std::io::Result<Self> {",
+                  "line": 51
+                },
+                {
+                  "name": "with_ttl",
+                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
+                  "line": 55
+                },
+                {
+                  "name": "init_session",
+                  "signature": "pub async fn init_session(",
+                  "line": 69
+                },
+                {
+                  "name": "save_chunk",
+                  "signature": "pub async fn save_chunk(",
+                  "line": 134
+                },
+                {
+                  "name": "status",
+                  "signature": "pub async fn status(",
+                  "line": 219
+                },
+                {
+                  "name": "complete_session",
+                  "signature": "pub async fn complete_session(",
+                  "line": 243
+                },
+                {
+                  "name": "abort_session",
+                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
+                  "line": 309
+                },
+                {
+                  "name": "remove_session",
+                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
+                  "line": 314
+                },
+                {
+                  "name": "cleanup_expired",
+                  "signature": "async fn cleanup_expired(&self) {",
+                  "line": 334
+                },
+                {
+                  "name": "completes_chunked_payload_and_reassembles_in_order",
+                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
+                  "line": 370
+                },
+                {
+                  "name": "rejects_invalid_chunk_byte_size",
+                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
+                  "line": 433
+                }
+              ],
+              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
             }
           ]
         }
