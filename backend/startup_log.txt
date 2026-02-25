@@ -1,2 +1,2 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.44s
      Running `target/debug/backend`

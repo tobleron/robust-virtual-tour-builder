@@ -193,7 +193,7 @@ let _ = describe("TourTemplates", () => {
       html,
       "const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward)",
     )
-    t->expectToContain(html, "const autoForward = playbackTarget.autoForward === true;")
+    t->expectToContain(html, "const isAutoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
     t->expectToContain(
       html,
@@ -295,12 +295,35 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "body.export-state-tablet #stage { width: 640px")
   })
 
-  test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
+    test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
     let html = generateTourHTML([mockScene1], "HD Tour", None, "hd", 32, 40, "1.0")
     t->expectToContain(html, "width: 640px")
     t->expectToContain(html, "body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn")
     t->expectToContain(html, "body.export-state-portrait #stage")
     t->expectToContain(html, "\"minHfov\": 65")
     t->expectToContain(html, "\"maxHfov\": 90")
+  })
+
+  test("generateTourHTML includes session-based auto-forward expiration logic", t => {
+    let html = generateTourHTML([mockScene1], "Expiration Tour", None, "hd", 32, 40, "1.0")
+    
+    // Check tracking variable
+    t->expectToContain(html, "let visitedAutoForwards = new Set();")
+    
+    // Check expiration check in animation logic
+    t->expectToContain(html, "const afKey = sceneId + \":\" + primaryIndex;")
+    t->expectToContain(html, "const autoForwardAlreadyVisited = isAutoForward && visitedAutoForwards.has(afKey);")
+    t->expectToContain(html, "const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;")
+    
+    // Check marking as visited in animation
+    t->expectToContain(html, "visitedAutoForwards.add(afKey);")
+    
+    // Check marking as visited in manual click
+    t->expectToContain(html, "if (isAutoForwardConfig) {")
+    t->expectToContain(html, "visitedAutoForwards.add(afKey);")
+    
+    // Check visual state logic in rendering
+    t->expectToContain(html, "const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);")
+    t->expectToContain(html, "const isAutoForwardVisual = isAutoForwardConfig && !isHubScene && !isAutoForwardExpired;")
   })
 })

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Implement hub-scene return logic: 180-degree turn when returning to previous scene
 - Exported tours: Auto-forward links expire after first use and become regular buttons
+- Add regression tests for 180-degree return and session-based auto-forward expiration
 
 ## [4.10.0] - 2026-02-25
 

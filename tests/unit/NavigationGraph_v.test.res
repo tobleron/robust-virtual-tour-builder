@@ -145,6 +145,46 @@ describe("NavigationGraph", () => {
     t->expect(pitch)->Expect.toBe(0.0)
   })
 
+  test("calculateSmartArrivalTarget normalization at boundaries", t => {
+    let s0 = createScene("s0", [createHotspot("s1", ~yaw=180.0, ())])
+    let s1 = createScene("s1", [])
+    let scenes = [s0, s1]
+
+    let state = createMockState(scenes)
+    let stateWithIncoming = {
+      ...state,
+      activeIndex: 1,
+      navigationState: {
+        ...state.navigationState,
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+      },
+    }
+
+    // Hotspot is at 180.0. Return view is 180.0 + 180.0 = 360.0 -> Normalized to 0.0
+    let (yaw1, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming, scenes, 0)
+    t->expect(yaw1)->Expect.toBe(0.0)
+
+    // Hotspot is at -170.0. Return view is -170.0 + 180.0 = 10.0 -> Normalized to 10.0
+    let h2 = createHotspot("s1", ~yaw=-170.0, ())
+    let s0_2 = createScene("s0", [h2])
+    let stateWithIncoming2 = {
+      ...stateWithIncoming,
+      inventory: Belt.Map.String.fromArray([("s0", {scene: s0_2, status: Active}), ("s1", {scene: s1, status: Active})]),
+    }
+    let (yaw2, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming2, [s0_2, s1], 0)
+    t->expect(yaw2)->Expect.toBe(10.0)
+    
+    // Hotspot is at 10.0. Return view is 10.0 + 180.0 = 190.0 -> Normalized to -170.0
+    let h3 = createHotspot("s1", ~yaw=10.0, ())
+    let s0_3 = createScene("s0", [h3])
+    let stateWithIncoming3 = {
+      ...stateWithIncoming,
+      inventory: Belt.Map.String.fromArray([("s0", {scene: s0_3, status: Active}), ("s1", {scene: s1, status: Active})]),
+    }
+    let (yaw3, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming3, [s0_3, s1], 0)
+    t->expect(yaw3)->Expect.toBe(-170.0)
+  })
+
   test("getNextScene wraps correctly", t => {
     let s1 = createScene("s1", [])
     let s2 = createScene("s2", [])
