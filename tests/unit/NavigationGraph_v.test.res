@@ -117,10 +117,32 @@ describe("NavigationGraph", () => {
 
   test("calculateSmartArrivalTarget returns default if no hotspots", t => {
     let s1 = createScene("s1", [])
-    let (yaw, pitch, hfov) = NavigationGraph.calculateSmartArrivalTarget([s1], 0)
+    let state = createMockState([s1])
+    let (yaw, pitch, hfov) = NavigationGraph.calculateSmartArrivalTarget(state, [s1], 0)
     t->expect(yaw)->Expect.toBe(0.0)
     t->expect(pitch)->Expect.toBe(0.0)
     t->expect(hfov)->Expect.toBe(90.0)
+  })
+
+  test("calculateSmartArrivalTarget handles hub-scene return logic (180 deg turn)", t => {
+    let h_hub_to_room = createHotspot("s1", ~yaw=45.0, ())
+    let s0 = createScene("s0", [h_hub_to_room])
+    let s1 = createScene("s1", [])
+    let scenes = [s0, s1]
+
+    let state = createMockState(scenes)
+    let stateWithIncoming = {
+      ...state,
+      activeIndex: 1,
+      navigationState: {
+        ...state.navigationState,
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+      },
+    }
+
+    let (yaw, pitch, _hfov) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming, scenes, 0)
+    t->expect(yaw)->Expect.toBe(-135.0)
+    t->expect(pitch)->Expect.toBe(0.0)
   })
 
   test("getNextScene wraps correctly", t => {

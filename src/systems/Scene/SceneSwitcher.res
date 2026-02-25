@@ -74,7 +74,7 @@ let navigateToScene = (
         )
       )
     } else {
-      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(scenes, targetIdx)
+      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state, scenes, targetIdx)
       let _ = Js.Array.push(
         SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
         actions,

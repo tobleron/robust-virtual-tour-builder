@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implement global animate-once policy and hub scene link visuals
 
+### Changed
+- Implement hub-scene return logic: 180-degree turn when returning to previous scene
+
 ## [4.10.0] - 2026-02-25
 
 ### Added

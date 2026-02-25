@@ -4,24 +4,51 @@
 open Types
 open ReBindings
 
-let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
+let normalizeYaw = yaw => {
+  let y = ref(yaw)
+  while y.contents > 180.0 {
+    y := y.contents -. 360.0
+  }
+  while y.contents < -180.0 {
+    y := y.contents +. 360.0
+  }
+  y.contents
+}
+
+let calculateSmartArrivalTarget = (state: state, scenes: array<scene>, targetIndex: int) => {
   let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(ViewerSystem.getCorrectHfov()))
   if targetIndex >= 0 && targetIndex < Array.length(scenes) {
+    let incomingLink = state.navigationState.incomingLink
+    let isReturn = switch incomingLink {
+    | Some(inc) => inc.sceneIndex == targetIndex
+    | None => false
+    }
+
     scenes[targetIndex]->Option.forEach(ns => {
-      let t = ns.hotspots->Belt.Array.get(0)
+      let t = switch incomingLink {
+      | Some(inc) if isReturn => ns.hotspots->Belt.Array.get(inc.hotspotIndex)
+      | _ => ns.hotspots->Belt.Array.get(0)
+      }
 
       switch t {
       | Some(hotspot) =>
-        switch (hotspot.startYaw, hotspot.startPitch) {
-        | (Some(_sy), Some(_sp)) =>
-          // To enable the "Intro Pan" visual effect, we land at a neutral offset
-          // then the intro-pan hook will gently move us to the exact waypoint center.
-          ay := hotspot.yaw -. 35.0
+        if isReturn {
+          // HUB-SCENE NAVIGATION LOGIC:
+          // If returning to the previous scene, face 180 degrees away from the entry hotspot.
+          // This prevents the user from immediately staring back at the door they just exited.
+          ay := normalizeYaw(hotspot.yaw +. 180.0)
           ap := 0.0
-        // ah := hotspot.startHfov->Option.getOr(ah.contents) // DISABLED: Force binary HFOV
-        | _ =>
-          ay := hotspot.yaw -. 35.0
-          ap := 0.0
+        } else {
+          switch (hotspot.startYaw, hotspot.startPitch) {
+          | (Some(_sy), Some(_sp)) =>
+            // To enable the "Intro Pan" visual effect, we land at a neutral offset
+            // then the intro-pan hook will gently move us to the exact waypoint center.
+            ay := hotspot.yaw -. 35.0
+            ap := 0.0
+          | _ =>
+            ay := hotspot.yaw -. 35.0
+            ap := 0.0
+          }
         }
       | None => ()
       }
@@ -57,7 +84,7 @@ let calculatePathData = (state: state, sIdx, sHIdx, tIdx, tYaw, tPitch, _tHfov, 
       let (ay, ap, ah) = if state.simulation.status == Running {
         (tYaw, tPitch, ViewerSystem.getCorrectHfov())
       } else {
-        calculateSmartArrivalTarget(scenes, tIdx)
+        calculateSmartArrivalTarget(state, scenes, tIdx)
       }
       let (sy, sp) = (h.startYaw->Option.getOr(cy), h.startPitch->Option.getOr(cp))
       let (ty, tp) = h.viewFrame->Option.map(vf => (vf.yaw, vf.pitch))->Option.getOr((tYaw, tPitch))
