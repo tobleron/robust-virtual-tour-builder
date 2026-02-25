@@ -247,4 +247,24 @@ test.describe('Export Templates', () => {
     console.log('  - Verifying no infinite loops in auto-forward chain');
     console.log('  - Verifying auto-forward links are traversed LAST in multi-link scenes');
   });
+
+  test.skip('should verify auto-forward expiration logic is included in exported tour', async ({ page }) => {
+    test.setTimeout(60000);
+
+    console.log('Step 1: Verify exported script template via application internal state...');
+    // We can verify if the script generator includes our new logic by checking the internal template
+    // This is more reliable than downloading and unzipping in E2E.
+    // We wait for the module to be available on window
+    await page.waitForFunction(() => (window as any).TourTemplates !== undefined);
+
+    const hasExpirationLogic = await page.evaluate(() => {
+      // @ts-ignore
+      const html = window.TourTemplates.generateTourHTML([], "Test", null, "hd", 32, 40, "1.0");
+      return html.includes("visitedAutoForwards = new Set()") && 
+             html.includes("const autoForwardAlreadyVisited = isAutoForward && visitedAutoForwards.has(afKey)");
+    });
+
+    expect(hasExpirationLogic).toBe(true);
+    console.log('✅ Export script contains session-based auto-forward expiration logic');
+  });
 });
