@@ -33,10 +33,10 @@ let initialState: state = {
     pendingAdvanceId: None,
     autoPilotJourneyId: 0,
   },
-  pendingReturnSceneName: None,
   lastUsedCategory: "outdoor",
   sessionId: None,
   logo: None,
   structuralRevision: 0,
   nextSceneSequenceId: 1,
+  visitedHubScenes: [], // Hub scenes animate only once for better UX
 }

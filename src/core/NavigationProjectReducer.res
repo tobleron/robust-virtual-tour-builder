@@ -72,8 +72,6 @@ module Navigation = {
       | None => None
       }
 
-    | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
-
     | DispatchAppFsmEvent(event) => Some(handleAppFsmEvent(state, event))
 
     | _ => None

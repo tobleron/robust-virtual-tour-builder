@@ -191,7 +191,6 @@ describe("LinkModal", () => {
       ~camPitch=0.0,
       ~camYaw=0.0,
       ~camHfov=90.0,
-      ~pendingReturnSceneName=Nullable.make("Scene1"),
       ~linkDraft=Nullable.make(draft),
       ~getState=AppStateBridge.getState,
       ~dispatch=AppStateBridge.dispatch,

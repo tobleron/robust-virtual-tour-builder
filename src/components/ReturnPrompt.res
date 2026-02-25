@@ -2,20 +2,19 @@
 open Types
 
 @react.component
-let make = React.memo((~incomingLink, ~scenes) => {
-  let dispatch = AppContext.useAppDispatch()
+let make = (~incomingLink, ~scenes) => {
+  let _dispatch = AppContext.useAppDispatch()
 
   let processReturnPrompt = () => {
     let v = Nullable.toOption(ViewerSystem.getActiveViewer())
 
     switch (v, incomingLink) {
     | (Some(viewer), Some(inc)) =>
-      let prevScene = Belt.Array.get(scenes, inc.sceneIndex)
-      switch prevScene {
-      | Some(scene) =>
+      let _prevScene = Belt.Array.get(scenes, inc.sceneIndex)
+      switch _prevScene {
+      | Some(_scene) =>
         let currentYaw = ReBindings.Viewer.getYaw(viewer)
         ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
-        dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
         NotificationManager.dispatch({
           id: "",
           importance: Success,
@@ -70,7 +69,7 @@ let make = React.memo((~incomingLink, ~scenes) => {
       {React.string("↩")}
     </div>
     <div className="return-link-text font-ui text-[13px] font-semibold text-white">
-      {React.string("Add Return Link")}
+      {React.string("Return")}
     </div>
   </div>
-})
+}

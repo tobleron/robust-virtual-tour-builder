@@ -120,9 +120,9 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
     let explicitHotspot =
       currentScene.hotspots->Belt.Array.getBy(h => h.isAutoForward == Some(true))
 
-    // 2. Fallback to first non-return link if scene belongs to legacy auto-forward chain
+    // 2. Fallback to first link if scene belongs to legacy auto-forward chain
     let fallbackHotspot = if currentScene.isAutoForward {
-      currentScene.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+      currentScene.hotspots->Belt.Array.get(0)
     } else {
       None
     }

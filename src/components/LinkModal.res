@@ -22,7 +22,6 @@ let showLinkModal = (
   ~camPitch: float,
   ~camYaw: float,
   ~camHfov: float,
-  ~pendingReturnSceneName: Nullable.t<string>=Nullable.null,
   ~linkDraft: Nullable.t<Types.linkDraft>=Nullable.null,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
@@ -37,14 +36,11 @@ let showLinkModal = (
   let defaultTargetName =
     scenes
     ->Belt.Array.getIndexBy(s => {
-      let isSelected = switch (
-        Nullable.toOption(pendingReturnSceneName),
-        Nullable.toOption(linkDraft),
-      ) {
-      | (Some(name), _) => s.name == name
-      | (None, _) =>
+      let isSelected = switch (Nullable.toOption(linkDraft)) {
+      | Some(_) =>
         let idx = scenes->Belt.Array.getIndexBy(x => x.name == s.name)->Option.getOr(-1)
         idx == nextIndex
+      | None => false
       }
       isSelected
     })
@@ -104,7 +100,6 @@ let showLinkModal = (
           createdAt: Date.now(),
         })
       } else {
-        let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
         let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees
 
         let draftOpt = Nullable.toOption(linkDraft)
@@ -141,13 +136,7 @@ let showLinkModal = (
           startYaw: Some(startYaw),
           startPitch: Some(startPitch),
           startHfov: Some(startHfov),
-          isReturnLink: Some(isReturnLink),
           viewFrame: Some({yaw: camYaw, pitch: camPitch, hfov: camHfov}),
-          returnViewFrame: if isReturnLink {
-            Some({yaw: camYaw, pitch: camPitch, hfov: camHfov})
-          } else {
-            None
-          },
           waypoints: switch draftOpt {
           | Some(d) =>
             switch d.intermediatePoints {

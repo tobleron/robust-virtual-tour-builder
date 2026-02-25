@@ -50,8 +50,6 @@ let isStructuralMutation = (action: Actions.action): bool => {
   | Actions.ApplyLazyRename(_, _)
   | Actions.UpdateSceneMetadata(_, _)
   | Actions.UpdateHotspotTargetView(_, _, _, _, _)
-  | Actions.UpdateHotspotReturnView(_, _, _, _, _)
-  | Actions.ToggleHotspotReturnLink(_, _)
   | Actions.AddToTimeline(_)
   | Actions.SetTimeline(_)
   | Actions.RemoveFromTimeline(_)

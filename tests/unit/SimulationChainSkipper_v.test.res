@@ -32,7 +32,6 @@ describe("SimulationChainSkipper", () => {
       pitch: 0.0,
       target,
       targetSceneId: Some(target),
-      isReturnLink: Some(false),
       startYaw: None,
       startPitch: None,
       startHfov: None,
@@ -40,7 +39,6 @@ describe("SimulationChainSkipper", () => {
       targetPitch: None,
       targetHfov: None,
       viewFrame: None,
-      returnViewFrame: None,
       waypoints: None,
       displayPitch: None,
       transition: None,
@@ -55,7 +53,6 @@ describe("SimulationChainSkipper", () => {
       hotspotIndex: 0,
       targetIndex,
       isVisited: false,
-      isReturn: false,
       isBridge,
     }
   }

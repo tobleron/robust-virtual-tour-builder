@@ -64,9 +64,7 @@ describe("Actions", _ => {
       startYaw: None,
       startPitch: None,
       startHfov: None,
-      isReturnLink: None,
       viewFrame: None,
-      returnViewFrame: None,
       waypoints: None,
       displayPitch: None,
       transition: None,
@@ -116,18 +114,6 @@ describe("Actions", _ => {
     t
     ->expect(actionToString(UpdateHotspotTargetView(1, 2, 0.0, 0.0, 0.0)))
     ->Expect.toBe("UpdateHotspotTargetView(1, 2)")
-  })
-
-  test("UpdateHotspotReturnView matches string representation", t => {
-    t
-    ->expect(actionToString(UpdateHotspotReturnView(1, 2, 0.0, 0.0, 0.0)))
-    ->Expect.toBe("UpdateHotspotReturnView(1, 2)")
-  })
-
-  test("ToggleHotspotReturnLink matches string representation", t => {
-    t
-    ->expect(actionToString(ToggleHotspotReturnLink(1, 2)))
-    ->Expect.toBe("ToggleHotspotReturnLink(1, 2)")
   })
 
   test("AddToTimeline matches string representation", t => {
@@ -183,15 +169,6 @@ describe("Actions", _ => {
 
   test("AddToAutoForwardChain matches string representation", t => {
     t->expect(actionToString(AddToAutoForwardChain(5)))->Expect.toBe("AddToAutoForwardChain(5)")
-  })
-
-  test("SetPendingReturnSceneName matches string representation", t => {
-    t
-    ->expect(actionToString(SetPendingReturnSceneName(Some("scene"))))
-    ->Expect.toBe("SetPendingReturnSceneName(scene)")
-    t
-    ->expect(actionToString(SetPendingReturnSceneName(None)))
-    ->Expect.toBe("SetPendingReturnSceneName(None)")
   })
 
   test("IncrementJourneyId matches string representation", t => {

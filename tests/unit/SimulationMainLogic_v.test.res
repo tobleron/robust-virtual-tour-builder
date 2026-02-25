@@ -34,8 +34,6 @@ describe("SimulationMainLogic", () => {
     startPitch: None,
     startHfov: None,
     viewFrame: None,
-    returnViewFrame: None,
-    isReturnLink: None,
     waypoints: None,
     displayPitch: None,
     transition: None,

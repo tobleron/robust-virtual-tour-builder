@@ -71,9 +71,7 @@ let useIntroPan = (
 
                 if ViewerSystem.isViewerReady(viewer) && viewerSceneId == Some(targetId) {
                   let targetHotspot =
-                    hotspotsWithWaypoints
-                    ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-                    ->Option.getOr(hotspotsWithWaypoints->Belt.Array.get(0)->Option.getOrThrow)
+                    hotspotsWithWaypoints->Belt.Array.get(0)->Option.getOrThrow
 
                   let ty = targetHotspot.startYaw->Option.getOr(targetHotspot.yaw)
                   let tp = targetHotspot.startPitch->Option.getOr(targetHotspot.pitch)

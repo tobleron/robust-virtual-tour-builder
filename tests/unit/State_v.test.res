@@ -27,7 +27,6 @@ describe("State", () => {
     t->expect(initialState.simulation.autoPilotJourneyId)->Expect.toBe(0)
     t->expect(initialState.navigationState.incomingLink)->Expect.toEqual(None)
     t->expect(initialState.navigationState.autoForwardChain)->Expect.toEqual([])
-    t->expect(initialState.pendingReturnSceneName)->Expect.toEqual(None)
     t->expect(initialState.navigationState.currentJourneyId)->Expect.toBe(0)
     t->expect(initialState.lastUsedCategory)->Expect.toBe("outdoor")
     t->expect(initialState.sessionId)->Expect.toEqual(None)

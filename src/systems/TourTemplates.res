@@ -61,8 +61,6 @@ let generateTourHTML = (
                 "waypoints": h.waypoints->Nullable.fromOption,
                 "truePitch": h.pitch,
                 "viewFrame": h.viewFrame->Nullable.fromOption,
-                "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
-                "isReturnLink": h.isReturnLink->Option.getOr(false),
                 "targetYaw": h.targetYaw->Nullable.fromOption,
                 "targetPitch": h.targetPitch->Nullable.fromOption,
               }: TourData.hotspotData
@@ -76,9 +74,7 @@ let generateTourHTML = (
     let autoForwardHotspotIndex = {
       let routeFromDoubleChevron =
         rawHotspots->Belt.Array.getIndexBy(h =>
-          h["targetIsAutoForward"] == true &&
-          h["isReturnLink"] == false &&
-          hasSceneId(h["targetSceneId"])
+          h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
         )
       switch routeFromDoubleChevron {
       | Some(idx) => idx
@@ -116,6 +112,7 @@ let generateTourHTML = (
           "autoForwardHotspotIndex": autoForwardHotspotIndex,
           "autoForwardTargetSceneId": autoForwardTargetSceneId,
           "hotSpots": rawHotspots,
+          "isHubScene": Array.length(s.hotspots) >= 2, // Hub scene = 2+ exit links
         }: TourData.sceneData
       ),
     )

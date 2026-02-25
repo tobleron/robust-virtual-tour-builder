@@ -145,9 +145,7 @@ type hotspot = {
   startYaw: option<float>,
   startPitch: option<float>,
   startHfov: option<float>,
-  isReturnLink: option<bool>,
   viewFrame: option<viewFrame>,
-  returnViewFrame: option<viewFrame>,
   waypoints: option<array<viewFrame>>,
   displayPitch: option<float>,
   transition: option<string>,
@@ -317,12 +315,12 @@ type state = {
   navigationState: navigationState,
   // isSimulationMode: bool, // DEPRECATED in favor of simulation.status
   simulation: simulationState,
-  pendingReturnSceneName: option<string>,
   lastUsedCategory: string,
   sessionId: option<string>,
   logo: option<file>,
   structuralRevision: int,
   nextSceneSequenceId: int,
+  visitedHubScenes: array<string>, // Track hub scenes that have been animated (for one-time animation)
 }
 
 /* --- Pathfinder API Types --- */

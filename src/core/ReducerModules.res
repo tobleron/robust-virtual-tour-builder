@@ -108,23 +108,8 @@ module Hotspot = {
         ),
       )
 
-    | UpdateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>
-      Some(
-        HotspotHelpers.handleUpdateHotspotReturnView(
-          state,
-          sceneIndex,
-          hotspotIndex,
-          yaw,
-          pitch,
-          hfov,
-        ),
-      )
-
     | UpdateHotspotMetadata(sceneIndex, hotspotIndex, metadata) =>
       Some(HotspotHelpers.handleUpdateHotspotMetadata(state, sceneIndex, hotspotIndex, metadata))
-
-    | ToggleHotspotReturnLink(sceneIndex, hotspotIndex) =>
-      Some(HotspotHelpers.handleToggleHotspotReturnLink(state, sceneIndex, hotspotIndex))
 
     | _ => None
     }

@@ -120,27 +120,19 @@ let getSimulationPath = (
               | None => ()
               }
 
+              // Return links deprecated - use viewFrame for all links
               let arrivalYaw = ref(0.0)
               let arrivalPitch = ref(0.0)
-              if link.isReturn {
-                switch hotspot.returnViewFrame {
-                | Some(vf) =>
-                  arrivalYaw := vf.yaw
-                  arrivalPitch := vf.pitch
-                | _ => ()
-                }
-              } else {
-                switch hotspot.viewFrame {
-                | Some(vf) =>
-                  arrivalYaw := vf.yaw
-                  arrivalPitch := vf.pitch
-                | None =>
-                  switch hotspot.targetYaw {
-                  | Some(y) =>
-                    arrivalYaw := y
-                    arrivalPitch := hotspot.targetPitch->Option.getOr(0.0)
-                  | None => ()
-                  }
+              switch hotspot.viewFrame {
+              | Some(vf) =>
+                arrivalYaw := vf.yaw
+                arrivalPitch := vf.pitch
+              | None =>
+                switch hotspot.targetYaw {
+                | Some(y) =>
+                  arrivalYaw := y
+                  arrivalPitch := hotspot.targetPitch->Option.getOr(0.0)
+                | None => ()
                 }
               }
 

@@ -179,42 +179,19 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         let navPitch = ref(0.0)
         let navHfov = ref(90.0)
 
-        let isRet = switch hotspot.isReturnLink {
-        | Some(b) => b
-        | None => false
-        }
-
-        if isRet && hotspot.returnViewFrame != None {
-          let rvf = hotspot.returnViewFrame
-          switch rvf {
-          | Some(r) =>
-            navYaw := r.yaw
-            navPitch := r.pitch
-            navHfov := r.hfov
-          | None => ()
-          }
-        } else {
+        // Return links deprecated - use viewFrame for all links
+        switch hotspot.viewFrame {
+        | Some(vf) =>
+          navYaw := vf.yaw
+          navPitch := vf.pitch
+          navHfov := vf.hfov
+        | None =>
           switch hotspot.targetYaw {
-          | Some(ty) =>
-            navYaw := ty
-            navPitch :=
-              switch hotspot.targetPitch {
-              | Some(p) => p
-              | None => 0.0
-              }
-            navHfov :=
-              switch hotspot.targetHfov {
-              | Some(h) => h
-              | None => 90.0
-              }
-          | None =>
-            switch hotspot.viewFrame {
-            | Some(vf) =>
-              navYaw := vf.yaw
-              navPitch := vf.pitch
-              navHfov := vf.hfov
-            | None => ()
-            }
+          | Some(y) =>
+            navYaw := y
+            navPitch := hotspot.targetPitch->Option.getOr(0.0)
+            navHfov := hotspot.targetHfov->Option.getOr(90.0)
+          | None => ()
           }
         }
 

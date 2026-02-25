@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 6.42 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 579/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TeaserLogic.res** (Metric: [Nesting: 2.40, Density: 0.01, Coupling: 0.09] | Drag: 3.41 | LOC: 574/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserPlayback.res** (Metric: [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -54,18 +54,18 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/systems/TeaserLogic.res`
 - `src/systems/TeaserLogic.res` (12 functions, fingerprint 12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970)
     - Grouped summary:
-        - centerViewerAtWaypointStart × 1 (lines: 82)
-        - check × 1 (lines: 195)
-        - finalizeTeaser × 1 (lines: 155)
-        - logoState × 1 (lines: 191)
-        - parseTeaserProgressMetrics × 1 (lines: 112)
+        - centerViewerAtWaypointStart × 1 (lines: 78)
+        - check × 1 (lines: 191)
+        - finalizeTeaser × 1 (lines: 151)
+        - logoState × 1 (lines: 187)
+        - parseTeaserProgressMetrics × 1 (lines: 108)
         - readHeadlessMotionProfile × 1 (lines: 24)
         - readMotionManifest × 1 (lines: 36)
         - resolveTeaserStartView × 1 (lines: 55)
-        - safeName × 1 (lines: 204)
-        - signalIsAborted × 1 (lines: 149)
-        - state × 1 (lines: 190)
-        - teaserEtaToastId × 1 (lines: 104)
+        - safeName × 1 (lines: 200)
+        - signalIsAborted × 1 (lines: 145)
+        - state × 1 (lines: 186)
+        - teaserEtaToastId × 1 (lines: 100)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/TeaserPlayback.res`
 - `src/systems/TeaserPlayback.res` (16 functions, fingerprint 6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb)

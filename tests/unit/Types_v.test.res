@@ -163,9 +163,7 @@ describe("Types", () => {
       startYaw: None,
       startPitch: None,
       startHfov: None,
-      isReturnLink: Some(false),
       viewFrame: None,
-      returnViewFrame: None,
       waypoints: None,
       displayPitch: None,
       transition: None,
@@ -259,12 +257,12 @@ describe("Types", () => {
         pendingAdvanceId: None,
         autoPilotJourneyId: 0,
       },
-      pendingReturnSceneName: None,
       lastUsedCategory: "",
       sessionId: None,
       logo: None,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
+      visitedHubScenes: [],
     }
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)

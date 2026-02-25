@@ -23,11 +23,7 @@ let selectArrivalHotspot = (state: state, scene: scene, _visited: array<string>)
   // Use linkId-based link finding
   SimulationNavigation.findBestNextLinkByLinkId(scene, state, _visited)
   ->Option.map(link => link.hotspot)
-  ->Option.orElse(
-    scene.hotspots
-    ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-    ->Option.orElse(scene.hotspots->Belt.Array.get(0)),
-  )
+  ->Option.orElse(scene.hotspots->Belt.Array.get(0))
 }
 
 let arrivalFromTargetScene = (
@@ -99,11 +95,8 @@ let getNextMove = (state: state): nextMove => {
       // Main tracking is via visitedLinkIds which is updated by AddVisitedLink action
       let visitedAfterArrival = visitedLinkIds
 
-      let (tYaw, tPitch, tHfov) = if finalLink.isReturn {
-        hotspot.returnViewFrame
-        ->Option.map(vf => (vf.yaw, vf.pitch, vf.hfov))
-        ->Option.getOr((0.0, 0.0, 90.0))
-      } else {
+      // Return links deprecated - use viewFrame/targetYaw for all links
+      let (tYaw, tPitch, tHfov) = {
         let sourceFallback =
           hotspot.viewFrame
           ->Option.map(vf => (vf.yaw, vf.pitch, vf.hfov))

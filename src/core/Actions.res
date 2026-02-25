@@ -24,8 +24,6 @@ type rec action =
   | UpdateSceneMetadata(int, JSON.t)
   | UpdateHotspotMetadata(int, int, JSON.t)
   | UpdateHotspotTargetView(int, int, float, float, float)
-  | UpdateHotspotReturnView(int, int, float, float, float)
-  | ToggleHotspotReturnLink(int, int)
   | AddToTimeline(JSON.t)
   | SetTimeline(array<timelineItem>)
   | SetActiveTimelineStep(option<string>)
@@ -40,7 +38,6 @@ type rec action =
   | SetIncomingLink(option<linkInfo>)
   | ResetAutoForwardChain
   | AddToAutoForwardChain(int)
-  | SetPendingReturnSceneName(option<string>)
   | IncrementJourneyId
   | SetCurrentJourneyId(int)
   | NavigationCompleted(journeyData)
@@ -92,10 +89,6 @@ let hotspotActionToString = (action: action): option<string> =>
     Some(`UpdateHotspotMetadata(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) =>
     Some(`UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
-  | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) =>
-    Some(`UpdateHotspotReturnView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
-  | ToggleHotspotReturnLink(sIdx, hIdx) =>
-    Some(`ToggleHotspotReturnLink(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
   | _ => None
   }
 
@@ -117,8 +110,6 @@ let navigationActionToString = (action: action): option<string> =>
   | SetIncomingLink(_) => Some("SetIncomingLink")
   | ResetAutoForwardChain => Some("ResetAutoForwardChain")
   | AddToAutoForwardChain(idx) => Some(`AddToAutoForwardChain(${Belt.Int.toString(idx)})`)
-  | SetPendingReturnSceneName(opt) =>
-    Some(`SetPendingReturnSceneName(${opt->Option.getOr("None")})`)
   | IncrementJourneyId => Some("IncrementJourneyId")
   | SetCurrentJourneyId(id) => Some(`SetCurrentJourneyId(${Belt.Int.toString(id)})`)
   | NavigationCompleted(_) => Some("NavigationCompleted")

@@ -429,6 +429,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/core/HubScene.res](src/core/HubScene.res): New module detected. Please classify. #new
 * [src/utils/TimelineCleanup.res](src/utils/TimelineCleanup.res): New module detected. Please classify. #new
 * [src/systems/EtaSupport.res](src/systems/EtaSupport.res): New module detected. Please classify. #new
 * [src/systems/TeaserStyleCinematic.res](src/systems/TeaserStyleCinematic.res): New module detected. Please classify. #new

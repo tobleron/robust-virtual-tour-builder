@@ -22,9 +22,7 @@ let createMockHotspot = (~id="h1", ~target="scene2", ()) => {
     startYaw: None,
     startPitch: None,
     startHfov: None,
-    isReturnLink: Some(false),
     viewFrame: None,
-    returnViewFrame: None,
     waypoints: None,
     displayPitch: None,
     transition: None,
@@ -86,6 +84,7 @@ let createMockState = (
     lastUsedCategory,
     appMode,
     nextSceneSequenceId: sceneOrder->Belt.Array.length + 1,
+    visitedHubScenes: [], // Hub scene tracking for one-time animation
   }
 }
 

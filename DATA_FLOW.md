@@ -399,6 +399,9 @@ CI job
 - `[src/components/Sidebar/SidebarBase.res]`
 - `[src/components/Sidebar/SidebarLogicHandler.res]`
 
+### 📂 src/core
+- `[src/core/HubScene.res]`
+
 ### 📂 src/systems
 - `[src/systems/EtaSupport.res]`
 - `[src/systems/TeaserManifest.res]`

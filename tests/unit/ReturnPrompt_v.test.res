@@ -96,9 +96,8 @@ describe("ReturnPrompt", () => {
     | None => ()
     }
 
-    t
-    ->expect(lastAction.contents)
-    ->Expect.toEqual(Some(Actions.SetPendingReturnSceneName(Some("Scene 1"))))
+    // Note: SetPendingReturnSceneName action was removed (return link feature deprecated)
+    // The return prompt still turns the viewer around, but no longer sets a pending scene name
 
     Dom.removeElement(container)
   })

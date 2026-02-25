@@ -25,7 +25,7 @@ describe("Simulation.PathGenerator", () => {
     }
   }
 
-  let createHotspot = (target, ~isReturn=false, ()) => {
+  let createHotspot = (target, ()) => {
     {
       linkId: "test-link",
       yaw: 10.0,
@@ -38,9 +38,7 @@ describe("Simulation.PathGenerator", () => {
       startYaw: None,
       startPitch: None,
       startHfov: None,
-      isReturnLink: Some(isReturn),
       viewFrame: None,
-      returnViewFrame: None,
       waypoints: None,
       displayPitch: None,
       transition: None,
@@ -86,10 +84,25 @@ describe("Simulation.PathGenerator", () => {
     t->expect(Belt.Array.getExn(path, 1).arrivalView.pitch)->Expect.toBe(40.0)
   })
 
-  test("getSimulationPath: handles isReturn link and returnViewFrame", t => {
+  test("getSimulationPath: handles link with viewFrame fallback", t => {
     let hotspot = {
-      ...createHotspot("scene1", ~isReturn=true, ()),
-      returnViewFrame: Some({yaw: 111.0, pitch: 222.0, hfov: 90.0}),
+      linkId: "test-link",
+      yaw: 10.0,
+      pitch: 20.0,
+      target: "scene1",
+      targetSceneId: Some("scene1"),
+      targetYaw: Some(30.0),
+      targetPitch: Some(40.0),
+      targetHfov: None,
+      startYaw: None,
+      startPitch: None,
+      startHfov: None,
+      viewFrame: Some({yaw: 111.0, pitch: 222.0, hfov: 90.0}),
+      waypoints: None,
+      displayPitch: None,
+      transition: None,
+      duration: None,
+      isAutoForward: None,
     }
     let scene0 = {...createScene("0", "scene0", false), hotspots: [hotspot]}
     let scene1 = createScene("1", "scene1", false)

@@ -1,21 +1,5 @@
 open Types
 
-let calculateNewReturnViewFrame = (hotspot: hotspot, isReturnLink: bool): option<viewFrame> => {
-  if isReturnLink && hotspot.returnViewFrame == None {
-    let vf = switch hotspot.viewFrame {
-    | Some(v) => v
-    | None => {yaw: 0.0, pitch: 0.0, hfov: Constants.globalHfov}
-    }
-    Some({
-      yaw: vf.yaw,
-      pitch: vf.pitch,
-      hfov: vf.hfov,
-    })
-  } else {
-    hotspot.returnViewFrame
-  }
-}
-
 let handleAddHotspot = (state: state, sceneIndex: int, hotspot: hotspot): state => {
   switch state.appMode {
   | Interactive(_) =>
@@ -152,77 +136,6 @@ let handleUpdateHotspotTargetView = (
   }
 }
 
-let handleUpdateHotspotReturnView = (
-  state: state,
-  sceneIndex: int,
-  hotspotIndex: int,
-  yaw: float,
-  pitch: float,
-  hfov: float,
-): state => {
-  switch state.appMode {
-  | Interactive(_) =>
-    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
-    | Some(id) =>
-      switch state.inventory->Belt.Map.String.get(id) {
-      | Some(entry) =>
-        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
-          if hi == hotspotIndex {
-            let vf: viewFrame = {yaw, pitch, hfov}
-            {...h, returnViewFrame: Some(vf), isReturnLink: Some(true)}
-          } else {
-            h
-          }
-        })
-        {
-          ...state,
-          inventory: state.inventory->Belt.Map.String.set(
-            id,
-            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
-          ),
-        }
-      | None => state
-      }
-    | None => state
-    }
-  | _ => state
-  }
-}
-
-let handleToggleHotspotReturnLink = (state: state, sceneIndex: int, hotspotIndex: int): state => {
-  switch state.appMode {
-  | Interactive(_) =>
-    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
-    | Some(id) =>
-      switch state.inventory->Belt.Map.String.get(id) {
-      | Some(entry) =>
-        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
-          if hi == hotspotIndex {
-            let currentVal = switch h.isReturnLink {
-            | Some(b) => b
-            | None => false
-            }
-            let nextVal = !currentVal
-            let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
-            {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
-          } else {
-            h
-          }
-        })
-        {
-          ...state,
-          inventory: state.inventory->Belt.Map.String.set(
-            id,
-            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
-          ),
-        }
-      | None => state
-      }
-    | None => state
-    }
-  | _ => state
-  }
-}
 let handleUpdateHotspotMetadata = (
   state: state,
   sceneIndex: int,

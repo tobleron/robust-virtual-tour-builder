@@ -16,8 +16,6 @@ type hotspotData = {
   "waypoints": Nullable.t<array<viewFrame>>,
   "truePitch": float,
   "viewFrame": Nullable.t<viewFrame>,
-  "returnViewFrame": Nullable.t<viewFrame>,
-  "isReturnLink": bool,
   "targetYaw": Nullable.t<float>,
   "targetPitch": Nullable.t<float>,
 }
@@ -33,6 +31,7 @@ type sceneData = {
   "autoForwardHotspotIndex": int,
   "autoForwardTargetSceneId": string,
   "hotSpots": array<hotspotData>,
+  "isHubScene": bool, // Hub scene = 2+ exit links (animates once, shows auto-forward as button)
 }
 
 let encodeHotspot = (h: hotspotData) => {
@@ -68,13 +67,6 @@ let encodeHotspot = (h: hotspotData) => {
       ),
     ),
     (
-      "returnViewFrame",
-      JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(
-        Nullable.toOption(h["returnViewFrame"]),
-      ),
-    ),
-    ("isReturnLink", JsonCombinators.Json.Encode.bool(h["isReturnLink"])),
-    (
       "targetYaw",
       JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(
         Nullable.toOption(h["targetYaw"]),
@@ -101,6 +93,7 @@ let encodeSceneData = (s: sceneData) => {
     ("autoForwardHotspotIndex", JsonCombinators.Json.Encode.int(s["autoForwardHotspotIndex"])),
     ("autoForwardTargetSceneId", JsonCombinators.Json.Encode.string(s["autoForwardTargetSceneId"])),
     ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"])),
+    ("isHubScene", JsonCombinators.Json.Encode.bool(s["isHubScene"])),
   ])
 }
 

@@ -61,14 +61,10 @@ let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
       | None => false
       }
     )
+    // Return links deprecated - just use first waypoint or first hotspot
     let candidate =
-      waypointCandidates
-      ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-      ->Option.orElse(waypointCandidates->Belt.Array.get(0))
-      ->Option.orElse(
-        scene.hotspots
-        ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-        ->Option.orElse(scene.hotspots->Belt.Array.get(0)),
+      waypointCandidates->Belt.Array.get(0)->Option.orElse(
+        scene.hotspots->Belt.Array.get(0),
       )
 
     candidate->Option.map(h => (

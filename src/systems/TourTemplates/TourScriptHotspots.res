@@ -1,4 +1,7 @@
 let script = `
+    // Hub Scene Tracking: Track which hub scenes have already animated
+    let animatedHubScenes = new Set();
+    
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
       const sd = scenesData[sceneId];
@@ -8,6 +11,29 @@ let script = `
       const primaryIndex = playbackTarget.hotspotIndex;
       waypointRuntime.arrivedSceneId = null;
       setSceneHotspotsPending(sceneId);
+      
+      // HUB SCENE LOGIC: Skip animation if this hub scene has already animated
+      const isHubScene = sd.isHubScene === true;
+      const hasAnimated = animatedHubScenes.has(sceneId);
+      const shouldSkipAnimation = isHubScene && hasAnimated;
+      
+      if (shouldSkipAnimation) {
+        // Hub scene already animated - show hotspots immediately without animation
+        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        const autoForward = playbackTarget.autoForward === true;
+        if (autoForward) {
+          waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
+            if (window.viewer.getScene() !== sceneId) return;
+            attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
+          }, 360);
+        } else {
+          resetAutoForwardLoopGuard();
+        }
+        lookingMode = autoForward ? false : manualLookingMode;
+        updateLookingModeUI();
+        return;
+      }
+      
       let durationMs = PAN_MIN_DURATION;
       const startPitch = typeof window.viewer.getPitch === 'function' ? window.viewer.getPitch() : 0;
       const startYaw = typeof window.viewer.getYaw === 'function' ? window.viewer.getYaw() : 0;
@@ -37,6 +63,12 @@ let script = `
         waypointRuntime.animationId = null;
         waypointRuntime.arrivedSceneId = sceneId;
         setSceneHotspotsReadyWithRetry(sceneId, retries);
+        
+        // HUB SCENE LOGIC: Mark this hub scene as having animated
+        if (isHubScene) {
+          animatedHubScenes.add(sceneId);
+        }
+        
         const autoForward = playbackTarget.autoForward === true;
         if (autoForward) {
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
@@ -60,9 +92,18 @@ let script = `
       hotSpotDiv.style.width = "__BASE_SIZE__px"; hotSpotDiv.style.height = "__BASE_SIZE__px";
       hotSpotDiv.style.pointerEvents = "auto";
       hotSpotDiv.style.cursor = "pointer";
-      if (args.targetIsAutoForward) {
+      
+      // HUB SCENE LOGIC: Auto-forward links in hub scenes are shown as normal buttons
+      // Only hide auto-forward in non-hub scenes
+      const isHubScene = currentSceneData?.isHubScene === true;
+      const shouldHideAutoForward = args.targetIsAutoForward && !isHubScene;
+      
+      if (shouldHideAutoForward) {
         hotSpotDiv.style.setProperty("display", "none", "important");
+      } else {
+        hotSpotDiv.style.removeProperty("display");
       }
+      
       hotSpotDiv.dataset.ownerScene = ownerScene;
       hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
       hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);

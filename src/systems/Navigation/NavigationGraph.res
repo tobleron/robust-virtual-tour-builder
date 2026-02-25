@@ -8,10 +8,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
   let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(ViewerSystem.getCorrectHfov()))
   if targetIndex >= 0 && targetIndex < Array.length(scenes) {
     scenes[targetIndex]->Option.forEach(ns => {
-      let t = switch ns.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true)) {
-      | Some(h) => Some(h)
-      | None => ns.hotspots->Belt.Array.get(0)
-      }
+      let t = ns.hotspots->Belt.Array.get(0)
 
       switch t {
       | Some(hotspot) =>

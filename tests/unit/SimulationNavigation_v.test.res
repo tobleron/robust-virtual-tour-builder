@@ -4,7 +4,7 @@ open Simulation.Navigation
 open Types
 
 describe("SimulationNavigation", () => {
-  let createHotspot = (target, isReturn) => {
+  let createHotspot = (target, _isReturn) => {
     {
       linkId: "l-" ++ target,
       yaw: 0.0,
@@ -17,9 +17,7 @@ describe("SimulationNavigation", () => {
       startYaw: None,
       startPitch: None,
       startHfov: None,
-      isReturnLink: Some(isReturn),
       viewFrame: None,
-      returnViewFrame: None,
       waypoints: None,
       displayPitch: None,
       transition: None,

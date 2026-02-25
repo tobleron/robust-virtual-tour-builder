@@ -4,7 +4,7 @@ open Types
 open Simulation.Logic
 
 describe("SimulationLogic", () => {
-  let createHotspot = (target, isReturn) => {
+  let createHotspot = (target, _isReturn) => {
     linkId: "l-" ++ target,
     yaw: 0.0,
     pitch: 0.0,
@@ -16,9 +16,7 @@ describe("SimulationLogic", () => {
     startYaw: None,
     startPitch: None,
     startHfov: None,
-    isReturnLink: Some(isReturn),
     viewFrame: None,
-    returnViewFrame: None,
     waypoints: None,
     displayPitch: None,
     transition: None,
@@ -107,10 +105,25 @@ describe("SimulationLogic", () => {
     }
   })
 
-  test("getNextMove handles returnViewFrame for return links", t => {
+  test("getNextMove handles viewFrame fallback for links", t => {
     let hotspot = {
-      ...createHotspot("Scene 1", true),
-      returnViewFrame: Some({yaw: 180.0, pitch: 0.0, hfov: 100.0}),
+      linkId: "l-Scene 1",
+      yaw: 0.0,
+      pitch: 0.0,
+      target: "Scene 1",
+      targetSceneId: Some("Scene 1"),
+      targetYaw: Some(10.0),
+      targetPitch: Some(20.0),
+      targetHfov: Some(90.0),
+      startYaw: None,
+      startPitch: None,
+      startHfov: None,
+      viewFrame: Some({yaw: 111.0, pitch: 222.0, hfov: 90.0}),
+      waypoints: None,
+      displayPitch: None,
+      transition: None,
+      duration: None,
+      isAutoForward: None,
     }
     // We need an unvisited path from Scene 1 so it doesn't complete the tour immediately
     let scene1: scene = {

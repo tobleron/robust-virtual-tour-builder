@@ -37,12 +37,12 @@ let makeInitialState = (): Types.state => {
       pendingAdvanceId: None,
       autoPilotJourneyId: 0,
     },
-    pendingReturnSceneName: None,
     lastUsedCategory: "outdoor",
     sessionId: None,
     logo: None,
     structuralRevision: 0,
     nextSceneSequenceId: 1,
+    visitedHubScenes: [],
   }
 }
 

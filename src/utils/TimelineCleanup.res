@@ -70,7 +70,6 @@ let simulateTourOrder = (state: state): array<string> => {
             switch targetIdx {
             | Some(idx) =>
               let isVisited = Array.includes(visitedLinkIds.contents, hs.linkId)
-              let isReturn = hs.isReturnLink->Option.getOr(false)
               // Use hotspot-level isAutoForward (link-level takes priority)
               let isBridge = switch hs.isAutoForward {
               | Some(af) => af
@@ -79,7 +78,7 @@ let simulateTourOrder = (state: state): array<string> => {
                 ->Option.map(s => s.isAutoForward)
                 ->Option.getOr(false)
               }
-              Some((hs.linkId, idx, isVisited, isReturn, isBridge))
+              Some((hs.linkId, idx, isVisited, isBridge))
             | None => None
             }
           })
@@ -87,27 +86,22 @@ let simulateTourOrder = (state: state): array<string> => {
 
         // Find first unvisited link (same priority logic as SimulationNavigation)
         let nextLinkOpt = Array.find(allLinks, l => {
-          let (_, _, v, r, b) = l
-          !v && !r && !b
+          let (_, _, v, b) = l
+          !v && !b
         })->Option.orElse(
           Array.find(allLinks, l => {
-            let (_, _, v, r, b) = l
-            !v && !r && b
+            let (_, _, v, b) = l
+            !v && b
           })->Option.orElse(
             Array.find(allLinks, l => {
-              let (_, _, v, r, b) = l
-              !v && r && !b
-            })->Option.orElse(
-              Array.find(allLinks, l => {
-                let (_, _, v, r, b) = l
-                !v && r && b
-              }),
-            ),
+              let (_, _, v, b) = l
+              !v && b
+            }),
           ),
         )
 
         switch nextLinkOpt {
-        | Some((linkId, targetIdx, _, _, _)) =>
+        | Some((linkId, targetIdx, _, _)) =>
           // Mark this link as visited
           visitedLinkIds.contents = Belt.Array.concat(visitedLinkIds.contents, [linkId])
           currentSceneIdx := targetIdx

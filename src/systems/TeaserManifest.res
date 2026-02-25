@@ -14,13 +14,9 @@ let pickWaypointHotspot = (scene: scene): option<hotspot> => {
     }
   )
 
-  waypointCandidates
-  ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-  ->Option.orElse(waypointCandidates->Belt.Array.get(0))
-  ->Option.orElse(
-    scene.hotspots
-    ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-    ->Option.orElse(scene.hotspots->Belt.Array.get(0)),
+  // Return links deprecated - just use first waypoint or first hotspot
+  waypointCandidates->Belt.Array.get(0)->Option.orElse(
+    scene.hotspots->Belt.Array.get(0),
   )
 }
 

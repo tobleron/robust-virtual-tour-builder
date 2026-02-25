@@ -7,7 +7,6 @@ type enrichedLink = {
   hotspotIndex: int,
   targetIndex: int,
   isVisited: bool,
-  isReturn: bool,
   isBridge: bool,
 }
 

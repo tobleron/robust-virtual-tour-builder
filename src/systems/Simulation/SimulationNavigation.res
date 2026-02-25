@@ -163,7 +163,6 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
               hotspotIndex: i,
               targetIndex: idx,
               isVisited: Array.includes(visited, idx),
-              isReturn: hotspot.isReturnLink->Option.getOr(false),
               // Use hotspot-level isAutoForward (more granular than scene-level)
               isBridge: switch hotspot.isAutoForward {
               | Some(af) => af
@@ -189,34 +188,21 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
       (),
     )
 
-    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && !l.isBridge)
+    // Return links deprecated - simplified priority logic
+    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isBridge)
     switch p1 {
     | Some(l) => Some(l)
     | None =>
-      let p2 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && l.isBridge)
+      let p2 = Array.find(allLinks, l => !l.isVisited && l.isBridge)
       switch p2 {
       | Some(l) => Some(l)
       | None =>
-        let p3 = Array.find(allLinks, l => !l.isVisited && l.isReturn && !l.isBridge)
-        switch p3 {
-        | Some(l) => Some(l)
-        | None =>
-          let p4 = Array.find(allLinks, l => !l.isVisited && l.isReturn && l.isBridge)
-          switch p4 {
-          | Some(l) => Some(l)
-          | None =>
-            let uniqueVisitedCount = visited->Belt.Set.Int.fromArray->Belt.Set.Int.size
-            let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-            if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
-              Array.find(allLinks, l => l.targetIndex == 0)
-            } else {
-              let p5 = Array.find(allLinks, l => !l.isReturn)
-              switch p5 {
-              | Some(l) => Some(l)
-              | None => Array.find(allLinks, l => l.isReturn)
-              }
-            }
-          }
+        let uniqueVisitedCount = visited->Belt.Set.Int.fromArray->Belt.Set.Int.size
+        let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+        if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
+          Array.find(allLinks, l => l.targetIndex == 0)
+        } else {
+          Array.find(allLinks, l => !l.isVisited)
         }
       }
     }
@@ -251,7 +237,6 @@ let findBestNextLinkByLinkId = (
               targetIndex: idx,
               // KEY CHANGE: Check if linkId was traversed, not if scene was visited
               isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
-              isReturn: hotspot.isReturnLink->Option.getOr(false),
               // Use hotspot-level isAutoForward (more granular than scene-level)
               isBridge: switch hotspot.isAutoForward {
               | Some(af) => af
@@ -277,26 +262,21 @@ let findBestNextLinkByLinkId = (
       (),
     )
 
-    // Same priority logic, but now correctly identifies untraversed links
-    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && !l.isBridge)
+    // Return links deprecated - simplified priority logic
+    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isBridge)
     switch p1 {
     | Some(l) => Some(l)
     | None =>
-      let p2 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && l.isBridge)
+      let p2 = Array.find(allLinks, l => !l.isVisited && l.isBridge)
       switch p2 {
       | Some(l) => Some(l)
       | None =>
-        let p3 = Array.find(allLinks, l => !l.isVisited && l.isReturn && !l.isBridge)
-        switch p3 {
-        | Some(l) => Some(l)
-        | None =>
-          let p4 = Array.find(allLinks, l => !l.isVisited && l.isReturn && l.isBridge)
-          switch p4 {
-          | Some(l) => Some(l)
-          | None =>
-            // All links traversed - return to start
-            Array.find(allLinks, l => l.targetIndex == 0)
-          }
+        let uniqueVisitedCount = visitedLinkIds->Belt.Set.String.fromArray->Belt.Set.String.size
+        let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+        if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
+          Array.find(allLinks, l => l.targetIndex == 0)
+        } else {
+          Array.find(allLinks, l => !l.isVisited)
         }
       }
     }

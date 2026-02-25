@@ -47,9 +47,7 @@ describe("NavigationGraph", () => {
       startYaw,
       startPitch,
       startHfov: None,
-      isReturnLink: None,
       viewFrame,
-      returnViewFrame: None,
       waypoints,
       displayPitch: None,
       transition: None,
@@ -96,12 +94,12 @@ describe("NavigationGraph", () => {
         pendingAdvanceId: None,
         autoPilotJourneyId: 0,
       },
-      pendingReturnSceneName: None,
       lastUsedCategory: "indoor",
       sessionId: None,
       logo: None,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
+      visitedHubScenes: [],
     }
   }
 
