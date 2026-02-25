@@ -140,7 +140,11 @@ describe("NavigationGraph", () => {
       },
     }
 
-    let (yaw, pitch, _hfov) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming, scenes, 0)
+    let (yaw, pitch, _hfov) = NavigationGraph.calculateSmartArrivalTarget(
+      stateWithIncoming,
+      scenes,
+      0,
+    )
     t->expect(yaw)->Expect.toBe(-135.0)
     t->expect(pitch)->Expect.toBe(0.0)
   })
@@ -169,19 +173,33 @@ describe("NavigationGraph", () => {
     let s0_2 = createScene("s0", [h2])
     let stateWithIncoming2 = {
       ...stateWithIncoming,
-      inventory: Belt.Map.String.fromArray([("s0", {scene: s0_2, status: Active}), ("s1", {scene: s1, status: Active})]),
+      inventory: Belt.Map.String.fromArray([
+        ("s0", {scene: s0_2, status: Active}),
+        ("s1", {scene: s1, status: Active}),
+      ]),
     }
-    let (yaw2, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming2, [s0_2, s1], 0)
+    let (yaw2, _, _) = NavigationGraph.calculateSmartArrivalTarget(
+      stateWithIncoming2,
+      [s0_2, s1],
+      0,
+    )
     t->expect(yaw2)->Expect.toBe(10.0)
-    
+
     // Hotspot is at 10.0. Return view is 10.0 + 180.0 = 190.0 -> Normalized to -170.0
     let h3 = createHotspot("s1", ~yaw=10.0, ())
     let s0_3 = createScene("s0", [h3])
     let stateWithIncoming3 = {
       ...stateWithIncoming,
-      inventory: Belt.Map.String.fromArray([("s0", {scene: s0_3, status: Active}), ("s1", {scene: s1, status: Active})]),
+      inventory: Belt.Map.String.fromArray([
+        ("s0", {scene: s0_3, status: Active}),
+        ("s1", {scene: s1, status: Active}),
+      ]),
     }
-    let (yaw3, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming3, [s0_3, s1], 0)
+    let (yaw3, _, _) = NavigationGraph.calculateSmartArrivalTarget(
+      stateWithIncoming3,
+      [s0_3, s1],
+      0,
+    )
     t->expect(yaw3)->Expect.toBe(-170.0)
   })
 

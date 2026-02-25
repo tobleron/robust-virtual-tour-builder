@@ -172,10 +172,10 @@ let attemptAsync = async (
 }
 
 let startOperation = (~module_, ~operation, ~data=?, ()) =>
-  info(~module_, ~message=`${operation}_START`, ~data?, ())
+  debug(~module_, ~message=`${operation}_START`, ~data?, ())
 let endOperation = (~module_, ~operation, ~data=?, ()) =>
-  info(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
-let initialized = (~module_) => info(~module_, ~message=`${module_} initialized`, ())
+  debug(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
+let initialized = (~module_) => debug(~module_, ~message=`${module_} initialized`, ())
 
 let logResult = (
   ~module_: string,

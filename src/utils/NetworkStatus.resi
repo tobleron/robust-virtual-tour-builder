@@ -15,7 +15,7 @@ type statusSnapshot = {
 
 let isOnline: unit => bool
 let getSnapshot: unit => statusSnapshot
-let probe: unit => Promise.t<bool>
+let probe: (~isInitial: bool=?) => Promise.t<bool>
 let subscribe: (bool => unit) => unit => unit
 let forceStatus: bool => unit
 let skipProbe: ref<bool>

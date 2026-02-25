@@ -20,7 +20,7 @@ module InnerApp = {
     }
 
     React.useEffect1(() => {
-      Logger.info(
+      Logger.debug(
         ~module_="App",
         ~message="SYSTEM_LOCKED_STATUS: " ++ (isSystemLocked ? "LOCKED" : "UNLOCKED"),
         (),
@@ -39,7 +39,7 @@ module InnerApp = {
     }, [isExporting])
 
     React.useEffect0(() => {
-      Logger.info(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())
+      Logger.debug(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())
       dispatch(DispatchAppFsmEvent(InitializeComplete))
       None
     })

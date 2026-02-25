@@ -159,7 +159,7 @@ module AppFsm = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | DispatchAppFsmEvent(event) => {
-        Logger.info(
+        Logger.debug(
           ~module_="ReducerAppFsm",
           ~message="Processing Event: " ++
           AppFSM.eventToString(event) ++

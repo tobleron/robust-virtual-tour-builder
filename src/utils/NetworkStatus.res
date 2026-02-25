@@ -97,41 +97,55 @@ let parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {
   raw->Option.flatMap(Belt.Int.fromString)
 }
 
-let probe = async () => {
-  try {
-    // We use a simple fetch to a known health endpoint.
-    // We use a cache-busting or no-cache strategy to ensure we aren't getting a local response.
-    let res = await WebApiBindings.Fetch.fetch(
-      "/api/health",
-      WebApiBindings.Fetch.requestInit(
-        ~method="GET",
-        // cache: "no-store" is not in the binding yet, but we can usually rely on health endpoint being non-cacheable on backend
-        (),
-      ),
-    )
-    if WebApiBindings.Fetch.ok(res) {
-      updateStatus(true, ~reason=Healthy)
-      true
-    } else if WebApiBindings.Fetch.status(res) == 429 {
-      let retryAfter = parseRetryAfter(res)
-      updateStatus(false, ~reason=BackendRateLimited(retryAfter))
-      false
-    } else {
-      updateStatus(
-        false,
-        ~reason=BackendUnavailable(
-          WebApiBindings.Fetch.status(res),
-          WebApiBindings.Fetch.statusText(res),
-        ),
+let probe = async (~isInitial=false) => {
+  let maxRetries = isInitial ? 3 : 0
+  let rec attempt = async (retryCount: int) => {
+    try {
+      let res = await WebApiBindings.Fetch.fetch(
+        "/api/health",
+        WebApiBindings.Fetch.requestInit(~method="GET", ()),
       )
+      if WebApiBindings.Fetch.ok(res) {
+        updateStatus(true, ~reason=Healthy)
+        true
+      } else if WebApiBindings.Fetch.status(res) == 429 {
+        let retryAfter = parseRetryAfter(res)
+        updateStatus(false, ~reason=BackendRateLimited(retryAfter))
+        false
+      } else if (
+        (WebApiBindings.Fetch.status(res) == 504 || WebApiBindings.Fetch.status(res) == 502) &&
+          retryCount < maxRetries
+      ) {
+        // Retry Gateway Timeout / Bad Gateway during startup
+        let delay = 1000 * (retryCount + 1)
+        let _ = await Promise.make((resolve, _) => {
+          let _ = ReBindings.Window.setTimeout(() => resolve(Ok()), delay)
+        })
+        await attempt(retryCount + 1)
+      } else {
+        updateStatus(
+          false,
+          ~reason=BackendUnavailable(
+            WebApiBindings.Fetch.status(res),
+            WebApiBindings.Fetch.statusText(res),
+          ),
+        )
+        false
+      }
+    } catch {
+    | _ if retryCount < maxRetries =>
+      // Network error during startup, retry
+      let delay = 1000 * (retryCount + 1)
+      let _ = await Promise.make((resolve, _) => {
+        let _ = ReBindings.Window.setTimeout(() => resolve(Ok()), delay)
+      })
+      await attempt(retryCount + 1)
+    | _ =>
+      updateStatus(false, ~reason=ProbeNetworkFailure)
       false
     }
-  } catch {
-  | _ =>
-    // If navigator says we are online but fetch fails, we ARE offline (from app perspective)
-    updateStatus(false, ~reason=ProbeNetworkFailure)
-    false
   }
+  await attempt(0)
 }
 
 let forceStatus = (online: bool) => {
@@ -149,7 +163,7 @@ let handleOnline = () => {
     updateStatus(true, ~reason=Healthy)
   } else {
     Console.info("NetworkStatus: Browser reported ONLINE, probing...")
-    let _ = probe()
+    let _ = probe(~isInitial=true)
   }
 }
 
@@ -168,7 +182,7 @@ let initialize = () => {
   addEventListener("offline", handleOffline)
 
   // Initial probe to verify true status
-  let _ = probe()
+  let _ = probe(~isInitial=true)
 
   // Periodic probe if we are offline to recover automatically
   intervalId := Some(ReBindings.Window.setInterval(() => {

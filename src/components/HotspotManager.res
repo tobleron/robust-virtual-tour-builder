@@ -144,7 +144,7 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
       }
     })
 
-    Logger.info(
+    Logger.debug(
       ~module_="HotspotManager",
       ~message="SYNC_HOTSPOTS_NUKE",
       ~data=Some({

@@ -162,22 +162,20 @@ module Provider = {
     })
 
     // Domain-Specific Slices
-    let sceneSlice = React.useMemo6(() => {
+    let scenes = React.useMemo2(() => {
+      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    }, (state.inventory, state.sceneOrder))
+
+    // Domain-Specific Slices
+    let sceneSlice = React.useMemo5(() => {
       {
-        scenes: SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
+        scenes,
         activeIndex: state.activeIndex,
         tourName: state.tourName,
         activeYaw: state.activeYaw,
         activePitch: state.activePitch,
       }
-    }, (
-      state.inventory,
-      state.sceneOrder,
-      state.activeIndex,
-      state.tourName,
-      state.activeYaw,
-      state.activePitch,
-    ))
+    }, (scenes, state.activeIndex, state.tourName, state.activeYaw, state.activePitch))
 
     let uiSlice = React.useMemo7(() => {
       {

@@ -200,7 +200,7 @@ let start = (
   updateLoggerContext()
   notifyListeners()
 
-  Logger.info(
+  Logger.debug(
     ~module_="OperationLifecycle",
     ~message="OPERATION_STARTED",
     ~data=Some({
@@ -268,7 +268,7 @@ let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
       notifyListeners()
       cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
 
-      Logger.info(
+      Logger.debug(
         ~module_="OperationLifecycle",
         ~message="OPERATION_COMPLETED",
         ~data=Some({"id": id}),
@@ -350,7 +350,7 @@ let cancel = (id: operationId): unit => {
         // Invoke callback first
         switch cancelCallbacks.contents->Belt.Map.String.get(id) {
         | Some(cb) =>
-          Logger.info(
+          Logger.debug(
             ~module_="OperationLifecycle",
             ~message="INVOKING_CANCEL_CALLBACK",
             ~data=Some({"id": id}),
@@ -370,7 +370,7 @@ let cancel = (id: operationId): unit => {
         notifyListeners()
         cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
 
-        Logger.info(
+        Logger.debug(
           ~module_="OperationLifecycle",
           ~message="OPERATION_CANCELLED",
           ~data=Some({"id": id}),

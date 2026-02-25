@@ -143,7 +143,7 @@ let rec transition = (currentMode: appMode, event: event): appMode => {
   }
 
   if nextMode != currentMode {
-    Logger.info(
+    Logger.debug(
       ~module_="AppFSM",
       ~message="TRANSITION_MODE",
       ~data=Some({
