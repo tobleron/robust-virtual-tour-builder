@@ -124,3 +124,21 @@ body.teaser-mode .panorama-layer.active .pnlm-dragfix {
     display: block;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
+/* Viewer layer stack source of truth: do not redefine these selectors in ui.css */
+#viewer-scene-elements-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5; /* Guides/lines layer: below hotspot controls, above panorama */
+    pointer-events: none;
+}
+
+#viewer-ui-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 200; /* Top-level HUD and viewer UI */
+    pointer-events: none;
+}
+
+#viewer-ui-layer > :not(.pointer-events-none) {
+    pointer-events: auto;
+}

@@ -44,12 +44,7 @@
     background: #0e2d52;
 }
 
-#viewer-scene-elements-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 100;
-}
+/* Viewer scene/ui layering lives in css/components/viewer.css */
 
 .sidebar-branding-icon {
     font-size: 32px;
@@ -195,17 +190,6 @@
     border-color: var(--orange-brand);
     box-shadow: 0 0 0 1px var(--orange-brand);
     background-color: #ffffff;
-}
-
-#viewer-ui-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 200;
-}
-
-#viewer-ui-layer> :not(.pointer-events-none) {
-    pointer-events: auto;
 }
 
 /* CUSTOM NOTIFICATION SYSTEM */

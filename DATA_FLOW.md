@@ -59,6 +59,8 @@ User file selection
   → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res], and [src/components/Sidebar/SidebarAbout.res])
     → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res], and [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
+  → [src/components/Sidebar/SidebarLogicHandler.res] dispatches upload/load/save/export actions
+  → [src/components/Sidebar/SidebarBase.res] provides shared sidebar types and progress monitoring
   → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
@@ -87,6 +89,7 @@ User file selection
     → [src/systems/Upload/UploadReporting.res] generates final batch summaries
   → [src/utils/OperationJournal.res] completes transaction
   → [src/systems/Upload/UploadRecovery.res] checks for interrupted tasks on retry
+  → [src/systems/EtaSupport.res] provides ETA blending, formatting, and progress toast dispatching
 ```
 
 ### Custom Branding / Logo Upload
@@ -142,6 +145,8 @@ User clicks to add hotspot
       → [src/systems/HotspotLine/HotspotLineState.res] caches line geometries
       → [src/systems/HotspotLine/HotspotLineUtils.res] calculates SVG paths
   → [src/systems/HotspotLine/HotspotLineDrawing.res] renders SVG overlays using [src/systems/SvgManager.res]
+  → [src/utils/TimelineCleanup.res] removes orphaned timeline entries when hotspots are deleted/edited
+  → [src/core/HubScene.res] detects hub scenes (2+ exit links) for animation behavior
 ```
 
 ### Simulation & Teaser Generation
@@ -161,6 +166,13 @@ User clicks "Start Simulation"
       → [src/systems/Teaser.res], [src/systems/TeaserLogic.res], [src/systems/TeaserPlayback.res], [src/systems/TeaserStyleConfig.res], and [src/systems/TeaserState.res] handle playback and movement logic
       → [src/systems/TeaserPathfinder.res] specialized cinematic pathfinding
   → [src/systems/TeaserRecorder.res] captures viewports (using [src/components/SnapshotOverlay.res], [src/components/ViewerSnapshot.res])
+  → [src/systems/TeaserStyleCatalog.res] provides style type definitions and availability flags
+  → [src/systems/TeaserRendererRegistry.res] dispatches style-specific manifest generation
+  → [src/systems/TeaserStyleCinematic.res] builds Cinematic motion manifests
+  → [src/systems/TeaserStyleFastShots.res] (stub: not implemented yet)
+  → [src/systems/TeaserStyleSimpleCrossfade.res] (stub: not implemented yet)
+  → [src/systems/TeaserOfflineCfrRenderer.res] renders deterministic CFR WebM from manifests
+  → [src/systems/EtaSupport.res] provides ETA formatting for recording progress
   → [src/systems/ServerTeaser.res] (Optional) requests backend high-quality render
       → [backend/src/api/media/video.rs] and [backend/src/api/media/video_logic.rs] for transcoding
       → [src/systems/VideoEncoder.res] and [src/systems/Exporter.res] for final assembly
@@ -275,6 +287,13 @@ Load Trigger:
   → [src/systems/ProjectSystem.res] validates project structure and processes loaded data
   → [src/systems/Project/ProjectLoader.res] patches and initializes project state
   → [src/systems/Project/ProjectValidator.res] validates integrity on the client side
+  → [src/systems/Api/ProjectImportApi.res] sends atomic chunked import requests
+  → [src/systems/Api/ProjectImportOrchestrator.res] orchestrates the multi-chunk import flow
+  → [src/systems/Api/ProjectImportTypes.res] provides shared import payload types and decoders
+  → [src/systems/Api/AuthenticatedClientBase.res] and [src/systems/Api/AuthenticatedClientRequest.res] build authenticated requests
+  → [backend/src/api/project_import.rs] handles chunked resumable import endpoints
+  → [backend/src/services/project/import_session.rs] manages session state and chunk assembly
+  → [backend/src/services/project/validate_utils.rs] provides validation helpers for import
 ```
 
 ### Geocoding & Search
@@ -385,42 +404,13 @@ CI job
 
 *(None currently - all detected modules have been integrated into flows.)*
 
+*(None currently - all detected modules have been integrated into flows.)*
+
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
-### 📂 backend/src/api
-- `[backend/src/api/project_import.rs]`
-
-### 📂 backend/src/services/project
-- `[backend/src/services/project/import_session.rs]`
-- `[backend/src/services/project/validate_utils.rs]`
-
-### 📂 src/components/Sidebar
-- `[src/components/Sidebar/SidebarBase.res]`
-- `[src/components/Sidebar/SidebarLogicHandler.res]`
-
-### 📂 src/core
-- `[src/core/HubScene.res]`
-
 ### 📂 src/systems
-- `[src/systems/EtaSupport.res]`
 - `[src/systems/TeaserManifest.res]`
-- `[src/systems/TeaserOfflineCfrRenderer.res]`
-- `[src/systems/TeaserRendererRegistry.res]`
-- `[src/systems/TeaserStyleCatalog.res]`
-- `[src/systems/TeaserStyleCinematic.res]`
-- `[src/systems/TeaserStyleFastShots.res]`
-- `[src/systems/TeaserStyleSimpleCrossfade.res]`
-
-### 📂 src/systems/Api
-- `[src/systems/Api/AuthenticatedClientBase.res]`
-- `[src/systems/Api/AuthenticatedClientRequest.res]`
-- `[src/systems/Api/ProjectImportApi.res]`
-- `[src/systems/Api/ProjectImportOrchestrator.res]`
-- `[src/systems/Api/ProjectImportTypes.res]`
-
-### 📂 src/utils
-- `[src/utils/TimelineCleanup.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

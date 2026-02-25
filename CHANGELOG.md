@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolve console errors and optimize log verbosity
 
+### Changed
+- Product spec, MAP/DATA_FLOW integration, 18 hardening tasks (P0-P3), D006/D009/D016 complete
+
 ## [4.12.0] - 2026-02-25
 
 ### Added

@@ -1,3 +1,4 @@
+// @efficiency-role: service-orchestrator
 /* backend/src/services/project/import_session.rs - Project Import Session Logic */
 
 use std::collections::BTreeSet;

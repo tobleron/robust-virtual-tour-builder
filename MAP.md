@@ -94,6 +94,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/UiHelpers.res](src/core/UiHelpers.res): Generic UI utilities, blob/file handling, and array manipulation. `#helpers` `#ui` `#utils`
 *   [src/core/SimHelpers.res](src/core/SimHelpers.res): Simulation and timeline specific parsers and helpers. `#helpers` `#simulation`
 *   [src/core/SimulationHelpers.res](src/core/SimulationHelpers.res): Advanced simulation waypoint and path helpers. `#helpers` `#simulation`
+*   [src/core/HubScene.res](src/core/HubScene.res): Hub scene detection (2+ exit links) and visited-scene tracking. `#domain-logic` `#scene` `#simulation`
+*   [src/utils/TimelineCleanup.res](src/utils/TimelineCleanup.res): Migration and cleanup utility for orphaned/duplicate timeline entries and scene-level auto-forward migration. `#domain-logic` `#timeline` `#migration`
 *   [src/core/NavigationHelpers.res](src/core/NavigationHelpers.res): Transition and target-aware navigation helpers. `#helpers` `#navigation`
 *   [src/core/HotspotHelpers.res](src/core/HotspotHelpers.res): Hotspot placement and coordinate projection helpers. `#helpers` `#hotspots`
 *   [src/core/HotspotTarget.res](src/core/HotspotTarget.res): Normalized matching logic and resolver for hotspot targets and scene linking. `#helpers` `#hotspots` `#linking`
@@ -150,6 +152,13 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Extracted playback helpers for viewer readiness waits, pan animation, and shot transitions. `#teaser` `#playback` `#helpers`
 *   [src/systems/TeaserStyleConfig.res](src/systems/TeaserStyleConfig.res): Style-specific teaser timing and camera offset configuration. `#teaser` `#config`
 *   [src/systems/TeaserManifest.res](src/systems/TeaserManifest.res): Deterministic motion manifest (`motion-spec-v1`) generation for teaser consistency. `#teaser` `#manifest` `#logic`
+*   [src/systems/TeaserStyleCatalog.res](src/systems/TeaserStyleCatalog.res): Teaser style type definitions, options registry, and availability flags. `#teaser` `#data-model` `#config`
+*   [src/systems/TeaserRendererRegistry.res](src/systems/TeaserRendererRegistry.res): Style-to-manifest builder dispatcher for teaser rendering. `#teaser` `#orchestration`
+*   [src/systems/TeaserOfflineCfrRenderer.res](src/systems/TeaserOfflineCfrRenderer.res): Offline deterministic CFR (Constant Frame Rate) WebM renderer using manifest-driven playback. `#teaser` `#rendering` `#video`
+*   [src/systems/TeaserStyleCinematic.res](src/systems/TeaserStyleCinematic.res): Cinematic teaser style manifest builder. `#teaser` `#logic`
+*   [src/systems/TeaserStyleFastShots.res](src/systems/TeaserStyleFastShots.res): Fast Shots teaser style (stub — not implemented). `#teaser` `#logic` `#planned`
+*   [src/systems/TeaserStyleSimpleCrossfade.res](src/systems/TeaserStyleSimpleCrossfade.res): Simple Crossfade teaser style (stub — not implemented). `#teaser` `#logic` `#planned`
+*   [src/systems/EtaSupport.res](src/systems/EtaSupport.res): ETA calculation utilities (clamping, blending, formatting, parsing) and ETA notification dispatchers. `#util-pure` `#notifications` `#eta`
 
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
@@ -429,12 +438,4 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
-* [src/core/HubScene.res](src/core/HubScene.res): New module detected. Please classify. #new
-* [src/utils/TimelineCleanup.res](src/utils/TimelineCleanup.res): New module detected. Please classify. #new
-* [src/systems/EtaSupport.res](src/systems/EtaSupport.res): New module detected. Please classify. #new
-* [src/systems/TeaserStyleCinematic.res](src/systems/TeaserStyleCinematic.res): New module detected. Please classify. #new
-* [src/systems/TeaserStyleFastShots.res](src/systems/TeaserStyleFastShots.res): New module detected. Please classify. #new
-* [src/systems/TeaserStyleSimpleCrossfade.res](src/systems/TeaserStyleSimpleCrossfade.res): New module detected. Please classify. #new
-* [src/systems/TeaserStyleCatalog.res](src/systems/TeaserStyleCatalog.res): New module detected. Please classify. #new
-* [src/systems/TeaserRendererRegistry.res](src/systems/TeaserRendererRegistry.res): New module detected. Please classify. #new
-* [src/systems/TeaserOfflineCfrRenderer.res](src/systems/TeaserOfflineCfrRenderer.res): New module detected. Please classify. #new
+*(None currently - all detected modules have been classified and integrated.)*
