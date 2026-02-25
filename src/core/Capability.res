@@ -69,17 +69,18 @@ module Policy = {
     } else {
       let hasNavigation = isTypeActive(operations, Navigation)
       let hasSimulation = isTypeActive(operations, Simulation)
+      let hasTeaser = isTypeActive(operations, Teaser)
       let hasUpload = isTypeActive(operations, Upload)
       let hasExport = isTypeActive(operations, Export)
       let hasProjectSave = isTypeActive(operations, ProjectSave)
 
       switch capability {
       | CanNavigate => true
-      | CanEditHotspots => !(hasNavigation || hasSimulation)
+      | CanEditHotspots => !(hasNavigation || hasSimulation || hasTeaser)
       | CanUpload => !hasUpload
       | CanExport => !(hasUpload || hasExport)
-      | CanMutateProject => !(hasUpload || hasSimulation || hasNavigation || hasProjectSave)
-      | CanStartSimulation => !(hasSimulation || hasNavigation)
+      | CanMutateProject => !(hasUpload || hasSimulation || hasNavigation || hasProjectSave || hasTeaser)
+      | CanStartSimulation => !(hasSimulation || hasNavigation || hasTeaser)
       | CanInteractWithViewer => !hasNavigation
       }
     }

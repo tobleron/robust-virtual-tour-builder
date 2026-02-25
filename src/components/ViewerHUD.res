@@ -88,6 +88,7 @@ let make = React.memo(() => {
       isLinking={uiSlice.isLinking}
       simActive
       currentJourneyId={simSlice.currentJourneyId}
+      isTeasing={uiSlice.isTeasing}
     />
 
     {if !uiSlice.isLinking {

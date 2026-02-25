@@ -1,7 +1,7 @@
 /* src/components/UtilityBar.res */
 
 @react.component
-let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
+let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId, ~isTeasing) => {
   let dispatch = AppContext.useAppDispatch()
   let canEditHotspots = Capability.useCapability(CanEditHotspots)
   let canStartSimulation = Capability.useCapability(CanStartSimulation)
@@ -153,6 +153,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           !scenesLoaded
         ) {
           " disabled:opacity-100"
+        } else if ((simActive || isTeasing) && !isLinking) {
+          " opacity-20 pointer-events-none"
         } else {
           ""
         }}
@@ -194,6 +196,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
               !scenesLoaded
             ) {
               " disabled:opacity-100"
+            } else if (isTeasing) {
+              " opacity-20 pointer-events-none"
             } else {
               ""
             }}
@@ -215,7 +219,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           </Shadcn.Button>
         </Tooltip>
 
-        <ViewerLabelMenu scenesLoaded isLinking simActive isSystemLocked />
+        <ViewerLabelMenu scenesLoaded isLinking simActive isSystemLocked isTeasing />
       </>
     } else {
       React.null

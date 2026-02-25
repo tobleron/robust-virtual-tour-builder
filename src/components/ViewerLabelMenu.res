@@ -1,10 +1,16 @@
 /* src/components/ViewerLabelMenu.res */
 
 @react.component
-let make = React.memo((~scenesLoaded, ~isLinking, ~simActive=false, ~isSystemLocked=false) => {
+let make = React.memo((
+  ~scenesLoaded,
+  ~isLinking,
+  ~simActive=false,
+  ~isSystemLocked=false,
+  ~isTeasing=false,
+) => {
   let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
   let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
-  let isDisabled = !scenesLoaded || isLinking || simActive || isSystemLocked
+  let isDisabled = !scenesLoaded || isLinking || simActive || isSystemLocked || isTeasing
 
   let handleMenuOpenChange = React.useMemo0(() =>
     isOpen => {
@@ -39,6 +45,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive=false, ~isSystemLoc
             !scenesLoaded
           ) {
             " disabled:opacity-100"
+          } else if (isDisabled) {
+            " opacity-20 pointer-events-none"
           } else {
             ""
           }}

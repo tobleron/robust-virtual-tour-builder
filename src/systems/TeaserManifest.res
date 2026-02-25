@@ -124,8 +124,6 @@ let generateSimulationParityManifest = (
   let sceneCount = Belt.Array.length(activeScenes)
   let startIndex = if sceneCount == 0 {
     -1
-  } else if initialState.activeIndex >= 0 && initialState.activeIndex < sceneCount {
-    initialState.activeIndex
   } else {
     0
   }

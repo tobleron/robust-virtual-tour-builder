@@ -5,7 +5,14 @@ open Types
 
 module WrappedUtilityBar = {
   @react.component
-  let make = (~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId, ~mockDispatch) => {
+  let make = (
+    ~scenesLoaded,
+    ~isLinking,
+    ~simActive,
+    ~currentJourneyId,
+    ~isTeasing=false,
+    ~mockDispatch,
+  ) => {
     let scene1 = {
       id: "s1",
       name: "Scene 1",
@@ -43,7 +50,7 @@ module WrappedUtilityBar = {
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.GlobalProvider value=mockState>
         <AppContext.UiSliceProvider value=uiSlice>
-          <UtilityBar scenesLoaded isLinking simActive currentJourneyId />
+          <UtilityBar scenesLoaded isLinking simActive currentJourneyId isTeasing />
         </AppContext.UiSliceProvider>
       </AppContext.GlobalProvider>
     </AppContext.DispatchProvider>
