@@ -1,6 +1,8 @@
 let script = `
     // Scene Tracking: Track which scenes have already animated during this session
     let animatedScenes = new Set();
+    // Auto-Forward Tracking: Track which auto-forward links have already triggered
+    let visitedAutoForwards = new Set();
     
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
@@ -12,22 +14,28 @@ let script = `
       waypointRuntime.arrivedSceneId = null;
       setSceneHotspotsPending(sceneId);
       
+      const isAutoForward = playbackTarget.autoForward === true;
+      const afKey = sceneId + ":" + primaryIndex;
+      const autoForwardAlreadyVisited = isAutoForward && visitedAutoForwards.has(afKey);
+
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);
       
       if (hasAnimated) {
         // Scene already animated - show hotspots immediately without animation
         setSceneHotspotsReadyWithRetry(sceneId, retries);
-        const autoForward = playbackTarget.autoForward === true;
-        if (autoForward) {
+        const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;
+        
+        if (shouldAutoForward) {
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
             if (window.viewer.getScene() !== sceneId) return;
+            visitedAutoForwards.add(afKey);
             attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
           }, 360);
         } else {
           resetAutoForwardLoopGuard();
         }
-        lookingMode = autoForward ? false : manualLookingMode;
+        lookingMode = shouldAutoForward ? false : manualLookingMode;
         updateLookingModeUI();
         return;
       }
@@ -65,10 +73,11 @@ let script = `
         // Mark this scene as having animated
         animatedScenes.add(sceneId);
         
-        const autoForward = playbackTarget.autoForward === true;
-        if (autoForward) {
+        const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;
+        if (shouldAutoForward) {
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
             if (window.viewer.getScene() !== sceneId) return;
+            visitedAutoForwards.add(afKey);
             attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
           }, 360);
         } else {
@@ -76,7 +85,7 @@ let script = `
         }
 
         // Keep Looking mode OFF when this scene auto-forwards immediately.
-        lookingMode = autoForward ? false : manualLookingMode;
+        lookingMode = shouldAutoForward ? false : manualLookingMode;
         updateLookingModeUI();
       };
       waypointRuntime.animationId = requestAnimationFrame(tick);
@@ -89,11 +98,16 @@ let script = `
       hotSpotDiv.style.pointerEvents = "auto";
       hotSpotDiv.style.cursor = "pointer";
       
+      const hotspotIndex = args.i ?? 0;
+      const isAutoForwardConfig = args.targetIsAutoForward === true;
+      const afKey = ownerScene + ":" + hotspotIndex;
+      const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
+
       // HUB SCENE LOGIC: Auto-forward links in hub scenes are shown as normal buttons
-      // Only hide auto-forward in non-hub scenes
+      // Only hide auto-forward in non-hub scenes if NOT expired
       const isHubScene = currentSceneData?.isHubScene === true;
-      const isAutoForwardVisual = args.targetIsAutoForward && !isHubScene;
-      const shouldHideAutoForward = args.targetIsAutoForward && !isHubScene;
+      const isAutoForwardVisual = isAutoForwardConfig && !isHubScene && !isAutoForwardExpired;
+      const shouldHideAutoForward = isAutoForwardConfig && !isHubScene && !isAutoForwardExpired;
       
       if (shouldHideAutoForward) {
         hotSpotDiv.style.setProperty("display", "none", "important");
@@ -103,7 +117,7 @@ let script = `
       
       hotSpotDiv.dataset.ownerScene = ownerScene;
       hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
-      hotSpotDiv.dataset.hotspotIndex = String(args.i ?? 0);
+      hotSpotDiv.dataset.hotspotIndex = String(hotspotIndex);
       hotSpotDiv.dataset.ready = "false";
       hotSpotDiv.classList.remove("waypoint-ready");
       hotSpotDiv.classList.add("waypoint-pending");
@@ -161,7 +175,12 @@ let script = `
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(root);
       hotSpotDiv.__navInFlight = false;
-      hotSpotDiv.__navigateNext = function(options) { navigateToNextScene(args, null, options); };
+      hotSpotDiv.__navigateNext = function(options) { 
+        if (isAutoForwardConfig) {
+          visitedAutoForwards.add(afKey);
+        }
+        navigateToNextScene(args, null, options); 
+      };
       bindNavigateHandlers(hotSpotDiv, hotSpotDiv);
       bindNavigateHandlers(root, hotSpotDiv);
       bindNavigateHandlers(btn, hotSpotDiv);
