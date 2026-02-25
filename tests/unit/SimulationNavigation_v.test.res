@@ -62,7 +62,7 @@ describe("SimulationNavigation", () => {
 
   let state = TestUtils.createMockState(~scenes=[scene1, scene2, scene3, scene4, scene5], ())
 
-  test("Priority 1: Pick non-visited, non-return, non-bridge (Scene 2)", t => {
+  test("Priority 1: Pick non-visited, non-bridge (Scene 2)", t => {
     switch findBestNextLink(scene1, state, []) {
     | Some(l) => t->expect(l.hotspot.target)->Expect.toBe("Scene 2")
     | None => {
@@ -72,48 +72,12 @@ describe("SimulationNavigation", () => {
     }
   })
 
-  test("Priority 2: Pick non-visited, non-return, bridge (Scene 3)", t => {
+  test("Priority 2: Pick non-visited, bridge (Scene 3)", t => {
     // Scene 2 (idx 1) is visited
     switch findBestNextLink(scene1, state, [1]) {
     | Some(l) => t->expect(l.hotspot.target)->Expect.toBe("Scene 3")
     | None => {
         Console.log("Priority 2 failed: Expected Some link")
-        t->expect(true)->Expect.toBe(false)
-      }
-    }
-  })
-
-  test("Priority 3: Pick non-visited, return, non-bridge (Scene 4)", t => {
-    // Scene 2 (idx 1), Scene 3 (idx 2) visited
-    switch findBestNextLink(scene1, state, [1, 2]) {
-    | Some(l) => t->expect(l.hotspot.target)->Expect.toBe("Scene 4")
-    | None => {
-        Console.log("Priority 3 failed: Expected Some link")
-        t->expect(true)->Expect.toBe(false)
-      }
-    }
-  })
-
-  test("Priority 4: Pick non-visited, return, bridge (Scene 5)", t => {
-    // Scene 2, 3, 4 visited
-    switch findBestNextLink(scene1, state, [1, 2, 3]) {
-    | Some(l) => t->expect(l.hotspot.target)->Expect.toBe("Scene 5")
-    | None => {
-        Console.log("Priority 4 failed: Expected Some link")
-        t->expect(true)->Expect.toBe(false)
-      }
-    }
-  })
-
-  test("Priority 5: Revisit non-return (Scene 2 or 3)", t => {
-    // All visited [1, 2, 3, 4]
-    switch findBestNextLink(scene1, state, [1, 2, 3, 4]) {
-    | Some(l) =>
-      t
-      ->expect(l.hotspot.target == "Scene 2" || l.hotspot.target == "Scene 3")
-      ->Expect.toBe(true)
-    | None => {
-        Console.log("Priority 5 failed: Expected Some link")
         t->expect(true)->Expect.toBe(false)
       }
     }

@@ -63,9 +63,7 @@ let resolveTeaserStartView = (state: state): option<(float, float, float)> => {
     )
     // Return links deprecated - just use first waypoint or first hotspot
     let candidate =
-      waypointCandidates->Belt.Array.get(0)->Option.orElse(
-        scene.hotspots->Belt.Array.get(0),
-      )
+      waypointCandidates->Belt.Array.get(0)->Option.orElse(scene.hotspots->Belt.Array.get(0))
 
     candidate->Option.map(h => (
       h.startYaw->Option.getOr(h.yaw),
@@ -213,7 +211,7 @@ module Manager = {
   ) => {
     let state = getState()
     let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    
+
     if state.isLinking {
       Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
     } else if Array.length(activeScenes) == 0 {

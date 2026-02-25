@@ -105,9 +105,11 @@ describe("Simulation", () => {
     // Check if AddVisitedLink was dispatched
     switch lastAction.contents {
     | Some(AddVisitedLink(linkId)) => t->expect(linkId != "")->Expect.toBe(true)
-    | Some(action) => // Got some action, just verify it's not wrong
+    | Some(action) =>
+      // Got some action, just verify it's not wrong
       t->expect(Actions.actionToString(action) != "")->Expect.toBe(true)
-    | None => // No action dispatched - simulation might not have ticked yet
+    | None =>
+      // No action dispatched - simulation might not have ticked yet
       // This is acceptable in test environment
       t->expect(true)->Expect.toBe(true)
     }

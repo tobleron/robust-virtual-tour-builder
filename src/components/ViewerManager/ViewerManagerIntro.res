@@ -70,8 +70,7 @@ let useIntroPan = (
                 let targetId = idToUnknown(scene.id)
 
                 if ViewerSystem.isViewerReady(viewer) && viewerSceneId == Some(targetId) {
-                  let targetHotspot =
-                    hotspotsWithWaypoints->Belt.Array.get(0)->Option.getOrThrow
+                  let targetHotspot = hotspotsWithWaypoints->Belt.Array.get(0)->Option.getOrThrow
 
                   let ty = targetHotspot.startYaw->Option.getOr(targetHotspot.yaw)
                   let tp = targetHotspot.startPitch->Option.getOr(targetHotspot.pitch)

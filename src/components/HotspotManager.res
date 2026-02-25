@@ -155,10 +155,12 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
     )
 
     // Add ALL new hotspots
-    Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
-      let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
-      Viewer.addHotSpot(v, conf)
-    })
+    if !state.isTeasing {
+      Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
+        let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
+        Viewer.addHotSpot(v, conf)
+      })
+    }
   }
 }
 

@@ -7,7 +7,13 @@ describe("SceneMutations", () => {
   test("syncSceneNames updates names based on labels", t => {
     // Note: sequenceId must be unique for each scene to get unique prefixes
     let s1 = createMockScene(~id="s1", ~name="old_name1.webp", ~label="Entrance", ~sequenceId=1, ())
-    let s2 = createMockScene(~id="s2", ~name="old_name2.webp", ~label="Living Room", ~sequenceId=2, ())
+    let s2 = createMockScene(
+      ~id="s2",
+      ~name="old_name2.webp",
+      ~label="Living Room",
+      ~sequenceId=2,
+      (),
+    )
     let scenes = [s1, s2]
 
     let updated = SceneNaming.syncSceneNames(scenes)

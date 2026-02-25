@@ -75,13 +75,14 @@ module Policy = {
       let hasProjectSave = isTypeActive(operations, ProjectSave)
 
       switch capability {
-      | CanNavigate => true
+      | CanNavigate => !(hasNavigation || hasTeaser)
       | CanEditHotspots => !(hasNavigation || hasSimulation || hasTeaser)
       | CanUpload => !hasUpload
       | CanExport => !(hasUpload || hasExport)
-      | CanMutateProject => !(hasUpload || hasSimulation || hasNavigation || hasProjectSave || hasTeaser)
+      | CanMutateProject =>
+        !(hasUpload || hasSimulation || hasNavigation || hasProjectSave || hasTeaser)
       | CanStartSimulation => !(hasSimulation || hasNavigation || hasTeaser)
-      | CanInteractWithViewer => !hasNavigation
+      | CanInteractWithViewer => !(hasNavigation || hasTeaser)
       }
     }
   }

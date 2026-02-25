@@ -32,6 +32,7 @@ let make = () => {
     ~scenes=sceneSlice.scenes,
     ~activeIndex=sceneSlice.activeIndex,
     ~isLinking=uiSlice.isLinking,
+    ~isTeasing=uiSlice.isTeasing,
     ~getState,
     ~dispatch,
   )

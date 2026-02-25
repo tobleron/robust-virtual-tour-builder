@@ -2,26 +2,31 @@
 
 /* Remove old floor-nav styles, using inline Tailwind classes now */
 
-/* Utility bar & Floor Nav during auto-pilot */
-body.auto-pilot-active #viewer-utility-bar {
+/* Utility bar & Floor Nav during auto-pilot/teaser */
+body.auto-pilot-active #viewer-utility-bar,
+body.teaser-mode #viewer-utility-bar {
     transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-body.auto-pilot-active #viewer-floor-nav {
+body.auto-pilot-active #viewer-floor-nav,
+body.teaser-mode #viewer-floor-nav {
     pointer-events: none;
     transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-body.auto-pilot-active #viewer-floor-nav button {
+body.auto-pilot-active #viewer-floor-nav button,
+body.teaser-mode #viewer-floor-nav button {
     transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-body.auto-pilot-active #viewer-floor-nav button.state-idle {
+body.auto-pilot-active #viewer-floor-nav button.state-idle,
+body.teaser-mode #viewer-floor-nav button.state-idle {
     opacity: 0.6;
     filter: grayscale(100%);
 }
 
-body.auto-pilot-active #viewer-floor-nav button.state-active {
+body.auto-pilot-active #viewer-floor-nav button.state-active,
+body.teaser-mode #viewer-floor-nav button.state-active {
     opacity: 1;
     filter: none;
 }

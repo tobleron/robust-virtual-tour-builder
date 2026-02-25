@@ -15,10 +15,7 @@ let updateReturnPrompt = (state: state, scene: scene) => {
       | Some(inc) =>
         let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
         scenes[inc.sceneIndex]->Option.forEach(src => {
-          let has = Array.some(
-            scene.hotspots,
-            h => HotspotTarget.pointsToScene(h, src),
-          )
+          let has = Array.some(scene.hotspots, h => HotspotTarget.pointsToScene(h, src))
           if has {
             Dom.add(p, "hidden")
             Dom.remove(p, "flex")

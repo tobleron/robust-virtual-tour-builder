@@ -33,6 +33,9 @@ module MemoStaticSvg = {
 
 @react.component
 let make = React.memo(() => {
+  let uiSlice = AppContext.useUiSlice()
+  let isTeasing = uiSlice.isTeasing
+
   React.useEffect0(() => {
     Logger.info(~module_="HotspotLayer", ~message="INITIALIZING_CLICK_LISTENER", ())
     let container = Dom.getElementById("viewer-hotspot-lines")
@@ -67,15 +70,19 @@ let make = React.memo(() => {
     }
   })
 
-  <>
-    <MemoStaticDiv.make
-      id="viewer-center-indicator"
-      className="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-brand-gold rounded-full z-[5001] pointer-events-none hidden"
-    />
+  if isTeasing {
+    React.null
+  } else {
+    <>
+      <MemoStaticDiv.make
+        id="viewer-center-indicator"
+        className="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-brand-gold rounded-full z-[5001] pointer-events-none hidden"
+      />
 
-    <MemoStaticSvg.make
-      id="viewer-hotspot-lines"
-      className="absolute inset-0 w-full h-full z-[5000] pointer-events-none"
-    />
-  </>
+      <MemoStaticSvg.make
+        id="viewer-hotspot-lines"
+        className="absolute inset-0 w-full h-full z-[5000] pointer-events-none"
+      />
+    </>
+  }
 })

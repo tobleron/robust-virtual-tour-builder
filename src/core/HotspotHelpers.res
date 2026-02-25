@@ -206,7 +206,7 @@ let handleCommitHotspotMove = (
     | Some(entry) =>
       let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
         if hi == hotspotIndex {
-          // Commit ONLY the button position change. 
+          // Commit ONLY the button position change.
           // Preserve the waypoint (viewFrame and waypoints) exactly as it was.
           // Clear displayPitch to ensure the button renders at the exact clicked pitch (no floor snap).
           {...h, yaw, pitch, displayPitch: None}

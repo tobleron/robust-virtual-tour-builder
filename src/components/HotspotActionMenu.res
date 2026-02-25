@@ -283,7 +283,9 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
             : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-white border-yellow-500/20"}`}
         title={isMovingThis ? "Cancel Move" : "Move Link"}
       >
-        {isMovingThis ? <LucideIcons.X className="text-lg" /> : <LucideIcons.Move className="text-lg" />}
+        {isMovingThis
+          ? <LucideIcons.X className="text-lg" />
+          : <LucideIcons.Move className="text-lg" />}
       </button>
 
       /* Delete Button */

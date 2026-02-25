@@ -82,6 +82,29 @@ let make = React.memo(() => {
   let scenesLoaded = Belt.Array.length(sceneSlice.scenes) > 0
 
   <>
+    /* Interaction Shield for Teaser/Automation */
+    {if uiSlice.isTeasing {
+      <div
+        className="absolute inset-0 z-[4500] cursor-wait"
+        onClick={e => JsxEvent.Mouse.stopPropagation(e)}
+        onMouseDown={e => JsxEvent.Mouse.stopPropagation(e)}
+      >
+        /* REC Indicator (Top Left) */
+        <div
+          className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm rounded-full border border-white/10 select-none"
+        >
+          <div
+            className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse-record shadow-[0_0_8px_rgba(220,38,38,0.8)]"
+          />
+          <span className="text-white text-[11px] font-bold tracking-widest uppercase">
+            {React.string("REC")}
+          </span>
+        </div>
+      </div>
+    } else {
+      React.null
+    }}
+
     /* Primary Action Bar */
     <UtilityBar
       scenesLoaded
@@ -91,7 +114,7 @@ let make = React.memo(() => {
       isTeasing={uiSlice.isTeasing}
     />
 
-    {if !uiSlice.isLinking {
+    {if !uiSlice.isLinking && !uiSlice.isTeasing {
       <>
         /* Information Overlays */
         <PersistentLabel activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
@@ -143,6 +166,8 @@ let make = React.memo(() => {
           />
         </div>
       </>
+    } else if !uiSlice.isLinking {
+      React.null
     } else {
       /* Top Yellow Linking Hint Bar */
       <div

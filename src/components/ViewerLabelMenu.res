@@ -45,7 +45,7 @@ let make = React.memo((
             !scenesLoaded
           ) {
             " disabled:opacity-100"
-          } else if (isDisabled) {
+          } else if isDisabled {
             " opacity-20 pointer-events-none"
           } else {
             ""

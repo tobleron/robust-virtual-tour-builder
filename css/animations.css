@@ -102,6 +102,15 @@
     animation: pulse-stop 2s infinite;
 }
 
+@keyframes pulse-record {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.animate-pulse-record {
+    animation: pulse-record 1s step-end infinite;
+}
+
 /* Animation Classes */
 .animate-spin {
     animation: spin 1s linear infinite;

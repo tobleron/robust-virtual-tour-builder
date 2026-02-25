@@ -11,39 +11,53 @@ let useHotspotSync = (
   ~scenes: array<scene>,
   ~activeIndex: int,
   ~isLinking: bool,
+  ~isTeasing: bool,
   ~getState: unit => state,
   ~dispatch: action => unit,
 ) => {
-  React.useEffect3(() => {
+  React.useEffect4(() => {
     // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
     if activeIndex != -1 && !isLinking && !(!NavigationSupervisor.isIdle()) {
-      switch Belt.Array.get(scenes, activeIndex) {
-      | Some(scene) =>
-        let v = ViewerSystem.getActiveViewer()
-        switch Nullable.toOption(v) {
-        | Some(viewer) =>
-          // Robustness: Only sync if the viewer actually belongs to this scene
-          let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
-          let targetId = idToUnknown(scene.id)
-          let currentState = getState()
+      let v = ViewerSystem.getActiveViewer()
+      switch Nullable.toOption(v) {
+      | Some(viewer) =>
+        if isTeasing {
+          // Nuke hotspots during teaser to prevent interactions
+          let config = Viewer.getConfig(viewer)
+          let hs = config["hotSpots"]
+          let currentIds = Belt.Array.map(hs, h => h["id"])
+          Belt.Array.forEach(currentIds, id => {
+            if id != "" {
+              Viewer.removeHotSpot(viewer, id)
+            }
+          })
+          HotspotLine.updateLines(viewer, getState(), ())
+        } else {
+          switch Belt.Array.get(scenes, activeIndex) {
+          | Some(scene) =>
+            // Robustness: Only sync if the viewer actually belongs to this scene
+            let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
+            let targetId = idToUnknown(scene.id)
+            let currentState = getState()
 
-          if viewerSceneId == Some(targetId) {
-            Logger.debug(
-              ~module_="ViewerManagerHotspots",
-              ~message="SYNC_HOTSPOTS",
-              ~data=Some({"sceneId": scene.id}),
-              (),
-            )
-            HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
-            HotspotLine.updateLines(viewer, currentState, ())
+            if viewerSceneId == Some(targetId) {
+              Logger.debug(
+                ~module_="ViewerManagerHotspots",
+                ~message="SYNC_HOTSPOTS",
+                ~data=Some({"sceneId": scene.id}),
+                (),
+              )
+              HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+              HotspotLine.updateLines(viewer, currentState, ())
+            }
+          | None => ()
           }
-        | None => ()
         }
       | None => ()
       }
     }
     None
-  }, (scenes, isLinking, activeIndex))
+  }, (scenes, isLinking, isTeasing, activeIndex))
 }
 
 // Hook 9: Hotspot Line Render Loop
@@ -77,7 +91,22 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
 
               if !isBusy {
                 try {
-                  HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+                  if !currentState.isTeasing {
+                    HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+                  } else {
+                    // Force clear if we somehow got here during teaser
+                    let config = Viewer.getConfig(viewer)
+                    let hs = config["hotSpots"]
+                    let currentIds = Belt.Array.map(hs, h => h["id"])
+                    Belt.Array.forEach(
+                      currentIds,
+                      id => {
+                        if id != "" {
+                          Viewer.removeHotSpot(viewer, id)
+                        }
+                      },
+                    )
+                  }
                 } catch {
                 | e =>
                   let (msg, _) = Logger.getErrorDetails(e)

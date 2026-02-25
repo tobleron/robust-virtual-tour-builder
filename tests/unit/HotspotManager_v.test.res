@@ -181,32 +181,6 @@ describe("HotspotManager", () => {
     t->expect(String.includes(cssClass, "active-sim-target"))->Expect.toBe(true)
   })
 
-  test("createHotspotConfig should mark return-link class", t => {
-    let hotspot = createHotspot("Scene1")
-    let scene1 = createScene("Scene1")
-    let scene2 = createScene("Scene2")
-
-    let state = TestUtils.createMockState(~scenes=[scene1, scene2], ~activeIndex=1, ())
-    let state = {
-      ...state,
-      navigationState: {
-        ...NavigationState.initial(),
-        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}), // Came from Scene1
-      },
-    }
-
-    let config = HotspotManager.createHotspotConfig(
-      ~hotspot,
-      ~index=0,
-      ~state,
-      ~scene=scene2,
-      ~dispatch=mockDispatch,
-    )
-
-    let cssClass: string = config["cssClass"]
-    t->expect(String.includes(cssClass, "return-link"))->Expect.toBe(true)
-  })
-
   test("createTooltipFunc should initialize container with base classes", t => {
     let hotspot = createHotspot("TargetScene")
     let sourceScene = createScene("SourceScene")

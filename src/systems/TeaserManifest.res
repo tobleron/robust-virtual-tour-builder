@@ -15,9 +15,7 @@ let pickWaypointHotspot = (scene: scene): option<hotspot> => {
   )
 
   // Return links deprecated - just use first waypoint or first hotspot
-  waypointCandidates->Belt.Array.get(0)->Option.orElse(
-    scene.hotspots->Belt.Array.get(0),
-  )
+  waypointCandidates->Belt.Array.get(0)->Option.orElse(scene.hotspots->Belt.Array.get(0))
 }
 
 let getSceneWaypointPose = (scene: scene): viewFrame => {

@@ -426,7 +426,7 @@ let make = () => {
     None
   }, (activeFloors, pipelineSlice.timeline, uiSlice.isLinking))
 
-  if uiSlice.isLinking || activeFloors->Belt.Array.length == 0 {
+  if uiSlice.isLinking || uiSlice.isTeasing || activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
     <div

@@ -123,9 +123,11 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
 
   let utilBarClass =
     "absolute top-5 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
-      !scenesLoaded || isSystemLocked || isMovingHotspot
+      isTeasing
     ) {
-      "opacity-20 pointer-events-none"
+      "hidden"
+    } else if !scenesLoaded || isSystemLocked || isMovingHotspot {
+      "grayscale opacity-70 pointer-events-none"
     } else {
       ""
     }
@@ -153,7 +155,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
           !scenesLoaded
         ) {
           " disabled:opacity-100"
-        } else if ((simActive || isTeasing) && !isLinking) {
+        } else if (simActive || isTeasing) && !isLinking {
           " opacity-20 pointer-events-none"
         } else {
           ""
@@ -196,7 +198,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
               !scenesLoaded
             ) {
               " disabled:opacity-100"
-            } else if (isTeasing) {
+            } else if isTeasing {
               " opacity-20 pointer-events-none"
             } else {
               ""

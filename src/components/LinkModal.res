@@ -36,7 +36,7 @@ let showLinkModal = (
   let defaultTargetName =
     scenes
     ->Belt.Array.getIndexBy(s => {
-      let isSelected = switch (Nullable.toOption(linkDraft)) {
+      let isSelected = switch Nullable.toOption(linkDraft) {
       | Some(_) =>
         let idx = scenes->Belt.Array.getIndexBy(x => x.name == s.name)->Option.getOr(-1)
         idx == nextIndex

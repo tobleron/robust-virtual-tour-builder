@@ -9,14 +9,24 @@ type hotspotMenuInfo = {
 
 @react.component
 let make = React.memo(() => {
+  let uiSlice = AppContext.useUiSlice()
+  let isTeasing = uiSlice.isTeasing
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
 
+  // Force close menu if teaser starts
+  React.useEffect1(() => {
+    if isTeasing {
+      setHotspotMenu(_ => None)
+    }
+    None
+  }, [isTeasing])
+
   // Subscribe to hotspot menu events
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     let unsubscribe = EventBus.subscribe(
       event => {
         switch event {
-        | OpenHotspotMenu(payload) =>
+        | OpenHotspotMenu(payload) if !isTeasing =>
           setHotspotMenu(
             _ => Some({
               anchor: payload["anchor"],
@@ -30,7 +40,7 @@ let make = React.memo(() => {
     )
 
     Some(() => unsubscribe())
-  })
+  }, [isTeasing])
 
   {
     switch hotspotMenu {
