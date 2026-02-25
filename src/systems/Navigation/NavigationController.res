@@ -196,10 +196,21 @@ module ControllerHooks = {
               )
               let targetSceneId = scenes->Belt.Array.get(j.targetIndex)->Option.map(s => s.id)
 
-              let hasAnimated = switch targetSceneId {
-              | Some(id) => HubScene.hasSceneAnimated(id, currentState)
-              | None => false
-              }
+              let isBuilder =
+                Constants.isDebugBuild() ||
+                Option.isSome(currentState.sessionId) ||
+                currentState.isLinking ||
+                currentState.movingHotspot != None
+
+              let hasAnimated =
+                if isBuilder {
+                  false
+                } else {
+                  switch targetSceneId {
+                  | Some(id) => HubScene.hasSceneAnimated(id, currentState)
+                  | None => false
+                  }
+                }
 
               if hasAnimated {
                 Logger.info(
@@ -221,7 +232,9 @@ module ControllerHooks = {
                 )
                 NavigationRenderer.AnimationLoop.startLoop(v, j, pd, getState, dispatch, req)
 
-                targetSceneId->Option.forEach(id => dispatch(MarkSceneVisited(id)))
+                if !isBuilder {
+                  targetSceneId->Option.forEach(id => dispatch(MarkSceneVisited(id)))
+                }
               }
             | None =>
               Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
