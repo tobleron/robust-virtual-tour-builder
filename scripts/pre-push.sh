@@ -6,11 +6,21 @@ echo "🔍 Starting Pre-Push Sanitization..."
 
 # 1. Check for Large Files (>1MB)
 echo "📦 Checking for large binaries..."
-LARGE_FILES=$(find . -type f -not -path '*/.*' -not -path './node_modules/*' -not -path './backend/target/*' -not -path './backend/temp/*' -not -path './backend/logs/*' -not -path './_dev-system/analyzer/target/*' -not -path './target/*' -not -path './backend/data/*' -not -path './logs/*' -not -path './dist/*' -size +1M)
+MAX_SIZE_BYTES=$((1024 * 1024))
+LARGE_FILES=$(
+  git ls-files --cached --others --exclude-standard -z \
+    | while IFS= read -r -d '' file; do
+        [ -f "$file" ] || continue
+        size_bytes=$(wc -c < "$file" | tr -d '[:space:]')
+        if [ "${size_bytes:-0}" -gt "$MAX_SIZE_BYTES" ]; then
+          printf './%s\n' "$file"
+        fi
+      done
+)
 if [ -n "$LARGE_FILES" ]; then
     echo "⚠️  Found files > 1MB:"
     echo "$LARGE_FILES"
-    echo "   (Make sure these are intended assets and not accidental binaries)"
+    echo "   (Only tracked or unignored files are checked)"
 fi
 
 # 2. Check for Production Constants
