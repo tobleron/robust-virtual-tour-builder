@@ -27,10 +27,10 @@ let script = `
       }
 
       if (key === "m" || key === "M") {
-        if (!floorTagShortcutState.hasMore) return;
+        if (!floorTagShortcutState.hasMap) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        cycleExportFloorTagShortcutPage();
+        console.info("Map shortcut pressed - future list view");
         return;
       }
       if (key === "h" || key === "H") {
@@ -39,13 +39,22 @@ let script = `
         navigateToExportHome();
         return;
       }
-      if (!/^[1-3]$/.test(key)) return;
-      const index = Number(key) - 1;
-      const entry = floorTagShortcutState.visibleEntries[index];
-      if (!entry) return;
-      if (typeof e.preventDefault === "function") e.preventDefault();
-      if (typeof e.stopPropagation === "function") e.stopPropagation();
-      navigateToFloorTagShortcut(entry.sceneId);
+      if (key === "ArrowUp") {
+        const sid = floorTagShortcutState.nextSceneId;
+        if (!sid) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        navigateToFloorTagShortcut(sid);
+        return;
+      }
+      if (key === "ArrowDown") {
+        const sid = floorTagShortcutState.prevSceneId;
+        if (!sid) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        navigateToFloorTagShortcut(sid);
+        return;
+      }
     }
     if (typeof window !== "undefined") {
       window.addEventListener("keydown", handleExportKeydown, true);

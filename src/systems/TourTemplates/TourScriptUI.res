@@ -13,11 +13,11 @@ let script = `
     let pendingShortcutLabelSceneId = null;
     const floorTagShortcutState = {
       sceneId: null,
-      floorId: null,
+      nextSceneId: null,
+      prevSceneId: null,
       pageStart: 0,
       totalEntries: 0,
-      hasMore: false,
-      visibleEntries: [],
+      hasMap: false,
     };
     function normalizeSceneFloor(sceneData) {
       const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
@@ -78,27 +78,6 @@ let script = `
       labelEl.classList.remove("state-visible");
       labelEl.classList.add("state-hidden");
     }
-    function clearExportFloorTagShortcuts(panel) {
-      floorTagShortcutState.totalEntries = 0;
-      floorTagShortcutState.hasMore = false;
-      floorTagShortcutState.visibleEntries = [];
-      if (!panel) return;
-      while (panel.firstChild) panel.removeChild(panel.firstChild);
-      panel.classList.add("state-hidden");
-    }
-    function buildFloorTagEntries(sceneId) {
-      const activeFloorId = normalizeSceneFloor(scenesData?.[sceneId]);
-      if (!activeFloorId) return { floorId: null, entries: [] };
-      const entries = [];
-      for (const [candidateSceneId, candidateSceneData] of Object.entries(scenesData || {})) {
-        if (candidateSceneId === sceneId) continue;
-        if (normalizeSceneFloor(candidateSceneData) !== activeFloorId) continue;
-        const label = normalizeSceneLabel(candidateSceneData);
-        if (!label) continue;
-        entries.push({ sceneId: candidateSceneId, label: label });
-      }
-      return { floorId: activeFloorId, entries: entries };
-    }
     function navigateToFloorTagShortcut(targetSceneId) {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;
       const row = document.querySelector('.floor-tag-shortcut-row[data-scene-id="' + String(targetSceneId) + '"]');
@@ -114,7 +93,7 @@ let script = `
         pendingShortcutLabelSceneId = resolvedTargetSceneId;
         updateExportRoomLabel(resolvedTargetSceneId, true);
         pendingShortcutLabelSceneId = null;
-        updateExportFloorTagShortcuts(resolvedTargetSceneId, true);
+        updateNavShortcutsV2(resolvedTargetSceneId, true);
         return;
       }
       pendingShortcutLabelSceneId = resolvedTargetSceneId;
@@ -128,56 +107,45 @@ let script = `
         pendingShortcutLabelSceneId = homeSceneId;
         updateExportRoomLabel(homeSceneId, true);
         pendingShortcutLabelSceneId = null;
-        updateExportFloorTagShortcuts(homeSceneId, true);
+        updateNavShortcutsV2(homeSceneId, true);
         return;
       }
       pendingShortcutLabelSceneId = homeSceneId;
       navigateToNextScene({ targetSceneId: homeSceneId }, homeSceneId);
     }
-    function cycleExportFloorTagShortcutPage() {
-      if (!floorTagShortcutState.hasMore) return;
-      if (!floorTagShortcutState.sceneId) return;
-      const total = floorTagShortcutState.totalEntries;
-      if (total <= FLOOR_TAG_SHORTCUT_PAGE_SIZE) return;
-      floorTagShortcutState.pageStart =
-        (floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE) % total;
-      updateExportFloorTagShortcuts(floorTagShortcutState.sceneId, false);
+    function clearExportFloorTagShortcuts(panel) {
+      floorTagShortcutState.nextSceneId = null;
+      floorTagShortcutState.prevSceneId = null;
+      if (!panel) return;
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.add("state-hidden");
     }
-    function updateExportFloorTagShortcuts(sceneId, resetPage) {
+    function updateNavShortcutsV2(sceneId, _resetPage) {
       const panel = document.getElementById("viewer-floor-tags-export");
       if (!panel) return;
-      const sceneEntries = buildFloorTagEntries(sceneId);
-      const floorId = sceneEntries.floorId;
-      const entries = sceneEntries.entries;
-      const previousFloorId = floorTagShortcutState.floorId;
-      const previousSceneId = floorTagShortcutState.sceneId;
-      const shouldResetPage =
-        resetPage === true ||
-        previousFloorId !== floorId ||
-        previousSceneId !== sceneId;
+      
+      const currentSceneData = scenesData[sceneId];
+      if (!currentSceneData) return;
+
+      // Navigation Logic: Next (Up) and Previous (Down)
+      const nextTarget = resolveScenePlaybackHotspot(sceneId, currentSceneData);
+      const nextSceneId = nextTarget ? nextTarget.targetSceneId : null;
+      const prevSceneId = persistentFrom;
+
+      // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
-      floorTagShortcutState.floorId = floorId;
-      if (!floorId) {
-        floorTagShortcutState.pageStart = 0;
-        clearExportFloorTagShortcuts(panel);
-        return;
-      }
-      if (shouldResetPage) floorTagShortcutState.pageStart = 0;
-      const total = entries.length;
-      if (floorTagShortcutState.pageStart >= total) floorTagShortcutState.pageStart = 0;
-      const visibleEntries = entries.slice(
-        floorTagShortcutState.pageStart,
-        floorTagShortcutState.pageStart + FLOOR_TAG_SHORTCUT_PAGE_SIZE,
-      );
+      floorTagShortcutState.nextSceneId = nextSceneId;
+      floorTagShortcutState.prevSceneId = prevSceneId;
+
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       panel.classList.remove("state-hidden");
-      visibleEntries.forEach((entry, index) => {
+
+      const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
         row.type = "button";
         row.className = "floor-tag-shortcut-row";
-        row.setAttribute("data-scene-id", entry.sceneId);
-        row.setAttribute("aria-label", "Shortcut " + String(index + 1) + " " + entry.label);
-        row.addEventListener("click", () => navigateToFloorTagShortcut(entry.sceneId));
+        if (id) row.setAttribute("data-scene-id", id);
+        row.addEventListener("click", onClick);
 
         const arrowEl = document.createElement("span");
         arrowEl.className = "shortcut-indicator-arrow";
@@ -185,66 +153,42 @@ let script = `
 
         const indexEl = document.createElement("span");
         indexEl.className = "floor-tag-shortcut-index";
-        indexEl.textContent = String(index + 1);
+        indexEl.textContent = iconChar;
 
         const labelEl = document.createElement("span");
         labelEl.className = "floor-tag-shortcut-label";
-        labelEl.textContent = entry.label;
+        labelEl.textContent = label;
 
         row.appendChild(arrowEl);
         row.appendChild(indexEl);
         row.appendChild(labelEl);
-        panel.appendChild(row);
-      });
+        return row;
+      };
 
-      const homeRow = document.createElement("button");
-      homeRow.type = "button";
-      homeRow.className = "floor-tag-shortcut-row";
-      homeRow.setAttribute("aria-label", "Go home");
-      homeRow.addEventListener("click", () => navigateToFloorTagShortcut(firstSceneId));
-
-      const homeSpacer = document.createElement("span");
-      homeSpacer.className = "shortcut-indicator-spacer";
-
-      const homeIndex = document.createElement("span");
-      homeIndex.className = "floor-tag-shortcut-index";
-      homeIndex.textContent = "h";
-
-      const homeLabel = document.createElement("span");
-      homeLabel.className = "floor-tag-shortcut-label";
-      homeLabel.textContent = "home";
-
-      homeRow.appendChild(homeSpacer);
-      homeRow.appendChild(homeIndex);
-      homeRow.appendChild(homeLabel);
-      panel.appendChild(homeRow);
-
-      const hasMore = total > FLOOR_TAG_SHORTCUT_PAGE_SIZE;
-      if (hasMore) {
-        const moreRow = document.createElement("button");
-        moreRow.type = "button";
-        moreRow.className = "floor-tag-shortcut-row";
-        moreRow.setAttribute("aria-label", "More shortcuts");
-        moreRow.addEventListener("click", () => cycleExportFloorTagShortcutPage());
-
-        const spacer = document.createElement("span");
-        spacer.className = "shortcut-indicator-spacer";
-
-        const moreIndex = document.createElement("span");
-        moreIndex.className = "floor-tag-shortcut-index";
-        moreIndex.textContent = "m";
-
-        const moreLabel = document.createElement("span");
-        moreLabel.className = "floor-tag-shortcut-label";
-        moreLabel.textContent = "more";
-
-        moreRow.appendChild(spacer);
-        moreRow.appendChild(moreIndex);
-        moreRow.appendChild(moreLabel);
-        panel.appendChild(moreRow);
+      // 1. Next Scene (Up Arrow)
+      if (nextSceneId) {
+        const nextLabel = scenesData[nextSceneId]?.label || scenesData[nextSceneId]?.name || "Next";
+        panel.appendChild(createRow(nextSceneId, "↑", nextLabel, () => navigateToFloorTagShortcut(nextSceneId)));
       }
-      floorTagShortcutState.totalEntries = total;
-      floorTagShortcutState.hasMore = hasMore;
-      floorTagShortcutState.visibleEntries = visibleEntries;
+
+      // 2. Previous Scene (Down Arrow)
+      if (prevSceneId && prevSceneId !== sceneId) {
+        const prevLabel = scenesData[prevSceneId]?.label || scenesData[prevSceneId]?.name || "Back";
+        panel.appendChild(createRow(prevSceneId, "↓", prevLabel, () => navigateToFloorTagShortcut(prevSceneId)));
+      }
+
+      // 3. Home (h)
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (homeSceneId) {
+        panel.appendChild(createRow(homeSceneId, "h", "home", () => navigateToFloorTagShortcut(homeSceneId)));
+      }
+
+      // 4. Map Placeholder (m)
+      panel.appendChild(createRow(null, "m", "map", () => {
+         // Placeholder for future Map list integration
+         console.info("Map clicked - future list view");
+      }));
+      
+      floorTagShortcutState.hasMap = true; 
     }
-`
+`;

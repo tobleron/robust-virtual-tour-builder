@@ -16,7 +16,7 @@ let loadEventScript = `
       const animateRoomLabel = pendingShortcutLabelSceneId === sid;
       updateExportRoomLabel(sid, animateRoomLabel);
       pendingShortcutLabelSceneId = null;
-      updateExportFloorTagShortcuts(sid, true);
+      updateNavShortcutsV2(sid, true);
       updateExportStateClasses();
       updateLookingModeUI();
       clearWaypointRuntime();
