@@ -102,7 +102,7 @@ let cssTemplate = `
     body.export-state-portrait .looking-mode-indicator, body.is-auto-tour-active .looking-mode-indicator { padding: 10px 16px 10px 10px !important; }
     body.export-state-portrait #viewer-floor-tags-export, body.is-auto-tour-active #viewer-floor-tags-export { border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
     body.is-map-open .mode-status-line { display: none !important; }
-    body.is-map-open .looking-mode-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); pointer-events: auto; width: fit-content; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+    body.is-map-open .looking-mode-indicator { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); pointer-events: auto; width: fit-content; max-width: calc(100% - 16px); max-height: calc(100% - 16px); }
     body.is-map-open #viewer-floor-tags-export { width: fit-content; max-width: 100%; gap: 7px; border-top: none; margin-top: 0; padding-top: 0; overflow: auto; }
     body.export-state-portrait.is-map-open #viewer-floor-tags-export { gap: 6px; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }

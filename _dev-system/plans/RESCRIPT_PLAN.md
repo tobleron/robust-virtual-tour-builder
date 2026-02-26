@@ -9,14 +9,14 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (6)
-- [ ] **../../src/components/VisualPipeline.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.13 | LOC: 453/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)
-- [ ] **../../src/systems/TeaserRecorder.res**
-  - *Reason:* [Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.25 | LOC: 485/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)
 - [ ] **../../src/systems/TeaserPlayback.res**
   - *Reason:* [Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)
 - [ ] **../../src/systems/OperationLifecycle.res**
   - *Reason:* [Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)
+- [ ] **../../src/components/VisualPipeline.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.13 | LOC: 453/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)
+- [ ] **../../src/systems/TeaserRecorder.res**
+  - *Reason:* [Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.25 | LOC: 485/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)
 - [ ] **../../src/systems/TeaserLogic.res**
   - *Reason:* [Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 591/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)
 - [ ] **../../src/components/Sidebar/SidebarLogicHandler.res**

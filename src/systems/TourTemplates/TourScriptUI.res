@@ -63,6 +63,11 @@ let script = `
       autoTourHomeReturnTimeoutId = setTimeout(() => {
         autoTourHomeReturnTimeoutId = null;
         clearAutoTourCompletionCountdown();
+        const homeSceneId = resolveExistingSceneId(firstSceneId);
+        const currentSceneId = window.viewer?.getScene?.() ?? null;
+        if (homeSceneId && currentSceneId && currentSceneId !== homeSceneId) {
+          suppressNextRoomLabelOnLoad = true;
+        }
         navigateToExportHome();
       }, 5000);
     }

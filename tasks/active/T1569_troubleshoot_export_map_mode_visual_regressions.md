@@ -31,6 +31,8 @@
   - [x] Audit all Looking Mode ON/OFF transitions and normalize map-mode behavior to preserve manual/default preference after map close.
   - [x] Re-verify bundling; `npx rsbuild build` passes, full `npm run build` still blocked by active `rescript watch` lock (current PID 8281).
   - [x] Remove persistent side-effect from map open (`manualLookingMode=false`) and restore `lookingMode` from `manualLookingMode` on map close.
+  - [x] Fix map panel transition origin so map-open animation starts from in-view glass panel position (top-left) and travels to center of viewer stage.
+  - [x] Suppress one-time room-label flash during auto-tour end countdown return-to-home transition before navigation executes.
 
 - [ ] Code Change Ledger
   - [x] `src/systems/TourTemplates/TourStyles.res` - removed map-mode global dim overlay, simplified map row visuals to match existing panel feel, kept centered square-ish proportional sizing without replacing panel chrome, and aligned map shortcut text colors with main panel white.
@@ -43,6 +45,8 @@
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - `updateNavShortcutsV2` now renders `h home` only when `sceneId` is not already the resolved home scene.
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - map open now only sets runtime `lookingMode=false` temporarily; map close restores `lookingMode=manualLookingMode` and refreshes indicator UI.
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - explicit fix applied so map mode no longer mutates manual preference state, only temporary runtime state.
+  - [x] `src/systems/TourTemplates/TourStyles.res` - map-open panel positioning changed from `position: fixed` to `position: absolute` with stage-relative max dimensions, preserving in-stage transition path.
+  - [x] `src/systems/TourTemplates/TourScriptUI.res` - in countdown timeout path, set `suppressNextRoomLabelOnLoad=true` only when transition to home is actually needed.
 
 - [ ] Rollback Check
   - [x] Confirmed CLEAN (no non-working edits retained; frontend build passes via `npx rsbuild build`, full `npm run build` currently blocked by active ReScript watch lock).
@@ -57,3 +61,4 @@
   - [x] Auto-tour start no longer flashes the room-label glass chip during the immediate jump back to Home; suppression is one-load only and scoped to this bootstrap transition.
   - [x] Home shortcut is no longer shown while the viewer is already on Home, reducing redundant clutter in shortcut panel.
   - [x] Looking Mode defaults are now consistent with user/manual intent after map mode exits (no persistent forced-OFF side effect from merely opening map).
+  - [x] Auto-tour completion countdown now returns home without showing the transient room-label chip right before transition.
