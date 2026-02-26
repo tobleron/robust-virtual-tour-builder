@@ -65,7 +65,7 @@ test.describe('T1533 hotspot overlap reproduction (x.zip)', () => {
       { timeout: 30000 },
     );
 
-    const hotspotMainButton = page.locator('.pnlm-hotspot .cursor-pointer').first();
+    const hotspotMainButton = page.locator('[id^="hs-react-"] .cursor-pointer').first();
     await expect(hotspotMainButton).toBeVisible({ timeout: 45000 });
     await hotspotMainButton.hover();
     await page.waitForTimeout(2000);
@@ -74,7 +74,8 @@ test.describe('T1533 hotspot overlap reproduction (x.zip)', () => {
       const linkId = 'A01';
       const arrow = document.getElementById(`arrow_${linkId}`);
       const line = document.getElementById(`hl_${linkId}`);
-      const hotspotRoot = document.querySelector('.pnlm-hotspot');
+      // Hotspots are now in React layer
+      const hotspotRoot = document.querySelector('[id^="hs-react-"]');
       const menuButtons = Array.from(
         hotspotRoot?.querySelectorAll<HTMLElement>('.cursor-pointer') ?? [],
       ).filter((el) => {

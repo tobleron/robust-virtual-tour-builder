@@ -1,0 +1,69 @@
+{
+  "id": "test-tour-sim",
+  "tourName": "Test Tour Sim",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "name": "Scene 1",
+      "label": "Scene 1",
+      "file": "images/image.jpg",
+      "hotspots": [
+        {
+          "linkId": "l1",
+          "yaw": 0,
+          "pitch": 0,
+          "target": "Scene 2"
+        }
+      ],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "1"
+    },
+    {
+      "id": "scene-2",
+      "name": "Scene 2",
+      "label": "Scene 2",
+      "file": "images/image.jpg",
+      "hotspots": [
+        {
+          "linkId": "l2",
+          "yaw": 0,
+          "pitch": 0,
+          "target": "Scene 3"
+        }
+      ],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "1"
+    },
+    {
+      "id": "scene-3",
+      "name": "Scene 3",
+      "label": "Scene 3",
+      "file": "images/image.jpg",
+      "hotspots": [
+        {
+          "linkId": "l3",
+          "yaw": 0,
+          "pitch": 0,
+          "target": "Scene 1"
+        }
+      ],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "1"
+    }
+  ]
+}

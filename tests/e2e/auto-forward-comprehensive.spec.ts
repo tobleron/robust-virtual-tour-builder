@@ -59,7 +59,8 @@ test.describe('Auto-Forward Comprehensive', () => {
     await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
 
     console.log('Step 8: Hover over created hotspot to reveal auto-forward button...');
-    const hotspot = page.locator('.pnlm-hotspot').first();
+    // Hotspots are now in React layer, use id selector
+    const hotspot = page.locator('[id^="hs-react-"]').first();
     if (await hotspot.isVisible()) {
       await hotspot.hover();
       await page.waitForTimeout(1000);
@@ -205,7 +206,8 @@ test.describe('Auto-Forward Comprehensive', () => {
     await saveBtn.click();
 
     console.log('Step 5: Try to enable auto-forward on second link (should fail)...');
-    const secondHotspot = page.locator('.pnlm-hotspot').nth(1);
+    // Hotspots are now in React layer
+    const secondHotspot = page.locator('[id^="hs-react-"]').nth(1);
     if (await secondHotspot.isVisible()) {
       await secondHotspot.hover();
       await page.waitForTimeout(500);
@@ -259,7 +261,8 @@ test.describe('Auto-Forward Comprehensive', () => {
     console.log('✅ Link created');
 
     console.log('Step 3: Count hotspots before deletion...');
-    const initialHotspotCount = await page.locator('.pnlm-hotspot').count();
+    // Hotspots are now in React layer
+    const initialHotspotCount = await page.locator('[id^="hs-react-"]').count();
     console.log('Hotspots before:', initialHotspotCount);
 
     console.log('Step 4: Delete target scene (scene 2)...');
@@ -281,8 +284,9 @@ test.describe('Auto-Forward Comprehensive', () => {
 
     console.log('Step 5: Verify link auto-deleted...');
     await page.waitForTimeout(1000); // Allow cleanup
-    
-    const newHotspotCount = await page.locator('.pnlm-hotspot').count();
+
+    // Hotspots are now in React layer
+    const newHotspotCount = await page.locator('[id^="hs-react-"]').count();
     console.log('Hotspots after:', newHotspotCount);
     
     if (newHotspotCount < initialHotspotCount) {

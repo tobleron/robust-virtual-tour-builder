@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refine Hotspot Move UX and Auto-Forward Toggle logic with regression tests
+- Stable workable version
 
 ## [4.12.3] - 2026-02-25
 

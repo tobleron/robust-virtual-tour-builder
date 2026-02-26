@@ -1,0 +1,56 @@
+{
+  "id": "test-tour-linked",
+  "tourName": "Test Tour Linked",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "name": "Scene 1",
+      "label": "Scene 1",
+      "file": "images/image.jpg",
+      "hotspots": [
+        {
+          "linkId": "link-1",
+          "yaw": 0.0,
+          "pitch": 0.0,
+          "targetSceneId": "scene-2",
+          "target": "Scene 2",
+          "targetYaw": 0.0,
+          "targetPitch": 0.0,
+          "viewFrame": {"yaw": 0.0, "pitch": 0.0}
+        }
+      ],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "1"
+    },
+    {
+      "id": "scene-2",
+      "name": "Scene 2",
+      "label": "Scene 2",
+      "file": "images/image.jpg",
+      "hotspots": [
+        {
+          "linkId": "link-2",
+          "yaw": 0.0,
+          "pitch": 0.0,
+          "targetSceneId": "scene-1",
+          "target": "Scene 1",
+          "targetYaw": 0.0,
+          "targetPitch": 0.0,
+          "viewFrame": {"yaw": 0.0, "pitch": 0.0}
+        }
+      ],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "2"
+    }
+  ]
+}

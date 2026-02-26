@@ -303,7 +303,8 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     console.log('Timeline squares before:', initialSquareCount);
 
     console.log('Step 3: Delete hotspot via hover + trash icon...');
-    const hotspot = page.locator('.pnlm-hotspot').first();
+    // Hotspots are now in React layer
+    const hotspot = page.locator('[id^="hs-react-"]').first();
     if (await hotspot.isVisible()) {
       await hotspot.hover();
       await page.waitForTimeout(500);

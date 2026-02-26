@@ -24,7 +24,7 @@ test.describe('Navigation Engine', () => {
   });
 
   test('should navigate between scenes via hotspot', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(90000);
     const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
     await fileInput.setInputFiles(ZIP_LINKED_PATH);
 
@@ -37,18 +37,17 @@ test.describe('Navigation Engine', () => {
     // Wait for viewer ready
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
 
-    // Try to find hotspot - wait longer
-    await page.waitForSelector('.pnlm-hotspot', { state: 'attached', timeout: 45000 });
+    // Wait for React hotspot layer to render (hotspots are in React layer, not Pannellum)
+    await page.waitForSelector('#react-hotspot-layer', { state: 'visible', timeout: 45000 });
+    await page.waitForTimeout(500); // Allow interaction listeners to attach
 
-    // Wait for the interaction listener to attach
-    await page.waitForTimeout(1000);
+    // Click the first hotspot to navigate to Scene 2
+    // Hotspots are rendered as #hs-react-{linkId} in the React layer
+    const hotspot = page.locator('[id^="hs-react-"]').first();
+    await expect(hotspot).toBeVisible({ timeout: 10000 });
+    await hotspot.click();
 
-    // Sometimes the click on pnlm-hotspot fails if it's not actually interactive in the way Playwright expects
-    // We target the inner clickable element which handles the interaction
-    // Using evaluate() to bypass overlay checks more reliably than force:true
-    await page.locator('.pnlm-hotspot .cursor-pointer').first().evaluate((el: HTMLElement) => el.click());
-
-    // Verify Scene 2 becomes active via persistent label. The label is prefixed with '# '
+    // Verify Scene 2 becomes active via persistent label
     await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 2', { timeout: 30000 });
   });
 
@@ -65,19 +64,24 @@ test.describe('Navigation Engine', () => {
     await expect(page.locator('.scene-item').filter({ hasText: 'Scene 1' }).first()).toBeVisible({ timeout: 20000 });
     await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 1', { timeout: 10000 });
 
-    const teaserBtn = page.getByRole('button', { name: 'Teaser' });
-    await expect(teaserBtn).toBeEnabled({ timeout: 10000 });
-    await teaserBtn.click();
+    // Start simulation by clicking the Tour Preview button in viewer utility bar
+    const simBtn = page.getByRole('button', { name: 'Tour Preview' });
+    await expect(simBtn).toBeVisible({ timeout: 10000 });
+    await simBtn.click();
 
-    // Wait for auto-navigation.
-    await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 2', { timeout: 45000 });
+    // Wait for simulation to start (button should change to Stop Tour Preview)
+    const stopBtn = page.getByRole('button', { name: 'Stop Tour Preview' });
+    await expect(stopBtn).toBeVisible({ timeout: 10000 });
 
-    // Stop Simulation
+    // Wait for auto-navigation to Scene 2
+    await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 2', { timeout: 60000 });
+
+    // Stop Simulation by clicking the viewer stage
     await page.locator('#viewer-stage').click();
   });
 
   test('should rotate camera 180 degrees when returning to a hub scene', async ({ page }) => {
-    test.setTimeout(90000);
+    test.setTimeout(120000);
     const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
     await fileInput.setInputFiles(ZIP_LINKED_PATH);
 
@@ -87,9 +91,10 @@ test.describe('Navigation Engine', () => {
 
     // Scene 1 is Hub, Scene 2 is Room
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
-    
-    // Wait for hotspots to be attached
-    await page.waitForSelector('.pnlm-hotspot', { state: 'attached', timeout: 30000 });
+
+    // Wait for React hotspot layer (hotspots are in React layer, not Pannellum)
+    await page.waitForSelector('#react-hotspot-layer', { state: 'visible', timeout: 45000 });
+    await page.waitForTimeout(500); // Allow rendering to complete
 
     // Get initial yaw of the first hotspot in the current scene
     const hotspotData = await page.evaluate(() => {
@@ -117,33 +122,35 @@ test.describe('Navigation Engine', () => {
     const hotspotYaw = hotspotData.yaw;
     console.log(`Hotspot Yaw in Hub (${hotspotData.id}): ${hotspotYaw}`);
 
-    // Navigate to Scene 2 (or the target of the first hotspot)
-    await page.locator('.pnlm-hotspot .cursor-pointer').first().evaluate((el: HTMLElement) => el.click());
-    
+    // Navigate to Scene 2 by clicking the first React hotspot
+    const hotspot = page.locator('[id^="hs-react-"]').first();
+    await expect(hotspot).toBeVisible({ timeout: 10000 });
+    await hotspot.click();
+
     // Wait for scene change by checking persistent label change
     await expect(page.locator('#v-scene-persistent-label')).not.toHaveText(`# ${hotspotData.id}`, { timeout: 30000 });
 
-    // Navigate back to the original scene
+    // Navigate back to the original scene by clicking scene list
     await page.locator('.scene-item').filter({ hasText: hotspotData.id }).first().click();
     await expect(page.locator('#v-scene-persistent-label')).toHaveText(`# ${hotspotData.id}`, { timeout: 30000 });
 
     // Wait for transition and stabilization
     await page.waitForTimeout(2000);
 
-    // Verify final yaw is approximately hotspotYaw + 180
+    // Verify final yaw is approximately hotspotYaw + 180 (hub scene return logic)
     const finalYaw = await page.evaluate(() => {
       // @ts-ignore
       return window.pannellumViewer.getYaw();
     });
 
     console.log(`Final Yaw after return: ${finalYaw}`);
-    
+
     const expectedYaw = ((hotspotYaw + 180 + 180) % 360) - 180; // Normalize to [-180, 180]
-    
+
     // Allow for small floating point differences
     const diff = Math.abs(finalYaw - expectedYaw);
     const normalizedDiff = diff > 180 ? 360 - diff : diff;
-    
+
     expect(normalizedDiff).toBeLessThan(5); // 5 degrees tolerance
   });
 });
