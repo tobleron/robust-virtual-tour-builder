@@ -238,7 +238,15 @@ let _ = describe("TourTemplates", () => {
   })
 
   test("generateTourHTML resolves arrival view from target auto-forward scene endpoint", t => {
-    let html = generateTourHTML([mockScene1, mockScene3Auto], "Target Endpoint Arrival", None, "4k", 32, 40, "1.0")
+    let html = generateTourHTML(
+      [mockScene1, mockScene3Auto],
+      "Target Endpoint Arrival",
+      None,
+      "4k",
+      32,
+      40,
+      "1.0",
+    )
 
     t->expectToContain(html, "function resolveAutoForwardArrivalView(sceneId)")
     t->expectToContain(html, "const sceneData = scenesData?.[resolvedSceneId];")
@@ -251,7 +259,12 @@ let _ = describe("TourTemplates", () => {
       "const destinationOverride = options?.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId);",
     )
     t
-    ->expect(String.includes(html, "const destinationOverride = resolveAutoForwardArrivalView(args?.targetSceneId);"))
+    ->expect(
+      String.includes(
+        html,
+        "const destinationOverride = resolveAutoForwardArrivalView(args?.targetSceneId);",
+      ),
+    )
     ->Expect.toBe(false)
   })
 
@@ -425,12 +438,23 @@ let _ = describe("TourTemplates", () => {
   })
 
   test("generateTourHTML map shortcuts keep basement aliases and row navigation wiring", t => {
-    let html = generateTourHTML([mockScene1, mockScene2], "Map Shortcuts Wiring", None, "hd", 32, 40, "1.0")
+    let html = generateTourHTML(
+      [mockScene1, mockScene2],
+      "Map Shortcuts Wiring",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
 
     t->expectToContain(html, "{ id: \"b1\", shortcut: \"b\", mapLabel: \"Basement level -1\" }")
     t->expectToContain(html, "{ id: \"b2\", shortcut: \"z\", mapLabel: \"Basement level -2\" }")
     t->expectToContain(html, "const mapShortcutKey = key.toLowerCase();")
-    t->expectToContain(html, "const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);")
+    t->expectToContain(
+      html,
+      "const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);",
+    )
     t->expectToContain(
       html,
       "navigateToFloorTagShortcut(entry.sceneId, { fromMap: true, mapSelectedRow: row });",

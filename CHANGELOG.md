@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workable Stable Version
 - Working Stable Perfect Tour
 - Add regression unit guards for export auto-forward landing
+- Implement Fast Shots + Simple Crossfade teaser styles (workable stable version)
 
 ## [4.12.4] - 2026-02-26
 

@@ -36,21 +36,20 @@ let options: array<styleOption> = [
   {
     id: toString(FastShots),
     label: "Fast Shots",
-    description: "Rapid punch-in sequence style (planned).",
-    available: false,
+    description: "Static endpoint scene shots, stitched into a deterministic teaser.",
+    available: true,
   },
   {
     id: toString(SimpleCrossfade),
     label: "Simple Crossfade",
-    description: "Simple scene-to-scene dissolve teaser style (planned).",
-    available: false,
+    description: "Static endpoint shots with short premium dissolves.",
+    available: true,
   },
 ]
 
 let isAvailable = (style: teaserStyle): bool =>
   switch style {
-  | Cinematic => true
-  | FastShots | SimpleCrossfade => false
+  | Cinematic | FastShots | SimpleCrossfade => true
   }
 
 let label = (style: teaserStyle): string =>
