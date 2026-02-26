@@ -126,6 +126,17 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "\"autoForwardTargetSceneId\":\"\"")
   })
 
+  test("generateTourHTML keeps first-scene data URI fallback valid in CSS", t => {
+    let inlineScene = {
+      ...mockScene1,
+      name: "data:image/webp;base64,AAAA",
+      hotspots: [],
+    }
+    let html = generateTourHTML([inlineScene], "Inline Scene Tour", None, "2k", 32, 40, "1.0")
+    t->expectToContain(html, "background-image: url(\"data:image/webp;base64,AAAA\")")
+    t->expect(String.includes(html, "background-image: url(\"../../data:image"))->Expect.toBe(false)
+  })
+
   test("generateTourHTML precomputes direct auto-forward route from double-chevron hotspot", t => {
     let hotspotToScene3 = {
       ...mockHotspot,
@@ -177,7 +188,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function resolveScenePlaybackHotspot(sceneId, sceneData)")
     t->expectToContain(
       html,
-      "function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft)",
+      "function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft, destinationOverride)",
     )
     // New priority-based link selection
     t->expectToContain(html, "// PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)")
@@ -194,7 +205,29 @@ let _ = describe("TourTemplates", () => {
       "const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward)",
     )
     t->expectToContain(html, "const isAutoForward = playbackTarget.autoForward === true;")
-    t->expectToContain(html, "attemptAutoForwardNavigation(sceneId, playbackTarget, 16)")
+    t->expectToContain(html, "function resolveDestinationView(args, options)")
+    t->expectToContain(html, "if (Number.isFinite(options?.destinationOverride?.yaw)")
+    t->expectToContain(html, "function resolveAutoForwardArrivalView(sceneId)")
+    t->expectToContain(
+      html,
+      "const destinationOverride = options?.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId);",
+    )
+    t->expectToContain(html, "function getPlaybackTerminalView(primary)")
+    t->expectToContain(html, "function snapToPlaybackTerminalView(terminalView)")
+    t->expectToContain(html, "const terminalView = path.length > 0")
+    t->expectToContain(html, "snapToPlaybackTerminalView(terminalView);")
+    t
+    ->expect(
+      String.includes(
+        html,
+        "window.viewer.lookAt(primary.pitch, primary.yaw, getCurrentHfov(), false);",
+      ),
+    )
+    ->Expect.toBe(false)
+    t->expectToContain(
+      html,
+      "attemptAutoForwardNavigation(sceneId, playbackTarget, 16, terminalView)",
+    )
     t->expectToContain(
       html,
       "navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);",
@@ -270,10 +303,8 @@ let _ = describe("TourTemplates", () => {
       t->expectToContain(html, "return autoForwardChainVisited.includes(targetSceneId);")
       t->expectToContain(html, "if (shouldBlockAutoForward(sourceSceneId, targetSceneId))")
       t->expectToContain(html, "trackAutoForwardSource(sourceSceneId);")
-      t->expectToContain(
-        html,
-        "const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };",
-      )
+      t->expectToContain(html, "const autoForwardOptions = {")
+      t->expectToContain(html, "destinationOverride: destinationOverride ?? null,")
       t->expectToContain(html, "anyReady.__navigateNext(autoForwardOptions);")
       t->expectToContain(html, "hotSpotDiv.__navigateNext = function(options)")
     },
@@ -318,7 +349,7 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(
       html,
-      "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAnimation;",
+      "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;",
     )
 
     // Check marking as visited in animation

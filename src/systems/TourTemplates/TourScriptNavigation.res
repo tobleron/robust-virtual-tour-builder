@@ -28,8 +28,12 @@ let script = `
       if (!needsRetry || retries <= 0) return;
       waypointRuntime.readyTimeoutId = setTimeout(() => setSceneHotspotsReadyWithRetry(sceneId, retries - 1), 80);
     }
-    function resolveDestinationView(args) {
+    function resolveDestinationView(args, options) {
       let y = 90, p = 0;
+      if (Number.isFinite(options?.destinationOverride?.yaw) && Number.isFinite(options?.destinationOverride?.pitch)) {
+        y = options.destinationOverride.yaw;
+        p = options.destinationOverride.pitch;
+      } else
       if (args.isReturnLink && args.returnViewFrame) { y = args.returnViewFrame.yaw ?? 90; p = args.returnViewFrame.pitch ?? 0; }
       else { if (args.targetYaw !== undefined && args.targetYaw !== null) { y = args.targetYaw; p = args.targetPitch ?? 0; } else if (args.viewFrame) { y = args.viewFrame.yaw ?? 90; p = args.viewFrame.pitch ?? 0; } }
       return { yaw: y, pitch: p };
@@ -151,8 +155,27 @@ let script = `
       }
       return null;
     }
+    function resolveAutoForwardArrivalView(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const sceneData = scenesData?.[resolvedSceneId];
+      if (!sceneData) return null;
+      const hotspotIndex = sceneData?.autoForwardHotspotIndex;
+      if (!Number.isInteger(hotspotIndex) || hotspotIndex < 0) return null;
+      const hotspot = sceneData?.hotSpots?.[hotspotIndex];
+      if (!hotspot) return null;
+      const yaw = Number.isFinite(hotspot?.viewFrame?.yaw)
+        ? hotspot.viewFrame.yaw
+        : (Number.isFinite(hotspot?.targetYaw) ? hotspot.targetYaw : hotspot?.yaw);
+      const pitch = Number.isFinite(hotspot?.viewFrame?.pitch)
+        ? hotspot.viewFrame.pitch
+        : (Number.isFinite(hotspot?.targetPitch)
+            ? hotspot.targetPitch
+            : (Number.isFinite(hotspot?.truePitch) ? hotspot.truePitch : hotspot?.pitch));
+      if (!Number.isFinite(yaw) || !Number.isFinite(pitch)) return null;
+      return { yaw, pitch };
+    }
     function navigateToNextScene(args, forceTargetSceneId, options) {
-      const destination = resolveDestinationView(args);
       const requestedTargetSceneId = options?.targetSceneId ?? forceTargetSceneId;
       const targetSceneId = resolveTargetSceneId(args, requestedTargetSceneId);
       const fromAutoForward = options?.fromAutoForward === true;
@@ -160,6 +183,8 @@ let script = `
         if (fromAutoForward && typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
         return;
       }
+      const destinationOverride = options?.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId);
+      const destination = resolveDestinationView(args, { destinationOverride });
       const sourceSceneId =
         resolveExistingSceneId(options?.sourceSceneId)
         ?? resolveExistingSceneId(args?.sourceSceneId)
@@ -235,9 +260,14 @@ let script = `
       
       return { hotspot: hotspots[0], hotspotIndex: 0, autoForward: false, targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null };
     }
-    function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft) {
+    function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft, destinationOverride) {
       if (window.viewer.getScene() !== sceneId) return;
-      const autoForwardOptions = { fromAutoForward: true, sourceSceneId: sceneId, targetSceneId: playbackTarget.targetSceneId ?? null };
+      const autoForwardOptions = {
+        fromAutoForward: true,
+        sourceSceneId: sceneId,
+        targetSceneId: playbackTarget.targetSceneId ?? null,
+        destinationOverride: destinationOverride ?? null,
+      };
       if (playbackTarget.targetSceneId) {
         navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);
         return;
@@ -254,7 +284,7 @@ let script = `
         return;
       }
       waypointRuntime.autoForwardTimeoutId = setTimeout(
-        () => attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft - 1),
+        () => attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft - 1, destinationOverride),
         120,
       );
     }

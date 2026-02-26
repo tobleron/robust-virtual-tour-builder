@@ -1,0 +1,58 @@
+# T1572 Troubleshoot Export Scene Animation Replay
+
+- [ ] Hypothesis (Ordered Expected Solutions)
+  - [ ] Scene animation replay is blocked by global `animatedScenes` persistence across non-auto-forward revisits.
+  - [ ] Auto-tour force-animation guard is not active during certain auto-forward transitions.
+  - [ ] Auto-forward completion/reset path fails to clear animation tracking state between runs.
+- [ ] Activity Log
+  - [x] Read MAP.md, DATA_FLOW.md, and tasks/TASKS.md.
+  - [x] Inspect export tour script scene-animation logic.
+  - [x] Verify auto-tour start/stop/reset interactions with animation state.
+  - [x] Implement instant end-pose snap for skipped-animation + auto-forward path.
+  - [x] Run `npm run res:build`.
+  - [x] Run `npx vitest run tests/unit/TourTemplates_v.test.bs.js`.
+  - [x] Investigate desktop `artifacts/index.html` `ERR_FILE_NOT_FOUND` path issue.
+  - [x] Implement CSS fallback URL handling for data URI first scenes.
+  - [x] Add regression test to prevent `../../data:image...` output.
+  - [x] Analyze second-pass auto-forward endpoint mismatch in exported runtime.
+  - [x] Replace replay auto-forward snap fallback to use terminal waypoint view endpoint metadata instead of hotspot anchor coordinates.
+  - [x] Re-run `npx vitest run tests/unit/TourTemplates_v.test.bs.js`.
+  - [x] Implement shared pre-auto-forward terminal-view snap (both replay and animated branches) without changing full animation start behavior.
+  - [x] Update/verify TourTemplates regression assertions for terminal snap helper.
+  - [x] Add Playwright E2E regression `tests/e2e/export-autoforward-degenerate-path.spec.ts` targeting exported runtime degenerate-waypoint path behavior.
+  - [x] Run `npx playwright test tests/e2e/export-autoforward-degenerate-path.spec.ts --project=chromium-budget` and capture failing assertion (`Expected > 0 auto-forward schedule, Received 0`).
+  - [x] Refine E2E to generate fresh HTML from `TourTemplates.bs.js` instead of reading stale `artifacts/index.html`, so regression checks current export template behavior.
+  - [x] Update unit assertion for renamed finalize parameter (`forceAutoForward`) to remove false-negative drift.
+  - [x] Implement destination override handoff so auto-forward navigation uses the exact terminal endpoint of scene animation.
+  - [x] Verify no regression via targeted TourTemplates tests + E2E + full frontend unit suite.
+  - [x] Reproduce reported mismatch with new E2E: entering an auto-forward scene used source-link metadata yaw/pitch instead of target scene terminal endpoint.
+  - [x] Implement target-scene auto-forward arrival override to force landing at target auto-forward terminal endpoint.
+- [ ] Code Change Ledger
+  - [x] `src/systems/TourTemplates/TourScriptHotspots.res`: in `hasAnimated && !forceAnimation` branch, added instant `lookAt` snap to terminal waypoint pose before auto-forward timeout scheduling.
+  - [x] `tests/unit/TourTemplates_v.test.res`: added assertions that exported script contains end-pose snap logic.
+  - [x] `src/systems/TourTemplates/TourStyles.res`: background fallback now emits direct `data:image...` URL when first scene name is an inlined image URI, otherwise keeps `../../assets/images/...`.
+  - [x] `tests/unit/TourTemplates_v.test.res`: added regression test for valid CSS fallback URL when first scene name is a data URI.
+  - [x] `src/systems/TourTemplates/TourScriptHotspots.res`: replayed auto-forward snap now always uses terminal end-view (`viewFrame/target/truePitch` precedence), removing `primary.pitch/yaw` fallback that caused endpoint drift on second pass.
+  - [x] `tests/unit/TourTemplates_v.test.res`: updated expectations for endpoint-first snap and assertion that hotspot-anchor fallback is absent.
+  - [x] `src/systems/TourTemplates/TourScriptHotspots.res`: added `snapToPlaybackTerminalView(primary)` helper and invoked it in auto-forward timeout callbacks for both replay and animated flows.
+  - [x] `tests/unit/TourTemplates_v.test.res`: updated to assert helper emission and pre-navigation snap invocation.
+  - [x] `tests/e2e/export-autoforward-degenerate-path.spec.ts`: new E2E regression reproducing missing auto-forward scheduling when `buildPath` yields a degenerate (zero-length) path in exported runtime.
+  - [x] `tests/e2e/export-autoforward-degenerate-path.spec.ts`: switched from `artifacts/index.html` file fixture to runtime-generated export HTML (`generateTourHTML`) to validate current template output.
+  - [x] `tests/unit/TourTemplates_v.test.res`: updated session-expiration expectation to `forceAutoForward` string emitted by shared `finalizeSceneArrival` branch.
+  - [x] `src/systems/TourTemplates/TourScriptNavigation.res`: added `destinationOverride` support in `resolveDestinationView` and threaded it through `navigateToNextScene` / `attemptAutoForwardNavigation` retry loop.
+  - [x] `src/systems/TourTemplates/TourScriptHotspots.res`: added terminal-view extraction (`getPlaybackTerminalView`), switched snap to explicit terminal view object, and passed exact terminal endpoint to auto-forward navigation.
+  - [x] `tests/unit/TourTemplates_v.test.res`: updated template assertions for new function signatures and destination-override wiring.
+  - [x] `tests/e2e/export-autoforward-degenerate-path.spec.ts`: added second regression test proving arrival mismatch (`yaw=10` vs expected `120`) and then passing after fix.
+  - [x] `src/systems/TourTemplates/TourScriptNavigation.res`: added `resolveAutoForwardArrivalView(sceneId)` and destination selection `options.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId)` so links landing into auto-forward scenes use the target scene endpoint camera.
+  - [x] **Consolidated rollback set (this troubleshooting stream only):**
+  - [x] `src/systems/TourTemplates/TourScriptHotspots.res`
+  - [x] `src/systems/TourTemplates/TourStyles.res`
+  - [x] `tests/unit/TourTemplates_v.test.res`
+  - [x] `tasks/active/T1572_troubleshoot_export_scene_animation_replay.md`
+  - [x] **Note:** repository currently also has unrelated modified files not touched by this troubleshooting task: `_dev-system/plans/RESCRIPT_PLAN.md`, `_dev-system/plans/metadata.json`, `src/ServiceWorkerMain.res`, `src/utils/Version.res`.
+- [ ] Rollback Check
+  - [x] Confirmed CLEAN (all implemented changes are intentional and tests pass).
+- [ ] Context Handoff
+  - [ ] Investigating why scene animation does not replay on subsequent auto-forward runs.
+  - [ ] Focus is in export template runtime JS emitted by ReScript TourTemplates modules.
+  - [ ] Next session should inspect `animatedScenes` lifecycle and reset semantics.

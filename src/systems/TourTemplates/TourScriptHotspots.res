@@ -5,6 +5,51 @@ let script = `
     let visitedAutoForwards = new Set();
     window.isAutoTourActive = false;
     window.autoTourVisitedScenes = new Set();
+    function getPlaybackTerminalView(primary) {
+      const endYaw = Number.isFinite(primary?.viewFrame?.yaw)
+        ? primary.viewFrame.yaw
+        : (Number.isFinite(primary.targetYaw) ? primary.targetYaw : primary.yaw);
+      const endPitch = Number.isFinite(primary?.viewFrame?.pitch)
+        ? primary.viewFrame.pitch
+        : (Number.isFinite(primary.targetPitch)
+            ? primary.targetPitch
+            : (Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch));
+      return { yaw: endYaw, pitch: endPitch };
+    }
+    function snapToPlaybackTerminalView(terminalView) {
+      window.viewer.lookAt(terminalView.pitch, terminalView.yaw, getCurrentHfov(), false);
+    }
+    function finalizeSceneArrival(sceneId, retries, playbackTarget, isAutoForward, autoForwardAlreadyVisited, forceAutoForward, terminalView) {
+      waypointRuntime.animationId = null;
+      waypointRuntime.arrivedSceneId = sceneId;
+      setSceneHotspotsReadyWithRetry(sceneId, retries);
+      animatedScenes.add(sceneId);
+
+      const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
+      if (shouldAutoForward) {
+        if (forceAutoForward) {
+          const tid = playbackTarget.targetSceneId;
+          if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
+            if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+            return;
+          }
+          autoTourVisitedScenes.add(sceneId + ":" + tid);
+        }
+
+        const afKey = sceneId + ":" + playbackTarget.hotspotIndex;
+        waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
+          if (window.viewer.getScene() !== sceneId) return;
+          snapToPlaybackTerminalView(terminalView);
+          visitedAutoForwards.add(afKey);
+          attemptAutoForwardNavigation(sceneId, playbackTarget, 16, terminalView);
+        }, 360);
+      } else {
+        resetAutoForwardLoopGuard();
+      }
+
+      lookingMode = shouldAutoForward ? false : manualLookingMode;
+      updateLookingModeUI();
+    }
     
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
@@ -22,6 +67,7 @@ let script = `
       const isAutoForward = playbackTarget.autoForward === true;
       const afKey = sceneId + ":" + primaryIndex;
       const autoForwardAlreadyVisited = isAutoForward && visitedAutoForwards.has(afKey);
+      const fallbackTerminalView = getPlaybackTerminalView(primary);
 
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);
@@ -29,29 +75,15 @@ let script = `
       
       if (hasAnimated && !forceAnimation) {
         // Scene already animated - show hotspots immediately without animation
-        setSceneHotspotsReadyWithRetry(sceneId, retries);
-        const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAnimation;
-        
-        if (shouldAutoForward) {
-          if (forceAnimation) {
-             const tid = playbackTarget.targetSceneId;
-             if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
-                // End of track or cycle detected in auto-tour
-                if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
-                return;
-             }
-             autoTourVisitedScenes.add(sceneId + ":" + tid);
-          }
-          waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
-            if (window.viewer.getScene() !== sceneId) return;
-            visitedAutoForwards.add(afKey);
-            attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
-          }, 360);
-        } else {
-          resetAutoForwardLoopGuard();
-        }
-        lookingMode = shouldAutoForward ? false : manualLookingMode;
-        updateLookingModeUI();
+        finalizeSceneArrival(
+          sceneId,
+          retries,
+          playbackTarget,
+          isAutoForward,
+          autoForwardAlreadyVisited,
+          forceAnimation,
+          fallbackTerminalView,
+        );
         return;
       }
       
@@ -60,8 +92,19 @@ let script = `
       const startYaw = typeof window.viewer.getYaw === 'function' ? window.viewer.getYaw() : 0;
       const path = buildPath(primary, startPitch, startYaw);
       const pathInfo = buildSegments(path);
+      const terminalView = path.length > 0
+        ? path[path.length - 1]
+        : fallbackTerminalView;
       if (!pathInfo.segments.length || pathInfo.total <= 0) {
-        setSceneHotspotsReadyWithRetry(sceneId, retries);
+        finalizeSceneArrival(
+          sceneId,
+          retries,
+          playbackTarget,
+          isAutoForward,
+          autoForwardAlreadyVisited,
+          window.isAutoTourActive === true,
+          terminalView,
+        );
         return;
       }
       durationMs = Math.min(Math.max((pathInfo.total / PAN_VELOCITY) * 1000.0, PAN_MIN_DURATION), PAN_MAX_DURATION);
@@ -81,40 +124,15 @@ let script = `
           waypointRuntime.animationId = requestAnimationFrame(tick);
           return;
         }
-        waypointRuntime.animationId = null;
-        waypointRuntime.arrivedSceneId = sceneId;
-        setSceneHotspotsReadyWithRetry(sceneId, retries);
-        
-        // Mark this scene as having animated
-        animatedScenes.add(sceneId);
-        
-        const forceAutoForward = window.isAutoTourActive === true;
-        const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
-        
-        if (shouldAutoForward) {
-          // In Auto Tour mode, check for infinite loops or end of road
-          if (forceAutoForward) {
-            const tid = playbackTarget.targetSceneId;
-            if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
-               // Cycle or dead-end detected in auto-tour! Stopping.
-               if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
-               return;
-            }
-            autoTourVisitedScenes.add(sceneId + ":" + tid);
-          }
-
-          waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
-            if (window.viewer.getScene() !== sceneId) return;
-            visitedAutoForwards.add(afKey);
-            attemptAutoForwardNavigation(sceneId, playbackTarget, 16);
-          }, 360);
-        } else {
-          resetAutoForwardLoopGuard();
-        }
-
-        // Keep Looking mode OFF when this scene auto-forwards immediately.
-        lookingMode = shouldAutoForward ? false : manualLookingMode;
-        updateLookingModeUI();
+        finalizeSceneArrival(
+          sceneId,
+          retries,
+          playbackTarget,
+          isAutoForward,
+          autoForwardAlreadyVisited,
+          window.isAutoTourActive === true,
+          terminalView,
+        );
       };
       waypointRuntime.animationId = requestAnimationFrame(tick);
     }

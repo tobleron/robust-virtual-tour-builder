@@ -4,7 +4,7 @@ let cssTemplate = `
     body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture-noise); opacity: 0.04; pointer-events: none; z-index: 0; filter: contrast(120%) brightness(100%); }
     #stage { z-index: 1; }
     __MEDIA_QUERY_CSS__
-    #panorama { width: 100%; height: 100%; border-radius: inherit; background-image: url("../../assets/images/__FIRST_SCENE_NAME__"); background-size: cover; background-position: center; }
+    #panorama { width: 100%; height: 100%; border-radius: inherit; background-image: url("__FIRST_SCENE_BACKGROUND_URL__"); background-size: cover; background-position: center; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .watermark { position: absolute; bottom: 22px; right: 24px; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; overflow: visible; }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; filter: drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.95)) drop-shadow(0px 0px 4px rgba(0,0,0,0.25)); }
@@ -114,6 +114,11 @@ let cssTemplate = `
   `
 
 let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
+  let firstSceneBackgroundUrl = if String.startsWith(firstSceneName, "data:image") {
+    firstSceneName
+  } else {
+    "../../assets/images/" ++ firstSceneName
+  }
   let mediaQuery = switch exportType {
   | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
   | "2k" => ` #stage { position: relative; margin: 0 auto; width: 832px; max-width: calc((90dvh - 10px) * 16 / 10); height: auto; aspect-ratio: 16/10; max-height: 90vh; background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: calc((90dvh - 10px) * 16 / 10); } `
@@ -121,7 +126,7 @@ let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
   }
   let baseCss =
     cssTemplate
-    ->String.replaceRegExp(/__FIRST_SCENE_NAME__/g, firstSceneName)
+    ->String.replaceRegExp(/__FIRST_SCENE_BACKGROUND_URL__/g, firstSceneBackgroundUrl)
     ->String.replaceRegExp(/__MEDIA_QUERY_CSS__/g, mediaQuery)
     ->String.replaceRegExp(/__LOGO_SIZE__/g, Belt.Int.toString(logoSize))
     ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
