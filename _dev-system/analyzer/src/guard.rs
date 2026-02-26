@@ -1,4 +1,5 @@
 use crate::config::MapTreeConfig;
+use crate::config::EfficiencyConfig;
 use anyhow::Result;
 use regex::Regex;
 use std::collections::HashSet;
@@ -37,6 +38,72 @@ pub fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
         }
     }
     true
+}
+
+fn has_efficiency_role(path: &Path, roles: &HashSet<String>) -> bool {
+    let Ok(content) = fs::read_to_string(path) else {
+        return false;
+    };
+    content.lines().take(24).any(|line| {
+        let normalized = line.trim().to_lowercase();
+        if let Some((_, role_part)) = normalized.split_once("@efficiency-role:") {
+            return roles.contains(role_part.trim());
+        }
+        if let Some((_, role_part)) = normalized.split_once("@efficiency-role") {
+            return roles.contains(role_part.trim());
+        }
+        false
+    })
+}
+
+fn should_track_doc_module(
+    path: &Path,
+    clean_path: &str,
+    rules: &ExclusionRules,
+    config: &EfficiencyConfig,
+) -> bool {
+    if !is_project_source(path, rules) {
+        return false;
+    }
+
+    let Some(curation) = &config.map_curation else {
+        return true;
+    };
+    if curation.scope != "orchestrators_only" {
+        return true;
+    }
+
+    if curation
+        .include_paths
+        .iter()
+        .any(|p| p.trim().replace("\\", "/") == clean_path)
+    {
+        return true;
+    }
+
+    if let Some(entry_points) = &config.entry_points {
+        if entry_points
+            .iter()
+            .any(|p| p.trim().replace("\\", "/") == clean_path)
+        {
+            return true;
+        }
+    }
+
+    let include_roles: HashSet<String> = if curation.include_roles.is_empty() {
+        ["orchestrator", "service-orchestrator", "entry-point"]
+            .iter()
+            .map(|r| r.to_string())
+            .collect()
+    } else {
+        curation
+            .include_roles
+            .iter()
+            .map(|r| r.trim().to_lowercase())
+            .collect()
+    };
+
+    has_efficiency_role(path, &include_roles)
 }
 
 pub struct GuardConfig {
@@ -230,7 +297,7 @@ pub fn get_mapped_files(config: &GuardConfig) -> HashSet<String> {
     mapped_paths
 }
 
-pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
+pub fn check_map(config: &GuardConfig, rules: &ExclusionRules, analyzer_config: &EfficiencyConfig) -> Result<()> {
     if !Path::new(&config.map_file).exists() {
         return Ok(());
     }
@@ -273,7 +340,9 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
                     &p_str
                 };
 
-                if is_project_source(path, rules) && !mapped_paths.contains(clean_p) {
+                if should_track_doc_module(path, clean_p, rules, analyzer_config)
+                    && !mapped_paths.contains(clean_p)
+                {
                     if path.exists() {
                         // Check for ignore tag in content
                         let is_ignored = if let Ok(content) = fs::read_to_string(path) {
@@ -743,7 +812,11 @@ fn create_or_update_map_tree_task(
     Ok(())
 }
 
-pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
+pub fn check_data_flow(
+    config: &GuardConfig,
+    rules: &ExclusionRules,
+    analyzer_config: &EfficiencyConfig,
+) -> Result<()> {
     if !Path::new(&config.data_flow_file).exists() {
         println!("⚠️  DATA_FLOW.md not found. Skipping data flow check.");
         return Ok(());
@@ -780,7 +853,9 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
                     &p_str
                 };
 
-                if is_project_source(path, rules) && !real_references.contains(clean_p) {
+                if should_track_doc_module(path, clean_p, rules, analyzer_config)
+                    && !real_references.contains(clean_p)
+                {
                     let is_ignored = if let Ok(content) = fs::read_to_string(path) {
                         content.contains("@efficiency-role: ignored")
                             || content.contains("@efficiency-role ignored")

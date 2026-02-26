@@ -23,6 +23,7 @@ User Click Event
       → dispatch(UserClickedScene) FSM event for UI reactivity
       → [src/components/LockFeedback.res] renders progress via NavigationSupervisor.addStatusListener()
       → [src/systems/OperationLifecycle.res] tracks navigation operation lifecycle and visibility thresholds
+      → [src/systems/OperationLifecycleContext.res] and [src/systems/OperationLifecycleTypes.res] provide lifecycle context/payload modeling
   → [src/App.res] and [src/components/AppErrorBoundary.res] provide the top-level container
       → [src/components/ErrorFallbackUI.res] and [src/components/CriticalErrorMonitor.res] provide the crash UI and error monitoring
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
@@ -60,8 +61,9 @@ User file selection
     → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res], and [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
   → [src/components/Sidebar/SidebarLogicHandler.res] dispatches upload/load/save/export actions
+      → [src/components/Sidebar/SidebarUploadLogic.res], [src/components/Sidebar/SidebarSceneActions.res], and [src/components/Sidebar/SidebarExportLogic.res] provide specialized handlers
   → [src/components/Sidebar/SidebarBase.res] provides shared sidebar types and progress monitoring
-  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
+  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], [src/components/VisualPipeline/VisualPipelineStyles.res], [src/components/VisualPipelineStyles.res], and [src/components/VisualPipelineNode.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
   → [src/utils/NetworkStatus.res] pre-checks connectivity before allowing upload
@@ -135,6 +137,7 @@ On startup ([src/Main.res]):
 ```
 User clicks to add hotspot
   → [src/components/HotspotManager.res] handles click event
+  → [src/components/ReactHotspotLayer.res] projects hotspot markers from live viewer camera state for React-layer interaction previews
   → [src/components/HotspotActionMenu.res] and [src/components/HotspotMenuLayer.res] provide UI via [src/components/Portal.res] and [src/components/PopOver.res]
   → [src/components/ViewerLabelMenu.res] and [src/components/LabelMenu.res] for advanced labeling
   → [src/components/LinkModal.res], [src/components/ModalContext.res], and [src/systems/LinkEditorLogic.res] handle scene linking via modals
@@ -163,10 +166,12 @@ User clicks "Start Simulation"
       → [src/core/SimHelpers.res] and [src/core/SimulationHelpers.res] provide core simulation algorithms
   → [src/systems/Navigation/NavigationFSM.res] drives scene transitions
   → [src/systems/TeaserManager.res] manages recording sessions
-      → [src/systems/Teaser.res], [src/systems/TeaserLogic.res], [src/systems/TeaserPlayback.res], [src/systems/TeaserStyleConfig.res], and [src/systems/TeaserState.res] handle playback and movement logic
+      → [src/systems/TeaserManagerLogic.res], [src/systems/Teaser.res], [src/systems/TeaserLogic.res], [src/systems/TeaserLogicHelpers.res], [src/systems/TeaserPlayback.res], [src/systems/TeaserPlaybackManifest.res], [src/systems/TeaserStyleConfig.res], and [src/systems/TeaserState.res] handle playback and movement logic
+      → [src/systems/TeaserHeadlessLogic.res] and [src/systems/TeaserRecorderHud.res] support headless rendering setup and recorder HUD behavior
       → [src/systems/TeaserPathfinder.res] specialized cinematic pathfinding
   → [src/systems/TeaserRecorder.res] captures viewports (using [src/components/SnapshotOverlay.res], [src/components/ViewerSnapshot.res])
   → [src/systems/TeaserStyleCatalog.res] provides style type definitions and availability flags
+  → [src/systems/TeaserManifest.res] defines deterministic shot/segment manifests consumed by teaser renderers
   → [src/systems/TeaserRendererRegistry.res] dispatches style-specific manifest generation
   → [src/systems/TeaserStyleCinematic.res] builds Cinematic motion manifests
   → [src/systems/TeaserStyleFastShots.res] (stub: not implemented yet)
@@ -174,7 +179,7 @@ User clicks "Start Simulation"
   → [src/systems/TeaserOfflineCfrRenderer.res] renders deterministic CFR WebM from manifests
   → [src/systems/EtaSupport.res] provides ETA formatting for recording progress
   → [src/systems/ServerTeaser.res] (Optional) requests backend high-quality render
-      → [backend/src/api/media/video.rs] and [backend/src/api/media/video_logic.rs] for transcoding
+      → [backend/src/api/media/video.rs], [backend/src/api/media/video_logic.rs], [backend/src/api/media/video_logic_runtime.rs], [backend/src/api/media/video_runtime_impl.rs], [backend/src/api/media/video_capture.rs], and [backend/src/api/media/video_request_utils.rs] for transcoding and frame capture
       → [src/systems/VideoEncoder.res] and [src/systems/Exporter.res] for final assembly
 ```
 
@@ -258,11 +263,12 @@ Trigger Event
 ```
 Save/Export Trigger:
   → [src/systems/ProjectManager.res] and [src/systems/ProjectManagerUrl.res] package project data
+      → [src/systems/ProjectConnectivity.res] performs dead-end/connectivity checks before packaging/export completion
       → [src/systems/ProjectManager/ProjectSave.res] and [src/systems/ProjectManager/ProjectUtils.res] orchestrate the save sequence
       → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
       → [src/systems/Exporter/ExporterPackaging.res], [src/systems/Exporter/ExporterUpload.res], and [src/systems/Exporter/ExporterUtils.res] handle packaging assembly, upload transport, and export-specific helpers
-      → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], [src/systems/TourTemplates/TourScriptCore.res], [src/systems/TourTemplates/TourScriptNavigation.res], [src/systems/TourTemplates/TourScriptInput.res], [src/systems/TourTemplates/TourScriptHotspots.res], [src/systems/TourTemplates/TourScriptViewport.res], [src/systems/TourTemplates/TourScriptUI.res], and [src/systems/TourTemplates/TourAssets.res])
+      → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], [src/systems/TourTemplates/TourScriptCore.res], [src/systems/TourTemplates/TourScriptNavigation.res], [src/systems/TourTemplates/TourScriptInput.res], [src/systems/TourTemplates/TourScriptHotspots.res], [src/systems/TourTemplates/TourScriptViewport.res], [src/systems/TourTemplates/TourScriptUI.res], [src/systems/TourTemplates/TourScriptUINav.res], [src/systems/TourTemplates/TourScriptUIMap.res], and [src/systems/TourTemplates/TourAssets.res])
   → [src/systems/DownloadSystem.res] triggers client-side saving
   → [src/systems/OperationLifecycle.res] tracks blocking/ambient operation progress for load/save/export UX
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
@@ -275,11 +281,13 @@ Save/Export Trigger:
       → [backend/src/api/project_logic/zip.rs] handles zip extraction/creation and secure path handling
   → [backend/src/services/project/mod.rs] handles persistence
   → [backend/src/api/utils.rs] for request validation
-  → [backend/src/services/mod.rs] and [backend/src/services/project/package.rs] create ZIP (Export only)
+  → [backend/src/services/mod.rs], [backend/src/services/project/package.rs], and [backend/src/services/project/package_utils.rs] create ZIP (Export only)
 
 Load Trigger:
   → [src/utils/FileSlicer.res] slices project archive for chunked/resumable import uploads
   → [backend/src/services/project/import_upload.rs] manages init/chunk/status/complete/abort upload session lifecycle
+      → [backend/src/services/project/import_upload_runtime.rs] executes session/chunk runtime operations
+      → [backend/src/services/project/import_upload_logic.rs] provides validation and chunk accounting helpers
   → [backend/src/middleware/rate_limiter.rs] applies write-scope backpressure controls during import sequence
   → [backend/src/services/project/load.rs] fetches project data
   → [backend/src/services/project/validate.rs] performs deep structural validation
@@ -307,6 +315,16 @@ Address/GPS Query
       → [backend/src/services/geocoding/cache.rs] checks LRU cache
       → [backend/src/services/geocoding/osm.rs] queries OpenStreetMap Nominatim
   → Returns result with bounding box/coords
+```
+
+### Backend Media Test Coverage
+**Trigger:** Backend test execution (`cargo test`)
+
+**Flow:**
+```
+Test runner
+  → [backend/src/api/media/video_tests.rs] validates video endpoint contract and request handling
+  → [backend/src/api/media/video_logic_tests.rs] validates teaser runtime/transcode logic behavior
 ```
 
 ### Infrastructure, Metadata & Quota (Backend)
@@ -362,7 +380,7 @@ CI job
 
 ### Components & UI Foundation (Common)
 **Purpose:** Shared presentation components and style primitives.
-- [src/components/PopOver.res], [src/components/Portal.res], [src/components/Tooltip.res], [src/components/SelectionOverlay.res], [src/components/FocusRing.res], [src/components/EmptyState.res], [src/components/LoadingSpinner.res], [src/components/VisualPipeline/VisualPipelineStyles.res]
+- [src/components/PopOver.res], [src/components/Portal.res], [src/components/Tooltip.res], [src/components/SelectionOverlay.res], [src/components/FocusRing.res], [src/components/EmptyState.res], [src/components/LoadingSpinner.res], [src/components/VisualPipeline/VisualPipelineStyles.res], [src/components/VisualPipelineStyles.res], [src/components/VisualPipelineNode.res]
 
 ### External Bindings (Web APIs)
 **Purpose:** Bridge ReScript to browser-native functionality.
@@ -374,7 +392,7 @@ CI job
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/utils/FileSlicer.res], [src/core/InteractionGuard.res], [src/core/Capability.res], [src/systems/OperationLifecycle.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/utils/FileSlicer.res], [src/core/InteractionGuard.res], [src/core/Capability.res], [src/systems/OperationLifecycle.res], [src/systems/OperationLifecycleContext.res], [src/systems/OperationLifecycleTypes.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res], [src/utils/PerfUtils.res], [src/utils/StateDensityMonitor.res]
@@ -408,13 +426,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/components
-- `[src/components/ReactHotspotLayer.res]`
-
-### 📂 src/systems
-- `[src/systems/ProjectConnectivity.res]`
-- `[src/systems/TeaserManifest.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

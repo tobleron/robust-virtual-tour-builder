@@ -16,6 +16,8 @@ pub struct EfficiencyConfig {
     pub protected_patterns: Option<Vec<String>>,
     #[serde(default)]
     pub map_tree: Option<MapTreeConfig>,
+    #[serde(default)]
+    pub map_curation: Option<MapCurationConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -77,6 +79,20 @@ pub struct MapTreeConfig {
     pub ignore_hidden: bool,
     #[serde(default = "default_map_tree_bool")]
     pub detect_extra_entries: bool,
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+pub struct MapCurationConfig {
+    #[serde(default = "default_map_scope")]
+    pub scope: String,
+    #[serde(default)]
+    pub include_roles: Vec<String>,
+    #[serde(default)]
+    pub include_paths: Vec<String>,
+}
+
+fn default_map_scope() -> String {
+    "all".to_string()
 }
 
 impl EfficiencyConfig {

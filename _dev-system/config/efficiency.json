@@ -85,6 +85,20 @@
     "ignore_hidden": true,
     "detect_extra_entries": true
   },
+  "map_curation": {
+    "scope": "orchestrators_only",
+    "include_roles": [
+      "orchestrator",
+      "service-orchestrator",
+      "entry-point"
+    ],
+    "include_paths": [
+      "src/Main.res",
+      "src/App.res",
+      "src/index.js",
+      "backend/src/main.rs"
+    ]
+  },
   "profiles": {
     "rust": {
       "extensions": [
