@@ -13,13 +13,16 @@ let make = React.memo(() => {
   let isTeasing = uiSlice.isTeasing
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
 
-  // Force close menu if teaser starts
-  React.useEffect1(() => {
-    if isTeasing {
+  // Force close menu if teaser starts or movement begins
+  let appState = AppContext.useAppState()
+  let isMovingHotspot = appState.movingHotspot != None
+
+  React.useEffect2(() => {
+    if isTeasing || isMovingHotspot {
       setHotspotMenu(_ => None)
     }
     None
-  }, [isTeasing])
+  }, (isTeasing, isMovingHotspot))
 
   // Subscribe to hotspot menu events
   React.useEffect1(() => {

@@ -186,7 +186,7 @@ let handleUpdateHotspotMetadata = (
 }
 
 let handleStartMovingHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
-  {...state, movingHotspot: Some({sceneIndex, hotspotIndex}), isLinking: false}
+  {...state, movingHotspot: Some({sceneIndex, hotspotIndex}), isLinking: false, linkDraft: None}
 }
 
 let handleStopMovingHotspot = (state: state): state => {

@@ -438,4 +438,5 @@ This map provides a semantic overview of the project structure to optimize conte
 *(None currently - all detected modules have been classified and integrated.)*
 
 ## 🆕 Unmapped Modules
+* [src/components/ReactHotspotLayer.res](src/components/ReactHotspotLayer.res): New module detected. Please classify. #new
 *(None currently - all detected modules have been classified and integrated.)*

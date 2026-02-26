@@ -11,4 +11,5 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation
 
 ## Unmapped Modules
+- [ ] [src/components/ReactHotspotLayer.res]
 - [ ] [src/systems/TeaserManifest.res]

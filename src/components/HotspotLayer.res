@@ -83,6 +83,8 @@ let make = React.memo(() => {
         id="viewer-hotspot-lines"
         className="absolute inset-0 w-full h-full z-[5000] pointer-events-none"
       />
+
+      <ReactHotspotLayer />
     </>
   }
 })

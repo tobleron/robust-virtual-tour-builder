@@ -128,7 +128,12 @@ let createHotspotConfig = (
   }
 }
 
-let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.action => unit) => {
+let syncHotspots = (
+  v: Viewer.t,
+  _state: state,
+  _scene: scene,
+  _dispatch: Actions.action => unit,
+) => {
   if !ViewerSystem.isViewerReady(v) {
     Logger.debug(~module_="HotspotManager", ~message="SYNC_SKIPPED_VIEWER_NOT_READY", ())
   } else {
@@ -149,18 +154,24 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
       ~message="SYNC_HOTSPOTS_NUKE",
       ~data=Some({
         "removed": Belt.Array.length(currentIds),
-        "adding": Belt.Array.length(scene.hotspots),
+        "adding": Belt.Array.length(_scene.hotspots),
       }),
       (),
     )
 
     // Add ALL new hotspots
+    /*
+       DEPRECATED: Hotspots are now managed by ReactHotspotLayer.res
+       for better layering and performance.
+ */
+    /*
     if !state.isTeasing {
       Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
         let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
         Viewer.addHotSpot(v, conf)
       })
     }
+ */
   }
 }
 

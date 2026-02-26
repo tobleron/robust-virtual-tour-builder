@@ -30,7 +30,6 @@ let initialize = (id, config) => {
     })
 
     Dom.addEventListener(element, "mouseup", e => {
-      // CRITICAL: Guard against interaction before viewer is ready or after destruction
       if Viewer.isLoaded(v) {
         let clientX = e->Dom.clientX->Int.toFloat
         let clientY = e->Dom.clientY->Int.toFloat

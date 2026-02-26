@@ -269,46 +269,9 @@ let init = async () => {
           ()
         } else {
           let state = AppStateBridge.getState()
-          if state.isLinking {
-            let customEvent = ViewerClickEvent.fromEvent(e)
-            let detail = ViewerClickEvent.detail(customEvent)
 
-            switch state.linkDraft {
-            | None =>
-              let newDraft: Types.linkDraft = {
-                pitch: detail.pitch,
-                yaw: detail.yaw,
-                camPitch: detail.camPitch,
-                camYaw: detail.camYaw,
-                camHfov: detail.camHfov,
-                intermediatePoints: Some([]),
-              }
-              AppStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
-
-            | Some(current) =>
-              let newPoint: Types.linkDraft = {
-                pitch: detail.pitch,
-                yaw: detail.yaw,
-                camPitch: detail.camPitch,
-                camYaw: detail.camYaw,
-                camHfov: detail.camHfov,
-                intermediatePoints: None,
-              }
-
-              let currentPoints = switch current.intermediatePoints {
-              | Some(pts) => pts
-              | None => []
-              }
-
-              let updatedDraft = {
-                ...current,
-                intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
-              }
-              AppStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
-            }
-          } else {
-            switch state.movingHotspot {
-            | Some({sceneIndex, hotspotIndex}) =>
+          switch state.movingHotspot {
+          | Some({sceneIndex, hotspotIndex}) => {
               let customEvent = ViewerClickEvent.fromEvent(e)
               let detail = ViewerClickEvent.detail(customEvent)
               HotspotManager.handleCommitHotspotMove(
@@ -317,7 +280,45 @@ let init = async () => {
                 detail.yaw,
                 detail.pitch,
               )->ignore
-            | None => ()
+            }
+          | None =>
+            if state.isLinking {
+              let customEvent = ViewerClickEvent.fromEvent(e)
+              let detail = ViewerClickEvent.detail(customEvent)
+
+              switch state.linkDraft {
+              | None =>
+                let newDraft: Types.linkDraft = {
+                  pitch: detail.pitch,
+                  yaw: detail.yaw,
+                  camPitch: detail.camPitch,
+                  camYaw: detail.camYaw,
+                  camHfov: detail.camHfov,
+                  intermediatePoints: Some([]),
+                }
+                AppStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
+
+              | Some(current) =>
+                let newPoint: Types.linkDraft = {
+                  pitch: detail.pitch,
+                  yaw: detail.yaw,
+                  camPitch: detail.camPitch,
+                  camYaw: detail.camYaw,
+                  camHfov: detail.camHfov,
+                  intermediatePoints: None,
+                }
+
+                let currentPoints = switch current.intermediatePoints {
+                | Some(pts) => pts
+                | None => []
+                }
+
+                let updatedDraft = {
+                  ...current,
+                  intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
+                }
+                AppStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
+              }
             }
           }
         }

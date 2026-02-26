@@ -141,57 +141,68 @@ let make = (
     } else {
       toggleInFlightRef.current = true
       let newVal = !localIsAF
+
+      // 1. Stylistic Feedback: Start blink on the CURRENT icon
       setFlickerYellow(_ => true)
+
+      // 2. Immediate Data Update (Robustness)
+      dispatch(
+        Actions.UpdateHotspotMetadata(
+          sceneIndex,
+          hotspotIndex,
+          Logger.castToJson({"isAutoForward": newVal}),
+        ),
+      )
+
+      // 3. Notification (Instant)
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("preview_arrow"),
+        message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+
+      // 4. Sequence: Wait for blinks to complete, THEN swap the icon
       let _ = setTimeout(() => {
         setFlickerYellow(_ => false)
         setIsSwapping(_ => true)
-        setLocalIsAF(_ => newVal)
-        dispatch(
-          Actions.UpdateHotspotMetadata(
-            sceneIndex,
-            hotspotIndex,
-            Logger.castToJson({"isAutoForward": newVal}),
-          ),
-        )
-        let _ = setTimeout(() => EventBus.dispatch(ForceHotspotSync), 0)
-        NotificationManager.dispatch({
-          id: "",
-          importance: Info,
-          context: Operation("preview_arrow"),
-          message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        setLocalIsAF(_ => newVal) // Swap icon now
+
         let _ = setTimeout(() => {
           setIsSwapping(_ => false)
-          toggleInFlightRef.current = false
-        }, 600)
+          toggleInFlightRef.current = false // Re-enable external syncs
+        }, 400)
       }, 800)
     }
   }
 
   React.useEffect1(() => {
-    let currentState = AppContext.getBridgeState()
-    let activeScenesForSync = SceneInventory.getActiveScenes(
-      currentState.inventory,
-      currentState.sceneOrder,
-    )
-    let nextIsAF = switch Belt.Array.get(activeScenesForSync, sceneIndex) {
-    | Some(scene) =>
-      switch Belt.Array.get(scene.hotspots, hotspotIndex) {
-      | Some(hotspot) =>
-        switch hotspot.isAutoForward {
-        | Some(b) => b
-        | None => false
+    // Only sync from external state if we are not actively toggling locally
+    if !toggleInFlightRef.current {
+      let currentState = AppContext.getBridgeState()
+      let activeScenesForSync = SceneInventory.getActiveScenes(
+        currentState.inventory,
+        currentState.sceneOrder,
+      )
+      let nextIsAF = switch Belt.Array.get(activeScenesForSync, sceneIndex) {
+      | Some(scene) =>
+        switch Belt.Array.get(scene.hotspots, hotspotIndex) {
+        | Some(hotspot) =>
+          switch hotspot.isAutoForward {
+          | Some(b) => b
+          | None => false
+          }
+        | None => localIsAF
         }
       | None => localIsAF
       }
-    | None => localIsAF
+      setLocalIsAF(_ => nextIsAF)
     }
-    setLocalIsAF(_ => nextIsAF)
     None
   }, [state.structuralRevision])
 
@@ -250,7 +261,7 @@ let make = (
   }
 
   let centerBaseColor = if isMovingThis {
-    "bg-yellow-400"
+    "bg-yellow-600"
   } else if localIsAF {
     "bg-[#059669]"
   } else {
@@ -258,7 +269,7 @@ let make = (
   }
 
   let centerHoverColor = if isMovingThis {
-    "hover:bg-yellow-300"
+    "hover:bg-yellow-500"
   } else if localIsAF {
     "hover:bg-[#10b981]"
   } else {
@@ -280,19 +291,25 @@ let make = (
 
   <div
     id=elementId
-    className={`absolute top-0 left-0 z-[6000] group pointer-events-auto origin-center transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2`}
+    className={`absolute top-0 left-0 z-[6000] ${isMovingThis
+        ? "pointer-events-none"
+        : "group pointer-events-auto"} origin-center transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2`}
     style={makeStyle({
       "--open-delay": `${Constants.hotspotMenuOpenDelay->Int.toString}ms`,
       "--exit-delay": `${Constants.hotspotMenuExitDelay->Int.toString}ms`,
       "--sweep-duration": localIsAF ? "1.5s" : "4s",
     })}
   >
-    <div className="relative flex items-center justify-center w-8 h-8">
+    <div
+      className={`relative flex items-center justify-center w-8 h-8 ${isMovingThis
+          ? "pointer-events-none"
+          : ""}`}
+    >
       // CENTER BUTTON
       <div
-        className={`absolute inset-0 ${centerBaseColor} ${centerHoverColor} rounded-md shadow-lg flex items-center justify-center z-20 cursor-pointer transition-colors overflow-hidden ${swapClass} ${flickerMove
+        className={`absolute inset-0 ${centerBaseColor} ${centerHoverColor} rounded-md shadow-lg flex items-center justify-center z-20 transition-colors overflow-hidden ${swapClass} ${flickerMove
             ? "animate-flicker-yellow-flat"
-            : ""}`}
+            : ""} ${isMovingThis ? "pointer-events-none" : "cursor-pointer"}`}
         onClick={handleMainClick}
       >
         {!isMovingThis
@@ -303,49 +320,51 @@ let make = (
         {centerIcon}
       </div>
 
-      // RIGHT BUTTON (Toggle)
-      <div
-        className={`absolute inset-0 ${rightBaseColor} ${rightHoverColor} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
-                   transition-all duration-300 ease-out 
-                   delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
-                   opacity-0 translate-x-0
-                   group-hover:opacity-100 group-hover:translate-x-[110%]
-                   ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
-        onClick={handleRightClick}
-      >
-        {rightIcon}
-      </div>
-
-      // BOTTOM BUTTON (Move)
-      <div
-        className={`absolute inset-0 ${isMovingThis
-            ? "bg-yellow-500"
-            : "bg-yellow-600 hover:bg-yellow-500"} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
-                   transition-all duration-300 ease-out 
-                   delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
-                   opacity-0 translate-y-0
-                   group-hover:opacity-100 group-hover:translate-y-[110%]`}
-        onClick={handleMoveClick}
-        title={isMovingThis ? "Cancel Move" : "Move Hotspot"}
-      >
-        {isMovingThis
-          ? <LucideIcons.X.make className="text-white" size={14} strokeWidth={3.0} />
-          : <LucideIcons.Move.make className="text-white" size={14} strokeWidth={3.0} />}
-      </div>
-
-      // FAR BOTTOM BUTTON (Delete)
-      <div
-        className={`absolute inset-0 bg-[#ea580c] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer hover:bg-red-600
-                   transition-all duration-300 ease-out 
-                   delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
-                   opacity-0 translate-y-0
-                   group-hover:opacity-100 group-hover:translate-y-[220%]
-                   ${flickerRed ? "animate-flicker-red" : ""}`}
-        onClick={handleDeleteClick}
-        title="Delete Hotspot"
-      >
-        <LucideIcons.Trash2.make className="text-white" size=14 strokeWidth=3.0 />
-      </div>
+      {!isMovingThis
+        ? <>
+            // RIGHT BUTTON (Toggle)
+            <div
+              className={`absolute inset-0 ${rightBaseColor} ${rightHoverColor} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+                         transition-all duration-300 ease-out 
+                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
+                         opacity-0 translate-x-0
+                         group-hover:opacity-100 group-hover:translate-x-[110%]
+                         ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
+              onClick={handleRightClick}
+            >
+              {rightIcon}
+            </div>
+            // BOTTOM BUTTON (Move)
+            <div
+              className={`absolute inset-0 ${isMovingThis
+                  ? "bg-yellow-500"
+                  : "bg-yellow-600 hover:bg-yellow-500"} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+                         transition-all duration-300 ease-out 
+                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
+                         opacity-0 translate-y-0
+                         group-hover:opacity-100 group-hover:translate-y-[110%]`}
+              onClick={handleMoveClick}
+              title={isMovingThis ? "Cancel Move" : "Move Hotspot"}
+            >
+              {isMovingThis
+                ? <LucideIcons.X.make className="text-white" size={14} strokeWidth={3.0} />
+                : <LucideIcons.Move.make className="text-white" size={14} strokeWidth={3.0} />}
+            </div>
+            // FAR BOTTOM BUTTON (Delete)
+            <div
+              className={`absolute inset-0 bg-[#ea580c] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer hover:bg-red-600
+                         transition-all duration-300 ease-out 
+                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
+                         opacity-0 translate-y-0
+                         group-hover:opacity-100 group-hover:translate-y-[220%]
+                         ${flickerRed ? "animate-flicker-red" : ""}`}
+              onClick={handleDeleteClick}
+              title="Delete Hotspot"
+            >
+              <LucideIcons.Trash2.make className="text-white" size=14 strokeWidth=3.0 />
+            </div>
+          </>
+        : React.null}
     </div>
   </div>
 }

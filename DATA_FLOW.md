@@ -409,6 +409,9 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/components
+- `[src/components/ReactHotspotLayer.res]`
+
 ### 📂 src/systems
 - `[src/systems/TeaserManifest.res]`
 
