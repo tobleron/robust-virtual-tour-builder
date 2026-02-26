@@ -13,9 +13,16 @@ let loadEventScript = `
       if (sd?.hotSpots?.length > 0) applyCurrentHfov();
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);
-      const animateRoomLabel = pendingShortcutLabelSceneId === sid;
-      updateExportRoomLabel(sid, animateRoomLabel);
-      pendingShortcutLabelSceneId = null;
+      const suppressRoomLabelOnThisLoad = suppressNextRoomLabelOnLoad === true;
+      suppressNextRoomLabelOnLoad = false;
+      if (suppressRoomLabelOnThisLoad) {
+        updateExportRoomLabel("", false);
+        pendingShortcutLabelSceneId = null;
+      } else {
+        const animateRoomLabel = pendingShortcutLabelSceneId === sid;
+        updateExportRoomLabel(sid, animateRoomLabel);
+        pendingShortcutLabelSceneId = null;
+      }
       updateNavShortcutsV2(sid, true);
       updateExportStateClasses();
       updateLookingModeUI();

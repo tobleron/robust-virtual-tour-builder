@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Stabilize exported tour completion flow and glass panel shortcuts
 
+### Changed
+- Fix export map/auto-tour shortcuts and looking-mode defaults
+
 ## [4.12.4] - 2026-02-26
 
 ### Fixed

@@ -89,6 +89,11 @@
 
 ⚠️ **NOTE**: These instructions apply to **main project tasks only** (numbered 1XX, 2XX, etc.). Dev-system tasks (prefixed D###) are auto-generated guidance and do **NOT** follow this workflow.
 
+### User Sign-Off & Refinement Rules (Main Tasks)
+- **Sign-Off Gate (Mandatory)**: After implementation + verification, keep the task in `active/` until the user explicitly approves completion (e.g., "approved", "looks good", "done", "archive it").
+- **Refinement Loop (Mandatory)**: If the user requests additional changes to the same feature/scope, continue working under the same `active/` task file instead of archiving and creating a fresh completion artifact.
+- **Reopen Rule (Mandatory)**: If a task was already moved to `completed/` but the user requests more changes within the same scope, move that task file back to `active/` first, continue implementation, re-verify, then archive again when final sign-off is received.
+
 0. **Conditional Delegation Pre-Flight (AI-assigned tasks only)**:
    - Confirm mandatory delegated-task header fields are present.
    - Confirm `Capacity Class` is `A` or `B`; if not, split before execution.
@@ -100,14 +105,18 @@
 
 3. **Verify the build**: Run `npm run build` to ensure compilation passes and there are no errors.
 
-4. **Archive & Finish**: Once implementation is verified:
+4. **Await User Sign-Off**:
+    - **Action**: Keep the task in `active/` after verification and present results for review.
+    - **Constraint**: Do NOT archive before explicit user approval.
+
+5. **Archive & Finish**: Once explicit sign-off is received:
     - **Action**: Move the task file from `active/` to the `completed/` folder.
     - **Renaming**: Append a representative postfix during the move:
         - `_DONE`, `_UPDATED`, or `_TESTED` for successful completion.
         - `_ABORTED` if the task is cancelled or abandoned.
     - **Note**: Do NOT modify the file content; the move/rename is the sole indicator of status.
 
-5. **Wait**: Do not proceed to the next task until the current move is confirmed by the system.
+6. **Wait**: Do not proceed to the next task until the current move is confirmed by the system.
 
 
 ## Documentation Rule

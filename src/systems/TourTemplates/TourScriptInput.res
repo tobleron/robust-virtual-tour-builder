@@ -1,7 +1,21 @@
 let script = `
     /* --- LOOKING MODE & LAZY DRIFT LOGIC --- */
-    let lookingMode = true;
-    let manualLookingMode = true;
+    function shouldEnableLookingModeByDefault() {
+      const viewportState = typeof resolveExportViewportState === "function" ? resolveExportViewportState() : "";
+      const isPortraitViewport = viewportState === "portrait";
+      const isTouchPrimaryInput = typeof detectTouchPrimaryInput === "function"
+        ? detectTouchPrimaryInput()
+        : (typeof isExportTouchDevice === "function" ? isExportTouchDevice() : false);
+      return !isPortraitViewport && !isTouchPrimaryInput;
+    }
+    let lookingMode = shouldEnableLookingModeByDefault();
+    let manualLookingMode = shouldEnableLookingModeByDefault();
+    function enableLookingModeAfterMapNavigation() {
+      if (!shouldEnableLookingModeByDefault()) return;
+      manualLookingMode = true;
+      lookingMode = true;
+      updateLookingModeUI();
+    }
     function updateLookingModeUI() {
       const titleEl = document.getElementById('looking-mode-title');
       const dotEl = document.getElementById('looking-mode-dot');
@@ -19,8 +33,36 @@ let script = `
     function handleExportKeydown(e) {
       if (!e || e.altKey || e.ctrlKey || e.metaKey) return;
       const key = typeof e.key === "string" ? e.key : "";
+      const mapOpen = typeof isExportMapOpen === "function" && isExportMapOpen();
+
+      if (key === "Escape" || key === "Esc") {
+        if (!mapOpen) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof closeExportMap === "function") closeExportMap();
+        return;
+      }
+      if (key === "e" || key === "E") {
+        if (!mapOpen) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof closeExportMap === "function") closeExportMap();
+        return;
+      }
+      if (mapOpen) {
+        const mapShortcutKey = key.toLowerCase();
+        if (typeof navigateExportMapShortcut === "function" && mapShortcutKey !== "") {
+          const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);
+          if (didNavigateToMapScene) {
+            if (typeof e.preventDefault === "function") e.preventDefault();
+            if (typeof e.stopPropagation === "function") e.stopPropagation();
+            return;
+          }
+        }
+      }
       
       if (key === "s" || key === "S") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (!window.isAutoTourActive) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -29,6 +71,7 @@ let script = `
       }
 
       if (key === "a" || key === "A") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (window.isAutoTourActive) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -36,6 +79,7 @@ let script = `
         return;
       }
       if (key === "l" || key === "L") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -44,14 +88,14 @@ let script = `
       }
 
       if (key === "m" || key === "M") {
-        if (typeof stopAutoTour === "function") stopAutoTour();
         if (!floorTagShortcutState.hasMap) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        console.info("Map shortcut pressed - future list view");
+        if (typeof toggleExportMap === "function") toggleExportMap();
         return;
       }
       if (key === "h" || key === "H") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -59,6 +103,7 @@ let script = `
         return;
       }
       if (key === "ArrowUp") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
         const sid = floorTagShortcutState.nextSceneId;
         if (!sid) return;
@@ -68,6 +113,7 @@ let script = `
         return;
       }
       if (key === "ArrowDown") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
         const sid = floorTagShortcutState.prevSceneId;
         if (!sid) return;

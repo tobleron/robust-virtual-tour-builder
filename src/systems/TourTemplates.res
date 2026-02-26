@@ -199,9 +199,11 @@ let generateTourHTML = (
     }};
     if (window.location.protocol === 'file:' && !allowFileProtocol) {
       updateExportStateClasses();
+      updateLookingModeUI();
       mountFileProtocolWarning();
     } else {
       updateExportStateClasses();
+      updateLookingModeUI();
       window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
       window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); });
       ${TourScripts.loadEventScript}
