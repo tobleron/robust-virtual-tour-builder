@@ -220,6 +220,9 @@ let script = `
         exitRow.setAttribute("aria-label", "Exit map mode");
         exitRow.addEventListener("click", closeExportMap);
 
+        const exitIndicatorEl = document.createElement("span");
+        exitIndicatorEl.className = "shortcut-indicator-spacer";
+
         const exitKeyEl = document.createElement("span");
         exitKeyEl.className = "floor-map-shortcut-key";
         exitKeyEl.textContent = "e";
@@ -228,6 +231,7 @@ let script = `
         exitTextEl.className = "floor-map-shortcut-text";
         exitTextEl.textContent = "exit map mode";
 
+        exitRow.appendChild(exitIndicatorEl);
         exitRow.appendChild(exitKeyEl);
         exitRow.appendChild(exitTextEl);
         panel.appendChild(exitRow);

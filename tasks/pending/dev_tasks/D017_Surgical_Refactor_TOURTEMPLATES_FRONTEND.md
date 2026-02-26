@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/TourTemplates/TourScriptUI.res** (Metric: [Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 547/416) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/TourTemplates/TourScriptUI.res** (Metric: [Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 550/416) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification

@@ -33,6 +33,7 @@
   - [x] Remove persistent side-effect from map open (`manualLookingMode=false`) and restore `lookingMode` from `manualLookingMode` on map close.
   - [x] Fix map panel transition origin so map-open animation starts from in-view glass panel position (top-left) and travels to center of viewer stage.
   - [x] Suppress one-time room-label flash during auto-tour end countdown return-to-home transition before navigation executes.
+  - [x] Fix map-mode exit row text truncation (`e...`) by aligning exit row DOM columns with the map row grid structure.
 
 - [ ] Code Change Ledger
   - [x] `src/systems/TourTemplates/TourStyles.res` - removed map-mode global dim overlay, simplified map row visuals to match existing panel feel, kept centered square-ish proportional sizing without replacing panel chrome, and aligned map shortcut text colors with main panel white.
@@ -47,6 +48,7 @@
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - explicit fix applied so map mode no longer mutates manual preference state, only temporary runtime state.
   - [x] `src/systems/TourTemplates/TourStyles.res` - map-open panel positioning changed from `position: fixed` to `position: absolute` with stage-relative max dimensions, preserving in-stage transition path.
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - in countdown timeout path, set `suppressNextRoomLabelOnLoad=true` only when transition to home is actually needed.
+  - [x] `src/systems/TourTemplates/TourScriptUI.res` - map exit row now prepends a spacer element so `e` key and `exit map mode` text map to the intended grid columns and no longer truncate to `e...`.
 
 - [ ] Rollback Check
   - [x] Confirmed CLEAN (no non-working edits retained; frontend build passes via `npx rsbuild build`, full `npm run build` currently blocked by active ReScript watch lock).
