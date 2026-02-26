@@ -30,8 +30,11 @@ let cssTemplate = `
     #viewer-floor-tags-export .floor-tag-shortcut-row:hover { transform: translateX(2px); transition: all 0.2s ease; }
     #viewer-floor-tags-export .floor-tag-shortcut-index { font-weight: 800; text-align: left; width: 1.45em; display: flex; align-items: center; }
     #viewer-floor-tags-export .floor-tag-shortcut-label { font-weight: 400; letter-spacing: 0.01em; text-transform: none; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #viewer-floor-tags-export .floor-map-shortcut-row { width: fit-content; max-width: 100%; display: grid; grid-template-columns: 1.1em auto; align-items: center; column-gap: 8px; color: #ffffff; font-family: var(--font-family); font-size: 13px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
+    #viewer-floor-tags-export .floor-map-shortcut-row { width: fit-content; max-width: 100%; display: grid; grid-template-columns: 8px 1.1em auto; align-items: center; column-gap: 8px; color: #ffffff; font-family: var(--font-family); font-size: 13px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
     #viewer-floor-tags-export .floor-map-shortcut-row:hover { transform: translateX(2px); transition: transform 0.2s ease; }
+    #viewer-floor-tags-export .floor-map-shortcut-row.state-selected .shortcut-indicator-arrow { opacity: 1; }
+    #viewer-floor-tags-export .floor-map-shortcut-row.state-current { cursor: default; pointer-events: none; }
+    #viewer-floor-tags-export .floor-map-shortcut-row.state-current:hover { transform: none; }
     #viewer-floor-tags-export .floor-map-shortcut-key { min-width: 1ch; font-size: 13px; font-weight: 800; text-transform: lowercase; color: #ffffff; }
     #viewer-floor-tags-export .floor-map-shortcut-text { font-weight: 400; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #viewer-floor-tags-export .floor-map-shortcut-row-exit .floor-map-shortcut-text { color: #ffffff; }

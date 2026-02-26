@@ -15,6 +15,7 @@ let loadEventScript = `
       updateExportFloorNav(sid);
       const suppressRoomLabelOnThisLoad = suppressNextRoomLabelOnLoad === true;
       suppressNextRoomLabelOnLoad = false;
+      suppressShortcutPanelUntilNextLoad = false;
       if (suppressRoomLabelOnThisLoad) {
         updateExportRoomLabel("", false);
         pendingShortcutLabelSceneId = null;

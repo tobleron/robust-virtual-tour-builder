@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fix export map/auto-tour shortcuts and looking-mode defaults
 - Refine export map transition and auto-tour home-return label suppression
+- Stabilize export autotour home-return shortcut panel timing
 
 ## [4.12.4] - 2026-02-26
 
