@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refine export map transition and auto-tour home-return label suppression
 - Stabilize export autotour home-return shortcut panel timing
 - Fix export map exit row text truncation
+- Usable Stable Version
 
 ## [4.12.4] - 2026-02-26
 

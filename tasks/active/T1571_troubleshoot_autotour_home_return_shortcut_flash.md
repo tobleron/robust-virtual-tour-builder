@@ -12,11 +12,14 @@
   - [x] Verified build (`npx rsbuild build`) and sanity-checked affected paths.
   - [x] Identified 5s countdown boundary race (interval sets countdown to 0 and redraws default shortcuts before timeout transition).
   - [x] Adjusted interval boundary behavior to keep countdown at `1` until timeout initiates home transition.
+  - [x] Added regression coverage in `tests/unit/TourTemplates_v.test.res` for shortcut-panel suppression before auto-tour return-home transition.
+  - [x] Verified targeted regression suite via `npx vitest run tests/unit/TourTemplates_v.test.bs.js`.
 
 - [ ] **Code Change Ledger**
   - [x] `src/systems/TourTemplates/TourScriptUI.res`: added `suppressShortcutPanelUntilNextLoad` and guarded `updateNavShortcutsV2` to keep panel hidden during final countdown->home transition frame.
   - [x] `src/systems/TourTemplates/TourScriptUI.res`: changed countdown interval terminal tick to keep `autoTourHomeReturnCountdownRemaining = 1` (not `0`) so default shortcuts are never rendered before timeout return-home transition.
   - [x] `src/systems/TourTemplates/TourScripts.res`: clear `suppressShortcutPanelUntilNextLoad` on next scene `load` event.
+  - [x] `tests/unit/TourTemplates_v.test.res`: added assertions for `suppressShortcutPanelUntilNextLoad` lifecycle and countdown boundary `autoTourHomeReturnCountdownRemaining = 1`.
   - [x] Revert note: all edits are isolated to export tour template scripts and can be reverted surgically by removing the new suppression flag/guard if needed.
 
 - [ ] **Rollback Check**

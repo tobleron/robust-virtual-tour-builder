@@ -34,6 +34,7 @@
   - [x] Fix map panel transition origin so map-open animation starts from in-view glass panel position (top-left) and travels to center of viewer stage.
   - [x] Suppress one-time room-label flash during auto-tour end countdown return-to-home transition before navigation executes.
   - [x] Fix map-mode exit row text truncation (`e...`) by aligning exit row DOM columns with the map row grid structure.
+  - [x] Added regression test coverage for map exit row layout/alignment in `tests/unit/TourTemplates_v.test.res`.
 
 - [ ] Code Change Ledger
   - [x] `src/systems/TourTemplates/TourStyles.res` - removed map-mode global dim overlay, simplified map row visuals to match existing panel feel, kept centered square-ish proportional sizing without replacing panel chrome, and aligned map shortcut text colors with main panel white.
@@ -49,6 +50,7 @@
   - [x] `src/systems/TourTemplates/TourStyles.res` - map-open panel positioning changed from `position: fixed` to `position: absolute` with stage-relative max dimensions, preserving in-stage transition path.
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - in countdown timeout path, set `suppressNextRoomLabelOnLoad=true` only when transition to home is actually needed.
   - [x] `src/systems/TourTemplates/TourScriptUI.res` - map exit row now prepends a spacer element so `e` key and `exit map mode` text map to the intended grid columns and no longer truncate to `e...`.
+  - [x] `tests/unit/TourTemplates_v.test.res` - asserts map row grid uses `8px 1.1em auto` and map exit row appends indicator spacer before key/text.
 
 - [ ] Rollback Check
   - [x] Confirmed CLEAN (no non-working edits retained; frontend build passes via `npx rsbuild build`, full `npm run build` currently blocked by active ReScript watch lock).

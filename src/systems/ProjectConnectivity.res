@@ -8,7 +8,8 @@ let truncateSceneList = (names: array<string>): string => {
   if count <= maxSceneNamesInMessage {
     names->Array.joinUnsafe(", ")
   } else {
-    let shown = names->Belt.Array.slice(~offset=0, ~len=maxSceneNamesInMessage)->Array.joinUnsafe(", ")
+    let shown =
+      names->Belt.Array.slice(~offset=0, ~len=maxSceneNamesInMessage)->Array.joinUnsafe(", ")
     shown ++ " +" ++ Belt.Int.toString(count - maxSceneNamesInMessage) ++ " more"
   }
 }
@@ -25,7 +26,7 @@ type validationError = {
  */
 let findScenesWithoutExits = (scenes: array<scene>) => {
   let sceneIds = scenes->Belt.Array.map(s => s.id)->Belt.Set.String.fromArray
-  
+
   scenes->Belt.Array.keep(s => {
     let hasValidExit = s.hotspots->Belt.Array.some(h => {
       switch h.targetSceneId {
@@ -47,8 +48,12 @@ let validateTags = (scenes: array<scene>): result<unit, validationError> => {
   })
 
   if Belt.Array.length(untaggedScenes) > 0 {
-    let msg = "Untagged: " ++ truncateSceneList(untaggedScenes->Belt.Array.map(s => s.label != "" ? s.label : s.name))
-    let sceneNames = truncateSceneList(untaggedScenes->Belt.Array.map(s => s.label != "" ? s.label : s.name))
+    let msg =
+      "Untagged: " ++
+      truncateSceneList(untaggedScenes->Belt.Array.map(s => s.label != "" ? s.label : s.name))
+    let sceneNames = truncateSceneList(
+      untaggedScenes->Belt.Array.map(s => s.label != "" ? s.label : s.name),
+    )
     Error({
       message: msg,
       scenes: sceneNames,
@@ -62,10 +67,10 @@ let validateTags = (scenes: array<scene>): result<unit, validationError> => {
 /**
  * Validates that all scenes in a sequence have exits, except optionally the last one.
  */
-let validateConnectivity = (
-  scenes: array<scene>,
-  ~allowLastDeadEnd=true,
-): result<unit, validationError> => {
+let validateConnectivity = (scenes: array<scene>, ~allowLastDeadEnd=true): result<
+  unit,
+  validationError,
+> => {
   let scenesWithoutExits = scenes->Belt.Array.keepWithIndex((s, idx) => {
     let isLastScene = idx == Belt.Array.length(scenes) - 1
     if isLastScene && allowLastDeadEnd {
@@ -82,7 +87,9 @@ let validateConnectivity = (
   })
 
   if Belt.Array.length(scenesWithoutExits) > 0 {
-    let sceneNames = truncateSceneList(scenesWithoutExits->Belt.Array.map(s => s.label != "" ? s.label : s.name))
+    let sceneNames = truncateSceneList(
+      scenesWithoutExits->Belt.Array.map(s => s.label != "" ? s.label : s.name),
+    )
 
     let msg = "Missing link: " ++ sceneNames
     Error({

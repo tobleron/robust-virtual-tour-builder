@@ -583,4 +583,4 @@ let script = `
       autoRow.appendChild(autoLabel);
       panel.appendChild(autoRow);
     }
-`;
+`

@@ -318,7 +318,7 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(
       html,
-      "const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;",
+      "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAnimation;",
     )
 
     // Check marking as visited in animation
@@ -337,5 +337,41 @@ let _ = describe("TourTemplates", () => {
       html,
       "const isAutoForwardVisual = isAutoForwardConfig && !isHubScene && !isAutoForwardExpired;",
     )
+  })
+
+  test("generateTourHTML suppresses shortcut panel before auto-tour return-home transition", t => {
+    let html = generateTourHTML(
+      [mockScene1, mockScene2],
+      "AutoTour Return Guard",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
+
+    t->expectToContain(html, "let suppressShortcutPanelUntilNextLoad = false;")
+    t->expectToContain(html, "autoTourHomeReturnCountdownRemaining = 1;")
+    t->expectToContain(html, "suppressShortcutPanelUntilNextLoad = true;")
+    t->expectToContain(html, "if (suppressShortcutPanelUntilNextLoad) {")
+    t->expectToContain(html, "clearExportFloorTagShortcuts(panel);")
+    t->expectToContain(html, "suppressShortcutPanelUntilNextLoad = false;")
+  })
+
+  test("generateTourHTML keeps map exit row aligned with map shortcut grid", t => {
+    let html = generateTourHTML(
+      [mockScene1, mockScene2],
+      "Map Exit Row Layout",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
+
+    t->expectToContain(html, "grid-template-columns: 8px 1.1em auto;")
+    t->expectToContain(html, "exitIndicatorEl.className = \"shortcut-indicator-spacer\";")
+    t->expectToContain(html, "exitRow.appendChild(exitIndicatorEl);")
+    t->expectToContain(html, "exitTextEl.textContent = \"exit map mode\";")
   })
 })
