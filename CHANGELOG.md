@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refine Hotspot Move UX and Auto-Forward Toggle logic with regression tests
 - Stable workable version
 - --help
+- Refine glass panel navigation shortcuts: Up/Down arrows and Map placeholder
 
 ## [4.12.3] - 2026-02-25
 
