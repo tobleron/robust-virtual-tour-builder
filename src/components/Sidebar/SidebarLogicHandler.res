@@ -384,7 +384,7 @@ let performUpload = async (
         id: "",
         importance: Error,
         context: Operation("sidebar_upload"),
-        message: "Upload failed: " ++ msg,
+        message: NotificationTypes.truncateForToast("Upload failed: " ++ msg),
         details: None,
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Error),
@@ -493,7 +493,7 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
               id: "",
               importance: Error,
               context: Operation("sidebar_load_project"),
-              message: "Failed to load project: " ++ msg,
+              message: NotificationTypes.truncateForToast("Failed to load project: " ++ msg),
               details: None,
               action: None,
               duration: NotificationTypes.defaultTimeoutMs(Error),
@@ -1064,11 +1064,16 @@ let handleExport = async (
           (),
         )
         dispatch(DispatchAppFsmEvent(ExportComplete))
+        let finalMsg = if String.startsWith(msg, "Export blocked") {
+          msg
+        } else {
+          "Export failed: " ++ msg
+        }
         NotificationManager.dispatch({
           id: "",
           importance: Error,
           context: Operation("sidebar_export"),
-          message: "Export failed: " ++ msg,
+          message: NotificationTypes.truncateForToast(finalMsg),
           details: None,
           action: None,
           duration: NotificationTypes.defaultTimeoutMs(Error),
@@ -1089,11 +1094,16 @@ let handleExport = async (
       (),
     )
     dispatch(DispatchAppFsmEvent(ExportComplete))
+    let finalMsg = if String.startsWith(msg, "Export blocked") {
+      msg
+    } else {
+      "Export failed: " ++ msg
+    }
     NotificationManager.dispatch({
       id: "",
       importance: Error,
       context: Operation("sidebar_export"),
-      message: "Export failed: " ++ msg,
+      message: NotificationTypes.truncateForToast(finalMsg),
       details: None,
       action: None,
       duration: NotificationTypes.defaultTimeoutMs(Error),

@@ -111,3 +111,14 @@ let importancePriority = (imp: importance): int => {
   | Transient => 5 // Lowest priority
   }
 }
+
+// Safety net: truncate notification messages to fit within 2 toast lines (~80 chars)
+// Does not clip the message — simply truncates with an ellipsis
+let maxMessageChars = 80
+
+let truncateForToast = (msg: string): string =>
+  if String.length(msg) > maxMessageChars {
+    String.slice(msg, ~start=0, ~end=maxMessageChars - 1) ++ "…"
+  } else {
+    msg
+  }

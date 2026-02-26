@@ -12,4 +12,5 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 
 ## Unmapped Modules
 - [ ] [src/components/ReactHotspotLayer.res]
+- [ ] [src/systems/ProjectConnectivity.res]
 - [ ] [src/systems/TeaserManifest.res]

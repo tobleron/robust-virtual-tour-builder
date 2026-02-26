@@ -19,7 +19,24 @@ let script = `
     function handleExportKeydown(e) {
       if (!e || e.altKey || e.ctrlKey || e.metaKey) return;
       const key = typeof e.key === "string" ? e.key : "";
+      
+      if (key === "s" || key === "S") {
+        if (!window.isAutoTourActive) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof stopAutoTour === "function") stopAutoTour();
+        return;
+      }
+
+      if (key === "a" || key === "A") {
+        if (window.isAutoTourActive) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof startAutoTour === "function") startAutoTour();
+        return;
+      }
       if (key === "l" || key === "L") {
+        if (typeof stopAutoTour === "function") stopAutoTour();
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
         toggleLookingMode();
@@ -27,6 +44,7 @@ let script = `
       }
 
       if (key === "m" || key === "M") {
+        if (typeof stopAutoTour === "function") stopAutoTour();
         if (!floorTagShortcutState.hasMap) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -34,12 +52,14 @@ let script = `
         return;
       }
       if (key === "h" || key === "H") {
+        if (typeof stopAutoTour === "function") stopAutoTour();
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
         navigateToExportHome();
         return;
       }
       if (key === "ArrowUp") {
+        if (typeof stopAutoTour === "function") stopAutoTour();
         const sid = floorTagShortcutState.nextSceneId;
         if (!sid) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
@@ -48,6 +68,7 @@ let script = `
         return;
       }
       if (key === "ArrowDown") {
+        if (typeof stopAutoTour === "function") stopAutoTour();
         const sid = floorTagShortcutState.prevSceneId;
         if (!sid) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
@@ -191,6 +212,7 @@ let script = `
     if (typeof document !== 'undefined') {
       document.addEventListener("mousemove", updateDriftVector);
       document.addEventListener("mousedown", () => {
+         if (typeof stopAutoTour === "function") stopAutoTour();
          driftRuntime.vector = { x: 0, y: 0 };
          driftRuntime.smoothedVector = { x: 0, y: 0 };
          driftRuntime.active = false;

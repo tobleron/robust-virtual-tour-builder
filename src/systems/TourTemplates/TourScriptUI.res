@@ -11,14 +11,7 @@ let script = `
     ];
     const FLOOR_TAG_SHORTCUT_PAGE_SIZE = 3;
     let pendingShortcutLabelSceneId = null;
-    const floorTagShortcutState = {
-      sceneId: null,
-      nextSceneId: null,
-      prevSceneId: null,
-      pageStart: 0,
-      totalEntries: 0,
-      hasMap: false,
-    };
+    const floorTagShortcutState = { sceneId: null, floorId: null, pageStart: 0, totalEntries: 0, hasMap: false, visibleEntries: [], isAutoTourActive: false };
     function normalizeSceneFloor(sceneData) {
       const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
       return floor === "" ? null : floor;
@@ -113,6 +106,35 @@ let script = `
       pendingShortcutLabelSceneId = homeSceneId;
       navigateToNextScene({ targetSceneId: homeSceneId }, homeSceneId);
     }
+    function startAutoTour() {
+      if (floorTagShortcutState.isAutoTourActive) return;
+      floorTagShortcutState.isAutoTourActive = true;
+      window.isAutoTourActive = true;
+      window.autoTourVisitedScenes = new Set();
+      document.body.classList.add('is-auto-tour-active');
+      // Start from Home
+      const sid = window.viewer.getScene();
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (sid === homeSceneId) {
+        // Already at home, force UI update and trigger auto-tour logic
+        updateNavShortcutsV2(sid, true);
+        animateSceneToPrimaryHotspot(sid, 20);
+      } else {
+        navigateToExportHome();
+      }
+    }
+    function stopAutoTour() {
+      if (!floorTagShortcutState.isAutoTourActive) return;
+      floorTagShortcutState.isAutoTourActive = false;
+      window.isAutoTourActive = false;
+      document.body.classList.remove('is-auto-tour-active');
+      if (waypointRuntime.autoForwardTimeoutId) {
+        clearTimeout(waypointRuntime.autoForwardTimeoutId);
+        waypointRuntime.autoForwardTimeoutId = null;
+      }
+      const sid = window.viewer.getScene();
+      if (sid) updateNavShortcutsV2(sid, true);
+    }
     function clearExportFloorTagShortcuts(panel) {
       floorTagShortcutState.nextSceneId = null;
       floorTagShortcutState.prevSceneId = null;
@@ -124,6 +146,32 @@ let script = `
       const panel = document.getElementById("viewer-floor-tags-export");
       if (!panel) return;
       
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("state-hidden");
+
+      if (floorTagShortcutState.isAutoTourActive) {
+        const stopRow = document.createElement("button");
+        stopRow.type = "button";
+        stopRow.className = "floor-tag-shortcut-row";
+        stopRow.setAttribute("aria-label", "Stop auto tour");
+        stopRow.addEventListener("click", stopAutoTour);
+
+        const stopSpacer = document.createElement("span");
+        stopSpacer.className = "shortcut-indicator-spacer";
+        const stopIndex = document.createElement("span");
+        stopIndex.className = "floor-tag-shortcut-index";
+        stopIndex.textContent = "s";
+        const stopLabel = document.createElement("span");
+        stopLabel.className = "floor-tag-shortcut-label";
+        stopLabel.textContent = "stop auto tour";
+
+        stopRow.appendChild(stopSpacer);
+        stopRow.appendChild(stopIndex);
+        stopRow.appendChild(stopLabel);
+        panel.appendChild(stopRow);
+        return;
+      }
+
       const currentSceneData = scenesData[sceneId];
       if (!currentSceneData) return;
 
@@ -136,9 +184,6 @@ let script = `
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.nextSceneId = nextSceneId;
       floorTagShortcutState.prevSceneId = prevSceneId;
-
-      while (panel.firstChild) panel.removeChild(panel.firstChild);
-      panel.classList.remove("state-hidden");
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
@@ -184,10 +229,45 @@ let script = `
       }
 
       // 4. Map Placeholder (m)
-      panel.appendChild(createRow(null, "m", "map", () => {
+      const mapRow = document.createElement("button");
+      mapRow.type = "button";
+      mapRow.className = "floor-tag-shortcut-row";
+      mapRow.setAttribute("aria-label", "Map");
+      mapRow.addEventListener("click", () => {
          // Placeholder for future Map list integration
          console.info("Map clicked - future list view");
-      }));
+      });
+      const mapSpacer = document.createElement("span");
+      mapSpacer.className = "shortcut-indicator-spacer";
+      const mapIndex = document.createElement("span");
+      mapIndex.className = "floor-tag-shortcut-index";
+      mapIndex.textContent = "m";
+      const mapLabel = document.createElement("span");
+      mapLabel.className = "floor-tag-shortcut-label";
+      mapLabel.textContent = "map";
+      mapRow.appendChild(mapSpacer);
+      mapRow.appendChild(mapIndex);
+      mapRow.appendChild(mapLabel);
+      panel.appendChild(mapRow);
+
+      const autoRow = document.createElement("button");
+      autoRow.type = "button";
+      autoRow.className = "floor-tag-shortcut-row";
+      autoRow.setAttribute("aria-label", "Start auto tour");
+      autoRow.addEventListener("click", startAutoTour);
+      const autoSpacer = document.createElement("span");
+      autoSpacer.className = "shortcut-indicator-spacer";
+      const autoIndex = document.createElement("span");
+      autoIndex.className = "floor-tag-shortcut-index";
+      autoIndex.textContent = "a";
+      const autoLabel = document.createElement("span");
+      autoLabel.className = "floor-tag-shortcut-label";
+      autoLabel.textContent = "auto tour";
+
+      autoRow.appendChild(autoSpacer);
+      autoRow.appendChild(autoIndex);
+      autoRow.appendChild(autoLabel);
+      panel.appendChild(autoRow);
       
       floorTagShortcutState.hasMap = true; 
     }

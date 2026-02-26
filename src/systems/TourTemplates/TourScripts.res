@@ -9,7 +9,7 @@ let renderScriptTemplate =
 let loadEventScript = `
     window.viewer.on('load', function() {
       const sid = window.viewer.getScene(); const sd = scenesData[sid];
-      if (!transitionFrom && !isFirstLoad) return;
+      if (!transitionFrom && !isFirstLoad && !window.isAutoTourActive) return;
       if (sd?.hotSpots?.length > 0) applyCurrentHfov();
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
       updateExportFloorNav(sid);

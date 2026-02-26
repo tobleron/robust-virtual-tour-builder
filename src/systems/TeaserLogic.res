@@ -156,12 +156,12 @@ module Manager = {
         let res = await VideoEncoder.transcodeWebMToMP4(blob, baseName, None)
         switch res {
         | Ok(_) => ()
-        | Error(msg) =>
+        | Error(_msg) =>
           NotificationManager.dispatch({
             id: "",
             importance: Warning,
             context: Operation("teaser"),
-            message: "MP4 encoding failed (" ++ msg ++ "). Downloading WebM source instead.",
+            message: "MP4 encoding failed. Downloading WebM.",
             details: None,
             action: None,
             duration: NotificationTypes.defaultTimeoutMs(Warning),
@@ -219,16 +219,33 @@ module Manager = {
     } else if signalIsAborted(signal) {
       ()
     } else {
-      let selectedStyle =
-        styleId
-        ->Option.map(raw => StyleCatalog.fromString(raw))
-        ->Option.getOr(StyleCatalog.defaultStyle)
+      /* 0. Project Validation: Connectivity and Tags */
+      let validationResult = ProjectConnectivity.validateProjectForGeneration(activeScenes)
+      switch validationResult {
+      | Error({message}) =>
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: Operation("teaser"),
+          message: "Export blocked: " ++ message,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        ()
+      | Ok() => {
+          let selectedStyle =
+            styleId
+            ->Option.map(raw => StyleCatalog.fromString(raw))
+            ->Option.getOr(StyleCatalog.defaultStyle)
       if !StyleCatalog.isAvailable(selectedStyle) {
         NotificationManager.dispatch({
           id: "",
           importance: Warning,
           context: Operation("teaser"),
-          message: StyleCatalog.label(selectedStyle) ++ " teaser style is not available yet.",
+          message: StyleCatalog.label(selectedStyle) ++ " style unavailable.",
           details: None,
           action: None,
           duration: NotificationTypes.defaultTimeoutMs(Warning),
@@ -532,10 +549,12 @@ module Manager = {
               OperationLifecycle.fail(opId, "Teaser generation failed: " ++ msg)
             }
           }
+          }
         }
       }
     }
   }
+}
 
   let startHeadlessTeaser = (
     format: string,

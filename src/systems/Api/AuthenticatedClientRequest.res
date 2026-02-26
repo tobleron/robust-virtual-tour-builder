@@ -79,7 +79,7 @@ let request = async (
           id: "cb-open-notification",
           importance: Warning,
           context: Operation("api"),
-          message: "Connection issues: Circuit breaker is open. Please wait 30 seconds.",
+          message: "Connection issues. Please wait 30s.",
           details: None,
           action: None,
           duration: 10000,
@@ -150,7 +150,7 @@ let request = async (
                 id: "circuit-breaker-open",
                 importance: Warning,
                 context: Operation("network"),
-                message: "Connection issues: Circuit breaker activated",
+                message: "Connection issues detected.",
                 details: Some(
                   "Multiple requests failing. Circuit breaker activated to prevent overload.",
                 ),

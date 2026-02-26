@@ -3,6 +3,8 @@ let script = `
     let animatedScenes = new Set();
     // Auto-Forward Tracking: Track which auto-forward links have already triggered
     let visitedAutoForwards = new Set();
+    window.isAutoTourActive = false;
+    window.autoTourVisitedScenes = new Set();
     
     function animateSceneToPrimaryHotspot(sceneId, retries) {
       if (window.viewer.getScene() !== sceneId) return;
@@ -20,13 +22,23 @@ let script = `
 
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);
+      const forceAnimation = window.isAutoTourActive === true;
       
-      if (hasAnimated) {
+      if (hasAnimated && !forceAnimation) {
         // Scene already animated - show hotspots immediately without animation
         setSceneHotspotsReadyWithRetry(sceneId, retries);
-        const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;
+        const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAnimation;
         
         if (shouldAutoForward) {
+          if (forceAnimation) {
+             const tid = playbackTarget.targetSceneId;
+             if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
+                // End of track or cycle detected in auto-tour
+                if (typeof stopAutoTour === "function") stopAutoTour();
+                return;
+             }
+             autoTourVisitedScenes.add(sceneId + ":" + tid);
+          }
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
             if (window.viewer.getScene() !== sceneId) return;
             visitedAutoForwards.add(afKey);
@@ -73,8 +85,21 @@ let script = `
         // Mark this scene as having animated
         animatedScenes.add(sceneId);
         
-        const shouldAutoForward = isAutoForward && !autoForwardAlreadyVisited;
+        const forceAutoForward = window.isAutoTourActive === true;
+        const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
+        
         if (shouldAutoForward) {
+          // In Auto Tour mode, check for infinite loops or end of road
+          if (forceAutoForward) {
+            const tid = playbackTarget.targetSceneId;
+            if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
+               // Cycle or dead-end detected in auto-tour! Stopping.
+               if (typeof stopAutoTour === "function") stopAutoTour();
+               return;
+            }
+            autoTourVisitedScenes.add(sceneId + ":" + tid);
+          }
+
           waypointRuntime.autoForwardTimeoutId = setTimeout(() => {
             if (window.viewer.getScene() !== sceneId) return;
             visitedAutoForwards.add(afKey);
@@ -138,6 +163,7 @@ let script = `
           trigger.removeEventListener("pointerup", trigger.__exportNavPointerUpHandler);
         }
         const handleNavigate = function(e) {
+          if (typeof stopAutoTour === "function") stopAutoTour();
           if (e && typeof e.stopPropagation === "function") e.stopPropagation();
           if (e && typeof e.preventDefault === "function") e.preventDefault();
           if (typeof root.__navigateNext !== "function") return;

@@ -121,6 +121,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/Scene/SceneTransition.res](src/systems/Scene/SceneTransition.res): DOM transitions and viewport swapping management. `#transition` `#dom`
     *   [src/systems/Scene/SceneSwitcher.res](src/systems/Scene/SceneSwitcher.res): High-level scene switching, journey initialization, and auto-forwarding. `#scene-switching`
 *   [src/systems/ProjectSystem.res](src/systems/ProjectSystem.res): Project validation, loading, and post-processing orchestration. `#project` `#loading` `#validation`
+*   [src/systems/ProjectConnectivity.res](src/systems/ProjectConnectivity.res): Connectivity validation and "dead end" detection for tour sequences. `#validation` `#project` `#navigation`
 *   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Orchestrator for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#orchestration`
 *   [src/core/interfaces/ViewerDriver.res](src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
 *   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter`

@@ -21,9 +21,9 @@ let cssTemplate = `
       0% { opacity: 0.25; transform: translateX(-50%) translateY(10px) scale(0.94); }
       100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     }
-    #viewer-floor-tags-export { position: relative; z-index: 6006; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; pointer-events: auto; user-select: none; width: 100%; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px; padding-top: 8px; }
+    #viewer-floor-tags-export { position: relative; z-index: 6006; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; pointer-events: auto; user-select: none; width: fit-content; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px; padding-top: 8px; }
     #viewer-floor-tags-export.state-hidden { display: none; }
-    #viewer-floor-tags-export .floor-tag-shortcut-row { width: 100%; display: grid; grid-template-columns: 8px 1.25em minmax(0, 1fr); align-items: center; justify-items: start; column-gap: 6px; color: #ffffff; font-family: var(--font-family); font-size: 13px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
+    #viewer-floor-tags-export .floor-tag-shortcut-row { width: fit-content; display: grid; grid-template-columns: 8px 1.25em auto; align-items: center; justify-items: start; column-gap: 6px; color: #ffffff; font-family: var(--font-family); font-size: 13px; font-weight: 600; line-height: 1.25; border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; pointer-events: auto; text-align: left; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
     .shortcut-indicator-arrow { color: #10b981; opacity: 0; transition: opacity 0.1s ease; display: flex; align-items: center; justify-content: center; width: 8px; height: 1.25em; overflow: visible; }
     .floor-tag-shortcut-row.state-selected .shortcut-indicator-arrow { opacity: 1; }
     .shortcut-indicator-spacer { width: 8px; display: inline-block; }
@@ -79,7 +79,7 @@ let cssTemplate = `
     body.export-state-portrait .pnlm-grab { cursor: default !important; }
     body.export-state-portrait .pnlm-grabbing { cursor: grabbing !important; }
     /* Looking Mode Indicator */
-    .looking-mode-indicator { position: absolute; top: 22px; left: 24px; z-index: 6005; display: flex; flex-direction: column; align-items: flex-start; gap: 0; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 12px; width: fit-content; min-width: 174px; max-width: min(240px, calc(100vw - 16px)); height: auto; border-radius: 12px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .looking-mode-indicator { position: absolute; top: 22px; left: 24px; z-index: 6005; display: flex; flex-direction: column; align-items: flex-start; gap: 0; pointer-events: none; user-select: none; transition: opacity 0.3s ease; padding: 12px 20px 12px 12px; width: fit-content; max-width: min(240px, calc(100vw - 16px)); height: auto; border-radius: 12px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
     .mode-status-line { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; }
     .mode-label-group { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; color: #ffffff; text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25); }
     .mode-dot { width: 8px; height: 8px; min-width: 8px; min-height: 8px; border-radius: 50%; background-color: #10b981; transition: background-color 0.3s ease; margin-top: 5px; }
@@ -89,10 +89,11 @@ let cssTemplate = `
     .mode-shortcut-key { font-size: 13px; font-weight: 700; }
     .pnlm-container.mode-paused { cursor: default !important; }
     .pnlm-grab.mode-paused, .pnlm-grabbing.mode-paused { cursor: grab !important; }
-    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator { top: 12px; left: 13px; padding: 10px; width: fit-content; min-width: 130px; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
-    body.export-state-portrait .looking-mode-indicator { top: 12px; left: 13px; padding: 10px; width: fit-content; min-width: 110px; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
+    body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator { top: 12px; left: 13px; padding: 10px 16px 10px 10px; width: fit-content; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
+    body.export-state-portrait .looking-mode-indicator { top: 12px; left: 13px; padding: 10px 16px 10px 10px; width: fit-content; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
     body.is-hd-export .mode-status-line, body.export-state-tablet .mode-status-line, body.export-state-portrait .mode-status-line { gap: 8px; }
     body.export-state-portrait .mode-dot, body.export-state-portrait .mode-title, body.export-state-portrait .mode-subtitle { display: none !important; }
+    body.is-auto-tour-active .mode-status-line { display: none !important; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
     body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 10px; }
     body.is-hd-export .mode-shortcut-key, body.export-state-tablet .mode-shortcut-key, body.export-state-portrait .mode-shortcut-key { font-size: 12px; }
@@ -121,7 +122,7 @@ let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
       #viewer-floor-nav-export { bottom: 18px; left: 20px; gap: 5px; }
       #viewer-floor-nav-export .floor-nav-btn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 13px; }
       #viewer-floor-nav-export .floor-nav-btn sup { font-size: 8px; margin-left: 0px; }
-      .looking-mode-indicator { top: 18px; left: 20px; padding: 11px; }
+      .looking-mode-indicator { top: 18px; left: 20px; padding: 11px 18px 11px 11px; }
       .viewer-persistent-label-export { top: 18px; height: 22px; font-size: 10px; }
       .watermark { bottom: 18px; right: 20px; }
     `

@@ -200,7 +200,7 @@ let onSceneError = (
       id: "",
       importance: Error,
       context: Operation("scene_loader"),
-      message: msg,
+      message: NotificationTypes.truncateForToast(msg),
       details: None,
       action: None,
       duration: NotificationTypes.defaultTimeoutMs(Error),

@@ -106,7 +106,7 @@ let recoverSaveProject = (
           id: "",
           importance: Warning,
           context: SystemEvent("recovery"),
-          message: "Unable to recover interrupted save. Please save again manually.",
+          message: "Save recovery failed. Please save again.",
           details: None,
           action: None,
           duration: NotificationTypes.defaultTimeoutMs(Warning),

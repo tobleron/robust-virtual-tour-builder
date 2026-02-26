@@ -221,7 +221,7 @@ let make = React.memo((
                       id: "",
                       importance: Info,
                       context: Operation("teaser"),
-                      message: opt.label ++ " teaser style is not available yet.",
+                      message: opt.label ++ " style unavailable.",
                       details: Some(opt.description),
                       action: None,
                       duration: NotificationTypes.defaultTimeoutMs(Info),

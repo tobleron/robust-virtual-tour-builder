@@ -68,7 +68,7 @@ let exportTour = async (
 
   try {
     if Belt.Array.length(exportScenes) == 0 {
-      let msg = "No scenes with a floor set were found. Set a floor on at least one scene and export again."
+      let msg = "No scenes have a floor set. Assign floors first."
       Logger.warn(
         ~module_="Exporter",
         ~message="EXPORT_BLOCKED_NO_FLOOR_SCENES",
@@ -76,6 +76,19 @@ let exportTour = async (
         (),
       )
       JsError.throwWithMessage(msg)
+    }
+
+    /* 0. Project Validation: Connectivity and Tags */
+    switch ProjectConnectivity.validateProjectForGeneration(exportScenes) {
+    | Ok() => ()
+    | Error({message, scenes, count}) =>
+      Logger.warn(
+        ~module_="Exporter",
+        ~message="EXPORT_BLOCKED_VALIDATION_FAILED",
+        ~data=Some({"count": count, "scenes": scenes}),
+        (),
+      )
+      JsError.throwWithMessage("Export blocked: " ++ message)
     }
 
     currentPhase := "HEALTH_CHECK"

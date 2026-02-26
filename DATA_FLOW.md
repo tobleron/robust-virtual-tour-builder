@@ -413,6 +413,7 @@ CI job
 - `[src/components/ReactHotspotLayer.res]`
 
 ### 📂 src/systems
+- `[src/systems/ProjectConnectivity.res]`
 - `[src/systems/TeaserManifest.res]`
 
 ---

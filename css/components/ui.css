@@ -223,7 +223,8 @@ body.viewer-state-2k .viewer-toast,
 body.viewer-state-portrait .viewer-toast,
 body.viewer-force-fallback .viewer-toast {
     width: 260px !important;
-    height: 40px !important;
+    min-height: 40px !important;
+    height: auto !important;
     font-size: 11px !important;
 }
 
@@ -237,7 +238,8 @@ body.viewer-force-fallback .viewer-toast {
 
     .viewer-toast {
         width: 260px !important;
-        height: 40px !important;
+        min-height: 40px !important;
+        height: auto !important;
         font-size: 11px !important;
     }
 }
@@ -245,7 +247,8 @@ body.viewer-force-fallback .viewer-toast {
 .viewer-toast {
     pointer-events: auto;
     width: 300px;
-    height: 48px;
+    min-height: 48px;
+    height: auto;
     background: #0e2d52;
     backdrop-filter: blur(8px);
     color: #ffffff;
@@ -253,8 +256,8 @@ body.viewer-force-fallback .viewer-toast {
     border: none;
     border-radius: 8px;
     display: flex;
-    align-items: center;
-    padding: 0 16px;
+    align-items: flex-start;
+    padding: 12px 16px;
     gap: 12px;
     position: relative;
     z-index: 100001;
@@ -312,18 +315,21 @@ body.viewer-force-fallback .viewer-toast {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 20px;
     height: 20px;
+    margin-top: 1px; /* optical alignment with first line of text */
 }
 
 .viewer-toast-content {
     flex: 1;
     font-size: 13px;
     font-weight: 500;
-    line-height: normal;
-    white-space: nowrap;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Close Button - Orange Bubble Badge */

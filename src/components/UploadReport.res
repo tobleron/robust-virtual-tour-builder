@@ -129,7 +129,7 @@ let show = (
             id: "",
             importance: Info,
             context: Operation("upload_report"),
-            message: "Report is still generating... please wait a moment.",
+            message: "Report still generating. Please wait.",
             details: None,
             action: None,
             duration: NotificationTypes.defaultTimeoutMs(Info),
