@@ -11,7 +11,61 @@ let script = `
     ];
     const FLOOR_TAG_SHORTCUT_PAGE_SIZE = 3;
     let pendingShortcutLabelSceneId = null;
+    let autoTourCountdownIntervalId = null;
+    let autoTourHomeReturnTimeoutId = null;
+    let autoTourHomeReturnCountdownRemaining = 0;
     const floorTagShortcutState = { sceneId: null, floorId: null, pageStart: 0, totalEntries: 0, hasMap: false, visibleEntries: [], isAutoTourActive: false };
+    function clearAutoTourCompletionCountdown() {
+      if (autoTourCountdownIntervalId !== null) {
+        clearInterval(autoTourCountdownIntervalId);
+        autoTourCountdownIntervalId = null;
+      }
+      if (autoTourHomeReturnTimeoutId !== null) {
+        clearTimeout(autoTourHomeReturnTimeoutId);
+        autoTourHomeReturnTimeoutId = null;
+      }
+      autoTourHomeReturnCountdownRemaining = 0;
+    }
+    function beginAutoTourCompletionCountdown() {
+      const sid = window.viewer?.getScene?.();
+      clearAutoTourCompletionCountdown();
+      autoTourHomeReturnCountdownRemaining = 5;
+      updateNavShortcutsV2(sid, true);
+      autoTourCountdownIntervalId = setInterval(() => {
+        if (autoTourHomeReturnCountdownRemaining <= 1) {
+          if (autoTourCountdownIntervalId !== null) {
+            clearInterval(autoTourCountdownIntervalId);
+            autoTourCountdownIntervalId = null;
+          }
+          autoTourHomeReturnCountdownRemaining = 0;
+          const activeSceneId = window.viewer?.getScene?.();
+          updateNavShortcutsV2(activeSceneId, true);
+          return;
+        }
+        autoTourHomeReturnCountdownRemaining = autoTourHomeReturnCountdownRemaining - 1;
+        const activeSceneId = window.viewer?.getScene?.();
+        updateNavShortcutsV2(activeSceneId, true);
+      }, 1000);
+      autoTourHomeReturnTimeoutId = setTimeout(() => {
+        autoTourHomeReturnTimeoutId = null;
+        clearAutoTourCompletionCountdown();
+        navigateToExportHome();
+      }, 5000);
+    }
+    function completeTourAndReturnHome() {
+      if (!floorTagShortcutState.isAutoTourActive) return;
+      floorTagShortcutState.isAutoTourActive = false;
+      window.isAutoTourActive = false;
+      document.body.classList.remove('is-auto-tour-active');
+      if (waypointRuntime.autoForwardTimeoutId) {
+        clearTimeout(waypointRuntime.autoForwardTimeoutId);
+        waypointRuntime.autoForwardTimeoutId = null;
+      }
+      beginAutoTourCompletionCountdown();
+    }
+    function completeAutoTour() {
+      completeTourAndReturnHome();
+    }
     function normalizeSceneFloor(sceneData) {
       const floor = typeof sceneData?.floor === "string" ? sceneData.floor.trim() : "";
       return floor === "" ? null : floor;
@@ -108,6 +162,7 @@ let script = `
     }
     function startAutoTour() {
       if (floorTagShortcutState.isAutoTourActive) return;
+      clearAutoTourCompletionCountdown();
       floorTagShortcutState.isAutoTourActive = true;
       window.isAutoTourActive = true;
       window.autoTourVisitedScenes = new Set();
@@ -128,6 +183,7 @@ let script = `
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
       document.body.classList.remove('is-auto-tour-active');
+      clearAutoTourCompletionCountdown();
       if (waypointRuntime.autoForwardTimeoutId) {
         clearTimeout(waypointRuntime.autoForwardTimeoutId);
         waypointRuntime.autoForwardTimeoutId = null;
@@ -169,6 +225,26 @@ let script = `
         stopRow.appendChild(stopIndex);
         stopRow.appendChild(stopLabel);
         panel.appendChild(stopRow);
+        return;
+      }
+      if (autoTourHomeReturnCountdownRemaining > 0) {
+        const countdownRow = document.createElement("div");
+        countdownRow.className = "floor-tag-shortcut-row";
+        countdownRow.setAttribute("aria-live", "polite");
+
+        const countdownSpacer = document.createElement("span");
+        countdownSpacer.className = "shortcut-indicator-spacer";
+        const countdownIndex = document.createElement("span");
+        countdownIndex.className = "floor-tag-shortcut-index";
+        countdownIndex.textContent = String(autoTourHomeReturnCountdownRemaining);
+        const countdownLabel = document.createElement("span");
+        countdownLabel.className = "floor-tag-shortcut-label";
+        countdownLabel.textContent = "returning home";
+
+        countdownRow.appendChild(countdownSpacer);
+        countdownRow.appendChild(countdownIndex);
+        countdownRow.appendChild(countdownLabel);
+        panel.appendChild(countdownRow);
         return;
       }
 

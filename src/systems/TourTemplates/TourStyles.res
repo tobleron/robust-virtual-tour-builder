@@ -92,8 +92,9 @@ let cssTemplate = `
     body.is-hd-export .looking-mode-indicator, body.export-state-tablet .looking-mode-indicator { top: 12px; left: 13px; padding: 10px 16px 10px 10px; width: fit-content; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
     body.export-state-portrait .looking-mode-indicator { top: 12px; left: 13px; padding: 10px 16px 10px 10px; width: fit-content; max-width: min(210px, calc(100vw - 28px)); height: auto; border-radius: 10px; gap: 0; }
     body.is-hd-export .mode-status-line, body.export-state-tablet .mode-status-line, body.export-state-portrait .mode-status-line { gap: 8px; }
-    body.export-state-portrait .mode-dot, body.export-state-portrait .mode-title, body.export-state-portrait .mode-subtitle { display: none !important; }
-    body.is-auto-tour-active .mode-status-line { display: none !important; }
+    body.export-state-portrait .mode-status-line, body.is-auto-tour-active .mode-status-line { display: none !important; }
+    body.export-state-portrait .looking-mode-indicator, body.is-auto-tour-active .looking-mode-indicator { padding: 10px 16px 10px 10px !important; }
+    body.export-state-portrait #viewer-floor-tags-export, body.is-auto-tour-active #viewer-floor-tags-export { border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
     body.is-hd-export .mode-title, body.export-state-tablet .mode-title, body.export-state-portrait .mode-title { font-size: 11px; }
     body.is-hd-export .mode-subtitle, body.export-state-tablet .mode-subtitle, body.export-state-portrait .mode-subtitle { font-size: 10px; }
     body.is-hd-export .mode-shortcut-key, body.export-state-tablet .mode-shortcut-key, body.export-state-portrait .mode-shortcut-key { font-size: 12px; }

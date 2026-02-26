@@ -10,7 +10,10 @@ let script = `
       if (window.viewer.getScene() !== sceneId) return;
       const sd = scenesData[sceneId];
       const playbackTarget = resolveScenePlaybackHotspot(sceneId, sd);
-      if (!playbackTarget) return;
+      if (!playbackTarget) {
+        if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+        return;
+      }
       const primary = playbackTarget.hotspot;
       const primaryIndex = playbackTarget.hotspotIndex;
       waypointRuntime.arrivedSceneId = null;
@@ -34,7 +37,7 @@ let script = `
              const tid = playbackTarget.targetSceneId;
              if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
                 // End of track or cycle detected in auto-tour
-                if (typeof stopAutoTour === "function") stopAutoTour();
+                if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
                 return;
              }
              autoTourVisitedScenes.add(sceneId + ":" + tid);
@@ -94,7 +97,7 @@ let script = `
             const tid = playbackTarget.targetSceneId;
             if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
                // Cycle or dead-end detected in auto-tour! Stopping.
-               if (typeof stopAutoTour === "function") stopAutoTour();
+               if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
                return;
             }
             autoTourVisitedScenes.add(sceneId + ":" + tid);

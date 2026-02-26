@@ -155,8 +155,11 @@ let script = `
       const destination = resolveDestinationView(args);
       const requestedTargetSceneId = options?.targetSceneId ?? forceTargetSceneId;
       const targetSceneId = resolveTargetSceneId(args, requestedTargetSceneId);
-      if (!targetSceneId) return;
       const fromAutoForward = options?.fromAutoForward === true;
+      if (!targetSceneId) {
+        if (fromAutoForward && typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+        return;
+      }
       const sourceSceneId =
         resolveExistingSceneId(options?.sourceSceneId)
         ?? resolveExistingSceneId(args?.sourceSceneId)
@@ -168,6 +171,7 @@ let script = `
           resetAutoForwardLoopGuard();
           lookingMode = manualLookingMode;
           updateLookingModeUI();
+          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
           return;
         }
         trackAutoForwardSource(sourceSceneId);
@@ -245,7 +249,10 @@ let script = `
         anyReady.__navigateNext(autoForwardOptions);
         return;
       }
-      if (retriesLeft <= 0) return;
+      if (retriesLeft <= 0) {
+        if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+        return;
+      }
       waypointRuntime.autoForwardTimeoutId = setTimeout(
         () => attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft - 1),
         120,
