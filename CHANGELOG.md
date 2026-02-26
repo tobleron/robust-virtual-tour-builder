@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usable Stable Version
 - Workable Stable Version
 - Working Stable Perfect Tour
+- Add regression unit guards for export auto-forward landing
 
 ## [4.12.4] - 2026-02-26
 

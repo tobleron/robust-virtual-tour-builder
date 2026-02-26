@@ -27,6 +27,8 @@
   - [x] Verify no regression via targeted TourTemplates tests + E2E + full frontend unit suite.
   - [x] Reproduce reported mismatch with new E2E: entering an auto-forward scene used source-link metadata yaw/pitch instead of target scene terminal endpoint.
   - [x] Implement target-scene auto-forward arrival override to force landing at target auto-forward terminal endpoint.
+  - [x] Add unit regressions for target-scene endpoint arrival precedence and map shortcut wiring/basement alias keys.
+  - [x] Run `npx vitest run tests/unit/TourTemplates_v.test.bs.js`.
 - [ ] Code Change Ledger
   - [x] `src/systems/TourTemplates/TourScriptHotspots.res`: in `hasAnimated && !forceAnimation` branch, added instant `lookAt` snap to terminal waypoint pose before auto-forward timeout scheduling.
   - [x] `tests/unit/TourTemplates_v.test.res`: added assertions that exported script contains end-pose snap logic.
@@ -44,6 +46,7 @@
   - [x] `tests/unit/TourTemplates_v.test.res`: updated template assertions for new function signatures and destination-override wiring.
   - [x] `tests/e2e/export-autoforward-degenerate-path.spec.ts`: added second regression test proving arrival mismatch (`yaw=10` vs expected `120`) and then passing after fix.
   - [x] `src/systems/TourTemplates/TourScriptNavigation.res`: added `resolveAutoForwardArrivalView(sceneId)` and destination selection `options.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId)` so links landing into auto-forward scenes use the target scene endpoint camera.
+  - [x] `tests/unit/TourTemplates_v.test.res`: added regression test for target-scene auto-forward endpoint precedence and map shortcut wiring (`b`/`z` aliases + row navigation callback path).
   - [x] **Consolidated rollback set (this troubleshooting stream only):**
   - [x] `src/systems/TourTemplates/TourScriptHotspots.res`
   - [x] `src/systems/TourTemplates/TourStyles.res`

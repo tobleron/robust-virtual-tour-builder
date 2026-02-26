@@ -237,6 +237,24 @@ let _ = describe("TourTemplates", () => {
     ->Expect.toBe(false)
   })
 
+  test("generateTourHTML resolves arrival view from target auto-forward scene endpoint", t => {
+    let html = generateTourHTML([mockScene1, mockScene3Auto], "Target Endpoint Arrival", None, "4k", 32, 40, "1.0")
+
+    t->expectToContain(html, "function resolveAutoForwardArrivalView(sceneId)")
+    t->expectToContain(html, "const sceneData = scenesData?.[resolvedSceneId];")
+    t->expectToContain(html, "const hotspotIndex = sceneData?.autoForwardHotspotIndex;")
+    t->expectToContain(html, "const hotspot = sceneData?.hotSpots?.[hotspotIndex];")
+    t->expectToContain(html, "const yaw = Number.isFinite(hotspot?.viewFrame?.yaw)")
+    t->expectToContain(html, "const pitch = Number.isFinite(hotspot?.viewFrame?.pitch)")
+    t->expectToContain(
+      html,
+      "const destinationOverride = options?.destinationOverride ?? resolveAutoForwardArrivalView(targetSceneId);",
+    )
+    t
+    ->expect(String.includes(html, "const destinationOverride = resolveAutoForwardArrivalView(args?.targetSceneId);"))
+    ->Expect.toBe(false)
+  })
+
   test("generateTourHTML does not infer auto-forward from scene-level flag alone", t => {
     let hotspotToScene2 = {
       ...mockHotspot,
@@ -404,5 +422,19 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "exitIndicatorEl.className = \"shortcut-indicator-spacer\";")
     t->expectToContain(html, "exitRow.appendChild(exitIndicatorEl);")
     t->expectToContain(html, "exitTextEl.textContent = \"exit map mode\";")
+  })
+
+  test("generateTourHTML map shortcuts keep basement aliases and row navigation wiring", t => {
+    let html = generateTourHTML([mockScene1, mockScene2], "Map Shortcuts Wiring", None, "hd", 32, 40, "1.0")
+
+    t->expectToContain(html, "{ id: \"b1\", shortcut: \"b\", mapLabel: \"Basement level -1\" }")
+    t->expectToContain(html, "{ id: \"b2\", shortcut: \"z\", mapLabel: \"Basement level -2\" }")
+    t->expectToContain(html, "const mapShortcutKey = key.toLowerCase();")
+    t->expectToContain(html, "const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);")
+    t->expectToContain(
+      html,
+      "navigateToFloorTagShortcut(entry.sceneId, { fromMap: true, mapSelectedRow: row });",
+    )
+    t->expectToContain(html, "if (currentSceneId && entry.sceneId === currentSceneId) return true;")
   })
 })
