@@ -21,6 +21,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 499/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
+- [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
 
 ## 🔎 Programmatic Verification
 Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-system/tmp/D006/files/`).
@@ -129,4 +131,25 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - sliceKeyPrefix × 1 (lines: 33)
         - stateGetterRef × 1 (lines: 46)
         - subscriberRef × 1 (lines: 50)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/utils/Retry.res`
+- `src/utils/Retry.res` (17 functions, fingerprint 266054733c5c8c0d44b7cd0972ae703f92c68a745aa99ac4b53b88e5d3e5f59e)
+    - Grouped summary:
+        - calculateDelay × 1 (lines: 38)
+        - checkAndConsumeBudget × 1 (lines: 200)
+        - classifyError × 1 (lines: 107)
+        - computeDelay × 1 (lines: 182)
+        - defaultBudgetConfig × 1 (lines: 30)
+        - defaultConfig × 1 (lines: 21)
+        - defaultShouldRetry × 1 (lines: 136)
+        - execute × 1 (lines: 385)
+        - getRemainingBudget × 1 (lines: 238)
+        - hasDeadline × 1 (lines: 180)
+        - isAbortError × 1 (lines: 90)
+        - isRetryableStatus × 1 (lines: 94)
+        - loop × 1 (lines: 259)
+        - parseHttpStatusCode × 1 (lines: 65)
+        - parseRetryAfterSeconds × 1 (lines: 74)
+        - retryBudgets × 1 (lines: 36)
+        - waitForDelay × 1 (lines: 146)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

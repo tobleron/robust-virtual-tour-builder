@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autosave main-thread cost instrumentation
 - 1583 service worker cache list cleanup + regression test
 - 1585 circuit breaker callbacks + state inspector observability
+- 1595 retry telemetry/budget hardening completed
 
 ## [4.12.5] - 2026-02-26
 

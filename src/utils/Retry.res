@@ -235,6 +235,27 @@ let checkAndConsumeBudget = (
   }
 }
 
+let getRemainingBudget = (
+  budgetKey: option<string>,
+  budgetCfg: budgetConfig,
+): option<int> => {
+  switch budgetKey {
+  | None => None
+  | Some(key) =>
+    let now = Date.now()
+    switch retryBudgets.contents->Belt.Map.String.get(key) {
+    | None => Some(budgetCfg.maxRetriesPerWindow)
+    | Some(state) =>
+      let withinWindow = now -. state.windowStartMs <= Int.toFloat(budgetCfg.windowMs)
+      if withinWindow {
+        Some(Math.Int.max(0, budgetCfg.maxRetriesPerWindow - state.usedRetries))
+      } else {
+        Some(budgetCfg.maxRetriesPerWindow)
+      }
+    }
+  }
+}
+
 let rec loop = async (
   fn,
   signal,
@@ -272,6 +293,7 @@ let rec loop = async (
         if hasDeadline(config) {
           let elapsed = Date.now() -. startedAt
           let remaining = config.totalDeadlineMs->Int.toFloat -. elapsed
+          let remainingBudget = getRemainingBudget(budgetKey, budgetCfg)
           if Float.fromInt(delay) > remaining {
             Exhausted("DeadlineExceeded")
           } else {
@@ -289,6 +311,7 @@ let rec loop = async (
                 "error": err,
                 "elapsedMs": elapsed,
                 "remainingDeadlineMs": remaining,
+                "remainingBudget": remainingBudget,
               })),
               (),
             )
@@ -314,6 +337,8 @@ let rec loop = async (
             }
           }
         } else {
+          let elapsed = Date.now() -. startedAt
+          let remainingBudget = getRemainingBudget(budgetKey, budgetCfg)
           switch onRetry {
           | Some(cb) => cb(attempt, err, delay)
           | None => ()
@@ -326,6 +351,8 @@ let rec loop = async (
               "attempt": attempt,
               "delayMs": delay,
               "error": err,
+              "elapsedMs": elapsed,
+              "remainingBudget": remainingBudget,
             })),
             (),
           )
