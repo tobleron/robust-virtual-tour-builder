@@ -60,10 +60,18 @@ function updateResFile() {
             '/index.html',
             ...publicFiles
         ].filter((asset, index, self) => {
+            const lower = asset.toLowerCase();
+            const isBackupOrTemp =
+                lower.endsWith('~') ||
+                lower.includes('_old.') ||
+                lower.includes('.old.') ||
+                lower.includes('/backup/') ||
+                lower.includes('/tmp/');
             return self.indexOf(asset) === index &&
                 !asset.endsWith('.DS_Store') &&
                 asset !== '/service-worker.js' &&
-                !asset.endsWith('.map');
+                !asset.endsWith('.map') &&
+                !isBackupOrTemp;
         });
 
         // 4. Update src/ServiceWorkerMain.res

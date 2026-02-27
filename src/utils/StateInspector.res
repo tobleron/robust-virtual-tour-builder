@@ -62,9 +62,10 @@ let exposeToWindow = () => {
       AppContext.getBridgeDispatch()(Actions.LoadProject(data))
     }
     let getSnapshot = getDebugSnapshot
+    let getCircuitBreakerSnapshots = () => CircuitBreakerRegistry.getSnapshots()
 
     let setupStore = %raw(`
-      function(getState, loadProject, getSnapshot) {
+      function(getState, loadProject, getSnapshot, getCircuitBreakerSnapshots) {
         window.store = {
           // Read-only getter for state snapshot
           get state() { 
@@ -91,6 +92,11 @@ let exposeToWindow = () => {
           // Payload loader for headless automation
           loadProject(data) {
             loadProject(data);
+          },
+
+          // Circuit breaker diagnostics (domain state + bulkhead usage)
+          getCircuitBreakerSnapshots() {
+            return getCircuitBreakerSnapshots();
           }
         };
         
@@ -104,7 +110,7 @@ let exposeToWindow = () => {
       }
     `)
 
-    setupStore(getState, loadProject, getSnapshot)
+    setupStore(getState, loadProject, getSnapshot, getCircuitBreakerSnapshots)
   } else {
     // Production: No state exposure
     Logger.info(~module_="StateInspector", ~message="State inspector disabled in production", ())

@@ -103,4 +103,18 @@ describe("StateInspector", _ => {
       Constants.enableStateInspector.mockRestore()
     `)
   })
+
+  test("window.store exposes circuit breaker snapshots helper", t => {
+    let _ = %raw(`
+      vi.spyOn(Constants, 'enableStateInspector').mockReturnValue(true)
+    `)
+    exposeToWindow()
+
+    let isArray = %raw(`Array.isArray(globalThis.window.store.getCircuitBreakerSnapshots())`)
+    t->expect(isArray)->Expect.toBe(true)
+
+    let _ = %raw(`
+      Constants.enableStateInspector.mockRestore()
+    `)
+  })
 })

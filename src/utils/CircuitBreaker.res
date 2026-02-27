@@ -14,6 +14,8 @@ type config = {
   failureThreshold: int,
   successThreshold: int,
   timeout: int,
+  onStateTransition: option<(state, state) => unit>,
+  onCircuitOpen: option<unit => unit>,
 }
 
 type t = {
@@ -26,6 +28,8 @@ let make = (
     failureThreshold: 5,
     successThreshold: 2,
     timeout: 30000,
+    onStateTransition: None,
+    onCircuitOpen: None,
   },
 ) => {
   {
@@ -34,12 +38,15 @@ let make = (
   }
 }
 
-let getState = t => {
-  switch t.internalState {
+let internalStateToPublicState = s =>
+  switch s {
   | ClosedState(_) => Closed
   | OpenState(_) => Open
   | HalfOpenState(_) => HalfOpen
   }
+
+let getState = t => {
+  internalStateToPublicState(t.internalState)
 }
 
 let stateToString = state =>
@@ -54,7 +61,9 @@ let canExecute = t => {
   | ClosedState(_) => true
   | OpenState({startTime}) =>
     if Date.now() -. startTime >= Int.toFloat(t.config.timeout) {
+      let previous = getState(t)
       t.internalState = HalfOpenState({successCount: 0, failureCount: 0, probing: true})
+      t.config.onStateTransition->Option.forEach(cb => cb(previous, HalfOpen))
       true
     } else {
       false
@@ -74,7 +83,9 @@ let recordSuccess = t => {
   | HalfOpenState({successCount, failureCount}) =>
     let newSuccessCount = successCount + 1
     if newSuccessCount >= t.config.successThreshold {
+      let previous = getState(t)
       t.internalState = ClosedState({failureCount: 0})
+      t.config.onStateTransition->Option.forEach(cb => cb(previous, Closed))
     } else {
       t.internalState = HalfOpenState({
         successCount: newSuccessCount,
@@ -93,7 +104,10 @@ let recordFailure = t => {
   | HalfOpenState({failureCount}) =>
     let newFailureCount = failureCount + 1
     if newFailureCount >= 2 {
+      let previous = getState(t)
       t.internalState = OpenState({startTime: now})
+      t.config.onStateTransition->Option.forEach(cb => cb(previous, Open))
+      t.config.onCircuitOpen->Option.forEach(cb => cb())
     } else {
       t.internalState = HalfOpenState({
         successCount: 0,
@@ -104,7 +118,10 @@ let recordFailure = t => {
   | ClosedState({failureCount}) =>
     let newFailureCount = failureCount + 1
     if newFailureCount >= t.config.failureThreshold {
+      let previous = getState(t)
       t.internalState = OpenState({startTime: now})
+      t.config.onStateTransition->Option.forEach(cb => cb(previous, Open))
+      t.config.onCircuitOpen->Option.forEach(cb => cb())
     } else {
       t.internalState = ClosedState({failureCount: newFailureCount})
     }

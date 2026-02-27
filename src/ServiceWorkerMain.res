@@ -85,8 +85,6 @@ let manualAssets = [
   "/images/icon-512.png",
   "/images/logo.jpeg",
   "/images/logo.png",
-  "/images/logo.png~",
-  "/images/logo_old.png",
   "/images/logo_on_leather.png",
   "/images/og-preview.png",
   "/libs/FileSaver.min.js",

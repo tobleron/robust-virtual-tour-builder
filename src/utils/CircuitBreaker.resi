@@ -7,6 +7,8 @@ type config = {
   failureThreshold: int,
   successThreshold: int,
   timeout: int,
+  onStateTransition: option<(state, state) => unit>,
+  onCircuitOpen: option<unit => unit>,
 }
 
 type t
