@@ -34,6 +34,8 @@ let sliceKeyPrefix = "autosave_session_slice_"
 let debounceMs = 2000
 let currentSchemaVersion = 2
 let coalesceMs = 500
+let autosaveCostTargetMs = 10.0
+let autosaveCostWindowSize = 30
 
 @val external requestIdleCallback: (unit => unit) => int = "requestIdleCallback"
 @val external cancelIdleCallback: int => unit = "cancelIdleCallback"
@@ -50,6 +52,15 @@ let lastQueuedAtMs = ref(0.0)
 let pendingStateRef: ref<option<state>> = ref(None)
 let lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())
 let performSaveRef: ref<state => unit> = ref(_ => ())
+let autosaveCostSamplesRef: ref<array<float>> = ref([])
+
+type autosaveCostStats = {
+  sampleCount: int,
+  lastMs: float,
+  averageMs: float,
+  maxMs: float,
+  overTargetCount: int,
+}
 
 let sliceKey = (name: string) => sliceKeyPrefix ++ name
 
@@ -83,6 +94,64 @@ let encodeMetadataSlice = (state: state): JSON.t =>
   ])
 
 let signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)
+
+let recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {
+  let nextSamples = Belt.Array.concat(autosaveCostSamplesRef.contents, [durationMs])
+  autosaveCostSamplesRef := if Belt.Array.length(nextSamples) > autosaveCostWindowSize {
+    Belt.Array.sliceToEnd(nextSamples, 1)
+  } else {
+    nextSamples
+  }
+
+  let sampleCount = Belt.Array.length(autosaveCostSamplesRef.contents)
+  let totalMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => acc +. item)
+  let averageMs = if sampleCount > 0 {totalMs /. Float.fromInt(sampleCount)} else {0.0}
+  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => if item > acc {item} else {acc})
+  let overTargetCount =
+    autosaveCostSamplesRef.contents->Belt.Array.keep(item => item > autosaveCostTargetMs)->Belt.Array.length
+
+  Logger.debug(
+    ~module_="Persistence",
+    ~message="AUTOSAVE_MAIN_THREAD_COST",
+    ~data={
+      "durationMs": durationMs,
+      "changedSlices": changedSlices,
+      "sceneCount": sceneCount,
+      "targetMs": autosaveCostTargetMs,
+      "windowSampleCount": sampleCount,
+      "windowAverageMs": averageMs,
+      "windowMaxMs": maxMs,
+      "windowOverTargetCount": overTargetCount,
+    },
+    (),
+  )
+
+  if durationMs > autosaveCostTargetMs {
+    Logger.warn(
+      ~module_="Persistence",
+      ~message="AUTOSAVE_MAIN_THREAD_COST_ABOVE_TARGET",
+      ~data={
+        "durationMs": durationMs,
+        "targetMs": autosaveCostTargetMs,
+      },
+      (),
+    )
+  }
+}
+
+let getAutosaveCostStats = (): autosaveCostStats => {
+  let sampleCount = Belt.Array.length(autosaveCostSamplesRef.contents)
+  let lastMs = switch Belt.Array.get(autosaveCostSamplesRef.contents, sampleCount - 1) {
+  | Some(value) => value
+  | None => 0.0
+  }
+  let totalMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => acc +. item)
+  let averageMs = if sampleCount > 0 {totalMs /. Float.fromInt(sampleCount)} else {0.0}
+  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => if item > acc {item} else {acc})
+  let overTargetCount =
+    autosaveCostSamplesRef.contents->Belt.Array.keep(item => item > autosaveCostTargetMs)->Belt.Array.length
+  {sampleCount, lastMs, averageMs, maxMs, overTargetCount}
+}
 
 let queueIncrementalSave = (state: state) => {
   let clonedState =
@@ -134,6 +203,7 @@ let normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {
 }
 
 let performSave = (state: Types.state) => {
+  let autosaveStartedAt = Date.now()
   /* Only save if we have scenes or a project name that differs from default */
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   let hasContent = Array.length(activeScenes) > 0 || state.tourName != "Tour Name"
@@ -207,6 +277,12 @@ let performSave = (state: Types.state) => {
     let writeSlicesPromise = changedSliceNames
     ->Belt.Array.reduce(Promise.resolve(), (acc, (name, json)) =>
       acc->Promise.then(_ => set(sliceKey(name), json)->Promise.then(_ => Promise.resolve()))
+    )
+
+    recordAutosaveCost(
+      ~durationMs=Date.now() -. autosaveStartedAt,
+      ~changedSlices=Belt.Array.length(changedSliceNames),
+      ~sceneCount=Array.length(activeScenes),
     )
 
     let _ = writeSlicesPromise
