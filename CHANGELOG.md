@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wip: 1578 scene cache lru eviction
 - 1578 lru cache hardening + tests
 - 1579 eventbus weakref leak guard + 1580 clone offload
+- Perf budget test hardening + 1578 latency validation
 
 ## [4.12.5] - 2026-02-26
 

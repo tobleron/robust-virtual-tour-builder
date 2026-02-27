@@ -14,7 +14,7 @@ Implement bounded LRU eviction in `SceneCache.res` and add browser memory pressu
 - [x] Eviction calls `URL.revokeObjectURL` on evicted entries to release memory
 - [x] Add `Performance.measureUserAgentSpecificMemory()` polling (where supported) for proactive eviction when memory exceeds 500MB
 - [x] Integrate with `StateDensityMonitor.res` to trigger aggressive eviction at `High` density level
-- [ ] No regressions in scene switching latency (p95 ≤ 1500ms)
+- [x] No regressions in scene switching latency (p95 ≤ 1500ms)
 
 ## Technical Notes
 - **Files**: New `src/utils/LruCache.res`, modified `src/core/SceneCache.res`, modified `src/utils/StateDensityMonitor.res`
@@ -26,4 +26,6 @@ Implement bounded LRU eviction in `SceneCache.res` and add browser memory pressu
 - `npx vitest --run tests/unit/LruCache_v.test.bs.js` ✅ (new coverage: eviction order, recency touch, remove/clear callbacks, shrink behavior)
 - `npx vitest --run tests/unit/SceneCache_v.test.bs.js` ✅
 - `npm run test:frontend` ✅ (179 files, 896 tests)
-- Pending manual/bench validation: scene switching latency p95 under large-tour stress
+- Playwright budget run (`tests/e2e/perf-budgets.spec.ts`, rapid navigation):
+  - p95 scene switch latency: `116ms` (<= `1500ms` target)
+  - metrics file: `artifacts/perf-budget-metrics.json`

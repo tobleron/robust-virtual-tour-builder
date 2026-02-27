@@ -24,10 +24,13 @@ Replace full-state serialization in `PersistenceLayer.res` with incremental delt
 ## Verification Log
 - `npm run res:build` ✅
 - `npm run test:frontend` ✅ (179 files, 896 tests)
+- Playwright runtime budget run (`tests/e2e/perf-budgets.spec.ts`) ✅
+  - bulk upload fixture latency: `45077ms` with `29` imported scenes
+  - metrics file: `artifacts/perf-budget-metrics.json`
 - Code-level checks:
   - Incremental slices (`inventory`, `sceneOrder`, `timeline`, `metadata`) with per-slice signatures.
   - Manifest + legacy envelope dual-write for recovery fallback.
   - Recovery path reassembles project from slices and warns/falls back to legacy payload when needed.
   - Write coalescing window `coalesceMs = 500`.
   - Snapshot cloning via `structuredClone` with safe fallback.
-- Pending: explicit latency benchmark capture against `<10ms` target on large-project fixture.
+- Pending: explicit direct auto-save main-thread cost benchmark capture against `<10ms` target (current E2E metrics are end-to-end, not isolated autosave cost).
