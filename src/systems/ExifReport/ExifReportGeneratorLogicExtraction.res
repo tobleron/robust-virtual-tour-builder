@@ -40,7 +40,7 @@ let resolveExifData = async (item: sceneDataItem) => {
         }
       } else {
         // Js.log("No GPS, extracting locally")
-        let localRes = await ExifParser.extractExifTags(File(file))
+        let localRes = await ExifParser.extractExifTagsPreferred(File(file))
         switch localRes {
         | Ok((exif, _pano)) => {
             exif,
@@ -72,7 +72,7 @@ let resolveExifData = async (item: sceneDataItem) => {
       }
     }
   | None =>
-    let localRes = await ExifParser.extractExifTags(File(file))
+    let localRes = await ExifParser.extractExifTagsPreferred(File(file))
     switch localRes {
     | Ok((exif, _pano)) => {
         exif,

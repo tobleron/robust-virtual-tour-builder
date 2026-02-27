@@ -17,6 +17,21 @@ module ExifReader = {
 /* Constants */
 let backendUrl = Constants.backendUrl
 
+let emptyPano: gPanoMetadata = {
+  usePanoramaViewer: false,
+  projectionType: "",
+  poseHeadingDegrees: 0.0,
+  posePitchDegrees: 0.0,
+  poseRollDegrees: 0.0,
+  croppedAreaImageWidthPixels: 0,
+  croppedAreaImageHeightPixels: 0,
+  fullPanoWidthPixels: 0,
+  fullPanoHeightPixels: 0,
+  croppedAreaLeftPixels: 0,
+  croppedAreaTopPixels: 0,
+  initialViewHeadingDegrees: 0,
+}
+
 /* extractExifTags - Extracts full technical metadata and GPS using ExifReader */
 let extractExifTags = async (file: Types.file): result<(exifMetadata, gPanoMetadata), string> => {
   try {
@@ -267,6 +282,18 @@ let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataRes
       }
     })
   })
+}
+
+/* Prefer backend parsing for heavy flows to keep main thread responsive. */
+let extractExifTagsPreferred = async (file: Types.file): result<(exifMetadata, gPanoMetadata), string> => {
+  switch file {
+  | File(f) =>
+    switch await extractExifData(f) {
+    | Ok(metadata) => Ok((metadata.exif, emptyPano))
+    | Error(_) => await extractExifTags(file)
+    }
+  | _ => await extractExifTags(file)
+  }
 }
 
 /* analyzeImageQuality wrapper */

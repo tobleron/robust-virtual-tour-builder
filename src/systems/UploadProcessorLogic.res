@@ -99,6 +99,7 @@ let handleFingerprinting = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   journalId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
@@ -107,6 +108,7 @@ let handleFingerprinting = (
     startTime,
     updateProgress,
     journalId,
+    ~signal?,
     ~getState,
     ~dispatch,
   )

@@ -27,29 +27,36 @@ let processZipResponse = zipResult => {
 }
 
 let generateAndOverrideTiny = previewBlob => {
-  Promise.make((resolve, _reject) => {
-    let img = Dom.createElement("img")
-    let url = UrlUtils.safeCreateObjectURL(previewBlob)
+  WorkerPool.generateTinyWithWorker(previewBlob, ~width=256, ~height=144)
+  ->Promise.then(workerTiny =>
+    switch workerTiny {
+    | Some(tiny) => Promise.resolve(tiny)
+    | None =>
+      Promise.make((resolve, _reject) => {
+        let img = Dom.createElement("img")
+        let url = UrlUtils.safeCreateObjectURL(previewBlob)
 
-    let onLoad = () => {
-      URL.revokeObjectURL(url)
-      ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
-      ->Promise.then(tinyBlob => {
-        resolve(tinyBlob)
-        Promise.resolve()
+        let onLoad = () => {
+          URL.revokeObjectURL(url)
+          ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
+          ->Promise.then(tinyBlob => {
+            resolve(tinyBlob)
+            Promise.resolve()
+          })
+          ->ignore
+        }
+
+        let onError = () => {
+          URL.revokeObjectURL(url)
+          resolve(previewBlob)
+        }
+
+        Dom.addEventListenerNoEv(img, "load", onLoad)
+        Dom.addEventListenerNoEv(img, "error", onError)
+        Dom.setAttribute(img, "src", url)
       })
-      ->ignore
     }
-
-    let onError = () => {
-      URL.revokeObjectURL(url)
-      resolve(previewBlob)
-    }
-
-    Dom.addEventListenerNoEv(img, "load", onLoad)
-    Dom.addEventListenerNoEv(img, "error", onError)
-    Dom.setAttribute(img, "src", url)
-  })
+  )
 }
 
 let createResultFiles = async (extractedResult, originalName) => {
@@ -160,7 +167,7 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
   let _fetchStart = now()
 
   Promise.all2((
-    ExifParser.extractExifTags(File(file)),
+    ExifParser.extractExifTagsPreferred(File(file)),
     ImageOptimizer.compressToWebP(file, Constants.Media.uploadWebpQuality),
   ))
   ->Promise.then(((exifResult, compressionResult)) => {

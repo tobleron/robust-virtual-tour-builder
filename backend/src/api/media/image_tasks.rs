@@ -5,6 +5,36 @@ use crate::api::utils::{PROCESSED_IMAGE_WIDTH, TINY_WEBP_QUALITY, WEBP_QUALITY};
 use crate::models::{ExifMetadata, MetadataResponse};
 use crate::services::media;
 
+pub const DEFAULT_MAX_DECODE_DIMENSION: u32 = 16_384;
+pub const DEFAULT_MAX_DECODE_ALLOC_BYTES: u64 = 1_073_741_824; // 1 GiB
+
+fn max_decode_dimension() -> u32 {
+    std::env::var("IMAGE_MAX_DECODE_DIMENSION")
+        .ok()
+        .and_then(|v| v.parse::<u32>().ok())
+        .filter(|v| *v >= 1_024)
+        .unwrap_or(DEFAULT_MAX_DECODE_DIMENSION)
+}
+
+fn max_decode_alloc_bytes() -> u64 {
+    std::env::var("IMAGE_MAX_DECODE_ALLOC_BYTES")
+        .ok()
+        .and_then(|v| v.parse::<u64>().ok())
+        .filter(|v| *v >= 128 * 1024 * 1024)
+        .unwrap_or(DEFAULT_MAX_DECODE_ALLOC_BYTES)
+}
+
+fn decode_guardrail(width: u32, height: u32) -> Result<(), String> {
+    let max_dim = max_decode_dimension();
+    if width > max_dim || height > max_dim {
+        return Err(format!(
+            "Image dimensions too large: {}x{} exceeds {}x{}",
+            width, height, max_dim, max_dim
+        ));
+    }
+    Ok(())
+}
+
 pub fn decode_image(data: &[u8]) -> Result<(image::DynamicImage, image::ImageFormat), String> {
     let data_size = data.len();
     let reader = image::ImageReader::new(Cursor::new(data))
@@ -23,6 +53,16 @@ pub fn decode_image(data: &[u8]) -> Result<(image::DynamicImage, image::ImageFor
     let img = reader
         .decode()
         .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
+
+    decode_guardrail(img.width(), img.height())?;
+    let estimated_rgba_bytes = img.width() as u64 * img.height() as u64 * 4;
+    let alloc_budget = max_decode_alloc_bytes();
+    if estimated_rgba_bytes > alloc_budget {
+        return Err(format!(
+            "Image exceeds decode allocation budget: estimated {} bytes > limit {} bytes",
+            estimated_rgba_bytes, alloc_budget
+        ));
+    }
 
     Ok((img, format))
 }

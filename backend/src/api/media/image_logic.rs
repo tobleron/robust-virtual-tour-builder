@@ -71,15 +71,7 @@ pub fn process_image_full_sync(
 
 pub fn optimize_image_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
     let start = Instant::now();
-    let reader = image::ImageReader::new(Cursor::new(data))
-        .with_guessed_format()
-        .map_err(|e| format!("Failed to guess format: {}", e))?;
-    reader
-        .format()
-        .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
-    let img = reader
-        .decode()
-        .map_err(|e| format!("Failed to decode image: {}", e))?;
+    let (img, _format) = image_tasks::decode_image(&data)?;
 
     tracing::info!(
         module = "Optimizer",
@@ -93,12 +85,7 @@ pub fn optimize_image_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
 }
 
 pub fn resize_image_batch_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
-    let reader = image::ImageReader::new(Cursor::new(data))
-        .with_guessed_format()
-        .map_err(|e| format!("Failed to guess format: {}", e))?;
-    let img = reader
-        .decode()
-        .map_err(|e| format!("Failed to decode image: {}", e))?;
+    let (img, _format) = image_tasks::decode_image(&data)?;
 
     let mut zip_buffer = Cursor::new(Vec::new());
     {
@@ -120,7 +107,7 @@ pub fn resize_image_batch_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
 
         for result in results {
             let (filename, data) = result?;
-            zip.start_file(filename, options)
+            zip.start_file(filename, options.clone())
                 .map_err(|e| e.to_string())?;
             zip.write_all(&data).map_err(|e| e.to_string())?;
         }
@@ -133,11 +120,6 @@ pub fn extract_metadata_sync(
     data: Vec<u8>,
     original_filename: Option<String>,
 ) -> Result<MetadataResponse, String> {
-    let reader = image::ImageReader::new(Cursor::new(&data))
-        .with_guessed_format()
-        .map_err(|e| format!("Failed to guess format: {}", e))?;
-    let img = reader
-        .decode()
-        .map_err(|e| format!("Failed to decode: {}", e))?;
+    let (img, _format) = image_tasks::decode_image(&data)?;
     media::perform_metadata_extraction(&img, &data, original_filename.as_deref())
 }

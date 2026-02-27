@@ -2,11 +2,54 @@
 
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
+use once_cell::sync::Lazy;
+use std::sync::Arc;
 use std::time::Instant;
+use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
 use crate::api::media::{image_logic, image_multipart};
 use crate::metrics::{IMAGE_PROCESSING_DURATION, IMAGE_PROCESSING_TOTAL, UPLOAD_BYTES_TOTAL};
 use crate::models::{AppError, MetadataResponse};
+
+const MEMORY_BUDGET_DEFAULT_BYTES: usize = 1_073_741_824; // 1 GiB
+const MEMORY_PERMIT_BYTES: usize = 8 * 1024 * 1024; // 8 MiB
+
+static IMAGE_MEMORY_BUDGET: Lazy<Arc<Semaphore>> = Lazy::new(|| {
+    let budget_bytes = std::env::var("IMAGE_PIPELINE_MEMORY_BUDGET_BYTES")
+        .ok()
+        .and_then(|v| v.parse::<usize>().ok())
+        .filter(|v| *v >= MEMORY_PERMIT_BYTES)
+        .unwrap_or(MEMORY_BUDGET_DEFAULT_BYTES);
+    let permits = (budget_bytes / MEMORY_PERMIT_BYTES).max(1);
+    Arc::new(Semaphore::new(permits))
+});
+
+fn estimate_required_permits(upload_bytes: usize) -> u32 {
+    let estimated_peak_bytes = upload_bytes.saturating_mul(8);
+    let permits = ((estimated_peak_bytes / MEMORY_PERMIT_BYTES).max(1)).min(64);
+    permits as u32
+}
+
+async fn acquire_image_memory_permit(
+    operation: &str,
+    upload_bytes: usize,
+) -> Result<OwnedSemaphorePermit, AppError> {
+    let requested_permits = estimate_required_permits(upload_bytes);
+    let available_before = IMAGE_MEMORY_BUDGET.available_permits();
+    tracing::info!(
+        module = "ImageMemoryBudget",
+        operation,
+        upload_bytes,
+        requested_permits,
+        available_before,
+        "IMAGE_MEMORY_ACQUIRE_WAIT"
+    );
+    IMAGE_MEMORY_BUDGET
+        .clone()
+        .acquire_many_owned(requested_permits)
+        .await
+        .map_err(|e| AppError::InternalError(format!("Image memory budget acquire failed: {}", e)))
+}
 
 // --- HANDLERS ---
 
@@ -15,6 +58,8 @@ use crate::models::{AppError, MetadataResponse};
 pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppError> {
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
+    let requested_permits = estimate_required_permits(total_size);
+    let _memory_guard = acquire_image_memory_permit("extract_metadata", total_size).await?;
 
     if let Some(m) = &*UPLOAD_BYTES_TOTAL {
         m.inc_by(total_size as f64);
@@ -41,6 +86,13 @@ pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppErr
             if let Some(m) = &*IMAGE_PROCESSING_DURATION {
                 m.observe(start.elapsed().as_secs_f64());
             }
+            tracing::info!(
+                module = "ImageMemoryBudget",
+                operation = "extract_metadata",
+                requested_permits,
+                available_after = IMAGE_MEMORY_BUDGET.available_permits(),
+                "IMAGE_MEMORY_RELEASE"
+            );
             Ok(HttpResponse::Ok().json(data))
         }
         Err(e) => {
@@ -56,6 +108,8 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
     let start = Instant::now();
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
+    let requested_permits = estimate_required_permits(total_size);
+    let _memory_guard = acquire_image_memory_permit("optimize_image", total_size).await?;
 
     if let Some(m) = &*UPLOAD_BYTES_TOTAL {
         m.inc_by(total_size as f64);
@@ -81,6 +135,13 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
             if let Some(m) = &*IMAGE_PROCESSING_DURATION {
                 m.observe(start.elapsed().as_secs_f64());
             }
+            tracing::info!(
+                module = "ImageMemoryBudget",
+                operation = "optimize_image",
+                requested_permits,
+                available_after = IMAGE_MEMORY_BUDGET.available_permits(),
+                "IMAGE_MEMORY_RELEASE"
+            );
             Ok(HttpResponse::Ok().content_type("image/webp").body(bytes))
         }
         Err(e) => {
@@ -95,6 +156,8 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
 pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppError> {
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
+    let requested_permits = estimate_required_permits(total_size);
+    let _memory_guard = acquire_image_memory_permit("process_image_full", total_size).await?;
 
     if let Some(m) = &*UPLOAD_BYTES_TOTAL {
         m.inc_by(total_size as f64);
@@ -126,6 +189,13 @@ pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppE
             if let Some(m) = &*IMAGE_PROCESSING_DURATION {
                 m.observe(total_start.elapsed().as_secs_f64());
             }
+            tracing::info!(
+                module = "ImageMemoryBudget",
+                operation = "process_image_full",
+                requested_permits,
+                available_after = IMAGE_MEMORY_BUDGET.available_permits(),
+                "IMAGE_MEMORY_RELEASE"
+            );
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
@@ -141,6 +211,8 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
     let start = Instant::now();
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
+    let requested_permits = estimate_required_permits(total_size);
+    let _memory_guard = acquire_image_memory_permit("resize_image_batch", total_size).await?;
 
     if let Some(m) = &*UPLOAD_BYTES_TOTAL {
         m.inc_by(total_size as f64);
@@ -166,6 +238,13 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
             if let Some(m) = &*IMAGE_PROCESSING_DURATION {
                 m.observe(start.elapsed().as_secs_f64());
             }
+            tracing::info!(
+                module = "ImageMemoryBudget",
+                operation = "resize_image_batch",
+                requested_permits,
+                available_after = IMAGE_MEMORY_BUDGET.available_permits(),
+                "IMAGE_MEMORY_RELEASE"
+            );
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))

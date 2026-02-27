@@ -3,9 +3,12 @@ open ReBindings
 open UploadTypes
 
 // Hashing and duplication detection.
-let fingerprintFiles = (validFiles: array<File.t>) => {
+let fingerprintFiles = (
+  validFiles: array<File.t>,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
   let fingerprintPromises = Belt.Array.map(validFiles, f => {
-    WorkerPool.fingerprintWithWorker(f)
+    WorkerPool.fingerprintWithWorker(f, ~signal?)
     ->Promise.then(workerResult =>
       switch workerResult {
       | Some(id) => Promise.resolve(id)

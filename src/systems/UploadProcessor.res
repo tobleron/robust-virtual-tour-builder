@@ -10,6 +10,7 @@ open UploadTypes
 let processUploads = (
   files: array<UploadTypes.file>,
   progressCallback: option<(float, string, bool, string) => unit>,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
   ~opId: option<OperationLifecycle.operationId>=?,
@@ -121,49 +122,52 @@ let processUploads = (
               () => Promise.resolve(emptyResult),
             )
           } else {
-            let validFiles = ImageValidator.validateFiles(
+            ImageValidator.validateFilesAsync(
               files,
               msg => UploadProcessorLogic.Utils.notify(msg, "warning"),
-            )
-            if Belt.Array.length(validFiles) == 0 {
-              UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
-              OperationLifecycle.complete(opId, ~result="No valid files", ())
-              OperationJournal.removeOperation(journalId)->Promise.then(
-                () => Promise.resolve(emptyResult),
-              )
-            } else {
-              UploadProcessorLogic.handleFingerprinting(
-                validFiles,
-                startTime,
-                updateProgress,
-                journalId,
-                ~getState,
-                ~dispatch,
-              )
-              ->Promise.then(
-                result => {
-                  OperationLifecycle.complete(opId, ~result="Success", ())
-                  OperationJournal.removeOperation(journalId)->Promise.then(
-                    () => Promise.resolve(result),
-                  )
-                },
-              )
-              ->Promise.catch(
-                err => {
-                  let (msg, _) = Logger.getErrorDetails(err)
-                  if cancelled.contents || msg == "CANCELLED" {
+              ~signal?,
+            )->Promise.then(validFiles => {
+              if Belt.Array.length(validFiles) == 0 {
+                UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
+                OperationLifecycle.complete(opId, ~result="No valid files", ())
+                OperationJournal.removeOperation(journalId)->Promise.then(
+                  () => Promise.resolve(emptyResult),
+                )
+              } else {
+                UploadProcessorLogic.handleFingerprinting(
+                  validFiles,
+                  startTime,
+                  updateProgress,
+                  journalId,
+                  ~signal?,
+                  ~getState,
+                  ~dispatch,
+                )
+                ->Promise.then(
+                  result => {
+                    OperationLifecycle.complete(opId, ~result="Success", ())
                     OperationJournal.removeOperation(journalId)->Promise.then(
-                      () => Promise.resolve(emptyResult),
+                      () => Promise.resolve(result),
                     )
-                  } else {
-                    OperationLifecycle.fail(opId, msg)
-                    OperationJournal.failOperation(journalId, msg)->Promise.then(
-                      () => Promise.reject(err),
-                    )
-                  }
-                },
-              )
-            }
+                  },
+                )
+                ->Promise.catch(
+                  err => {
+                    let (msg, _) = Logger.getErrorDetails(err)
+                    if cancelled.contents || msg == "CANCELLED" {
+                      OperationJournal.removeOperation(journalId)->Promise.then(
+                        () => Promise.resolve(emptyResult),
+                      )
+                    } else {
+                      OperationLifecycle.fail(opId, msg)
+                      OperationJournal.failOperation(journalId, msg)->Promise.then(
+                        () => Promise.reject(err),
+                      )
+                    }
+                  },
+                )
+              }
+            })
           }
         }
       })

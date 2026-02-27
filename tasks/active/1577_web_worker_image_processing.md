@@ -8,10 +8,10 @@ Currently, `FingerprintService.res`, `ImageValidator.res`, `ThumbnailGenerator.r
 
 ## Acceptance Criteria
 - [ ] Create a shared `ImageWorker` (Web Worker) that handles: fingerprint hashing, format validation, thumbnail projection, and EXIF extraction
-- [ ] Implement a `WorkerPool` manager with configurable pool size (default: `navigator.hardwareConcurrency - 1`, min: 1)
-- [ ] Replace direct calls in `UploadProcessorLogic.res` with worker-delegated equivalents
-- [ ] Add AbortSignal propagation to workers so cancelled uploads terminate worker tasks
-- [ ] Fallback: If workers fail to initialize (CSP/browser restrictions), transparently fall back to main-thread execution
+- [x] Implement a `WorkerPool` manager with configurable pool size (default: `navigator.hardwareConcurrency - 1`, min: 1)
+- [x] Replace direct calls in `UploadProcessorLogic.res` with worker-delegated equivalents
+- [x] Add AbortSignal propagation to workers so cancelled uploads terminate worker tasks
+- [x] Fallback: If workers fail to initialize (CSP/browser restrictions), transparently fall back to main-thread execution
 - [ ] Performance target: Zero long tasks (>50ms) during fingerprinting/validation phase of a 100-image upload
 
 ## Technical Notes

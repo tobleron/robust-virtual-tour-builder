@@ -49,12 +49,13 @@ let handleFingerprinting = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   journalId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
   updateProgress(0.0, "Scanning images...", true, "Scanning")
-  FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
+  FingerprintService.fingerprintFiles(validFiles, ~signal?)->Promise.then(results => {
     updateProgress(18.0, "Preparing batch...", true, "Scanning")
     let currentState = getState()
     let uniqueItems = FingerprintService.filterDuplicates(

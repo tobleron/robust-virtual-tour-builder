@@ -12,8 +12,10 @@ type mockFn
   import { vi } from 'vitest';
 
   vi.mock('../../src/systems/ExifParser.bs.js', () => {
+    const extractExifTags = vi.fn();
     return {
-      extractExifTags: vi.fn(),
+      extractExifTags,
+      extractExifTagsPreferred: extractExifTags,
       // Mock other functions if imported by the module, though LogicExtraction mainly uses extractExifTags
     };
   });
