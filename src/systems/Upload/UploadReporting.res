@@ -30,7 +30,7 @@ let handleExifReport = (
   ~dispatch: Actions.action => unit,
 ) => {
   let reportData = Belt.Array.map(processedWithClusters, i => {
-    let item: ExifReportGenerator.sceneDataItem = {
+    let item: FeatureLoaders.exifSceneDataItem = {
       original: i.original,
       metadataJson: i.metadata,
       qualityJson: i.quality,
@@ -45,7 +45,7 @@ let handleExifReport = (
   let skippedNames = Belt.Array.makeBy(skippedCount, i => "Duplicate " ++ Belt.Int.toString(i + 1))
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
-  ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
+  FeatureLoaders.generateExifReportLazy(reportData)->Promise.then(res => {
     dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
     switch res.suggestedProjectName {
     | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>

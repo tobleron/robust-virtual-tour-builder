@@ -121,7 +121,7 @@ let show = (
         | Some(reportJson) =>
           switch JsonCombinators.Json.decode(reportJson, JsonCombinators.Json.Decode.string) {
           | Ok(content) =>
-            let _ = ExifReportGenerator.downloadExifReport(content)
+            let _ = FeatureLoaders.downloadExifReportLazy(content)
           | Error(_) => ()
           }
         | None =>

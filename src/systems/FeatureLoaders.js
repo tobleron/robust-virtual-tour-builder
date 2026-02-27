@@ -29,3 +29,13 @@ export async function startTeaserLazy(
     onCancel,
   );
 }
+
+export async function generateExifReportLazy(reportData) {
+  const mod = await import("./ExifReportGenerator.bs.js");
+  return mod.generateExifReport(reportData);
+}
+
+export async function downloadExifReportLazy(content) {
+  const mod = await import("./ExifReportGenerator.bs.js");
+  return mod.downloadExifReport(content);
+}

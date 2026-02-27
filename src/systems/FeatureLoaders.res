@@ -18,3 +18,21 @@ external startTeaserLazy: (
   option<BrowserBindings.AbortSignal.t>,
   option<unit => unit>,
 ) => Promise.t<unit> = "startTeaserLazy"
+
+type exifReportResult = {
+  report: string,
+  suggestedProjectName: option<string>,
+}
+
+type exifSceneDataItem = {
+  original: ReBindings.File.t,
+  metadataJson: option<JSON.t>,
+  qualityJson: option<JSON.t>,
+}
+
+@module("./FeatureLoaders.js")
+external generateExifReportLazy: array<exifSceneDataItem> => Promise.t<exifReportResult> =
+  "generateExifReportLazy"
+
+@module("./FeatureLoaders.js")
+external downloadExifReportLazy: string => Promise.t<unit> = "downloadExifReportLazy"
