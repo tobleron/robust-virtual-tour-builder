@@ -13,6 +13,7 @@ describe("RequestQueue", () => {
     let _ = drain()
     paused := false
     activeCount := 0
+    nowMs := (_ => Date.now())
   })
 
   test("Module exists and can schedule tasks", t => {
@@ -173,5 +174,69 @@ describe("RequestQueue", () => {
     let result = await rejection
     t->expect(result)->Expect.toBe("rejected")
     resume()
+  })
+
+  testAsync("priority scheduling executes critical before normal/background", async t => {
+    pause()
+    let order = ref([])
+    let mk = (label: string) =>
+      scheduleWithPriority(~priority=Background, () => {
+        order := Belt.Array.concat(order.contents, [label])
+        Promise.resolve()
+      })
+
+    let _ = mk("background-1")->swallowRejection
+    let _ = scheduleWithPriority(~priority=Normal, () => {
+      order := Belt.Array.concat(order.contents, ["normal-1"])
+      Promise.resolve()
+    })->swallowRejection
+    let _ = scheduleWithPriority(~priority=Critical, () => {
+      order := Belt.Array.concat(order.contents, ["critical-1"])
+      Promise.resolve()
+    })->swallowRejection
+
+    resume()
+    let _ = await Promise.make((resolve, _) => {
+      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 30)
+    })
+
+    t->expect(Belt.Array.getExn(order.contents, 0))->Expect.toBe("critical-1")
+  })
+
+  testAsync("critical can use burst slots when base concurrency is saturated", async t => {
+    let resolves: array<unit => unit> = []
+    let blocker = () =>
+      Promise.make((resolve, _) => {
+        ignore(Array.push(resolves, () => resolve(ignore())))
+      })
+
+    for _i in 1 to maxConcurrent {
+      let _ = scheduleWithPriority(~priority=Normal, blocker)->swallowRejection
+    }
+
+    let criticalRan = ref(false)
+    let _ = scheduleWithPriority(~priority=Critical, () => {
+      criticalRan := true
+      Promise.resolve()
+    })->swallowRejection
+
+    let _ = await Promise.make((resolve, _) => {
+      let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 40)
+    })
+
+    t->expect(criticalRan.contents)->Expect.toBe(true)
+
+    resolves->Belt.Array.forEach(resolve => resolve())
+  })
+
+  testAsync("scheduleWithRetry accepts priority and preserves behavior", async t => {
+    let result = await scheduleWithRetry(
+      ~priority=Background,
+      ~task=() => Promise.resolve(Ok("ok")),
+    )
+    switch result {
+    | Retry.Success(value, _) => t->expect(value)->Expect.toBe("ok")
+    | _ => t->expect("ExpectedSuccess")->Expect.toBe("UnexpectedResult")
+    }
   })
 })

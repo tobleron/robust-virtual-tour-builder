@@ -2,26 +2,108 @@
 
 let maxConcurrent = 6
 let maxQueued = 256
+let criticalBurstSlots = 2
 let activeCount = ref(0)
+
+type priority =
+  | Critical
+  | Normal
+  | Background
 
 type queuedItem = {
   task: unit => Promise.t<unit>,
   reject: exn => unit,
+  priority: priority,
+  enqueuedAtMs: float,
 }
 
-let queue: array<queuedItem> = []
+let criticalQueue: array<queuedItem> = []
+let normalQueue: array<queuedItem> = []
+let backgroundQueue: array<queuedItem> = []
 
 let paused = ref(false)
+let nowMs: ref<unit => float> = ref(() => Date.now())
 
-let length = (): int => Array.length(queue)
+let length = (): int =>
+  Array.length(criticalQueue) + Array.length(normalQueue) + Array.length(backgroundQueue)
+
+let logQueueDepths = (~reason: string) => {
+  Logger.debug(
+    ~module_="RequestQueue",
+    ~message="QUEUE_DEPTHS",
+    ~data=Some(Logger.castToJson({
+      "reason": reason,
+      "critical": Array.length(criticalQueue),
+      "normal": Array.length(normalQueue),
+      "background": Array.length(backgroundQueue),
+      "active": activeCount.contents,
+    })),
+    (),
+  )
+}
+
+let pushByPriority = (item: queuedItem) => {
+  switch item.priority {
+  | Critical => ignore(Array.push(criticalQueue, item))
+  | Normal => ignore(Array.push(normalQueue, item))
+  | Background => ignore(Array.push(backgroundQueue, item))
+  }
+}
+
+let promoteStarved = () => {
+  let now = nowMs.contents()
+  let backgroundToPromote = Belt.Array.keep(backgroundQueue, item => now -. item.enqueuedAtMs >= 30000.0)
+  let backgroundRemaining = Belt.Array.keep(backgroundQueue, item => now -. item.enqueuedAtMs < 30000.0)
+  let _ = Array.splice(
+    backgroundQueue,
+    ~start=0,
+    ~remove=Array.length(backgroundQueue),
+    ~insert=backgroundRemaining,
+  )
+  backgroundToPromote->Belt.Array.forEach(item => {
+    pushByPriority({...item, priority: Normal})
+  })
+
+  let normalToPromote = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs >= 60000.0)
+  let normalRemaining = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs < 60000.0)
+  let _ = Array.splice(normalQueue, ~start=0, ~remove=Array.length(normalQueue), ~insert=normalRemaining)
+  normalToPromote->Belt.Array.forEach(item => {
+    pushByPriority({...item, priority: Critical})
+  })
+
+  if Array.length(backgroundToPromote) > 0 || Array.length(normalToPromote) > 0 {
+    logQueueDepths(~reason="starvation-promotion")
+  }
+}
+
+let shiftNext = (): option<queuedItem> => {
+  promoteStarved()
+  switch Array.shift(criticalQueue) {
+  | Some(item) => Some(item)
+  | None =>
+    switch Array.shift(normalQueue) {
+    | Some(item) => Some(item)
+    | None => Array.shift(backgroundQueue)
+    }
+  }
+}
+
+let currentConcurrencyLimit = () => {
+  if Array.length(criticalQueue) > 0 {
+    maxConcurrent + criticalBurstSlots
+  } else {
+    maxConcurrent
+  }
+}
 
 let rec process = () => {
   if paused.contents {
     ()
-  } else if activeCount.contents < maxConcurrent && Array.length(queue) > 0 {
-    switch Array.shift(queue) {
+  } else if activeCount.contents < currentConcurrencyLimit() && length() > 0 {
+    switch shiftNext() {
     | Some(item) =>
       activeCount := activeCount.contents + 1
+      logQueueDepths(~reason="dequeue")
       try {
         item.task()
         ->Promise.then(_ => {
@@ -53,7 +135,7 @@ let pause = () => {
   Logger.debug(
     ~module_="RequestQueue",
     ~message="PAUSED",
-    ~data=Some(Logger.castToJson({"queued": Array.length(queue)})),
+    ~data=Some(Logger.castToJson({"queued": length()})),
     (),
   )
 }
@@ -63,7 +145,7 @@ let resume = () => {
   Logger.debug(
     ~module_="RequestQueue",
     ~message="RESUMED",
-    ~data=Some(Logger.castToJson({"queued": Array.length(queue)})),
+    ~data=Some(Logger.castToJson({"queued": length()})),
     (),
   )
   process()
@@ -88,9 +170,15 @@ let handleRateLimit = (seconds: int) => {
 }
 
 let drain = (): int => {
-  let count = Array.length(queue)
-  let removed = Array.slice(queue, ~start=0, ~end=count)
-  let _ = Array.splice(queue, ~start=0, ~remove=count, ~insert=[])
+  let count = length()
+  let removed = Belt.Array.concatMany([
+    Array.slice(criticalQueue, ~start=0, ~end=Array.length(criticalQueue)),
+    Array.slice(normalQueue, ~start=0, ~end=Array.length(normalQueue)),
+    Array.slice(backgroundQueue, ~start=0, ~end=Array.length(backgroundQueue)),
+  ])
+  let _ = Array.splice(criticalQueue, ~start=0, ~remove=Array.length(criticalQueue), ~insert=[])
+  let _ = Array.splice(normalQueue, ~start=0, ~remove=Array.length(normalQueue), ~insert=[])
+  let _ = Array.splice(backgroundQueue, ~start=0, ~remove=Array.length(backgroundQueue), ~insert=[])
 
   removed->Belt.Array.forEach(item => {
     item.reject(Failure("RequestQueueDrained"))
@@ -115,9 +203,13 @@ let initializeNetworkListener = () => {
   })
 }
 
-let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
+let rec schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
+  scheduleWithPriority(~priority=Normal, task)
+}
+
+and scheduleWithPriority = (~priority: priority, task: unit => Promise.t<'a>): Promise.t<'a> => {
   Promise.make((resolve, reject) => {
-    if Array.length(queue) >= maxQueued {
+    if length() >= maxQueued {
       reject(Failure("RequestQueueOverflow"))
     } else {
       let run = () => {
@@ -139,7 +231,8 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
         }
       }
 
-      let _ = Array.push(queue, {task: run, reject})
+      pushByPriority({task: run, reject, priority, enqueuedAtMs: nowMs.contents()})
+      logQueueDepths(~reason="enqueue")
       process()
     }
   })
@@ -147,11 +240,12 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
 
 let scheduleWithRetry = (
   ~task: unit => Promise.t<result<'a, string>>,
+  ~priority: priority=Normal,
   ~retryConfig: option<Retry.config>=?,
   ~signal: option<ReBindings.AbortSignal.t>=?,
   ~onRetry: option<(int, string, int) => unit>=?,
 ) => {
-  schedule(() => {
+  scheduleWithPriority(~priority, () => {
     let resolvedSignal = switch signal {
     | Some(s) => s
     | None =>

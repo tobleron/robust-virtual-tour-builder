@@ -28,6 +28,7 @@ let makeError: string => 'e = %raw(`function(msg) { return new Error(msg); }`)
 %%raw(`
   vi.mock('../../src/utils/Logger.bs.js', () => {
     return {
+      debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),

@@ -269,4 +269,38 @@ describe("EventBus", _ => {
     t->expect(callCount.contents)->Expect.toBe(2)
     unsub2()
   })
+
+  test("Channel subscription receives only matching events", t => {
+    let navCount = ref(0)
+    let unsub = subscribeOn(
+      ~channel=Navigation,
+      _evt => {
+        navCount := navCount.contents + 1
+      },
+    )
+
+    dispatch(NavCancelled)
+    dispatch(UpdateProcessing({
+      "active": true,
+      "progress": 0.1,
+      "message": "Uploading",
+      "phase": "upload",
+      "error": false,
+      "onCancel": () => (),
+    }))
+
+    t->expect(navCount.contents)->Expect.toBe(1)
+    unsub()
+  })
+
+  test("subscriptionCount tracks all and channel subscribers", t => {
+    let countBefore = subscriptionCount()
+    let unsubAll = subscribe(_ => ())
+    let unsubUi = subscribeOn(~channel=Ui, _ => ())
+    let countAfter = subscriptionCount()
+
+    t->expect(countAfter)->Expect.toBe(countBefore + 2)
+    unsubAll()
+    unsubUi()
+  })
 })
