@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend image decode guardrails + memory budget semaphore
 - Progressive backend resize stages with decode/memory safeguards
 - Adaptive session-aware rate limiting with class-scoped frontend backoff
+- Predictive viewer preloading pipeline with memory-aware candidate ranking
 
 ## [4.12.5] - 2026-02-26
 

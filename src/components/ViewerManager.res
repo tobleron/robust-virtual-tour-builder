@@ -3,6 +3,7 @@
 @react.component
 let make = () => {
   PerfUtils.useRenderBudget("ViewerManager")
+  let state = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let simSlice = AppContext.useSimSlice()
@@ -65,6 +66,7 @@ let make = () => {
     ~scenes=sceneSlice.scenes,
     ~simulationStatus=simSlice.simulation.status,
   )
+  PreloadManager.usePredictivePreload(~state, ~dispatch)
 
   React.null
 }
