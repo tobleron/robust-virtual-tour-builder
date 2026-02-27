@@ -10,6 +10,8 @@ describe("ServiceWorkerMain", () => {
     t->expect(assets->Array.includes("/"))->Expect.toBe(true)
     t->expect(assets->Array.includes("/index.html"))->Expect.toBe(true)
     t->expect(assets->Array.includes("/manifest.json"))->Expect.toBe(true)
+    t->expect(assets->Array.includes("/images/logo.png~"))->Expect.toBe(false)
+    t->expect(assets->Array.includes("/images/logo_old.png"))->Expect.toBe(false)
   })
 
   test("Bindings are accessible", _ => {

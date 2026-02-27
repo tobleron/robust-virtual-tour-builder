@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 1579 eventbus weakref leak guard + 1580 clone offload
 - Perf budget test hardening + 1578 latency validation
 - Autosave main-thread cost instrumentation
+- 1583 service worker cache list cleanup + regression test
 
 ## [4.12.5] - 2026-02-26
 
