@@ -23,6 +23,7 @@ let backgroundQueue: array<queuedItem> = []
 
 let paused = ref(false)
 let nowMs: ref<unit => float> = ref(() => Date.now())
+let scopeBackoffUntilMs = Dict.make()
 
 let length = (): int =>
   Array.length(criticalQueue) + Array.length(normalQueue) + Array.length(backgroundQueue)
@@ -166,6 +167,30 @@ let handleRateLimit = (seconds: int) => {
         resume()
       }
     }, seconds * 1000)
+  }
+}
+
+let handleRateLimitForScope = (~scope: string, ~seconds: int) => {
+  let untilMs = nowMs.contents() +. Belt.Int.toFloat(seconds * 1000)
+  Dict.set(scopeBackoffUntilMs, scope, untilMs)
+  Logger.warn(
+    ~module_="RequestQueue",
+    ~message="RATE_LIMIT_SCOPE_BACKOFF",
+    ~data=Some(Logger.castToJson({"scope": scope, "seconds": seconds})),
+    (),
+  )
+}
+
+let waitForScope = (~scope: string): Promise.t<unit> => {
+  let untilMs = Dict.get(scopeBackoffUntilMs, scope)->Option.getOr(0.0)
+  let remainingMs = untilMs -. nowMs.contents()
+  if remainingMs <= 0.0 {
+    Promise.resolve()
+  } else {
+    Promise.make((resolve, _reject) => {
+      let delayMs = Belt.Float.toInt(remainingMs)
+      let _ = ReBindings.Window.setTimeout(() => resolve(()), delayMs)
+    })
   }
 }
 

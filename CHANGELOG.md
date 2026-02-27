@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Worker pool fingerprint offload with resilient fallback
 - Backend image decode guardrails + memory budget semaphore
 - Progressive backend resize stages with decode/memory safeguards
+- Adaptive session-aware rate limiting with class-scoped frontend backoff
 
 ## [4.12.5] - 2026-02-26
 

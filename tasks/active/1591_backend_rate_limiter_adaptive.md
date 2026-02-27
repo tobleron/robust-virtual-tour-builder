@@ -7,13 +7,13 @@ Upgrade the backend rate limiter from fixed-rate per-IP limiting to adaptive rat
 The current `rate_limiter.rs` uses `actix-governor` with fixed per-second/burst settings per route class. All users share the same IP-based limits. A legitimate power user performing a large upload can trigger rate limits that block their own navigation requests. The `RateLimitResponseTransformer` returns structured 429 responses but the frontend `RequestQueue.handleRateLimit` applies a flat pause without differentiating which endpoint class was limited.
 
 ## Acceptance Criteria
-- [ ] Implement per-session rate tracking (using session cookie or `X-Session-ID` header) in addition to per-IP
-- [ ] Add endpoint-class burstiness configuration: `media_heavy` allows 3x burst with refill, `read` allows 5x burst
-- [ ] Add a "token reserve" for critical operations: navigation/health requests always pass (minimum guaranteed rate) even when other classes are throttled
-- [ ] Return `Retry-After` header with per-class granularity (not a flat value)
-- [ ] Frontend `RequestQueue` should respect per-class `Retry-After`: pause only the rate-limited class, not the entire queue  
-- [ ] Add `x-ratelimit-remaining` and `x-ratelimit-limit` response headers for all API responses
-- [ ] Log rate-limit events with session context for post-incident analysis
+- [x] Implement per-session rate tracking (using session cookie or `X-Session-ID` header) in addition to per-IP
+- [x] Add endpoint-class burstiness configuration: `media_heavy` allows 3x burst with refill, `read` allows 5x burst
+- [x] Add a "token reserve" for critical operations: navigation/health requests always pass (minimum guaranteed rate) even when other classes are throttled
+- [x] Return `Retry-After` header with per-class granularity (not a flat value)
+- [x] Frontend `RequestQueue` should respect per-class `Retry-After`: pause only the rate-limited class, not the entire queue  
+- [x] Add `x-ratelimit-remaining` and `x-ratelimit-limit` response headers for all API responses
+- [x] Log rate-limit events with session context for post-incident analysis
 
 ## Technical Notes
 - **Files**: `backend/src/middleware/rate_limiter.rs`, `backend/src/startup.rs`, `src/utils/RequestQueue.res`

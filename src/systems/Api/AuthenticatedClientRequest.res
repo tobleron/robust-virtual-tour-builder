@@ -3,6 +3,22 @@
 open ReBindings
 include AuthenticatedClientBase
 
+let classifyRateLimitScope = (url: string): string => {
+  if String.includes(url, "/health") {
+    "health"
+  } else if String.includes(url, "/media/process-full") || String.includes(url, "/media/resize-batch") {
+    "media_heavy"
+  } else if String.includes(url, "/project/load") ||
+      String.includes(url, "/project/import/status") ||
+      String.includes(url, "/project/export/status") {
+    "read"
+  } else if String.includes(url, "/geocoding") || String.includes(url, "/project/file/") {
+    "read"
+  } else {
+    "write"
+  }
+}
+
 let request = async (
   url,
   ~method="GET",
@@ -162,6 +178,8 @@ let request = async (
             signalScope.cleanup()
             Error("Circuit breaker is open")
           } else {
+          let scopeClass = classifyRateLimitScope(url)
+          let _ = await RequestQueue.waitForScope(~scope=scopeClass)
           let res = await fetch(url, options)
 
           if res.status == 429 {
@@ -176,6 +194,13 @@ let request = async (
               ->Nullable.toOption
               ->Option.flatMap(Belt.Int.fromString)
               ->Option.getOr(10)
+            let rateScope =
+              res.headers
+              ->getHeader("x-ratelimit-scope")
+              ->Nullable.toOption
+              ->Option.getOr(scopeClass)
+
+            RequestQueue.handleRateLimitForScope(~scope=rateScope, ~seconds=retryAfter)
 
             EventBus.dispatch(RateLimitBackoff(retryAfter))
 
