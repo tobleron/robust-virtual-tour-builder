@@ -39,3 +39,8 @@ export async function downloadExifReportLazy(content) {
   const mod = await import("./ExifReportGenerator.bs.js");
   return mod.downloadExifReport(content);
 }
+
+export async function extractExifFromFileLazy(file) {
+  const mod = await import("./ExifParserFacade.bs.js");
+  return mod.extractExifFromFile(file);
+}

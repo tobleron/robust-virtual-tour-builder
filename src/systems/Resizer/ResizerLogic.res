@@ -167,12 +167,12 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
   let _fetchStart = now()
 
   Promise.all2((
-    ExifParser.extractExifTagsPreferred(File(file)),
+    FeatureLoaders.extractExifFromFileLazy(file),
     ImageOptimizer.compressToWebP(file, Constants.Media.uploadWebpQuality),
   ))
   ->Promise.then(((exifResult, compressionResult)) => {
     let exifData = switch exifResult {
-    | Ok((exif, _pano)) => Some(exif)
+    | Ok(exif) => Some(exif)
     | Error(_) => None
     }
     switch compressionResult {

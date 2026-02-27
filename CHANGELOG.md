@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Predictive viewer preloading pipeline with memory-aware candidate ranking
 - Dynamic-import facades for exporter and teaser flows with async chunk loading
 - Lazy-load EXIF report generation/download via dynamic feature facade
+- Defer ExifParser runtime via lazy facade to remove exifreader from initial bundle
 
 ## [4.12.5] - 2026-02-26
 
