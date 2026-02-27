@@ -23,6 +23,7 @@ external castBody: 'a => JSON.t = "%identity"
 let toUpper: string => string = %raw("(s) => String(s || '').toUpperCase()")
 
 let circuitBreaker = CircuitBreaker.make()
+let getDomainCircuitBreaker = domain => CircuitBreakerRegistry.getBreaker(domain)
 
 let getTimeoutMs = (~method: string, ~url: string): int => {
   // Long-running media/project endpoints need larger budgets than generic API calls.

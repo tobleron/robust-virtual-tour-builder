@@ -71,4 +71,55 @@ describe("AsyncQueue", () => {
     let results = await execute(items, 2, worker, onProgress)
     t->expect(Array.length(results))->Expect.toBe(0)
   })
+
+  testAsync("executeAdaptive processes items and returns stats", async t => {
+    let items = [1, 2, 3]
+    let worker = (_index, item, _updateStatus) => Promise.resolve(item + 1)
+    let onProgress = (_pct, _msg) => ()
+
+    let adaptive = await executeAdaptive(items, worker, onProgress)
+    t->expect(Array.length(adaptive.results))->Expect.toBe(3)
+    t->expect(adaptive.stats.finalConcurrency >= 1)->Expect.toBe(true)
+    t->expect(adaptive.stats.avgLatencyMs >= 0.0)->Expect.toBe(true)
+  })
+
+  testAsync("executeAdaptive captures worker errors and reports error rate", async t => {
+    let items = [1, 2, 3, 4]
+    let worker = (_index, item, _updateStatus) =>
+      if item == 2 || item == 4 {
+        Promise.resolve()->Promise.then(_ => {
+          let _ = Js.Exn.raiseError("adaptive fail")
+          Promise.resolve(0)
+        })
+      } else {
+        Promise.resolve(item)
+      }
+    let onProgress = (_pct, _msg) => ()
+
+    let adaptive = await executeAdaptive(
+      items,
+      ~config={
+        initialConcurrency: 3,
+        minConcurrency: 1,
+        maxConcurrency: 6,
+        successWindow: 2,
+        latencyThresholdMs: 99999.0,
+        errorWindow: 4,
+        errorRateThreshold: 0.2,
+      },
+      worker,
+      onProgress,
+    )
+
+    let failed = adaptive.results->Belt.Array.keep(r =>
+      switch r {
+      | Failed(_, _) => true
+      | _ => false
+      }
+    )
+
+    t->expect(Array.length(failed))->Expect.toBe(2)
+    t->expect(adaptive.stats.errorRate >= 0.4)->Expect.toBe(true)
+    t->expect(adaptive.stats.finalConcurrency)->Expect.toBe(1)
+  })
 })

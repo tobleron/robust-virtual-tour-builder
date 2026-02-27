@@ -31,6 +31,8 @@ let requestWithRetry = (
     jitter: true,
     totalDeadlineMs: 60000,
   }
+  let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
+  let domainBreaker = getDomainCircuitBreaker(domain)
 
   Retry.execute(
     ~fn=(~signal) =>
@@ -47,7 +49,7 @@ let requestWithRetry = (
       ),
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
-    ~isCircuitOpen=(() => CircuitBreaker.getState(circuitBreaker) === CircuitBreaker.Open),
+    ~isCircuitOpen=(() => CircuitBreaker.getState(domainBreaker) === CircuitBreaker.Open),
     ~budgetKey=("api:" ++ url),
     ~shouldRetry=error => {
       if (

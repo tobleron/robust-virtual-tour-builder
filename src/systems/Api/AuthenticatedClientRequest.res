@@ -14,6 +14,9 @@ let request = async (
   ~operationId: option<string>=?,
   (),
 ) => {
+  let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
+  let domainKey = domain->CircuitBreakerRegistry.domainToKey
+  let domainBreaker = getDomainCircuitBreaker(domain)
   let sessionId = switch Logger.getSessionId() {
   | Some(id) => id
   | None => "anonymous"
@@ -73,13 +76,14 @@ let request = async (
       )
       Error("NetworkOffline")
     } else {
-      let lastState = CircuitBreaker.getState(circuitBreaker)
-      if lastState === CircuitBreaker.Open {
+      let lastState = CircuitBreaker.getState(domainBreaker)
+      let canRun = CircuitBreaker.canExecute(domainBreaker)
+      if !canRun {
         NotificationManager.dispatch({
-          id: "cb-open-notification",
+          id: "cb-open-notification-" ++ domainKey,
           importance: Warning,
           context: Operation("api"),
-          message: "Connection issues. Please wait 30s.",
+          message: "Connection issues. Please wait before retrying.",
           details: None,
           action: None,
           duration: 10000,
@@ -127,13 +131,44 @@ let request = async (
           "signal": Some(signalScope.signal),
         }
 
+        let acquireSucceeded = CircuitBreakerRegistry.tryAcquireBulkhead(domain)
+        if !acquireSucceeded {
+          Error("BulkheadRejected: Too many concurrent requests in domain")
+        } else {
         try {
+          // In half-open state, probe health before sending user request.
+          let probeAllowed = if lastState === CircuitBreaker.Open || lastState === CircuitBreaker.HalfOpen {
+            let probeRes = await fetch(
+              Constants.backendUrl ++ "/health",
+              {
+                "method": "GET",
+                "headers": Dict.make(),
+                "signal": Some(signalScope.signal),
+              },
+            )
+            if probeRes.status >= 400 {
+              CircuitBreaker.recordFailure(domainBreaker)
+              false
+            } else {
+              CircuitBreaker.recordSuccess(domainBreaker)
+              true
+            }
+          } else {
+            true
+          }
+
+          if !probeAllowed {
+            CircuitBreakerRegistry.releaseBulkhead(domain)
+            signalScope.cleanup()
+            Error("Circuit breaker is open")
+          } else {
           let res = await fetch(url, options)
 
           if res.status == 429 {
             signalScope.cleanup()
             // 429 is a controlled throttling response, not a transport failure.
             // Do not trip the circuit breaker; rely on Retry-After backoff.
+            CircuitBreakerRegistry.releaseBulkhead(domain)
 
             let retryAfter =
               res.headers
@@ -147,17 +182,24 @@ let request = async (
             Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
           } else if res.status >= 400 {
             signalScope.cleanup()
-            CircuitBreaker.recordFailure(circuitBreaker)
-            let currentState = CircuitBreaker.getState(circuitBreaker)
+            CircuitBreaker.recordFailure(domainBreaker)
+            CircuitBreakerRegistry.releaseBulkhead(domain)
+            let currentState = CircuitBreaker.getState(domainBreaker)
 
             if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
+              Logger.info(
+                ~module_="AuthenticatedClient",
+                ~message="CIRCUIT_OPENED",
+                ~data=Logger.castToJson({"domain": domainKey}),
+                (),
+              )
               NotificationManager.dispatch({
-                id: "circuit-breaker-open",
+                id: "circuit-breaker-open-" ++ domainKey,
                 importance: Warning,
                 context: Operation("network"),
-                message: "Connection issues detected.",
+                message: "Connection issues detected for service domain.",
                 details: Some(
-                  "Multiple requests failing. Circuit breaker activated to prevent overload.",
+                  "Circuit breaker activated to prevent overload in this domain.",
                 ),
                 action: None,
                 duration: 10000,
@@ -170,12 +212,15 @@ let request = async (
             Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
           } else {
             signalScope.cleanup()
-            CircuitBreaker.recordSuccess(circuitBreaker)
+            CircuitBreaker.recordSuccess(domainBreaker)
+            CircuitBreakerRegistry.releaseBulkhead(domain)
             Ok(res)
+          }
           }
         } catch {
         | e =>
           signalScope.cleanup()
+          CircuitBreakerRegistry.releaseBulkhead(domain)
           // Use JsExn as suggested by deprecation warning
           let (name, msg) = switch JsExn.fromException(e) {
           | Some(err) => (
@@ -194,7 +239,7 @@ let request = async (
               Error("AbortError")
             }
           } else {
-            CircuitBreaker.recordFailure(circuitBreaker)
+            CircuitBreaker.recordFailure(domainBreaker)
             Error(
               if msg == "" {
                 "Unknown Error"
@@ -203,6 +248,7 @@ let request = async (
               },
             )
           }
+        }
         }
       }
     }

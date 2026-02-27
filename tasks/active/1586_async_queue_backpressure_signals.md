@@ -7,15 +7,15 @@ Implement adaptive concurrency control in `AsyncQueue.res` that dynamically adju
 `AsyncQueue.res` uses a fixed `maxConcurrency` which is determined at call time. During bulk uploads, if the backend becomes slow (due to CPU saturation from image processing), maintaining full concurrency amplifies the pressure. Conversely, if the backend is underloaded, the fixed concurrency leaves throughput on the table. The `executeWeighted` variant adds weight-based budgeting but doesn't adapt to runtime conditions.
 
 ## Acceptance Criteria
-- [ ] Implement AIMD (Additive Increase, Multiplicative Decrease) concurrency control:
+- [x] Implement AIMD (Additive Increase, Multiplicative Decrease) concurrency control:
   - Increase concurrency by 1 after every N successful completions without errors
   - Halve concurrency on any error or when average latency exceeds a threshold
-- [ ] Add latency tracking: measure p50/p95 of worker completion times per batch
-- [ ] Add error-rate tracking: if error rate exceeds 20% in a window, reduce concurrency to minimum (1)
-- [ ] Expose backpressure signal: when queue depth > 2x concurrency, emit `Logger.warn` with queue health metrics
-- [ ] Add memory pressure integration: reduce concurrency if `performance.memory` (where available) shows heap > 80% utilized
-- [ ] Make AIMD parameters configurable per call site (upload vs export have different optimal profiles)
-- [ ] Preserve existing `execute` and `executeWeighted` APIs as wrappers with AIMD disabled by default
+- [x] Add latency tracking: measure p50/p95 of worker completion times per batch
+- [x] Add error-rate tracking: if error rate exceeds 20% in a window, reduce concurrency to minimum (1)
+- [x] Expose backpressure signal: when queue depth > 2x concurrency, emit `Logger.warn` with queue health metrics
+- [x] Add memory pressure integration: reduce concurrency if `performance.memory` (where available) shows heap > 80% utilized
+- [x] Make AIMD parameters configurable per call site (upload vs export have different optimal profiles)
+- [x] Preserve existing `execute` and `executeWeighted` APIs as wrappers with AIMD disabled by default
 
 ## Technical Notes
 - **Files**: `src/utils/AsyncQueue.res`
