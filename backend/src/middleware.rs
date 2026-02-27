@@ -211,14 +211,20 @@ where
         if let Some(manager) = &shutdown_manager
             && manager.is_shutting_down()
         {
+            let retry_after = manager.estimated_retry_after_secs();
             return Box::pin(async move {
                 Ok(req
-                    .into_response(json_error_response(
-                        actix_web::http::StatusCode::SERVICE_UNAVAILABLE,
-                        "Service Unavailable",
-                        "Server is shutting down. Please retry shortly.",
-                        Some(&request_id),
-                    ))
+                    .into_response(
+                        actix_web::HttpResponse::ServiceUnavailable()
+                            .insert_header(("Retry-After", retry_after.to_string()))
+                            .json(serde_json::json!({
+                                "error": "Service Unavailable",
+                                "message": "Server is draining requests for shutdown.",
+                                "requestId": request_id,
+                                "draining": true,
+                                "retryAfterSec": retry_after,
+                            })),
+                    )
                     .map_body(|_, b| EitherBody::Right { body: b }))
             });
         }
@@ -233,9 +239,9 @@ where
                     m.inc();
                 }
                 if let Some(manager) = shutdown_manager {
-                    manager.register_request().await;
+                    manager.register_request();
                     let res = fut.await;
-                    manager.unregister_request().await;
+                    manager.unregister_request();
                     if let Some(m) = &*ACTIVE_SESSIONS {
                         m.dec();
                     }
@@ -309,6 +315,6 @@ mod request_tracker_tests {
         let resp = test::call_service(&app, req).await;
 
         assert_eq!(resp.status(), StatusCode::INTERNAL_SERVER_ERROR);
-        assert_eq!(shutdown_ref.active_count().await, 0);
+        assert_eq!(shutdown_ref.active_count(), 0);
     }
 }

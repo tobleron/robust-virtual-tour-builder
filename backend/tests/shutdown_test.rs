@@ -7,17 +7,17 @@ async fn test_graceful_shutdown() {
     let manager = ShutdownManager::new(Duration::from_secs(5));
 
     // Simulate active requests
-    manager.register_request().await;
-    manager.register_request().await;
+    manager.register_request();
+    manager.register_request();
 
-    assert_eq!(manager.active_count().await, 2);
+    assert_eq!(manager.active_count(), 2);
 
     // Simulate completion
-    manager.unregister_request().await;
-    assert_eq!(manager.active_count().await, 1);
+    manager.unregister_request();
+    assert_eq!(manager.active_count(), 1);
 
-    manager.unregister_request().await;
-    assert_eq!(manager.active_count().await, 0);
+    manager.unregister_request();
+    assert_eq!(manager.active_count(), 0);
 
     // Should complete immediately
     let completed = manager.wait_for_completion().await;
@@ -32,7 +32,7 @@ async fn test_shutdown_timeout() {
     let manager = ShutdownManager::new(Duration::from_secs(1));
 
     // Simulate stuck request
-    manager.register_request().await;
+    manager.register_request();
 
     // Should timeout
     let completed = manager.wait_for_completion().await;

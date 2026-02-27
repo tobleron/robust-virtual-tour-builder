@@ -168,7 +168,7 @@ pub async fn trigger_shutdown(
 
     shutdown_manager.begin_shutdown();
 
-    let active = shutdown_manager.active_count().await;
+    let active = shutdown_manager.active_count();
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Shutdown initiated",

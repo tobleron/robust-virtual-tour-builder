@@ -1,12 +1,11 @@
 // @efficiency: infra-adapter
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
-use tokio::sync::RwLock;
 
 /// Manages graceful shutdown procedures
 pub struct ShutdownManager {
-    active_requests: Arc<RwLock<usize>>,
+    active_requests: Arc<AtomicUsize>,
     is_shutting_down: Arc<AtomicBool>,
     shutdown_timeout: Duration,
 }
@@ -14,7 +13,7 @@ pub struct ShutdownManager {
 impl ShutdownManager {
     pub fn new(shutdown_timeout: Duration) -> Self {
         Self {
-            active_requests: Arc::new(RwLock::new(0)),
+            active_requests: Arc::new(AtomicUsize::new(0)),
             is_shutting_down: Arc::new(AtomicBool::new(false)),
             shutdown_timeout,
         }
@@ -31,30 +30,50 @@ impl ShutdownManager {
     }
 
     /// Register a new active request
-    pub async fn register_request(&self) {
-        let mut count = self.active_requests.write().await;
-        *count += 1;
-        tracing::debug!(active_requests = *count, "Request registered");
+    pub fn register_request(&self) {
+        let count = self.active_requests.fetch_add(1, Ordering::SeqCst) + 1;
+        tracing::debug!(active_requests = count, "Request registered");
     }
 
     /// Unregister a completed request
-    pub async fn unregister_request(&self) {
-        let mut count = self.active_requests.write().await;
-        *count = count.saturating_sub(1);
-        tracing::debug!(active_requests = *count, "Request unregistered");
+    pub fn unregister_request(&self) {
+        let mut current = self.active_requests.load(Ordering::SeqCst);
+        loop {
+            let next = current.saturating_sub(1);
+            match self.active_requests.compare_exchange(
+                current,
+                next,
+                Ordering::SeqCst,
+                Ordering::SeqCst,
+            ) {
+                Ok(_) => {
+                    tracing::debug!(active_requests = next, "Request unregistered");
+                    break;
+                }
+                Err(actual) => current = actual,
+            }
+        }
     }
 
     /// Get current active request count
-    pub async fn active_count(&self) -> usize {
-        *self.active_requests.read().await
+    pub fn active_count(&self) -> usize {
+        self.active_requests.load(Ordering::SeqCst)
+    }
+
+    pub fn estimated_retry_after_secs(&self) -> u64 {
+        let active = self.active_count() as u64;
+        // Coarse estimate: at least 1s, up to timeout seconds.
+        let estimate = (active / 5).max(1);
+        estimate.min(self.shutdown_timeout.as_secs().max(1))
     }
 
     /// Wait for all active requests to complete (with timeout)
     pub async fn wait_for_completion(&self) -> bool {
         let start = std::time::Instant::now();
+        let mut sleep_ms = 100_u64;
 
         loop {
-            let count = self.active_count().await;
+            let count = self.active_count();
 
             if count == 0 {
                 tracing::info!("All requests completed");
@@ -76,7 +95,8 @@ impl ShutdownManager {
                 "Waiting for requests to complete..."
             );
 
-            tokio::time::sleep(Duration::from_millis(500)).await;
+            tokio::time::sleep(Duration::from_millis(sleep_ms)).await;
+            sleep_ms = (sleep_ms * 2).min(400);
         }
     }
 }
@@ -150,9 +170,28 @@ pub async fn persist_caches() -> Result<(), String> {
     Ok(())
 }
 
+pub async fn persist_inflight_upload_sessions(
+    import_manager: &crate::services::project::ChunkedProjectImportManager,
+    export_manager: &crate::services::project::ChunkedProjectExportUploadManager,
+) -> Result<(), String> {
+    let import_count = import_manager.save_sessions_manifest().await?;
+    let export_count = export_manager.save_sessions_manifest().await?;
+    tracing::info!(
+        import_sessions = import_count,
+        export_sessions = export_count,
+        "In-flight upload session manifests persisted"
+    );
+    Ok(())
+}
+
 /// Perform all shutdown cleanup tasks
-pub async fn perform_shutdown_cleanup(shutdown_manager: &ShutdownManager) {
+pub async fn perform_shutdown_cleanup(
+    shutdown_manager: &ShutdownManager,
+    import_manager: &crate::services::project::ChunkedProjectImportManager,
+    export_manager: &crate::services::project::ChunkedProjectExportUploadManager,
+) {
     tracing::info!("🛑 Initiating graceful shutdown...");
+    let drain_started = std::time::Instant::now();
 
     // Wait for active requests to complete
     let all_completed = shutdown_manager.wait_for_completion().await;
@@ -165,13 +204,21 @@ pub async fn perform_shutdown_cleanup(shutdown_manager: &ShutdownManager) {
     if let Err(e) = persist_caches().await {
         tracing::error!(error = %e, "Cache persistence failed");
     }
+    if let Err(e) = persist_inflight_upload_sessions(import_manager, export_manager).await {
+        tracing::error!(error = %e, "In-flight upload session persistence failed");
+    }
 
     // Clean up temporary files
     if let Err(e) = cleanup_temp_files().await {
         tracing::error!(error = %e, "Temp file cleanup failed");
     }
 
-    tracing::info!("✅ Graceful shutdown complete");
+    tracing::info!(
+        drain_ms = drain_started.elapsed().as_millis(),
+        completed_all_requests = all_completed,
+        remaining_requests = shutdown_manager.active_count(),
+        "✅ Graceful shutdown complete"
+    );
 }
 
 #[cfg(test)]
@@ -181,7 +228,7 @@ mod tests {
     #[tokio::test]
     async fn wait_for_completion_returns_false_on_timeout() {
         let manager = ShutdownManager::new(Duration::from_millis(50));
-        manager.register_request().await;
+        manager.register_request();
 
         let completed = manager.wait_for_completion().await;
         assert!(!completed);

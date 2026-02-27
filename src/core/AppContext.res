@@ -94,6 +94,14 @@ let pipelineContext = React.createContext({
 })
 let dispatchContext = React.createContext(defaultDispatch)
 
+let isRafBatchableAction = (action: action): bool =>
+  switch action {
+  | UpdateLinkDraft(_)
+  | SetPreloadingScene(_)
+  | SetNavigationStatus(_) => true
+  | _ => false
+  }
+
 module GlobalProvider = {
   let make = React.Context.provider(globalContext)
 }
@@ -142,7 +150,33 @@ module Provider = {
       }
     })
 
-    let (state, dispatch) = React.useReducer(Reducer.reducer, loadedState)
+    let (state, dispatchRaw) = React.useReducer(Reducer.reducer, loadedState)
+    let rafIdRef = React.useRef(None)
+    let queuedActionsRef = React.useRef([])
+
+    let flushQueuedActions = () => {
+      let queuedActions = queuedActionsRef.current
+      queuedActionsRef.current = []
+      rafIdRef.current = None
+      switch Belt.Array.length(queuedActions) {
+      | 0 => ()
+      | 1 => dispatchRaw(queuedActions->Belt.Array.getExn(0))
+      | _ => dispatchRaw(Batch(queuedActions))
+      }
+    }
+
+    let dispatch = (nextAction: action) => {
+      if isRafBatchableAction(nextAction) {
+        queuedActionsRef.current = Belt.Array.concat(queuedActionsRef.current, [nextAction])
+        switch rafIdRef.current {
+        | Some(_) => ()
+        | None =>
+          rafIdRef.current = Some(ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()))
+        }
+      } else {
+        dispatchRaw(nextAction)
+      }
+    }
 
     // Load timeline from session if available
     React.useEffect0(() => {
@@ -333,4 +367,27 @@ let useNavigationState = useNavigationSlice
 let useNavigationFsm = () => {
   let nav = useNavigationSlice()
   nav.navigationFsm
+}
+
+let useAppSelector = (
+  ~selector: state => 'slice,
+  ~isEqual: ('slice, 'slice) => bool=(a, b) => a === b,
+) => {
+  let eq = isEqual
+  let (selected, setSelected) = React.useState(() => selector(getBridgeState()))
+  let selectedRef = React.useRef(selected)
+  selectedRef.current = selected
+
+  React.useEffect1(() => {
+    let unsubscribe = AppStateBridge.subscribe(nextState => {
+      let nextSelected = selector(nextState)
+      if !eq(selectedRef.current, nextSelected) {
+        selectedRef.current = nextSelected
+        setSelected(_ => nextSelected)
+      }
+    })
+    Some(() => unsubscribe())
+  }, [selector])
+
+  selected
 }

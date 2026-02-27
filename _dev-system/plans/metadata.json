@@ -2,201 +2,66 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/utils/PersistenceLayer.res",
+        "file": "../../src/utils/AsyncQueue.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 499/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 24.188577154308618,
+        "complexity": 21.366666666666667,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
+          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
           "snapshots": [
             {
-              "path": "src/utils/PersistenceLayer.res",
+              "path": "src/utils/AsyncQueue.res",
               "functions": [
                 {
-                  "name": "key",
-                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
-                  "line": 31
-                },
-                {
-                  "name": "manifestKey",
-                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
-                  "line": 32
-                },
-                {
-                  "name": "sliceKeyPrefix",
-                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
+                  "name": "defaultAdaptiveConfig",
+                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
                   "line": 33
                 },
                 {
-                  "name": "debounceMs",
-                  "signature": "debounceMs = 2000",
-                  "line": 34
+                  "name": "getHeapUsageRatio",
+                  "signature": "getHeapUsageRatio = (): option<float> =>",
+                  "line": 43
                 },
                 {
-                  "name": "currentSchemaVersion",
-                  "signature": "currentSchemaVersion = 2",
-                  "line": 35
+                  "name": "toSortedCopy",
+                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
+                  "line": 56
                 },
                 {
-                  "name": "coalesceMs",
-                  "signature": "coalesceMs = 500",
-                  "line": 36
+                  "name": "percentile",
+                  "signature": "percentile = (values: array<float>, p: float): float => {",
+                  "line": 70
                 },
                 {
-                  "name": "autosaveCostTargetMs",
-                  "signature": "autosaveCostTargetMs = 10.0",
-                  "line": 37
+                  "name": "average",
+                  "signature": "average = (values: array<float>): float => {",
+                  "line": 81
                 },
                 {
-                  "name": "autosaveCostWindowSize",
-                  "signature": "autosaveCostWindowSize = 30",
-                  "line": 38
+                  "name": "computeStatus",
+                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
+                  "line": 90
                 },
                 {
-                  "name": "stateGetterRef",
-                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
-                  "line": 46
+                  "name": "executeAdaptive",
+                  "signature": "executeAdaptive = (",
+                  "line": 113
                 },
                 {
-                  "name": "lastSaveTimeout",
-                  "signature": "lastSaveTimeout = ref(None)",
-                  "line": 47
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 289
                 },
                 {
-                  "name": "lastSavedRevision",
-                  "signature": "lastSavedRevision = ref(-1)",
-                  "line": 48
-                },
-                {
-                  "name": "beforeUnloadListener",
-                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
-                  "line": 49
-                },
-                {
-                  "name": "subscriberRef",
-                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
-                  "line": 50
-                },
-                {
-                  "name": "lastQueuedAtMs",
-                  "signature": "lastQueuedAtMs = ref(0.0)",
-                  "line": 51
-                },
-                {
-                  "name": "pendingStateRef",
-                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
-                  "line": 52
-                },
-                {
-                  "name": "lastSliceSignatureRef",
-                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
-                  "line": 53
-                },
-                {
-                  "name": "performSaveRef",
-                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
-                  "line": 54
-                },
-                {
-                  "name": "autosaveCostSamplesRef",
-                  "signature": "autosaveCostSamplesRef: ref<array<float>> = ref([])",
-                  "line": 55
-                },
-                {
-                  "name": "sliceKey",
-                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
-                  "line": 65
-                },
-                {
-                  "name": "encodeMetadataSlice",
-                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
-                  "line": 67
-                },
-                {
-                  "name": "signatureOfJson",
-                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
-                  "line": 96
-                },
-                {
-                  "name": "recordAutosaveCost",
-                  "signature": "recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {",
-                  "line": 98
-                },
-                {
-                  "name": "getAutosaveCostStats",
-                  "signature": "getAutosaveCostStats = (): autosaveCostStats => {",
-                  "line": 142
-                },
-                {
-                  "name": "queueIncrementalSave",
-                  "signature": "queueIncrementalSave = (state: state) => {",
-                  "line": 156
-                },
-                {
-                  "name": "processQueuedSave",
-                  "signature": "processQueuedSave = () => {",
-                  "line": 167
-                },
-                {
-                  "name": "normalizeProjectData",
-                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
-                  "line": 191
-                },
-                {
-                  "name": "performSave",
-                  "signature": "performSave = (state: Types.state) => {",
-                  "line": 205
-                },
-                {
-                  "name": "_",
-                  "signature": "_ = performSaveRef := performSave",
-                  "line": 324
-                },
-                {
-                  "name": "handleStateChange",
-                  "signature": "handleStateChange = (state: state) => {",
-                  "line": 326
-                },
-                {
-                  "name": "notifyStateChange",
-                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
-                  "line": 338
-                },
-                {
-                  "name": "initSubscriber",
-                  "signature": "initSubscriber = (",
-                  "line": 340
-                },
-                {
-                  "name": "clearSession",
-                  "signature": "clearSession = () => {",
-                  "line": 378
-                },
-                {
-                  "name": "decodeManifest",
-                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
-                  "line": 387
-                },
-                {
-                  "name": "extractFromSlice",
-                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
-                  "line": 400
-                },
-                {
-                  "name": "decodeMetadataSlice",
-                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
-                  "line": 406
-                },
-                {
-                  "name": "checkRecovery",
-                  "signature": "checkRecovery = () => {",
-                  "line": 434
+                  "name": "executeWeighted",
+                  "signature": "executeWeighted = (",
+                  "line": 374
                 }
               ],
-              "fingerprint": "0ff8db8c4c842daa10eccaae13d382c88ffcb286cb4cb60f6aa71a40bcb7fdad"
+              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
             }
           ]
         }
@@ -857,66 +722,201 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/AsyncQueue.res",
+        "file": "../../src/utils/PersistenceLayer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 499/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 21.366666666666667,
+        "complexity": 24.188577154308618,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
+          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
           "snapshots": [
             {
-              "path": "src/utils/AsyncQueue.res",
+              "path": "src/utils/PersistenceLayer.res",
               "functions": [
                 {
-                  "name": "defaultAdaptiveConfig",
-                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
+                  "name": "key",
+                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
+                  "line": 31
+                },
+                {
+                  "name": "manifestKey",
+                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
+                  "line": 32
+                },
+                {
+                  "name": "sliceKeyPrefix",
+                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
                   "line": 33
                 },
                 {
-                  "name": "getHeapUsageRatio",
-                  "signature": "getHeapUsageRatio = (): option<float> =>",
-                  "line": 43
+                  "name": "debounceMs",
+                  "signature": "debounceMs = 2000",
+                  "line": 34
                 },
                 {
-                  "name": "toSortedCopy",
-                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
-                  "line": 56
+                  "name": "currentSchemaVersion",
+                  "signature": "currentSchemaVersion = 2",
+                  "line": 35
                 },
                 {
-                  "name": "percentile",
-                  "signature": "percentile = (values: array<float>, p: float): float => {",
-                  "line": 70
+                  "name": "coalesceMs",
+                  "signature": "coalesceMs = 500",
+                  "line": 36
                 },
                 {
-                  "name": "average",
-                  "signature": "average = (values: array<float>): float => {",
-                  "line": 81
+                  "name": "autosaveCostTargetMs",
+                  "signature": "autosaveCostTargetMs = 10.0",
+                  "line": 37
                 },
                 {
-                  "name": "computeStatus",
-                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
-                  "line": 90
+                  "name": "autosaveCostWindowSize",
+                  "signature": "autosaveCostWindowSize = 30",
+                  "line": 38
                 },
                 {
-                  "name": "executeAdaptive",
-                  "signature": "executeAdaptive = (",
-                  "line": 113
+                  "name": "stateGetterRef",
+                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
+                  "line": 46
                 },
                 {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 289
+                  "name": "lastSaveTimeout",
+                  "signature": "lastSaveTimeout = ref(None)",
+                  "line": 47
                 },
                 {
-                  "name": "executeWeighted",
-                  "signature": "executeWeighted = (",
-                  "line": 374
+                  "name": "lastSavedRevision",
+                  "signature": "lastSavedRevision = ref(-1)",
+                  "line": 48
+                },
+                {
+                  "name": "beforeUnloadListener",
+                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
+                  "line": 49
+                },
+                {
+                  "name": "subscriberRef",
+                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
+                  "line": 50
+                },
+                {
+                  "name": "lastQueuedAtMs",
+                  "signature": "lastQueuedAtMs = ref(0.0)",
+                  "line": 51
+                },
+                {
+                  "name": "pendingStateRef",
+                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
+                  "line": 52
+                },
+                {
+                  "name": "lastSliceSignatureRef",
+                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
+                  "line": 53
+                },
+                {
+                  "name": "performSaveRef",
+                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
+                  "line": 54
+                },
+                {
+                  "name": "autosaveCostSamplesRef",
+                  "signature": "autosaveCostSamplesRef: ref<array<float>> = ref([])",
+                  "line": 55
+                },
+                {
+                  "name": "sliceKey",
+                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
+                  "line": 65
+                },
+                {
+                  "name": "encodeMetadataSlice",
+                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
+                  "line": 67
+                },
+                {
+                  "name": "signatureOfJson",
+                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
+                  "line": 96
+                },
+                {
+                  "name": "recordAutosaveCost",
+                  "signature": "recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {",
+                  "line": 98
+                },
+                {
+                  "name": "getAutosaveCostStats",
+                  "signature": "getAutosaveCostStats = (): autosaveCostStats => {",
+                  "line": 142
+                },
+                {
+                  "name": "queueIncrementalSave",
+                  "signature": "queueIncrementalSave = (state: state) => {",
+                  "line": 156
+                },
+                {
+                  "name": "processQueuedSave",
+                  "signature": "processQueuedSave = () => {",
+                  "line": 167
+                },
+                {
+                  "name": "normalizeProjectData",
+                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
+                  "line": 191
+                },
+                {
+                  "name": "performSave",
+                  "signature": "performSave = (state: Types.state) => {",
+                  "line": 205
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = performSaveRef := performSave",
+                  "line": 324
+                },
+                {
+                  "name": "handleStateChange",
+                  "signature": "handleStateChange = (state: state) => {",
+                  "line": 326
+                },
+                {
+                  "name": "notifyStateChange",
+                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
+                  "line": 338
+                },
+                {
+                  "name": "initSubscriber",
+                  "signature": "initSubscriber = (",
+                  "line": 340
+                },
+                {
+                  "name": "clearSession",
+                  "signature": "clearSession = () => {",
+                  "line": 378
+                },
+                {
+                  "name": "decodeManifest",
+                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
+                  "line": 387
+                },
+                {
+                  "name": "extractFromSlice",
+                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
+                  "line": 400
+                },
+                {
+                  "name": "decodeMetadataSlice",
+                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
+                  "line": 406
+                },
+                {
+                  "name": "checkRecovery",
+                  "signature": "checkRecovery = () => {",
+                  "line": 434
                 }
               ],
-              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
+              "fingerprint": "0ff8db8c4c842daa10eccaae13d382c88ffcb286cb4cb60f6aa71a40bcb7fdad"
             }
           ]
         }
@@ -1045,6 +1045,12 @@
   "system": [
     {
       "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
         "file": "../../backend/src/services/project/export_upload.rs",
         "strategy": ""
       }
@@ -1052,12 +1058,6 @@
     {
       "Ambiguity": {
         "file": "../../backend/src/services/project/export_session.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload_runtime.rs",
         "strategy": ""
       }
     },

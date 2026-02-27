@@ -6,8 +6,9 @@ mod import_upload_runtime;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use crate::services::project::import_session::UploadSession;
@@ -45,6 +46,24 @@ pub struct ChunkedProjectImportManager {
     pub(crate) root_dir: PathBuf,
     pub(crate) ttl: Duration,
     pub(crate) sessions: Arc<RwLock<HashMap<String, UploadSession>>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct PersistedImportSession {
+    upload_id: String,
+    user_id: String,
+    filename: String,
+    size_bytes: u64,
+    size_bytes_usize: usize,
+    chunk_size_bytes: usize,
+    total_chunks: usize,
+    received_chunks: Vec<usize>,
+    expires_at_epoch_ms: u64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct PersistedImportSessionsEnvelope {
+    sessions: Vec<PersistedImportSession>,
 }
 
 impl ChunkedProjectImportManager {
@@ -140,6 +159,81 @@ impl ChunkedProjectImportManager {
 
     async fn cleanup_expired(&self) {
         import_upload_runtime::cleanup_expired(self).await
+    }
+
+    fn sessions_manifest_path(&self) -> PathBuf {
+        self.root_dir.join("sessions_manifest.json")
+    }
+
+    pub async fn save_sessions_manifest(&self) -> Result<usize, String> {
+        let sessions = self.sessions.read().await;
+        let persisted = sessions
+            .iter()
+            .map(|(upload_id, session)| {
+                let expires_at_epoch_ms = session
+                    .expires_at
+                    .duration_since(UNIX_EPOCH)
+                    .map_err(|e| format!("Invalid session expiry timestamp: {e}"))?
+                    .as_millis() as u64;
+                Ok(PersistedImportSession {
+                    upload_id: upload_id.clone(),
+                    user_id: session.user_id.clone(),
+                    filename: session.filename.clone(),
+                    size_bytes: session.size_bytes,
+                    size_bytes_usize: session.size_bytes_usize,
+                    chunk_size_bytes: session.chunk_size_bytes,
+                    total_chunks: session.total_chunks,
+                    received_chunks: session.received_chunks.iter().copied().collect(),
+                    expires_at_epoch_ms,
+                })
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+
+        let payload = serde_json::to_string_pretty(&PersistedImportSessionsEnvelope {
+            sessions: persisted.clone(),
+        })
+        .map_err(|e| format!("Failed to serialize import sessions: {e}"))?;
+        tokio::fs::write(self.sessions_manifest_path(), payload)
+            .await
+            .map_err(|e| format!("Failed to persist import sessions manifest: {e}"))?;
+        Ok(persisted.len())
+    }
+
+    pub async fn load_sessions_manifest(&self) -> Result<usize, String> {
+        let manifest_path = self.sessions_manifest_path();
+        let content = match tokio::fs::read_to_string(&manifest_path).await {
+            Ok(v) => v,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(0),
+            Err(e) => return Err(format!("Failed to read import sessions manifest: {e}")),
+        };
+        let envelope: PersistedImportSessionsEnvelope = serde_json::from_str(&content)
+            .map_err(|e| format!("Failed to decode import sessions manifest: {e}"))?;
+
+        let now = SystemTime::now();
+        let mut restored = HashMap::new();
+        for item in envelope.sessions {
+            let expires_at = UNIX_EPOCH + Duration::from_millis(item.expires_at_epoch_ms);
+            if expires_at <= now {
+                continue;
+            }
+            let session_dir = self.root_dir.join(&item.upload_id);
+            restored.insert(
+                item.upload_id,
+                UploadSession {
+                    user_id: item.user_id,
+                    filename: item.filename,
+                    size_bytes: item.size_bytes,
+                    size_bytes_usize: item.size_bytes_usize,
+                    chunk_size_bytes: item.chunk_size_bytes,
+                    total_chunks: item.total_chunks,
+                    received_chunks: item.received_chunks.into_iter().collect(),
+                    session_dir,
+                    expires_at,
+                },
+            );
+        }
+        *self.sessions.write().await = restored;
+        Ok(self.sessions.read().await.len())
     }
 }
 

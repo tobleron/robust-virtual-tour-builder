@@ -29,6 +29,30 @@ use services::project::ChunkedProjectImportManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
+#[cfg(unix)]
+async fn wait_for_shutdown_signal() -> &'static str {
+    let mut sigterm = match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+    {
+        Ok(stream) => stream,
+        Err(err) => {
+            tracing::error!(%err, "Failed to subscribe to SIGTERM; falling back to Ctrl+C only");
+            let _ = signal::ctrl_c().await;
+            return "CTRL_C_FALLBACK";
+        }
+    };
+
+    tokio::select! {
+        _ = signal::ctrl_c() => "CTRL_C",
+        _ = sigterm.recv() => "SIGTERM",
+    }
+}
+
+#[cfg(not(unix))]
+async fn wait_for_shutdown_signal() -> &'static str {
+    let _ = signal::ctrl_c().await;
+    "CTRL_C"
+}
+
 fn is_hashed_static_asset(path: &str) -> bool {
     // Match patterns like /static/js/index-a1b2c3.js
     if !(path.starts_with("/static/") || path.starts_with("/assets/")) {
@@ -69,8 +93,23 @@ mod cache_header_tests {
     }
 }
 
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().body("Tour Builder API is running!")
+async fn health_check(shutdown_manager: web::Data<ShutdownManager>) -> impl Responder {
+    if shutdown_manager.is_shutting_down() {
+        let retry_after = shutdown_manager.estimated_retry_after_secs();
+        return HttpResponse::ServiceUnavailable()
+            .insert_header(("Retry-After", retry_after.to_string()))
+            .json(serde_json::json!({
+                "status": "draining",
+                "draining": true,
+                "retryAfterSec": retry_after,
+                "timestamp": chrono::Utc::now().to_rfc3339(),
+            }));
+    }
+    HttpResponse::Ok().json(serde_json::json!({
+        "status": "ok",
+        "draining": false,
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+    }))
 }
 
 #[actix_web::main]
@@ -134,6 +173,12 @@ async fn main() -> io::Result<()> {
                 e
             ))
         })?);
+    if let Err(e) = project_import_uploads.load_sessions_manifest().await {
+        tracing::warn!(error = %e, "Failed to restore chunked import session manifest");
+    }
+    if let Err(e) = project_export_uploads.load_sessions_manifest().await {
+        tracing::warn!(error = %e, "Failed to restore chunked export session manifest");
+    }
 
     let disk_bypass = std::env::var("ALLOW_DISK_CHECK_BYPASS").unwrap_or_default();
 
@@ -171,14 +216,16 @@ async fn main() -> io::Result<()> {
     let session_key = startup::session_key()?;
     let shutdown_manager_server = shutdown_manager.clone();
     let db_pool_server = db_pool.clone();
+    let project_import_uploads_for_app = project_import_uploads.clone();
+    let project_export_uploads_for_app = project_export_uploads.clone();
     let worker_count = startup::server_worker_count();
 
     let server = HttpServer::new(move || {
         App::new()
             .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
             .app_data(quota_manager.clone())
-            .app_data(project_import_uploads.clone())
-            .app_data(project_export_uploads.clone())
+            .app_data(project_import_uploads_for_app.clone())
+            .app_data(project_export_uploads_for_app.clone())
             .app_data(shutdown_manager_server.clone())
             .app_data(db_pool_server.clone())
             .wrap(QuotaCheck)
@@ -272,15 +319,11 @@ async fn main() -> io::Result<()> {
 
     // Wait for shutdown signal
     let shutdown_manager_clone = shutdown_manager.clone();
+    let project_import_uploads_for_shutdown = project_import_uploads.clone();
+    let project_export_uploads_for_shutdown = project_export_uploads.clone();
     tokio::spawn(async move {
-        match signal::ctrl_c().await {
-            Ok(()) => {
-                tracing::info!("Received Ctrl+C signal");
-            }
-            Err(err) => {
-                tracing::error!("Failed to listen for Ctrl+C: {}", err);
-            }
-        }
+        let signal_name = wait_for_shutdown_signal().await;
+        tracing::info!(signal = signal_name, "Received shutdown signal");
 
         shutdown_manager_clone.begin_shutdown();
 
@@ -288,7 +331,12 @@ async fn main() -> io::Result<()> {
         server_handle.stop(true).await;
 
         // Perform cleanup
-        perform_shutdown_cleanup(&shutdown_manager_clone).await;
+        perform_shutdown_cleanup(
+            &shutdown_manager_clone,
+            &project_import_uploads_for_shutdown,
+            &project_export_uploads_for_shutdown,
+        )
+        .await;
     });
 
     // Wait for server to finish
