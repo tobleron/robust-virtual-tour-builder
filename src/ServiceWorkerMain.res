@@ -7,6 +7,7 @@ module Response = {
   @get external status: t => int = "status"
   @get external type_: t => string = "type"
   @send external json: t => Promise.t<'a> = "json"
+  @get external headers: t => {..} = "headers"
 }
 
 module Request = {
@@ -21,6 +22,8 @@ module Cache = {
   @send external match: (t, Request.t) => Promise.t<Nullable.t<Response.t>> = "match"
   @send external put: (t, Request.t, Response.t) => Promise.t<unit> = "put"
   @send external addAll: (t, array<string>) => Promise.t<unit> = "addAll"
+  @send external keys: (t, unit) => Promise.t<array<Request.t>> = "keys"
+  @send external deleteReq: (t, Request.t) => Promise.t<bool> = "delete"
 }
 
 module CacheStorage = {
@@ -52,6 +55,7 @@ module ExtendableEvent = {
 @val external self: {..} = "self"
 @val @scope("self") external caches: CacheStorage.t = "caches"
 @val @scope("self") external clients: Clients.t = "clients"
+@val @scope("self") external registration: {..} = "registration"
 @val @scope("self") external addEventListener: (string, 'event => unit) => unit = "addEventListener"
 @val @scope("self") external skipWaiting: unit => Promise.t<unit> = "skipWaiting"
 
@@ -94,6 +98,35 @@ let manualAssets = [
   "/sounds/click.wav"
 ]
 
+let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
+
+let hasHashedAssetName = (_pathname: string): bool =>
+  %raw(`(function(pathname){
+    return /-[a-f0-9]{6,}\.(js|css|mjs|png|jpg|jpeg|webp|svg)$/.test(pathname);
+  })(_pathname)`)
+
+let shouldCacheResponse = (_response: Response.t): bool => {
+  let cc = %raw(`(function(response){
+    const headers = response && response.headers ? response.headers : null;
+    const value = headers && typeof headers.get === "function" ? headers.get("Cache-Control") : null;
+    return value == null ? "" : String(value);
+  })(_response)`)
+  !(cc->String.includes("no-store") || cc->String.includes("private"))
+}
+
+let isResponseOlderThan = (_response: Response.t, _maxAgeMs: float): bool =>
+  %raw(`(function(response, maxAgeMs){
+    try {
+      const dateVal = response && response.headers ? response.headers.get("Date") : null;
+      if (!dateVal) return false;
+      const ts = Date.parse(dateVal);
+      if (!Number.isFinite(ts)) return false;
+      return (Date.now() - ts) > maxAgeMs;
+    } catch (_) {
+      return false;
+    }
+  })(_response, _maxAgeMs)`)
+
 let fetchWithTimeout = (request, timeoutMs) => {
   let timeoutPromise = Promise.make((_, reject) => {
     let _ = setTimeout(() => {
@@ -103,6 +136,12 @@ let fetchWithTimeout = (request, timeoutMs) => {
 
   race([fetch(request), timeoutPromise])
 }
+
+let fetchWithAdaptiveTimeout = (request: Request.t): Promise.t<Response.t> =>
+  fetchWithTimeout(request, 5000)->Promise.catch(_ => fetchWithTimeout(request, 15000))
+
+let dedupeAssets = (_assets: array<string>): array<string> =>
+  %raw(`(function(assets){ return Array.from(new Set(assets)); })(assets)`)
 
 addEventListener("install", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="INSTALL_START", ())
@@ -130,12 +169,7 @@ addEventListener("install", (event: ExtendableEvent.t) => {
       }
 
       let allAssets = manualAssets->Array.concat(manifestUrls)
-      /* Remove duplicates */
-      let uniqueAssets = allAssets->Array.filterWithIndex(
-        (item, index) => {
-          allAssets->Array.indexOf(item) == index
-        },
-      )
+      let uniqueAssets = dedupeAssets(allAssets)
 
       Logger.info(~module_="ServiceWorker", ~message="CACHING_ASSETS", ~data=uniqueAssets, ())
       await cache->Cache.addAll(uniqueAssets)
@@ -162,6 +196,45 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
       )
       ->Promise.all
     })
+    ->Promise.then(_ =>
+      caches
+      ->CacheStorage.open_(cacheName)
+      ->Promise.then(cache =>
+        cache
+        ->Cache.keys()
+        ->Promise.then(requests =>
+          requests
+          ->Array.map(req =>
+            cache
+            ->Cache.match(req)
+            ->Promise.then(found => {
+              switch found->Nullable.toOption {
+              | Some(response) =>
+                let path = URL.pathname(URL.make(req->Request.url))
+                if !hasHashedAssetName(path) && isResponseOlderThan(response, runtimeStaleMaxAgeMs) {
+                  cache->Cache.deleteReq(req)
+                } else {
+                  Promise.resolve(false)
+                }
+              | None => Promise.resolve(false)
+              }
+            })
+          )
+          ->Promise.all
+          ->Promise.then(_ => Promise.resolve())
+        )
+      )
+    )
+    ->Promise.then(_ =>
+      %raw(`(function(reg){
+        try {
+          if (reg && reg.navigationPreload && typeof reg.navigationPreload.enable === 'function') {
+            return reg.navigationPreload.enable();
+          }
+        } catch (_) {}
+        return Promise.resolve();
+      })(registration)`)
+    )
     ->Promise.then(_ => clients->Clients.claim())
 
   event->ExtendableEvent.waitUntil(activatePromise)
@@ -178,26 +251,28 @@ addEventListener("fetch", (event: FetchEvent.t) => {
     let isApi = pathname->String.startsWith("/api/") || pathname == "/health"
     let isNavigation = mode == "navigate"
 
-    let timeoutMs = if isNavigation {
-      10000
-    } else if isApi {
-      30000
-    } else {
-      15000
-    }
-
-    let performFetch = () => fetchWithTimeout(request, timeoutMs)
+    let performFetch = () =>
+      if isApi {
+        fetchWithTimeout(request, 30000)
+      } else {
+        fetchWithAdaptiveTimeout(request)
+      }
 
     if isApi {
-      // API requests: enforce timeout, no caching
+      // API requests: network-first and no SW cache.
       event->FetchEvent.respondWith(performFetch())
     } else {
-      // Assets & Navigation: Cache first, then stale-while-revalidate with timeout
+      let isImmutable = hasHashedAssetName(pathname)
+      let isStaleWhileRevalidate = isNavigation || pathname == "/index.html" || pathname == "/manifest.json"
 
       let fetchAndCache =
         performFetch()
         ->Promise.then(response => {
-          if response->Response.status == 200 && response->Response.type_ == "basic" {
+          if (
+            response->Response.status == 200 &&
+              response->Response.type_ == "basic" &&
+              shouldCacheResponse(response)
+          ) {
             let responseToCache = response->Response.clone
             let _ =
               caches
@@ -215,14 +290,20 @@ addEventListener("fetch", (event: FetchEvent.t) => {
           Promise.reject(error)
         })
 
-      event->FetchEvent.waitUntil(fetchAndCache)
-
       event->FetchEvent.respondWith(
         caches
         ->CacheStorage.match(request)
         ->Promise.then(cachedResponse => {
           switch cachedResponse->Nullable.toOption {
-          | Some(res) => Promise.resolve(res)
+          | Some(res) =>
+            if isImmutable {
+              Promise.resolve(res)
+            } else if isStaleWhileRevalidate {
+              event->FetchEvent.waitUntil(fetchAndCache)
+              Promise.resolve(res)
+            } else {
+              Promise.resolve(res)
+            }
           | None =>
             // Cache miss: try network
             fetchAndCache->Promise.catch(
