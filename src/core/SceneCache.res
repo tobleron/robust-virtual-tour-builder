@@ -26,11 +26,9 @@ let thumbUrls: t = LruCache.make(~maxEntries=thumbMax, ~onEvict=((_, url) => rev
 let memoryPollTimer: ref<option<int>> = ref(None)
 let memoryHighWatermarkBytes = 500.0 *. 1024.0 *. 1024.0
 
-let getBytesUsed = (memObj: {..}): option<float> =>
-  %raw(`(function(memObj){
-    if (!memObj || typeof memObj.bytes !== "number") return undefined;
-    return memObj.bytes;
-  })(memObj)`)
+@get external bytesOrUndefined: ({..}) => option<float> = "bytes"
+
+let getBytesUsed = (memObj: {..}): option<float> => bytesOrUndefined(memObj)
 
 let applyMemoryPressure = () => {
   // Aggressive shrink profile used by StateDensityMonitor high mode and memory pressure.

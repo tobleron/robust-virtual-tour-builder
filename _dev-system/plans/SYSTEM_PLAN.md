@@ -10,8 +10,8 @@
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
 - [ ] `../../backend/src/services/project/export_upload.rs`
-- [ ] `../../backend/src/services/project/export_upload_runtime.rs`
 - [ ] `../../backend/src/services/project/export_session.rs`
+- [ ] `../../backend/src/services/project/export_upload_runtime.rs`
 
 ---
 

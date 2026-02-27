@@ -2,176 +2,106 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/utils/PersistenceLayer.res",
+        "file": "../../src/systems/Exporter/ExporterUpload.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.08, Coupling: 0.07] | Drag: 4.25 | LOC: 423/300  🎯 Target: Function: `normalizeProjectData` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.17, Coupling: 0.04] | Drag: 5.39 | LOC: 493/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.54586288416076,
+        "complexity": 24.690669371196755,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
+          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterUpload.res`",
           "snapshots": [
             {
-              "path": "src/utils/PersistenceLayer.res",
+              "path": "src/systems/Exporter/ExporterUpload.res",
               "functions": [
                 {
-                  "name": "key",
-                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
-                  "line": 31
+                  "name": "uploadAndProcessRaw",
+                  "signature": "uploadAndProcessRaw: (",
+                  "line": 4
                 },
                 {
-                  "name": "manifestKey",
-                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
-                  "line": 32
+                  "name": "defaultExportChunkSizeBytes",
+                  "signature": "defaultExportChunkSizeBytes = 50 * 1024 * 1024",
+                  "line": 161
                 },
                 {
-                  "name": "sliceKeyPrefix",
-                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
-                  "line": 33
+                  "name": "decodeExportInitResponse",
+                  "signature": "decodeExportInitResponse = {",
+                  "line": 163
                 },
                 {
-                  "name": "debounceMs",
-                  "signature": "debounceMs = 2000",
-                  "line": 34
+                  "name": "decodeExportChunkResponse",
+                  "signature": "decodeExportChunkResponse = {",
+                  "line": 173
                 },
                 {
-                  "name": "currentSchemaVersion",
-                  "signature": "currentSchemaVersion = 2",
-                  "line": 35
+                  "name": "decodeExportStatusResponse",
+                  "signature": "decodeExportStatusResponse = {",
+                  "line": 182
                 },
                 {
-                  "name": "coalesceMs",
-                  "signature": "coalesceMs = 500",
-                  "line": 36
+                  "name": "decodeExportCompleteResponse",
+                  "signature": "decodeExportCompleteResponse = {",
+                  "line": 192
                 },
                 {
-                  "name": "stateGetterRef",
-                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
-                  "line": 43
+                  "name": "blobSlice",
+                  "signature": "blobSlice: (Blob.t, int, int) => Blob.t = %raw(`(blob, start, end) => blob.slice(start, end)`)",
+                  "line": 201
                 },
                 {
-                  "name": "lastSaveTimeout",
-                  "signature": "lastSaveTimeout = ref(None)",
-                  "line": 44
+                  "name": "sha256HexForBlob",
+                  "signature": "sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`",
+                  "line": 203
                 },
                 {
-                  "name": "lastSavedRevision",
-                  "signature": "lastSavedRevision = ref(-1)",
-                  "line": 45
+                  "name": "isAborted",
+                  "signature": "isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)",
+                  "line": 212
                 },
                 {
-                  "name": "beforeUnloadListener",
-                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
-                  "line": 46
+                  "name": "requestExportInit",
+                  "signature": "requestExportInit = (",
+                  "line": 214
                 },
                 {
-                  "name": "subscriberRef",
-                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
-                  "line": 47
+                  "name": "requestExportStatus",
+                  "signature": "requestExportStatus = (",
+                  "line": 252
                 },
                 {
-                  "name": "lastQueuedAtMs",
-                  "signature": "lastQueuedAtMs = ref(0.0)",
-                  "line": 48
+                  "name": "requestExportChunk",
+                  "signature": "requestExportChunk = (",
+                  "line": 281
                 },
                 {
-                  "name": "pendingStateRef",
-                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
-                  "line": 49
+                  "name": "requestExportComplete",
+                  "signature": "requestExportComplete = (",
+                  "line": 340
                 },
                 {
-                  "name": "lastSliceSignatureRef",
-                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
-                  "line": 50
+                  "name": "requestExportAbort",
+                  "signature": "requestExportAbort = (",
+                  "line": 380
                 },
                 {
-                  "name": "performSaveRef",
-                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
-                  "line": 51
+                  "name": "uploadChunkedWithResume",
+                  "signature": "uploadChunkedWithResume = async (",
+                  "line": 400
                 },
                 {
-                  "name": "sliceKey",
-                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
-                  "line": 53
+                  "name": "formDataToBlob",
+                  "signature": "formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`",
+                  "line": 484
                 },
                 {
-                  "name": "encodeMetadataSlice",
-                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
-                  "line": 55
-                },
-                {
-                  "name": "signatureOfJson",
-                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
-                  "line": 84
-                },
-                {
-                  "name": "queueIncrementalSave",
-                  "signature": "queueIncrementalSave = (state: state) => {",
-                  "line": 86
-                },
-                {
-                  "name": "processQueuedSave",
-                  "signature": "processQueuedSave = () => {",
-                  "line": 91
-                },
-                {
-                  "name": "normalizeProjectData",
-                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
-                  "line": 115
-                },
-                {
-                  "name": "performSave",
-                  "signature": "performSave = (state: Types.state) => {",
-                  "line": 129
-                },
-                {
-                  "name": "_",
-                  "signature": "_ = performSaveRef := performSave",
-                  "line": 241
-                },
-                {
-                  "name": "handleStateChange",
-                  "signature": "handleStateChange = (state: state) => {",
-                  "line": 243
-                },
-                {
-                  "name": "notifyStateChange",
-                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
-                  "line": 255
-                },
-                {
-                  "name": "initSubscriber",
-                  "signature": "initSubscriber = (",
-                  "line": 257
-                },
-                {
-                  "name": "clearSession",
-                  "signature": "clearSession = () => {",
-                  "line": 295
-                },
-                {
-                  "name": "decodeManifest",
-                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
-                  "line": 304
-                },
-                {
-                  "name": "extractFromSlice",
-                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
-                  "line": 317
-                },
-                {
-                  "name": "decodeMetadataSlice",
-                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
-                  "line": 323
-                },
-                {
-                  "name": "checkRecovery",
-                  "signature": "checkRecovery = () => {",
-                  "line": 351
+                  "name": "uploadChunkedThenLegacy",
+                  "signature": "uploadChunkedThenLegacy = async (",
+                  "line": 491
                 }
               ],
-              "fingerprint": "6cd6875e8e2ae2b1f0187baa38693e6352561060a0a57f8ac4e5b601522a6ca0"
+              "fingerprint": "086d9a3748efbcc9fbb0de0564afcf1cfcde6b73f34a6b4abbd86380d7c45fbc"
             }
           ]
         }
@@ -411,113 +341,6 @@
                 }
               ],
               "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter/ExporterUpload.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.17, Coupling: 0.04] | Drag: 5.39 | LOC: 493/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 24.690669371196755,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterUpload.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter/ExporterUpload.res",
-              "functions": [
-                {
-                  "name": "uploadAndProcessRaw",
-                  "signature": "uploadAndProcessRaw: (",
-                  "line": 4
-                },
-                {
-                  "name": "defaultExportChunkSizeBytes",
-                  "signature": "defaultExportChunkSizeBytes = 50 * 1024 * 1024",
-                  "line": 161
-                },
-                {
-                  "name": "decodeExportInitResponse",
-                  "signature": "decodeExportInitResponse = {",
-                  "line": 163
-                },
-                {
-                  "name": "decodeExportChunkResponse",
-                  "signature": "decodeExportChunkResponse = {",
-                  "line": 173
-                },
-                {
-                  "name": "decodeExportStatusResponse",
-                  "signature": "decodeExportStatusResponse = {",
-                  "line": 182
-                },
-                {
-                  "name": "decodeExportCompleteResponse",
-                  "signature": "decodeExportCompleteResponse = {",
-                  "line": 192
-                },
-                {
-                  "name": "blobSlice",
-                  "signature": "blobSlice: (Blob.t, int, int) => Blob.t = %raw(`(blob, start, end) => blob.slice(start, end)`)",
-                  "line": 201
-                },
-                {
-                  "name": "sha256HexForBlob",
-                  "signature": "sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`",
-                  "line": 203
-                },
-                {
-                  "name": "isAborted",
-                  "signature": "isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)",
-                  "line": 212
-                },
-                {
-                  "name": "requestExportInit",
-                  "signature": "requestExportInit = (",
-                  "line": 214
-                },
-                {
-                  "name": "requestExportStatus",
-                  "signature": "requestExportStatus = (",
-                  "line": 252
-                },
-                {
-                  "name": "requestExportChunk",
-                  "signature": "requestExportChunk = (",
-                  "line": 281
-                },
-                {
-                  "name": "requestExportComplete",
-                  "signature": "requestExportComplete = (",
-                  "line": 340
-                },
-                {
-                  "name": "requestExportAbort",
-                  "signature": "requestExportAbort = (",
-                  "line": 380
-                },
-                {
-                  "name": "uploadChunkedWithResume",
-                  "signature": "uploadChunkedWithResume = async (",
-                  "line": 400
-                },
-                {
-                  "name": "formDataToBlob",
-                  "signature": "formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`",
-                  "line": 484
-                },
-                {
-                  "name": "uploadChunkedThenLegacy",
-                  "signature": "uploadChunkedThenLegacy = async (",
-                  "line": 491
-                }
-              ],
-              "fingerprint": "086d9a3748efbcc9fbb0de0564afcf1cfcde6b73f34a6b4abbd86380d7c45fbc"
             }
           ]
         }
@@ -789,6 +612,183 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/PersistenceLayer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.08, Coupling: 0.07] | Drag: 4.25 | LOC: 423/300  🎯 Target: Function: `normalizeProjectData` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.54586288416076,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/PersistenceLayer.res",
+              "functions": [
+                {
+                  "name": "key",
+                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
+                  "line": 31
+                },
+                {
+                  "name": "manifestKey",
+                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
+                  "line": 32
+                },
+                {
+                  "name": "sliceKeyPrefix",
+                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
+                  "line": 33
+                },
+                {
+                  "name": "debounceMs",
+                  "signature": "debounceMs = 2000",
+                  "line": 34
+                },
+                {
+                  "name": "currentSchemaVersion",
+                  "signature": "currentSchemaVersion = 2",
+                  "line": 35
+                },
+                {
+                  "name": "coalesceMs",
+                  "signature": "coalesceMs = 500",
+                  "line": 36
+                },
+                {
+                  "name": "stateGetterRef",
+                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
+                  "line": 43
+                },
+                {
+                  "name": "lastSaveTimeout",
+                  "signature": "lastSaveTimeout = ref(None)",
+                  "line": 44
+                },
+                {
+                  "name": "lastSavedRevision",
+                  "signature": "lastSavedRevision = ref(-1)",
+                  "line": 45
+                },
+                {
+                  "name": "beforeUnloadListener",
+                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
+                  "line": 46
+                },
+                {
+                  "name": "subscriberRef",
+                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
+                  "line": 47
+                },
+                {
+                  "name": "lastQueuedAtMs",
+                  "signature": "lastQueuedAtMs = ref(0.0)",
+                  "line": 48
+                },
+                {
+                  "name": "pendingStateRef",
+                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
+                  "line": 49
+                },
+                {
+                  "name": "lastSliceSignatureRef",
+                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
+                  "line": 50
+                },
+                {
+                  "name": "performSaveRef",
+                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
+                  "line": 51
+                },
+                {
+                  "name": "sliceKey",
+                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
+                  "line": 53
+                },
+                {
+                  "name": "encodeMetadataSlice",
+                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
+                  "line": 55
+                },
+                {
+                  "name": "signatureOfJson",
+                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
+                  "line": 84
+                },
+                {
+                  "name": "queueIncrementalSave",
+                  "signature": "queueIncrementalSave = (state: state) => {",
+                  "line": 86
+                },
+                {
+                  "name": "processQueuedSave",
+                  "signature": "processQueuedSave = () => {",
+                  "line": 91
+                },
+                {
+                  "name": "normalizeProjectData",
+                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
+                  "line": 115
+                },
+                {
+                  "name": "performSave",
+                  "signature": "performSave = (state: Types.state) => {",
+                  "line": 129
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = performSaveRef := performSave",
+                  "line": 241
+                },
+                {
+                  "name": "handleStateChange",
+                  "signature": "handleStateChange = (state: state) => {",
+                  "line": 243
+                },
+                {
+                  "name": "notifyStateChange",
+                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
+                  "line": 255
+                },
+                {
+                  "name": "initSubscriber",
+                  "signature": "initSubscriber = (",
+                  "line": 257
+                },
+                {
+                  "name": "clearSession",
+                  "signature": "clearSession = () => {",
+                  "line": 295
+                },
+                {
+                  "name": "decodeManifest",
+                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
+                  "line": 304
+                },
+                {
+                  "name": "extractFromSlice",
+                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
+                  "line": 317
+                },
+                {
+                  "name": "decodeMetadataSlice",
+                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
+                  "line": 323
+                },
+                {
+                  "name": "checkRecovery",
+                  "signature": "checkRecovery = () => {",
+                  "line": 351
+                }
+              ],
+              "fingerprint": "6cd6875e8e2ae2b1f0187baa38693e6352561060a0a57f8ac4e5b601522a6ca0"
+            }
+          ]
+        }
+      }
     }
   ],
   "system": [
@@ -800,13 +800,13 @@
     },
     {
       "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "file": "../../backend/src/services/project/export_session.rs",
         "strategy": ""
       }
     },
     {
       "Ambiguity": {
-        "file": "../../backend/src/services/project/export_session.rs",
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
         "strategy": ""
       }
     },
