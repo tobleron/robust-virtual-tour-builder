@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Workable stable telemetry+db tuning
+- Wip: 1578 scene cache lru eviction
 
 ## [4.12.5] - 2026-02-26
 

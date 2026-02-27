@@ -106,6 +106,7 @@ let observe = (state: state) => {
           ~data=payload,
           (),
         )
+        SceneCache.applyMemoryPressure()
       }
     }
 
