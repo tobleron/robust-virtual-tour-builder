@@ -93,7 +93,8 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav"
+  "/sounds/click.wav",
+  "/workers/image-worker.js"
 ]
 
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0

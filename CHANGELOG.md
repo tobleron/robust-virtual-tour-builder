@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Close 1580 autosave benchmark + T1601 verification
 - Core perf routing + selector batching; backend graceful drain hardening
 - Lazy chunk split + hover prefetch for export/teaser/simulation/exif
+- Worker pool fingerprint offload with resilient fallback
 
 ## [4.12.5] - 2026-02-26
 

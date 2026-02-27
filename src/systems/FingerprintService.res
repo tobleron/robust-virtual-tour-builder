@@ -5,7 +5,13 @@ open UploadTypes
 // Hashing and duplication detection.
 let fingerprintFiles = (validFiles: array<File.t>) => {
   let fingerprintPromises = Belt.Array.map(validFiles, f => {
-    Resizer.getChecksum(f)
+    WorkerPool.fingerprintWithWorker(f)
+    ->Promise.then(workerResult =>
+      switch workerResult {
+      | Some(id) => Promise.resolve(id)
+      | None => Resizer.getChecksum(f)
+      }
+    )
     ->Promise.then(id =>
       Promise.resolve(
         (
