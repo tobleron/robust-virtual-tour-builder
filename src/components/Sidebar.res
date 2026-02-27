@@ -124,13 +124,13 @@ let make = React.memo(() => {
             true,
             "Teaser",
           )
-          Teaser.startHeadlessTeaserWithStyle(
+          FeatureLoaders.startTeaserLazy(
             format,
-            ~styleId=Some(styleId),
-            ~getState,
-            ~dispatch,
-            ~signal,
-            ~onCancel,
+            Some(styleId),
+            getState,
+            dispatch,
+            Some(signal),
+            Some(onCancel),
           )
         }}
       />

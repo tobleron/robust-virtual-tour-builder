@@ -39,6 +39,28 @@ self.onmessage = async event => {
     }
   }
 
+  if (type === "extractExif") {
+    try {
+      const file = data.file;
+      if (!file || typeof createImageBitmap !== "function") {
+        self.postMessage({ id, ok: false, error: "Worker EXIF extraction unsupported", type: "extractExif" });
+        return;
+      }
+      const bitmap = await createImageBitmap(file);
+      const width = Number(bitmap.width || 0);
+      const height = Number(bitmap.height || 0);
+      if (typeof bitmap.close === "function") {
+        bitmap.close();
+      }
+      self.postMessage({ id, ok: true, width, height, type: "extractExif" });
+      return;
+    } catch (error) {
+      const message = error && error.message ? String(error.message) : "Worker EXIF extraction failed";
+      self.postMessage({ id, ok: false, error: message, type: "extractExif" });
+      return;
+    }
+  }
+
   if (type !== "fingerprint") {
     self.postMessage({ id, ok: false, error: "Unsupported worker task type" });
     return;

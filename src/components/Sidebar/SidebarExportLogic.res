@@ -209,14 +209,14 @@ let handleExport = async (
   }
 
   try {
-    let exportResult = await Exporter.exportTour(
+    let exportResult = await FeatureLoaders.exportTourLazy(
       scenes,
-      ~tourName,
-      ~logo=AppContext.getBridgeState().logo,
-      ~projectData?,
-      ~signal,
+      tourName,
+      AppContext.getBridgeState().logo,
+      projectData,
+      signal,
       Some(handleExportProgress),
-      ~opId,
+      opId,
     )
     switch exportResult {
     | Ok() => {

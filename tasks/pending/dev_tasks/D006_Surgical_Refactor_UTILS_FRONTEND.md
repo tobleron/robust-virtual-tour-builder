@@ -23,6 +23,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.11, Coupling: 0.03] | Drag: 3.14 | LOC: 379/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
 
 ## 🔎 Programmatic Verification
 Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-system/tmp/D006/files/`).
@@ -152,4 +154,22 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - parseRetryAfterSeconds × 1 (lines: 74)
         - retryBudgets × 1 (lines: 36)
         - waitForDelay × 1 (lines: 146)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/utils/WorkerPool.res`
+- `src/utils/WorkerPool.res` (14 functions, fingerprint 3a75cd9529e1fc2b35ebd1cfe3c3b6f6a294785561437e26e8f7c4a5cfe729f3)
+    - Grouped summary:
+        - bindWorkerHandlers × 1 (lines: 107)
+        - createPoolSize × 1 (lines: 35)
+        - ensurePool × 1 (lines: 163)
+        - extractExifWithWorker × 1 (lines: 351)
+        - fingerprintWithWorker × 1 (lines: 190)
+        - generateTinyWithWorker × 1 (lines: 288)
+        - poolRef × 1 (lines: 33)
+        - removeExifWaiter × 1 (lines: 94)
+        - removeFingerprintWaiter × 1 (lines: 55)
+        - removeTinyWaiter × 1 (lines: 81)
+        - removeValidateWaiter × 1 (lines: 68)
+        - shutdown × 1 (lines: 342)
+        - takeWorker × 1 (lines: 47)
+        - validateImageWithWorker × 1 (lines: 239)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

@@ -284,6 +284,21 @@ let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataRes
   })
 }
 
+let exifFromWorkerDimensions = (width: int, height: int): (exifMetadata, gPanoMetadata) => {
+  let exif: exifMetadata = {
+    make: Nullable.null,
+    model: Nullable.null,
+    dateTime: Nullable.null,
+    gps: Nullable.null,
+    width,
+    height,
+    focalLength: Nullable.null,
+    aperture: Nullable.null,
+    iso: Nullable.null,
+  }
+  (exif, emptyPano)
+}
+
 /* Prefer backend parsing for heavy flows to keep main thread responsive. */
 let extractExifTagsPreferred = async (file: Types.file): result<(exifMetadata, gPanoMetadata), string> => {
   switch file {
@@ -292,7 +307,25 @@ let extractExifTagsPreferred = async (file: Types.file): result<(exifMetadata, g
     | Ok(metadata) => Ok((metadata.exif, emptyPano))
     | Error(_) => await extractExifTags(file)
     }
-  | _ => await extractExifTags(file)
+  | Blob(b) =>
+    let workerFile = BrowserBindings.File.newFile([b], "blob-image", {"type": BrowserBindings.Blob.type_(b)})
+    switch await WorkerPool.extractExifWithWorker(workerFile) {
+    | Some((width, height)) => Ok(exifFromWorkerDimensions(width, height))
+    | None => await extractExifTags(file)
+    }
+  | Url(url) =>
+    try {
+      let res = await Fetch.fetchSimple(url)
+      let blob = await Fetch.blob(res)
+      let workerFile =
+        BrowserBindings.File.newFile([blob], "url-image", {"type": BrowserBindings.Blob.type_(blob)})
+      switch await WorkerPool.extractExifWithWorker(workerFile) {
+      | Some((width, height)) => Ok(exifFromWorkerDimensions(width, height))
+      | None => await extractExifTags(file)
+      }
+    } catch {
+    | _ => await extractExifTags(file)
+    }
   }
 }
 

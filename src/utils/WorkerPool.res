@@ -13,6 +13,7 @@ type workerMessageEvent
 type fingerprintResponse = {id: string, ok: bool, checksum: option<string>}
 type validateImageResponse = {id: string, ok: bool, isImage: option<bool>}
 type generateTinyResponse = {id: string, ok: bool, tiny: option<BrowserBindings.Blob.t>}
+type exifResponse = {id: string, ok: bool, width: option<int>, height: option<int>}
 
 type waiter<'a> = {
   id: string,
@@ -26,6 +27,7 @@ type state = {
   fingerprintWaitersRef: ref<array<waiter<option<string>>>>,
   validateWaitersRef: ref<array<waiter<option<bool>>>>,
   tinyWaitersRef: ref<array<waiter<option<BrowserBindings.Blob.t>>>>,
+  exifWaitersRef: ref<array<waiter<option<(int, int)>>>>,
 }
 
 let poolRef: ref<option<state>> = ref(None)
@@ -89,6 +91,19 @@ let removeTinyWaiter = (pool: state, id: string): option<waiter<option<BrowserBi
   found.contents
 }
 
+let removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {
+  let found = ref(None)
+  pool.exifWaitersRef := pool.exifWaitersRef.contents->Belt.Array.keep(waiter => {
+    if waiter.id == id {
+      found := Some(waiter)
+      false
+    } else {
+      true
+    }
+  })
+  found.contents
+}
+
 let bindWorkerHandlers = (pool: state, worker: worker) => {
   setOnMessage(worker, evt => {
     let payload: {"id": string, "type": option<string>} = getEventData(evt)
@@ -110,6 +125,20 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
       | Some(waiter) =>
         if tinyPayload.ok {
           waiter.resolve(tinyPayload.tiny)
+        } else {
+          waiter.resolve(None)
+        }
+      | None => ()
+      }
+    | Some("extractExif") =>
+      let exifPayload: exifResponse = getEventData(evt)
+      switch removeExifWaiter(pool, exifPayload.id) {
+      | Some(waiter) =>
+        if exifPayload.ok {
+          switch (exifPayload.width, exifPayload.height) {
+          | (Some(w), Some(h)) => waiter.resolve(Some((w, h)))
+          | _ => waiter.resolve(None)
+          }
         } else {
           waiter.resolve(None)
         }
@@ -145,6 +174,7 @@ let ensurePool = (): option<state> => {
         fingerprintWaitersRef: ref([]),
         validateWaitersRef: ref([]),
         tinyWaitersRef: ref([]),
+        exifWaitersRef: ref([]),
       }
       workers->Belt.Array.forEach(w => bindWorkerHandlers(pool, w))
       poolRef := Some(pool)
@@ -315,5 +345,54 @@ let shutdown = () => {
     pool.workers->Belt.Array.forEach(w => terminate(w, ()))
     poolRef := None
   | None => ()
+  }
+}
+
+let extractExifWithWorker = (
+  file: BrowserBindings.File.t,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): Promise.t<option<(int, int)>> => {
+  switch ensurePool() {
+  | None => Promise.resolve(None)
+  | Some(pool) =>
+    Promise.make((resolve, _reject) => {
+      let id = Math.random()->Float.toString ++ "_" ++ Date.now()->Float.toInt->Int.toString
+      let settled = ref(false)
+      let finish = value => {
+        if !settled.contents {
+          settled := true
+          resolve(value)
+        }
+      }
+      let removeOnAbort = ref(None)
+      signal->Option.forEach(sig => {
+        let onAbort = () => {
+          let _ = removeExifWaiter(pool, id)
+          finish(None)
+        }
+        BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
+        removeOnAbort := Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        if BrowserBindings.AbortSignal.aborted(sig) {
+          onAbort()
+        }
+      })
+      pool.exifWaitersRef := Belt.Array.concat(pool.exifWaitersRef.contents, [{id, resolve}])
+      pool.exifWaitersRef := pool.exifWaitersRef.contents
+      ->Belt.Array.map(waiter =>
+        if waiter.id == id {
+          {
+            ...waiter,
+            resolve: value => {
+              removeOnAbort.contents->Option.forEach(cb => cb())
+              finish(value)
+            },
+          }
+        } else {
+          waiter
+        }
+      )
+      let worker = takeWorker(pool)
+      postMessage(worker, {"id": id, "type": "extractExif", "file": file})
+    })
   }
 }
