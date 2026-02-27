@@ -178,48 +178,54 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
 
     {if !isLinking {
       <>
-        <Tooltip
-          alignment=#Right
-          content={if simActive {
-            "Stop tour preview"
-          } else {
-            "Tour preview"
+        <div
+          onMouseEnter={_ => {
+            ChunkPrefetch.warmSimulation()
           }}
-          disabled={isLinking}
         >
-          <Shadcn.Button
-            size="icon"
-            variant={if !scenesLoaded {
-              "secondary"
+          <Tooltip
+            alignment=#Right
+            content={if simActive {
+              "Stop tour preview"
             } else {
-              "destructive"
+              "Tour preview"
             }}
-            className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer border border-transparent hover:border-[#0e2d52]" ++ if (
-              !scenesLoaded
-            ) {
-              " disabled:opacity-100"
-            } else if isTeasing {
-              " opacity-20 pointer-events-none"
-            } else {
-              ""
-            }}
-            onClick={handleSimClick}
-            disabled={isSystemLocked ||
-            isLinking && !simActive ||
-            (!simActive && !canStartSimulation)}
-            ariaLabel={if simActive {
-              "Stop Tour Preview"
-            } else {
-              "Tour Preview"
-            }}
+            disabled={isLinking}
           >
-            {if simActive {
-              <LucideIcons.Square size=18 strokeWidth=3.0 />
-            } else {
-              <LucideIcons.Play size=18 strokeWidth=3.0 />
-            }}
-          </Shadcn.Button>
-        </Tooltip>
+            <Shadcn.Button
+              size="icon"
+              variant={if !scenesLoaded {
+                "secondary"
+              } else {
+                "destructive"
+              }}
+              className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer border border-transparent hover:border-[#0e2d52]" ++ if (
+                !scenesLoaded
+              ) {
+                " disabled:opacity-100"
+              } else if isTeasing {
+                " opacity-20 pointer-events-none"
+              } else {
+                ""
+              }}
+              onClick={handleSimClick}
+              disabled={isSystemLocked ||
+              isLinking && !simActive ||
+              (!simActive && !canStartSimulation)}
+              ariaLabel={if simActive {
+                "Stop Tour Preview"
+              } else {
+                "Tour Preview"
+              }}
+            >
+              {if simActive {
+                <LucideIcons.Square size=18 strokeWidth=3.0 />
+              } else {
+                <LucideIcons.Play size=18 strokeWidth=3.0 />
+              }}
+            </Shadcn.Button>
+          </Tooltip>
+        </div>
 
         <ViewerLabelMenu scenesLoaded isLinking simActive isSystemLocked isTeasing />
       </>

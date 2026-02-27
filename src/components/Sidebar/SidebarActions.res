@@ -179,6 +179,10 @@ let make = React.memo((
             ? "btn-loading"
             : ""}`}
         disabled={!exportReady || !isPermitted || exportPending}
+        onMouseEnter={_ => {
+          ChunkPrefetch.warmExporter()
+          ChunkPrefetch.warmExif()
+        }}
         onClick={_ => {
           let _ = exportExecute()
         }}
@@ -195,6 +199,9 @@ let make = React.memo((
             ? "btn-loading"
             : ""}`}
         disabled={!teaserReady || !isPermitted || isLinking || teaserPending}
+        onMouseEnter={_ => {
+          ChunkPrefetch.warmTeaser()
+        }}
         onClick={_ => {
           let styleButtons: array<
             EventBus.button,

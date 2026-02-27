@@ -61,7 +61,13 @@ export default defineConfig({
   performance: {
     // Chunk splitting for better caching
     chunkSplit: {
-      strategy: 'split-by-experience',
+      strategy: 'split-by-module',
+      forceSplitting: {
+        teaser: /src[\\/]systems[\\/]Teaser/i,
+        simulation: /src[\\/](systems[\\/]Simulation|systems[\\/]PathGenerator)/i,
+        exporter: /src[\\/](systems[\\/]Exporter|systems[\\/]TourTemplates|systems[\\/]Export)/i,
+        exif: /src[\\/](systems[\\/]Exif|utils[\\/]Exif)/i,
+      },
     },
     // Remove console logs in production
     removeConsole: true,

@@ -12,10 +12,10 @@ The current build bundles **all** system modules into the main chunk. The `LazyL
   - Simulation system (Simulation, SimulationLogic, SimulationMainLogic, SimulationPathGenerator)
   - Export system (Exporter, ExporterPackaging, ExporterUpload, TourTemplates and all sub-modules)
   - EXIF Report (ExifReportGenerator, ExifParser, ExifUtils)
-- [ ] Configure Vite/Rollup manual chunks for these boundaries with meaningful chunk names
+- [x] Configure Vite/Rollup manual chunks for these boundaries with meaningful chunk names
 - [ ] Add loading skeleton/placeholder UI during chunk load (not a blank screen)
-- [ ] Preload chunks on hover: when user hovers over "Export" or "Simulation" button, start chunk prefetch
-- [ ] Update `asset-manifest.json` generation and service worker caching to handle dynamic chunks
+- [x] Preload chunks on hover: when user hovers over "Export" or "Simulation" button, start chunk prefetch
+- [x] Update `asset-manifest.json` generation and service worker caching to handle dynamic chunks
 - [ ] Initial bundle (critical path) should be ≤ 2MB raw JS (currently measured against 4.5MB ceiling)
 
 ## Technical Notes
