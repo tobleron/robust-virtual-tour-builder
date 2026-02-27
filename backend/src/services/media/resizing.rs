@@ -34,6 +34,33 @@ pub fn resize_fast_rgba(
     Ok(dst_image.into_vec())
 }
 
+pub fn resize_fast_rgba_progressive(
+    src_rgba: &[u8],
+    src_w: u32,
+    src_h: u32,
+    target_width: u32,
+    target_height: u32,
+) -> Result<Vec<u8>, String> {
+    // Progressive path only for very large images to reduce peak working-set churn.
+    let mut cur_w = src_w;
+    let mut cur_h = src_h;
+    let mut cur = src_rgba.to_vec();
+
+    while cur_w > target_width.saturating_mul(2) || cur_h > target_height.saturating_mul(2) {
+        let next_w = (cur_w / 2).max(target_width);
+        let next_h = (cur_h / 2).max(target_height);
+        cur = resize_fast_rgba(&cur, cur_w, cur_h, next_w, next_h)?;
+        cur_w = next_w;
+        cur_h = next_h;
+    }
+
+    if cur_w != target_width || cur_h != target_height {
+        resize_fast_rgba(&cur, cur_w, cur_h, target_width, target_height)
+    } else {
+        Ok(cur)
+    }
+}
+
 pub fn resize_fast(
     img: &image::DynamicImage,
     target_width: u32,

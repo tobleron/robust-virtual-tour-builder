@@ -93,7 +93,7 @@ pub fn process_tiny_image_task(
     src_w: u32,
     src_h: u32,
 ) -> Result<Vec<u8>, String> {
-    let tiny_rgba = media::resize_fast_rgba(src_rgba, src_w, src_h, 512, 512)
+    let tiny_rgba = media::resize_fast_rgba_progressive(src_rgba, src_w, src_h, 512, 512)
         .map_err(|e| format!("Tiny resize failed: {}", e))?;
     let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
         .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
@@ -117,7 +117,7 @@ pub fn process_large_image_task(
         );
         Ok(data.to_vec())
     } else {
-        let resized_rgba = media::resize_fast_rgba(
+        let resized_rgba = media::resize_fast_rgba_progressive(
             src_rgba,
             src_w,
             src_h,
