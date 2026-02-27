@@ -8,7 +8,7 @@ import {
   waitForNavigationStabilization,
 } from './e2e-helpers';
 
-const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/x.zip');
+const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 type OverlapProbe = {
   hasSvgOverlayOnTop: boolean;
@@ -19,7 +19,7 @@ type OverlapProbe = {
   menuButtonCount: number;
 };
 
-test.describe('T1533 hotspot overlap reproduction (x.zip)', () => {
+test.describe('T1533 hotspot overlap reproduction (layan_complete_tour.zip)', () => {
   test('A01 menu stays above hotspot guide overlays and still navigates scene 1 -> 2', async ({
     page,
     browserName,

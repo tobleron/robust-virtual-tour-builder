@@ -62,6 +62,14 @@ pub struct ImportChunkMultipartData {
     pub chunk_data: Vec<u8>,
 }
 
+pub struct ExportChunkMultipartData {
+    pub upload_id: String,
+    pub chunk_index: usize,
+    pub chunk_byte_length: Option<usize>,
+    pub chunk_sha256: String,
+    pub chunk_data: Vec<u8>,
+}
+
 /// Parses the multipart payload for saving a project.
 pub async fn parse_save_project_multipart(
     mut payload: Multipart,
@@ -193,6 +201,71 @@ pub async fn parse_import_chunk_multipart(
         upload_id,
         chunk_index,
         chunk_byte_length,
+        chunk_data,
+    })
+}
+
+pub async fn parse_export_chunk_multipart(
+    mut payload: Multipart,
+) -> Result<ExportChunkMultipartData, AppError> {
+    let mut upload_id: Option<String> = None;
+    let mut chunk_index: Option<usize> = None;
+    let mut chunk_byte_length: Option<usize> = None;
+    let mut chunk_sha256: Option<String> = None;
+    let mut chunk_data: Option<Vec<u8>> = None;
+
+    while let Some(mut field) = payload.try_next().await? {
+        let name = field.name().unwrap_or("unknown");
+        match name {
+            "uploadId" => {
+                upload_id = Some(read_string_field(&mut field).await?);
+            }
+            "chunkIndex" => {
+                let raw = read_string_field(&mut field).await?;
+                let parsed = raw.parse::<usize>().map_err(|_| {
+                    AppError::MultipartError(format!("Invalid chunkIndex value: {raw}"))
+                })?;
+                chunk_index = Some(parsed);
+            }
+            "chunkByteLength" => {
+                let raw = read_string_field(&mut field).await?;
+                let parsed = raw.parse::<usize>().map_err(|_| {
+                    AppError::MultipartError(format!("Invalid chunkByteLength value: {raw}"))
+                })?;
+                chunk_byte_length = Some(parsed);
+            }
+            "chunkSha256" => {
+                chunk_sha256 = Some(read_string_field(&mut field).await?);
+            }
+            "chunk" => {
+                let mut bytes = Vec::new();
+                while let Some(chunk) = field.try_next().await? {
+                    bytes.extend_from_slice(&chunk);
+                }
+                chunk_data = Some(bytes);
+            }
+            _ => {}
+        }
+    }
+
+    let upload_id = upload_id.ok_or_else(|| {
+        AppError::MultipartError("Missing uploadId field in chunk payload".to_string())
+    })?;
+    let chunk_index = chunk_index.ok_or_else(|| {
+        AppError::MultipartError("Missing chunkIndex field in chunk payload".to_string())
+    })?;
+    let chunk_sha256 = chunk_sha256.ok_or_else(|| {
+        AppError::MultipartError("Missing chunkSha256 field in chunk payload".to_string())
+    })?;
+    let chunk_data = chunk_data.ok_or_else(|| {
+        AppError::MultipartError("Missing chunk data in chunk payload".to_string())
+    })?;
+
+    Ok(ExportChunkMultipartData {
+        upload_id,
+        chunk_index,
+        chunk_byte_length,
+        chunk_sha256,
         chunk_data,
     })
 }

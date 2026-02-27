@@ -1,10 +1,32 @@
+use actix_web::http::header::{
+    CACHE_CONTROL, ETAG, HeaderValue, IF_NONE_MATCH, PRAGMA, VARY,
+};
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::io::AsyncReadExt;
 
 use crate::api::utils::sanitize_filename;
 use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
+
+fn build_weak_etag(file_len: u64, modified: Option<SystemTime>) -> String {
+    let modified_nanos = modified
+        .and_then(|ts| ts.duration_since(UNIX_EPOCH).ok())
+        .map(|dur| dur.as_nanos())
+        .unwrap_or(0);
+    format!("W/\"{}-{}\"", file_len, modified_nanos)
+}
+
+fn matches_if_none_match(if_none_match: &str, etag: &str) -> bool {
+    if if_none_match.trim() == "*" {
+        return true;
+    }
+    if_none_match
+        .split(',')
+        .map(str::trim)
+        .any(|candidate| candidate == etag)
+}
 
 // Handler for serving project files
 pub async fn serve_project_file(
@@ -114,11 +136,26 @@ pub async fn serve_project_file(
     let user_root = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
     crate::api::utils::validate_path_safe(&user_root, &file_path)?;
 
+    let metadata = tokio::fs::metadata(&file_path)
+        .await
+        .map_err(AppError::IoError)?;
+    let etag = build_weak_etag(metadata.len(), metadata.modified().ok());
+
+    if let Some(if_none_match) = req.headers().get(IF_NONE_MATCH) {
+        if let Ok(if_none_match_val) = if_none_match.to_str() {
+            if matches_if_none_match(if_none_match_val, &etag) {
+                return Ok(HttpResponse::NotModified()
+                    .insert_header((ETAG, etag.clone()))
+                    .insert_header((CACHE_CONTROL, "public, max-age=3600"))
+                    .insert_header((VARY, "Accept-Encoding"))
+                    .finish());
+            }
+        }
+    }
+
     match actix_files::NamedFile::open(&file_path) {
         Ok(mut named_file) => {
-            // FORCE REFRESH: Disable caching headers to prevent 304 Not Modified
-            // This ensures the browser always gets the corrected Content-Type header
-            named_file = named_file.use_etag(false).use_last_modified(false);
+            named_file = named_file.use_etag(true).use_last_modified(true);
 
             let initial_content_type = named_file.content_type().to_string();
 
@@ -191,22 +228,20 @@ pub async fn serve_project_file(
 
             let mut response = named_file.into_response(&req);
 
-            // SECURITY/FIX: Force no-cache to prevent browsers from holding onto
-            // the "application/octet-stream" version of these files.
+            if let Ok(header) = HeaderValue::from_str(&etag) {
+                response.headers_mut().insert(ETAG, header);
+            }
             response.headers_mut().insert(
-                actix_web::http::header::CACHE_CONTROL,
-                actix_web::http::header::HeaderValue::from_static(
-                    "no-store, no-cache, must-revalidate, proxy-revalidate",
-                ),
+                CACHE_CONTROL,
+                HeaderValue::from_static("public, max-age=3600"),
             );
             response.headers_mut().insert(
-                actix_web::http::header::PRAGMA,
-                actix_web::http::header::HeaderValue::from_static("no-cache"),
+                VARY,
+                HeaderValue::from_static("Accept-Encoding"),
             );
-            response.headers_mut().insert(
-                actix_web::http::header::EXPIRES,
-                actix_web::http::header::HeaderValue::from_static("0"),
-            );
+            response
+                .headers_mut()
+                .insert(PRAGMA, HeaderValue::from_static("public"));
 
             Ok(response)
         }
@@ -219,6 +254,19 @@ pub async fn serve_project_file(
 
 #[cfg(test)]
 mod tests {
+    use super::{build_weak_etag, matches_if_none_match};
+    use std::time::{Duration, UNIX_EPOCH};
+
     #[test]
-    fn placeholder() {}
+    fn etag_builder_is_stable() {
+        let etag = build_weak_etag(42, Some(UNIX_EPOCH + Duration::from_secs(5)));
+        assert_eq!(etag, "W/\"42-5000000000\"");
+    }
+
+    #[test]
+    fn if_none_match_supports_multi_value() {
+        let etag = "W/\"42-5000000000\"";
+        assert!(matches_if_none_match("abc, W/\"42-5000000000\"", etag));
+        assert!(!matches_if_none_match("abc, def", etag));
+    }
 }

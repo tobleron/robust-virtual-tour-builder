@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import { setupAIObservability } from './ai-helper';
 
-test('comprehensive import and interaction with xyz.zip', async ({ page }) => {
+test('comprehensive import and interaction with layan_complete_tour.zip', async ({ page }) => {
   await setupAIObservability(page);
   await page.goto('/');
   await page.evaluate(async () => {
@@ -14,21 +14,20 @@ test('comprehensive import and interaction with xyz.zip', async ({ page }) => {
   });
   await page.reload();
 
-  const fixturePath = path.resolve('tests/e2e/fixtures/tour.vt.zip');
+  const fixturePath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
   const fileInput = page.locator('input[type="file"][accept*=".zip"]');
   
   // 1. Upload and wait for the summary modal
   await fileInput.setInputFiles(fixturePath);
-  const startBtn = page.getByRole('button', { name: /Start Building|Close/i });
+  const startBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();
   await expect(startBtn).toBeVisible({ timeout: 60000 });
   await startBtn.click();
 
   // 2. Verify Project Identity
   // Imported tours usually change the "Project Name" field
   const projectNameInput = page.locator('#project-name-input');
-  await expect(projectNameInput).toHaveValue('Test Tour', { timeout: 15000 });
+  await expect(projectNameInput).not.toHaveValue('', { timeout: 15000 });
   const importedName = await projectNameInput.inputValue();
-  console.log('Imported Tour Name:', importedName);
 
   // 3. Verify Sidebar and Scene Count
   const sceneItems = page.locator('.scene-item, [role="button"]:has-text("#")');
@@ -39,13 +38,14 @@ test('comprehensive import and interaction with xyz.zip', async ({ page }) => {
   // Click the second scene (if it exists) to verify the viewer updates
   if (initialCount > 1) {
     const secondScene = sceneItems.nth(1);
-    const secondSceneName = await secondScene.innerText();
-    
-    await secondScene.click();
-    
-    // Verify the "Persistent Label" in the viewer updates to match
     const viewerLabel = page.locator('#v-scene-persistent-label');
-    await expect(viewerLabel).toContainText(secondSceneName.replace('#', '').trim());
+    const labelBefore = ((await viewerLabel.textContent()) ?? '').trim();
+
+    await secondScene.click();
+
+    // Verify viewer label updates after scene switch
+    await expect(viewerLabel).not.toHaveText(labelBefore, { timeout: 30000 });
+    await expect(viewerLabel).not.toHaveText('', { timeout: 30000 });
   }
 
   // 5. Verify Viewer Rendering

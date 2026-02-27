@@ -49,8 +49,7 @@ test.describe('Editor Interactions', () => {
         // @ts-ignore
         const state = window.store?.state;
         return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
-    }, { timeout: 30000 }).catch(() => console.log("Warning: Navigation stabilization check failed, proceeding anyway..."));
-
+    });
     await createHotspotAtViewerCenter(page);
 
     // Expect Modal

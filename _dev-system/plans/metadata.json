@@ -2,303 +2,106 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/systems/TeaserRecorder.res",
+        "file": "../../src/systems/Exporter/ExporterUpload.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 6.00, Density: 0.23, Coupling: 0.05] | Drag: 7.25 | LOC: 485/300  🎯 Target: Function: `_` (High Local Complexity (6.0). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.17, Coupling: 0.04] | Drag: 5.39 | LOC: 493/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 25.745360824742267,
+        "complexity": 24.690669371196755,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserRecorder.res`",
+          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterUpload.res`",
           "snapshots": [
             {
-              "path": "src/systems/TeaserRecorder.res",
+              "path": "src/systems/Exporter/ExporterUpload.res",
               "functions": [
                 {
-                  "name": "canvasWidth",
-                  "signature": "canvasWidth = Constants.Teaser.canvasWidth",
+                  "name": "uploadAndProcessRaw",
+                  "signature": "uploadAndProcessRaw: (",
                   "line": 4
                 },
                 {
-                  "name": "canvasHeight",
-                  "signature": "canvasHeight = Constants.Teaser.canvasHeight",
-                  "line": 5
+                  "name": "defaultExportChunkSizeBytes",
+                  "signature": "defaultExportChunkSizeBytes = 50 * 1024 * 1024",
+                  "line": 161
                 },
                 {
-                  "name": "internalState",
-                  "signature": "internalState = ref({",
-                  "line": 59
+                  "name": "decodeExportInitResponse",
+                  "signature": "decodeExportInitResponse = {",
+                  "line": 163
                 },
                 {
-                  "name": "requestDeterministicFrame",
-                  "signature": "requestDeterministicFrame = () => {",
-                  "line": 72
+                  "name": "decodeExportChunkResponse",
+                  "signature": "decodeExportChunkResponse = {",
+                  "line": 173
                 },
                 {
-                  "name": "getOrCreate",
-                  "signature": "getOrCreate = () => {",
-                  "line": 80
+                  "name": "decodeExportStatusResponse",
+                  "signature": "decodeExportStatusResponse = {",
+                  "line": 182
                 },
                 {
-                  "name": "setOpacity",
-                  "signature": "setOpacity = (opacity: float) => {",
-                  "line": 96
+                  "name": "decodeExportCompleteResponse",
+                  "signature": "decodeExportCompleteResponse = {",
+                  "line": 192
                 },
                 {
-                  "name": "loadLogo",
-                  "signature": "loadLogo = (logo: option<Types.file>) =>",
-                  "line": 110
+                  "name": "blobSlice",
+                  "signature": "blobSlice: (Blob.t, int, int) => Blob.t = %raw(`(blob, start, end) => blob.slice(start, end)`)",
+                  "line": 201
                 },
                 {
-                  "name": "initGhost",
-                  "signature": "initGhost = () => {",
-                  "line": 122
+                  "name": "sha256HexForBlob",
+                  "signature": "sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`",
+                  "line": 203
                 },
                 {
-                  "name": "checkRoundRect",
-                  "signature": "checkRoundRect: 'a => bool = %raw(\"function(x) { return typeof x === 'function'; }\")",
-                  "line": 135
+                  "name": "isAborted",
+                  "signature": "isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)",
+                  "line": 212
                 },
                 {
-                  "name": "drawRoundedRect",
-                  "signature": "drawRoundedRect = (ctx, x, y, width, height, radius) => {",
-                  "line": 137
+                  "name": "requestExportInit",
+                  "signature": "requestExportInit = (",
+                  "line": 214
                 },
                 {
-                  "name": "hdReferenceWidth",
-                  "signature": "hdReferenceWidth = Constants.Teaser.HudReference.stageWidth",
-                  "line": 149
+                  "name": "requestExportStatus",
+                  "signature": "requestExportStatus = (",
+                  "line": 252
                 },
                 {
-                  "name": "hdReferenceHeight",
-                  "signature": "hdReferenceHeight = Constants.Teaser.HudReference.stageHeight",
-                  "line": 150
+                  "name": "requestExportChunk",
+                  "signature": "requestExportChunk = (",
+                  "line": 281
                 },
                 {
-                  "name": "getHudScale",
-                  "signature": "getHudScale = (): hudScale => {",
-                  "line": 152
+                  "name": "requestExportComplete",
+                  "signature": "requestExportComplete = (",
+                  "line": 340
                 },
                 {
-                  "name": "renderWatermark",
-                  "signature": "renderWatermark = (ctx, logoImg, scale: hudScale) => {",
-                  "line": 169
-                },
-                {
-                  "name": "renderRoomLabel",
-                  "signature": "renderRoomLabel = (ctx, roomLabel: string, scale: hudScale) => {",
-                  "line": 191
-                },
-                {
-                  "name": "renderFloorNav",
-                  "signature": "renderFloorNav = (",
-                  "line": 258
-                },
-                {
-                  "name": "renderFrame",
-                  "signature": "renderFrame = (",
-                  "line": 329
-                },
-                {
-                  "name": "startAnimationLoop",
-                  "signature": "startAnimationLoop = (includeLogo, logoState) => {",
+                  "name": "requestExportAbort",
+                  "signature": "requestExportAbort = (",
                   "line": 380
                 },
                 {
-                  "name": "startRecording",
-                  "signature": "startRecording = (~deterministic=false, ()) => {",
-                  "line": 392
-                },
-                {
-                  "name": "stopRecording",
-                  "signature": "stopRecording = () => {",
-                  "line": 452
-                },
-                {
-                  "name": "pauseRecording",
-                  "signature": "pauseRecording = () => {",
-                  "line": 475
-                },
-                {
-                  "name": "resumeRecording",
-                  "signature": "resumeRecording = () => {",
-                  "line": 482
-                },
-                {
-                  "name": "getGhostCanvas",
-                  "signature": "getGhostCanvas = () => internalState.contents.ghostCanvas->Nullable.fromOption",
-                  "line": 489
-                },
-                {
-                  "name": "getRecordedBlobs",
-                  "signature": "getRecordedBlobs = () => internalState.contents.chunks",
-                  "line": 490
-                },
-                {
-                  "name": "setSnapshot",
-                  "signature": "setSnapshot = (canvas: Dom.element) => {",
-                  "line": 492
-                },
-                {
-                  "name": "setFadeOpacity",
-                  "signature": "setFadeOpacity = (opacity: float) => {",
-                  "line": 507
-                },
-                {
-                  "name": "startRecording",
-                  "signature": "startRecording = startRecording",
-                  "line": 513
-                },
-                {
-                  "name": "stopRecording",
-                  "signature": "stopRecording = stopRecording",
-                  "line": 514
-                },
-                {
-                  "name": "pause",
-                  "signature": "pause = pauseRecording",
-                  "line": 515
-                },
-                {
-                  "name": "resume",
-                  "signature": "resume = resumeRecording",
-                  "line": 516
-                },
-                {
-                  "name": "getGhostCanvas",
-                  "signature": "getGhostCanvas = getGhostCanvas",
-                  "line": 517
-                },
-                {
-                  "name": "getRecordedBlobs",
-                  "signature": "getRecordedBlobs = getRecordedBlobs",
-                  "line": 518
-                },
-                {
-                  "name": "setSnapshot",
-                  "signature": "setSnapshot = setSnapshot",
-                  "line": 519
-                },
-                {
-                  "name": "setFadeOpacity",
-                  "signature": "setFadeOpacity = setFadeOpacity",
-                  "line": 520
-                },
-                {
-                  "name": "loadLogo",
-                  "signature": "loadLogo = loadLogo",
-                  "line": 521
-                },
-                {
-                  "name": "startAnimationLoop",
-                  "signature": "startAnimationLoop = startAnimationLoop",
-                  "line": 522
-                },
-                {
-                  "name": "requestDeterministicFrame",
-                  "signature": "requestDeterministicFrame = requestDeterministicFrame",
-                  "line": 523
-                },
-                {
-                  "name": "renderFrame",
-                  "signature": "renderFrame = renderFrame",
-                  "line": 524
-                },
-                {
-                  "name": "internalState",
-                  "signature": "internalState = internalState",
-                  "line": 525
-                }
-              ],
-              "fingerprint": "4b476d015fdd65e36e6021b1d17fa9a16e2587cab224be759e84a418515dc0ed"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarLogicHandler.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.15, Coupling: 0.04] | Drag: 6.06 | LOC: 1037/300  🎯 Target: Function: `parseExportMetrics` (High Local Complexity (16.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 79.75940212150434,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`",
-          "snapshots": [
-            {
-              "path": "src/components/Sidebar/SidebarLogicHandler.res",
-              "functions": [
-                {
-                  "name": "uploadProgressToastId",
-                  "signature": "uploadProgressToastId = \"sidebar-upload-progress\"",
-                  "line": 9
-                },
-                {
-                  "name": "exportProgressToastId",
-                  "signature": "exportProgressToastId = \"sidebar-export-progress\"",
-                  "line": 10
-                },
-                {
-                  "name": "parseProcessingMetrics",
-                  "signature": "parseProcessingMetrics = (msg: string): option<etaRuntimeMetrics> => {",
-                  "line": 23
-                },
-                {
-                  "name": "parseExportMetrics",
-                  "signature": "parseExportMetrics = (msg: string): exportRuntimeMetrics => {",
-                  "line": 68
-                },
-                {
-                  "name": "performUpload",
-                  "signature": "performUpload = async (",
-                  "line": 123
-                },
-                {
-                  "name": "handleUpload",
-                  "signature": "handleUpload = async (",
+                  "name": "uploadChunkedWithResume",
+                  "signature": "uploadChunkedWithResume = async (",
                   "line": 400
                 },
                 {
-                  "name": "handleLoadProject",
-                  "signature": "handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {",
-                  "line": 440
+                  "name": "formDataToBlob",
+                  "signature": "formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`",
+                  "line": 484
                 },
                 {
-                  "name": "handleDeleteScene",
-                  "signature": "handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {",
-                  "line": 602
-                },
-                {
-                  "name": "isMissingPanoramaFile",
-                  "signature": "isMissingPanoramaFile = (f: Types.file) => {",
-                  "line": 614
-                },
-                {
-                  "name": "repairRestoredState",
-                  "signature": "repairRestoredState = (~restoredState: Types.state, ~currentState: Types.state) => {",
-                  "line": 621
-                },
-                {
-                  "name": "handleDeleteSceneWithUndo",
-                  "signature": "handleDeleteSceneWithUndo = (",
-                  "line": 667
-                },
-                {
-                  "name": "handleClearLinksWithUndo",
-                  "signature": "handleClearLinksWithUndo = (",
-                  "line": 738
-                },
-                {
-                  "name": "handleExport",
-                  "signature": "handleExport = async (",
-                  "line": 809
+                  "name": "uploadChunkedThenLegacy",
+                  "signature": "uploadChunkedThenLegacy = async (",
+                  "line": 491
                 }
               ],
-              "fingerprint": "735dad7fd2cf7ec2bc53d5c218af7eeb324908ad4e072ee52b55e82799e6dced"
+              "fingerprint": "086d9a3748efbcc9fbb0de0564afcf1cfcde6b73f34a6b4abbd86380d7c45fbc"
             }
           ]
         }
@@ -306,101 +109,266 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TeaserPlayback.res",
+        "file": "../../src/utils/LoggerTelemetry.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.07] | Drag: 3.42 | LOC: 399/300  🎯 Target: Function: `start` (High Local Complexity (1.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.21, Coupling: 0.06] | Drag: 4.35 | LOC: 441/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.322556390977443,
+        "complexity": 18.45374149659864,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserPlayback.res`",
+          "headline": "Pre-split snapshot for `src/utils/LoggerTelemetry.res`",
           "snapshots": [
             {
-              "path": "src/systems/TeaserPlayback.res",
+              "path": "src/utils/LoggerTelemetry.res",
               "functions": [
                 {
-                  "name": "wait",
-                  "signature": "wait = (ms: int) =>",
+                  "name": "telemetryQueue",
+                  "signature": "telemetryQueue: array<logEntry> = []",
+                  "line": 6
+                },
+                {
+                  "name": "isFlushing",
+                  "signature": "isFlushing = ref(false)",
+                  "line": 7
+                },
+                {
+                  "name": "bypassTestEnvCheck",
+                  "signature": "bypassTestEnvCheck = ref(false)",
+                  "line": 8
+                },
+                {
+                  "name": "telemetrySuspendedUntil",
+                  "signature": "telemetrySuspendedUntil = ref(0.0)",
+                  "line": 9
+                },
+                {
+                  "name": "idleFlushPending",
+                  "signature": "idleFlushPending = ref(false)",
+                  "line": 10
+                },
+                {
+                  "name": "bandwidthWindowStartMs",
+                  "signature": "bandwidthWindowStartMs = ref(0.0)",
                   "line": 11
                 },
                 {
-                  "name": "waitForViewerReady",
-                  "signature": "waitForViewerReady = async (sceneId: string) => {",
+                  "name": "bandwidthBytesSent",
+                  "signature": "bandwidthBytesSent = ref(0)",
+                  "line": 12
+                },
+                {
+                  "name": "adaptiveSamplingScale",
+                  "signature": "adaptiveSamplingScale = ref(1.0)",
+                  "line": 13
+                },
+                {
+                  "name": "sampleRateInfo",
+                  "signature": "sampleRateInfo = 0.5",
+                  "line": 15
+                },
+                {
+                  "name": "sampleRateDebugProd",
+                  "signature": "sampleRateDebugProd = 0.1",
                   "line": 16
                 },
                 {
-                  "name": "animatePose",
-                  "signature": "animatePose = async (",
-                  "line": 47
+                  "name": "samplingBandwidthBudgetBytesPerSec",
+                  "signature": "samplingBandwidthBudgetBytesPerSec = 10000",
+                  "line": 17
                 },
                 {
-                  "name": "animatePan",
-                  "signature": "animatePan = async (fromYaw, toYaw, pitch, duration) => {",
-                  "line": 78
+                  "name": "setBypassTestEnvCheck",
+                  "signature": "setBypassTestEnvCheck = (v: bool) => {",
+                  "line": 19
                 },
                 {
-                  "name": "prepareFirstScene",
-                  "signature": "prepareFirstScene = async (",
-                  "line": 86
+                  "name": "nowMs",
+                  "signature": "nowMs = () => Date.now()",
+                  "line": 23
                 },
                 {
-                  "name": "recordShot",
-                  "signature": "recordShot = async (_i, step: Pathfinder.step, style, config: State.teaserConfig) => {",
-                  "line": 118
+                  "name": "clearSuspensionIfExpired",
+                  "signature": "clearSuspensionIfExpired = () => {",
+                  "line": 25
                 },
                 {
-                  "name": "transitionToNextShot",
-                  "signature": "transitionToNextShot = async (",
-                  "line": 130
+                  "name": "isTelemetrySuspended",
+                  "signature": "isTelemetrySuspended = () => {",
+                  "line": 31
                 },
                 {
-                  "name": "clamp01",
-                  "signature": "clamp01 = (v: float): float =>",
-                  "line": 197
+                  "name": "suspendTelemetry",
+                  "signature": "suspendTelemetry = () =>",
+                  "line": 36
                 },
                 {
-                  "name": "getShotMotionDuration",
-                  "signature": "getShotMotionDuration = (shot: motionShot): float => {",
-                  "line": 206
+                  "name": "suspendTelemetryForMs",
+                  "signature": "suspendTelemetryForMs = (durationMs: float) => {",
+                  "line": 39
                 },
                 {
-                  "name": "getShotTiming",
-                  "signature": "getShotTiming = (shot: motionShot): shotTiming => {",
-                  "line": 216
+                  "name": "parseRetryAfterHeaderMs",
+                  "signature": "parseRetryAfterHeaderMs = (res: Fetch.response): option<float> => {",
+                  "line": 49
                 },
                 {
-                  "name": "getLastSegmentPose",
-                  "signature": "getLastSegmentPose = (shot: motionShot): viewFrame => {",
-                  "line": 231
+                  "name": "validateTelemetryResponse",
+                  "signature": "validateTelemetryResponse = async (res: Fetch.response): Promise.t<unit> => {",
+                  "line": 62
                 },
                 {
-                  "name": "getShotTargetPose",
-                  "signature": "getShotTargetPose = (shot: motionShot): viewFrame => {",
-                  "line": 238
+                  "name": "canUseTelemetryNetwork",
+                  "signature": "canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()",
+                  "line": 75
                 },
                 {
-                  "name": "interpolateSegments",
-                  "signature": "interpolateSegments = (shot: motionShot, localMotionMs: float): viewFrame => {",
-                  "line": 249
+                  "name": "noteTelemetryPayloadBytes",
+                  "signature": "noteTelemetryPayloadBytes = (payloadBytes: int) => {",
+                  "line": 77
                 },
                 {
-                  "name": "resolveShotPoseAt",
-                  "signature": "resolveShotPoseAt = (shot: motionShot, localMs: float): viewFrame => {",
-                  "line": 278
+                  "name": "transportQueue",
+                  "signature": "transportQueue: array<transportTask> = []",
+                  "line": 99
                 },
                 {
-                  "name": "getManifestStateAt",
-                  "signature": "getManifestStateAt = (manifest: motionManifest, timeMs: float): manifestFrameState => {",
-                  "line": 297
+                  "name": "transportActive",
+                  "signature": "transportActive = ref(0)",
+                  "line": 100
                 },
                 {
-                  "name": "playManifest",
-                  "signature": "playManifest = async (",
-                  "line": 362
+                  "name": "transportQueueOverflowReason",
+                  "signature": "transportQueueOverflowReason = \"TelemetryTransportQueueOverflow\"",
+                  "line": 101
+                },
+                {
+                  "name": "processTransportQueue",
+                  "signature": "processTransportQueue = () => {",
+                  "line": 103
+                },
+                {
+                  "name": "scheduleTransport",
+                  "signature": "scheduleTransport = (task: unit => Promise.t<unit>): Promise.t<unit> =>",
+                  "line": 131
+                },
+                {
+                  "name": "queueFillRatio",
+                  "signature": "queueFillRatio = () => {",
+                  "line": 142
+                },
+                {
+                  "name": "shouldSendLowPriority",
+                  "signature": "shouldSendLowPriority = () => {",
+                  "line": 151
+                },
+                {
+                  "name": "shouldQueueForPriority",
+                  "signature": "shouldQueueForPriority = p =>",
+                  "line": 162
+                },
+                {
+                  "name": "sanitizeJson",
+                  "signature": "sanitizeJson = (_entry: JSON.t, _fields: array<string>): JSON.t =>",
+                  "line": 168
+                },
+                {
+                  "name": "sanitizePayload",
+                  "signature": "sanitizePayload = (data: option<JSON.t>): option<JSON.t> =>",
+                  "line": 183
+                },
+                {
+                  "name": "encodeLogEntry",
+                  "signature": "encodeLogEntry = (entry: logEntry) => {",
+                  "line": 186
+                },
+                {
+                  "name": "encodeTelemetryBatch",
+                  "signature": "encodeTelemetryBatch = (batch: telemetryBatch) => {",
+                  "line": 207
+                },
+                {
+                  "name": "deduplicateBatchEntries",
+                  "signature": "deduplicateBatchEntries = (_entries: array<logEntry>): array<logEntry> =>",
+                  "line": 214
+                },
+                {
+                  "name": "isTransportQueueOverflow",
+                  "signature": "isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason",
+                  "line": 256
+                },
+                {
+                  "name": "runIdle",
+                  "signature": "runIdle = (_task: unit => unit) =>",
+                  "line": 258
+                },
+                {
+                  "name": "attemptSendBatch",
+                  "signature": "attemptSendBatch = async (payload: telemetryBatch, retries: int) => {",
+                  "line": 267
+                },
+                {
+                  "name": "flushTelemetry",
+                  "signature": "flushTelemetry = async () => {",
+                  "line": 308
+                },
+                {
+                  "name": "scheduleIdleFlush",
+                  "signature": "scheduleIdleFlush = () => {",
+                  "line": 353
+                },
+                {
+                  "name": "shouldSampleByLevel",
+                  "signature": "shouldSampleByLevel = (level: level): bool => {",
+                  "line": 363
+                },
+                {
+                  "name": "sendTelemetry",
+                  "signature": "sendTelemetry = async entry => {",
+                  "line": 390
+                },
+                {
+                  "name": "initializeNetworkListener",
+                  "signature": "initializeNetworkListener = () => {",
+                  "line": 452
+                },
+                {
+                  "name": "flushWithBeaconOnUnload",
+                  "signature": "flushWithBeaconOnUnload = () => {",
+                  "line": 462
+                },
+                {
+                  "name": "initializeBeforeUnloadListener",
+                  "signature": "initializeBeforeUnloadListener = () => {",
+                  "line": 476
+                },
+                {
+                  "name": "flushTimer",
+                  "signature": "flushTimer = ref(None)",
+                  "line": 480
+                },
+                {
+                  "name": "startPeriodicFlush",
+                  "signature": "startPeriodicFlush = () => {",
+                  "line": 481
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = startPeriodicFlush()",
+                  "line": 490
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = initializeNetworkListener()",
+                  "line": 491
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = initializeBeforeUnloadListener()",
+                  "line": 492
                 }
               ],
-              "fingerprint": "6c25b749e95af9c1e40defba88ac49d597cc6431d387dc1ae788dad012c277eb"
+              "fingerprint": "5a0c4e5f9f0fce023a11459b52997fb3726cd8bf1ba89f25e49666dcbe918895"
             }
           ]
         }
@@ -410,10 +378,10 @@
       "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.22, Coupling: 0.03] | Drag: 4.28 | LOC: 381/300  🎯 Target: Function: `updateLoggerContext` (High Local Complexity (14.0). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 401/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 12.380839895013123,
+        "complexity": 15.031670822942642,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
@@ -424,621 +392,363 @@
                 {
                   "name": "operations",
                   "signature": "operations = ref(Belt.Map.String.empty)",
-                  "line": 52
+                  "line": 12
                 },
                 {
                   "name": "listeners",
                   "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
-                  "line": 53
+                  "line": 13
                 },
                 {
                   "name": "cancelCallbacks",
                   "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
-                  "line": 54
+                  "line": 14
+                },
+                {
+                  "name": "completedTotal",
+                  "signature": "completedTotal = ref(0)",
+                  "line": 15
+                },
+                {
+                  "name": "leakedTotal",
+                  "signature": "leakedTotal = ref(0)",
+                  "line": 16
+                },
+                {
+                  "name": "sweepIntervalId",
+                  "signature": "sweepIntervalId: ref<option<int>> = ref(None)",
+                  "line": 17
+                },
+                {
+                  "name": "ttlSweepMs",
+                  "signature": "ttlSweepMs = 30000",
+                  "line": 19
+                },
+                {
+                  "name": "timeoutTtlExceeded",
+                  "signature": "timeoutTtlExceeded = \"OPERATION_TIMEOUT_TTL_EXCEEDED\"",
+                  "line": 20
+                },
+                {
+                  "name": "ttlMsForType",
+                  "signature": "ttlMsForType = (type_: operationType): int =>",
+                  "line": 22
                 },
                 {
                   "name": "notifyListeners",
                   "signature": "notifyListeners = () => {",
-                  "line": 58
+                  "line": 35
                 },
                 {
                   "name": "updateLoggerContext",
                   "signature": "updateLoggerContext = () => {",
-                  "line": 63
+                  "line": 40
+                },
+                {
+                  "name": "activeCount",
+                  "signature": "activeCount = (): int =>",
+                  "line": 50
+                },
+                {
+                  "name": "cleanupTerminalOperation",
+                  "signature": "cleanupTerminalOperation = (id: operationId): unit => {",
+                  "line": 55
+                },
+                {
+                  "name": "sweepExpiredOperations",
+                  "signature": "sweepExpiredOperations = (): unit => {",
+                  "line": 62
+                },
+                {
+                  "name": "ensureSweepInterval",
+                  "signature": "ensureSweepInterval = (): unit => {",
+                  "line": 99
                 },
                 {
                   "name": "reset",
                   "signature": "reset = () => {",
-                  "line": 96
+                  "line": 110
                 },
                 {
                   "name": "subscribe",
                   "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
-                  "line": 103
+                  "line": 126
                 },
                 {
                   "name": "registerCancel",
                   "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
-                  "line": 113
+                  "line": 136
                 },
                 {
                   "name": "getOperation",
                   "signature": "getOperation = (id: operationId): option<task> => {",
-                  "line": 117
+                  "line": 140
                 },
                 {
                   "name": "getOperations",
                   "signature": "getOperations = (): array<task> => {",
-                  "line": 121
+                  "line": 144
                 },
                 {
                   "name": "isActive",
                   "signature": "isActive = (id: operationId): bool => {",
-                  "line": 125
+                  "line": 148
                 },
                 {
                   "name": "isBusy",
                   "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
-                  "line": 136
+                  "line": 159
                 },
                 {
                   "name": "start",
                   "signature": "start = (",
-                  "line": 157
+                  "line": 177
                 },
                 {
                   "name": "progress",
                   "signature": "progress = (",
-                  "line": 220
+                  "line": 239
                 },
                 {
                   "name": "complete",
                   "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
-                  "line": 255
+                  "line": 274
                 },
                 {
                   "name": "fail",
                   "signature": "fail = (id: operationId, error: string): unit => {",
-                  "line": 299
+                  "line": 317
                 },
                 {
                   "name": "cancel",
                   "signature": "cancel = (id: operationId): unit => {",
-                  "line": 343
+                  "line": 359
+                },
+                {
+                  "name": "getStats",
+                  "signature": "getStats = (): lifecycleStats => {",
+                  "line": 423
                 },
                 {
                   "name": "useOperations",
                   "signature": "useOperations = () => {",
-                  "line": 411
+                  "line": 433
                 },
                 {
                   "name": "useIsBusy",
                   "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
-                  "line": 424
+                  "line": 446
                 }
               ],
-              "fingerprint": "be040c29c53ce43d2e200948a53503deca8e0ea78decd4fba4d36d8457f46a04"
+              "fingerprint": "880f85b7aa4348a6bf7de207fbf48640013017efa496058736f409353bb93dbe"
             }
           ]
         }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.01, Coupling: 0.08] | Drag: 3.41 | LOC: 592/300  🎯 Target: Function: `readMotionManifest` (High Local Complexity (1.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 32.611824324324324,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserLogic.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TeaserLogic.res",
-              "functions": [
-                {
-                  "name": "readHeadlessMotionProfile",
-                  "signature": "readHeadlessMotionProfile = (): headlessMotionProfile =>",
-                  "line": 24
-                },
-                {
-                  "name": "readMotionManifest",
-                  "signature": "readMotionManifest = (): option<motionManifest> => {",
-                  "line": 36
-                },
-                {
-                  "name": "resolveTeaserStartView",
-                  "signature": "resolveTeaserStartView = (state: state): option<(float, float, float)> => {",
-                  "line": 55
-                },
-                {
-                  "name": "centerViewerAtWaypointStart",
-                  "signature": "centerViewerAtWaypointStart = async (~getState: unit => state) => {",
-                  "line": 76
-                },
-                {
-                  "name": "teaserEtaToastId",
-                  "signature": "teaserEtaToastId = \"sidebar-teaser-progress\"",
-                  "line": 98
-                },
-                {
-                  "name": "parseTeaserProgressMetrics",
-                  "signature": "parseTeaserProgressMetrics = (msg: string): teaserProgressMetrics => {",
-                  "line": 106
-                },
-                {
-                  "name": "signalIsAborted",
-                  "signature": "signalIsAborted = signal =>",
-                  "line": 143
-                },
-                {
-                  "name": "finalizeTeaser",
-                  "signature": "finalizeTeaser = async (format, baseName) => {",
-                  "line": 149
-                },
-                {
-                  "name": "state",
-                  "signature": "state = getState()",
-                  "line": 184
-                },
-                {
-                  "name": "logoState",
-                  "signature": "logoState = await Recorder.loadLogo(state.logo)",
-                  "line": 185
-                },
-                {
-                  "name": "check",
-                  "signature": "check = async () => {",
-                  "line": 189
-                },
-                {
-                  "name": "safeName",
-                  "signature": "safeName =",
-                  "line": 198
-                }
-              ],
-              "fingerprint": "12c3c58202903d58537b32470f5e4c2d48cd6b186dff01baf5d0474437d9a970"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates/TourScriptUI.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 550/416",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.4,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScriptUI.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TourTemplates/TourScriptUI.res",
-              "functions": [
-                {
-                  "name": "script",
-                  "signature": "script = `",
-                  "line": 1
-                }
-              ],
-              "fingerprint": "1b4994e3d0d530e944a37ae6a8149a225dcf114ddac118de74f1c95d1b2a3e5c"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.08] | Drag: 4.13 | LOC: 453/300  🎯 Target: Function: `isAutoForward` (High Local Complexity (8.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 19.434657836644593,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 6
-                },
-                {
-                  "name": "make",
-                  "signature": "make = (",
-                  "line": 23
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 163
-                }
-              ],
-              "fingerprint": "a4fa5e13bb22904755df6cf1c0136e87b087ee6a27390f16123079f0c155d98a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline.res",
-        "pattern": "JSON.stringifyAny",
-        "strategy": ""
       }
     }
   ],
-  "system": [],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_session.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/geocoding",
+        "files": [
+          "../../backend/src/services/geocoding/mod.rs",
+          "../../backend/src/services/geocoding/osm.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14",
+        "strategy": "",
+        "platform": "backend",
+        "verification": {
+          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/mod.rs",
+              "functions": [
+                {
+                  "name": "reverse_geocode",
+                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 11
+                },
+                {
+                  "name": "test_geocoder_suite_sequential",
+                  "signature": "async fn test_geocoder_suite_sequential() {",
+                  "line": 34
+                },
+                {
+                  "name": "test_reverse_geocode_with_cache_internal",
+                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
+                  "line": 42
+                },
+                {
+                  "name": "test_lru_eviction_internal",
+                  "signature": "async fn test_lru_eviction_internal() {",
+                  "line": 59
+                },
+                {
+                  "name": "test_coordinate_rounding_internal",
+                  "signature": "fn test_coordinate_rounding_internal() {",
+                  "line": 81
+                },
+                {
+                  "name": "test_clear_cache_internal",
+                  "signature": "async fn test_clear_cache_internal() {",
+                  "line": 89
+                }
+              ],
+              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
+            },
+            {
+              "path": "backend/src/services/geocoding/osm.rs",
+              "functions": [
+                {
+                  "name": "format_address_from_json",
+                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
+                  "line": 2
+                },
+                {
+                  "name": "call_osm_nominatim",
+                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 40
+                }
+              ],
+              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rust": [
     {
       "Surgical": {
-        "file": "../../backend/src/api/media/video.rs",
+        "file": "../../backend/src/services/geocoding/cache.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.03] | Drag: 4.55 | LOC: 424/300",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
         "strategy": "",
         "platform": "backend",
-        "complexity": 16.945283018867926,
+        "complexity": 11.868421052631579,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video.rs`",
+          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
           "snapshots": [
             {
-              "path": "backend/src/api/media/video.rs",
+              "path": "backend/src/services/geocoding/cache.rs",
               "functions": [
                 {
-                  "name": "extract_auth_token",
-                  "signature": "fn extract_auth_token(req: &HttpRequest) -> Option<String> {",
-                  "line": 16
+                  "name": "decode_cache_payload",
+                  "signature": "fn decode_cache_payload(",
+                  "line": 47
                 },
                 {
-                  "name": "parse_motion_profile",
-                  "signature": "fn parse_motion_profile(raw: &[u8]) -> Option<HeadlessMotionProfile> {",
-                  "line": 28
+                  "name": "round_coords",
+                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
+                  "line": 94
                 },
                 {
-                  "name": "parse_motion_manifest",
-                  "signature": "fn parse_motion_manifest(raw: &[u8]) -> Option<MotionManifestV1> {",
-                  "line": 32
-                },
-                {
-                  "name": "validate_motion_manifest",
-                  "signature": "fn validate_motion_manifest(manifest: &MotionManifestV1) -> Result<(), String> {",
-                  "line": 36
-                },
-                {
-                  "name": "generate_teaser",
-                  "signature": "pub async fn generate_teaser(",
-                  "line": 54
-                },
-                {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {",
-                  "line": 232
-                },
-                {
-                  "name": "extract_auth_token_prefers_authorization_header",
-                  "signature": "fn extract_auth_token_prefers_authorization_header() {",
-                  "line": 292
-                },
-                {
-                  "name": "extract_auth_token_falls_back_to_cookie",
-                  "signature": "fn extract_auth_token_falls_back_to_cookie() {",
-                  "line": 301
-                },
-                {
-                  "name": "parse_motion_profile_decodes_camel_case_payload",
-                  "signature": "fn parse_motion_profile_decodes_camel_case_payload() {",
-                  "line": 309
-                },
-                {
-                  "name": "parse_motion_profile_rejects_invalid_payload",
-                  "signature": "fn parse_motion_profile_rejects_invalid_payload() {",
-                  "line": 318
-                },
-                {
-                  "name": "parse_motion_manifest_decodes_valid_payload",
-                  "signature": "fn parse_motion_manifest_decodes_valid_payload() {",
-                  "line": 324
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_invalid_version",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_version() {",
-                  "line": 355
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_invalid_fps",
-                  "signature": "fn validate_motion_manifest_rejects_invalid_fps() {",
-                  "line": 368
-                },
-                {
-                  "name": "validate_motion_manifest_rejects_empty_shots",
-                  "signature": "fn validate_motion_manifest_rejects_empty_shots() {",
-                  "line": 391
-                },
-                {
-                  "name": "validate_motion_manifest_accepts_valid_manifest",
-                  "signature": "fn validate_motion_manifest_accepts_valid_manifest() {",
-                  "line": 404
-                }
-              ],
-              "fingerprint": "10f42073366d2df0e0b95001ea09f1ab79933219a3cd4c8d9bffa055f64050b2"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/package.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.01] | Drag: 4.42 | LOC: 481/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 22.51642411642412,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/package.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/package.rs",
-              "functions": [
-                {
-                  "name": "target_dimensions",
-                  "signature": "fn target_dimensions(src_w: u32, src_h: u32, max_width: u32) -> (u32, u32) {",
-                  "line": 29
-                },
-                {
-                  "name": "write_zip_file",
-                  "signature": "fn write_zip_file(",
-                  "line": 40
-                },
-                {
-                  "name": "require_scene_policy",
-                  "signature": "fn require_scene_policy(fields: &HashMap<String, String>) -> Result<(), String> {",
-                  "line": 51
-                },
-                {
-                  "name": "create_root_index",
-                  "signature": "fn create_root_index() -> String {",
-                  "line": 67
-                },
-                {
-                  "name": "create_web_only_deployment_readme",
-                  "signature": "fn create_web_only_deployment_readme() -> String {",
+                  "name": "get_current_timestamp",
+                  "signature": "pub fn get_current_timestamp() -> u64 {",
                   "line": 101
                 },
                 {
-                  "name": "create_desktop_readme",
-                  "signature": "fn create_desktop_readme() -> String {",
-                  "line": 135
+                  "name": "get_cache_file_path",
+                  "signature": "fn get_cache_file_path() -> String {",
+                  "line": 108
                 },
                 {
-                  "name": "rewrite_tour_html_for_subfolder",
-                  "signature": "fn rewrite_tour_html_for_subfolder(web_html: &str, resolution_key: &str) -> String {",
-                  "line": 154
+                  "name": "evict_lru_entry",
+                  "signature": "pub async fn evict_lru_entry(",
+                  "line": 112
                 },
                 {
-                  "name": "rewrite_web_only_index_html",
-                  "signature": "fn rewrite_web_only_index_html(index_html: &str) -> String {",
-                  "line": 167
+                  "name": "get_info",
+                  "signature": "pub async fn get_info() -> GeocoderInfo {",
+                  "line": 140
                 },
                 {
-                  "name": "infer_mime_from_filename",
-                  "signature": "fn infer_mime_from_filename(file_name: &str) -> &'static str {",
-                  "line": 171
+                  "name": "save_cache_to_disk",
+                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
+                  "line": 149
                 },
                 {
-                  "name": "data_uri_for_bytes",
-                  "signature": "fn data_uri_for_bytes(mime: &str, bytes: &[u8]) -> String {",
-                  "line": 184
+                  "name": "load_cache_from_disk",
+                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
+                  "line": 191
                 },
                 {
-                  "name": "build_desktop_blob_html",
-                  "signature": "fn build_desktop_blob_html(",
-                  "line": 188
+                  "name": "clear_cache",
+                  "signature": "pub async fn clear_cache() {",
+                  "line": 237
                 },
                 {
-                  "name": "create_tour_package",
-                  "signature": "pub fn create_tour_package(",
-                  "line": 223
+                  "name": "check_cache",
+                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
+                  "line": 245
+                },
+                {
+                  "name": "update_cache",
+                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
+                  "line": 265
+                },
+                {
+                  "name": "manual_insert",
+                  "signature": "pub async fn manual_insert(",
+                  "line": 289
+                },
+                {
+                  "name": "get_cache_len",
+                  "signature": "pub async fn get_cache_len() -> usize {",
+                  "line": 307
+                },
+                {
+                  "name": "cache_contains_key",
+                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
+                  "line": 313
+                },
+                {
+                  "name": "get_cache_entry_access_count",
+                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
+                  "line": 319
+                },
+                {
+                  "name": "get_evictions_count",
+                  "signature": "pub async fn get_evictions_count() -> u64 {",
+                  "line": 325
+                },
+                {
+                  "name": "get_hits_count",
+                  "signature": "pub async fn get_hits_count() -> u64 {",
+                  "line": 331
+                },
+                {
+                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
+                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
+                  "line": 341
+                },
+                {
+                  "name": "decode_cache_payload_reads_entries_format",
+                  "signature": "fn decode_cache_payload_reads_entries_format() {",
+                  "line": 354
                 }
               ],
-              "fingerprint": "5c407ac13e17a0cfa3334fd80300caefab45f4b0ae69737bf0b1d7ae877a9fcd"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.07, Coupling: 0.01] | Drag: 4.67 | LOC: 967/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 71.36608066184075,
-        "recommended_splits": 4,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/media/video_logic.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/media/video_logic.rs",
-              "functions": [
-                {
-                  "name": "from_str",
-                  "signature": "pub fn from_str(raw: &str) -> Self {",
-                  "line": 118
-                },
-                {
-                  "name": "extension",
-                  "signature": "pub fn extension(self) -> &'static str {",
-                  "line": 125
-                },
-                {
-                  "name": "content_type",
-                  "signature": "pub fn content_type(self) -> &'static str {",
-                  "line": 132
-                },
-                {
-                  "name": "new",
-                  "signature": "fn new(child: std::process::Child) -> Self {",
-                  "line": 143
-                },
-                {
-                  "name": "take",
-                  "signature": "fn take(&mut self) -> Option<std::process::Child> {",
-                  "line": 147
-                },
-                {
-                  "name": "drop",
-                  "signature": "fn drop(&mut self) {",
-                  "line": 153
-                },
-                {
-                  "name": "headless_backend_origin",
-                  "signature": "fn headless_backend_origin() -> String {",
-                  "line": 161
-                },
-                {
-                  "name": "apply_capture_mode",
-                  "signature": "fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {",
-                  "line": 165
-                },
-                {
-                  "name": "resolve_capture_viewport",
-                  "signature": "fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {",
-                  "line": 179
-                },
-                {
-                  "name": "transcode_video",
-                  "signature": "pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {",
-                  "line": 207
-                },
-                {
-                  "name": "start_script_content",
-                  "signature": "fn start_script_content(format: TeaserOutputFormat) -> &'static str {",
-                  "line": 270
-                },
-                {
-                  "name": "capture_frames_cdp",
-                  "signature": "fn capture_frames_cdp(",
-                  "line": 295
-                },
-                {
-                  "name": "capture_frames_polling",
-                  "signature": "fn capture_frames_polling(",
-                  "line": 494
-                },
-                {
-                  "name": "generate_teaser_sync",
-                  "signature": "pub fn generate_teaser_sync(",
-                  "line": 605
-                },
-                {
-                  "name": "get_ffmpeg_command",
-                  "signature": "fn get_ffmpeg_command() -> Result<String, String> {",
-                  "line": 946
-                },
-                {
-                  "name": "teaser_output_format_parses_mp4_and_defaults_to_webm",
-                  "signature": "fn teaser_output_format_parses_mp4_and_defaults_to_webm() {",
-                  "line": 955
-                }
-              ],
-              "fingerprint": "ffb3f85250c5367e7e71b3c7f9a5d1493aac2a1cc2799c96dd68a9f1cb80f177"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/import_upload.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 459/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 19.6479302832244,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/project/import_upload.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/project/import_upload.rs",
-              "functions": [
-                {
-                  "name": "new",
-                  "signature": "pub fn new() -> std::io::Result<Self> {",
-                  "line": 51
-                },
-                {
-                  "name": "with_ttl",
-                  "signature": "pub fn with_ttl(ttl: Duration) -> std::io::Result<Self> {",
-                  "line": 55
-                },
-                {
-                  "name": "init_session",
-                  "signature": "pub async fn init_session(",
-                  "line": 69
-                },
-                {
-                  "name": "save_chunk",
-                  "signature": "pub async fn save_chunk(",
-                  "line": 134
-                },
-                {
-                  "name": "status",
-                  "signature": "pub async fn status(",
-                  "line": 219
-                },
-                {
-                  "name": "complete_session",
-                  "signature": "pub async fn complete_session(",
-                  "line": 243
-                },
-                {
-                  "name": "abort_session",
-                  "signature": "pub async fn abort_session(&self, user_id: &str, upload_id: &str) -> Result<bool, String> {",
-                  "line": 309
-                },
-                {
-                  "name": "remove_session",
-                  "signature": "async fn remove_session(&self, upload_id: &str, user_id: &str) -> Result<bool, String> {",
-                  "line": 314
-                },
-                {
-                  "name": "cleanup_expired",
-                  "signature": "async fn cleanup_expired(&self) {",
-                  "line": 334
-                },
-                {
-                  "name": "completes_chunked_payload_and_reassembles_in_order",
-                  "signature": "async fn completes_chunked_payload_and_reassembles_in_order() {",
-                  "line": 370
-                },
-                {
-                  "name": "rejects_invalid_chunk_byte_size",
-                  "signature": "async fn rejects_invalid_chunk_byte_size() {",
-                  "line": 433
-                }
-              ],
-              "fingerprint": "668216651389dd6bb5fff3e8e55321f5893c5018a45659afbb042ffc7b664d52"
+              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
             }
           ]
         }

@@ -119,6 +119,7 @@ let checkBackendHealth = () => {
       maxDelayMs: 1200,
       backoffMultiplier: 2.0,
       jitter: true,
+      totalDeadlineMs: 5000,
     },
     ~onRetry=(attempt, error, delayMs) => {
       Logger.warn(

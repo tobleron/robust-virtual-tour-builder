@@ -2,12 +2,13 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
-const SIM_ZIP_PATH = path.join(FIXTURES_DIR, 'tour_sim.vt.zip');
+const SIM_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 test.describe('Simulation & Teaser', () => {
   test.beforeEach(async ({ page }) => {
@@ -23,27 +24,12 @@ test.describe('Simulation & Teaser', () => {
     });
     await page.reload();
 
-    // Import the simulation tour
-    const fileInput = page.locator('input[type="file"][accept*=".zip"]');
-    await fileInput.setInputFiles(SIM_ZIP_PATH);
-
-    // Use exact role/name to avoid matching "Close" from toasts
-    const startBtn = page.getByRole('button', { name: "Start Building" });
-    const closeToastBtn = page.getByLabel('Close toast');
-
-    // If we see error toasts, log them
-    page.on('console', msg => {
-      console.log(`[Browser ${msg.type()}] ${msg.text()}`);
-    });
-
-    await expect(startBtn).toBeVisible({ timeout: 60000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, SIM_ZIP_PATH, 60000);
   });
 
   test('should run autopilot simulation', async ({ page }) => {
     test.setTimeout(120000);
 
-    console.log('Step 1: Starting simulation...');
     const simBtn = page.locator('#viewer-utility-bar button:has([class*="lucide-play"])');
     await expect(simBtn).toBeVisible();
     await simBtn.click();
@@ -53,7 +39,6 @@ test.describe('Simulation & Teaser', () => {
     await expect(stopBtn).toBeVisible();
 
     // Wait for at least one transition
-    console.log('Step 2: Waiting for scene transition...');
     // Wait for at least one scene to be active
     await expect(page.locator('.scene-item.active')).toBeVisible({ timeout: 15000 });
 
@@ -66,7 +51,6 @@ test.describe('Simulation & Teaser', () => {
       expect(state?.activeIndex).not.toBe(-1);
     }).toPass({ timeout: 120000 });
 
-    console.log('Step 3: Stopping simulation...');
     await stopBtn.click();
     await expect(simBtn).toBeVisible();
   });
@@ -74,7 +58,6 @@ test.describe('Simulation & Teaser', () => {
   test('should run auto teaser and download', async ({ page }) => {
     test.setTimeout(300000);
 
-    console.log('Step 1: Starting auto teaser...');
     const teaserBtn = page.getByLabel('Create Teaser');
     await expect(teaserBtn).toBeVisible();
     await teaserBtn.click();
@@ -83,12 +66,10 @@ test.describe('Simulation & Teaser', () => {
     const overlay = page.locator('#teaser-overlay');
     await expect(overlay).toBeAttached({ timeout: 10000 });
 
-    console.log('Step 2: Waiting for teaser to complete and download...');
     const downloadPromise = page.waitForEvent('download', { timeout: 240000 });
 
     const download = await downloadPromise;
     const filename = download.suggestedFilename();
-    console.log('Downloaded filename:', filename);
     expect(filename).toMatch(/\.(webm|mp4)$/);
     expect(await download.failure()).toBeNull();
   });
@@ -96,7 +77,6 @@ test.describe('Simulation & Teaser', () => {
   test('should enforce one auto-forward link per scene', async ({ page }) => {
     test.setTimeout(60000);
 
-    console.log('Step 1: Creating first auto-forward link...');
     
     // Create first link
     const linkModeBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
@@ -110,7 +90,7 @@ test.describe('Simulation & Teaser', () => {
     await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 10000 });
     
     // Select a target scene
-    await page.locator('[data-testid="scene-option"]').first().click();
+    await page.selectOption('#link-target', { index: 1 });
     
     // Enable auto-forward on first link
     const autoForwardToggle = page.locator('button:has-text("Auto-Forward")');
@@ -121,7 +101,6 @@ test.describe('Simulation & Teaser', () => {
     const saveBtn = page.locator('button:has-text("Save")');
     await saveBtn.click();
     
-    console.log('Step 2: Creating second link in same scene...');
     
     // Create second link
     await linkModeBtn.click();
@@ -129,9 +108,8 @@ test.describe('Simulation & Teaser', () => {
     
     // Wait for link modal
     await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 10000 });
-    await page.locator('[data-testid="scene-option"]').nth(1).click();
+    await page.selectOption('#link-target', { index: 2 });
     
-    console.log('Step 3: Trying to enable auto-forward on second link (should fail)...');
     
     // Try to enable auto-forward on second link - should show error
     await autoForwardToggle.click();
@@ -140,12 +118,10 @@ test.describe('Simulation & Teaser', () => {
     const errorToast = page.locator('[role="alert"]:has-text("Only one auto-forward")');
     await expect(errorToast).toBeVisible({ timeout: 5000 });
     
-    console.log('Step 4: Verifying second link remains non-auto-forward...');
     
     // The auto-forward toggle should still be in off state (or modal closed with error)
     // Save the second link (it should be non-auto-forward)
     await saveBtn.click();
     
-    console.log('✅ Validation working: Only one auto-forward link per scene enforced');
   });
 });

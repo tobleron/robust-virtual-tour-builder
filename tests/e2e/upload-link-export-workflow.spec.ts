@@ -29,7 +29,6 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
   test('should complete full tour creation workflow', async ({ page }) => {
     test.setTimeout(300000); // 5 minutes
 
-    console.log('Step 1: Uploading images...');
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
     await waitForNavigationStabilization(page);
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
@@ -37,10 +36,8 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_3, 3);
     await waitForNavigationStabilization(page);
 
-    console.log('Scenes created:', await page.locator('.scene-item').count());
 
     // 2. Link Scenes (Scene 1 -> Scene 2)
-    console.log('Step 2: Linking scenes...');
     await page.locator('.scene-item').nth(0).click();
     await waitForNavigationStabilization(page);
     await createHotspotAtViewerCenter(page);
@@ -52,7 +49,6 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
     await expect(page.getByText('Link Destination')).toBeHidden();
 
     // 3. Export Project
-    console.log('Step 3: Exporting project...');
     const exportBtn = page.getByLabel('Export Tour');
     await expect(exportBtn).toBeVisible();
 
@@ -63,7 +59,6 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
 
     const download = await downloadPromise;
     const downloadPath = await download.path();
-    console.log(`Downloaded to: ${downloadPath}`);
 
     expect(download.suggestedFilename()).toContain('.zip');
     expect(await download.failure()).toBeNull();

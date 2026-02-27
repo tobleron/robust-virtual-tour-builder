@@ -6,6 +6,12 @@ type config = {
   maxDelayMs: int,
   backoffMultiplier: float,
   jitter: bool,
+  totalDeadlineMs: int,
+}
+
+type budgetConfig = {
+  windowMs: int,
+  maxRetriesPerWindow: int,
 }
 
 type retryResult<'a> =
@@ -18,7 +24,16 @@ let defaultConfig = {
   maxDelayMs: 30000,
   backoffMultiplier: 2.0,
   jitter: true,
+  totalDeadlineMs: 0,
 }
+
+let defaultBudgetConfig = {
+  windowMs: 60000,
+  maxRetriesPerWindow: 100,
+}
+
+type budgetState = {windowStartMs: float, usedRetries: int}
+let retryBudgets = ref(Belt.Map.String.empty)
 
 let calculateDelay = (attempt, config) => {
   let baseDelay = Float.toInt(
@@ -53,6 +68,22 @@ let parseHttpStatusCode: string => option<int> = %raw(`
     if (!match) return undefined;
     const parsed = Number.parseInt(match[1], 10);
     return Number.isNaN(parsed) ? undefined : parsed;
+  }
+`)
+
+let parseRetryAfterSeconds: string => option<int> = %raw(`
+  (error) => {
+    const fromRateLimited = /RateLimited:\s*(\d+)/i.exec(error);
+    if (fromRateLimited) {
+      const parsed = Number.parseInt(fromRateLimited[1], 10);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    }
+    const fromRetryAfter = /Retry-After:\s*(\d+)/i.exec(error);
+    if (fromRetryAfter) {
+      const parsed = Number.parseInt(fromRetryAfter[1], 10);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    }
+    return undefined;
   }
 `)
 
@@ -146,9 +177,81 @@ let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<boo
   })
 }
 
-let rec loop = async (fn, signal, config, shouldRetry, onRetry, getDelay, attempt) => {
+let hasDeadline = (config: config): bool => config.totalDeadlineMs > 0
+
+let computeDelay = (error, attempt, config, getDelay) => {
+  let fromRetryAfter =
+    parseRetryAfterSeconds(error)->Option.map(seconds => Math.Int.max(0, seconds * 1000))
+
+  switch fromRetryAfter {
+  | Some(delay) => delay
+  | None =>
+    switch getDelay {
+    | Some(f) =>
+      switch f(error, attempt) {
+      | Some(d) => d
+      | None => calculateDelay(attempt, config)
+      }
+    | None => calculateDelay(attempt, config)
+    }
+  }
+}
+
+let checkAndConsumeBudget = (
+  budgetKey: option<string>,
+  budgetCfg: budgetConfig,
+): bool => {
+  switch budgetKey {
+  | None => true
+  | Some(key) =>
+    let now = Date.now()
+    switch retryBudgets.contents->Belt.Map.String.get(key) {
+    | None =>
+      retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
+        windowStartMs: now,
+        usedRetries: 1,
+      })
+      true
+    | Some(state) =>
+      let withinWindow = now -. state.windowStartMs <= Int.toFloat(budgetCfg.windowMs)
+      if withinWindow {
+        if state.usedRetries >= budgetCfg.maxRetriesPerWindow {
+          false
+        } else {
+          retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
+            ...state,
+            usedRetries: state.usedRetries + 1,
+          })
+          true
+        }
+      } else {
+        retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
+          windowStartMs: now,
+          usedRetries: 1,
+        })
+        true
+      }
+    }
+  }
+}
+
+let rec loop = async (
+  fn,
+  signal,
+  config,
+  shouldRetry,
+  onRetry,
+  getDelay,
+  isCircuitOpen,
+  budgetKey,
+  budgetCfg,
+  startedAt,
+  attempt,
+) => {
   if aborted(signal) {
     Exhausted("AbortError")
+  } else if isCircuitOpen->Option.map(cb => cb())->Option.getOr(false) {
+    Exhausted("CircuitOpen")
   } else {
     let result = await fn(~signal)
 
@@ -161,36 +264,123 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, getDelay, attemp
         Exhausted(err)
       } else if !shouldRetry(err) {
         Exhausted(err)
+      } else if !checkAndConsumeBudget(budgetKey, budgetCfg) {
+        Exhausted("RetryBudgetExhausted")
       } else {
-        let delay = switch getDelay {
-        | Some(f) =>
-          switch f(err, attempt) {
-          | Some(d) => d
-          | None => calculateDelay(attempt, config)
+        let delay = computeDelay(err, attempt, config, getDelay)
+
+        if hasDeadline(config) {
+          let elapsed = Date.now() -. startedAt
+          let remaining = config.totalDeadlineMs->Int.toFloat -. elapsed
+          if Float.fromInt(delay) > remaining {
+            Exhausted("DeadlineExceeded")
+          } else {
+            switch onRetry {
+            | Some(cb) => cb(attempt, err, delay)
+            | None => ()
+            }
+
+            Logger.debug(
+              ~module_="Retry",
+              ~message="RETRY_ATTEMPT",
+              ~data=Some(Logger.castToJson({
+                "attempt": attempt,
+                "delayMs": delay,
+                "error": err,
+                "elapsedMs": elapsed,
+                "remainingDeadlineMs": remaining,
+              })),
+              (),
+            )
+
+            // Abort-aware delay wait. Do not retry if cancelled while backing off.
+            let canContinue = await waitForDelay(signal, delay)
+            if canContinue {
+              await loop(
+                fn,
+                signal,
+                config,
+                shouldRetry,
+                onRetry,
+                getDelay,
+                isCircuitOpen,
+                budgetKey,
+                budgetCfg,
+                startedAt,
+                attempt + 1,
+              )
+            } else {
+              Exhausted("AbortError")
+            }
           }
-        | None => calculateDelay(attempt, config)
-        }
-
-        switch onRetry {
-        | Some(cb) => cb(attempt, err, delay)
-        | None => ()
-        }
-
-        // Abort-aware delay wait. Do not retry if cancelled while backing off.
-        let canContinue = await waitForDelay(signal, delay)
-        if canContinue {
-          await loop(fn, signal, config, shouldRetry, onRetry, getDelay, attempt + 1)
         } else {
-          Exhausted("AbortError")
+          switch onRetry {
+          | Some(cb) => cb(attempt, err, delay)
+          | None => ()
+          }
+
+          Logger.debug(
+            ~module_="Retry",
+            ~message="RETRY_ATTEMPT",
+            ~data=Some(Logger.castToJson({
+              "attempt": attempt,
+              "delayMs": delay,
+              "error": err,
+            })),
+            (),
+          )
+
+          // Abort-aware delay wait. Do not retry if cancelled while backing off.
+          let canContinue = await waitForDelay(signal, delay)
+          if canContinue {
+            await loop(
+              fn,
+              signal,
+              config,
+              shouldRetry,
+              onRetry,
+              getDelay,
+              isCircuitOpen,
+              budgetKey,
+              budgetCfg,
+              startedAt,
+              attempt + 1,
+            )
+          } else {
+            Exhausted("AbortError")
+          }
         }
       }
     }
   }
 }
 
-let execute = (~fn, ~signal, ~config=?, ~shouldRetry=?, ~onRetry=?, ~getDelay=?) => {
+let execute = (
+  ~fn,
+  ~signal,
+  ~config=?,
+  ~shouldRetry=?,
+  ~onRetry=?,
+  ~getDelay=?,
+  ~isCircuitOpen=?,
+  ~budgetKey=?,
+  ~budgetConfig=?,
+) => {
   let cfg = Option.getOr(config, defaultConfig)
   let should = Option.getOr(shouldRetry, defaultShouldRetry)
+  let retryBudgetCfg = Option.getOr(budgetConfig, defaultBudgetConfig)
 
-  loop(fn, signal, cfg, should, onRetry, getDelay, 1)
+  loop(
+    fn,
+    signal,
+    cfg,
+    should,
+    onRetry,
+    getDelay,
+    isCircuitOpen,
+    budgetKey,
+    retryBudgetCfg,
+    Date.now(),
+    1,
+  )
 }

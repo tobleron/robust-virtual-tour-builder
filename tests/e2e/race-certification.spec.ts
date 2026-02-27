@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { setupAIObservability } from './ai-helper';
+import { loadProjectZipAndWait } from './e2e-helpers';
 
 test.describe('Race Reliability Certification (Task 1504)', () => {
-    const fixturePath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
+    const fixturePath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
     test.beforeEach(async ({ page }) => {
         // 1. Mock Backend with Latency (Chunked Import Flow)
@@ -73,11 +74,7 @@ test.describe('Race Reliability Certification (Task 1504)', () => {
         await page.evaluate(() => (window as any).debug?.enable());
 
         // 2. Initial Load
-        const fileInput = page.locator('input[type="file"][accept*=".zip"]');
-        await fileInput.setInputFiles(fixturePath);
-        const startBtn = page.getByRole('button', { name: 'Start Building' });
-        await expect(startBtn).toBeVisible({ timeout: 60000 });
-        await startBtn.click();
+        await loadProjectZipAndWait(page, fixturePath, 60000);
 
         // Wait for state to reflect the 10 scenes from mock
         await expect.poll(async () => {
@@ -97,7 +94,6 @@ test.describe('Race Reliability Certification (Task 1504)', () => {
         const sceneItems = page.locator('.scene-item');
         const count = await sceneItems.count();
 
-        console.log(`Starting 100-run stress loop across ${count} scenes...`);
 
         for (let i = 0; i < 100; i++) {
             const targetIndex = Math.floor(Math.random() * count);
@@ -110,7 +106,6 @@ test.describe('Race Reliability Certification (Task 1504)', () => {
             }
         }
 
-        console.log('Stress loop finished. Waiting for stabilization...');
 
         // Wait for terminal state (Idle) using exposed OperationLifecycle
         await expect.poll(async () => {
@@ -128,8 +123,6 @@ test.describe('Race Reliability Certification (Task 1504)', () => {
             l.includes('PREVIOUS_TASK_CANCELLED')
         ).length;
 
-        console.log(`Certification Results:`);
-        console.log(`- Stale Callbacks Rejected: ${staleRejections}`);
 
         // We expect SOME rejections if the race condition logic is working
         expect(staleRejections).toBeGreaterThan(0);
@@ -143,7 +136,6 @@ test.describe('Race Reliability Certification (Task 1504)', () => {
             return (window as any).OperationLifecycle?.isBusy({ type: 'ThumbnailGeneration' });
         });
 
-        console.log('Ambient Thumbnail Generation Active:', isAmbientBusy);
 
         const sceneItems = page.locator('.scene-item');
 

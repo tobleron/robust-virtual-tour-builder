@@ -26,9 +26,30 @@ stop_processes() {
   pids="$(pgrep -f "$pattern" || true)"
   if [ -n "$pids" ]; then
     echo "🛑 Stopping $label: $pids"
+    # Send SIGTERM first for graceful shutdown
     # shellcheck disable=SC2086
     kill $pids || true
-    sleep 1
+    # Wait up to 5 seconds for graceful termination
+    local wait_count=0
+    while [ $wait_count -lt 5 ]; do
+      sleep 1
+      # Check if all processes are gone
+      local remaining=""
+      remaining="$(pgrep -f "$pattern" || true)"
+      if [ -z "$remaining" ]; then
+        break
+      fi
+      wait_count=$((wait_count + 1))
+    done
+    # Force kill any remaining processes with SIGKILL
+    local remaining=""
+    remaining="$(pgrep -f "$pattern" || true)"
+    if [ -n "$remaining" ]; then
+      echo "🛑 Force killing remaining $label: $remaining"
+      # shellcheck disable=SC2086
+      kill -9 $remaining || true
+      sleep 1
+    fi
   fi
 }
 
@@ -38,9 +59,11 @@ stop_port_listener() {
   pids="$(lsof -ti tcp:"$port" -sTCP:LISTEN 2>/dev/null || true)"
   if [ -n "$pids" ]; then
     echo "🛑 Releasing port $port: $pids"
+    # Use SIGKILL to ensure port is released immediately
     # shellcheck disable=SC2086
-    kill $pids || true
-    sleep 1
+    kill -9 $pids || true
+    # Wait for port to be fully released
+    sleep 2
   fi
 }
 

@@ -2,11 +2,10 @@
 mod video_runtime_generate;
 
 use super::video_capture;
-use super::video_logic::TeaserOutputFormat;
-use super::video_logic_support::{HeadlessMotionProfile, MotionManifestV1};
+use crate::api::media::video_logic::TeaserOutputFormat;
+use crate::api::media::video_logic_support::{HeadlessMotionProfile, MotionManifestV1};
 use headless_chrome::{Tab, protocol::cdp::Page};
 use serde_json::Value;
-use std::time::Duration;
 
 const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
 (function() {

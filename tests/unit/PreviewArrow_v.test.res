@@ -50,6 +50,7 @@ describe("PreviewArrow", () => {
   }
 
   testAsync("should render arrow and handle interactions", async t => {
+    OperationLifecycle.reset()
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -58,7 +59,12 @@ describe("PreviewArrow", () => {
 
     let mockScenes = [scene1, scene2]
 
-    let mockState = TestUtils.createMockState(~scenes=mockScenes, ~activeIndex=0, ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=mockScenes,
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
 
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
@@ -149,12 +155,17 @@ describe("PreviewArrow", () => {
   })
 
   testAsync("should handle delete click", async t => {
+    OperationLifecycle.reset()
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
     let scene1 = createMockScene("s1", "Scene1.webp", "Scene2.webp", false)
     let mockScenes = [scene1]
-    let mockState = TestUtils.createMockState(~scenes=mockScenes, ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=mockScenes,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 

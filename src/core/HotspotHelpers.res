@@ -227,3 +227,36 @@ let handleCommitHotspotMove = (
   | None => {...state, movingHotspot: None}
   }
 }
+
+let canEnableAutoForward = (
+  scenes: array<scene>,
+  sceneIndex: int,
+  hotspotIndex: int,
+): bool => {
+  switch Belt.Array.get(scenes, sceneIndex) {
+  | None => true
+  | Some(scene) =>
+    let currentIsAutoForward = switch Belt.Array.get(scene.hotspots, hotspotIndex) {
+    | Some(h) =>
+      switch h.isAutoForward {
+      | Some(true) => true
+      | _ => false
+      }
+    | None => false
+    }
+
+    // If this hotspot is already auto-forward, toggling is always allowed (disable path).
+    if currentIsAutoForward {
+      true
+    } else {
+      let hasAnotherAutoForward = Belt.Array.keepWithIndex(scene.hotspots, (h, idx) =>
+        idx != hotspotIndex &&
+          switch h.isAutoForward {
+          | Some(true) => true
+          | _ => false
+          }
+      )->Belt.Array.length > 0
+      !hasAnotherAutoForward
+    }
+  }
+}

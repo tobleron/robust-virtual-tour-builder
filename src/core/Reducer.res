@@ -66,10 +66,23 @@ let isStructuralMutation = (action: Actions.action): bool => {
   }
 }
 
-let rec reducer = (state: state, action: Actions.action): state => {
+let maxBatchDepth = 3
+
+let rec reduceWithDepth = (state: state, action: Actions.action, depth: int): state => {
   switch action {
   | Actions.RestoreState(nextState) => nextState
-  | Actions.Batch(actions) => Belt.Array.reduce(actions, state, (s, a) => reducer(s, a))
+  | Actions.Batch(actions) =>
+    if depth >= maxBatchDepth {
+      Logger.error(
+        ~module_="Reducer",
+        ~message="Max batch recursion depth exceeded; dropping nested batch",
+        ~data=Logger.castToJson({"depth": depth, "maxDepth": maxBatchDepth}),
+        (),
+      )
+      state
+    } else {
+      Belt.Array.reduce(actions, state, (s, a) => reduceWithDepth(s, a, depth + 1))
+    }
   | _ =>
     let nextState =
       state
@@ -89,3 +102,5 @@ let rec reducer = (state: state, action: Actions.action): state => {
     }
   }
 }
+
+let reducer = (state: state, action: Actions.action): state => reduceWithDepth(state, action, 0)

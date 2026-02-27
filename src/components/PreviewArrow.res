@@ -1,36 +1,7 @@
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module Logic = {
-  let calculateNavParams = (hotspot: Types.hotspot) => {
-    let navYaw = ref(0.0)
-    let navPitch = ref(0.0)
-    let navHfov = ref(90.0)
-
-    // Return links deprecated - use targetYaw/targetPitch for all links
-    switch hotspot.targetYaw {
-    | Some(ty) =>
-      navYaw := ty
-      navPitch :=
-        switch hotspot.targetPitch {
-        | Some(p) => p
-        | None => 0.0
-        }
-      navHfov :=
-        switch hotspot.targetHfov {
-        | Some(h) => h
-        | None => 90.0
-        }
-    | None =>
-      switch hotspot.viewFrame {
-      | Some(vf) =>
-        navYaw := vf.yaw
-        navPitch := vf.pitch
-        navHfov := vf.hfov
-      | None => ()
-      }
-    }
-    (navYaw.contents, navPitch.contents, navHfov.contents)
-  }
+  let calculateNavParams = (hotspot: Types.hotspot) => PreviewArrowNav.calculateNavParams(hotspot)
 }
 
 @react.component
@@ -51,6 +22,29 @@ let make = (
   let (isSwapping, setIsSwapping) = React.useState(_ => false)
   let (flickerMove, setFlickerMove) = React.useState(_ => false)
   let toggleInFlightRef = React.useRef(false)
+
+  let canProceed = (~capability: Capability.capability, ~context: string): bool => {
+    let currentState = AppContext.getBridgeState()
+    let allowed = Capability.Policy.evaluate(
+      ~capability,
+      ~appMode=currentState.appMode,
+      OperationLifecycle.getOperations(),
+    )
+    if !allowed {
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation(context),
+        message: "Please wait for current operation to finish",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    }
+    allowed
+  }
 
   let isMovingThis = switch state.movingHotspot {
   | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
@@ -91,7 +85,9 @@ let make = (
   // 3. Handlers
   let handleMainClick = e => {
     e->JsxEvent.Mouse.stopPropagation
-    if isMovingThis {
+    if !canProceed(~capability=CanNavigate, ~context="preview_arrow_navigate") {
+      ()
+    } else if isMovingThis {
       // Cancel move
       dispatch(StopMovingHotspot)
     } else {
@@ -131,6 +127,9 @@ let make = (
 
   let handleRightClick = e => {
     e->JsxEvent.Mouse.stopPropagation
+    if !canProceed(~capability=CanEditHotspots, ~context="preview_arrow") {
+      ()
+    } else {
     let currentState = AppContext.getBridgeState()
     let isMovingAny = currentState.movingHotspot != None
 
@@ -139,8 +138,31 @@ let make = (
     } else if toggleInFlightRef.current {
       ()
     } else {
-      toggleInFlightRef.current = true
+      let activeScenesForGuard = SceneInventory.getActiveScenes(
+        currentState.inventory,
+        currentState.sceneOrder,
+      )
+      let canEnableAutoForward =
+        HotspotHelpers.canEnableAutoForward(activeScenesForGuard, sceneIndex, hotspotIndex)
+
       let newVal = !localIsAF
+      if newVal && !canEnableAutoForward {
+        NotificationManager.dispatch({
+          id: "autoforward-validation-error",
+          importance: Error,
+          context: Operation("hotspot_action"),
+          message: "Only one auto-forward link per scene",
+          details: Some(
+            "Disable auto-forward on the existing link first, then enable it on this link.",
+          ),
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        ()
+      } else {
+      toggleInFlightRef.current = true
 
       // 1. Stylistic Feedback: Start blink on the CURRENT icon
       setFlickerYellow(_ => true)
@@ -178,6 +200,8 @@ let make = (
           toggleInFlightRef.current = false // Re-enable external syncs
         }, 400)
       }, 800)
+      }
+    }
     }
   }
 
@@ -208,6 +232,9 @@ let make = (
 
   let handleDeleteClick = e => {
     e->JsxEvent.Mouse.stopPropagation
+    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
+      ()
+    } else {
     let currentState = AppContext.getBridgeState()
     let isMovingAny = currentState.movingHotspot != None
 
@@ -232,10 +259,14 @@ let make = (
         })
       }, 800)
     }
+    }
   }
 
   let handleMoveClick = e => {
     e->JsxEvent.Mouse.stopPropagation
+    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
+      ()
+    } else {
     let currentState = AppContext.getBridgeState()
     let isMovingThisActual = switch currentState.movingHotspot {
     | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
@@ -257,6 +288,7 @@ let make = (
         dismissible: true,
         createdAt: Date.now(),
       })
+    }
     }
   }
 

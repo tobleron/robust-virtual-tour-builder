@@ -132,12 +132,20 @@ let initSubscriber = (
     DomBindings.Window.removeEventListener("beforeunload", listener)
   )
 
-  let listener = _event => {
+  let listener = event => {
     // Ensure all in-flight operations are flushed to emergency queue
     OperationJournal.flushAllInFlight()
 
+    let state = stateGetterRef.contents()
+    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let hasContent = Array.length(activeScenes) > 0 || state.tourName != "Tour Name"
+    if hasContent {
+      DomBindings.Dom.preventDefault(event)
+      DomBindings.Dom.setReturnValue(event, "")
+    }
+
     switch lastSaveTimeout.contents {
-    | Some(_) => performSave(stateGetterRef.contents())
+    | Some(_) => performSave(state)
     | None => ()
     }
   }

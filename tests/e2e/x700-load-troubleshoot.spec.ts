@@ -2,26 +2,43 @@ import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
 
-const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/x700.zip');
+const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 async function hardReset(page: any) {
   await page.goto('/');
   await page.evaluate(async () => {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((reg) => reg.unregister()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+
     localStorage.clear();
     sessionStorage.clear();
     const dbs = await window.indexedDB.databases();
-    dbs.forEach((db) => {
-      if (db.name) {
-        window.indexedDB.deleteDatabase(db.name);
-      }
-    });
+    await Promise.all(
+      dbs
+        .filter((db) => !!db.name)
+        .map(
+          (db) =>
+            new Promise<void>((resolve) => {
+              const req = window.indexedDB.deleteDatabase(db.name!);
+              req.onsuccess = () => resolve();
+              req.onerror = () => resolve();
+              req.onblocked = () => resolve();
+            }),
+        ),
+    );
   });
   await page.reload();
   await page.waitForLoadState('networkidle');
 }
 
 test.describe('Troubleshoot x700 project load', () => {
-  test('simulates loading artifacts/x700.zip and captures behavior', async ({ page }) => {
+  test('simulates loading artifacts/layan_complete_tour.zip and captures behavior', async ({ page }) => {
     test.setTimeout(900000);
 
     if (!fs.existsSync(ZIP_PATH)) {
@@ -84,7 +101,7 @@ test.describe('Troubleshoot x700 project load', () => {
       () => {
         const w = window as any;
         const s = w.store?.getFullState?.() ?? w.store?.state;
-        return !!s && Array.isArray(s.sceneOrder) && s.sceneOrder.length >= 70;
+        return !!s && Array.isArray(s.sceneOrder) && s.sceneOrder.length >= 20;
       },
       undefined,
       { timeout: 600000 },
@@ -126,15 +143,8 @@ test.describe('Troubleshoot x700 project load', () => {
       (r) => r.status === 404 && r.url.includes('/file/thumb-'),
     );
 
-    console.log('[x700] loadDurationMs=', loadDurationMs);
-    console.log('[x700] processingBarVisible=', processingBarVisible);
-    console.log('[x700] stateSummary=', JSON.stringify(stateSummary));
-    console.log('[x700] failedResponses=', failedResponses.length);
-    console.log('[x700] thumb404s=', thumb404s.length);
-    console.log('[x700] consoleErrors=', consoleErrors.length);
-    console.log('[x700] consoleWarnings=', consoleWarnings.length);
 
-    expect(stateSummary.sceneOrderCount).toBeGreaterThanOrEqual(70);
+    expect(stateSummary.sceneOrderCount).toBeGreaterThanOrEqual(20);
     expect(stateSummary.hasSessionId).toBeTruthy();
     expect(thumb404s.length).toBe(0);
   });

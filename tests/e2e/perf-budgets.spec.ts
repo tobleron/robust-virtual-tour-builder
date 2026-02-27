@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'node:fs/promises';
 import { setupAIObservability } from './ai-helper';
+import { loadProjectZipAndWait } from './e2e-helpers';
 import { getBudgetConfig } from '../../scripts/runtime-budget-config.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -161,14 +162,10 @@ test.describe.serial('@budget Runtime Budgets', () => {
 
   test('bulk upload latency budget', async ({ page }) => {
     test.setTimeout(180000);
-    const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
-    const importPath = path.join(FIXTURES_DIR, 'tour.vt.zip');
+    const importPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
     const startedAt = Date.now();
-    await fileInput.setInputFiles(importPath);
-    const startBtn = page.getByRole('button', { name: /Start Building/i });
-    await expect(startBtn).toBeVisible({ timeout: 60000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, importPath, 60000);
 
     await expect(page.locator('.scene-item').first()).toBeVisible({ timeout: 90000 });
     await page.waitForFunction(() => ((window as any).__RE_STATE__?.sceneOrder?.length ?? 0) >= 100, {

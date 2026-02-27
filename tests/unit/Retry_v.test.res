@@ -157,4 +157,82 @@ describe("Retry", () => {
       t->expect(e)->Expect.toBe("AbortError")
     }
   })
+
+  testAsync("stops when circuit is open", async t => {
+    let controller = ReBindings.AbortController.make()
+    let signal = ReBindings.AbortController.signal(controller)
+
+    let result = await execute(
+      ~fn=async (~signal as _) => Error("NetworkError"),
+      ~signal,
+      ~isCircuitOpen=(() => true),
+    )
+
+    switch result {
+    | Success(_) => t->expect(true)->Expect.toBe(false)
+    | Exhausted(e) => t->expect(e)->Expect.toBe("CircuitOpen")
+    }
+  })
+
+  testAsync("respects total deadline budget", async t => {
+    let controller = ReBindings.AbortController.make()
+    let signal = ReBindings.AbortController.signal(controller)
+
+    let result = await execute(
+      ~fn=async (~signal as _) => Error("NetworkError"),
+      ~signal,
+      ~config={...defaultConfig, maxRetries: 3, initialDelayMs: 100, jitter: false, totalDeadlineMs: 1},
+    )
+
+    switch result {
+    | Success(_) => t->expect(true)->Expect.toBe(false)
+    | Exhausted(e) => t->expect(e)->Expect.toBe("DeadlineExceeded")
+    }
+  })
+
+  testAsync("uses retry-after value when throttled", async t => {
+    let controller = ReBindings.AbortController.make()
+    let signal = ReBindings.AbortController.signal(controller)
+    let seenDelay = ref(0)
+    let attempts = ref(0)
+
+    let result = await execute(
+      ~fn=async (~signal as _) => {
+        attempts := attempts.contents + 1
+        if attempts.contents < 2 {
+          Error("RateLimited: 0")
+        } else {
+          Ok("ok")
+        }
+      },
+      ~signal,
+      ~onRetry=(_, _, delay) => seenDelay := delay,
+      ~shouldRetry=error => String.startsWith(error, "RateLimited: "),
+      ~config={...defaultConfig, maxRetries: 2, initialDelayMs: 5000, jitter: false},
+    )
+
+    switch result {
+    | Success(v, _) => t->expect(v)->Expect.toBe("ok")
+    | Exhausted(_) => t->expect(true)->Expect.toBe(false)
+    }
+    t->expect(seenDelay.contents)->Expect.toBe(0)
+  })
+
+  testAsync("enforces retry budget per key", async t => {
+    let controller = ReBindings.AbortController.make()
+    let signal = ReBindings.AbortController.signal(controller)
+
+    let result = await execute(
+      ~fn=async (~signal as _) => Error("NetworkError"),
+      ~signal,
+      ~budgetKey="test-budget",
+      ~budgetConfig={windowMs: 60000, maxRetriesPerWindow: 1},
+      ~config={...defaultConfig, maxRetries: 5, initialDelayMs: 1, jitter: false},
+    )
+
+    switch result {
+    | Success(_) => t->expect(true)->Expect.toBe(false)
+    | Exhausted(e) => t->expect(e)->Expect.toBe("RetryBudgetExhausted")
+    }
+  })
 })

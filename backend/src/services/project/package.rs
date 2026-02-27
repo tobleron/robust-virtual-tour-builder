@@ -1,14 +1,14 @@
 // @efficiency: service-orchestrator
 use crate::services::media;
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use rayon::prelude::*;
 use std::collections::HashMap;
-use std::io::{Cursor, Write};
+use std::io::Cursor;
 use zip::ZipWriter;
 use zip::write::FileOptions;
 
+use crate::services::project::package_utils;
+
 const WEBP_QUALITY: f32 = 92.0;
-const REQUIRED_SCENE_POLICY: &str = "browser-webp92-v1";
 const MAX_EXPORT_SOURCE_WIDTH: u32 = 4096;
 const MAX_EXPORT_SOURCE_HEIGHT: u32 = 4096;
 const TARGETS: [(&str, &str, u32); 3] = [
@@ -27,14 +27,7 @@ struct ResolutionArtifact {
 }
 
 fn target_dimensions(src_w: u32, src_h: u32, max_width: u32) -> (u32, u32) {
-    // Preserve aspect ratio and avoid upscaling beyond source dimensions.
-    if src_w <= max_width {
-        return (src_w, src_h);
-    }
-
-    let scale = max_width as f64 / src_w as f64;
-    let out_h = ((src_h as f64) * scale).round().max(1.0) as u32;
-    (max_width, out_h)
+    package_utils::target_dimensions(src_w, src_h, max_width)
 }
 
 fn write_zip_file(
@@ -43,146 +36,39 @@ fn write_zip_file(
     path: &str,
     data: &[u8],
 ) -> Result<(), String> {
-    zip.start_file(path, options).map_err(|e| e.to_string())?;
-    zip.write_all(data).map_err(|e| e.to_string())?;
-    Ok(())
+    package_utils::write_zip_file(zip, options, path, data)
 }
 
 fn require_scene_policy(fields: &HashMap<String, String>) -> Result<(), String> {
-    let provided = fields
-        .get("scene_policy")
-        .map(|v| v.trim())
-        .unwrap_or_default();
-
-    if provided != REQUIRED_SCENE_POLICY {
-        return Err(format!(
-            "Rejected export payload: invalid scene policy (expected '{}', got '{}')",
-            REQUIRED_SCENE_POLICY, provided
-        ));
-    }
-
-    Ok(())
+    package_utils::require_scene_policy(fields)
 }
 
 fn create_root_index() -> String {
-    String::from(
-        r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Virtual Tour Package</title>
-  <style>
-    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(1200px 600px at 10% 10%, rgba(30,64,175,0.18), transparent), radial-gradient(1200px 600px at 90% 90%, rgba(22,78,99,0.18), transparent), #0b1220; color: #e5e7eb; display: grid; place-items: center; }
-    .wrap { width: min(980px, 92vw); background: rgba(16,26,47,0.86); border: 1px solid #24304a; border-radius: 18px; padding: 28px; backdrop-filter: blur(6px); }
-    h1 { margin: 0 0 10px; font-size: 1.65rem; }
-    p { margin: 0 0 20px; line-height: 1.5; color: #cbd5e1; }
-    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    a { display: block; text-decoration: none; background: #162544; border: 1px solid #33486b; border-radius: 12px; padding: 16px 18px; color: #f8fafc; font-weight: 700; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
-    a:hover { transform: translateY(-2px); border-color: #f97316; background: #1a2f55; }
-    a span { display: block; margin-top: 6px; color: #93c5fd; font-weight: 500; font-size: 0.92rem; }
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <h1>Virtual Tour Export</h1>
-    <p>Choose the package mode for your distribution target.</p>
-    <div class="grid">
-      <a href="web_only/index.html">Open Web Package<span>4K, 2K, and HD tours for website integration over HTTP/HTTPS.</span></a>
-      <a href="desktop/index.html">Open Desktop Package<span>Single 2K standalone HTML with embedded scene blobs for direct local opening.</span></a>
-    </div>
-  </main>
-</body>
-</html>"#,
-    )
+    package_utils::create_root_index()
 }
 
 fn create_web_only_deployment_readme() -> String {
-    String::from(
-        r#"WEB-ONLY DEPLOYMENT INSTRUCTIONS
-
-This folder is designed for website hosting over HTTP/HTTPS.
-
-Upload this folder exactly as-is:
-- web_only/
-  - assets/
-  - libs/
-  - tour_4k/
-  - tour_2k/
-  - tour_hd/
-
-Primary entry:
-- web_only/index.html
-
-Embed URLs:
-- web_only/tour_4k/index.html
-- web_only/tour_2k/index.html
-- web_only/tour_hd/index.html
-
-Example iframe:
-<iframe src="/virtual-tour/web_only/tour_4k/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
-
-Notes:
-1) Keep folder structure unchanged.
-2) Keep web_only/libs unless you intentionally rewrite script/style paths to a shared site library.
-3) Serve through HTTP/HTTPS (not file://).
-4) Ensure your static host serves .webp, .js, and .css.
-"#,
-    )
+    package_utils::create_web_only_deployment_readme()
 }
 
 fn create_desktop_readme() -> String {
-    String::from(
-        r#"DESKTOP PACKAGE - QUICK GUIDE
-
-Entry file:
-- desktop/index.html
-
-Behavior:
-- Uses 2K scenes only.
-- Scenes are embedded as data URIs in one HTML file (blob-style standalone).
-- Opens directly from extracted files (file:// supported).
-
-Notes:
-1) Keep desktop/libs beside desktop/index.html.
-2) No local webserver is required for desktop mode.
-"#,
-    )
+    package_utils::create_desktop_readme()
 }
 
 fn rewrite_tour_html_for_subfolder(web_html: &str, resolution_key: &str) -> String {
-    let image_prefix = format!("../assets/images/{}/", resolution_key);
-    let image_placeholder = "__EXPORT_IMAGE_PREFIX__";
-
-    web_html
-        .replace("../../libs/pannellum.css", "../libs/pannellum.css")
-        .replace("../../libs/pannellum.js", "../libs/pannellum.js")
-        .replace("../../assets/logo/", "../assets/logo/")
-        .replace("../../assets/images/", image_placeholder)
-        .replace("assets/images/", image_placeholder)
-        .replace(image_placeholder, &image_prefix)
+    package_utils::rewrite_tour_html_for_subfolder(web_html, resolution_key)
 }
 
 fn rewrite_web_only_index_html(index_html: &str) -> String {
-    index_html.replace("../assets/logo/", "assets/logo/")
+    package_utils::rewrite_web_only_index_html(index_html)
 }
 
 fn infer_mime_from_filename(file_name: &str) -> &'static str {
-    let lower = file_name.to_lowercase();
-    if lower.ends_with(".png") {
-        "image/png"
-    } else if lower.ends_with(".jpg") || lower.ends_with(".jpeg") {
-        "image/jpeg"
-    } else if lower.ends_with(".svg") {
-        "image/svg+xml"
-    } else {
-        "image/webp"
-    }
+    package_utils::infer_mime_from_filename(file_name)
 }
 
 fn data_uri_for_bytes(mime: &str, bytes: &[u8]) -> String {
-    format!("data:{};base64,{}", mime, BASE64_STANDARD.encode(bytes))
+    package_utils::data_uri_for_bytes(mime, bytes)
 }
 
 fn build_desktop_blob_html(
@@ -190,33 +76,7 @@ fn build_desktop_blob_html(
     assets_2k: &[(String, Vec<u8>)],
     logo_asset: Option<&(String, Vec<u8>)>,
 ) -> String {
-    let mut html = desktop_html
-        .replace("../../libs/pannellum.css", "./libs/pannellum.css")
-        .replace("../../libs/pannellum.js", "./libs/pannellum.js");
-
-    if let Some((logo_name, logo_bytes)) = logo_asset {
-        let logo_path = format!("../../assets/logo/{}", logo_name);
-        let logo_data_uri = data_uri_for_bytes(infer_mime_from_filename(logo_name), logo_bytes);
-        html = html.replace(&logo_path, &logo_data_uri);
-    }
-
-    let mut replacements: Vec<(String, String)> = assets_2k
-        .iter()
-        .map(|(file_name, bytes)| {
-            (
-                format!("assets/images/{}", file_name),
-                data_uri_for_bytes("image/webp", bytes),
-            )
-        })
-        .collect();
-
-    replacements.sort_by(|(path_a, _), (path_b, _)| path_b.len().cmp(&path_a.len()));
-
-    for (path, data_uri) in replacements {
-        html = html.replace(&path, &data_uri);
-    }
-
-    html
+    package_utils::build_desktop_blob_html(desktop_html, assets_2k, logo_asset)
 }
 
 /// Creates a production-ready tour package ZIP.

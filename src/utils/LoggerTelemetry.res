@@ -7,6 +7,14 @@ let telemetryQueue: array<logEntry> = []
 let isFlushing = ref(false)
 let bypassTestEnvCheck = ref(false)
 let telemetrySuspendedUntil = ref(0.0)
+let idleFlushPending = ref(false)
+let bandwidthWindowStartMs = ref(0.0)
+let bandwidthBytesSent = ref(0)
+let adaptiveSamplingScale = ref(1.0)
+
+let sampleRateInfo = 0.5
+let sampleRateDebugProd = 0.1
+let samplingBandwidthBudgetBytesPerSec = 10000
 
 let setBypassTestEnvCheck = (v: bool) => {
   bypassTestEnvCheck := v
@@ -65,6 +73,22 @@ let validateTelemetryResponse = async (res: Fetch.response): Promise.t<unit> => 
 }
 
 let canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()
+
+let noteTelemetryPayloadBytes = (payloadBytes: int) => {
+  let now = nowMs()
+  if bandwidthWindowStartMs.contents == 0.0 {
+    bandwidthWindowStartMs := now
+  } else if now -. bandwidthWindowStartMs.contents >= 1000.0 {
+    bandwidthWindowStartMs := now
+    bandwidthBytesSent := 0
+    adaptiveSamplingScale := 1.0
+  }
+
+  bandwidthBytesSent := bandwidthBytesSent.contents + payloadBytes
+  if bandwidthBytesSent.contents > samplingBandwidthBudgetBytesPerSec {
+    adaptiveSamplingScale := 0.5
+  }
+}
 
 type transportTask = {
   task: unit => Promise.t<unit>,
@@ -187,7 +211,58 @@ let encodeTelemetryBatch = (batch: telemetryBatch) => {
   encode([("entries", array(encodeLogEntry)(batch.entries))])
 }
 
+let deduplicateBatchEntries = (_entries: array<logEntry>): array<logEntry> =>
+  %raw(`(function(_entries) {
+    const grouped = new Map();
+    for (const entry of _entries) {
+      const key = [
+        entry.module,
+        entry.level,
+        entry.message,
+        entry.priority,
+        entry.requestId || "",
+        entry.operationId || "",
+        entry.sessionId || "",
+        JSON.stringify(entry.data || null)
+      ].join("|");
+      const current = grouped.get(key);
+      if (current) {
+        current.__count = (current.__count || 1) + 1;
+        if ((entry.timestampMs || 0) > (current.timestampMs || 0)) {
+          current.timestampMs = entry.timestampMs;
+          current.timestamp = entry.timestamp;
+        }
+      } else {
+        grouped.set(key, {...entry, __count: 1});
+      }
+    }
+
+    const merged = [];
+    for (const item of grouped.values()) {
+      const count = item.__count || 1;
+      if (count > 1) {
+        const baseData = item.data && typeof item.data === "object" && !Array.isArray(item.data)
+          ? {...item.data}
+          : {};
+        baseData.count = count;
+        item.data = baseData;
+      }
+      delete item.__count;
+      merged.push(item);
+    }
+    return merged;
+  })(_entries)`)
+
 let isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason
+
+let runIdle = (_task: unit => unit) =>
+  %raw(`(function(task){
+    if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(() => task(), {timeout: 1500});
+    } else {
+      setTimeout(task, 0);
+    }
+  })(_task)`)
 
 let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   if !canUseTelemetryNetwork() {
@@ -195,16 +270,18 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   } else {
     try {
       let _ = await scheduleTransport(async () => {
+        let encodedPayload = JsonCombinators.Json.stringify(encodeTelemetryBatch(payload))
         let res = await Fetch.fetch(
           Constants.backendUrl ++ "/api/telemetry/batch",
           Fetch.requestInit(
             ~method="POST",
             ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-            ~body=JsonCombinators.Json.stringify(encodeTelemetryBatch(payload)),
+            ~body=encodedPayload,
             (),
           ),
         )
         let _ = await validateTelemetryResponse(res)
+        noteTelemetryPayloadBytes(String.length(encodedPayload))
       })
       true
     } catch {
@@ -228,10 +305,9 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   }
 }
 
-let flushTelemetry = async () => {
+let rec flushTelemetry = async () => {
   if !NetworkStatus.isOnline() {
     Console.info2("[LoggerTelemetry] FLUSH_SKIPPED_OFFLINE. Queued:", Array.length(telemetryQueue))
-    // Don't reset the timer, just skip this flush cycle
   } else if Array.length(telemetryQueue) > 0 && !isFlushing.contents && canUseTelemetryNetwork() {
     isFlushing := true
 
@@ -243,14 +319,17 @@ let flushTelemetry = async () => {
       currentQueueLen
     }
 
-    let batch = Belt.Array.slice(telemetryQueue, ~offset=0, ~len=takeCount)
+    let batch = Belt.Array.slice(telemetryQueue, ~offset=0, ~len=takeCount)->deduplicateBatchEntries
     let payload: telemetryBatch = {entries: batch}
 
     let beaconSuccess = if WebApiBindings.hasSendBeacon() {
       let jsonStr = JsonCombinators.Json.stringify(encodeTelemetryBatch(payload))
-      // Use Blob to enforce application/json content type
       let blob = BrowserBindings.Blob.newBlob([jsonStr], {"type": "application/json"})
-      WebApiBindings.sendBeaconBlob(Constants.backendUrl ++ "/api/telemetry/batch", blob)
+      let sent = WebApiBindings.sendBeaconBlob(Constants.backendUrl ++ "/api/telemetry/batch", blob)
+      if sent {
+        noteTelemetryPayloadBytes(String.length(jsonStr))
+      }
+      sent
     } else {
       false
     }
@@ -271,10 +350,49 @@ let flushTelemetry = async () => {
   }
 }
 
+and scheduleIdleFlush = () => {
+  if !idleFlushPending.contents {
+    idleFlushPending := true
+    runIdle(() => {
+      idleFlushPending := false
+      let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+    })
+  }
+}
+
+let shouldSampleByLevel = (level: level): bool => {
+  let baseRate = switch level {
+  | Warn => 1.0
+  | Info | Perf => sampleRateInfo
+  | Trace => if Constants.Telemetry.diagnosticMode.contents {
+      1.0
+    } else {
+      0.0
+    }
+  | Debug => if Constants.isDebugBuild() || Constants.Telemetry.diagnosticMode.contents {
+      1.0
+    } else {
+      sampleRateDebugProd
+    }
+  | _ => 1.0
+  }
+
+  if baseRate >= 1.0 {
+    true
+  } else if baseRate <= 0.0 {
+    false
+  } else {
+    let effectiveRate = baseRate *. adaptiveSamplingScale.contents
+    Math.random() < effectiveRate
+  }
+}
+
 let sendTelemetry = async entry => {
   if !canUseTelemetryNetwork() {
     ()
   } else if Constants.isTestEnvironment() && !bypassTestEnvCheck.contents {
+    ()
+  } else if !shouldSampleByLevel(stringToLevel(entry.level)) {
     ()
   } else {
     let sanitizedEntry = {...entry, data: sanitizePayload(entry.data)}
@@ -284,16 +402,18 @@ let sendTelemetry = async entry => {
     | Critical =>
       try {
         let _ = await scheduleTransport(async () => {
+          let encoded = JsonCombinators.Json.stringify(encodeLogEntry(sanitizedEntry))
           let res = await Fetch.fetch(
             Constants.backendUrl ++ "/api/telemetry/error",
             Fetch.requestInit(
               ~method="POST",
               ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              ~body=JsonCombinators.Json.stringify(encodeLogEntry(sanitizedEntry)),
+              ~body=encoded,
               (),
             ),
           )
           let _ = await validateTelemetryResponse(res)
+          noteTelemetryPayloadBytes(String.length(encoded))
         })
       } catch {
       | err if isTransportQueueOverflow(err) => ()
@@ -319,12 +439,10 @@ let sendTelemetry = async entry => {
       }
 
       let shouldQueue = shouldSend && shouldQueueForPriority(p)
-      if shouldQueue {
-        if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-          let _ = Array.push(telemetryQueue, sanitizedEntry)
-          if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-            let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
-          }
+      if shouldQueue && Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
+        let _ = Array.push(telemetryQueue, sanitizedEntry)
+        if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+          scheduleIdleFlush()
         }
       }
     }
@@ -336,20 +454,39 @@ let initializeNetworkListener = () => {
     if online {
       Console.info("[LoggerTelemetry] FLUSH_ON_RECONNECT")
       telemetrySuspendedUntil := 0.0
-      let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+      scheduleIdleFlush()
     }
   })
 }
 
-// Periodic flush every 2 seconds
+let flushWithBeaconOnUnload = () => {
+  if Array.length(telemetryQueue) == 0 || !canUseTelemetryNetwork() || !WebApiBindings.hasSendBeacon() {
+    ()
+  } else {
+    let payload: telemetryBatch = {entries: deduplicateBatchEntries(telemetryQueue)}
+    let jsonStr = JsonCombinators.Json.stringify(encodeTelemetryBatch(payload))
+    let blob = BrowserBindings.Blob.newBlob([jsonStr], {"type": "application/json"})
+    if WebApiBindings.sendBeaconBlob(Constants.backendUrl ++ "/api/telemetry/batch", blob) {
+      ignore(%raw(`telemetryQueue.splice(0, telemetryQueue.length)`))
+      noteTelemetryPayloadBytes(String.length(jsonStr))
+    }
+  }
+}
+
+let initializeBeforeUnloadListener = () => {
+  let _ = Window.addEventListener("beforeunload", (_: Dom.event) => flushWithBeaconOnUnload())
+}
+
 let flushTimer = ref(None)
 let startPeriodicFlush = () => {
   switch flushTimer.contents {
   | Some(_) => ()
   | None => flushTimer := Some(Window.setInterval(() => {
-          let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
-        }, 2000))
+          scheduleIdleFlush()
+        }, Constants.Telemetry.batchInterval))
   }
 }
+
 let _ = startPeriodicFlush()
 let _ = initializeNetworkListener()
+let _ = initializeBeforeUnloadListener()

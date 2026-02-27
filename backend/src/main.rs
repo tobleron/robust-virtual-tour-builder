@@ -1,5 +1,8 @@
 use actix_files as fs;
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+use actix_web::dev::Service;
+use actix_web::http::header::{CACHE_CONTROL, HeaderValue, VARY};
+use actix_web::middleware::Compress;
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
@@ -21,9 +24,31 @@ use middleware::RequestTracker;
 use middleware::rate_limiter::RateLimiters;
 use services::database::DatabaseManager;
 use services::media::StorageManager;
+use services::project::ChunkedProjectExportUploadManager;
 use services::project::ChunkedProjectImportManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
+
+fn is_hashed_static_asset(path: &str) -> bool {
+    // Match patterns like /static/js/index-a1b2c3.js
+    if !path.starts_with("/static/") {
+        return false;
+    }
+    let file = match path.rsplit('/').next() {
+        Some(v) => v,
+        None => return false,
+    };
+    let mut parts = file.splitn(2, '.');
+    let stem = match parts.next() {
+        Some(v) => v,
+        None => return false,
+    };
+    let hash = match stem.rsplit('-').next() {
+        Some(v) => v,
+        None => return false,
+    };
+    hash.len() >= 6 && hash.chars().all(|c| c.is_ascii_hexdigit())
+}
 
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().body("Tour Builder API is running!")
@@ -83,6 +108,13 @@ async fn main() -> io::Result<()> {
                 e
             ))
         })?);
+    let project_export_uploads =
+        web::Data::new(ChunkedProjectExportUploadManager::new().map_err(|e| {
+            io::Error::other(format!(
+                "Failed to initialize chunked export upload manager: {}",
+                e
+            ))
+        })?);
 
     let disk_bypass = std::env::var("ALLOW_DISK_CHECK_BYPASS").unwrap_or_default();
 
@@ -127,10 +159,28 @@ async fn main() -> io::Result<()> {
             .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
             .app_data(quota_manager.clone())
             .app_data(project_import_uploads.clone())
+            .app_data(project_export_uploads.clone())
             .app_data(shutdown_manager_server.clone())
             .app_data(db_pool_server.clone())
             .wrap(QuotaCheck)
             .wrap(RequestTracker)
+            .wrap(Compress::default())
+            .wrap_fn(|req, srv| {
+                let path = req.path().to_owned();
+                let fut = srv.call(req);
+                async move {
+                    let mut res = fut.await?;
+                    res.headers_mut()
+                        .insert(VARY, HeaderValue::from_static("Accept-Encoding"));
+                    if is_hashed_static_asset(&path) {
+                        res.headers_mut().insert(
+                            CACHE_CONTROL,
+                            HeaderValue::from_static("public, max-age=31536000, immutable"),
+                        );
+                    }
+                    Ok(res)
+                }
+            })
             .wrap(TracingLogger::default())
             .wrap(startup::security_headers())
             .wrap(SessionMiddleware::new(

@@ -99,6 +99,11 @@ let request = async (
           }
         }
         Dict.set(headers, "X-Request-ID", finalRequestId)
+        if method == "POST" || method == "PUT" || method == "PATCH" || method == "DELETE" {
+          if Dict.get(headers, "X-Idempotency-Key") == None {
+            Dict.set(headers, "X-Idempotency-Key", finalRequestId)
+          }
+        }
 
         let timeoutMs = getTimeoutMs(~method, ~url)
         let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)

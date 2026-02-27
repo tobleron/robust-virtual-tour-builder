@@ -40,21 +40,6 @@ let throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>
     }
   })
 
-let formatEta = (etaMs: float) => {
-  let seconds = Belt.Float.toInt(etaMs /. 1000.0)
-  if seconds <= 0 {
-    "Almost done"
-  } else {
-    let m = seconds / 60
-    let s = mod(seconds, 60)
-    if m > 0 {
-      "ETA " ++ Belt.Int.toString(m) ++ "m " ++ Belt.Int.toString(s) ++ "s"
-    } else {
-      "ETA " ++ Belt.Int.toString(s) ++ "s"
-    }
-  }
-}
-
 let sceneOverlayFor = (
   scenes: array<scene>,
   sceneId: string,
@@ -171,7 +156,7 @@ let renderWebMDeterministic = async (
         let pct = Belt.Int.toFloat(frameIndex) /. Belt.Int.toFloat(totalFrames) *. 100.0
         let framesLeft = totalFrames - frameIndex
         let etaMs = Belt.Int.toFloat(framesLeft) *. rollingThroughput.contents
-        let etaStr = frameIndex > 0 ? formatEta(etaMs) : "Estimating..."
+        let etaStr = frameIndex > 0 ? EtaSupport.formatEtaMs(etaMs) : "Estimating..."
         onProgress->Option.forEach(cb =>
           cb(
             pct,

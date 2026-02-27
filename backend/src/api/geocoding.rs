@@ -118,6 +118,9 @@ mod tests {
 
     #[actix_web::test]
     async fn test_api_suite_sequential() -> Result<(), Box<dyn std::error::Error>> {
+        let _guard = geocoding::cache::GEOCODING_TEST_MUTEX
+            .lock()
+            .expect("test mutex poisoned");
         // Run tests sequentially to avoid race conditions on the global singleton cache
         test_reverse_geocode_structure_internal().await?;
         test_geocode_stats_internal().await;
@@ -127,6 +130,9 @@ mod tests {
 
     #[actix_web::test]
     async fn test_geocode_success() -> Result<(), Box<dyn std::error::Error>> {
+        let _guard = geocoding::cache::GEOCODING_TEST_MUTEX
+            .lock()
+            .expect("test mutex poisoned");
         let app =
             test::init_service(App::new().route("/geocode", web::post().to(reverse_geocode))).await;
         let req = test::TestRequest::post()

@@ -7,6 +7,7 @@ pub mod geocoding;
 pub mod health;
 pub mod media;
 pub mod project;
+pub mod project_export;
 pub mod project_import;
 pub mod project_logic;
 pub mod project_multipart;
@@ -162,6 +163,41 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                         "/import/abort",
                         web::post()
                             .to(project_import::import_project_abort)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/export/init",
+                        web::post()
+                            .to(project_export::export_init)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/export/chunk",
+                        web::post()
+                            .to(project_export::export_chunk)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/export/status/{upload_id}",
+                        web::get()
+                            .to(project_export::export_status)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/export/complete",
+                        web::post()
+                            .to(project_export::export_complete)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/export/abort",
+                        web::post()
+                            .to(project_export::export_abort)
                             .wrap(RateLimitResponseTransformer::new("write"))
                             .wrap(Governor::new(&limiters.write)),
                     )

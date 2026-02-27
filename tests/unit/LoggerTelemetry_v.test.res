@@ -21,6 +21,7 @@ describe("LoggerTelemetry Offline Awareness", () => {
   beforeAll(() => {
     NetworkStatus.initialize()
     NetworkStatus.skipProbe := true
+    LoggerTelemetry.setBypassTestEnvCheck(true)
   })
 
   beforeEach(() => {
@@ -104,5 +105,34 @@ describe("LoggerTelemetry Offline Awareness", () => {
 
     let calls = %raw(`globalThis.fetch.mock.calls.length`)
     t->expect(calls)->Expect.toBe(1)
+  })
+
+  testAsync("flushTelemetry deduplicates identical entries and adds count", async t => {
+    setOnline(true)
+
+    let mk = (): LoggerCommon.logEntry => {
+      timestampMs: 0.0,
+      timestamp: "",
+      module_: "Test",
+      level: "info",
+      message: "Duplicate Message",
+      data: Some(LoggerCommon.castToJson({"kind": "dup"})),
+      priority: "medium",
+      requestId: None,
+      operationId: None,
+      sessionId: None,
+    }
+
+    Array.push(LoggerTelemetry.telemetryQueue, mk())
+    Array.push(LoggerTelemetry.telemetryQueue, mk())
+    Array.push(LoggerTelemetry.telemetryQueue, mk())
+
+    await LoggerTelemetry.flushTelemetry()
+
+    let entriesLen = %raw(`(function(){ const parsed = JSON.parse(globalThis.fetch.mock.calls[0][1].body); return parsed.entries.length; })()`)
+    let count = %raw(`(function(){ const parsed = JSON.parse(globalThis.fetch.mock.calls[0][1].body); return parsed.entries[0].data.count; })()`)
+
+    t->expect(entriesLen)->Expect.toBe(1)
+    t->expect(count)->Expect.toBe(3)
   })
 })

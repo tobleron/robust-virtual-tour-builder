@@ -178,15 +178,27 @@ let exportTour = async (
 
     let rec uploadWithRetry = async (retryCount, token) => {
       try {
-        let result = await ExporterUpload.uploadAndProcessRaw(
-          formData,
-          progress,
-          backendUrl,
-          Constants.Exporter.uploadTimeoutMs,
-          ~signal,
-          ~token,
-          ~operationId=Some(opId),
-        )
+        let result = await (if totalScenes < 10 {
+          ExporterUpload.uploadAndProcessRaw(
+            formData,
+            progress,
+            backendUrl,
+            Constants.Exporter.uploadTimeoutMs,
+            ~signal,
+            ~token,
+            ~operationId=Some(opId),
+          )
+        } else {
+          ExporterUpload.uploadChunkedThenLegacy(
+            formData,
+            progress,
+            backendUrl,
+            Constants.Exporter.uploadTimeoutMs,
+            ~signal,
+            ~token,
+            ~operationId=Some(opId),
+          )
+        })
         CircuitBreaker.recordSuccess(AuthenticatedClient.circuitBreaker)
         result
       } catch {

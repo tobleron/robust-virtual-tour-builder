@@ -2,7 +2,7 @@
 use crate::metrics::{GEOCODING_CACHE_HITS_TOTAL, GEOCODING_CACHE_MISSES_TOTAL};
 
 use crate::models::{CacheStats, CachedGeocode, GeocodeKey};
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -17,9 +17,78 @@ lazy_static::lazy_static! {
         Arc::new(RwLock::new(CacheStats::default()));
 }
 
+#[cfg(test)]
+lazy_static::lazy_static! {
+    pub(crate) static ref GEOCODING_TEST_MUTEX: std::sync::Mutex<()> =
+        std::sync::Mutex::new(());
+}
+
 pub struct GeocoderInfo {
     pub stats: CacheStats,
     pub cache_size: usize,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct PersistedCacheEntry {
+    lat: i32,
+    lon: i32,
+    address: String,
+    last_accessed: u64,
+    access_count: u32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct PersistedCachePayload {
+    entries: Vec<PersistedCacheEntry>,
+    stats: CacheStats,
+    saved_at: u64,
+}
+
+fn decode_cache_payload(
+    data: &serde_json::Value,
+) -> (
+    Option<HashMap<GeocodeKey, CachedGeocode>>,
+    Option<CacheStats>,
+    bool,
+) {
+    // Preferred format: explicit entries array.
+    if let Some(entries_value) = data.get("entries") {
+        match serde_json::from_value::<Vec<PersistedCacheEntry>>(entries_value.clone()) {
+            Ok(entries) => {
+                let mut loaded_cache: HashMap<GeocodeKey, CachedGeocode> = HashMap::new();
+                for entry in entries {
+                    loaded_cache.insert(
+                        (entry.lat, entry.lon),
+                        CachedGeocode {
+                            address: entry.address,
+                            last_accessed: entry.last_accessed,
+                            access_count: entry.access_count,
+                        },
+                    );
+                }
+                let stats = data
+                    .get("stats")
+                    .and_then(|stats_obj| serde_json::from_value::<CacheStats>(stats_obj.clone()).ok());
+                return (Some(loaded_cache), stats, false);
+            }
+            Err(_) => return (None, None, true),
+        }
+    }
+
+    // Backward compatibility for legacy payloads.
+    if let Some(cache_obj) = data.get("cache") {
+        match serde_json::from_value::<HashMap<GeocodeKey, CachedGeocode>>(cache_obj.clone()) {
+            Ok(loaded_cache) => {
+                let stats = data
+                    .get("stats")
+                    .and_then(|stats_obj| serde_json::from_value::<CacheStats>(stats_obj.clone()).ok());
+                return (Some(loaded_cache), stats, false);
+            }
+            Err(_) => return (None, None, true),
+        }
+    }
+
+    (None, None, false)
 }
 
 pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {
@@ -90,11 +159,22 @@ pub async fn save_cache_to_disk() -> Result<(), String> {
     }
 
     let current_time = get_current_timestamp();
-    let data = json!({
-        "cache": *cache,
-        "stats": *stats,
-        "saved_at": current_time
-    });
+    let entries: Vec<PersistedCacheEntry> = cache
+        .iter()
+        .map(|((lat, lon), value)| PersistedCacheEntry {
+            lat: *lat,
+            lon: *lon,
+            address: value.address.clone(),
+            last_accessed: value.last_accessed,
+            access_count: value.access_count,
+        })
+        .collect();
+
+    let data = PersistedCachePayload {
+        entries,
+        stats: stats.clone(),
+        saved_at: current_time,
+    };
 
     let json = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize cache: {}", e))?;
@@ -113,20 +193,31 @@ pub async fn load_cache_from_disk() -> std::io::Result<()> {
 
     match tokio::fs::read_to_string(&cache_file).await {
         Ok(contents) => {
-            let data: serde_json::Value = serde_json::from_str(&contents)?;
-            if let Some(cache_obj) = data.get("cache") {
-                let loaded_cache: HashMap<GeocodeKey, CachedGeocode> =
-                    serde_json::from_value(cache_obj.clone())?;
+            let data: serde_json::Value = match serde_json::from_str(&contents) {
+                Ok(v) => v,
+                Err(e) => {
+                    tracing::warn!(module = "Geocoder", error = %e, "Invalid cache JSON; starting fresh");
+                    return Ok(());
+                }
+            };
+
+            let (cache_opt, stats_opt, had_decode_error) = decode_cache_payload(&data);
+            if had_decode_error {
+                tracing::warn!(module = "Geocoder", "Invalid cache payload; starting fresh");
+            }
+
+            if let Some(loaded_cache) = cache_opt {
                 let mut cache = GEOCODE_CACHE.write().await;
+                let loaded_entries = loaded_cache.len();
                 *cache = loaded_cache;
                 tracing::info!(
                     module = "Geocoder",
-                    entries = cache.len(),
+                    entries = loaded_entries,
                     "CACHE_LOADED_FROM_DISK"
                 );
             }
-            if let Some(stats_obj) = data.get("stats") {
-                let loaded_stats: CacheStats = serde_json::from_value(stats_obj.clone())?;
+
+            if let Some(loaded_stats) = stats_opt {
                 let mut stats = CACHE_STATS.write().await;
                 *stats = loaded_stats;
             }
@@ -240,4 +331,50 @@ pub async fn get_evictions_count() -> u64 {
 pub async fn get_hits_count() -> u64 {
     let stats = CACHE_STATS.read().await;
     stats.hits
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decode_cache_payload_handles_invalid_legacy_cache_shape() {
+        let payload = serde_json::json!({
+            "cache": {"bad": {"address": "x", "last_accessed": 1, "access_count": 1}},
+            "stats": {"hits": 0, "misses": 0, "evictions": 0, "last_save": null}
+        });
+
+        let (cache_opt, stats_opt, had_decode_error) = decode_cache_payload(&payload);
+        assert!(cache_opt.is_none());
+        assert!(stats_opt.is_none());
+        assert!(had_decode_error);
+    }
+
+    #[test]
+    fn decode_cache_payload_reads_entries_format() {
+        let payload = serde_json::json!({
+            "entries": [{
+                "lat": 10,
+                "lon": 20,
+                "address": "Example",
+                "last_accessed": 7,
+                "access_count": 3
+            }],
+            "stats": {"hits": 1, "misses": 2, "evictions": 3, "last_save": 4},
+            "saved_at": 123
+        });
+
+        let (cache_opt, stats_opt, had_decode_error) = decode_cache_payload(&payload);
+        assert!(!had_decode_error);
+        let cache = cache_opt.expect("cache should decode");
+        assert_eq!(cache.len(), 1);
+        let entry = cache.get(&(10, 20)).expect("entry should exist");
+        assert_eq!(entry.address, "Example");
+        assert_eq!(entry.last_accessed, 7);
+        assert_eq!(entry.access_count, 3);
+
+        let stats = stats_opt.expect("stats should decode");
+        assert_eq!(stats.hits, 1);
+        assert_eq!(stats.misses, 2);
+    }
 }

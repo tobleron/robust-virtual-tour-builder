@@ -1,11 +1,16 @@
+mod export_session;
+mod export_upload;
 mod import_session;
+mod import_upload_logic;
 mod import_upload;
 mod load;
 mod package;
+mod package_utils;
 mod validate;
 mod validate_utils;
 
 // Re-export public API
+pub use export_upload::ChunkedProjectExportUploadManager;
 pub use import_upload::{ChunkedProjectImportManager, MAX_IMPORT_CHUNK_SIZE_BYTES};
 #[allow(unused_imports)]
 pub use load::process_uploaded_project_zip;

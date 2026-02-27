@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { uploadImageAndWaitForSceneCount } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -107,12 +108,7 @@ test.describe('Visual Regression: Aesthetic Integrity', () => {
 
     test('Sidebar and HUD components should match aesthetic baselines', async ({ page }) => {
         // 1. Setup: Upload an image to populate the Sidebar and Viewer HUD
-        const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-        await fileInput.setInputFiles([IMAGE_PATH_1]);
-
-        const startBtn = page.getByRole('button', { name: 'Start Building' });
-        await startBtn.waitFor({ state: 'visible', timeout: 30000 });
-        await startBtn.click();
+        await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 30000);
 
         // 2. Wait for UI to stabilize (animations, images loaded)
         await expect(page.locator('.scene-item')).toBeVisible({ timeout: 15000 });
@@ -143,11 +139,7 @@ test.describe('Visual Regression: Aesthetic Integrity', () => {
 
     test('Modals and Popovers should maintain premium styling', async ({ page }) => {
         // Setup scene
-        const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-        await fileInput.setInputFiles([IMAGE_PATH_1]);
-        const startBtn = page.getByRole('button', { name: 'Start Building' });
-        await startBtn.waitFor({ state: 'visible', timeout: 30000 });
-        await startBtn.click();
+        await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 30000);
         
         await expect(page.locator('.scene-item')).toBeVisible();
 

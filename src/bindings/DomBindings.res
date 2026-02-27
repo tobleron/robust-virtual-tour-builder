@@ -7,6 +7,7 @@ module Dom = {
   type dataTransfer = Dom.dataTransfer
   type style = Dom.cssStyleDeclaration
   @send external preventDefault: event => unit = "preventDefault"
+  @set external setReturnValue: (event, string) => unit = "returnValue"
   @send external stopPropagation: event => unit = "stopPropagation"
   @get external target: event => element = "target"
   @get external key: event => string = "key"

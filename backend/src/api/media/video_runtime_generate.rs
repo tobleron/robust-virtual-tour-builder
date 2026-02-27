@@ -1,6 +1,8 @@
-use super::video_capture;
-use super::video_logic::{KillOnDrop, TEASER_OUTPUT_FPS, TeaserOutputFormat};
-use super::video_logic_support::{
+use crate::api::media::video_capture;
+use crate::api::media::video_logic::{KillOnDrop, TEASER_OUTPUT_FPS, TeaserOutputFormat};
+use crate::api::media::video_logic_runtime;
+use crate::api::media::video_logic_support;
+use crate::api::media::video_logic_support::{
     HeadlessControl, HeadlessMotionProfile, MotionManifestV1, headless_app_origin,
     inject_headless_control, wait_for_headless_ready,
 };
@@ -81,7 +83,7 @@ pub fn generate_teaser_sync(
         });
     let control = HeadlessControl {
         project: project_data,
-        backend_origin: super::video_logic_runtime::headless_backend_origin_impl(),
+        backend_origin: video_logic_runtime::headless_backend_origin_impl(),
         session_id: session_id_clone.clone(),
         auth_token: resolved_auth_token,
         motion_profile,
@@ -97,14 +99,13 @@ pub fn generate_teaser_sync(
         drop(browser);
         return Err(e);
     }
-    if let Err(e) = super::video_runtime_impl::apply_capture_mode(&tab, &session_id_clone) {
+    if let Err(e) = super::apply_capture_mode(&tab, &session_id_clone) {
         drop(browser);
         return Err(e);
     }
-    let capture_viewport =
-        super::video_runtime_impl::resolve_capture_viewport(&tab, &session_id_clone)?;
+    let capture_viewport = super::resolve_capture_viewport(&tab, &session_id_clone)?;
 
-    let ffmpeg_cmd = super::video_logic_support::get_ffmpeg_command()?;
+    let ffmpeg_cmd = video_logic_support::get_ffmpeg_command()?;
     let child_res = Command::new(&ffmpeg_cmd)
         .args(match output_format {
             TeaserOutputFormat::Mp4 => vec![
@@ -240,7 +241,7 @@ pub fn generate_teaser_sync(
     };
 
     drop(stdin);
-    let mut child = match guard.take() {
+    let mut child: std::process::Child = match guard.take() {
         Some(c) => c,
         None => {
             drop(browser);

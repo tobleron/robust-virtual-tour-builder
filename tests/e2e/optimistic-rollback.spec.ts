@@ -3,7 +3,7 @@ import path from 'path';
 import { setupAIObservability } from './ai-helper';
 
 test.describe('Optimistic Update Rollback', () => {
-  const desktopPath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
+  const desktopPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);

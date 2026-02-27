@@ -171,6 +171,42 @@ lazy_static! {
             Counter::with_opts(Opts::new("frontend_long_tasks_total", "Total frontend long tasks > 50ms")).ok()
         }
     };
+
+    // Database pool size
+    pub static ref DB_POOL_SIZE: Option<Gauge> = match register_gauge!(
+        "db_pool_size",
+        "Current SQLite pool size"
+    ) {
+        Ok(m) => Some(m),
+        Err(e) => {
+            tracing::error!("Failed to register DB_POOL_SIZE metric: {}", e);
+            Gauge::with_opts(Opts::new("db_pool_size", "Current SQLite pool size")).ok()
+        }
+    };
+
+    // Database pool idle connections
+    pub static ref DB_POOL_IDLE: Option<Gauge> = match register_gauge!(
+        "db_pool_idle",
+        "Current SQLite pool idle connections"
+    ) {
+        Ok(m) => Some(m),
+        Err(e) => {
+            tracing::error!("Failed to register DB_POOL_IDLE metric: {}", e);
+            Gauge::with_opts(Opts::new("db_pool_idle", "Current SQLite pool idle connections")).ok()
+        }
+    };
+
+    // Database pool active connections
+    pub static ref DB_POOL_ACTIVE: Option<Gauge> = match register_gauge!(
+        "db_pool_active",
+        "Current SQLite pool active connections"
+    ) {
+        Ok(m) => Some(m),
+        Err(e) => {
+            tracing::error!("Failed to register DB_POOL_ACTIVE metric: {}", e);
+            Gauge::with_opts(Opts::new("db_pool_active", "Current SQLite pool active connections")).ok()
+        }
+    };
 }
 
 #[cfg(test)]

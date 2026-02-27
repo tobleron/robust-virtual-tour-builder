@@ -13,17 +13,14 @@ export async function setupAIObservability(page: Page, options: ObservabilityOpt
 
   // 1. Capture Unhandled Exceptions that might not trigger a crash but indicate bugs
   page.on('pageerror', (exception) => {
-    console.log(`[AI-DIAGNOSTIC][EXCEPTION] ${exception.stack || exception.message}`);
   });
 
   page.on('requestfailed', (request) => {
-    console.log(`[AI-DIAGNOSTIC][NET_FAIL] ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
   });
 
   // 3. Forward Browser Logs to Terminal (errors/warnings by default).
   page.on('console', msg => {
     if (verboseConsole || msg.type() === 'error' || msg.type() === 'warning') {
-      console.log(`BROWSER[${msg.type()}]: ${msg.text()}`);
     }
   });
 
@@ -70,5 +67,6 @@ export async function setupAIObservability(page: Page, options: ObservabilityOpt
         state: (window as any).__RE_STATE__ // If we expose it in App.res
       });
     });
+
   });
 }

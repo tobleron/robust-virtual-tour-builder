@@ -2,13 +2,14 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
-const ZIP_LINKED_PATH = path.join(FIXTURES_DIR, 'tour_linked.vt.zip');
-const ZIP_SIM_PATH = path.join(FIXTURES_DIR, 'tour_sim.vt.zip');
+const ZIP_LINKED_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
+const ZIP_SIM_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 test.describe('Navigation Engine', () => {
   test.beforeEach(async ({ page }) => {
@@ -25,12 +26,7 @@ test.describe('Navigation Engine', () => {
 
   test('should navigate between scenes via hotspot', async ({ page }) => {
     test.setTimeout(90000);
-    const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
-    await fileInput.setInputFiles(ZIP_LINKED_PATH);
-
-    const startBtn = page.getByRole('button', { name: 'Start Building' });
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, ZIP_LINKED_PATH, 30000);
 
     await expect(page.locator('.scene-item').filter({ hasText: 'Scene 1' }).first()).toBeVisible({ timeout: 20000 });
 
@@ -54,12 +50,7 @@ test.describe('Navigation Engine', () => {
   test('should run simulation mode and auto-navigate', async ({ page, browserName }) => {
     test.skip(browserName === 'webkit', 'Simulation mode relies on MediaRecorder which is flaky in headless WebKit');
     test.setTimeout(120000);
-    const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
-    await fileInput.setInputFiles(ZIP_SIM_PATH);
-
-    const startBtn = page.getByRole('button', { name: 'Start Building' });
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, ZIP_SIM_PATH, 30000);
 
     await expect(page.locator('.scene-item').filter({ hasText: 'Scene 1' }).first()).toBeVisible({ timeout: 20000 });
     await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 1', { timeout: 10000 });
@@ -82,12 +73,7 @@ test.describe('Navigation Engine', () => {
 
   test('should rotate camera 180 degrees when returning to a hub scene', async ({ page }) => {
     test.setTimeout(120000);
-    const fileInput = page.locator('input[type="file"][accept=".vt.zip,.zip"]');
-    await fileInput.setInputFiles(ZIP_LINKED_PATH);
-
-    const startBtn = page.getByRole('button', { name: 'Start Building' });
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, ZIP_LINKED_PATH, 30000);
 
     // Scene 1 is Hub, Scene 2 is Room
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
@@ -115,12 +101,10 @@ test.describe('Navigation Engine', () => {
     });
 
     if (!hotspotData) {
-       console.log("No hotspot data found, skipping detailed yaw check but verifying navigation exists.");
        return;
     }
 
     const hotspotYaw = hotspotData.yaw;
-    console.log(`Hotspot Yaw in Hub (${hotspotData.id}): ${hotspotYaw}`);
 
     // Navigate to Scene 2 by clicking the first React hotspot
     const hotspot = page.locator('[id^="hs-react-"]').first();
@@ -143,7 +127,6 @@ test.describe('Navigation Engine', () => {
       return window.pannellumViewer.getYaw();
     });
 
-    console.log(`Final Yaw after return: ${finalYaw}`);
 
     const expectedYaw = ((hotspotYaw + 180 + 180) % 360) - 180; // Normalize to [-180, 180]
 

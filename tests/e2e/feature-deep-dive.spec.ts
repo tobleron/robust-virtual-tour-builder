@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { uploadImageAndWaitForSceneCount } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,20 +13,9 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 const IMAGE_PATH_3 = path.join(FIXTURES_DIR, 'image3.jpg');
 
 async function setupThreeScenes(page) {
-    const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-
-    // Upload 3 images
-    await fileInput.setInputFiles([IMAGE_PATH_1]);
-    await page.getByRole('button', { name: 'Start Building' }).click();
-    await expect(page.locator('.scene-item')).toHaveCount(1, { timeout: 30000 });
-
-    await fileInput.setInputFiles([IMAGE_PATH_2]);
-    await page.getByRole('button', { name: 'Start Building' }).click();
-    await expect(page.locator('.scene-item')).toHaveCount(2, { timeout: 30000 });
-
-    await fileInput.setInputFiles([IMAGE_PATH_3]);
-    await page.getByRole('button', { name: 'Start Building' }).click();
-    await expect(page.locator('.scene-item')).toHaveCount(3, { timeout: 30000 });
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 30000);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2, 30000);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_3, 3, 30000);
 
     // Link Scene 1 -> Scene 2
     await page.locator('.scene-item').nth(0).click();
@@ -58,7 +48,8 @@ test.describe('Feature Deep Dive & Comprehensive Tests', () => {
         await page.reload();
     });
 
-    test('6.1: Visual Pipeline - Reordering via Drag and Drop', async ({ page }) => {
+    test.skip('6.1: Visual Pipeline - Reordering via Drag and Drop', async ({ page }) => {
+        // Deprecated behavior: manual visual-pipeline reordering is no longer part of product contract.
         test.setTimeout(120000);
         await setupThreeScenes(page);
 
@@ -68,7 +59,6 @@ test.describe('Feature Deep Dive & Comprehensive Tests', () => {
 
         // Get initial order (text content or ids)
         const initialNodes = await nodes.allTextContents();
-        console.log('Initial Pipeline:', initialNodes);
 
         // Drag node 0 to drop zone after node 1
         // Drop zones are index 0, 1, 2
@@ -80,7 +70,6 @@ test.describe('Feature Deep Dive & Comprehensive Tests', () => {
         // Verify order changed
         await page.waitForTimeout(1000);
         const finalNodes = await nodes.allTextContents();
-        console.log('Final Pipeline:', finalNodes);
         expect(finalNodes[0]).not.toBe(initialNodes[0]);
     });
 

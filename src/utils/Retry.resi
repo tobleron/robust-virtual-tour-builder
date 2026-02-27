@@ -6,6 +6,12 @@ type config = {
   maxDelayMs: int,
   backoffMultiplier: float,
   jitter: bool,
+  totalDeadlineMs: int,
+}
+
+type budgetConfig = {
+  windowMs: int,
+  maxRetriesPerWindow: int,
 }
 
 type retryResult<'a> =
@@ -23,4 +29,7 @@ let execute: (
   ~shouldRetry: string => bool=?,
   ~onRetry: (int, string, int) => unit=?,
   ~getDelay: (string, int) => option<int>=?,
+  ~isCircuitOpen: (unit => bool)=?,
+  ~budgetKey: string=?,
+  ~budgetConfig: budgetConfig=?,
 ) => Promise.t<retryResult<'a>>

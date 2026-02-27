@@ -24,7 +24,10 @@ let rec combineEtaCandidates = (
       | 4 =>
         let sorted = Belt.Array.copy(values)
         Belt.SortArray.stableSortInPlaceBy(sorted, (x, y) => compare(x, y))
-        Some((Belt.Array.getExn(sorted, 1) +. Belt.Array.getExn(sorted, 2)) /. 2.0)
+        switch (Belt.Array.get(sorted, 1), Belt.Array.get(sorted, 2)) {
+        | (Some(m1), Some(m2)) => Some((m1 +. m2) /. 2.0)
+        | _ => combineEtaCandidates(~a, ~b, ~c)
+        }
       | _ => combineEtaCandidates(~a, ~b, ~c)
       }
     | _ => combineEtaCandidates(~a, ~b, ~c)
@@ -60,6 +63,15 @@ let formatEta = (etaSeconds: int): string => {
     Belt.Int.toString(minutes) ++ "m " ++ Belt.Int.toString(seconds) ++ "s"
   } else {
     Belt.Int.toString(seconds) ++ "s"
+  }
+}
+
+let formatEtaMs = (etaMs: float): string => {
+  let seconds = Belt.Float.toInt(etaMs /. 1000.0)
+  if seconds <= 0 {
+    "Almost done"
+  } else {
+    "ETA " ++ formatEta(seconds)
   }
 }
 

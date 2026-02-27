@@ -2,6 +2,18 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-02-27 D003 Aggregation (1505-1554)
+- **1505: Unified Platform Hardening** — Added dedicated chunked-import E2E certification suite (happy path/resume/429/abort/expiry/mismatch), fixed backend runtime module wiring, and verified frontend/backend test compatibility.
+- **1507: E2E Alignment Matrix** — Added execution matrix + triage rubric and aligned timeline coverage with explicit clear-links pipeline pruning behavior.
+- **1525: Scalability Roadmap** — Produced ADR, milestone decomposition, and SLO/load-test/rollback runbook artifacts for async job-based platform scaling.
+- **1538: E2E Alignment Umbrella** — Superseded by narrower completed tasks; archived as aborted to avoid duplicate execution.
+- **1543-1554: UX/Hardening/Test Cohort** — Delivered auto-forward guard parity, capability-gated hotspot actions, overlay click-intercept fix, selector modernization, and new E2E suites for hotspot move, scene delete undo, and ESC cancel behavior.
+
+## 🗄️ 2026-02-26 Archive Consolidation
+- **1501-1539, T1495-T1542: Navigation/Build/Resilience Stabilization** — Landed operation lifecycle decoupling, lock policy matrix hardening, race-condition closure, build/runtime label integrity fixes, and targeted export/scene progression regressions.
+- **1523-1528, T1530-T1538: Tooling & Runtime Reliability** — Restored Vitest stability, standardized ETA/toast behavior, aligned commit workflow policy, and hardened production start/same-origin execution paths.
+- **1515-1522, 1517-1520: Teaser Determinism Program** — Introduced deterministic motion manifest contract, CFR-oriented teaser pipeline evolution, and iterative parity troubleshooting between simulation and teaser playback.
+
 ## 🗄️ 2026-02-20 Archive Consolidation
 - **1489-1492, T1491: Enterprise Project Import** — Delivered production-grade chunked, resumable project import (500MB+ support) with robust validation and backend protective hardening.
 - **1501-1504, T1495-T1500: Interaction Orchestration & Race Reliability** — Systematized interaction locking, navigation-operation decoupling, and visibility thresholds. Certified race reliability through targeted frontend audits and E2E hardening.

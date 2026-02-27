@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { clickStartBuildingIfVisible, waitForSidebarInteractive } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +15,6 @@ test.describe('Error Recovery Scenarios', () => {
         await setupAIObservability(page);
         await page.goto('/');
 
-        page.on('console', msg => console.log(`[BROWSER] ${msg.text()}`));
 
         await page.evaluate(async () => {
             localStorage.clear();
@@ -32,10 +32,8 @@ test.describe('Error Recovery Scenarios', () => {
         await page.route('**/api/media/process-full*', async route => {
             if (failCount < 1) {
                 failCount++;
-                console.log('Simulating network failure for upload...');
                 await route.fulfill({ status: 500, body: 'Internal Server Error' });
             } else {
-                console.log('Success on retry!');
                 await route.continue();
             }
         });
@@ -47,15 +45,13 @@ test.describe('Error Recovery Scenarios', () => {
         await expect(page.locator('text=/Retrying/i')).toBeVisible({ timeout: 30000 });
 
         // Verify eventual success
-        const startBtn = page.getByRole('button', { name: /Start Building/i });
-        await expect(startBtn).toBeVisible({ timeout: 60000 });
-        await startBtn.click();
+        await clickStartBuildingIfVisible(page, 60000);
+        await waitForSidebarInteractive(page, 60000);
 
         await expect(page.locator('.scene-item')).toBeVisible();
     });
 
     test('4.3: Invalid JSON in project file should handle gracefully', async ({ page }) => {
-        console.log('Step 1: Uploading malformed project...');
         const fileInput = page.locator('input[type="file"][accept*=".zip"]');
 
         // Using an image file as a dummy "zip" which will fail to parse as a project
@@ -75,9 +71,8 @@ test.describe('Error Recovery Scenarios', () => {
         // 1. Create a project
         const fileInput = page.locator('input[type="file"][accept*="image"]');
         await fileInput.setInputFiles(IMAGE_PATH);
-        const startBtn = page.getByRole('button', { name: /Start Building/i });
-        await expect(startBtn).toBeVisible({ timeout: 30000 });
-        await startBtn.click();
+        await clickStartBuildingIfVisible(page, 30000);
+        await waitForSidebarInteractive(page, 30000);
 
         // 2. Start save
         const saveBtn = page.getByLabel('Save');
@@ -92,7 +87,6 @@ test.describe('Error Recovery Scenarios', () => {
         await saveBtn.click();
 
         // 3. Refresh mid-save
-        console.log('Step 3: Refreshing mid-save...');
         await page.reload();
 
         // 4. Verify recovery modal

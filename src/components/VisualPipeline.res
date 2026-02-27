@@ -1,162 +1,10 @@
 /* src/components/VisualPipeline.res - Visual Pipeline V3: Scalable Floor-Grouped Squares */
 
 open ReBindings
-module Styles = VisualPipelineLogic.Styles
-
-let injectStyles = () => {
-  let existing = Dom.getElementById("visual-pipeline-styles")
-  let style = switch Nullable.toOption(existing) {
-  | Some(el) => el
-  | None =>
-    let el = Dom.createElement("style")
-    Dom.setId(el, "visual-pipeline-styles")
-    Dom.appendChild(Dom.head, el)
-    el
-  }
-  Dom.setTextContent(style, Styles.styles)
-}
 
 type hoverPreview = {thumbUrl: string, sceneName: string}
-
-module PipelineNode = {
-  @react.component
-  let make = (
-    ~item: Types.timelineItem,
-    ~isActive: bool,
-    ~interactionDisabled: bool,
-    ~scene: option<Types.scene>,
-    ~targetScene: option<Types.scene>,
-    ~onActivate: string => unit,
-    ~onRemove: string => unit,
-    ~onHoverStart: (option<Types.scene>, string) => unit,
-    ~onHoverEnd: unit => unit,
-  ) => {
-    let handleClick = (e: ReactEvent.Mouse.t) => {
-      ReactEvent.Mouse.preventDefault(e)
-      if !interactionDisabled {
-        onActivate(item.id)
-      }
-    }
-
-    let handleKeyDown = (e: ReactEvent.Keyboard.t) => {
-      let key = ReactEvent.Keyboard.key(e)
-      if !interactionDisabled && (key == "Enter" || key == " ") {
-        ReactEvent.Keyboard.preventDefault(e)
-        onActivate(item.id)
-      }
-    }
-
-    let handleContextMenu = (e: ReactEvent.Mouse.t) => {
-      ReactEvent.Mouse.preventDefault(e)
-      if !interactionDisabled {
-        onRemove(item.id)
-      }
-    }
-
-    let handleMouseEnter = (_e: ReactEvent.Mouse.t) =>
-      if !interactionDisabled {
-        onHoverStart(scene, item.linkId)
-      }
-    let handleMouseLeave = (_e: ReactEvent.Mouse.t) => onHoverEnd()
-    let handleFocus = (_e: ReactEvent.Focus.t) =>
-      if !interactionDisabled {
-        onHoverStart(scene, item.linkId)
-      }
-    let handleBlur = (_e: ReactEvent.Focus.t) => onHoverEnd()
-
-    let (linkIdVisible, setLinkIdVisible) = React.useState(_ => false)
-    let linkIdTimerRef = React.useRef((None: option<int>))
-
-    React.useEffect2(() => {
-      // isActive is used here as a proxy for "is being hovered/focused"
-      // based on the parent component's onHoverStart/End calls if we wanted to sync,
-      // but simpler to just use local hover state if we want it local to the node.
-      None
-    }, (isActive, interactionDisabled))
-
-    // Local hover/timer management for the 3s LinkID requirement
-    let startLinkIdTimer = () => {
-      switch linkIdTimerRef.current {
-      | Some(id) => ReBindings.Window.clearTimeout(id)
-      | None => ()
-      }
-      linkIdTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
-          setLinkIdVisible(_ => true)
-        }, 3000))
-    }
-
-    let stopLinkIdTimer = () => {
-      switch linkIdTimerRef.current {
-      | Some(id) => ReBindings.Window.clearTimeout(id)
-      | None => ()
-      }
-      linkIdTimerRef.current = None
-      setLinkIdVisible(_ => false)
-    }
-
-    let localHandleMouseEnter = e => {
-      if !interactionDisabled {
-        startLinkIdTimer()
-        handleMouseEnter(e)
-      }
-    }
-
-    let localHandleMouseLeave = e => {
-      stopLinkIdTimer()
-      handleMouseLeave(e)
-    }
-
-    let isAutoForward = switch scene {
-    | Some(s) =>
-      let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
-      switch hotspot {
-      | Some(h) =>
-        switch h.isAutoForward {
-        | Some(true) => true
-        | _ => false
-        }
-      | None => false
-      }
-    | None => false
-    }
-
-    let color = if isAutoForward {
-      "var(--success)" // Emerald for Auto-Forward
-    } else {
-      switch scene {
-      | Some(s) => ColorPalette.getGroupColor(s.colorGroup)
-      | None => "var(--primary-ui-blue)"
-      }
-    }
-
-    let style = ReBindings.makeStyle({"--node-color": color})
-    let className =
-      "pipeline-node" ++ (isActive ? " active" : "") ++ (interactionDisabled ? " disabled" : "")
-
-    <div
-      className
-      role="button"
-      tabIndex={interactionDisabled ? -1 : 0}
-      ariaDisabled=interactionDisabled
-      ariaLabel={"Timeline step: " ++
-      targetScene->Option.map(ts => ts.name)->Option.getOr("Unknown")}
-      onClick=handleClick
-      onKeyDown=handleKeyDown
-      onContextMenu=handleContextMenu
-      onMouseEnter=localHandleMouseEnter
-      onMouseLeave=localHandleMouseLeave
-      onFocus=handleFocus
-      onBlur=handleBlur
-      style
-    >
-      {linkIdVisible
-        ? <div className="pipeline-node-tooltip">
-            <span className="tooltip-label"> {React.string("ID")} </span>
-            <span className="tooltip-value"> {React.string(item.linkId)} </span>
-          </div>
-        : React.null}
-    </div>
-  }
+let injectStyles = () => {
+  VisualPipelineStyles.inject()
 }
 
 @react.component
@@ -415,8 +263,9 @@ let make = () => {
       }
     })
     setLinePaths(prev => {
-      let prevStr = JSON.stringifyAny(prev)
-      let nextStr = JSON.stringifyAny(paths)
+      let encodeDict = JsonCombinators.Json.Encode.dict(JsonCombinators.Json.Encode.string)
+      let prevStr = JsonCombinators.Json.stringify(encodeDict(prev))
+      let nextStr = JsonCombinators.Json.stringify(encodeDict(paths))
       if prevStr == nextStr {
         prev
       } else {
@@ -481,7 +330,7 @@ let make = () => {
                 )
 
               <div id={idx == 0 ? "track-anchor-" ++ fid : ""} key={item.id}>
-                <PipelineNode
+                <VisualPipelineNode
                   item
                   isActive
                   interactionDisabled=isSystemLocked

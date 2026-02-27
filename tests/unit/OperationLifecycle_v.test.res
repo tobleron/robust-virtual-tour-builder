@@ -111,4 +111,35 @@ describe("OperationLifecycle", () => {
     let op = OperationLifecycle.getOperation(id)->Option.getOrThrow
     t->expect(op.visibleAfterMs)->Expect.toBe(100)
   })
+
+  test("tracks completion stats", t => {
+    let id = OperationLifecycle.start(~type_=OperationLifecycle.Upload, ())
+    OperationLifecycle.complete(id, ())
+    let stats = OperationLifecycle.getStats()
+
+    t->expect(stats.active)->Expect.toBe(0)
+    t->expect(stats.completedTotal)->Expect.toBe(1)
+    t->expect(stats.leakedTotal)->Expect.toBe(0)
+  })
+
+  test("fails expired active operations on ttl sweep and tracks leaked stats", t => {
+    let id = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ())
+
+    // Sweep runs every 30s; expiry requires elapsed > 30s.
+    // First sweep @30s does not expire, second sweep @60s does.
+    advanceTimersByTime(61000)
+
+    let op = OperationLifecycle.getOperation(id)
+    switch op {
+    | Some(task) =>
+      t
+      ->expect(task.status)
+      ->Expect.toEqual(OperationLifecycle.Failed({error: "OPERATION_TIMEOUT_TTL_EXCEEDED"}))
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    let stats = OperationLifecycle.getStats()
+    t->expect(stats.active)->Expect.toBe(0)
+    t->expect(stats.leakedTotal)->Expect.toBe(1)
+  })
 })

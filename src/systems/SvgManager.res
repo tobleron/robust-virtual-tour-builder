@@ -159,6 +159,7 @@ module Renderer = {
           Svg.setAttribute(pathEl, "fill", "none")
           Svg.setAttribute(pathEl, "stroke-linecap", "round")
           Svg.setAttribute(pathEl, "stroke-linejoin", "round")
+          Svg.setAttribute(pathEl, "pointer-events", "none")
           Dom.setProperty(pathEl, "display", "block")
           switch dashArray {
           | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)

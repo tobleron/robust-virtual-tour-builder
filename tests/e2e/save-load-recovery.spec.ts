@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
+import { clickStartBuildingIfVisible, waitForSidebarInteractive } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,23 +13,16 @@ const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
 const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 
 async function handleUpload(page, imagePath, expectedSceneIndex) {
-  console.log(`Uploading ${imagePath}...`);
   const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
   await fileInput.setInputFiles([imagePath]);
 
-  console.log(`Waiting for Start Building button for scene ${expectedSceneIndex}...`);
-  const startBtn = page.getByRole('button', { name: /Start Building/i });
   try {
-    await startBtn.waitFor({ state: 'visible', timeout: 90000 });
-    await startBtn.click();
-    console.log(`Clicked Start Building for scene ${expectedSceneIndex}`);
+    await clickStartBuildingIfVisible(page, 90000);
+    await waitForSidebarInteractive(page, 90000);
   } catch (e) {
-    console.log(`Start Building button skipped or timed out for scene ${expectedSceneIndex}`);
   }
 
-  console.log(`Waiting for scene item ${expectedSceneIndex} to be visible...`);
   await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
-  console.log(`Scene item ${expectedSceneIndex} is visible.`);
 }
 
 test.describe('Project Persistence: Save -> Load Recovery', () => {
@@ -49,7 +43,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     test.setTimeout(300000);
 
     // 1. Create Project with 2 scenes
-    console.log('Step 1: Creating project...');
     await handleUpload(page, IMAGE_PATH_1, 0);
     await handleUpload(page, IMAGE_PATH_2, 1);
 
@@ -69,7 +62,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     await expect(page.getByText('Link Destination')).toBeHidden();
 
     // 2. Save Project (Download)
-    console.log('Step 2: Saving project...');
     const saveBtn = page.getByLabel('Save');
     await expect(saveBtn).toBeVisible();
 
@@ -78,10 +70,8 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     const download = await downloadPromise;
     const savePath = path.join(__dirname, 'temp_saved_project.zip');
     await download.saveAs(savePath);
-    console.log(`Saved project to: ${savePath}`);
 
     // 3. Clear State & Reload (Simulate Reset)
-    console.log('Step 3: Resetting application...');
     const newBtn = page.getByLabel('New');
     if (await newBtn.isVisible()) {
       await newBtn.click();
@@ -107,7 +97,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     expect(sceneCount).toBe(0);
 
     // 4. Load Project (Upload Zip)
-    console.log('Step 4: Loading project zip...');
     // The load button now likely accepts .zip only as per user spec
     const loadInput = page.locator('input[type="file"][accept*=".zip"]');
 
@@ -123,7 +112,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     }
 
     // 5. Verify Restoration
-    console.log('Step 5: Verifying restoration...');
     await expect(page.locator('.scene-item').nth(0)).toBeVisible({ timeout: 30000 });
     await expect(page.locator('.scene-item').nth(1)).toBeVisible();
 
@@ -140,7 +128,6 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
         .map((entry: any) => entry.scene)
         .filter(scene => scene);
 
-      console.log('State Scenes:', scenes.length);
       const hasHotspots = scenes.some(
         (s: any) => Array.isArray(s.hotspots) && s.hotspots.length > 0,
       );

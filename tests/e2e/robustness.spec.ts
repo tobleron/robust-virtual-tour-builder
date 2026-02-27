@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { setupAIObservability } from './ai-helper';
+import { loadProjectZipAndWait } from './e2e-helpers';
 
 test.describe('Application Robustness', () => {
 
-  const desktopPath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
+  const desktopPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
   test.beforeEach(async ({ page }) => {
     // Mock the import endpoint to avoid backend dependency
@@ -55,19 +56,13 @@ test.describe('Application Robustness', () => {
 
     await page.goto('/');
     // Every test starts with a clean import to be independent
-    const fileInput = page.locator('input[type="file"][accept*=".zip"]');
-    await fileInput.setInputFiles(desktopPath);
-    const startBtn = page.getByRole('button', { name: 'Start Building' });
-    // Expect visible but allow time for upload processing
-    await expect(startBtn).toBeVisible({ timeout: 60000 });
-    await startBtn.click();
+    await loadProjectZipAndWait(page, desktopPath, 60000);
     // Wait for project to be loaded (scenes to appear)
     await expect(page.locator('.scene-item, [role="button"]:has-text("#")').first()).toBeVisible({ timeout: 10000 });
   });
 
   test.describe('State Machine', () => {
     test('Concurrent Mode Transitions', async ({ page }) => {
-      console.log('Testing: Simultaneous mode triggers...');
       const addLinkBtn = page.locator('button:has([class*="lucide-plus"])');
       const autoPilotBtn = page.locator('button:has([class*="lucide-play"])');
 
@@ -116,14 +111,7 @@ test.describe('Application Robustness', () => {
 
     test('LoadProject Barrier Blocks Other Actions', async ({ page }) => {
       // Since the project is already loaded in beforeEach, we import again to trigger LoadProject
-      const fileInput = page.locator('input[type="file"][accept*=".zip"]');
-      await fileInput.setInputFiles(desktopPath);
-
-      const startBtn = page.getByRole('button', { name: 'Start Building' });
-      await expect(startBtn).toBeVisible();
-
-      // Click start (triggers LoadProject)
-      await startBtn.click();
+      await loadProjectZipAndWait(page, desktopPath, 60000);
 
       // IMMEDIATELY try to click "Add Link" to dispatch another action
       const addLinkBtn = page.locator('button:has([class*="lucide-plus"])');
@@ -142,11 +130,9 @@ test.describe('Application Robustness', () => {
         // But robustness test assumes we want to verify the barrier logic.
         // If 0 logs, it might mean the click never reached the handler.
         // However, let's assert greater than 0 if possible, or print warning.
-        console.log('Barrier logs found:', queueLogs.length);
         // We expect it to be blocked. If the click didn't happen, well, it was blocked by UI.
         // But if it happened, it should be logged.
         if (queueLogs.length === 0) {
-          console.log('Warning: No ENQUEUE_REJECTED_BARRIER_ACTIVE logs found. Maybe UI blocked the click before dispatch?');
         } else {
           expect(queueLogs.length).toBeGreaterThan(0);
         }
@@ -156,7 +142,6 @@ test.describe('Application Robustness', () => {
 
   test.describe('Navigation', () => {
     test('Rapid Scene Switching', async ({ page }) => {
-      console.log('Testing: Rapid navigation lifecycle...');
       const sceneItems = page.locator('.scene-item, [role="button"]:has-text("#")');
       const count = await sceneItems.count();
 
@@ -169,7 +154,6 @@ test.describe('Application Robustness', () => {
         // We want to trigger the "Lock Rejected" retry loop logic
         const targetCount = Math.min(count, 5);
         for (let i = 0; i < targetCount; i++) {
-          console.log(`Rapid click ${i}`);
           // Alternating clicks to force state changes
           const index = i % 2 === 0 ? 1 : 0;
           await sceneItems.nth(index).click({ force: true });
@@ -179,7 +163,6 @@ test.describe('Application Robustness', () => {
 
         // 3. Verify we eventually stabilize
         // The NavigationSupervisor auto-cancels previous tasks, so we wait for the final one to complete
-        console.log('Waiting for stabilization...');
 
         // We verify that the "NavigationSupervisor" eventually completes a task
         await expect.poll(async () => {
@@ -193,7 +176,6 @@ test.describe('Application Robustness', () => {
         await expect(page.locator('text=/Something went wrong/i')).not.toBeVisible();
 
         // 5. Explicit check that we can start a new navigation
-        console.log('Verifying navigation system is free...');
         const initialLogs = await page.evaluate(() => (window as any).__debugLogs?.length || 0);
         await sceneItems.last().click({ force: true });
 
@@ -209,7 +191,6 @@ test.describe('Application Robustness', () => {
 
   test.describe('Persistence', () => {
     test('Rapid Saving during Interaction', async ({ page }) => {
-      console.log('Testing: Interaction during Save operations...');
       const saveBtn = page.getByLabel('Save');
       const sceneItems = page.locator('.scene-item, [role="button"]:has-text("#")');
 
@@ -265,7 +246,6 @@ test.describe('Application Robustness', () => {
 
   test.describe('Input Handling', () => {
     test('Keyboard/Mouse Interruptions', async ({ page }) => {
-      console.log('Testing: Escape key during active UI transitions...');
       const addLinkBtn = page.locator('button:has([class*="lucide-plus"])');
 
       await addLinkBtn.click({ force: true });
@@ -413,7 +393,6 @@ test.describe('Application Robustness', () => {
       if (await retryNotification.isVisible()) {
         await expect(retryNotification).toBeVisible();
       } else {
-        console.log('Warning: Retry notification skipped or too fast');
       }
 
       // Expected: Eventually succeeds

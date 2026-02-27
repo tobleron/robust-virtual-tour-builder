@@ -23,7 +23,6 @@ test.describe('Performance & Load Testing', () => {
     test('5.1: Large project (200 scenes) responsiveness', async ({ page }) => {
         test.setTimeout(180000);
 
-        console.log('Generating 200 scenes project...');
         await page.evaluate(() => {
             const scenes = [];
             for (let i = 0; i < 200; i++) {
@@ -53,7 +52,6 @@ test.describe('Performance & Load Testing', () => {
 
         await expect(page.locator('.scene-item').first()).toBeVisible({ timeout: 30000 });
 
-        console.log('Verifying UI responsiveness with 200 scenes...');
         const start = Date.now();
 
         // Virtualized list handling: Scroll container to bottom
@@ -69,7 +67,6 @@ test.describe('Performance & Load Testing', () => {
 
         const end = Date.now();
 
-        console.log(`Scroll to item 200 took ${end - start}ms`);
         // Expect scroll to be reasonably fast
         expect(end - start).toBeLessThan(3000);
 
@@ -120,7 +117,6 @@ test.describe('Performance & Load Testing', () => {
         };
 
         const memInitial = await getMemory();
-        console.log(`Initial memory: ${memInitial}`);
 
         for (let i = 0; i < 10; i++) {
             const targetIndex = i * 5;
@@ -137,7 +133,6 @@ test.describe('Performance & Load Testing', () => {
         }
 
         const memFinal = await getMemory();
-        console.log(`Final memory after navigation: ${memFinal}`);
 
         if (memInitial > 0) {
             // Allow for reasonable growth
@@ -159,7 +154,6 @@ test.describe('Performance & Load Testing', () => {
         try {
             await page.waitForLoadState('networkidle', { timeout: 10000 });
         } catch (e) {
-            console.log('Network idle timed out, proceeding...');
         }
 
         let totalJSSize = 0;
@@ -185,9 +179,6 @@ test.describe('Performance & Load Testing', () => {
             }
         }
 
-        console.log(`Total JS files: ${jsFiles.length}`);
-        jsFiles.forEach(f => console.log(`  - ${f.url}: ${Math.round(f.size / 1024)} KB`));
-        console.log(`Total JS downloaded: ${Math.round(totalJSSize / 1024)} KB`);
 
         // Budget limit
         expect(totalJSSize / 1024).toBeLessThan(2000);

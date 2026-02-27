@@ -103,6 +103,7 @@ describe("Hotspot Move & Toggle Regression", () => {
   testAsync(
     "PreviewArrow should have pointer-events-none and hidden sub-buttons during move",
     async t => {
+      OperationLifecycle.reset()
       let container = Dom.createElement("div")
       Dom.appendChild(Dom.documentBody, container)
 
@@ -111,7 +112,11 @@ describe("Hotspot Move & Toggle Regression", () => {
 
       // Set state to MOVING this hotspot
       let mockState = {
-        ...TestUtils.createMockState(~scenes=mockScenes, ()),
+        ...TestUtils.createMockState(
+          ~scenes=mockScenes,
+          ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+          (),
+        ),
         movingHotspot: Some({sceneIndex: 0, hotspotIndex: 0}),
       }
 
@@ -164,12 +169,17 @@ describe("Hotspot Move & Toggle Regression", () => {
   )
 
   testAsync("Auto-Forward toggle should trigger immediate dispatch", async t => {
+    OperationLifecycle.reset()
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
     let scene1 = createMockScene("s1", "Scene1.webp")
     let mockScenes = [scene1]
-    let mockState = TestUtils.createMockState(~scenes=mockScenes, ())
+    let mockState = TestUtils.createMockState(
+      ~scenes=mockScenes,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 

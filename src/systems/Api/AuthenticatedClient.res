@@ -29,6 +29,7 @@ let requestWithRetry = (
     maxDelayMs: 8000,
     backoffMultiplier: 2.0,
     jitter: true,
+    totalDeadlineMs: 60000,
   }
 
   Retry.execute(
@@ -46,6 +47,8 @@ let requestWithRetry = (
       ),
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
+    ~isCircuitOpen=(() => CircuitBreaker.getState(circuitBreaker) === CircuitBreaker.Open),
+    ~budgetKey=("api:" ++ url),
     ~shouldRetry=error => {
       if (
         error == "NetworkOffline" ||

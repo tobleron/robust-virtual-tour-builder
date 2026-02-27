@@ -53,15 +53,18 @@ let rollback = (id: string): option<Types.state> => {
   let indexOpt = Belt.Array.getIndexBy(history.contents, s => s.id == id)
   switch indexOpt {
   | Some(i) =>
-    let snapshot = Belt.Array.getExn(history.contents, i)
-    // Remove this snapshot and any newer ones (indices 0 to i)
-    let newHistory = Belt.Array.slice(
-      history.contents,
-      ~offset=i + 1,
-      ~len=Belt.Array.length(history.contents) - (i + 1),
-    )
-    history := newHistory
-    Some(snapshot.state)
+    switch Belt.Array.get(history.contents, i) {
+    | Some(snapshot) =>
+      // Remove this snapshot and any newer ones (indices 0 to i)
+      let newHistory = Belt.Array.slice(
+        history.contents,
+        ~offset=i + 1,
+        ~len=Belt.Array.length(history.contents) - (i + 1),
+      )
+      history := newHistory
+      Some(snapshot.state)
+    | None => None
+    }
   | None => None
   }
 }

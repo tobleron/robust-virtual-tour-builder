@@ -6,6 +6,9 @@ pub mod serve;
 pub mod similarity;
 pub mod video;
 pub mod video_logic;
+mod video_logic_runtime;
+mod video_capture;
+mod video_request_utils;
 mod video_logic_support;
 
 pub use image::*;

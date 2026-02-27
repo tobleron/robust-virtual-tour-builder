@@ -78,9 +78,15 @@ let rec transition = (currentMode: appMode, event: event): appMode => {
     | Some(Uploading(_)) => Interactive({...s, backgroundTask: Some(Uploading({progress: p}))})
     | _ => currentMode
     }
-  | (Interactive(_s), UploadComplete(report, quality)) =>
-    // Summary is Modal
-    SystemBlocking(Summary(report, quality))
+  | (Interactive(s), UploadComplete(report, quality)) => {
+      let processedCount = Belt.Array.length(report.success) + Belt.Array.length(report.skipped)
+      if processedCount <= 1 {
+        Interactive({...s, backgroundTask: None})
+      } else {
+        // Multi-upload: show summary modal
+        SystemBlocking(Summary(report, quality))
+      }
+    }
 
   | (Interactive(s), NavigationEvent(navEvent)) =>
     Interactive({...s, navigation: NavigationFSM.reducer(s.navigation, navEvent)})

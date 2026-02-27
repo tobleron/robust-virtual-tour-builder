@@ -12,7 +12,7 @@ This document maps critical data flows through the system to help AI understand 
 **Flow:**
 ```
 User Click Event
-  → [src/components/SceneList/SceneItem.res], [src/components/HotspotLayer.res], or [src/components/FloorNavigation.res] handles click
+  → [src/components/SceneList/SceneItem.res] or [src/components/HotspotLayer.res] handles click
   → [src/core/Capability.res] evaluates interaction permissions (`CanNavigate`, lock policy)
   → [src/core/Actions.res] defines navigation action contracts dispatched by UI and systems
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
@@ -36,13 +36,12 @@ User Click Event
       → Calls SceneLoader with taskId and AbortSignal from Supervisor
   → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
       → [src/systems/SceneLoaderLogic.res] constructs scene configuration and Pannellum setup parameters
-      → [src/systems/Scene/Loader/SceneLoaderConfig.res], [src/systems/Scene/Loader/SceneLoaderEvents.res], and [src/systems/Scene/Loader/SceneLoaderReuse.res] handle configuration, events, and instance reuse
       → [src/core/SceneCache.res] manages preloaded scene state
-      → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], [src/components/ViewerManager/ViewerManagerLifecycle.res], [src/components/ViewerManager/ViewerManagerCleanup.res], [src/components/ViewerManager/ViewerManagerPreloading.res], [src/components/ViewerManager/ViewerManagerSceneLoad.res], [src/components/ViewerManager/ViewerManagerHotspots.res], [src/components/ViewerManager/ViewerManagerRatchet.res], [src/components/ViewerManager/ViewerManagerSimulation.res], and [src/components/ViewerManager/ViewerManagerIntro.res] manage active viewers and hook-level synchronization
+      → [src/components/ViewerManager.res], [src/components/ViewerManager/ViewerManagerLifecycle.res], [src/components/ViewerManager/ViewerManagerCleanup.res], [src/components/ViewerManager/ViewerManagerPreloading.res], [src/components/ViewerManager/ViewerManagerSceneLoad.res], [src/components/ViewerManager/ViewerManagerHotspots.res], [src/components/ViewerManager/ViewerManagerRatchet.res], [src/components/ViewerManager/ViewerManagerSimulation.res], and [src/components/ViewerManager/ViewerManagerIntro.res] manage active viewers and hook-level synchronization
       → [src/components/ViewerSceneElements.res], [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render scene and interactive overlays
       → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], [src/systems/ViewerLogic.res] manage viewer instance lifecycle
           → [src/systems/Viewer/ViewerAdapter.res], [src/systems/Viewer/ViewerPool.res], and [src/systems/Viewer/ViewerFollow.res] provide the underlying implementation
-      → [src/systems/PannellumAdapter.res] and [src/systems/PannellumLifecycle.res] interface with engine
+      → [src/systems/PannellumLifecycle.res] interface with engine
   → [src/systems/Scene/SceneSwitcher.res] handles journey initialization and auto-forwarding
   → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping (with Supervisor coordination)
   → [src/systems/Navigation/NavigationGraph.res] projects link geometry and scene graph candidates
@@ -58,12 +57,12 @@ User Click Event
 ```
 User file selection
   → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res], and [src/components/Sidebar/SidebarAbout.res])
-    → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res], and [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
+    → [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
   → [src/components/Sidebar/SidebarLogicHandler.res] dispatches upload/load/save/export actions
       → [src/components/Sidebar/SidebarUploadLogic.res], [src/components/Sidebar/SidebarSceneActions.res], and [src/components/Sidebar/SidebarExportLogic.res] provide specialized handlers
   → [src/components/Sidebar/SidebarBase.res] provides shared sidebar types and progress monitoring
-  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res], [src/components/VisualPipelineLogic.res], [src/components/VisualPipeline/VisualPipelineStyles.res], [src/components/VisualPipelineStyles.res], and [src/components/VisualPipelineNode.res]) shows progress (using [src/utils/ProgressBar.res])
+  → [src/components/VisualPipelineNode.res] shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
   → [src/utils/NetworkStatus.res] pre-checks connectivity before allowing upload
@@ -265,7 +264,6 @@ Save/Export Trigger:
   → [src/systems/ProjectManager.res] and [src/systems/ProjectManagerUrl.res] package project data
       → [src/systems/ProjectConnectivity.res] performs dead-end/connectivity checks before packaging/export completion
       → [src/systems/ProjectManager/ProjectSave.res] and [src/systems/ProjectManager/ProjectUtils.res] orchestrate the save sequence
-      → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
       → [src/systems/Exporter/ExporterPackaging.res], [src/systems/Exporter/ExporterUpload.res], and [src/systems/Exporter/ExporterUtils.res] handle packaging assembly, upload transport, and export-specific helpers
       → Handles asset streaming, XHR upload, and branding application using [src/systems/TourTemplates.res] (assisted by [src/systems/TourTemplates/TourStyles.res], [src/systems/TourTemplates/TourData.res], [src/systems/TourTemplates/TourScripts.res], [src/systems/TourTemplates/TourScriptCore.res], [src/systems/TourTemplates/TourScriptNavigation.res], [src/systems/TourTemplates/TourScriptInput.res], [src/systems/TourTemplates/TourScriptHotspots.res], [src/systems/TourTemplates/TourScriptViewport.res], [src/systems/TourTemplates/TourScriptUI.res], [src/systems/TourTemplates/TourScriptUINav.res], [src/systems/TourTemplates/TourScriptUIMap.res], and [src/systems/TourTemplates/TourAssets.res])
@@ -273,7 +271,7 @@ Save/Export Trigger:
   → [src/systems/OperationLifecycle.res] tracks blocking/ambient operation progress for load/save/export UX
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
       → [backend/src/middleware/rate_limiter.rs] enforces route-class rate limits and structured 429 response payloads
-  → [backend/src/api/project_logic.rs] and [backend/src/api/project_logic/mod.rs] coordinate project packaging/import helpers
+  → [backend/src/api/project_logic/] and [backend/src/api/project_logic/mod.rs] coordinate project packaging/import helpers
       → [backend/src/api/project_logic/files.rs] discovers available image files
       → [backend/src/api/project_logic/reference.rs] resolves scene/inventory file references
       → [backend/src/api/project_logic/summary.rs] builds export summary artifacts
@@ -293,8 +291,6 @@ Load Trigger:
   → [backend/src/services/project/validate.rs] performs deep structural validation
   → Returns metadata to client
   → [src/systems/ProjectSystem.res] validates project structure and processes loaded data
-  → [src/systems/Project/ProjectLoader.res] patches and initializes project state
-  → [src/systems/Project/ProjectValidator.res] validates integrity on the client side
   → [src/systems/Api/ProjectImportApi.res] sends atomic chunked import requests
   → [src/systems/Api/ProjectImportOrchestrator.res] orchestrates the multi-chunk import flow
   → [src/systems/Api/ProjectImportTypes.res] provides shared import payload types and decoders
@@ -380,7 +376,7 @@ CI job
 
 ### Components & UI Foundation (Common)
 **Purpose:** Shared presentation components and style primitives.
-- [src/components/PopOver.res], [src/components/Portal.res], [src/components/Tooltip.res], [src/components/SelectionOverlay.res], [src/components/FocusRing.res], [src/components/EmptyState.res], [src/components/LoadingSpinner.res], [src/components/VisualPipeline/VisualPipelineStyles.res], [src/components/VisualPipelineStyles.res], [src/components/VisualPipelineNode.res]
+- [src/components/PopOver.res], [src/components/Portal.res], [src/components/Tooltip.res], [src/components/VisualPipelineStyles.res], [src/components/VisualPipelineNode.res]
 
 ### External Bindings (Web APIs)
 **Purpose:** Bridge ReScript to browser-native functionality.

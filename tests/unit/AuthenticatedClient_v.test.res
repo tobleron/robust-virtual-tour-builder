@@ -115,6 +115,7 @@ describe("AuthenticatedClient", () => {
       maxDelayMs: 100,
       backoffMultiplier: 1.0,
       jitter: false,
+      totalDeadlineMs: 1000,
     }
 
     // Must simulate local environment for dev-token bypass if no token set
@@ -171,6 +172,7 @@ describe("AuthenticatedClient", () => {
       maxDelayMs: 10,
       backoffMultiplier: 1.0,
       jitter: false,
+      totalDeadlineMs: 500,
     }
 
     let result = await AuthenticatedClient.requestWithRetry("/test-429", ~retryConfig, ())
