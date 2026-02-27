@@ -31,7 +31,7 @@ use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
 fn is_hashed_static_asset(path: &str) -> bool {
     // Match patterns like /static/js/index-a1b2c3.js
-    if !path.starts_with("/static/") {
+    if !(path.starts_with("/static/") || path.starts_with("/assets/")) {
         return false;
     }
     let file = match path.rsplit('/').next() {
@@ -48,6 +48,25 @@ fn is_hashed_static_asset(path: &str) -> bool {
         None => return false,
     };
     hash.len() >= 6 && hash.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+#[cfg(test)]
+mod cache_header_tests {
+    use super::is_hashed_static_asset;
+
+    #[test]
+    fn detects_hashed_static_and_assets_paths() {
+        assert!(is_hashed_static_asset("/static/js/index-a1b2c3.js"));
+        assert!(is_hashed_static_asset("/assets/index-abcdef12.css"));
+        assert!(is_hashed_static_asset("/assets/chunk-123abc.mjs"));
+    }
+
+    #[test]
+    fn ignores_non_hashed_or_non_static_paths() {
+        assert!(!is_hashed_static_asset("/static/js/index.js"));
+        assert!(!is_hashed_static_asset("/images/photo-a1b2c3.webp"));
+        assert!(!is_hashed_static_asset("/api/project/load"));
+    }
 }
 
 async fn health_check() -> impl Responder {

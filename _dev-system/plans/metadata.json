@@ -1,212 +1,4 @@
 {
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/cache.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 11.868421052631579,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/geocoding/cache.rs",
-              "functions": [
-                {
-                  "name": "decode_cache_payload",
-                  "signature": "fn decode_cache_payload(",
-                  "line": 47
-                },
-                {
-                  "name": "round_coords",
-                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
-                  "line": 94
-                },
-                {
-                  "name": "get_current_timestamp",
-                  "signature": "pub fn get_current_timestamp() -> u64 {",
-                  "line": 101
-                },
-                {
-                  "name": "get_cache_file_path",
-                  "signature": "fn get_cache_file_path() -> String {",
-                  "line": 108
-                },
-                {
-                  "name": "evict_lru_entry",
-                  "signature": "pub async fn evict_lru_entry(",
-                  "line": 112
-                },
-                {
-                  "name": "get_info",
-                  "signature": "pub async fn get_info() -> GeocoderInfo {",
-                  "line": 140
-                },
-                {
-                  "name": "save_cache_to_disk",
-                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
-                  "line": 149
-                },
-                {
-                  "name": "load_cache_from_disk",
-                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
-                  "line": 191
-                },
-                {
-                  "name": "clear_cache",
-                  "signature": "pub async fn clear_cache() {",
-                  "line": 237
-                },
-                {
-                  "name": "check_cache",
-                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
-                  "line": 245
-                },
-                {
-                  "name": "update_cache",
-                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
-                  "line": 265
-                },
-                {
-                  "name": "manual_insert",
-                  "signature": "pub async fn manual_insert(",
-                  "line": 289
-                },
-                {
-                  "name": "get_cache_len",
-                  "signature": "pub async fn get_cache_len() -> usize {",
-                  "line": 307
-                },
-                {
-                  "name": "cache_contains_key",
-                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
-                  "line": 313
-                },
-                {
-                  "name": "get_cache_entry_access_count",
-                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
-                  "line": 319
-                },
-                {
-                  "name": "get_evictions_count",
-                  "signature": "pub async fn get_evictions_count() -> u64 {",
-                  "line": 325
-                },
-                {
-                  "name": "get_hits_count",
-                  "signature": "pub async fn get_hits_count() -> u64 {",
-                  "line": 331
-                },
-                {
-                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
-                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
-                  "line": 341
-                },
-                {
-                  "name": "decode_cache_payload_reads_entries_format",
-                  "signature": "fn decode_cache_payload_reads_entries_format() {",
-                  "line": 354
-                }
-              ],
-              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_session.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload_runtime.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/services/geocoding",
-        "files": [
-          "../../backend/src/services/geocoding/osm.rs",
-          "../../backend/src/services/geocoding/mod.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14",
-        "strategy": "",
-        "platform": "backend",
-        "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/geocoding/osm.rs",
-              "functions": [
-                {
-                  "name": "format_address_from_json",
-                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
-                  "line": 2
-                },
-                {
-                  "name": "call_osm_nominatim",
-                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 40
-                }
-              ],
-              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
-            },
-            {
-              "path": "backend/src/services/geocoding/mod.rs",
-              "functions": [
-                {
-                  "name": "reverse_geocode",
-                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 11
-                },
-                {
-                  "name": "test_geocoder_suite_sequential",
-                  "signature": "async fn test_geocoder_suite_sequential() {",
-                  "line": 34
-                },
-                {
-                  "name": "test_reverse_geocode_with_cache_internal",
-                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
-                  "line": 42
-                },
-                {
-                  "name": "test_lru_eviction_internal",
-                  "signature": "async fn test_lru_eviction_internal() {",
-                  "line": 59
-                },
-                {
-                  "name": "test_coordinate_rounding_internal",
-                  "signature": "fn test_coordinate_rounding_internal() {",
-                  "line": 81
-                },
-                {
-                  "name": "test_clear_cache_internal",
-                  "signature": "async fn test_clear_cache_internal() {",
-                  "line": 89
-                }
-              ],
-              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
-            }
-          ]
-        }
-      }
-    }
-  ],
   "rescript": [
     {
       "Surgical": {
@@ -412,173 +204,171 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/Retry.res",
+        "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 401/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.161702127659574,
+        "complexity": 15.031670822942642,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
+          "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
           "snapshots": [
             {
-              "path": "src/utils/Retry.res",
+              "path": "src/systems/OperationLifecycle.res",
               "functions": [
                 {
-                  "name": "defaultConfig",
-                  "signature": "defaultConfig = {",
-                  "line": 21
+                  "name": "operations",
+                  "signature": "operations = ref(Belt.Map.String.empty)",
+                  "line": 12
                 },
                 {
-                  "name": "defaultBudgetConfig",
-                  "signature": "defaultBudgetConfig = {",
-                  "line": 30
+                  "name": "listeners",
+                  "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
+                  "line": 13
                 },
                 {
-                  "name": "retryBudgets",
-                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
-                  "line": 36
+                  "name": "cancelCallbacks",
+                  "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
+                  "line": 14
                 },
                 {
-                  "name": "calculateDelay",
-                  "signature": "calculateDelay = (attempt, config) => {",
-                  "line": 38
+                  "name": "completedTotal",
+                  "signature": "completedTotal = ref(0)",
+                  "line": 15
                 },
                 {
-                  "name": "parseHttpStatusCode",
-                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
-                  "line": 65
+                  "name": "leakedTotal",
+                  "signature": "leakedTotal = ref(0)",
+                  "line": 16
                 },
                 {
-                  "name": "parseRetryAfterSeconds",
-                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
-                  "line": 74
+                  "name": "sweepIntervalId",
+                  "signature": "sweepIntervalId: ref<option<int>> = ref(None)",
+                  "line": 17
                 },
                 {
-                  "name": "isAbortError",
-                  "signature": "isAbortError = (error: string): bool => {",
-                  "line": 90
+                  "name": "ttlSweepMs",
+                  "signature": "ttlSweepMs = 30000",
+                  "line": 19
                 },
                 {
-                  "name": "isRetryableStatus",
-                  "signature": "isRetryableStatus = (status: int): bool => {",
-                  "line": 94
+                  "name": "timeoutTtlExceeded",
+                  "signature": "timeoutTtlExceeded = \"OPERATION_TIMEOUT_TTL_EXCEEDED\"",
+                  "line": 20
                 },
                 {
-                  "name": "classifyError",
-                  "signature": "classifyError = (error: string): retryClass => {",
-                  "line": 107
+                  "name": "ttlMsForType",
+                  "signature": "ttlMsForType = (type_: operationType): int =>",
+                  "line": 22
                 },
                 {
-                  "name": "defaultShouldRetry",
-                  "signature": "defaultShouldRetry = (error: string) => {",
+                  "name": "notifyListeners",
+                  "signature": "notifyListeners = () => {",
+                  "line": 35
+                },
+                {
+                  "name": "updateLoggerContext",
+                  "signature": "updateLoggerContext = () => {",
+                  "line": 40
+                },
+                {
+                  "name": "activeCount",
+                  "signature": "activeCount = (): int =>",
+                  "line": 50
+                },
+                {
+                  "name": "cleanupTerminalOperation",
+                  "signature": "cleanupTerminalOperation = (id: operationId): unit => {",
+                  "line": 55
+                },
+                {
+                  "name": "sweepExpiredOperations",
+                  "signature": "sweepExpiredOperations = (): unit => {",
+                  "line": 62
+                },
+                {
+                  "name": "ensureSweepInterval",
+                  "signature": "ensureSweepInterval = (): unit => {",
+                  "line": 99
+                },
+                {
+                  "name": "reset",
+                  "signature": "reset = () => {",
+                  "line": 110
+                },
+                {
+                  "name": "subscribe",
+                  "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
+                  "line": 126
+                },
+                {
+                  "name": "registerCancel",
+                  "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
                   "line": 136
                 },
                 {
-                  "name": "waitForDelay",
-                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
-                  "line": 146
+                  "name": "getOperation",
+                  "signature": "getOperation = (id: operationId): option<task> => {",
+                  "line": 140
                 },
                 {
-                  "name": "hasDeadline",
-                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
-                  "line": 180
+                  "name": "getOperations",
+                  "signature": "getOperations = (): array<task> => {",
+                  "line": 144
                 },
                 {
-                  "name": "computeDelay",
-                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
-                  "line": 182
+                  "name": "isActive",
+                  "signature": "isActive = (id: operationId): bool => {",
+                  "line": 148
                 },
                 {
-                  "name": "checkAndConsumeBudget",
-                  "signature": "checkAndConsumeBudget = (",
-                  "line": 200
+                  "name": "isBusy",
+                  "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
+                  "line": 159
                 },
                 {
-                  "name": "getRemainingBudget",
-                  "signature": "getRemainingBudget = (",
-                  "line": 238
+                  "name": "start",
+                  "signature": "start = (",
+                  "line": 177
                 },
                 {
-                  "name": "loop",
-                  "signature": "loop = async (",
-                  "line": 259
+                  "name": "progress",
+                  "signature": "progress = (",
+                  "line": 239
                 },
                 {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 385
+                  "name": "complete",
+                  "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
+                  "line": 274
+                },
+                {
+                  "name": "fail",
+                  "signature": "fail = (id: operationId, error: string): unit => {",
+                  "line": 317
+                },
+                {
+                  "name": "cancel",
+                  "signature": "cancel = (id: operationId): unit => {",
+                  "line": 359
+                },
+                {
+                  "name": "getStats",
+                  "signature": "getStats = (): lifecycleStats => {",
+                  "line": 423
+                },
+                {
+                  "name": "useOperations",
+                  "signature": "useOperations = () => {",
+                  "line": 433
+                },
+                {
+                  "name": "useIsBusy",
+                  "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
+                  "line": 446
                 }
               ],
-              "fingerprint": "266054733c5c8c0d44b7cd0972ae703f92c68a745aa99ac4b53b88e5d3e5f59e"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/AsyncQueue.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 21.366666666666667,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/AsyncQueue.res",
-              "functions": [
-                {
-                  "name": "defaultAdaptiveConfig",
-                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
-                  "line": 33
-                },
-                {
-                  "name": "getHeapUsageRatio",
-                  "signature": "getHeapUsageRatio = (): option<float> =>",
-                  "line": 43
-                },
-                {
-                  "name": "toSortedCopy",
-                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
-                  "line": 56
-                },
-                {
-                  "name": "percentile",
-                  "signature": "percentile = (values: array<float>, p: float): float => {",
-                  "line": 70
-                },
-                {
-                  "name": "average",
-                  "signature": "average = (values: array<float>): float => {",
-                  "line": 81
-                },
-                {
-                  "name": "computeStatus",
-                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
-                  "line": 90
-                },
-                {
-                  "name": "executeAdaptive",
-                  "signature": "executeAdaptive = (",
-                  "line": 113
-                },
-                {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 289
-                },
-                {
-                  "name": "executeWeighted",
-                  "signature": "executeWeighted = (",
-                  "line": 374
-                }
-              ],
-              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
+              "fingerprint": "880f85b7aa4348a6bf7de207fbf48640013017efa496058736f409353bb93dbe"
             }
           ]
         }
@@ -960,171 +750,381 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/OperationLifecycle.res",
+        "file": "../../src/utils/Retry.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 401/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.031670822942642,
+        "complexity": 13.161702127659574,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/OperationLifecycle.res`",
+          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
           "snapshots": [
             {
-              "path": "src/systems/OperationLifecycle.res",
+              "path": "src/utils/Retry.res",
               "functions": [
                 {
-                  "name": "operations",
-                  "signature": "operations = ref(Belt.Map.String.empty)",
-                  "line": 12
+                  "name": "defaultConfig",
+                  "signature": "defaultConfig = {",
+                  "line": 21
                 },
                 {
-                  "name": "listeners",
-                  "signature": "listeners: ref<array<array<task> => unit>> = ref([])",
-                  "line": 13
+                  "name": "defaultBudgetConfig",
+                  "signature": "defaultBudgetConfig = {",
+                  "line": 30
                 },
                 {
-                  "name": "cancelCallbacks",
-                  "signature": "cancelCallbacks = ref(Belt.Map.String.empty)",
-                  "line": 14
+                  "name": "retryBudgets",
+                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
+                  "line": 36
                 },
                 {
-                  "name": "completedTotal",
-                  "signature": "completedTotal = ref(0)",
-                  "line": 15
+                  "name": "calculateDelay",
+                  "signature": "calculateDelay = (attempt, config) => {",
+                  "line": 38
                 },
                 {
-                  "name": "leakedTotal",
-                  "signature": "leakedTotal = ref(0)",
-                  "line": 16
+                  "name": "parseHttpStatusCode",
+                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
+                  "line": 65
                 },
                 {
-                  "name": "sweepIntervalId",
-                  "signature": "sweepIntervalId: ref<option<int>> = ref(None)",
-                  "line": 17
+                  "name": "parseRetryAfterSeconds",
+                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
+                  "line": 74
                 },
                 {
-                  "name": "ttlSweepMs",
-                  "signature": "ttlSweepMs = 30000",
-                  "line": 19
+                  "name": "isAbortError",
+                  "signature": "isAbortError = (error: string): bool => {",
+                  "line": 90
                 },
                 {
-                  "name": "timeoutTtlExceeded",
-                  "signature": "timeoutTtlExceeded = \"OPERATION_TIMEOUT_TTL_EXCEEDED\"",
-                  "line": 20
+                  "name": "isRetryableStatus",
+                  "signature": "isRetryableStatus = (status: int): bool => {",
+                  "line": 94
                 },
                 {
-                  "name": "ttlMsForType",
-                  "signature": "ttlMsForType = (type_: operationType): int =>",
-                  "line": 22
+                  "name": "classifyError",
+                  "signature": "classifyError = (error: string): retryClass => {",
+                  "line": 107
                 },
                 {
-                  "name": "notifyListeners",
-                  "signature": "notifyListeners = () => {",
-                  "line": 35
-                },
-                {
-                  "name": "updateLoggerContext",
-                  "signature": "updateLoggerContext = () => {",
-                  "line": 40
-                },
-                {
-                  "name": "activeCount",
-                  "signature": "activeCount = (): int =>",
-                  "line": 50
-                },
-                {
-                  "name": "cleanupTerminalOperation",
-                  "signature": "cleanupTerminalOperation = (id: operationId): unit => {",
-                  "line": 55
-                },
-                {
-                  "name": "sweepExpiredOperations",
-                  "signature": "sweepExpiredOperations = (): unit => {",
-                  "line": 62
-                },
-                {
-                  "name": "ensureSweepInterval",
-                  "signature": "ensureSweepInterval = (): unit => {",
-                  "line": 99
-                },
-                {
-                  "name": "reset",
-                  "signature": "reset = () => {",
-                  "line": 110
-                },
-                {
-                  "name": "subscribe",
-                  "signature": "subscribe = (cb: array<task> => unit): (unit => unit) => {",
-                  "line": 126
-                },
-                {
-                  "name": "registerCancel",
-                  "signature": "registerCancel = (id: operationId, cb: unit => unit): unit => {",
+                  "name": "defaultShouldRetry",
+                  "signature": "defaultShouldRetry = (error: string) => {",
                   "line": 136
                 },
                 {
-                  "name": "getOperation",
-                  "signature": "getOperation = (id: operationId): option<task> => {",
+                  "name": "waitForDelay",
+                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
+                  "line": 146
+                },
+                {
+                  "name": "hasDeadline",
+                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
+                  "line": 180
+                },
+                {
+                  "name": "computeDelay",
+                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
+                  "line": 182
+                },
+                {
+                  "name": "checkAndConsumeBudget",
+                  "signature": "checkAndConsumeBudget = (",
+                  "line": 200
+                },
+                {
+                  "name": "getRemainingBudget",
+                  "signature": "getRemainingBudget = (",
+                  "line": 238
+                },
+                {
+                  "name": "loop",
+                  "signature": "loop = async (",
+                  "line": 259
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 385
+                }
+              ],
+              "fingerprint": "266054733c5c8c0d44b7cd0972ae703f92c68a745aa99ac4b53b88e5d3e5f59e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/AsyncQueue.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 21.366666666666667,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/AsyncQueue.res",
+              "functions": [
+                {
+                  "name": "defaultAdaptiveConfig",
+                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
+                  "line": 33
+                },
+                {
+                  "name": "getHeapUsageRatio",
+                  "signature": "getHeapUsageRatio = (): option<float> =>",
+                  "line": 43
+                },
+                {
+                  "name": "toSortedCopy",
+                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
+                  "line": 56
+                },
+                {
+                  "name": "percentile",
+                  "signature": "percentile = (values: array<float>, p: float): float => {",
+                  "line": 70
+                },
+                {
+                  "name": "average",
+                  "signature": "average = (values: array<float>): float => {",
+                  "line": 81
+                },
+                {
+                  "name": "computeStatus",
+                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
+                  "line": 90
+                },
+                {
+                  "name": "executeAdaptive",
+                  "signature": "executeAdaptive = (",
+                  "line": 113
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 289
+                },
+                {
+                  "name": "executeWeighted",
+                  "signature": "executeWeighted = (",
+                  "line": 374
+                }
+              ],
+              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/cache.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 11.868421052631579,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/cache.rs",
+              "functions": [
+                {
+                  "name": "decode_cache_payload",
+                  "signature": "fn decode_cache_payload(",
+                  "line": 47
+                },
+                {
+                  "name": "round_coords",
+                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
+                  "line": 94
+                },
+                {
+                  "name": "get_current_timestamp",
+                  "signature": "pub fn get_current_timestamp() -> u64 {",
+                  "line": 101
+                },
+                {
+                  "name": "get_cache_file_path",
+                  "signature": "fn get_cache_file_path() -> String {",
+                  "line": 108
+                },
+                {
+                  "name": "evict_lru_entry",
+                  "signature": "pub async fn evict_lru_entry(",
+                  "line": 112
+                },
+                {
+                  "name": "get_info",
+                  "signature": "pub async fn get_info() -> GeocoderInfo {",
                   "line": 140
                 },
                 {
-                  "name": "getOperations",
-                  "signature": "getOperations = (): array<task> => {",
-                  "line": 144
+                  "name": "save_cache_to_disk",
+                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
+                  "line": 149
                 },
                 {
-                  "name": "isActive",
-                  "signature": "isActive = (id: operationId): bool => {",
-                  "line": 148
+                  "name": "load_cache_from_disk",
+                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
+                  "line": 191
                 },
                 {
-                  "name": "isBusy",
-                  "signature": "isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {",
-                  "line": 159
+                  "name": "clear_cache",
+                  "signature": "pub async fn clear_cache() {",
+                  "line": 237
                 },
                 {
-                  "name": "start",
-                  "signature": "start = (",
-                  "line": 177
+                  "name": "check_cache",
+                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
+                  "line": 245
                 },
                 {
-                  "name": "progress",
-                  "signature": "progress = (",
-                  "line": 239
+                  "name": "update_cache",
+                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
+                  "line": 265
                 },
                 {
-                  "name": "complete",
-                  "signature": "complete = (id: operationId, ~result: option<string>=?, ()): unit => {",
-                  "line": 274
+                  "name": "manual_insert",
+                  "signature": "pub async fn manual_insert(",
+                  "line": 289
                 },
                 {
-                  "name": "fail",
-                  "signature": "fail = (id: operationId, error: string): unit => {",
-                  "line": 317
+                  "name": "get_cache_len",
+                  "signature": "pub async fn get_cache_len() -> usize {",
+                  "line": 307
                 },
                 {
-                  "name": "cancel",
-                  "signature": "cancel = (id: operationId): unit => {",
-                  "line": 359
+                  "name": "cache_contains_key",
+                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
+                  "line": 313
                 },
                 {
-                  "name": "getStats",
-                  "signature": "getStats = (): lifecycleStats => {",
-                  "line": 423
+                  "name": "get_cache_entry_access_count",
+                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
+                  "line": 319
                 },
                 {
-                  "name": "useOperations",
-                  "signature": "useOperations = () => {",
-                  "line": 433
+                  "name": "get_evictions_count",
+                  "signature": "pub async fn get_evictions_count() -> u64 {",
+                  "line": 325
                 },
                 {
-                  "name": "useIsBusy",
-                  "signature": "useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {",
-                  "line": 446
+                  "name": "get_hits_count",
+                  "signature": "pub async fn get_hits_count() -> u64 {",
+                  "line": 331
+                },
+                {
+                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
+                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
+                  "line": 341
+                },
+                {
+                  "name": "decode_cache_payload_reads_entries_format",
+                  "signature": "fn decode_cache_payload_reads_entries_format() {",
+                  "line": 354
                 }
               ],
-              "fingerprint": "880f85b7aa4348a6bf7de207fbf48640013017efa496058736f409353bb93dbe"
+              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_session.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/geocoding",
+        "files": [
+          "../../backend/src/services/geocoding/osm.rs",
+          "../../backend/src/services/geocoding/mod.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14",
+        "strategy": "",
+        "platform": "backend",
+        "verification": {
+          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/osm.rs",
+              "functions": [
+                {
+                  "name": "format_address_from_json",
+                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
+                  "line": 2
+                },
+                {
+                  "name": "call_osm_nominatim",
+                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 40
+                }
+              ],
+              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
+            },
+            {
+              "path": "backend/src/services/geocoding/mod.rs",
+              "functions": [
+                {
+                  "name": "reverse_geocode",
+                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 11
+                },
+                {
+                  "name": "test_geocoder_suite_sequential",
+                  "signature": "async fn test_geocoder_suite_sequential() {",
+                  "line": 34
+                },
+                {
+                  "name": "test_reverse_geocode_with_cache_internal",
+                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
+                  "line": 42
+                },
+                {
+                  "name": "test_lru_eviction_internal",
+                  "signature": "async fn test_lru_eviction_internal() {",
+                  "line": 59
+                },
+                {
+                  "name": "test_coordinate_rounding_internal",
+                  "signature": "fn test_coordinate_rounding_internal() {",
+                  "line": 81
+                },
+                {
+                  "name": "test_clear_cache_internal",
+                  "signature": "async fn test_clear_cache_internal() {",
+                  "line": 89
+                }
+              ],
+              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
             }
           ]
         }

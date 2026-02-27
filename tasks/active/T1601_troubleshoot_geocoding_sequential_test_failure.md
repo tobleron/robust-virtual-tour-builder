@@ -7,7 +7,7 @@
 ## Hypothesis (Ordered Expected Solutions)
 - [x] H1: Shared global geocoding cache state leaks across tests, causing assertion drift in sequential suite.
 - [x] H2: Test ordering assumes a pristine cache but setup does not reset state in all branches.
-- [ ] H3: Time/order-sensitive assertion is too strict and should validate behavior contract instead of exact counter.
+- [x] H3: Time/order-sensitive assertion is too strict and should validate behavior contract instead of exact counter.
 
 ## Activity Log
 - [x] Reproduce failing test in isolation and full backend run.

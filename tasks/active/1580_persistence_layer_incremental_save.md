@@ -13,7 +13,7 @@ Replace full-state serialization in `PersistenceLayer.res` with incremental delt
 - [x] Add `structuredClone` offloading: serialize state snapshot on a microtask boundary to avoid blocking the main thread
 - [x] Implement write coalescing: if multiple saves fire within 500ms, merge them into a single write
 - [x] Fallback: Full serialization if delta tracking falls out of sync (safety invariant with `Logger.warn`)
-- [ ] Auto-save latency target: < 10ms main-thread cost for incremental saves
+- [x] Auto-save latency target: < 10ms main-thread cost for incremental saves
 
 ## Technical Notes
 - **Files**: `src/utils/PersistenceLayer.res`, `src/core/JsonParsersEncoders.res`
@@ -23,7 +23,7 @@ Replace full-state serialization in `PersistenceLayer.res` with incremental delt
 
 ## Verification Log
 - `npm run res:build` ✅
-- `npm run test:frontend` ✅ (179 files, 896 tests)
+- `npm run test:frontend` ✅ (180 files, 898 tests)
 - Playwright runtime budget run (`tests/e2e/perf-budgets.spec.ts`) ✅
   - bulk upload fixture latency: `45077ms` with `29` imported scenes
   - metrics file: `artifacts/perf-budget-metrics.json`
@@ -33,4 +33,6 @@ Replace full-state serialization in `PersistenceLayer.res` with incremental delt
   - Recovery path reassembles project from slices and warns/falls back to legacy payload when needed.
   - Write coalescing window `coalesceMs = 500`.
   - Snapshot cloning via `structuredClone` with safe fallback.
-- Pending: explicit direct auto-save main-thread cost benchmark capture against `<10ms` target (current E2E metrics are end-to-end, not isolated autosave cost).
+- Direct autosave benchmark test:
+  - `tests/unit/PersistenceLayer_v.test.res` asserts `averageMs <= 10.0` for controlled incremental saves.
+  - Included in full frontend suite pass (`180 files`, `898 tests`).
