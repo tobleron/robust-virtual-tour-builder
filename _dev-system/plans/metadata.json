@@ -1,4 +1,93 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_session.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/geocoding",
+        "files": [
+          "../../backend/src/services/geocoding/mod.rs",
+          "../../backend/src/services/geocoding/osm.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14",
+        "strategy": "",
+        "platform": "backend",
+        "verification": {
+          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/mod.rs",
+              "functions": [
+                {
+                  "name": "reverse_geocode",
+                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 11
+                },
+                {
+                  "name": "test_geocoder_suite_sequential",
+                  "signature": "async fn test_geocoder_suite_sequential() {",
+                  "line": 34
+                },
+                {
+                  "name": "test_reverse_geocode_with_cache_internal",
+                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
+                  "line": 42
+                },
+                {
+                  "name": "test_lru_eviction_internal",
+                  "signature": "async fn test_lru_eviction_internal() {",
+                  "line": 59
+                },
+                {
+                  "name": "test_coordinate_rounding_internal",
+                  "signature": "fn test_coordinate_rounding_internal() {",
+                  "line": 81
+                },
+                {
+                  "name": "test_clear_cache_internal",
+                  "signature": "async fn test_clear_cache_internal() {",
+                  "line": 89
+                }
+              ],
+              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
+            },
+            {
+              "path": "backend/src/services/geocoding/osm.rs",
+              "functions": [
+                {
+                  "name": "format_address_from_json",
+                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
+                  "line": 2
+                },
+                {
+                  "name": "call_osm_nominatim",
+                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 40
+                }
+              ],
+              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
@@ -102,6 +191,73 @@
                 }
               ],
               "fingerprint": "086d9a3748efbcc9fbb0de0564afcf1cfcde6b73f34a6b4abbd86380d7c45fbc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/AsyncQueue.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 21.366666666666667,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/AsyncQueue.res",
+              "functions": [
+                {
+                  "name": "defaultAdaptiveConfig",
+                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
+                  "line": 33
+                },
+                {
+                  "name": "getHeapUsageRatio",
+                  "signature": "getHeapUsageRatio = (): option<float> =>",
+                  "line": 43
+                },
+                {
+                  "name": "toSortedCopy",
+                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
+                  "line": 56
+                },
+                {
+                  "name": "percentile",
+                  "signature": "percentile = (values: array<float>, p: float): float => {",
+                  "line": 70
+                },
+                {
+                  "name": "average",
+                  "signature": "average = (values: array<float>): float => {",
+                  "line": 81
+                },
+                {
+                  "name": "computeStatus",
+                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
+                  "line": 90
+                },
+                {
+                  "name": "executeAdaptive",
+                  "signature": "executeAdaptive = (",
+                  "line": 113
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 289
+                },
+                {
+                  "name": "executeWeighted",
+                  "signature": "executeWeighted = (",
+                  "line": 374
+                }
+              ],
+              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
             }
           ]
         }
@@ -274,73 +430,6 @@
                 }
               ],
               "fingerprint": "880f85b7aa4348a6bf7de207fbf48640013017efa496058736f409353bb93dbe"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/AsyncQueue.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 21.366666666666667,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/AsyncQueue.res",
-              "functions": [
-                {
-                  "name": "defaultAdaptiveConfig",
-                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
-                  "line": 33
-                },
-                {
-                  "name": "getHeapUsageRatio",
-                  "signature": "getHeapUsageRatio = (): option<float> =>",
-                  "line": 43
-                },
-                {
-                  "name": "toSortedCopy",
-                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
-                  "line": 56
-                },
-                {
-                  "name": "percentile",
-                  "signature": "percentile = (values: array<float>, p: float): float => {",
-                  "line": 70
-                },
-                {
-                  "name": "average",
-                  "signature": "average = (values: array<float>): float => {",
-                  "line": 81
-                },
-                {
-                  "name": "computeStatus",
-                  "signature": "computeStatus = (activeStatuses, completedCount, total) => {",
-                  "line": 90
-                },
-                {
-                  "name": "executeAdaptive",
-                  "signature": "executeAdaptive = (",
-                  "line": 113
-                },
-                {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 289
-                },
-                {
-                  "name": "executeWeighted",
-                  "signature": "executeWeighted = (",
-                  "line": 374
-                }
-              ],
-              "fingerprint": "51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f"
             }
           ]
         }
@@ -617,10 +706,10 @@
       "Surgical": {
         "file": "../../src/utils/PersistenceLayer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.08, Coupling: 0.07] | Drag: 4.25 | LOC: 423/300  🎯 Target: Function: `normalizeProjectData` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.08, Coupling: 0.07] | Drag: 4.25 | LOC: 430/300  🎯 Target: Function: `normalizeProjectData` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.54586288416076,
+        "complexity": 17.246511627906976,
         "recommended_splits": 2,
         "verification": {
           "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
@@ -661,219 +750,130 @@
                 {
                   "name": "stateGetterRef",
                   "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
-                  "line": 43
+                  "line": 44
                 },
                 {
                   "name": "lastSaveTimeout",
                   "signature": "lastSaveTimeout = ref(None)",
-                  "line": 44
+                  "line": 45
                 },
                 {
                   "name": "lastSavedRevision",
                   "signature": "lastSavedRevision = ref(-1)",
-                  "line": 45
+                  "line": 46
                 },
                 {
                   "name": "beforeUnloadListener",
                   "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
-                  "line": 46
+                  "line": 47
                 },
                 {
                   "name": "subscriberRef",
                   "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
-                  "line": 47
+                  "line": 48
                 },
                 {
                   "name": "lastQueuedAtMs",
                   "signature": "lastQueuedAtMs = ref(0.0)",
-                  "line": 48
+                  "line": 49
                 },
                 {
                   "name": "pendingStateRef",
                   "signature": "pendingStateRef: ref<option<state>> = ref(None)",
-                  "line": 49
+                  "line": 50
                 },
                 {
                   "name": "lastSliceSignatureRef",
                   "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
-                  "line": 50
+                  "line": 51
                 },
                 {
                   "name": "performSaveRef",
                   "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
-                  "line": 51
+                  "line": 52
                 },
                 {
                   "name": "sliceKey",
                   "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
-                  "line": 53
+                  "line": 54
                 },
                 {
                   "name": "encodeMetadataSlice",
                   "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
-                  "line": 55
+                  "line": 56
                 },
                 {
                   "name": "signatureOfJson",
                   "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
-                  "line": 84
+                  "line": 85
                 },
                 {
                   "name": "queueIncrementalSave",
                   "signature": "queueIncrementalSave = (state: state) => {",
-                  "line": 86
+                  "line": 87
                 },
                 {
                   "name": "processQueuedSave",
                   "signature": "processQueuedSave = () => {",
-                  "line": 91
+                  "line": 98
                 },
                 {
                   "name": "normalizeProjectData",
                   "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
-                  "line": 115
+                  "line": 122
                 },
                 {
                   "name": "performSave",
                   "signature": "performSave = (state: Types.state) => {",
-                  "line": 129
+                  "line": 136
                 },
                 {
                   "name": "_",
                   "signature": "_ = performSaveRef := performSave",
-                  "line": 241
+                  "line": 248
                 },
                 {
                   "name": "handleStateChange",
                   "signature": "handleStateChange = (state: state) => {",
-                  "line": 243
+                  "line": 250
                 },
                 {
                   "name": "notifyStateChange",
                   "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
-                  "line": 255
+                  "line": 262
                 },
                 {
                   "name": "initSubscriber",
                   "signature": "initSubscriber = (",
-                  "line": 257
+                  "line": 264
                 },
                 {
                   "name": "clearSession",
                   "signature": "clearSession = () => {",
-                  "line": 295
+                  "line": 302
                 },
                 {
                   "name": "decodeManifest",
                   "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
-                  "line": 304
+                  "line": 311
                 },
                 {
                   "name": "extractFromSlice",
                   "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
-                  "line": 317
+                  "line": 324
                 },
                 {
                   "name": "decodeMetadataSlice",
                   "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
-                  "line": 323
+                  "line": 330
                 },
                 {
                   "name": "checkRecovery",
                   "signature": "checkRecovery = () => {",
-                  "line": 351
+                  "line": 358
                 }
               ],
               "fingerprint": "6cd6875e8e2ae2b1f0187baa38693e6352561060a0a57f8ac4e5b601522a6ca0"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_session.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload_runtime.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/services/geocoding",
-        "files": [
-          "../../backend/src/services/geocoding/mod.rs",
-          "../../backend/src/services/geocoding/osm.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14",
-        "strategy": "",
-        "platform": "backend",
-        "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/geocoding/mod.rs",
-              "functions": [
-                {
-                  "name": "reverse_geocode",
-                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 11
-                },
-                {
-                  "name": "test_geocoder_suite_sequential",
-                  "signature": "async fn test_geocoder_suite_sequential() {",
-                  "line": 34
-                },
-                {
-                  "name": "test_reverse_geocode_with_cache_internal",
-                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
-                  "line": 42
-                },
-                {
-                  "name": "test_lru_eviction_internal",
-                  "signature": "async fn test_lru_eviction_internal() {",
-                  "line": 59
-                },
-                {
-                  "name": "test_coordinate_rounding_internal",
-                  "signature": "fn test_coordinate_rounding_internal() {",
-                  "line": 81
-                },
-                {
-                  "name": "test_clear_cache_internal",
-                  "signature": "async fn test_clear_cache_internal() {",
-                  "line": 89
-                }
-              ],
-              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
-            },
-            {
-              "path": "backend/src/services/geocoding/osm.rs",
-              "functions": [
-                {
-                  "name": "format_address_from_json",
-                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
-                  "line": 2
-                },
-                {
-                  "name": "call_osm_nominatim",
-                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 40
-                }
-              ],
-              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
             }
           ]
         }

@@ -251,6 +251,8 @@ module UnhandledRejectionEvent = {
 
 external toNullable: 'a => Nullable.t<'a> = "%identity"
 external toUnhandledEvent: 'a => UnhandledRejectionEvent.t = "%identity"
+let setGlobalLoggerWarnHook: ((string, string, JSON.t) => unit) => unit =
+  %raw(`function(cb){ globalThis.__vtbLoggerWarn = cb; }`)
 
 let batchTimer = ref(None)
 
@@ -289,6 +291,9 @@ let init = () => {
   }
   Window.setDebug(Window.window, asDynamic(debugObj))
   Window.setAppLog(Window.window, appLog)
+  setGlobalLoggerWarnHook((module_, message, data) => {
+    warn(~module_, ~message, ~data=Some(data), ())
+  })
 
   /* Intercept Global Errors with Stack Traces */
   Window.setOnError(Window.window, (msg, source, line, col, errObj) => {

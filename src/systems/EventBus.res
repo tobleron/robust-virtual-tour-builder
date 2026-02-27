@@ -57,6 +57,19 @@ type event =
   | RateLimitBackoff(int)
 
 type subscription = unit => unit
+type listenerId = int
+type weakRef<'a>
+type loggerWarnHook = (string, string, JSON.t) => unit
+type listenerEntry = {
+  id: listenerId,
+  strongCallback: option<event => unit>,
+  weakCallback: option<weakRef<event => unit>>,
+}
+
+@new external makeWeakRef: (event => unit) => weakRef<event => unit> = "WeakRef"
+@send external weakRefDeref: weakRef<event => unit> => Nullable.t<event => unit> = "deref"
+@val external loggerWarnHook: option<loggerWarnHook> = "__vtbLoggerWarn"
+let hasWeakRefSupport: unit => bool = %raw(`function() { return typeof WeakRef === "function"; }`)
 
 type eventChannel =
   | Navigation
@@ -64,11 +77,12 @@ type eventChannel =
   | Ui
   | System
 
-let allListeners: ref<array<event => unit>> = ref([])
-let navigationListeners: ref<array<event => unit>> = ref([])
-let uploadListeners: ref<array<event => unit>> = ref([])
-let uiListeners: ref<array<event => unit>> = ref([])
-let systemListeners: ref<array<event => unit>> = ref([])
+let allListeners: ref<array<listenerEntry>> = ref([])
+let navigationListeners: ref<array<listenerEntry>> = ref([])
+let uploadListeners: ref<array<listenerEntry>> = ref([])
+let uiListeners: ref<array<listenerEntry>> = ref([])
+let systemListeners: ref<array<listenerEntry>> = ref([])
+let nextListenerId = ref(1)
 
 let leakWarnThreshold = 50
 
@@ -100,41 +114,75 @@ let subscriptionCount = () =>
 let warnIfTooManySubscriptions = () => {
   let total = subscriptionCount()
   if total > leakWarnThreshold {
-    Console.warn2("[EventBus] SUBSCRIPTION_LEAK_SENTINEL", total)
+    let payload = JsonCombinators.Json.Encode.object([("totalSubscriptions", JsonCombinators.Json.Encode.int(total))])
+    switch loggerWarnHook {
+    | Some(loggerWarn) => loggerWarn("EventBus", "SUBSCRIPTION_LEAK_SENTINEL", payload)
+    | None => Console.warn2("[EventBus] SUBSCRIPTION_LEAK_SENTINEL", total)
+    }
   }
 }
 
+let makeListenerEntry = (callback: event => unit): listenerEntry => {
+  let id = nextListenerId.contents
+  nextListenerId := id + 1
+
+  if hasWeakRefSupport() {
+    {id, strongCallback: None, weakCallback: Some(makeWeakRef(callback))}
+  } else {
+    {id, strongCallback: Some(callback), weakCallback: None}
+  }
+}
+
+let getCallback = (entry: listenerEntry): option<event => unit> =>
+  switch entry.strongCallback {
+  | Some(cb) => Some(cb)
+  | None =>
+    switch entry.weakCallback {
+    | Some(ref_) => weakRefDeref(ref_)->Nullable.toOption
+    | None => None
+    }
+  }
+
 let subscribe = (callback: event => unit): subscription => {
-  allListeners := Belt.Array.concat(allListeners.contents, [callback])
+  let entry = makeListenerEntry(callback)
+  allListeners := Belt.Array.concat(allListeners.contents, [entry])
   warnIfTooManySubscriptions()
   () => {
-    allListeners := Belt.Array.keep(allListeners.contents, cb => cb !== callback)
+    allListeners := Belt.Array.keep(allListeners.contents, e => e.id != entry.id)
   }
 }
 
 let subscribeOn = (~channel: eventChannel, callback: event => unit): subscription => {
+  let entry = makeListenerEntry(callback)
   let listenersRef = listenersRefForChannel(channel)
-  listenersRef := Belt.Array.concat(listenersRef.contents, [callback])
+  listenersRef := Belt.Array.concat(listenersRef.contents, [entry])
   warnIfTooManySubscriptions()
   () => {
-    listenersRef := Belt.Array.keep(listenersRef.contents, cb => cb !== callback)
+    listenersRef := Belt.Array.keep(listenersRef.contents, e => e.id != entry.id)
   }
 }
 
-let dispatchToListeners = (listeners: array<event => unit>, evt: event) => {
-  listeners->Belt.Array.forEach(cb => {
-    try {
-      cb(evt)
-    } catch {
-    | JsExn(e) => Console.error2("EventBus Error: ", JsExn.message(e)->Option.getOr("Unknown"))
-    | _ => Console.error("Unknown EventBus Error")
+let dispatchToListeners = (listenersRef: ref<array<listenerEntry>>, evt: event) => {
+  let alive = ref([])
+  listenersRef.contents->Belt.Array.forEach(entry => {
+    switch getCallback(entry) {
+    | Some(cb) =>
+      alive := Belt.Array.concat(alive.contents, [entry])
+      try {
+        cb(evt)
+      } catch {
+      | JsExn(e) => Console.error2("EventBus Error: ", JsExn.message(e)->Option.getOr("Unknown"))
+      | _ => Console.error("Unknown EventBus Error")
+      }
+    | None => ()
     }
   })
+  listenersRef := alive.contents
 }
 
 let dispatch = (evt: event) => {
   // --- Auto-Logging Moved to Logger via Subscription ---
-  dispatchToListeners(allListeners.contents, evt)
+  dispatchToListeners(allListeners, evt)
   let channelRef = evt->classifyChannel->listenersRefForChannel
-  dispatchToListeners(channelRef.contents, evt)
+  dispatchToListeners(channelRef, evt)
 }

@@ -37,6 +37,7 @@ let coalesceMs = 500
 
 @val external requestIdleCallback: (unit => unit) => int = "requestIdleCallback"
 @val external cancelIdleCallback: int => unit = "cancelIdleCallback"
+@val external structuredCloneAny: 'a => 'a = "structuredClone"
 
 external asJson: unknown => JSON.t = "%identity"
 
@@ -84,7 +85,13 @@ let encodeMetadataSlice = (state: state): JSON.t =>
 let signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)
 
 let queueIncrementalSave = (state: state) => {
-  pendingStateRef := Some(state)
+  let clonedState =
+    try {
+      structuredCloneAny(state)
+    } catch {
+    | _ => state
+    }
+  pendingStateRef := Some(clonedState)
   lastQueuedAtMs := Date.now()
 }
 

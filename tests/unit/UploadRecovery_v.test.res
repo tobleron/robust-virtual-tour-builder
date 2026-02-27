@@ -1,6 +1,5 @@
 open Vitest
 open EventBus
-open OperationJournal
 open UploadRecovery
 
 describe("UploadRecovery", () => {
@@ -17,10 +16,10 @@ describe("UploadRecovery", () => {
       ("fileCount", JsonCombinators.Json.Encode.int(50)),
     ])
 
-    let entry: journalEntry = {
+    let entry: OperationJournal.journalEntry = {
       id: "test",
       operation: "UploadImages",
-      status: Interrupted,
+      status: OperationJournal.Interrupted,
       startTime: 0.0,
       endTime: None,
       context,
@@ -63,10 +62,10 @@ describe("UploadRecovery", () => {
       ("fileCount", JsonCombinators.Json.Encode.int(50)),
     ])
 
-    let entry: journalEntry = {
+    let entry: OperationJournal.journalEntry = {
       id: "test",
       operation: "UploadImages",
-      status: Interrupted,
+      status: OperationJournal.Interrupted,
       startTime: 0.0,
       endTime: None,
       context,
@@ -100,10 +99,10 @@ describe("UploadRecovery", () => {
 
     let context = JsonCombinators.Json.Encode.null
 
-    let entry: journalEntry = {
+    let entry: OperationJournal.journalEntry = {
       id: "test",
       operation: "UploadImages",
-      status: Interrupted,
+      status: OperationJournal.Interrupted,
       startTime: 0.0,
       endTime: None,
       context,

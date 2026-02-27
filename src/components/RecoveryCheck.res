@@ -1,5 +1,4 @@
 open EventBus
-open OperationJournal
 open ReBindings
 
 @react.component
@@ -25,7 +24,7 @@ let make = () => {
       if Array.length(interrupted) > 0 {
         let clearInterrupted = () => {
           Belt.Array.forEach(interrupted, entry => {
-            OperationJournal.updateStatus(entry.id, Cancelled)->ignore
+            OperationJournal.updateStatus(entry.id, OperationJournal.Cancelled)->ignore
           })
           EventBus.dispatch(CloseModal)
         }
