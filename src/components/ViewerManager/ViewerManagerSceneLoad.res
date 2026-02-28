@@ -178,9 +178,6 @@ let handleMainSceneLoad = (
 
         HotspotManager.syncHotspots(viewer, state, scene, dispatch)
         HotspotLine.updateLines(viewer, state, ())
-        if !state.isLinking {
-          Scene.Switcher.handleAutoForward(dispatch, state, scene)
-        }
       }
     | None => ()
     }
