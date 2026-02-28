@@ -191,6 +191,11 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
         sessionId: None,
         timeline: [],
         logo: None,
+        marketingComment: "",
+        marketingPhone1: "",
+        marketingPhone2: "",
+        marketingForRent: false,
+        marketingForSale: false,
         nextSceneSequenceId: getState().nextSceneSequenceId,
       }
     }

@@ -220,6 +220,16 @@ module Info = {
   ) => React.element = "Info"
 }
 
+module Settings = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Settings"
+}
+
 module Share2 = {
   @module("lucide-react") @react.component
   external make: (

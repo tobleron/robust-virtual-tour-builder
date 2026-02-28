@@ -4,6 +4,7 @@ open Types
 module Recorder = TeaserRecorder.Recorder
 module Playback = TeaserPlayback
 module Manifest = TeaserManifest
+external identity: 'a => 'b = "%identity"
 
 let normalizeSceneFloor = (floorRaw: string): option<string> => {
   let trimmed = floorRaw->String.trim
@@ -39,6 +40,63 @@ let throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>
       JsError.throwWithMessage("AbortError")
     }
   })
+
+let waitForViewerReadyOrAbort = async (
+  sceneId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
+  let start = Date.now()
+  let rec check = async () => {
+    throwIfCancelled(~signal?)
+    if Date.now() -. start > 30000.0 {
+      Logger.error(
+        ~module_="TeaserLogic",
+        ~message="WAIT_FOR_VIEWER_TIMEOUT",
+        ~data=Some({"targetSceneId": sceneId}),
+        (),
+      )
+      false
+    } else {
+      switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+      | Some(v) if Viewer.isLoaded(v) =>
+        let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
+        if currentId == Some(identity(sceneId)) {
+          await Playback.wait(200)
+          true
+        } else {
+          await Playback.wait(100)
+          await check()
+        }
+      | _ =>
+        await Playback.wait(100)
+        await check()
+      }
+    }
+  }
+  await check()
+}
+
+let forceLoadSceneAndWait = async (
+  sceneId: string,
+  ~getState: unit => state,
+  ~dispatch: Actions.action => unit,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
+  throwIfCancelled(~signal?)
+  let stateNow = getState()
+  let activeScenesNow = SceneInventory.getActiveScenes(stateNow.inventory, stateNow.sceneOrder)
+  let sourceSceneId = Belt.Array.get(activeScenesNow, stateNow.activeIndex)->Option.map(s => s.id)
+  Scene.Loader.loadNewScene(
+    ~state=stateNow,
+    ~dispatch,
+    ~sourceSceneId?,
+    ~targetSceneId=sceneId,
+    ~isAnticipatory=false,
+    ~signal?,
+  )
+  await Playback.wait(220)
+  await waitForViewerReadyOrAbort(sceneId, ~signal?)
+}
 
 let sceneOverlayFor = (
   scenes: array<scene>,
@@ -97,6 +155,39 @@ let renderWebMDeterministic = async (
     let benchmarkFrames = Constants.Teaser.Processing.preflightSampleFrames
     let rollingThroughput = ref(0.0)
 
+    // Deterministic teaser bootstrap: always lock the viewer to the manifest first shot
+    // before frame capture starts, regardless of current editor scene.
+    switch Belt.Array.get(manifest.shots, 0) {
+    | Some(firstShot) =>
+      let firstIdx = scenes->Belt.Array.getIndexBy(s => s.id == firstShot.sceneId)->Option.getOr(0)
+      dispatch(
+        Actions.SetActiveScene(firstIdx, firstShot.arrivalPose.yaw, firstShot.arrivalPose.pitch, None),
+      )
+      
+      let isReady = switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+      | Some(v) if Viewer.isLoaded(v) =>
+        let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
+        currentId == Some(identity(firstShot.sceneId))
+      | _ => false
+      }
+
+      if !isReady {
+        let recovered = await forceLoadSceneAndWait(
+          firstShot.sceneId,
+          ~getState,
+          ~dispatch,
+          ~signal?,
+        )
+        if !recovered {
+          JsError.throwWithMessage("ViewerReadyTimeout: " ++ firstShot.sceneId)
+        }
+      } else {
+        let _ = await waitForViewerReadyOrAbort(firstShot.sceneId, ~signal?)
+      }
+      currentSceneId := firstShot.sceneId
+    | None => ()
+    }
+
     for frameIndex in 0 to totalFrames {
       throwIfCancelled(~signal?)
       let frameStart = Date.now()
@@ -114,7 +205,27 @@ let renderWebMDeterministic = async (
         let idx =
           scenes->Belt.Array.getIndexBy(s => s.id == currentSceneId.contents)->Option.getOr(0)
         dispatch(Actions.SetActiveScene(idx, frameState.pose.yaw, frameState.pose.pitch, None))
-        let _ = await Playback.waitForViewerReady(currentSceneId.contents)
+        
+        let isReady = switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+        | Some(v) if Viewer.isLoaded(v) =>
+          let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
+          currentId == Some(identity(currentSceneId.contents))
+        | _ => false
+        }
+
+        if !isReady {
+          let recovered = await forceLoadSceneAndWait(
+            currentSceneId.contents,
+            ~getState,
+            ~dispatch,
+            ~signal?,
+          )
+          if !recovered {
+            JsError.throwWithMessage("ViewerReadyTimeout: " ++ currentSceneId.contents)
+          }
+        } else {
+          let _ = await waitForViewerReadyOrAbort(currentSceneId.contents, ~signal?)
+        }
       }
 
       ViewerSystem.getActiveViewer()
@@ -127,10 +238,7 @@ let renderWebMDeterministic = async (
 
       Recorder.setFadeOpacity(frameState.fadeOpacity)
 
-      switch Dom.querySelector(
-        Dom.documentBody,
-        ".panorama-layer.active canvas",
-      )->Nullable.toOption {
+      switch Recorder.resolveSourceCanvas() {
       | Some(sc) =>
         let overlay = sceneOverlayFor(scenes, frameState.sceneId, visibleFloorIds)
         Recorder.renderFrame(sc, includeLogo, logoState, ~overlay)

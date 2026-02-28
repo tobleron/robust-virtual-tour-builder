@@ -8,6 +8,16 @@ let cssTemplate = `
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .watermark { position: absolute; bottom: 22px; right: 24px; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; overflow: visible; }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; filter: drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.95)) drop-shadow(0px 0px 4px rgba(0,0,0,0.25)); }
+    #viewer-marketing-banner-export { position: absolute; left: 50%; transform: translateX(-50%); bottom: 0; width: fit-content; max-width: min(84%, 920px); min-height: 29px; align-items: stretch; color: #000; overflow: visible; z-index: 5003; pointer-events: none; display: flex; justify-content: center; }
+    .viewer-marketing-chip-export { display: inline-flex; align-items: center; justify-content: center; padding: 5px 9px 4px 9px; font-family: "Open Sans", var(--font-family); font-size: 13px; line-height: 1.2; font-weight: 600; color: #fff; border-top: 1px solid rgba(0, 0, 0, 0.12); border-right: 1px solid rgba(0, 0, 0, 0.12); border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+    .viewer-marketing-chip-rent-export { background: #0e2d52; }
+    .viewer-marketing-chip-sale-export { background: #ea580c; }
+    .viewer-marketing-chip-left-export { border-top-left-radius: 8px; }
+    .viewer-marketing-chip-left-only-export { border-left: 1px solid rgba(0, 0, 0, 0.12); }
+    .viewer-marketing-text-wrap-export { position: relative; display: inline-flex; align-items: center; justify-content: center; background: #facc15; padding: 5px 16px 4px 16px; border-top-right-radius: 8px; border-left: 1px solid rgba(0, 0, 0, 0.12); border-top: 1px solid rgba(0, 0, 0, 0.12); border-right: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.2); }
+    .viewer-marketing-text-wrap-export-left { border-top-left-radius: 8px; }
+    .viewer-marketing-text-wrap-export::after { content: ""; position: absolute; left: 15%; right: 15%; bottom: -4px; height: 8px; background: #facc15; border-bottom-left-radius: 999px; border-bottom-right-radius: 999px; border-left: 1px solid rgba(0, 0, 0, 0.12); border-right: 1px solid rgba(0, 0, 0, 0.12); border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+    .viewer-marketing-banner-text-export { font-family: "Open Sans", var(--font-family); font-size: 13px; line-height: 1.2; font-weight: 700; letter-spacing: 0.01em; color: #000; word-break: break-word; }
     #viewer-floor-nav-export { position: absolute; bottom: 22px; left: 24px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; pointer-events: none; }
     #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 14px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
     #viewer-floor-nav-export .floor-nav-btn.state-active { border: 2px solid #ea580c; background: #ea580c; color: #fff; }
@@ -64,9 +74,28 @@ let cssTemplate = `
     body.is-hd-export #viewer-floor-nav-export, body.export-state-tablet #viewer-floor-nav-export { bottom: 12px; left: 13px; gap: 6px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn { width: 22px; height: 22px; min-width: 22px; min-height: 22px; font-size: 8.5px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.5px; margin-left: 0; }
+    body.export-state-tablet #viewer-marketing-banner-export { min-height: 24px; max-width: min(84%, 700px); }
+    body.export-state-tablet .viewer-marketing-banner-text-export { font-size: 11px; }
+    body.export-state-tablet .viewer-marketing-chip-export { font-size: 11px; padding: 4px 7px 3px 7px; }
+    body.export-state-tablet .viewer-marketing-text-wrap-export { padding: 4px 13px 3px 13px; border-top-right-radius: 7px; }
+    body.export-state-tablet .viewer-marketing-chip-left-export { border-top-left-radius: 7px; }
+    body.export-state-tablet .viewer-marketing-text-wrap-export-left { border-top-left-radius: 7px; }
+    body.export-state-tablet .viewer-marketing-text-wrap-export::after { bottom: -3px; height: 6px; }
+    body.is-hd-export #viewer-marketing-banner-export { min-height: 19px; max-width: min(82%, 525px); }
+    body.is-hd-export .viewer-marketing-banner-text-export { font-size: 9px; }
+    body.is-hd-export .viewer-marketing-chip-export { font-size: 9px; padding: 3px 6px 2px 6px; }
+    body.is-hd-export .viewer-marketing-text-wrap-export { padding: 3px 10px 2px 10px; border-top-right-radius: 5px; }
+    body.is-hd-export .viewer-marketing-chip-left-export { border-top-left-radius: 5px; }
+    body.is-hd-export .viewer-marketing-text-wrap-export-left { border-top-left-radius: 5px; }
+    body.is-hd-export .viewer-marketing-text-wrap-export::after { bottom: -2px; height: 5px; }
     body.export-state-portrait #viewer-floor-nav-export { bottom: 12px; left: 13px; gap: 8px; }
     body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 12px; }
     body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 7px; margin-left: 0; }
+    body.export-state-portrait #viewer-marketing-banner-export { max-width: calc(100% - 118px); left: 52%; min-height: 24px; z-index: 5001; }
+    body.export-state-portrait .viewer-marketing-text-wrap-export { padding: 3px 9px; }
+    body.export-state-portrait .viewer-marketing-text-wrap-export::after { left: 15%; right: 15%; bottom: -3px; height: 6px; }
+    body.export-state-portrait .viewer-marketing-banner-text-export { font-size: 10px; font-weight: 600; }
+    body.export-state-portrait .viewer-marketing-chip-export { font-size: 10px; font-weight: 600; padding: 3px 8px; }
     body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export { top: 12px; height: 20px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
     body.export-state-portrait .viewer-persistent-label-export { top: 12px; height: 20px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; left: auto; right: 13px; transform: none; }
     body.export-state-portrait .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateY(0) scale(1); }
@@ -141,6 +170,13 @@ let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
       #viewer-floor-nav-export { bottom: 18px; left: 20px; gap: 5px; }
       #viewer-floor-nav-export .floor-nav-btn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 13px; }
       #viewer-floor-nav-export .floor-nav-btn sup { font-size: 8px; margin-left: 0px; }
+      #viewer-marketing-banner-export { min-height: 24px; max-width: min(84%, 700px); }
+      .viewer-marketing-banner-text-export { font-size: 11px; }
+      .viewer-marketing-chip-export { font-size: 11px; padding: 4px 7px 3px 7px; }
+      .viewer-marketing-text-wrap-export { padding: 4px 13px 3px 13px; border-top-right-radius: 7px; }
+      .viewer-marketing-chip-left-export { border-top-left-radius: 7px; }
+      .viewer-marketing-text-wrap-export-left { border-top-left-radius: 7px; }
+      .viewer-marketing-text-wrap-export::after { bottom: -3px; height: 6px; }
       .looking-mode-indicator { top: 18px; left: 20px; padding: 11px 18px 11px 11px; }
       .viewer-persistent-label-export { top: 18px; height: 22px; font-size: 10px; }
       .watermark { bottom: 18px; right: 20px; }

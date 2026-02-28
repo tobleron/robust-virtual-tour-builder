@@ -36,6 +36,11 @@ let initialState: state = {
   lastUsedCategory: "outdoor",
   sessionId: None,
   logo: None,
+  marketingComment: "",
+  marketingPhone1: "",
+  marketingPhone2: "",
+  marketingForRent: false,
+  marketingForSale: false,
   structuralRevision: 0,
   nextSceneSequenceId: 1,
   visitedScenes: [], // Scenes animate only once for better UX

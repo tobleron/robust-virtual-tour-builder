@@ -10,7 +10,7 @@ let make = React.memo((
   ~onNew: unit => unit,
   ~onSave: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
-  ~onAbout: unit => unit,
+  ~onSettings: unit => unit,
   ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onTeaser: (
     ~format: string,
@@ -164,12 +164,12 @@ let make = React.memo((
 
       <button
         className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
-        onClick={_ => onAbout()}
+        onClick={_ => onSettings()}
         disabled={!isPermitted}
-        ariaLabel="About"
+        ariaLabel="Settings"
       >
-        <LucideIcons.Info size=20 strokeWidth=1.0 />
-        <span> {React.string("About")} </span>
+        <LucideIcons.Settings size=20 strokeWidth=1.0 />
+        <span> {React.string("Settings")} </span>
       </button>
     </div>
 

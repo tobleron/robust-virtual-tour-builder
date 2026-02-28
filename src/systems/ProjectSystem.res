@@ -15,6 +15,11 @@ let projectFromState = (state: state): Types.project => {
     sessionId: state.sessionId,
     timeline: state.timeline,
     logo: state.logo,
+    marketingComment: state.marketingComment,
+    marketingPhone1: state.marketingPhone1,
+    marketingPhone2: state.marketingPhone2,
+    marketingForRent: state.marketingForRent,
+    marketingForSale: state.marketingForSale,
     nextSceneSequenceId: state.nextSceneSequenceId,
   }
 }

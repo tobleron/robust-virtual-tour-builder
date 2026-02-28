@@ -82,24 +82,17 @@ let make = React.memo(() => {
           }
           Promise.resolve()
         }}
-        onAbout={() => {
+        onSettings={() => {
           EventBus.dispatch(
             ShowModal({
-              title: "About Builder",
+              title: "Settings",
               description: None,
               icon: Some("info"),
-              content: Some(<SidebarAbout />),
+              content: Some(<SidebarSettings />),
               onClose: None,
               allowClose: Some(true),
-              className: Some("modal-blue"),
-              buttons: [
-                {
-                  label: "Close",
-                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                  onClick: () => (),
-                  autoClose: Some(true),
-                },
-              ],
+              className: Some("modal-blue modal-settings-panel"),
+              buttons: [],
             }),
           )
         }}

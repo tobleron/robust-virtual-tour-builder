@@ -461,4 +461,42 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(html, "if (currentSceneId && entry.sceneId === currentSceneId) return true;")
   })
+
+  test("generateTourHTML renders marketing banner with configured chips", t => {
+    let html = generateTourHTML(
+      [mockScene1],
+      "Marketing Banner",
+      None,
+      "4k",
+      32,
+      40,
+      "1.0",
+      ~marketingBody="For more info call: 01012345678 / 01087654321",
+      ~marketingShowRent=true,
+      ~marketingShowSale=true,
+    )
+
+    t->expectToContain(html, "viewer-marketing-banner-export")
+    t->expectToContain(html, "viewer-marketing-chip-rent-export")
+    t->expectToContain(html, "viewer-marketing-chip-sale-export")
+    t->expectToContain(html, "For more info call: 01012345678 / 01087654321")
+  })
+
+  test("generateTourHTML escapes marketing text before injecting into export HTML", t => {
+    let html = generateTourHTML(
+      [mockScene1],
+      "Marketing Escape",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+      ~marketingBody="<script>alert('xss')</script>",
+      ~marketingShowRent=false,
+      ~marketingShowSale=false,
+    )
+
+    t->expectToContain(html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
+    t->expect(String.includes(html, "<script>alert('xss')</script>"))->Expect.toBe(false)
+  })
 })

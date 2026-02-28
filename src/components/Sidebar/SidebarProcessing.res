@@ -20,7 +20,7 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
     }
 
     <div
-      className={`sidebar-processing-card mx-4 mb-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in ${themeClass}`}
+      className={`sidebar-processing-card mx-4 mt-3 mb-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in ${themeClass}`}
       role="status"
       ariaLive=#polite
     >

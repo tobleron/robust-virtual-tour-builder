@@ -25,6 +25,11 @@ let generateServerTeaser = (
     sessionId: state.sessionId,
     timeline: state.timeline,
     logo: state.logo,
+    marketingComment: "",
+    marketingPhone1: "",
+    marketingPhone2: "",
+    marketingForRent: false,
+    marketingForSale: false,
     nextSceneSequenceId: state.nextSceneSequenceId,
   }
 

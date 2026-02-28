@@ -56,6 +56,7 @@ type rec action =
   | DispatchNavigationFsmEvent(NavigationFSM.event)
   | DispatchAppFsmEvent(AppFSM.event)
   | SetLogo(option<file>)
+  | SetMarketingSettings(string, string, string, bool, bool)
   | Batch(array<action>)
   | PatchSceneThumbnail(string, file) // sceneId, newTinyFile
   | CleanupTimeline // Remove duplicate/orphaned timeline items
@@ -147,6 +148,7 @@ let uiActionToString = (action: action): option<string> =>
   | SetExifReport(_) => Some("SetExifReport")
   | SetSessionId(id) => Some(`SetSessionId(${id})`)
   | SetLogo(_) => Some("SetLogo")
+  | SetMarketingSettings(_, _, _, _, _) => Some("SetMarketingSettings")
   | DispatchAppFsmEvent(_) => Some("DispatchAppFsmEvent")
   | CleanupTimeline => Some("CleanupTimeline")
   | _ => None

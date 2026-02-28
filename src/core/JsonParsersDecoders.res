@@ -224,6 +224,11 @@ let project = object(f => {
     sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
     timeline: f->opt("timeline", array(timelineItem), []),
     logo: f.optional("logo", option(file))->Option.flatMap(x => x)->normalizeLogo,
+    marketingComment: f->opt("marketingComment", string, ""),
+    marketingPhone1: f->opt("marketingPhone1", string, ""),
+    marketingPhone2: f->opt("marketingPhone2", string, ""),
+    marketingForRent: f->opt("marketingForRent", bool, false),
+    marketingForSale: f->opt("marketingForSale", bool, false),
     nextSceneSequenceId: f.optional("nextSceneSequenceId", int)->Option.getOr(1),
   }
 })

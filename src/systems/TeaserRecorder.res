@@ -209,9 +209,21 @@ let renderFrame = (
   }
 }
 
+let resolveSourceCanvas = (): option<Dom.element> => {
+  switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
+  | Some(canvas) => Some(canvas)
+  | None =>
+    switch Dom.querySelector(Dom.documentBody, ".panorama-layer canvas")->Nullable.toOption {
+    | Some(canvas) => Some(canvas)
+    | None =>
+      Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption
+    }
+  }
+}
+
 let startAnimationLoop = (includeLogo, logoState) => {
   let rec draw = () => {
-    switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
+    switch resolveSourceCanvas() {
     | Some(sc) => renderFrame(sc, includeLogo, logoState)
     | None => ()
     }
@@ -354,5 +366,6 @@ module Recorder = {
   let startAnimationLoop = startAnimationLoop
   let requestDeterministicFrame = requestDeterministicFrame
   let renderFrame = renderFrame
+  let resolveSourceCanvas = resolveSourceCanvas
   let internalState = internalState
 }

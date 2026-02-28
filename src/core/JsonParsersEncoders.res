@@ -121,6 +121,11 @@ let project = (p: Types.project) => {
     ("deletedSceneIds", Encode.array(Encode.string)(SceneInventory.getDeletedIds(p.inventory))),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
     ("logo", Encode.option(logoFile)(p.logo)),
+    ("marketingComment", Encode.string(p.marketingComment)),
+    ("marketingPhone1", Encode.string(p.marketingPhone1)),
+    ("marketingPhone2", Encode.string(p.marketingPhone2)),
+    ("marketingForRent", Encode.bool(p.marketingForRent)),
+    ("marketingForSale", Encode.bool(p.marketingForSale)),
     ("nextSceneSequenceId", Encode.int(p.nextSceneSequenceId)),
   ])
 }

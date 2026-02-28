@@ -135,3 +135,129 @@
     white-space: normal;
     line-height: 1.25;
 }
+
+.modal-box-premium.modal-settings-panel {
+    width: min(820px, 92vw);
+    height: min(620px, 90vh);
+    max-width: 92vw;
+    max-height: 90vh;
+    aspect-ratio: auto;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 18px;
+    text-align: left;
+}
+
+.modal-box-premium.modal-settings-panel .modal-content-body {
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.modal-box-premium.modal-settings-panel .modal-actions {
+    display: none;
+}
+
+.settings-modal-layout {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 14px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.settings-modal-tabs {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-modal-content {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+}
+
+.settings-field-label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+}
+
+.settings-field-input {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(5, 15, 40, 0.45);
+    color: #fff;
+    padding: 8px 10px;
+    font-size: 13px;
+    outline: none;
+}
+
+.settings-field-textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+.settings-preview-wrap {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.settings-preview-banner {
+    background: var(--accent);
+    color: #000;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    text-align: center;
+}
+
+.settings-preview-text {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    word-break: break-word;
+}
+
+.settings-actions {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.settings-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}

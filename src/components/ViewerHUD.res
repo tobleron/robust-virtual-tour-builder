@@ -7,6 +7,7 @@ let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let simSlice = AppContext.useSimSlice()
+  let state = AppContext.useAppState()
   let canUpload = Capability.useCapability(CanUpload)
 
   let dispatch = AppContext.useAppDispatch()
@@ -80,6 +81,13 @@ let make = React.memo(() => {
 
   let simActive = simSlice.simulation.status == Running
   let scenesLoaded = Belt.Array.length(sceneSlice.scenes) > 0
+  let marketingText = MarketingText.compose(
+    ~comment=state.marketingComment,
+    ~phone1=state.marketingPhone1,
+    ~phone2=state.marketingPhone2,
+    ~forRent=state.marketingForRent,
+    ~forSale=state.marketingForSale,
+  )
 
   <>
     /* Interaction Shield for Teaser/Automation */
@@ -126,6 +134,49 @@ let make = React.memo(() => {
 
         /* Return Prompt Banner */
         <ReturnPrompt incomingLink={simSlice.incomingLink} scenes={sceneSlice.scenes} />
+
+        {if marketingText.full != "" {
+          <div
+            id="viewer-marketing-banner"
+            className="absolute left-1/2 -translate-x-1/2 z-[5003] pointer-events-none flex items-center justify-center text-center"
+          >
+            {if marketingText.showRent {
+              <span
+                className="viewer-marketing-chip viewer-marketing-chip-rent viewer-marketing-chip-left viewer-marketing-chip-left-only"
+              >
+                {React.string("RENT")}
+              </span>
+            } else {
+              React.null
+            }}
+
+            {if marketingText.showSale {
+              <span
+                className={`viewer-marketing-chip viewer-marketing-chip-sale ${!marketingText.showRent
+                    ? "viewer-marketing-chip-left"
+                    : ""}`}
+              >
+                {React.string("SALE")}
+              </span>
+            } else {
+              React.null
+            }}
+
+            {if marketingText.body != "" {
+              <span
+                className={`viewer-marketing-text-wrap ${!marketingText.showRent && !marketingText.showSale
+                    ? "viewer-marketing-text-wrap-left"
+                    : ""}`}
+              >
+                <span className="viewer-marketing-banner-text"> {React.string(marketingText.body)} </span>
+              </span>
+            } else {
+              React.null
+            }}
+          </div>
+        } else {
+          React.null
+        }}
 
         /* Permanent Branding with Perfect Masking & Editable Support */
         <div

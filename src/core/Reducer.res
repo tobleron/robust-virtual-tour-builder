@@ -61,6 +61,7 @@ let isStructuralMutation = (action: Actions.action): bool => {
   | Actions.Reset
   | Actions.SetExifReport(_)
   | Actions.SetLogo(_)
+  | Actions.SetMarketingSettings(_, _, _, _, _)
   | Actions.PatchSceneThumbnail(_, _) => true
   | _ => false
   }
@@ -160,6 +161,7 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SetExifReport(_)
   | Actions.SetSessionId(_)
   | Actions.SetLogo(_)
+  | Actions.SetMarketingSettings(_, _, _, _, _)
   | Actions.Reset => applyProjectOnly(state, action)
 
   | _ => applyFullPipeline(state, action)

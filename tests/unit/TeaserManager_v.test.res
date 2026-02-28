@@ -80,6 +80,7 @@ open Types
   const stateMock = {
     getState: globalThis.vi.fn(),
     dispatch: globalThis.vi.fn(),
+    updateState: globalThis.vi.fn(),
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
   };
   globalThis.vi.mock('../../src/core/AppStateBridge.bs.js', () => stateMock);

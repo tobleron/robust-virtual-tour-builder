@@ -214,6 +214,11 @@ type project = {
   sessionId: option<string>,
   timeline: array<timelineItem>,
   logo: option<file>,
+  marketingComment: string,
+  marketingPhone1: string,
+  marketingPhone2: string,
+  marketingForRent: bool,
+  marketingForSale: bool,
   nextSceneSequenceId: int,
 }
 
@@ -318,6 +323,11 @@ type state = {
   lastUsedCategory: string,
   sessionId: option<string>,
   logo: option<file>,
+  marketingComment: string,
+  marketingPhone1: string,
+  marketingPhone2: string,
+  marketingForRent: bool,
+  marketingForSale: bool,
   structuralRevision: int,
   nextSceneSequenceId: int,
   visitedScenes: array<string>, // Track scenes that have been animated (for one-time animation)

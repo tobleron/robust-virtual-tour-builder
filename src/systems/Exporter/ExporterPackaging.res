@@ -2,6 +2,11 @@ open ReBindings
 open Types
 
 type optimizedAsset = {blob: Blob.t, filename: string}
+type marketingBannerPayload = {
+  showRent: bool,
+  showSale: bool,
+  body: string,
+}
 
 let toWebpFilename = (name: string, ~fallback: string): string => {
   let base = name->UrlUtils.stripExtension
@@ -193,6 +198,34 @@ let appendTemplates = (
   ~version: string,
   ~projectData: option<JSON.t>=?,
 ): unit => {
+  let marketingBanner: option<marketingBannerPayload> = switch projectData {
+  | Some(data) =>
+    switch JsonCombinators.Json.decode(data, JsonParsers.Domain.project) {
+    | Ok(projectData) =>
+      let composed = MarketingText.compose(
+        ~comment=projectData.marketingComment,
+        ~phone1=projectData.marketingPhone1,
+        ~phone2=projectData.marketingPhone2,
+        ~forRent=projectData.marketingForRent,
+        ~forSale=projectData.marketingForSale,
+      )
+      if composed.full != "" {
+        Some({
+          showRent: composed.showRent,
+          showSale: composed.showSale,
+          body: composed.body,
+        })
+      } else {
+        None
+      }
+    | Error(_) => None
+    }
+  | None => None
+  }
+  let marketingShowRent = marketingBanner->Option.map(m => m.showRent)->Option.getOr(false)
+  let marketingShowSale = marketingBanner->Option.map(m => m.showSale)->Option.getOr(false)
+  let marketingBody = marketingBanner->Option.map(m => m.body)->Option.getOr("")
+
   let html4k = TourTemplates.generateTourHTML(
     exportScenes,
     tourName,
@@ -201,6 +234,9 @@ let appendTemplates = (
     28,
     54,
     version,
+    ~marketingBody,
+    ~marketingShowRent,
+    ~marketingShowSale,
   )
   let html2k = TourTemplates.generateTourHTML(
     exportScenes,
@@ -210,6 +246,9 @@ let appendTemplates = (
     28,
     50,
     version,
+    ~marketingBody,
+    ~marketingShowRent,
+    ~marketingShowSale,
   )
   let htmlHd = TourTemplates.generateTourHTML(
     exportScenes,
@@ -219,6 +258,9 @@ let appendTemplates = (
     28,
     40,
     version,
+    ~marketingBody,
+    ~marketingShowRent,
+    ~marketingShowSale,
   )
   let htmlDesktop2kBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -228,6 +270,9 @@ let appendTemplates = (
     28,
     50,
     version,
+    ~marketingBody,
+    ~marketingShowRent,
+    ~marketingShowSale,
   )
   let htmlIndex = TourTemplates.generateExportIndex(tourName, version, logoFilename)
   let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)

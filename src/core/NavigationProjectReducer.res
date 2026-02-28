@@ -100,6 +100,11 @@ module Project = {
           },
           timeline: pd.timeline,
           logo: pd.logo,
+          marketingComment: pd.marketingComment,
+          marketingPhone1: pd.marketingPhone1,
+          marketingPhone2: pd.marketingPhone2,
+          marketingForRent: pd.marketingForRent,
+          marketingForSale: pd.marketingForSale,
           activeIndex: if Belt.Array.length(pd.sceneOrder) > 0 {
             0
           } else {
@@ -176,6 +181,15 @@ module Project = {
 
     | SetSessionId(id) => Some({...state, sessionId: Some(id)})
     | SetLogo(logo) => Some({...state, logo})
+    | SetMarketingSettings(comment, phone1, phone2, forRent, forSale) =>
+      Some({
+        ...state,
+        marketingComment: comment,
+        marketingPhone1: phone1,
+        marketingPhone2: phone2,
+        marketingForRent: forRent,
+        marketingForSale: forSale,
+      })
     | _ => None
     }
   }

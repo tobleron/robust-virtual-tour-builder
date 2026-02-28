@@ -7,6 +7,14 @@ module Scripts = TourScripts
 
 /* --- Main Logic --- */
 
+let escapeHtml = (raw: string): string =>
+  raw
+  ->String.replaceRegExp(/&/g, "&amp;")
+  ->String.replaceRegExp(/</g, "&lt;")
+  ->String.replaceRegExp(/>/g, "&gt;")
+  ->String.replaceRegExp(/"/g, "&quot;")
+  ->String.replaceRegExp(/'/g, "&#39;")
+
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
@@ -15,6 +23,9 @@ let generateTourHTML = (
   baseSize,
   logoSize,
   _version,
+  ~marketingBody: string="",
+  ~marketingShowRent: bool=false,
+  ~marketingShowSale: bool=false,
 ) => {
   let normalizedExportType = switch exportType {
   | "desktop_blob_2k" => "2k"
@@ -146,6 +157,36 @@ let generateTourHTML = (
   | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`
   | None => ""
   }
+  let marketingBody = marketingBody->String.trim
+  let hasMarketingBanner = marketingShowRent || marketingShowSale || marketingBody != ""
+  let marketingBannerHtml = if hasMarketingBanner {
+    let rentChipHtml = if marketingShowRent {
+      `<span class="viewer-marketing-chip-export viewer-marketing-chip-rent-export viewer-marketing-chip-left-export viewer-marketing-chip-left-only-export">RENT</span>`
+    } else {
+      ""
+    }
+    let saleChipHtml = if marketingShowSale {
+      `<span class="viewer-marketing-chip-export viewer-marketing-chip-sale-export ${if !marketingShowRent {
+          "viewer-marketing-chip-left-export"
+        } else {
+          ""
+        }}">SALE</span>`
+    } else {
+      ""
+    }
+    let textWrapHtml = if marketingBody != "" {
+      `<span class="viewer-marketing-text-wrap-export ${if !marketingShowRent && !marketingShowSale {
+          "viewer-marketing-text-wrap-export-left"
+        } else {
+          ""
+        }}"><span class="viewer-marketing-banner-text-export">${escapeHtml(marketingBody)}</span></span>`
+    } else {
+      ""
+    }
+    `<div id="viewer-marketing-banner-export">${rentChipHtml}${saleChipHtml}${textWrapHtml}</div>`
+  } else {
+    ""
+  }
 
   let (defPitch, defYaw) =
     scenes[0]
@@ -159,7 +200,7 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(TourData.encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${marketingBannerHtml}${logoDiv}</div><script>
 
     const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;

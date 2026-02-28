@@ -8,23 +8,25 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (8)
-- [ ] **../../src/utils/Retry.res**
-  - *Reason:* [Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)
-- [ ] **../../src/systems/Exporter/ExporterUpload.res**
-  - *Reason:* [Nesting: 4.20, Density: 0.17, Coupling: 0.05] | Drag: 5.39 | LOC: 493/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)
-- [ ] **../../src/components/VisualPipeline.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.11, Coupling: 0.08] | Drag: 4.11 | LOC: 380/300  🎯 Target: Function: `make` (High Local Complexity (17.0). Logic heavy.)
+## 🛠️ SURGICAL REFACTOR TASKS (9)
 - [ ] **../../src/systems/OperationLifecycle.res**
   - *Reason:* [Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 401/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)
+- [ ] **../../src/systems/Exporter/ExporterPackaging.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 405/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)
+- [ ] **../../src/utils/PersistenceLayer.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 499/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)
+- [ ] **../../src/components/VisualPipeline.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.11, Coupling: 0.08] | Drag: 4.11 | LOC: 380/300  🎯 Target: Function: `make` (High Local Complexity (17.0). Logic heavy.)
 - [ ] **../../src/utils/LoggerTelemetry.res**
   - *Reason:* [Nesting: 3.00, Density: 0.21, Coupling: 0.06] | Drag: 4.35 | LOC: 447/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)
-- [ ] **../../src/utils/PersistenceLayer.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 494/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)
 - [ ] **../../src/utils/WorkerPool.res**
   - *Reason:* [Nesting: 1.80, Density: 0.10, Coupling: 0.03] | Drag: 3.13 | LOC: 389/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)
+- [ ] **../../src/utils/Retry.res**
+  - *Reason:* [Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)
 - [ ] **../../src/utils/AsyncQueue.res**
   - *Reason:* [Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)
+- [ ] **../../src/systems/Exporter/ExporterUpload.res**
+  - *Reason:* [Nesting: 4.20, Density: 0.17, Coupling: 0.05] | Drag: 5.39 | LOC: 493/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)
 
 ---
 
