@@ -23,6 +23,7 @@ Add marketing bottom banner overlay to teaser rendering with sizing/spacing prop
 - [x] Verify build + focused teaser tests.
 - [x] Create pre-change checkpoint commit before corner-parity refinement: `132921ed`.
 - [x] Implement corner-parity refinement (per-corner path + body melt shape).
+- [x] Investigate post-refinement ghost shadow artifact below yellow body segment.
 - [ ] Manual validation pending user teaser run.
 
 ## Code Change Ledger
@@ -59,3 +60,10 @@ All touched files are recorded above for surgical rollback if visual output is n
 
 ## Checkpoint
 - Pre-corner-parity checkpoint commit: `132921ed` (`v4.15.2 [FAST]: pre teaser banner corner parity checkpoint`).
+
+## Investigation Note (Ghost Shadow)
+- Root cause identified in `renderMarketingBanner` body melt geometry:
+  - Banner baseline is anchored at frame bottom (`startY = canvasHeight - segmentHeight`).
+  - Melt capsule is drawn with `y = startY + segmentHeight - meltOverlap` and `height = meltHeight`.
+  - At 1920x1080 teaser scale, melt bottom extends below canvas boundary and is clipped by the frame edge.
+  - Clipped anti-aliased stroke (`rgba(0,0,0,0.12)`) appears as a dark/ghost shadow under the yellow segment.

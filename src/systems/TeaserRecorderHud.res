@@ -385,7 +385,7 @@ let renderMarketingBanner = (
     let adjustedTotalWidth =
       segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
     let startX = (Belt.Int.toFloat(canvasWidth) -. adjustedTotalWidth) /. 2.0
-    let startY = Belt.Int.toFloat(canvasHeight) -. segmentHeight
+    let startY = Belt.Int.toFloat(canvasHeight) -. segmentHeight -. lineWidth *. 0.5
 
     let cursorX = ref(startX)
     let count = segmentItems->Belt.Array.length
@@ -465,30 +465,6 @@ let renderMarketingBanner = (
         Canvas.setLineWidth(ctx, lineWidth)
         Canvas.setStrokeStyle(ctx, "rgba(0,0,0,0.12)")
         Canvas.stroke(ctx)
-
-        if segment.kind == Body {
-          let meltInset = w *. 0.15
-          let meltWidth = w -. meltInset *. 2.0
-          let meltHeight = 5.0 *. scale.sy
-          let meltOverlap = 2.0 *. scale.sy
-          let meltRadius = meltHeight /. 2.0
-          drawRoundedRectCorners(
-            ctx,
-            x +. meltInset,
-            startY +. segmentHeight -. meltOverlap,
-            meltWidth,
-            meltHeight,
-            ~topLeft=meltRadius,
-            ~topRight=meltRadius,
-            ~bottomRight=meltRadius,
-            ~bottomLeft=meltRadius,
-          )
-          Canvas.setFillStyle(ctx, bgColor)
-          Canvas.fill(ctx)
-          Canvas.setLineWidth(ctx, lineWidth)
-          Canvas.setStrokeStyle(ctx, "rgba(0,0,0,0.12)")
-          Canvas.stroke(ctx)
-        }
 
         let pad = switch segment.kind {
         | Body => bodyPadX
