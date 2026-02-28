@@ -109,7 +109,6 @@ let ensureSweepInterval = (): unit => {
 
 let reset = () => {
   operations := Belt.Map.String.empty
-  listeners := []
   cancelCallbacks := Belt.Map.String.empty
   completedTotal := 0
   leakedTotal := 0
@@ -121,6 +120,9 @@ let reset = () => {
   }
   ensureSweepInterval()
   updateLoggerContext()
+  // Preserve active subscribers across project resets (LoadProject/Reset in AppContext)
+  // so sidebar progress + ESC cancel bindings remain connected after imports.
+  notifyListeners()
 }
 
 let subscribe = (cb: array<task> => unit): (unit => unit) => {
