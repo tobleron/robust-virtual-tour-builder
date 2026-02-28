@@ -256,7 +256,8 @@ When hovering over a hotspot in the 360° viewer, a 4-button menu appears:
 ### Current State
 - **Automatic ordering**: Pipeline items are auto-generated when links are created (`AddToTimeline` action in `LinkModal.res`).
 - **Manual reorder**: **Deprecated** — no longer supported.
-- **Per-link squares**: Each timeline item represents one link.
+- **Home + linked-target model**: The first square is always the home scene (scene index `0`), and subsequent squares represent the scenes that links point to.
+- **Click to switch scene**: Clicking a pipeline square routes navigation to the represented scene (same navigation path as scene-list click).
 - When a link is deleted, the corresponding timeline item is automatically removed (`handleRemoveHotspot` filters `state.timeline`).
 
 ---

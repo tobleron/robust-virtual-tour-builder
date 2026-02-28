@@ -222,20 +222,18 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
       return window.store?.state?.activeIndex || 0;
     });
 
-    const timelineSquare = page.locator('.visual-pipeline-square, .pipeline-square').nth(1); // Second square (linked scene)
-    if (await timelineSquare.isVisible()) {
-      await timelineSquare.click();
-      await waitForNavigationStabilization(page);
-      
-      const newActiveIndex = await page.evaluate(() => {
-        // @ts-ignore
-        return window.store?.state?.activeIndex || 0;
-      });
-      
-      if (newActiveIndex !== initialActiveIndex) {
-      } else {
-      }
-    }
+    const timelineNodes = page.locator('.pipeline-node');
+    await expect(timelineNodes.first()).toBeVisible({ timeout: 10000 });
+
+    await timelineNodes.nth(1).click();
+    await waitForNavigationStabilization(page);
+
+    const newActiveIndex = await page.evaluate(() => {
+      // @ts-ignore
+      return window.store?.state?.activeIndex || 0;
+    });
+
+    expect(newActiveIndex).not.toBe(initialActiveIndex);
   });
 
   test('should delete timeline square when hotspot is deleted', async ({ page }) => {

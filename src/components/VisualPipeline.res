@@ -1,8 +1,16 @@
 /* src/components/VisualPipeline.res - Visual Pipeline V3: Scalable Floor-Grouped Squares */
 
 open ReBindings
+open VisualPipelineNavigation
 
 type hoverPreview = {thumbUrl: string, sceneName: string}
+type displayNode = {
+  id: string,
+  timelineId: option<string>,
+  representedSceneId: string,
+  sourceSceneId: string,
+  linkId: string,
+}
 let injectStyles = () => {
   VisualPipelineStyles.inject()
 }
@@ -16,37 +24,88 @@ let make = () => {
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
   let isSystemLocked = Capability.useIsSystemLocked()
+  let resolveSceneId = (refValue: option<string>) =>
+    refValue
+    ->Belt.Option.flatMap(value =>
+      pipelineSlice.scenes
+      ->Belt.Array.getBy(s => s.id == value)
+      ->Option.map(s => s.id),
+    )
+    ->Option.orElse(
+      refValue
+      ->Belt.Option.flatMap(value =>
+        pipelineSlice.scenes
+        ->Belt.Array.getBy(s => s.name == value)
+        ->Option.map(s => s.id),
+      ),
+    )
+
+  let displayNodes = React.useMemo2(() => {
+    let homeNode = switch Belt.Array.get(pipelineSlice.scenes, 0) {
+    | Some(scene) =>
+      [{
+        id: "home_" ++ scene.id,
+        timelineId: None,
+        representedSceneId: scene.id,
+        sourceSceneId: scene.id,
+        linkId: "__home__",
+      }]
+    | None => []
+    }
+
+    let linkedNodes =
+      pipelineSlice.timeline
+      ->Belt.Array.map(item => {
+        let timelineRef = if item.targetScene != "" { Some(item.targetScene) } else { None }
+        let sourceScene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
+        let sourceHotspot = sourceScene->Option.flatMap(s => s.hotspots->Belt.Array.getBy(h =>
+          h.linkId == item.linkId
+        ))
+        let representedSceneId =
+          sourceHotspot
+          ->Option.flatMap(h => h.targetSceneId)
+          ->Option.orElse(resolveSceneId(timelineRef))
+          ->Option.getOr(item.sceneId)
+
+        {
+          id: item.id,
+          timelineId: Some(item.id),
+          representedSceneId,
+          sourceSceneId: item.sceneId,
+          linkId: item.linkId,
+        }
+      })
+
+    Belt.Array.concat(homeNode, linkedNodes)
+  }, (pipelineSlice.timeline, pipelineSlice.scenes))
 
   let handleNodeActivate = (itemId: string) => {
     if isSystemLocked {
       ()
     } else {
-      Logger.debug(
-        ~module_="VisualPipeline",
-        ~message="ACTIVATE_NODE",
-        ~data=Some({"id": itemId}),
-        (),
-      )
-      dispatch(Actions.SetActiveTimelineStep(Some(itemId)))
-
-      let item = pipelineSlice.timeline->Belt.Array.getBy(t => t.id == itemId)
-      switch item {
-      | Some(t) =>
-        let sceneIdx =
-          pipelineSlice.scenes->Belt.Array.getIndexBy(s => s.id == t.sceneId)->Option.getOr(-1)
-        if sceneIdx != -1 {
-          let scene = Belt.Array.get(pipelineSlice.scenes, sceneIdx)
-          switch scene {
-          | Some(s) =>
-            let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == t.linkId)
-            switch hotspot {
-            | Some(h) => dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-            | None => dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
-            }
-          | None => ()
-          }
-        }
-      | None => ()
+      let nodeOpt = displayNodes->Belt.Array.getBy(node => node.id == itemId)
+      switch nodeOpt {
+      | Some(node) =>
+        dispatch(Actions.SetActiveTimelineStep(node.timelineId))
+        Logger.debug(
+          ~module_="VisualPipeline",
+          ~message="ACTIVATE_NODE",
+          ~data=Some({
+            "id": itemId,
+            "timelineId": node.timelineId->Option.getOr(""),
+            "targetSceneId": node.representedSceneId,
+            "sourceSceneId": node.sourceSceneId,
+          }),
+          (),
+        )
+        goToScene(node.representedSceneId)
+      | None =>
+        Logger.warn(
+          ~module_="VisualPipeline",
+          ~message="ACTIVATE_NODE_UNKNOWN_STEP",
+          ~data=Some({"id": itemId}),
+          (),
+        )
       }
     }
   }
@@ -55,8 +114,17 @@ let make = () => {
     if isSystemLocked {
       ()
     } else {
-      Logger.info(~module_="VisualPipeline", ~message="REMOVE_STEP", ~data=Some({"id": itemId}), ())
-      dispatch(RemoveFromTimeline(itemId))
+      switch displayNodes->Belt.Array.getBy(node => node.id == itemId) {
+      | Some({timelineId: Some(timelineId)}) =>
+        Logger.info(
+          ~module_="VisualPipeline",
+          ~message="REMOVE_STEP",
+          ~data=Some({"id": itemId, "timelineId": timelineId}),
+          (),
+        )
+        dispatch(RemoveFromTimeline(timelineId))
+      | _ => ()
+      }
     }
   }
 
@@ -65,8 +133,8 @@ let make = () => {
   // 1. Group items by floor
   let groupedItems = React.useMemo2(() => {
     let groups = Belt.MutableMap.String.make()
-    pipelineSlice.timeline->Belt.Array.forEach(item => {
-      let floorId = switch pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId) {
+    displayNodes->Belt.Array.forEach(item => {
+      let floorId = switch pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.representedSceneId) {
       | Some(s) => s.floor == "" ? "ground" : s.floor
       | None => "ground"
       }
@@ -74,7 +142,7 @@ let make = () => {
       groups->Belt.MutableMap.String.set(floorId, Belt.Array.concat(existing, [item]))
     })
     groups
-  }, (pipelineSlice.timeline, pipelineSlice.scenes))
+  }, (displayNodes, pipelineSlice.scenes))
 
   // 3. Filter and sort floors that have items (Strict Basement-to-Roof order)
   let activeFloors = React.useMemo2(() => {
@@ -93,29 +161,16 @@ let make = () => {
   // Determine the active step to highlight.
   // If the explicit active timeline step does not belong to the current scene,
   // fall back to the current scene step so highlight updates immediately on scene switch.
-  let effectiveActiveStepId = React.useMemo3(() => {
+  let effectiveActiveNodeId = React.useMemo2(() => {
     let currentSceneId =
       Belt.Array.get(pipelineSlice.scenes, pipelineSlice.activeIndex)->Option.map(scene => scene.id)
 
-    let currentSceneStepId = currentSceneId->Option.flatMap(sceneId =>
-      pipelineSlice.timeline
-      ->Belt.Array.getBy(step => step.sceneId == sceneId)
-      ->Option.map(step => step.id)
+    currentSceneId->Option.flatMap(sceneId =>
+      displayNodes
+      ->Belt.Array.getBy(node => node.representedSceneId == sceneId)
+      ->Option.map(node => node.id)
     )
-
-    switch pipelineSlice.activeTimelineStepId {
-    | Some(stepId) =>
-      switch currentSceneId {
-      | Some(sceneId) =>
-        switch pipelineSlice.timeline->Belt.Array.getBy(step => step.id == stepId) {
-        | Some(step) if step.sceneId == sceneId => Some(stepId)
-        | _ => currentSceneStepId
-        }
-      | None => Some(stepId)
-      }
-    | None => currentSceneStepId
-    }
-  }, (pipelineSlice.activeTimelineStepId, pipelineSlice.activeIndex, pipelineSlice.timeline))
+  }, (pipelineSlice.activeIndex, displayNodes))
 
   // --- Deterministic Measurement Logic ---
   let (linePaths, setLinePaths) = React.useState(_ => Dict.make())
@@ -273,20 +328,21 @@ let make = () => {
       }
     })
     None
-  }, (activeFloors, pipelineSlice.timeline, uiSlice.isLinking))
+  }, (activeFloors, displayNodes, uiSlice.isLinking))
 
   if uiSlice.isLinking || uiSlice.isTeasing || activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
-    <div
-      id="visual-pipeline-container"
-      className={"pointer-events-none" ++ if isSystemLocked {
-        " pipeline-locked"
-      } else {
-        ""
-      }}
-      ref={containerRef->ReactDOM.Ref.domRef}
-    >
+      <div
+        id="visual-pipeline-container"
+        className={"visual-pipeline-container" ++ if isSystemLocked {
+          " pipeline-locked"
+        } else {
+          ""
+        }}
+        style={ReBindings.makeStyle({"pointerEvents": "none"})}
+        ref={containerRef->ReactDOM.Ref.domRef}
+      >
       /* PCB-style Lines: Deterministic DOM-based Mapping */
       <svg
         className="pipeline-svg-overlay"
@@ -308,34 +364,39 @@ let make = () => {
         ->React.array}
       </svg>
 
-      <div className="visual-pipeline-wrapper">
+      <div className="visual-pipeline-wrapper" style={ReBindings.makeStyle({"pointerEvents": "none"})}>
         /* Floor Tracks */
         {activeFloors
         ->Belt.Array.map(fid => {
           let items = groupedItems->Belt.MutableMap.String.get(fid)->Option.getOr([])
           <div key={"track-" ++ fid} className="pipeline-track">
             {items
-            ->Belt.Array.mapWithIndex((idx, item) => {
+            ->Belt.Array.mapWithIndex((idx, node) => {
               let isActive =
-                effectiveActiveStepId
-                ->Option.map(activeId => activeId == item.id)
+                effectiveActiveNodeId
+                ->Option.map(activeId => activeId == node.id)
                 ->Option.getOr(false)
 
-              let scene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
-              let targetScene =
-                pipelineSlice.scenes
-                ->Belt.Array.getBy(s => s.id == item.targetScene)
-                ->Option.orElse(
-                  pipelineSlice.scenes->Belt.Array.getBy(s => s.name == item.targetScene),
-                )
+              let sourceScene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == node.sourceSceneId)
+              let representedScene =
+                pipelineSlice.scenes->Belt.Array.getBy(s => s.id == node.representedSceneId)
+              let isAutoForward = switch sourceScene {
+              | Some(s) =>
+                s.hotspots
+                ->Belt.Array.getBy(h => h.linkId == node.linkId)
+                ->Option.flatMap(h => h.isAutoForward)
+                ->Option.getOr(false)
+              | None => false
+              }
+              let item: VisualPipelineNode.nodeItem = {nodeId: node.id, linkId: node.linkId}
 
-              <div id={idx == 0 ? "track-anchor-" ++ fid : ""} key={item.id}>
+              <div id={idx == 0 ? "track-anchor-" ++ fid : ""} key={node.id}>
                 <VisualPipelineNode
                   item
                   isActive
                   interactionDisabled=isSystemLocked
-                  scene
-                  targetScene
+                  scene=representedScene
+                  isAutoForward
                   onActivate=handleNodeActivate
                   onRemove=handleNodeRemove
                   onHoverStart=showHoverPreview

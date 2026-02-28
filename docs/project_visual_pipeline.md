@@ -54,8 +54,9 @@ graph TD
 ## 3. Interaction Model
 
 ### Click to Navigate
-- Clicking a node activates the timeline step via `SetActiveTimelineStep(Some(itemId))`.
-- Resolves the `sceneId` and calls `SetActiveScene(sceneIdx, yaw, pitch, None)` to navigate.
+- First node is always home scene (index `0`); the remaining nodes represent link destinations.
+- Clicking a node activates timeline context (if applicable) and routes through `NavigationSupervisor.requestNavigation` (same path as sidebar scene click).
+- Destination resolution uses hotspot `targetSceneId`, then timeline `targetScene`, and finally source scene fallback.
 
 ### Drag and Drop (Scene Reordering)
 - **Mechanism**: HTML5 Drag and Drop API.

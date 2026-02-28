@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Harden console verbosity and remove about debug toggle
+- Fix test.zip pipeline-hitbox hotspot interception
 
 ## [4.14.1] - 2026-02-28
 
