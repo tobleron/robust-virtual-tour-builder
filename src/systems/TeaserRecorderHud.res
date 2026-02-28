@@ -231,6 +231,70 @@ type bannerSegment = {
   mutable width: float,
 }
 
+let drawRoundedRectCorners = (
+  ctx,
+  x: float,
+  y: float,
+  width: float,
+  height: float,
+  ~topLeft: float=0.0,
+  ~topRight: float=0.0,
+  ~bottomRight: float=0.0,
+  ~bottomLeft: float=0.0,
+) => {
+  let halfW = width /. 2.0
+  let halfH = height /. 2.0
+  let maxRadius = if halfW < halfH {
+    halfW
+  } else {
+    halfH
+  }
+  let clampCorner = (corner: float): float => {
+    let nonNegative = if corner < 0.0 {
+      0.0
+    } else {
+      corner
+    }
+    if nonNegative > maxRadius {
+      maxRadius
+    } else {
+      nonNegative
+    }
+  }
+  let tl = clampCorner(topLeft)
+  let tr = clampCorner(topRight)
+  let br = clampCorner(bottomRight)
+  let bl = clampCorner(bottomLeft)
+
+  Canvas.beginPath(ctx)
+  Canvas.moveTo(ctx, x +. tl, y)
+  Canvas.lineTo(ctx, x +. width -. tr, y)
+  if tr > 0.0 {
+    Canvas.arcTo(ctx, x +. width, y, x +. width, y +. tr, tr)
+  } else {
+    Canvas.lineTo(ctx, x +. width, y)
+  }
+  Canvas.lineTo(ctx, x +. width, y +. height -. br)
+  if br > 0.0 {
+    Canvas.arcTo(ctx, x +. width, y +. height, x +. width -. br, y +. height, br)
+  } else {
+    Canvas.lineTo(ctx, x +. width, y +. height)
+  }
+  Canvas.lineTo(ctx, x +. bl, y +. height)
+  if bl > 0.0 {
+    Canvas.arcTo(ctx, x, y +. height, x, y +. height -. bl, bl)
+  } else {
+    Canvas.lineTo(ctx, x, y +. height)
+  }
+  Canvas.lineTo(ctx, x, y +. tl)
+  if tl > 0.0 {
+    Canvas.arcTo(ctx, x, y, x +. tl, y, tl)
+  } else {
+    Canvas.lineTo(ctx, x, y)
+  }
+  Canvas.closePath(ctx)
+}
+
 let renderMarketingBanner = (
   ~ctx: Canvas.context2d,
   ~data: marketingBannerData,
@@ -374,18 +438,57 @@ let renderMarketingBanner = (
         | Body => "#000000"
         | _ => "#ffffff"
         }
-
-        Canvas.beginPath(ctx)
-        if isFirst || isLast {
-          drawRoundedRect(ctx, x, startY, w, segmentHeight, radius)
+        let topLeftRadius = if isFirst {
+          radius
         } else {
-          Canvas.rect(ctx, x, startY, w, segmentHeight)
+          0.0
         }
+        let topRightRadius = if isLast {
+          radius
+        } else {
+          0.0
+        }
+
+        drawRoundedRectCorners(
+          ctx,
+          x,
+          startY,
+          w,
+          segmentHeight,
+          ~topLeft=topLeftRadius,
+          ~topRight=topRightRadius,
+          ~bottomRight=0.0,
+          ~bottomLeft=0.0,
+        )
         Canvas.setFillStyle(ctx, bgColor)
         Canvas.fill(ctx)
         Canvas.setLineWidth(ctx, lineWidth)
         Canvas.setStrokeStyle(ctx, "rgba(0,0,0,0.12)")
         Canvas.stroke(ctx)
+
+        if segment.kind == Body {
+          let meltInset = w *. 0.15
+          let meltWidth = w -. meltInset *. 2.0
+          let meltHeight = 5.0 *. scale.sy
+          let meltOverlap = 2.0 *. scale.sy
+          let meltRadius = meltHeight /. 2.0
+          drawRoundedRectCorners(
+            ctx,
+            x +. meltInset,
+            startY +. segmentHeight -. meltOverlap,
+            meltWidth,
+            meltHeight,
+            ~topLeft=meltRadius,
+            ~topRight=meltRadius,
+            ~bottomRight=meltRadius,
+            ~bottomLeft=meltRadius,
+          )
+          Canvas.setFillStyle(ctx, bgColor)
+          Canvas.fill(ctx)
+          Canvas.setLineWidth(ctx, lineWidth)
+          Canvas.setStrokeStyle(ctx, "rgba(0,0,0,0.12)")
+          Canvas.stroke(ctx)
+        }
 
         let pad = switch segment.kind {
         | Body => bodyPadX
@@ -396,9 +499,11 @@ let renderMarketingBanner = (
         Canvas.setFillStyle(ctx, textColor)
         if segment.kind == Body {
           let bodyTextMaxWidth = w -. (pad *. 2.0)
+          Canvas.setTextAlign(ctx, "left")
           Canvas.fillText(ctx, fitTextToWidth(segment.text, bodyTextMaxWidth), textX, textY)
         } else {
-          Canvas.fillText(ctx, segment.text, textX, textY)
+          Canvas.setTextAlign(ctx, "center")
+          Canvas.fillText(ctx, segment.text, x +. w /. 2.0, textY)
         }
         cursorX := cursorX.contents +. w
       | None => ()

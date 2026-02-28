@@ -14,12 +14,15 @@ Add marketing bottom banner overlay to teaser rendering with sizing/spacing prop
 - [x] Wire marketing payload into teaser overlay model so `TeaserOfflineCfrRenderer` passes static banner state to each frame draw.
 - [x] Keep portrait-specific export layout out of teaser path (teaser target is HD-ratio path only).
 - [x] Validate by build + focused teaser unit tests to ensure no rendering-path regressions.
+- [x] Refine segment corner rendering so only true outer top corners are rounded; middle chip segments remain flat as in export.
 
 ## Activity Log
 - [x] Create troubleshooting task with baseline snapshot and rollback ledger.
 - [x] Implement HD-proportional teaser marketing banner renderer.
 - [x] Wire teaser overlay payload and frame draw invocation.
 - [x] Verify build + focused teaser tests.
+- [x] Create pre-change checkpoint commit before corner-parity refinement: `132921ed`.
+- [x] Implement corner-parity refinement (per-corner path + body melt shape).
 - [ ] Manual validation pending user teaser run.
 
 ## Code Change Ledger
@@ -28,6 +31,9 @@ Add marketing bottom banner overlay to teaser rendering with sizing/spacing prop
   - Implemented HD-reference-proportional sizing (font, paddings, segment height, max width) via existing HUD scaling model.
   - Implemented segment composition for `RENT`, `SALE`, and marketing body text.
   - Added text-fit fallback (ellipsis) to keep body text within computed banner width.
+  - Added `drawRoundedRectCorners` helper for per-corner geometry control.
+  - Updated segment drawing to round only outer top corners and keep middle segments flat.
+  - Added body-segment lower melt capsule to mirror export text-wrap silhouette.
   - Revert note: remove `marketingBannerData`, `bannerSegment*` types, and `renderMarketingBanner`.
 - [x] `src/systems/TeaserRecorder.res`:
   - Extended HUD overlay payload with `marketing` field.
@@ -50,3 +56,6 @@ Add marketing bottom banner overlay to teaser rendering with sizing/spacing prop
 We are adding teaser marketing overlay rendering only, with HD-proportional geometry as the baseline contract. 
 Implementation must preserve current teaser stability and avoid reintroducing previous timeout/abort regressions. 
 All touched files are recorded above for surgical rollback if visual output is not accepted.
+
+## Checkpoint
+- Pre-corner-parity checkpoint commit: `132921ed` (`v4.15.2 [FAST]: pre teaser banner corner parity checkpoint`).
