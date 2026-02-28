@@ -169,7 +169,7 @@ let useLinkingAndSimUI = (
     | Some(viewer) =>
       applyDynamicStageHfov()
       if !isLinking {
-        Logger.info(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
+        Logger.debug(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
       }
       HotspotLine.updateLines(viewer, currentState, ())
     | None => ()

@@ -205,6 +205,22 @@ let scheduleCleanup = (ov, ~taskId: option<string>=?) => {
 }
 
 let maxSwapRetries = 3
+let noInactiveViewerWarnCooldownMs = 5000.0
+let lastNoInactiveViewerWarnAt = ref(0.0)
+
+let logNoInactiveViewerFallback = () => {
+  let now = Date.now()
+  if now -. lastNoInactiveViewerWarnAt.contents >= noInactiveViewerWarnCooldownMs {
+    lastNoInactiveViewerWarnAt := now
+    Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
+  } else {
+    Logger.debug(
+      ~module_="SceneTransition",
+      ~message="NO_INACTIVE_VIEWER_FOR_SWAP_SUPPRESSED",
+      (),
+    )
+  }
+}
 
 let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
   ViewerSnapshot.requestIdleSnapshot(~getState)
@@ -260,7 +276,7 @@ let performSwap = (
         completeSwapTransition(~getState, ~loadedScene, ~dispatch)
       | None =>
         if retryCount < maxSwapRetries {
-          Logger.warn(
+          Logger.debug(
             ~module_="SceneTransition",
             ~message="RETRY_SWAP_BECAUSE_NO_INACTIVE_VIEWER",
             ~data=Some({"attempt": retryCount + 1}),
@@ -269,7 +285,7 @@ let performSwap = (
           let delay = 50 * (retryCount + 1)
           let _ = Window.setTimeout(() => attemptSwap(~retryCount=retryCount + 1), delay)
         } else {
-          Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
+          logNoInactiveViewerFallback()
           ViewerSystem.getActiveViewer()
           ->Nullable.toOption
           ->Option.forEach(assignGlobalViewer)

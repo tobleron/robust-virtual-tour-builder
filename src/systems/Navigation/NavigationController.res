@@ -135,7 +135,7 @@ module ControllerHooks = {
       | IdleFsm =>
         switch navigationState.navigation {
         | Navigating(j) =>
-          Logger.info(
+          Logger.debug(
             ~module_="NavigationController",
             ~message="JOURNEY_COMPLETED_DISPATCH",
             ~data=Some({"journeyId": j.journeyId}),

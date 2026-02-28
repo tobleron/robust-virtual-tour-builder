@@ -212,7 +212,7 @@ let loadNewScene = (
         }
 
         if isAborted {
-          Logger.info(~module_="SceneLoader", ~message="LOAD_ABORTED_BEFORE_VIEWER_CREATION", ())
+          Logger.debug(~module_="SceneLoader", ~message="LOAD_ABORTED_BEFORE_VIEWER_CREATION", ())
           clearTimeout(safetyTimeoutId)
           currentLoadTimeout := None
           switch taskId {
@@ -223,7 +223,7 @@ let loadNewScene = (
           try {
             let initialConfig = SceneLoaderLogic.makeInitialConfig(targetScene, ~state, ~dispatch)
 
-            Logger.info(
+            Logger.debug(
               ~module_="SceneLoader",
               ~message="INITIALIZING_VIEWER_INSTANCE",
               ~data=Some({
@@ -267,7 +267,7 @@ let loadNewScene = (
 
             ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
 
-            Logger.info(
+            Logger.debug(
               ~module_="SceneLoader",
               ~message="VIEWER_INITIALIZED_SUCCESS",
               ~data=Some({

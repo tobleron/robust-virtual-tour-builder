@@ -70,7 +70,7 @@ let debouncedSnapshot = Debounce.make(~fn=() => {
   ) {
   | Ok(p) => p
   | Error(_) =>
-    Logger.warn(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
+    Logger.debug(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
     NotificationManager.dispatch({
       id: "",
       importance: Info,

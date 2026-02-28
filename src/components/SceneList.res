@@ -118,7 +118,7 @@ let make = React.memo(() => {
           (),
         )
       } else {
-        Logger.info(
+        Logger.debug(
           ~module_="SceneList",
           ~message="SCENE_SWITCH_CLICKED",
           ~data=Some({"index": index}),

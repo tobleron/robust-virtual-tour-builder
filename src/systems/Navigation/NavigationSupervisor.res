@@ -165,7 +165,7 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
     // Cancel operation in Lifecycle
     task.opId->Option.forEach(id => OperationLifecycle.cancel(id))
 
-    Logger.info(
+    Logger.debug(
       ~module_="NavigationSupervisor",
       ~message="PREVIOUS_TASK_CANCELLED",
       ~data=Some({
@@ -217,7 +217,7 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
     }
   notifyListeners()
 
-  Logger.info(
+  Logger.debug(
     ~module_="NavigationSupervisor",
     ~message="NAVIGATION_REQUESTED",
     ~data=Some({
@@ -259,7 +259,7 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       | _ => ()
       }
 
-      Logger.info(
+      Logger.debug(
         ~module_="NavigationSupervisor",
         ~message="STATUS_TRANSITION",
         ~data=Some({
@@ -298,7 +298,7 @@ let complete = (taskId: taskId): unit => {
     status := Idle
     notifyListeners()
 
-    Logger.info(
+    Logger.debug(
       ~module_="NavigationSupervisor",
       ~message="TASK_COMPLETED",
       ~data=Some({
@@ -335,7 +335,7 @@ let abort = (taskId: taskId): unit => {
     status := Idle
     notifyListeners()
 
-    Logger.info(
+    Logger.debug(
       ~module_="NavigationSupervisor",
       ~message="TASK_ABORTED",
       ~data=Some({

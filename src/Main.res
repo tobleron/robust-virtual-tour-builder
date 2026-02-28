@@ -263,7 +263,7 @@ let init = async () => {
 
       // 8. Global click handler
       Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
-        Logger.info(~module_="Main", ~message="VIEWER_CLICK_RECEIVED", ())
+        Logger.debug(~module_="Main", ~message="VIEWER_CLICK_RECEIVED", ())
         if !AppStateBridge.isReady() {
           Logger.warn(~module_="Main", ~message="VIEWER_CLICK_BEFORE_CONTEXT_READY", ())
           ()

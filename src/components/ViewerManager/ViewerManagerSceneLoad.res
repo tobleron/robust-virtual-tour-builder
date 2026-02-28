@@ -52,7 +52,7 @@ let handleMainSceneLoad = (
   }
 
   if hasSceneChanged {
-    Logger.info(
+    Logger.debug(
       ~module_="ViewerManagerSceneLoad",
       ~message="SCENE_CHANGE_DETECTED",
       ~data=Some({"targetId": scene.id, "prevId": currentLastId}),
@@ -82,7 +82,7 @@ let handleMainSceneLoad = (
               ...ViewerState.state.contents,
               lastSceneId: Nullable.make(activeViewerSceneId),
             }
-            Logger.info(
+            Logger.debug(
               ~module_="ViewerManagerSceneLoad",
               ~message="REALIGN_TO_ACTIVE_VIEWER_SCENE",
               ~data=Some({"viewerSceneId": activeViewerSceneId, "viewerSceneIndex": idx}),

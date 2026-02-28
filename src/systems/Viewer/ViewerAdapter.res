@@ -66,7 +66,7 @@ let initialize = (id, config) => {
                   `)
             dispatchEvent(p, y, cp, cy, hf)
 
-            Logger.info(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
+            Logger.debug(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
           }
         | None => ()
         }
