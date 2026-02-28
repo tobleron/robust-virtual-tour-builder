@@ -102,6 +102,7 @@ let sceneOverlayFor = (
   scenes: array<scene>,
   sceneId: string,
   visibleFloorIds: array<string>,
+  ~marketing: option<TeaserRecorder.teaserMarketingOverlay>,
 ): TeaserRecorder.teaserHudOverlay =>
   scenes
   ->Belt.Array.getBy(scene => scene.id == sceneId)
@@ -117,6 +118,7 @@ let sceneOverlayFor = (
       scene.floor
     },
     visibleFloorIds,
+    marketing,
   })
   ->Option.getOr(
     (
@@ -124,9 +126,31 @@ let sceneOverlayFor = (
         roomLabel: None,
         activeFloor: "ground",
         visibleFloorIds,
+        marketing,
       }: TeaserRecorder.teaserHudOverlay
     ),
   )
+
+let marketingOverlayFromState = (
+  state: state,
+): option<TeaserRecorder.teaserMarketingOverlay> => {
+  let composed = MarketingText.compose(
+    ~comment=state.marketingComment,
+    ~phone1=state.marketingPhone1,
+    ~phone2=state.marketingPhone2,
+    ~forRent=state.marketingForRent,
+    ~forSale=state.marketingForSale,
+  )
+  if composed.full != "" {
+    Some({
+      showRent: composed.showRent,
+      showSale: composed.showSale,
+      body: composed.body,
+    })
+  } else {
+    None
+  }
+}
 
 let renderWebMDeterministic = async (
   manifest: motionManifest,
@@ -151,6 +175,7 @@ let renderWebMDeterministic = async (
     let state = getState()
     let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
     let visibleFloorIds = floorLevelsInUse(scenes)
+    let marketingOverlay = marketingOverlayFromState(state)
     let currentSceneId = ref("")
     let benchmarkFrames = Constants.Teaser.Processing.preflightSampleFrames
     let rollingThroughput = ref(0.0)
@@ -240,7 +265,12 @@ let renderWebMDeterministic = async (
 
       switch Recorder.resolveSourceCanvas() {
       | Some(sc) =>
-        let overlay = sceneOverlayFor(scenes, frameState.sceneId, visibleFloorIds)
+        let overlay = sceneOverlayFor(
+          scenes,
+          frameState.sceneId,
+          visibleFloorIds,
+          ~marketing=marketingOverlay,
+        )
         Recorder.renderFrame(sc, includeLogo, logoState, ~overlay)
         Recorder.requestDeterministicFrame()
       | None => ()

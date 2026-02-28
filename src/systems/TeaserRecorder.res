@@ -32,10 +32,12 @@ external asDynamic: 'a => {..} = "%identity"
 external castToBlob: 'a => blob = "%identity"
 
 type logoResult = {img: option<Dom.element>, loaded: bool}
+type teaserMarketingOverlay = TeaserRecorderHud.marketingBannerData
 type teaserHudOverlay = {
   roomLabel: option<string>,
   activeFloor: string,
   visibleFloorIds: array<string>,
+  marketing: option<teaserMarketingOverlay>,
 }
 type hudScale = TeaserRecorderHud.hudScale
 
@@ -158,6 +160,10 @@ let renderFloorNav = (
   TeaserRecorderHud.renderFloorNav(~ctx, ~activeFloor, ~visibleFloorIds, ~scale, ~canvasHeight)
 }
 
+let renderMarketingBanner = (ctx, data: teaserMarketingOverlay, scale: hudScale) => {
+  TeaserRecorderHud.renderMarketingBanner(~ctx, ~data, ~scale, ~canvasWidth, ~canvasHeight)
+}
+
 let renderFrame = (
   sourceCanvas,
   includeLogo,
@@ -197,6 +203,7 @@ let renderFrame = (
           }
         })
         renderFloorNav(ctx, data.activeFloor, data.visibleFloorIds, hudScale)
+        data.marketing->Option.forEach(marketing => renderMarketingBanner(ctx, marketing, hudScale))
       })
       if includeLogo && logoState.loaded {
         switch logoState.img {
