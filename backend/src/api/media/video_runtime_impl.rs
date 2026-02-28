@@ -1,7 +1,6 @@
 #[path = "video_runtime_generate.rs"]
 mod video_runtime_generate;
 
-use super::video_capture;
 use crate::api::media::video_logic::TeaserOutputFormat;
 use crate::api::media::video_logic_support::{HeadlessMotionProfile, MotionManifestV1};
 use headless_chrome::{Tab, protocol::cdp::Page};
@@ -93,9 +92,6 @@ const TEASER_CAPTURE_MODE_SCRIPT: &str = r#"
   }
 })();
 "#;
-
-type CaptureStats = video_capture::CaptureStats;
-type CaptureFailure = video_capture::CaptureFailure;
 
 pub fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {
     let result = tab

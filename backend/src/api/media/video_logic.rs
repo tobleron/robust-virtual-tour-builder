@@ -1,6 +1,5 @@
 use super::video_logic_runtime;
 use super::video_logic_support::{HeadlessMotionProfile, MotionManifestV1};
-use headless_chrome::{Tab, protocol::cdp::Page};
 use serde_json::Value;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -57,18 +56,6 @@ impl Drop for KillOnDrop {
     }
 }
 
-fn headless_backend_origin() -> String {
-    video_logic_runtime::headless_backend_origin_impl()
-}
-
-fn apply_capture_mode(tab: &Tab, session_id: &str) -> Result<(), String> {
-    video_logic_runtime::apply_capture_mode_impl(tab, session_id)
-}
-
-fn resolve_capture_viewport(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {
-    video_logic_runtime::resolve_capture_viewport_impl(tab, session_id)
-}
-
 pub async fn transcode_video(input_str: String, output_str: String) -> Result<PathBuf, String> {
     let ffmpeg_cmd = get_ffmpeg_command()?;
     let mut cmd = tokio::process::Command::new(&ffmpeg_cmd);
@@ -113,49 +100,6 @@ pub async fn transcode_video(input_str: String, output_str: String) -> Result<Pa
 
     let _ = tokio::fs::remove_file(&input_str).await;
     Ok(PathBuf::from(output_str))
-}
-
-type CaptureStats = super::video_capture::CaptureStats;
-type CaptureFailure = super::video_capture::CaptureFailure;
-
-fn start_script_content(format: TeaserOutputFormat) -> &'static str {
-    video_logic_runtime::start_script_content_impl(format)
-}
-
-fn capture_frames_cdp(
-    tab: &Tab,
-    session_id: &str,
-    start_sim: std::time::Instant,
-    max_dur: Duration,
-    stdin: &mut std::process::ChildStdin,
-    capture_viewport: &Page::Viewport,
-) -> Result<CaptureStats, CaptureFailure> {
-    video_logic_runtime::capture_frames_cdp_impl(
-        tab,
-        session_id,
-        start_sim,
-        max_dur,
-        stdin,
-        capture_viewport,
-    )
-}
-
-fn capture_frames_polling(
-    tab: &Tab,
-    session_id: &str,
-    start_sim: std::time::Instant,
-    max_dur: Duration,
-    stdin: &mut std::process::ChildStdin,
-    capture_viewport: &Page::Viewport,
-) -> Result<CaptureStats, String> {
-    video_logic_runtime::capture_frames_polling_impl(
-        tab,
-        session_id,
-        start_sim,
-        max_dur,
-        stdin,
-        capture_viewport,
-    )
 }
 
 pub fn generate_teaser_sync(

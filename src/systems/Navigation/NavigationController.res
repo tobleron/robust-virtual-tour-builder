@@ -57,6 +57,7 @@ module ControllerHooks = {
             if isAnticipatory {
               dispatch(Actions.DispatchNavigationFsmEvent(Reset))
             } else {
+              NavigationSupervisor.abort(t.token.id)
               dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
             }
           | _ => ()

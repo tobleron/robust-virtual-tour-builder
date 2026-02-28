@@ -260,6 +260,7 @@ let performSwap = (
       ViewerSystem.getActiveViewer()
       ->Nullable.toOption
       ->Option.forEach(assignGlobalViewer)
+      finalizeSwap(~getState, ~dispatch, ~taskId?)
       completeSwapTransition(~getState, ~loadedScene, ~dispatch)
     } else {
       switch Nullable.toOption(nv) {

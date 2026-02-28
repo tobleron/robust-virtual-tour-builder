@@ -12,7 +12,7 @@
 ### 🔧 Action: Merge Fragmented Folders
 **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `geocoding.res`). CRITICAL: Delete the now-empty `backend/src/services/geocoding/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
 
-- [ ] Folder: `backend/src/services/geocoding` (Metric: Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14)
+- [ ] Folder: `backend/src/services/geocoding` (Metric: Recursive Feature Pod: 2 files in subtree sum to 180 LOC (fits in context). Max Drag: 4.14)
     - `backend/src/services/geocoding/../../backend/src/services/geocoding/mod.rs`
     - `backend/src/services/geocoding/../../backend/src/services/geocoding/osm.rs`
 
@@ -24,11 +24,11 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 - `backend/src/services/geocoding/mod.rs` (6 functions, fingerprint 7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a)
     - Grouped summary:
         - reverse_geocode × 1 (lines: 11)
-        - test_clear_cache_internal × 1 (lines: 89)
-        - test_coordinate_rounding_internal × 1 (lines: 81)
+        - test_clear_cache_internal × 1 (lines: 91)
+        - test_coordinate_rounding_internal × 1 (lines: 83)
         - test_geocoder_suite_sequential × 1 (lines: 34)
-        - test_lru_eviction_internal × 1 (lines: 59)
-        - test_reverse_geocode_with_cache_internal × 1 (lines: 42)
+        - test_lru_eviction_internal × 1 (lines: 61)
+        - test_reverse_geocode_with_cache_internal × 1 (lines: 44)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 - `backend/src/services/geocoding/osm.rs` (2 functions, fingerprint d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0)
     - Grouped summary:

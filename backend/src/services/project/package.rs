@@ -63,14 +63,6 @@ fn rewrite_web_only_index_html(index_html: &str) -> String {
     package_utils::rewrite_web_only_index_html(index_html)
 }
 
-fn infer_mime_from_filename(file_name: &str) -> &'static str {
-    package_utils::infer_mime_from_filename(file_name)
-}
-
-fn data_uri_for_bytes(mime: &str, bytes: &[u8]) -> String {
-    package_utils::data_uri_for_bytes(mime, bytes)
-}
-
 fn build_desktop_blob_html(
     desktop_html: &str,
     assets_2k: &[(String, Vec<u8>)],
