@@ -6,7 +6,12 @@ type marketingBannerPayload = {
   showRent: bool,
   showSale: bool,
   body: string,
+  phone1: string,
+  phone2: string,
 }
+
+let normalizeMarketingValue = (value: string): string =>
+  value->String.trim->String.replaceRegExp(%re("/\\s+/g"), " ")->String.trim
 
 let toWebpFilename = (name: string, ~fallback: string): string => {
   let base = name->UrlUtils.stripExtension
@@ -209,11 +214,15 @@ let appendTemplates = (
         ~forRent=projectData.marketingForRent,
         ~forSale=projectData.marketingForSale,
       )
+      let phone1 = normalizeMarketingValue(projectData.marketingPhone1)
+      let phone2 = normalizeMarketingValue(projectData.marketingPhone2)
       if composed.full != "" {
         Some({
           showRent: composed.showRent,
           showSale: composed.showSale,
           body: composed.body,
+          phone1,
+          phone2,
         })
       } else {
         None
@@ -225,6 +234,8 @@ let appendTemplates = (
   let marketingShowRent = marketingBanner->Option.map(m => m.showRent)->Option.getOr(false)
   let marketingShowSale = marketingBanner->Option.map(m => m.showSale)->Option.getOr(false)
   let marketingBody = marketingBanner->Option.map(m => m.body)->Option.getOr("")
+  let marketingPhone1 = marketingBanner->Option.map(m => m.phone1)->Option.getOr("")
+  let marketingPhone2 = marketingBanner->Option.map(m => m.phone2)->Option.getOr("")
 
   let html4k = TourTemplates.generateTourHTML(
     exportScenes,
@@ -237,6 +248,8 @@ let appendTemplates = (
     ~marketingBody,
     ~marketingShowRent,
     ~marketingShowSale,
+    ~marketingPhone1,
+    ~marketingPhone2,
   )
   let html2k = TourTemplates.generateTourHTML(
     exportScenes,
@@ -249,6 +262,8 @@ let appendTemplates = (
     ~marketingBody,
     ~marketingShowRent,
     ~marketingShowSale,
+    ~marketingPhone1,
+    ~marketingPhone2,
   )
   let htmlHd = TourTemplates.generateTourHTML(
     exportScenes,
@@ -261,6 +276,8 @@ let appendTemplates = (
     ~marketingBody,
     ~marketingShowRent,
     ~marketingShowSale,
+    ~marketingPhone1,
+    ~marketingPhone2,
   )
   let htmlDesktop2kBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -273,6 +290,8 @@ let appendTemplates = (
     ~marketingBody,
     ~marketingShowRent,
     ~marketingShowSale,
+    ~marketingPhone1,
+    ~marketingPhone2,
   )
   let htmlIndex = TourTemplates.generateExportIndex(tourName, version, logoFilename)
   let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)

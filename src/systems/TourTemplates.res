@@ -26,6 +26,8 @@ let generateTourHTML = (
   ~marketingBody: string="",
   ~marketingShowRent: bool=false,
   ~marketingShowSale: bool=false,
+  ~marketingPhone1: string="",
+  ~marketingPhone2: string="",
 ) => {
   let normalizedExportType = switch exportType {
   | "desktop_blob_2k" => "2k"
@@ -158,6 +160,8 @@ let generateTourHTML = (
   | None => ""
   }
   let marketingBody = marketingBody->String.trim
+  let marketingPhone1 = marketingPhone1->String.trim
+  let marketingPhone2 = marketingPhone2->String.trim
   let hasMarketingBanner = marketingShowRent || marketingShowSale || marketingBody != ""
   let marketingBannerHtml = if hasMarketingBanner {
     let rentChipHtml = if marketingShowRent {
@@ -187,6 +191,32 @@ let generateTourHTML = (
   } else {
     ""
   }
+  let hasPortraitMarketing = marketingShowRent || marketingShowSale || marketingPhone1 != "" || marketingPhone2 != ""
+  let portraitMarketingHtml = if hasPortraitMarketing {
+    let portraitBadgeRentHtml = if marketingShowRent {
+      `<span class="viewer-marketing-portrait-badge-export viewer-marketing-portrait-badge-rent-export">RENT</span>`
+    } else {
+      ""
+    }
+    let portraitBadgeSaleHtml = if marketingShowSale {
+      `<span class="viewer-marketing-portrait-badge-export viewer-marketing-portrait-badge-sale-export">SALE</span>`
+    } else {
+      ""
+    }
+    let portraitPhone1Html = if marketingPhone1 != "" {
+      `<span class="viewer-marketing-portrait-phone-export">${escapeHtml(marketingPhone1)}</span>`
+    } else {
+      ""
+    }
+    let portraitPhone2Html = if marketingPhone2 != "" {
+      `<span class="viewer-marketing-portrait-phone-export">${escapeHtml(marketingPhone2)}</span>`
+    } else {
+      ""
+    }
+    `<div id="viewer-marketing-portrait-export"><div class="viewer-marketing-portrait-badges-export">${portraitBadgeRentHtml}${portraitBadgeSaleHtml}</div><div class="viewer-marketing-portrait-phones-export">${portraitPhone1Html}${portraitPhone2Html}</div></div>`
+  } else {
+    ""
+  }
 
   let (defPitch, defYaw) =
     scenes[0]
@@ -200,7 +230,7 @@ let generateTourHTML = (
     JsonCombinators.Json.Encode.dict(TourData.encodeSceneData)(rawScenesData),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${marketingBannerHtml}${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${marketingBannerHtml}${portraitMarketingHtml}${logoDiv}</div><script>
 
     const firstSceneId = "${firstSceneId}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;

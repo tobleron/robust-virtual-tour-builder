@@ -18,6 +18,13 @@ let cssTemplate = `
     .viewer-marketing-text-wrap-export-left { border-top-left-radius: 8px; }
     .viewer-marketing-text-wrap-export::after { content: ""; position: absolute; left: 15%; right: 15%; bottom: -4px; height: 8px; background: #facc15; border-bottom-left-radius: 999px; border-bottom-right-radius: 999px; border-left: 1px solid rgba(0, 0, 0, 0.12); border-right: 1px solid rgba(0, 0, 0, 0.12); border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
     .viewer-marketing-banner-text-export { font-family: "Open Sans", var(--font-family); font-size: 13px; line-height: 1.2; font-weight: 700; letter-spacing: 0.01em; color: #000; word-break: break-word; }
+    #viewer-marketing-portrait-export { display: none; pointer-events: none; }
+    .viewer-marketing-portrait-badges-export { display: flex; flex-direction: row; align-items: center; justify-content: flex-end; gap: 4px; }
+    .viewer-marketing-portrait-badge-export { display: inline-flex; align-items: center; justify-content: center; min-height: 16px; padding: 2px 7px; border-radius: 6px; color: #fff; font-family: "Open Sans", var(--font-family); font-size: 9px; line-height: 1; font-weight: 700; border: 1px solid rgba(0, 0, 0, 0.14); letter-spacing: 0.02em; }
+    .viewer-marketing-portrait-badge-rent-export { background: #0e2d52; }
+    .viewer-marketing-portrait-badge-sale-export { background: #ea580c; }
+    .viewer-marketing-portrait-phones-export { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .viewer-marketing-portrait-phone-export { display: inline-flex; align-items: center; justify-content: center; min-height: 18px; padding: 2px 8px; border-radius: 6px; background: #facc15; color: #000; font-family: "Open Sans", var(--font-family); font-size: 10px; line-height: 1.1; font-weight: 700; border: 1px solid rgba(0, 0, 0, 0.12); white-space: nowrap; }
     #viewer-floor-nav-export { position: absolute; bottom: 22px; left: 24px; z-index: 5002; display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; pointer-events: none; }
     #viewer-floor-nav-export .floor-nav-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; border-radius: 9999px; font-size: 14px; font-weight: 500; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-sizing: border-box; user-select: none; }
     #viewer-floor-nav-export .floor-nav-btn.state-active { border: 2px solid #ea580c; background: #ea580c; color: #fff; }
@@ -91,11 +98,8 @@ let cssTemplate = `
     body.export-state-portrait #viewer-floor-nav-export { bottom: 12px; left: 13px; gap: 8px; }
     body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 12px; }
     body.export-state-portrait #viewer-floor-nav-export .floor-nav-btn sup { font-size: 7px; margin-left: 0; }
-    body.export-state-portrait #viewer-marketing-banner-export { max-width: calc(100% - 118px); left: 52%; min-height: 24px; z-index: 5001; }
-    body.export-state-portrait .viewer-marketing-text-wrap-export { padding: 3px 9px; }
-    body.export-state-portrait .viewer-marketing-text-wrap-export::after { left: 15%; right: 15%; bottom: -3px; height: 6px; }
-    body.export-state-portrait .viewer-marketing-banner-text-export { font-size: 10px; font-weight: 600; }
-    body.export-state-portrait .viewer-marketing-chip-export { font-size: 10px; font-weight: 600; padding: 3px 8px; }
+    body.export-state-portrait #viewer-marketing-banner-export { display: none !important; }
+    body.export-state-portrait #viewer-marketing-portrait-export { position: absolute; right: 13px; bottom: calc(12px + (__LOGO_SIZE__px * 0.88) + 8px); z-index: 5003; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; max-width: calc(100% - 26px); }
     body.is-hd-export .viewer-persistent-label-export, body.export-state-tablet .viewer-persistent-label-export { top: 12px; height: 20px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; }
     body.export-state-portrait .viewer-persistent-label-export { top: 12px; height: 20px; font-size: 9px; padding: 0 0.35rem; border-radius: 5px; letter-spacing: 0.06em; left: auto; right: 13px; transform: none; }
     body.export-state-portrait .viewer-persistent-label-export.state-visible { opacity: 1; transform: translateY(0) scale(1); }
@@ -104,6 +108,7 @@ let cssTemplate = `
     body.is-hd-export #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-tablet #viewer-floor-tags-export .floor-tag-shortcut-row, body.export-state-portrait #viewer-floor-tags-export .floor-tag-shortcut-row { font-size: 11.5px; grid-template-columns: 8px 1.15em minmax(0, 1fr); column-gap: 5px; }
     body.is-hd-export .watermark, body.export-state-tablet .watermark { bottom: 12px; right: 13px; }
     body.export-state-portrait .watermark { bottom: 12px; right: 13px; }
+    body.export-state-portrait .watermark img { height: calc(__LOGO_SIZE__px * 0.88); }
 
     body.is-hd-export .export-hotspot-root, body.export-state-tablet .export-hotspot-root, body.export-state-portrait .export-hotspot-root { width: 26px; height: 26px; }
     body.is-hd-export .export-hotspot-icon, body.export-state-tablet .export-hotspot-icon, body.export-state-portrait .export-hotspot-icon { width: 15px; height: 15px; }
