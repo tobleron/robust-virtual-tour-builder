@@ -131,9 +131,7 @@ let sceneOverlayFor = (
     ),
   )
 
-let marketingOverlayFromState = (
-  state: state,
-): option<TeaserRecorder.teaserMarketingOverlay> => {
+let marketingOverlayFromState = (state: state): option<TeaserRecorder.teaserMarketingOverlay> => {
   let composed = MarketingText.compose(
     ~comment=state.marketingComment,
     ~phone1=state.marketingPhone1,
@@ -186,9 +184,14 @@ let renderWebMDeterministic = async (
     | Some(firstShot) =>
       let firstIdx = scenes->Belt.Array.getIndexBy(s => s.id == firstShot.sceneId)->Option.getOr(0)
       dispatch(
-        Actions.SetActiveScene(firstIdx, firstShot.arrivalPose.yaw, firstShot.arrivalPose.pitch, None),
+        Actions.SetActiveScene(
+          firstIdx,
+          firstShot.arrivalPose.yaw,
+          firstShot.arrivalPose.pitch,
+          None,
+        ),
       )
-      
+
       let isReady = switch ViewerSystem.getActiveViewer()->Nullable.toOption {
       | Some(v) if Viewer.isLoaded(v) =>
         let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
@@ -230,7 +233,7 @@ let renderWebMDeterministic = async (
         let idx =
           scenes->Belt.Array.getIndexBy(s => s.id == currentSceneId.contents)->Option.getOr(0)
         dispatch(Actions.SetActiveScene(idx, frameState.pose.yaw, frameState.pose.pitch, None))
-        
+
         let isReady = switch ViewerSystem.getActiveViewer()->Nullable.toOption {
         | Some(v) if Viewer.isLoaded(v) =>
           let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")

@@ -214,11 +214,7 @@ let logNoInactiveViewerFallback = () => {
     lastNoInactiveViewerWarnAt := now
     Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
   } else {
-    Logger.debug(
-      ~module_="SceneTransition",
-      ~message="NO_INACTIVE_VIEWER_FOR_SWAP_SUPPRESSED",
-      (),
-    )
+    Logger.debug(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP_SUPPRESSED", ())
   }
 }
 

@@ -62,7 +62,8 @@ let updateVisitFrequency = (activeIndex: int) => {
   Dict.set(visitFrequencyRef.contents, key, current + 1)
 }
 
-let connectednessScore = (scene: scene): float => Belt.Array.length(scene.hotspots)->Int.toFloat *. 0.05
+let connectednessScore = (scene: scene): float =>
+  Belt.Array.length(scene.hotspots)->Int.toFloat *. 0.05
 
 let directionScore = (~viewerYaw: float, ~hotspotYaw: float): float => {
   let dist = angularDistance(viewerYaw, hotspotYaw)
@@ -79,31 +80,32 @@ let rankCandidates = (scenes: array<scene>, activeIndex: int): array<int> => {
   | None => []
   | Some(activeScene) =>
     let viewerYaw = getViewerYaw()
-    let ranked =
-      activeScene.hotspots
-      ->Belt.Array.keepMap(h =>
-        h.targetSceneId
-        ->Option.flatMap(targetId => scenes->Belt.Array.getIndexBy(s => s.id == targetId))
-        ->Option.flatMap(targetIdx =>
-          scenes->Belt.Array.get(targetIdx)->Option.map(targetScene => {
+    let ranked = activeScene.hotspots->Belt.Array.keepMap(h =>
+      h.targetSceneId
+      ->Option.flatMap(targetId => scenes->Belt.Array.getIndexBy(s => s.id == targetId))
+      ->Option.flatMap(targetIdx =>
+        scenes
+        ->Belt.Array.get(targetIdx)
+        ->Option.map(
+          targetScene => {
             let score =
-            directionScore(~viewerYaw, ~hotspotYaw=h.yaw) +.
-            connectednessScore(targetScene) +.
-            historyScore(targetIdx)
+              directionScore(~viewerYaw, ~hotspotYaw=h.yaw) +.
+              connectednessScore(targetScene) +.
+              historyScore(targetIdx)
             (targetIdx, score)
-          })
+          },
         )
       )
-    let _ =
-      ranked->Array.sort(((idxA, scoreA), (idxB, scoreB)) =>
-        if scoreA > scoreB {
-          -1.
-        } else if scoreA < scoreB {
-          1.
-        } else {
-          Int.toFloat(compare(idxA, idxB))
-        }
-      )
+    )
+    let _ = ranked->Array.sort(((idxA, scoreA), (idxB, scoreB)) =>
+      if scoreA > scoreB {
+        -1.
+      } else if scoreA < scoreB {
+        1.
+      } else {
+        Int.toFloat(compare(idxA, idxB))
+      }
+    )
     ranked->Belt.Array.map(((idx, _score)) => idx)
   }
 }
@@ -120,13 +122,14 @@ let usePredictivePreload = (~state: state, ~dispatch: action => unit) => {
     if !shouldSkipPreload(state) {
       let candidates = rankCandidates(scenes, activeIndex)
       let topN = Belt.Array.slice(candidates, ~offset=0, ~len=topNDefault)
-      topN
-      ->Belt.Array.forEach(targetIdx => {
+      topN->Belt.Array.forEach(targetIdx => {
         switch Belt.Array.get(scenes, targetIdx) {
         | Some(targetScene) =>
-          let alreadyQueued = preloadedRecentlyRef.contents->Belt.Array.some(id => id == targetScene.id)
+          let alreadyQueued =
+            preloadedRecentlyRef.contents->Belt.Array.some(id => id == targetScene.id)
           if !alreadyQueued && targetIdx != activeIndex {
-            preloadedRecentlyRef := Belt.Array.concat(preloadedRecentlyRef.contents, [targetScene.id])
+            preloadedRecentlyRef :=
+              Belt.Array.concat(preloadedRecentlyRef.contents, [targetScene.id])
             let keepOffset = {
               let len = Belt.Array.length(preloadedRecentlyRef.contents)
               if len > 12 {
@@ -136,11 +139,8 @@ let usePredictivePreload = (~state: state, ~dispatch: action => unit) => {
               }
             }
             let keepLen = Belt.Array.length(preloadedRecentlyRef.contents) - keepOffset
-            preloadedRecentlyRef := Belt.Array.slice(
-              preloadedRecentlyRef.contents,
-              ~offset=keepOffset,
-              ~len=keepLen,
-            )
+            preloadedRecentlyRef :=
+              Belt.Array.slice(preloadedRecentlyRef.contents, ~offset=keepOffset, ~len=keepLen)
             dispatch(SetPreloadingScene(targetIdx))
           }
         | None => ()

@@ -277,7 +277,13 @@ mod tests {
             .expect("chunk 1 should succeed");
 
         let assembled = manager
-            .complete_session("user-a", &init.upload_id, "export_payload.bin", total_size, 2)
+            .complete_session(
+                "user-a",
+                &init.upload_id,
+                "export_payload.bin",
+                total_size,
+                2,
+            )
             .await
             .expect("complete should succeed");
         let bytes = tokio::fs::read(&assembled)

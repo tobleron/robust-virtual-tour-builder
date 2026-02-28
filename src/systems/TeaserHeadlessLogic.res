@@ -12,8 +12,7 @@ let parseTeaserProgressMetrics = (msg: string): teaserProgressMetrics => {
   TeaserLogicHelpers.parseTeaserProgressMetrics(msg)
 }
 
-let signalIsAborted = signal =>
-  TeaserLogicHelpers.signalIsAborted(signal)
+let signalIsAborted = signal => TeaserLogicHelpers.signalIsAborted(signal)
 
 let startHeadlessTeaserWithStyle = async (
   ~finalizeTeaser,

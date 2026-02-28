@@ -474,7 +474,7 @@ let renderMarketingBanner = (
         let textY = startY +. segmentHeight /. 2.0
         Canvas.setFillStyle(ctx, textColor)
         if segment.kind == Body {
-          let bodyTextMaxWidth = w -. (pad *. 2.0)
+          let bodyTextMaxWidth = w -. pad *. 2.0
           Canvas.setTextAlign(ctx, "left")
           Canvas.fillText(ctx, fitTextToWidth(segment.text, bodyTextMaxWidth), textX, textY)
         } else {

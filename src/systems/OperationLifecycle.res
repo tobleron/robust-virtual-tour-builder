@@ -39,7 +39,9 @@ let notifyListeners = () => {
 
 let updateLoggerContext = () => {
   let contextOp =
-    operations.contents->Belt.Map.String.valuesToArray->OperationLifecycleContext.selectContextOperation
+    operations.contents
+    ->Belt.Map.String.valuesToArray
+    ->OperationLifecycleContext.selectContextOperation
 
   switch contextOp {
   | Some(op) => Logger.setOperationId(Some(op.id))
@@ -48,9 +50,10 @@ let updateLoggerContext = () => {
 }
 
 let activeCount = (): int =>
-  operations.contents->Belt.Map.String.valuesToArray->Belt.Array.keep(task =>
-    OperationLifecycleContext.isActiveStatus(task.status)
-  )->Belt.Array.length
+  operations.contents
+  ->Belt.Map.String.valuesToArray
+  ->Belt.Array.keep(task => OperationLifecycleContext.isActiveStatus(task.status))
+  ->Belt.Array.length
 
 let cleanupTerminalOperation = (id: operationId): unit => {
   operations := operations.contents->Belt.Map.String.remove(id)

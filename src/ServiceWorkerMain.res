@@ -76,7 +76,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.14.2"
+let cacheName = "vtb-cache-v5.0.0"
 let manualAssets = [
   "/",
   "/index.html",
@@ -94,7 +94,7 @@ let manualAssets = [
   "/manifest.json",
   "/robots.txt",
   "/sounds/click.wav",
-  "/workers/image-worker.js"
+  "/workers/image-worker.js",
 ]
 
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
@@ -198,30 +198,38 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
     ->Promise.then(_ =>
       caches
       ->CacheStorage.open_(cacheName)
-      ->Promise.then(cache =>
-        cache
-        ->Cache.keys()
-        ->Promise.then(requests =>
-          requests
-          ->Array.map(req =>
-            cache
-            ->Cache.match(req)
-            ->Promise.then(found => {
-              switch found->Nullable.toOption {
-              | Some(response) =>
-                let path = URL.pathname(URL.make(req->Request.url))
-                if !hasHashedAssetName(path) && isResponseOlderThan(response, runtimeStaleMaxAgeMs) {
-                  cache->Cache.deleteReq(req)
-                } else {
-                  Promise.resolve(false)
-                }
-              | None => Promise.resolve(false)
-              }
-            })
-          )
-          ->Promise.all
-          ->Promise.then(_ => Promise.resolve())
-        )
+      ->Promise.then(
+        cache =>
+          cache
+          ->Cache.keys()
+          ->Promise.then(
+            requests =>
+              requests
+              ->Array.map(
+                req =>
+                  cache
+                  ->Cache.match(req)
+                  ->Promise.then(
+                    found => {
+                      switch found->Nullable.toOption {
+                      | Some(response) =>
+                        let path = URL.pathname(URL.make(req->Request.url))
+                        if (
+                          !hasHashedAssetName(path) &&
+                          isResponseOlderThan(response, runtimeStaleMaxAgeMs)
+                        ) {
+                          cache->Cache.deleteReq(req)
+                        } else {
+                          Promise.resolve(false)
+                        }
+                      | None => Promise.resolve(false)
+                      }
+                    },
+                  ),
+              )
+              ->Promise.all
+              ->Promise.then(_ => Promise.resolve()),
+          ),
       )
     )
     ->Promise.then(_ =>
@@ -262,15 +270,16 @@ addEventListener("fetch", (event: FetchEvent.t) => {
       event->FetchEvent.respondWith(performFetch())
     } else {
       let isImmutable = hasHashedAssetName(pathname)
-      let isStaleWhileRevalidate = isNavigation || pathname == "/index.html" || pathname == "/manifest.json"
+      let isStaleWhileRevalidate =
+        isNavigation || pathname == "/index.html" || pathname == "/manifest.json"
 
       let fetchAndCache =
         performFetch()
         ->Promise.then(response => {
           if (
             response->Response.status == 200 &&
-              response->Response.type_ == "basic" &&
-              shouldCacheResponse(response)
+            response->Response.type_ == "basic" &&
+            shouldCacheResponse(response)
           ) {
             let responseToCache = response->Response.clone
             let _ =

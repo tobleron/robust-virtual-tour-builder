@@ -3,7 +3,9 @@ open ReBindings
 open Types
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
-let sceneIdFromMeta: option<unknown> => string = %raw("(meta) => typeof meta === 'string' ? meta : ''")
+let sceneIdFromMeta: option<unknown> => string = %raw(
+  "(meta) => typeof meta === 'string' ? meta : ''"
+)
 
 @react.component
 let make = React.memo(() => {
@@ -128,7 +130,9 @@ let make = React.memo(() => {
 
               <div
                 key={h.linkId}
-                className={`absolute ${isMovingThis ? "pointer-events-none" : "pointer-events-auto"}`}
+                className={`absolute ${isMovingThis
+                    ? "pointer-events-none"
+                    : "pointer-events-auto"}`}
                 style={makeStyle({
                   "left": Math.round(c.x)->Float.toString ++ "px",
                   "top": Math.round(c.y)->Float.toString ++ "px",

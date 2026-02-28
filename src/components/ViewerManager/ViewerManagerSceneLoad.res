@@ -5,7 +5,9 @@ open ViewerState
 open Types
 open Actions
 
-let sceneIdFromMeta: option<unknown> => string = %raw("(meta) => typeof meta === 'string' ? meta : ''")
+let sceneIdFromMeta: option<unknown> => string = %raw(
+  "(meta) => typeof meta === 'string' ? meta : ''"
+)
 
 let handleMainSceneLoad = (
   ~activeScenes: array<scene>,
@@ -75,13 +77,14 @@ let handleMainSceneLoad = (
             ),
           )
         } else if activeViewerSceneId != scene.id {
-          let viewerSceneIndex = activeScenes->Belt.Array.getIndexBy(s => s.id == activeViewerSceneId)
+          let viewerSceneIndex =
+            activeScenes->Belt.Array.getIndexBy(s => s.id == activeViewerSceneId)
           switch viewerSceneIndex {
           | Some(idx) =>
             ViewerState.state := {
-              ...ViewerState.state.contents,
-              lastSceneId: Nullable.make(activeViewerSceneId),
-            }
+                ...ViewerState.state.contents,
+                lastSceneId: Nullable.make(activeViewerSceneId),
+              }
             Logger.debug(
               ~module_="ViewerManagerSceneLoad",
               ~message="REALIGN_TO_ACTIVE_VIEWER_SCENE",
@@ -99,9 +102,9 @@ let handleMainSceneLoad = (
           | None =>
             // Viewer scene metadata is not represented in state; recover by reloading current state scene.
             ViewerState.state := {
-              ...ViewerState.state.contents,
-              lastSceneId: Nullable.make(scene.id),
-            }
+                ...ViewerState.state.contents,
+                lastSceneId: Nullable.make(scene.id),
+              }
             dispatch(
               DispatchNavigationFsmEvent(
                 UserClickedScene({targetSceneId: scene.id, previewOnly: false}),
@@ -131,7 +134,9 @@ let handleMainSceneLoad = (
 
         // NOTE: This is a recovery/initialization path, not user-initiated navigation.
         dispatch(
-          DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id, previewOnly: false})),
+          DispatchNavigationFsmEvent(
+            UserClickedScene({targetSceneId: scene.id, previewOnly: false}),
+          ),
         )
       }
     } else {
@@ -151,7 +156,9 @@ let handleMainSceneLoad = (
           ~module_="ViewerManagerSceneLoad",
           ~message="BYPASS_SKIPPED_ACTIVE_SUPERVISOR",
           ~data=Some({
-            "supervisorStatus": NavigationSupervisor.statusToString(NavigationSupervisor.getStatus()),
+            "supervisorStatus": NavigationSupervisor.statusToString(
+              NavigationSupervisor.getStatus(),
+            ),
             "targetId": scene.id,
             "fsm": NavigationFSM.toString(fsm),
           }),

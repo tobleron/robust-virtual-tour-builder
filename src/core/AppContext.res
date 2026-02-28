@@ -186,11 +186,13 @@ module Provider = {
         switch rafIdRef.current {
         | Some(_) => ()
         | None =>
-          rafIdRef.current = Some(ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()))
+          rafIdRef.current = Some(
+            ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()),
+          )
         }
       } else {
         // Synchronous Bridge Update: Eliminate lag for non-batchable actions.
-        // This ensures that any subsequent getState() calls (e.g. in event handlers or 
+        // This ensures that any subsequent getState() calls (e.g. in event handlers or
         // optimistic actions) see the latest state immediately.
         let currentState = AppStateBridge.getState()
         let nextState = Reducer.reducer(currentState, nextAction)

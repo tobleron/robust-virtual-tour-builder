@@ -103,10 +103,9 @@ let checkBackendHealth = () => {
     })
     ->Promise.catch(_ => Promise.resolve(false))
 
-  let timeoutProbe =
-    Promise.make((resolve, _reject) => {
-      let _ = Window.setTimeout(() => resolve(false), timeoutMs + 200)
-    })
+  let timeoutProbe = Promise.make((resolve, _reject) => {
+    let _ = Window.setTimeout(() => resolve(false), timeoutMs + 200)
+  })
 
   Promise.race([networkProbe, timeoutProbe])->Promise.then(result => {
     Window.clearTimeout(timeoutId)

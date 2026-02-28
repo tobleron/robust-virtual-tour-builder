@@ -19,8 +19,8 @@
 ### Merge Folder: `backend/src/services/geocoding`
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 178 LOC (fits in context). Max Drag: 4.14
 - **Files:**
-  - `backend/src/services/geocoding/../../backend/src/services/geocoding/osm.rs`
   - `backend/src/services/geocoding/../../backend/src/services/geocoding/mod.rs`
+  - `backend/src/services/geocoding/../../backend/src/services/geocoding/osm.rs`
 ### Merge Folder: ``
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 54 LOC (fits in context). Max Drag: 2.20
 - **Files:**

@@ -5,8 +5,7 @@ module Recorder = TeaserRecorder.Recorder
 module Headless = TeaserHeadlessLogic
 
 module Manager = {
-  let signalIsAborted = signal =>
-    TeaserLogicHelpers.signalIsAborted(signal)
+  let signalIsAborted = signal => TeaserLogicHelpers.signalIsAborted(signal)
 
   let finalizeTeaser = async (format, baseName) => {
     let chunks = Recorder.getRecordedBlobs()

@@ -29,7 +29,7 @@ let execute: (
   ~shouldRetry: string => bool=?,
   ~onRetry: (int, string, int) => unit=?,
   ~getDelay: (string, int) => option<int>=?,
-  ~isCircuitOpen: (unit => bool)=?,
+  ~isCircuitOpen: unit => bool=?,
   ~budgetKey: string=?,
   ~budgetConfig: budgetConfig=?,
 ) => Promise.t<retryResult<'a>>

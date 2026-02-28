@@ -28,27 +28,16 @@ let loadProject = (
     "filename": File.name(zipFile),
     "size": File.size(zipFile),
   })
-  info(
-    ~module_="ProjectManager",
-    ~message="LOAD_PROJECT_CALLED",
-    ~data=Some(callMeta),
-    (),
-  )
+  info(~module_="ProjectManager", ~message="LOAD_PROJECT_CALLED", ~data=Some(callMeta), ())
 
-  Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?, ~opId?)
-  ->Promise.then(result => {
+  Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?, ~opId?)->Promise.then(result => {
     let logData = Logger.castToJson({
       "status": switch result {
       | Ok(_) => "ok"
       | Error(_) => "error"
       },
     })
-    info(
-      ~module_="ProjectManager",
-      ~message="LOAD_PROJECT_RESULT",
-      ~data=Some(logData),
-      (),
-    )
+    info(~module_="ProjectManager", ~message="LOAD_PROJECT_RESULT", ~data=Some(logData), ())
     Promise.resolve(result)
   })
 }

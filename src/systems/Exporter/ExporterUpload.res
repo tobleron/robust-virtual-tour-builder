@@ -209,7 +209,8 @@ let sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`
   }
 `)
 
-let isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)
+let isAborted = (signal: BrowserBindings.AbortSignal.t): bool =>
+  BrowserBindings.AbortSignal.aborted(signal)
 
 let requestExportInit = (
   payloadBlob: Blob.t,
@@ -234,8 +235,7 @@ let requestExportInit = (
   )->Promise.then(resultResponse =>
     switch resultResponse {
     | Retry.Success(response, _) =>
-      response.json()
-      ->Promise.then(json =>
+      response.json()->Promise.then(json =>
         ApiHelpers.handleJsonDecode(
           ~module_="ExporterUpload",
           json,
@@ -263,8 +263,7 @@ let requestExportStatus = (
   )->Promise.then(resultResponse =>
     switch resultResponse {
     | Retry.Success(response, _) =>
-      response.json()
-      ->Promise.then(json =>
+      response.json()->Promise.then(json =>
         ApiHelpers.handleJsonDecode(
           ~module_="ExporterUpload",
           json,
@@ -290,7 +289,11 @@ let requestExportChunk = (
   let totalSize = Float.toInt(Blob.size(payloadBlob))
   let start = chunkIndex * chunkSizeBytes
   let candidateEnd = start + chunkSizeBytes
-  let end_ = if candidateEnd > totalSize { totalSize } else { candidateEnd }
+  let end_ = if candidateEnd > totalSize {
+    totalSize
+  } else {
+    candidateEnd
+  }
 
   if start >= totalSize || end_ <= start {
     Promise.resolve(Error("Invalid chunk index " ++ Belt.Int.toString(chunkIndex)))
@@ -320,15 +323,15 @@ let requestExportChunk = (
       )->Promise.then(resultResponse =>
         switch resultResponse {
         | Retry.Success(response, _) =>
-          response.json()
-          ->Promise.then(json =>
-            ApiHelpers.handleJsonDecode(
-              ~module_="ExporterUpload",
-              json,
-              json => JsonCombinators.Json.decode(json, decodeExportChunkResponse),
-              "EXPORT_CHUNK",
-              "Export chunk upload failed",
-            )
+          response.json()->Promise.then(
+            json =>
+              ApiHelpers.handleJsonDecode(
+                ~module_="ExporterUpload",
+                json,
+                json => JsonCombinators.Json.decode(json, decodeExportChunkResponse),
+                "EXPORT_CHUNK",
+                "Export chunk upload failed",
+              ),
           )
         | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
         }
@@ -362,8 +365,7 @@ let requestExportComplete = (
   )->Promise.then(resultResponse =>
     switch resultResponse {
     | Retry.Success(response, _) =>
-      response.json()
-      ->Promise.then(json =>
+      response.json()->Promise.then(json =>
         ApiHelpers.handleJsonDecode(
           ~module_="ExporterUpload",
           json,
@@ -443,7 +445,8 @@ let uploadChunkedWithResume = async (
             | Error(msg) => Error(msg)
             | Ok(_) =>
               uploadedCount := uploadedCount.contents + 1
-              let pct = 40.0 +. 35.0 *. Int.toFloat(uploadedCount.contents) /. Int.toFloat(totalChunks)
+              let pct =
+                40.0 +. 35.0 *. Int.toFloat(uploadedCount.contents) /. Int.toFloat(totalChunks)
               onProgress(
                 pct,
                 100.0,

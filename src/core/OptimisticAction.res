@@ -14,18 +14,20 @@ let execute = (
   // 1. Capture state
   let currentState = getState()
   let snapshotId = StateSnapshot.capture(currentState, action)
-  
+
   // 2. Compute next state for the API call (avoiding bridge lag)
   let nextState = Reducer.reducer(currentState, action)
-  
+
   Logger.debug(
     ~module_="OptimisticAction",
     ~message="CAPTURING_SNAPSHOT",
-    ~data=Some(Logger.castToJson({
-      "id": snapshotId,
-      "action": Actions.actionToString(action),
-      "activeIndex": currentState.activeIndex,
-    })),
+    ~data=Some(
+      Logger.castToJson({
+        "id": snapshotId,
+        "action": Actions.actionToString(action),
+        "activeIndex": currentState.activeIndex,
+      }),
+    ),
     (),
   )
 
@@ -53,11 +55,13 @@ let execute = (
       Logger.warn(
         ~module_="OptimisticAction",
         ~message="ROLLBACK_TRIGGERED",
-        ~data=Some(Logger.castToJson({
-          "id": snapshotId,
-          "error": msg,
-          "action": Actions.actionToString(action),
-        })),
+        ~data=Some(
+          Logger.castToJson({
+            "id": snapshotId,
+            "error": msg,
+            "action": Actions.actionToString(action),
+          }),
+        ),
         (),
       )
       switch StateSnapshot.rollback(snapshotId) {

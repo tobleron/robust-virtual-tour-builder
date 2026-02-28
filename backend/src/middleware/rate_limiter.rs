@@ -16,8 +16,8 @@ use actix_web::{
 };
 use futures_util::future::LocalBoxFuture;
 use serde_json::json;
-use std::hash::{Hash, Hasher};
 use std::future::{Ready, ready};
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 #[derive(Clone, Eq)]
@@ -144,10 +144,9 @@ impl RateLimiters {
         };
         burst = burst.saturating_mul(burst_multiplier).max(1);
 
-        let mut builder = GovernorConfigBuilder::default().key_extractor(SessionAwareKeyExtractor::new(class));
-        builder
-            .per_second(rps)
-            .burst_size(burst);
+        let mut builder =
+            GovernorConfigBuilder::default().key_extractor(SessionAwareKeyExtractor::new(class));
+        builder.per_second(rps).burst_size(burst);
 
         match builder.finish() {
             Some(cfg) => cfg,

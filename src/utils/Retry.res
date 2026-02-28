@@ -197,20 +197,21 @@ let computeDelay = (error, attempt, config, getDelay) => {
   }
 }
 
-let checkAndConsumeBudget = (
-  budgetKey: option<string>,
-  budgetCfg: budgetConfig,
-): bool => {
+let checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {
   switch budgetKey {
   | None => true
   | Some(key) =>
     let now = Date.now()
     switch retryBudgets.contents->Belt.Map.String.get(key) {
     | None =>
-      retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
-        windowStartMs: now,
-        usedRetries: 1,
-      })
+      retryBudgets :=
+        retryBudgets.contents->Belt.Map.String.set(
+          key,
+          {
+            windowStartMs: now,
+            usedRetries: 1,
+          },
+        )
       true
     | Some(state) =>
       let withinWindow = now -. state.windowStartMs <= Int.toFloat(budgetCfg.windowMs)
@@ -218,27 +219,32 @@ let checkAndConsumeBudget = (
         if state.usedRetries >= budgetCfg.maxRetriesPerWindow {
           false
         } else {
-          retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
-            ...state,
-            usedRetries: state.usedRetries + 1,
-          })
+          retryBudgets :=
+            retryBudgets.contents->Belt.Map.String.set(
+              key,
+              {
+                ...state,
+                usedRetries: state.usedRetries + 1,
+              },
+            )
           true
         }
       } else {
-        retryBudgets := retryBudgets.contents->Belt.Map.String.set(key, {
-          windowStartMs: now,
-          usedRetries: 1,
-        })
+        retryBudgets :=
+          retryBudgets.contents->Belt.Map.String.set(
+            key,
+            {
+              windowStartMs: now,
+              usedRetries: 1,
+            },
+          )
         true
       }
     }
   }
 }
 
-let getRemainingBudget = (
-  budgetKey: option<string>,
-  budgetCfg: budgetConfig,
-): option<int> => {
+let getRemainingBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): option<int> => {
   switch budgetKey {
   | None => None
   | Some(key) =>
@@ -305,14 +311,16 @@ let rec loop = async (
             Logger.debug(
               ~module_="Retry",
               ~message="RETRY_ATTEMPT",
-              ~data=Some(Logger.castToJson({
-                "attempt": attempt,
-                "delayMs": delay,
-                "error": err,
-                "elapsedMs": elapsed,
-                "remainingDeadlineMs": remaining,
-                "remainingBudget": remainingBudget,
-              })),
+              ~data=Some(
+                Logger.castToJson({
+                  "attempt": attempt,
+                  "delayMs": delay,
+                  "error": err,
+                  "elapsedMs": elapsed,
+                  "remainingDeadlineMs": remaining,
+                  "remainingBudget": remainingBudget,
+                }),
+              ),
               (),
             )
 
@@ -347,13 +355,15 @@ let rec loop = async (
           Logger.debug(
             ~module_="Retry",
             ~message="RETRY_ATTEMPT",
-            ~data=Some(Logger.castToJson({
-              "attempt": attempt,
-              "delayMs": delay,
-              "error": err,
-              "elapsedMs": elapsed,
-              "remainingBudget": remainingBudget,
-            })),
+            ~data=Some(
+              Logger.castToJson({
+                "attempt": attempt,
+                "delayMs": delay,
+                "error": err,
+                "elapsedMs": elapsed,
+                "remainingBudget": remainingBudget,
+              }),
+            ),
             (),
           )
 

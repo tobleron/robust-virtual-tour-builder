@@ -49,8 +49,8 @@ let requestWithRetry = (
       ),
     ~signal=resolvedSignal,
     ~config=Option.getOr(retryConfig, defaultRetryConfig),
-    ~isCircuitOpen=(() => CircuitBreaker.getState(domainBreaker) === CircuitBreaker.Open),
-    ~budgetKey=("api:" ++ url),
+    ~isCircuitOpen=() => CircuitBreaker.getState(domainBreaker) === CircuitBreaker.Open,
+    ~budgetKey="api:" ++ url,
     ~shouldRetry=error => {
       if (
         error == "NetworkOffline" ||

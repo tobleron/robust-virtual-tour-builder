@@ -32,13 +32,15 @@ let logQueueDepths = (~reason: string) => {
   Logger.debug(
     ~module_="RequestQueue",
     ~message="QUEUE_DEPTHS",
-    ~data=Some(Logger.castToJson({
-      "reason": reason,
-      "critical": Array.length(criticalQueue),
-      "normal": Array.length(normalQueue),
-      "background": Array.length(backgroundQueue),
-      "active": activeCount.contents,
-    })),
+    ~data=Some(
+      Logger.castToJson({
+        "reason": reason,
+        "critical": Array.length(criticalQueue),
+        "normal": Array.length(normalQueue),
+        "background": Array.length(backgroundQueue),
+        "active": activeCount.contents,
+      }),
+    ),
     (),
   )
 }
@@ -53,8 +55,12 @@ let pushByPriority = (item: queuedItem) => {
 
 let promoteStarved = () => {
   let now = nowMs.contents()
-  let backgroundToPromote = Belt.Array.keep(backgroundQueue, item => now -. item.enqueuedAtMs >= 30000.0)
-  let backgroundRemaining = Belt.Array.keep(backgroundQueue, item => now -. item.enqueuedAtMs < 30000.0)
+  let backgroundToPromote = Belt.Array.keep(backgroundQueue, item =>
+    now -. item.enqueuedAtMs >= 30000.0
+  )
+  let backgroundRemaining = Belt.Array.keep(backgroundQueue, item =>
+    now -. item.enqueuedAtMs < 30000.0
+  )
   let _ = Array.splice(
     backgroundQueue,
     ~start=0,
@@ -67,7 +73,12 @@ let promoteStarved = () => {
 
   let normalToPromote = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs >= 60000.0)
   let normalRemaining = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs < 60000.0)
-  let _ = Array.splice(normalQueue, ~start=0, ~remove=Array.length(normalQueue), ~insert=normalRemaining)
+  let _ = Array.splice(
+    normalQueue,
+    ~start=0,
+    ~remove=Array.length(normalQueue),
+    ~insert=normalRemaining,
+  )
   normalToPromote->Belt.Array.forEach(item => {
     pushByPriority({...item, priority: Critical})
   })
@@ -189,7 +200,7 @@ let waitForScope = (~scope: string): Promise.t<unit> => {
   } else {
     Promise.make((resolve, _reject) => {
       let delayMs = Belt.Float.toInt(remainingMs)
-      let _ = ReBindings.Window.setTimeout(() => resolve(()), delayMs)
+      let _ = ReBindings.Window.setTimeout(() => resolve(), delayMs)
     })
   }
 }

@@ -18,7 +18,9 @@ let make = () => {
   let overLimit = charCount > MarketingText.maxLen
 
   let tabClass = (isActive: bool) =>
-    "w-full text-left rounded-md px-3 py-2 text-[12px] font-semibold tracking-wide transition-all " ++ if isActive {
+    "w-full text-left rounded-md px-3 py-2 text-[12px] font-semibold tracking-wide transition-all " ++ if (
+      isActive
+    ) {
       "bg-white/20 text-white border border-white/20"
     } else {
       "bg-white/5 text-white/70 border border-transparent hover:bg-white/10 hover:text-white"
@@ -34,7 +36,9 @@ let make = () => {
 
   <div className="settings-modal-layout">
     <div className="settings-modal-tabs">
-      <button className={tabClass(activeTab == Marketing)} onClick={_ => setActiveTab(_ => Marketing)}>
+      <button
+        className={tabClass(activeTab == Marketing)} onClick={_ => setActiveTab(_ => Marketing)}
+      >
         {React.string("Marketing")}
       </button>
       <button className={tabClass(activeTab == About)} onClick={_ => setActiveTab(_ => About)}>
@@ -72,28 +76,28 @@ let make = () => {
 
           <div className="flex items-center gap-5 mt-1">
             <label className="settings-check-label">
-              <input
-                type_="checkbox"
-                checked={forRent}
-                onChange={_ => setForRent(prev => !prev)}
-              />
+              <input type_="checkbox" checked={forRent} onChange={_ => setForRent(prev => !prev)} />
               <span> {React.string("For Rent")} </span>
             </label>
             <label className="settings-check-label">
-              <input
-                type_="checkbox"
-                checked={forSale}
-                onChange={_ => setForSale(prev => !prev)}
-              />
+              <input type_="checkbox" checked={forSale} onChange={_ => setForSale(prev => !prev)} />
               <span> {React.string("For Sale")} </span>
             </label>
           </div>
 
           <div className="settings-preview-wrap">
             <div className="settings-preview-header">
-              <span className="settings-field-label"> {React.string("Bottom Banner Preview")} </span>
-              <span className={`text-[11px] font-semibold ${overLimit ? "text-red-300" : "text-white/75"}`}>
-                {React.string(Belt.Int.toString(charCount) ++ "/" ++ Belt.Int.toString(MarketingText.maxLen))}
+              <span className="settings-field-label">
+                {React.string("Bottom Banner Preview")}
+              </span>
+              <span
+                className={`text-[11px] font-semibold ${overLimit
+                    ? "text-red-300"
+                    : "text-white/75"}`}
+              >
+                {React.string(
+                  Belt.Int.toString(charCount) ++ "/" ++ Belt.Int.toString(MarketingText.maxLen),
+                )}
               </span>
             </div>
             <div className="settings-preview-banner">

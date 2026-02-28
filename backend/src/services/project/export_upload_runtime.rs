@@ -56,7 +56,10 @@ fn sha256_hex(data: &[u8]) -> String {
     format!("{:x}", hasher.finalize())
 }
 
-async fn assemble_chunks(session: &ExportUploadSession, output_path: &PathBuf) -> Result<(), String> {
+async fn assemble_chunks(
+    session: &ExportUploadSession,
+    output_path: &PathBuf,
+) -> Result<(), String> {
     let file = tokio::fs::File::create(output_path)
         .await
         .map_err(|e| format!("Failed to create assembled upload file: {e}"))?;

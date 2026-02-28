@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
-use crate::models::AppError;
 use crate::metrics::{DB_POOL_ACTIVE, DB_POOL_IDLE, DB_POOL_SIZE};
+use crate::models::AppError;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions};
 use std::env;
 use std::str::FromStr;
@@ -62,7 +62,10 @@ impl DatabaseManager {
 
         for pragma in pragmas {
             sqlx::query(pragma).execute(pool).await.map_err(|e| {
-                AppError::InternalError(format!("Failed to apply SQLite pragma '{}': {}", pragma, e))
+                AppError::InternalError(format!(
+                    "Failed to apply SQLite pragma '{}': {}",
+                    pragma, e
+                ))
             })?;
         }
 

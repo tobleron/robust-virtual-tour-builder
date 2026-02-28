@@ -364,12 +364,14 @@ let shouldSampleByLevel = (level: level): bool => {
   let baseRate = switch level {
   | Warn => 1.0
   | Info | Perf => sampleRateInfo
-  | Trace => if Constants.Telemetry.diagnosticMode.contents {
+  | Trace =>
+    if Constants.Telemetry.diagnosticMode.contents {
       1.0
     } else {
       0.0
     }
-  | Debug => if Constants.isDebugBuild() || Constants.Telemetry.diagnosticMode.contents {
+  | Debug =>
+    if Constants.isDebugBuild() || Constants.Telemetry.diagnosticMode.contents {
       1.0
     } else {
       sampleRateDebugProd
@@ -460,7 +462,11 @@ let initializeNetworkListener = () => {
 }
 
 let flushWithBeaconOnUnload = () => {
-  if Array.length(telemetryQueue) == 0 || !canUseTelemetryNetwork() || !WebApiBindings.hasSendBeacon() {
+  if (
+    Array.length(telemetryQueue) == 0 ||
+    !canUseTelemetryNetwork() ||
+    !WebApiBindings.hasSendBeacon()
+  ) {
     ()
   } else {
     let payload: telemetryBatch = {entries: deduplicateBatchEntries(telemetryQueue)}

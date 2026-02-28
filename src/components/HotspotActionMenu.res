@@ -85,8 +85,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       ()
     } else {
       let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-      let canEnable =
-        HotspotHelpers.canEnableAutoForward(activeScenes, state.activeIndex, index)
+      let canEnable = HotspotHelpers.canEnableAutoForward(activeScenes, state.activeIndex, index)
       let isTryingToEnable = !isAutoForward
 
       // Validation: ONLY ONE auto-forward per scene

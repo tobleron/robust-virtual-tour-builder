@@ -29,52 +29,53 @@ let make = () => {
     ->Belt.Option.flatMap(value =>
       pipelineSlice.scenes
       ->Belt.Array.getBy(s => s.id == value)
-      ->Option.map(s => s.id),
+      ->Option.map(s => s.id)
     )
     ->Option.orElse(
-      refValue
-      ->Belt.Option.flatMap(value =>
+      refValue->Belt.Option.flatMap(value =>
         pipelineSlice.scenes
         ->Belt.Array.getBy(s => s.name == value)
-        ->Option.map(s => s.id),
+        ->Option.map(s => s.id)
       ),
     )
 
   let displayNodes = React.useMemo2(() => {
     let homeNode = switch Belt.Array.get(pipelineSlice.scenes, 0) {
-    | Some(scene) =>
-      [{
-        id: "home_" ++ scene.id,
-        timelineId: None,
-        representedSceneId: scene.id,
-        sourceSceneId: scene.id,
-        linkId: "__home__",
-      }]
+    | Some(scene) => [
+        {
+          id: "home_" ++ scene.id,
+          timelineId: None,
+          representedSceneId: scene.id,
+          sourceSceneId: scene.id,
+          linkId: "__home__",
+        },
+      ]
     | None => []
     }
 
-    let linkedNodes =
-      pipelineSlice.timeline
-      ->Belt.Array.map(item => {
-        let timelineRef = if item.targetScene != "" { Some(item.targetScene) } else { None }
-        let sourceScene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
-        let sourceHotspot = sourceScene->Option.flatMap(s => s.hotspots->Belt.Array.getBy(h =>
-          h.linkId == item.linkId
-        ))
-        let representedSceneId =
-          sourceHotspot
-          ->Option.flatMap(h => h.targetSceneId)
-          ->Option.orElse(resolveSceneId(timelineRef))
-          ->Option.getOr(item.sceneId)
+    let linkedNodes = pipelineSlice.timeline->Belt.Array.map(item => {
+      let timelineRef = if item.targetScene != "" {
+        Some(item.targetScene)
+      } else {
+        None
+      }
+      let sourceScene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
+      let sourceHotspot =
+        sourceScene->Option.flatMap(s => s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId))
+      let representedSceneId =
+        sourceHotspot
+        ->Option.flatMap(h => h.targetSceneId)
+        ->Option.orElse(resolveSceneId(timelineRef))
+        ->Option.getOr(item.sceneId)
 
-        {
-          id: item.id,
-          timelineId: Some(item.id),
-          representedSceneId,
-          sourceSceneId: item.sceneId,
-          linkId: item.linkId,
-        }
-      })
+      {
+        id: item.id,
+        timelineId: Some(item.id),
+        representedSceneId,
+        sourceSceneId: item.sceneId,
+        linkId: item.linkId,
+      }
+    })
 
     Belt.Array.concat(homeNode, linkedNodes)
   }, (pipelineSlice.timeline, pipelineSlice.scenes))
@@ -134,7 +135,9 @@ let make = () => {
   let groupedItems = React.useMemo2(() => {
     let groups = Belt.MutableMap.String.make()
     displayNodes->Belt.Array.forEach(item => {
-      let floorId = switch pipelineSlice.scenes->Belt.Array.getBy(s => s.id == item.representedSceneId) {
+      let floorId = switch pipelineSlice.scenes->Belt.Array.getBy(
+        s => s.id == item.representedSceneId,
+      ) {
       | Some(s) => s.floor == "" ? "ground" : s.floor
       | None => "ground"
       }
@@ -246,103 +249,112 @@ let make = () => {
     )
   })
 
-  React.useLayoutEffect3(() => {
-    let paths = Dict.make()
-    activeFloors->Belt.Array.forEachWithIndex((_idx, fid) => {
-      let btn = Dom.getElementById("floor-nav-button-" ++ fid)
-      let anchor = Dom.getElementById("track-anchor-" ++ fid)
-      let container = containerRef.current->Nullable.toOption
+  React.useLayoutEffect5(() => {
+    if uiSlice.isTeasing {
+      None
+    } else {
+      let paths = Dict.make()
+      let missingAnchors = ref(false)
+      activeFloors->Belt.Array.forEachWithIndex((_idx, fid) => {
+        let btn = Dom.getElementById("floor-nav-button-" ++ fid)
+        let anchor = Dom.getElementById("track-anchor-" ++ fid)
+        let container = containerRef.current->Nullable.toOption
 
-      switch (Nullable.toOption(btn), Nullable.toOption(anchor), container) {
-      | (Some(b), Some(a), Some(c)) =>
-        let bRect = b->Dom.getBoundingClientRect
-        let aRect = a->Dom.getBoundingClientRect
-        let cRect = c->Dom.getBoundingClientRect
+        switch (Nullable.toOption(btn), Nullable.toOption(anchor), container) {
+        | (Some(b), Some(a), Some(c)) =>
+          let bRect = b->Dom.getBoundingClientRect
+          let aRect = a->Dom.getBoundingClientRect
+          let cRect = c->Dom.getBoundingClientRect
 
-        // Calculate Y relative to container bottom (since container is bottom-aligned)
-        let yFrom = cRect.bottom -. (bRect.top +. bRect.height /. 2.0)
-        let yTo = cRect.bottom -. (aRect.top +. aRect.height /. 2.0)
+          // Calculate Y relative to container bottom (since container is bottom-aligned)
+          let yFrom = cRect.bottom -. (bRect.top +. bRect.height /. 2.0)
+          let yTo = cRect.bottom -. (aRect.top +. aRect.height /. 2.0)
 
-        // Maps to SVG Y (SVG Height is matching container height)
-        let vYFrom = 400.0 -. yFrom
-        let vYTo = 400.0 -. yTo
+          // Maps to SVG Y (SVG Height is matching container height)
+          let vYFrom = 400.0 -. yFrom
+          let vYTo = 400.0 -. yTo
 
-        /* Route line edge-to-edge:
+          /* Route line edge-to-edge:
            - Start at floor button right edge
            - End at first pipeline node left edge
            This prevents crossing through controls and makes contact exact. */
-        let xStart = bRect.right -. cRect.left
-        let xEnd = aRect.left -. cRect.left
+          let xStart = bRect.right -. cRect.left
+          let xEnd = aRect.left -. cRect.left
 
-        // Calculate vertical delta for slant
-        let slantWidth = Math.abs(vYTo -. vYFrom)
-        let deltaX = xEnd -. xStart
-        let d = if deltaX <= 2.0 {
-          "M " ++
-          xStart->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          xEnd->Float.toString ++
-          " " ++
-          vYTo->Float.toString
-        } else {
-          let xCorridor = xStart +. Math.min(14.0, deltaX *. 0.25)
-          let xSlantEnd = xStart +. Math.min(44.0, deltaX *. 0.7)
-          // Slant starts at xSlantEnd - slantWidth, clamped so it never backtracks.
-          let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
-          "M " ++
-          xStart->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          xCorridor->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          vXSlantStart->Float.toString ++
-          " " ++
-          vYFrom->Float.toString ++
-          " L " ++
-          xSlantEnd->Float.toString ++
-          " " ++
-          vYTo->Float.toString ++
-          " L " ++
-          xEnd->Float.toString ++
-          " " ++
-          vYTo->Float.toString
+          // Calculate vertical delta for slant
+          let slantWidth = Math.abs(vYTo -. vYFrom)
+          let deltaX = xEnd -. xStart
+          let d = if deltaX <= 2.0 {
+            "M " ++
+            xStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString
+          } else {
+            let xCorridor = xStart +. Math.min(14.0, deltaX *. 0.25)
+            let xSlantEnd = xStart +. Math.min(44.0, deltaX *. 0.7)
+            // Slant starts at xSlantEnd - slantWidth, clamped so it never backtracks.
+            let vXSlantStart = Math.max(xCorridor, xSlantEnd -. slantWidth)
+            "M " ++
+            xStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xCorridor->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            vXSlantStart->Float.toString ++
+            " " ++
+            vYFrom->Float.toString ++
+            " L " ++
+            xSlantEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString ++
+            " L " ++
+            xEnd->Float.toString ++
+            " " ++
+            vYTo->Float.toString
+          }
+
+          paths->Dict.set(fid, d)
+        | _ => missingAnchors := true
         }
-
-        paths->Dict.set(fid, d)
-      | _ => ()
-      }
-    })
-    setLinePaths(prev => {
-      let encodeDict = JsonCombinators.Json.Encode.dict(JsonCombinators.Json.Encode.string)
-      let prevStr = JsonCombinators.Json.stringify(encodeDict(prev))
-      let nextStr = JsonCombinators.Json.stringify(encodeDict(paths))
-      if prevStr == nextStr {
-        prev
-      } else {
-        paths
-      }
-    })
-    None
-  }, (activeFloors, displayNodes, uiSlice.isLinking))
+      })
+      setLinePaths(prev => {
+        let encodeDict = JsonCombinators.Json.Encode.dict(JsonCombinators.Json.Encode.string)
+        let prevStr = JsonCombinators.Json.stringify(encodeDict(prev))
+        let nextStr = JsonCombinators.Json.stringify(encodeDict(paths))
+        let isNextEmpty = nextStr == "{}"
+        if missingAnchors.contents && isNextEmpty && prevStr != "{}" {
+          // Keep previously measured connector geometry when anchors are transiently unavailable.
+          prev
+        } else if prevStr == nextStr {
+          prev
+        } else {
+          paths
+        }
+      })
+      None
+    }
+  }, (activeFloors, displayNodes, uiSlice.isLinking, uiSlice.isTeasing, isSystemLocked))
 
   if uiSlice.isLinking || uiSlice.isTeasing || activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
-      <div
-        id="visual-pipeline-container"
-        className={"visual-pipeline-container" ++ if isSystemLocked {
-          " pipeline-locked"
-        } else {
-          ""
-        }}
-        style={ReBindings.makeStyle({"pointerEvents": "none"})}
-        ref={containerRef->ReactDOM.Ref.domRef}
-      >
+    <div
+      id="visual-pipeline-container"
+      className={"visual-pipeline-container" ++ if isSystemLocked {
+        " pipeline-locked"
+      } else {
+        ""
+      }}
+      style={ReBindings.makeStyle({"pointerEvents": "none"})}
+      ref={containerRef->ReactDOM.Ref.domRef}
+    >
       /* PCB-style Lines: Deterministic DOM-based Mapping */
       <svg
         className="pipeline-svg-overlay"
@@ -364,7 +376,9 @@ let make = () => {
         ->React.array}
       </svg>
 
-      <div className="visual-pipeline-wrapper" style={ReBindings.makeStyle({"pointerEvents": "none"})}>
+      <div
+        className="visual-pipeline-wrapper" style={ReBindings.makeStyle({"pointerEvents": "none"})}
+      >
         /* Floor Tracks */
         {activeFloors
         ->Belt.Array.map(fid => {
@@ -377,7 +391,8 @@ let make = () => {
                 ->Option.map(activeId => activeId == node.id)
                 ->Option.getOr(false)
 
-              let sourceScene = pipelineSlice.scenes->Belt.Array.getBy(s => s.id == node.sourceSceneId)
+              let sourceScene =
+                pipelineSlice.scenes->Belt.Array.getBy(s => s.id == node.sourceSceneId)
               let representedScene =
                 pipelineSlice.scenes->Belt.Array.getBy(s => s.id == node.representedSceneId)
               let isAutoForward = switch sourceScene {

@@ -130,7 +130,14 @@ fn capture_frames_cdp(
     stdin: &mut std::process::ChildStdin,
     capture_viewport: &Page::Viewport,
 ) -> Result<CaptureStats, CaptureFailure> {
-    video_logic_runtime::capture_frames_cdp_impl(tab, session_id, start_sim, max_dur, stdin, capture_viewport)
+    video_logic_runtime::capture_frames_cdp_impl(
+        tab,
+        session_id,
+        start_sim,
+        max_dur,
+        stdin,
+        capture_viewport,
+    )
 }
 
 fn capture_frames_polling(

@@ -73,7 +73,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
     if !Logic.isViewerValid(viewer) {
       clearLines()
     } else {
-    let currentFrameIds = Belt.MutableSet.String.make()
+      let currentFrameIds = Belt.MutableSet.String.make()
       let rect = Dom.getBoundingClientRect(svg)
       if rect.width > 0.0 && state.activeIndex >= 0 {
         let cam = Logic.getCamState(viewer, rect)

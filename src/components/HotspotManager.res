@@ -175,10 +175,7 @@ let syncHotspots = (
   }
 }
 
-let handleAddHotspot = async (
-  sceneIndex: int,
-  hotspot: Types.hotspot,
-) => {
+let handleAddHotspot = async (sceneIndex: int, hotspot: Types.hotspot) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.AddHotspot(sceneIndex, hotspot),
     ~apiCall=state => {
@@ -192,10 +189,7 @@ let handleAddHotspot = async (
   )
 }
 
-let handleDeleteHotspot = async (
-  sceneIndex: int,
-  hotspotIndex: int,
-) => {
+let handleDeleteHotspot = async (sceneIndex: int, hotspotIndex: int) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.RemoveHotspot(sceneIndex, hotspotIndex),
     ~apiCall=state => {
@@ -209,10 +203,7 @@ let handleDeleteHotspot = async (
   )
 }
 
-let handleUpdateSceneMetadata = async (
-  sceneIndex: int,
-  metadata: JSON.t,
-) => {
+let handleUpdateSceneMetadata = async (sceneIndex: int, metadata: JSON.t) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.UpdateSceneMetadata(sceneIndex, metadata),
     ~apiCall=state => {
@@ -225,11 +216,7 @@ let handleUpdateSceneMetadata = async (
     },
   )
 }
-let handleUpdateHotspotMetadata = async (
-  sceneIndex: int,
-  hotspotIndex: int,
-  metadata: JSON.t,
-) => {
+let handleUpdateHotspotMetadata = async (sceneIndex: int, hotspotIndex: int, metadata: JSON.t) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.UpdateHotspotMetadata(sceneIndex, hotspotIndex, metadata),
     ~apiCall=state => {

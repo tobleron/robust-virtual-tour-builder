@@ -27,8 +27,11 @@ let processZipResponse = zipResult => {
 }
 
 let generateAndOverrideTiny = previewBlob => {
-  WorkerPool.generateTinyWithWorker(previewBlob, ~width=256, ~height=144)
-  ->Promise.then(workerTiny =>
+  WorkerPool.generateTinyWithWorker(
+    previewBlob,
+    ~width=256,
+    ~height=144,
+  )->Promise.then(workerTiny =>
     switch workerTiny {
     | Some(tiny) => Promise.resolve(tiny)
     | None =>
@@ -39,10 +42,12 @@ let generateAndOverrideTiny = previewBlob => {
         let onLoad = () => {
           URL.revokeObjectURL(url)
           ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
-          ->Promise.then(tinyBlob => {
-            resolve(tinyBlob)
-            Promise.resolve()
-          })
+          ->Promise.then(
+            tinyBlob => {
+              resolve(tinyBlob)
+              Promise.resolve()
+            },
+          )
           ->ignore
         }
 

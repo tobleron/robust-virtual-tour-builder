@@ -48,7 +48,12 @@ let handleUpload = async (
         ~prefix="Uploading",
         (),
       )
-      await UploadLogic.performUpload(~progressToastId=uploadProgressToastId, files, ~getState, ~dispatch)
+      await UploadLogic.performUpload(
+        ~progressToastId=uploadProgressToastId,
+        files,
+        ~getState,
+        ~dispatch,
+      )
     }
   | _ => ()
   }
@@ -57,20 +62,20 @@ let handleUpload = async (
 let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
-      let handlerMeta = Logger.castToJson({
-        "fileCount": FileList.length(files),
-        "sceneCount": _sceneCount,
-      })
-      info(
-        ~module_="SidebarLogic",
-        ~message="PROJECT_LOAD_HANDLER_INVOKED",
-        ~data=Some(handlerMeta),
-        (),
-      )
-      SessionStore.clearState()
-      try {
-        switch FileList.item(files, 0) {
-        | Some(file) =>
+    let handlerMeta = Logger.castToJson({
+      "fileCount": FileList.length(files),
+      "sceneCount": _sceneCount,
+    })
+    info(
+      ~module_="SidebarLogic",
+      ~message="PROJECT_LOAD_HANDLER_INVOKED",
+      ~data=Some(handlerMeta),
+      (),
+    )
+    SessionStore.clearState()
+    try {
+      switch FileList.item(files, 0) {
+      | Some(file) =>
         let controller = BrowserBindings.AbortController.make()
         let signal = BrowserBindings.AbortController.signal(controller)
         let loadSettled = ref(false)

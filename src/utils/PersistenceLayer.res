@@ -67,10 +67,7 @@ let sliceKey = (name: string) => sliceKeyPrefix ++ name
 let encodeMetadataSlice = (state: state): JSON.t =>
   JsonCombinators.Json.Encode.object([
     ("tourName", JsonCombinators.Json.Encode.string(state.tourName)),
-    (
-      "lastUsedCategory",
-      JsonCombinators.Json.Encode.string(state.lastUsedCategory),
-    ),
+    ("lastUsedCategory", JsonCombinators.Json.Encode.string(state.lastUsedCategory)),
     (
       "sessionId",
       switch state.sessionId {
@@ -82,9 +79,12 @@ let encodeMetadataSlice = (state: state): JSON.t =>
     (
       "logo",
       switch state.logo {
-      | Some(Blob(_)) => JsonCombinators.Json.Encode.object([("kind", JsonCombinators.Json.Encode.string("blob"))])
-      | Some(File(_)) => JsonCombinators.Json.Encode.object([("kind", JsonCombinators.Json.Encode.string("file"))])
-      | Some(Url(url)) => JsonCombinators.Json.Encode.object([
+      | Some(Blob(_)) =>
+        JsonCombinators.Json.Encode.object([("kind", JsonCombinators.Json.Encode.string("blob"))])
+      | Some(File(_)) =>
+        JsonCombinators.Json.Encode.object([("kind", JsonCombinators.Json.Encode.string("file"))])
+      | Some(Url(url)) =>
+        JsonCombinators.Json.Encode.object([
           ("kind", JsonCombinators.Json.Encode.string("url")),
           ("url", JsonCombinators.Json.Encode.string(url)),
         ])
@@ -98,17 +98,29 @@ let signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(
 let recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {
   let nextSamples = Belt.Array.concat(autosaveCostSamplesRef.contents, [durationMs])
   autosaveCostSamplesRef := if Belt.Array.length(nextSamples) > autosaveCostWindowSize {
-    Belt.Array.sliceToEnd(nextSamples, 1)
-  } else {
-    nextSamples
-  }
+      Belt.Array.sliceToEnd(nextSamples, 1)
+    } else {
+      nextSamples
+    }
 
   let sampleCount = Belt.Array.length(autosaveCostSamplesRef.contents)
   let totalMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => acc +. item)
-  let averageMs = if sampleCount > 0 {totalMs /. Float.fromInt(sampleCount)} else {0.0}
-  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => if item > acc {item} else {acc})
+  let averageMs = if sampleCount > 0 {
+    totalMs /. Float.fromInt(sampleCount)
+  } else {
+    0.0
+  }
+  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) =>
+    if item > acc {
+      item
+    } else {
+      acc
+    }
+  )
   let overTargetCount =
-    autosaveCostSamplesRef.contents->Belt.Array.keep(item => item > autosaveCostTargetMs)->Belt.Array.length
+    autosaveCostSamplesRef.contents
+    ->Belt.Array.keep(item => item > autosaveCostTargetMs)
+    ->Belt.Array.length
 
   Logger.debug(
     ~module_="Persistence",
@@ -146,20 +158,31 @@ let getAutosaveCostStats = (): autosaveCostStats => {
   | None => 0.0
   }
   let totalMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => acc +. item)
-  let averageMs = if sampleCount > 0 {totalMs /. Float.fromInt(sampleCount)} else {0.0}
-  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) => if item > acc {item} else {acc})
+  let averageMs = if sampleCount > 0 {
+    totalMs /. Float.fromInt(sampleCount)
+  } else {
+    0.0
+  }
+  let maxMs = autosaveCostSamplesRef.contents->Belt.Array.reduce(0.0, (acc, item) =>
+    if item > acc {
+      item
+    } else {
+      acc
+    }
+  )
   let overTargetCount =
-    autosaveCostSamplesRef.contents->Belt.Array.keep(item => item > autosaveCostTargetMs)->Belt.Array.length
+    autosaveCostSamplesRef.contents
+    ->Belt.Array.keep(item => item > autosaveCostTargetMs)
+    ->Belt.Array.length
   {sampleCount, lastMs, averageMs, maxMs, overTargetCount}
 }
 
 let queueIncrementalSave = (state: state) => {
-  let clonedState =
-    try {
-      structuredCloneAny(state)
-    } catch {
-    | _ => state
-    }
+  let clonedState = try {
+    structuredCloneAny(state)
+  } catch {
+  | _ => state
+  }
   pendingStateRef := Some(clonedState)
   lastQueuedAtMs := Date.now()
 }
@@ -231,10 +254,16 @@ let performSave = (state: Types.state) => {
       ("inventory", JsonParsers.Encoders.inventory(state.inventory)),
     ])
     let sceneOrderSlice = JsonCombinators.Json.Encode.object([
-      ("sceneOrder", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(state.sceneOrder)),
+      (
+        "sceneOrder",
+        JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(state.sceneOrder),
+      ),
     ])
     let timelineSlice = JsonCombinators.Json.Encode.object([
-      ("timeline", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.timelineItem)(state.timeline)),
+      (
+        "timeline",
+        JsonCombinators.Json.Encode.array(JsonParsers.Encoders.timelineItem)(state.timeline),
+      ),
     ])
     let metadataSlice = encodeMetadataSlice(state)
 
@@ -250,8 +279,7 @@ let performSave = (state: Types.state) => {
       Dict.set(signatures, name, signatureOfJson(json))
     })
 
-    let changedSliceNames = slices
-    ->Belt.Array.keepMap(((name, json)) => {
+    let changedSliceNames = slices->Belt.Array.keepMap(((name, json)) => {
       let newSig = Dict.get(signatures, name)->Option.getOr("")
       let oldSig = Dict.get(lastSliceSignatureRef.contents, name)->Option.getOr("")
       if newSig != oldSig {
@@ -276,13 +304,16 @@ let performSave = (state: Types.state) => {
     let manifestJson = JsonCombinators.Json.Encode.object([
       ("version", JsonCombinators.Json.Encode.int(manifest.version)),
       ("timestamp", JsonCombinators.Json.Encode.float(manifest.timestamp)),
-      ("slices", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(manifest.slices)),
+      (
+        "slices",
+        JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(manifest.slices),
+      ),
     ])
 
-    let writeSlicesPromise = changedSliceNames
-    ->Belt.Array.reduce(Promise.resolve(), (acc, (name, json)) =>
-      acc->Promise.then(_ => set(sliceKey(name), json)->Promise.then(_ => Promise.resolve()))
-    )
+    let writeSlicesPromise =
+      changedSliceNames->Belt.Array.reduce(Promise.resolve(), (acc, (name, json)) =>
+        acc->Promise.then(_ => set(sliceKey(name), json)->Promise.then(_ => Promise.resolve()))
+      )
 
     recordAutosaveCost(
       ~durationMs=Date.now() -. autosaveStartedAt,
@@ -290,7 +321,8 @@ let performSave = (state: Types.state) => {
       ~sceneCount=Array.length(activeScenes),
     )
 
-    let _ = writeSlicesPromise
+    let _ =
+      writeSlicesPromise
       ->Promise.then(_ => set(manifestKey, manifestJson))
       ->Promise.then(_ => set(key, legacyPayload))
       ->Promise.then(_ => {
@@ -390,7 +422,10 @@ let decodeManifest = (json: JSON.t): option<sliceManifest> =>
     JsonCombinators.Json.Decode.object(field => {
       version: field.required("version", JsonCombinators.Json.Decode.int),
       timestamp: field.required("timestamp", JsonCombinators.Json.Decode.float),
-      slices: field.required("slices", JsonCombinators.Json.Decode.array(JsonCombinators.Json.Decode.string)),
+      slices: field.required(
+        "slices",
+        JsonCombinators.Json.Decode.array(JsonCombinators.Json.Decode.string),
+      ),
     }),
   ) {
   | Ok(v) => Some(v)
@@ -433,12 +468,16 @@ let decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>
 
 let checkRecovery = () => {
   Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_START", ())
-  get(manifestKey)->Promise.then(manifestItem => {
-    let manifestOpt = manifestItem->Nullable.toOption->Option.flatMap(raw => decodeManifest(asJson(raw)))
+  get(manifestKey)
+  ->Promise.then(manifestItem => {
+    let manifestOpt =
+      manifestItem->Nullable.toOption->Option.flatMap(raw => decodeManifest(asJson(raw)))
     switch manifestOpt {
     | Some(manifest) =>
       let loadSlice = (name: string) =>
-        get(sliceKey(name))->Promise.then(sliceItem => Promise.resolve(sliceItem->Nullable.toOption->Option.map(asJson)))
+        get(sliceKey(name))->Promise.then(sliceItem =>
+          Promise.resolve(sliceItem->Nullable.toOption->Option.map(asJson))
+        )
 
       Promise.all([
         loadSlice("inventory"),
@@ -446,9 +485,18 @@ let checkRecovery = () => {
         loadSlice("timeline"),
         loadSlice("metadata"),
       ])->Promise.then(sliceResults => {
-        let inventoryJson = Belt.Array.getExn(sliceResults, 0)->Option.flatMap(json => extractFromSlice(json, "inventory"))
-        let sceneOrderJson = Belt.Array.getExn(sliceResults, 1)->Option.flatMap(json => extractFromSlice(json, "sceneOrder"))
-        let timelineJson = Belt.Array.getExn(sliceResults, 2)->Option.flatMap(json => extractFromSlice(json, "timeline"))
+        let inventoryJson =
+          Belt.Array.getExn(sliceResults, 0)->Option.flatMap(
+            json => extractFromSlice(json, "inventory"),
+          )
+        let sceneOrderJson =
+          Belt.Array.getExn(sliceResults, 1)->Option.flatMap(
+            json => extractFromSlice(json, "sceneOrder"),
+          )
+        let timelineJson =
+          Belt.Array.getExn(sliceResults, 2)->Option.flatMap(
+            json => extractFromSlice(json, "timeline"),
+          )
         let metadata = Belt.Array.getExn(sliceResults, 3)->Option.flatMap(decodeMetadataSlice)
 
         switch (inventoryJson, sceneOrderJson, timelineJson, metadata) {
@@ -457,14 +505,8 @@ let checkRecovery = () => {
             ("tourName", JsonCombinators.Json.Encode.string(meta.tourName)),
             ("inventory", inventory),
             ("sceneOrder", sceneOrder),
-            (
-              "lastUsedCategory",
-              JsonCombinators.Json.Encode.string(meta.lastUsedCategory),
-            ),
-            (
-              "exifReport",
-              JsonCombinators.Json.Encode.null,
-            ),
+            ("lastUsedCategory", JsonCombinators.Json.Encode.string(meta.lastUsedCategory)),
+            ("exifReport", JsonCombinators.Json.Encode.null),
             (
               "sessionId",
               switch meta.sessionId {
@@ -476,7 +518,7 @@ let checkRecovery = () => {
             (
               "logo",
               switch meta.logo {
-              | Some({kind, url}) when kind == "url" =>
+              | Some({kind, url}) if kind == "url" =>
                 JsonCombinators.Json.Encode.object([
                   ("kind", JsonCombinators.Json.Encode.string("url")),
                   ("url", JsonCombinators.Json.Encode.string(url->Option.getOr(""))),
@@ -487,11 +529,13 @@ let checkRecovery = () => {
             ("nextSceneSequenceId", JsonCombinators.Json.Encode.int(meta.nextSceneSequenceId)),
           ])
 
-          Promise.resolve(Some({
-            version: currentSchemaVersion,
-            timestamp: manifest.timestamp,
-            projectData: projectJson,
-          }))
+          Promise.resolve(
+            Some({
+              version: currentSchemaVersion,
+              timestamp: manifest.timestamp,
+              projectData: projectJson,
+            }),
+          )
         | _ =>
           Logger.warn(
             ~module_="Persistence",
@@ -503,49 +547,51 @@ let checkRecovery = () => {
       })
     | None => Promise.resolve(None)
     }
-  })->Promise.then(incremental => {
+  })
+  ->Promise.then(incremental => {
     switch incremental {
     | Some(v) => Promise.resolve(Some(v))
-    | None => get(key)->Promise.then(item => {
-    Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_GOT_ITEM", ())
-    switch Nullable.toOption(item) {
-    | Some(raw) =>
-      let json = asJson(raw)
-      switch JsonCombinators.Json.decode(json, JsonParsers.Domain.persistedSession) {
-      | Ok(savedEnvelope) =>
-        if savedEnvelope.version > currentSchemaVersion {
-          Logger.warn(
-            ~module_="Persistence",
-            ~message="Autosave schema is newer than supported",
-            ~data={"version": savedEnvelope.version, "supported": currentSchemaVersion},
-            (),
-          )
-          Promise.resolve(None)
-        } else {
-          switch normalizeProjectData(savedEnvelope.projectData) {
-          | Some(normalizedProjectData) =>
-            let migrated: serializedSession = {
-              version: currentSchemaVersion,
-              timestamp: savedEnvelope.timestamp,
-              projectData: normalizedProjectData,
+    | None =>
+      get(key)->Promise.then(item => {
+        Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_GOT_ITEM", ())
+        switch Nullable.toOption(item) {
+        | Some(raw) =>
+          let json = asJson(raw)
+          switch JsonCombinators.Json.decode(json, JsonParsers.Domain.persistedSession) {
+          | Ok(savedEnvelope) =>
+            if savedEnvelope.version > currentSchemaVersion {
+              Logger.warn(
+                ~module_="Persistence",
+                ~message="Autosave schema is newer than supported",
+                ~data={"version": savedEnvelope.version, "supported": currentSchemaVersion},
+                (),
+              )
+              Promise.resolve(None)
+            } else {
+              switch normalizeProjectData(savedEnvelope.projectData) {
+              | Some(normalizedProjectData) =>
+                let migrated: serializedSession = {
+                  version: currentSchemaVersion,
+                  timestamp: savedEnvelope.timestamp,
+                  projectData: normalizedProjectData,
+                }
+                Promise.resolve(Some(migrated))
+              | None => Promise.resolve(None)
+              }
             }
-            Promise.resolve(Some(migrated))
-          | None => Promise.resolve(None)
+          | Error(e) => {
+              Logger.warn(
+                ~module_="Persistence",
+                ~message="Corrupt autosave found (decode failed)",
+                ~data={"error": e},
+                (),
+              )
+              Promise.resolve(None)
+            }
           }
+        | None => Promise.resolve(None)
         }
-      | Error(e) => {
-          Logger.warn(
-            ~module_="Persistence",
-            ~message="Corrupt autosave found (decode failed)",
-            ~data={"error": e},
-            (),
-          )
-          Promise.resolve(None)
-        }
-      }
-    | None => Promise.resolve(None)
-    }
-  })
+      })
     }
   })
 }

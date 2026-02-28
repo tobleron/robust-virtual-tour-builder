@@ -34,8 +34,7 @@ let validateFilesAsync = (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<array<File.t>> => {
   let tasks = files->Belt.Array.map(file =>
-    WorkerPool.validateImageWithWorker(file, ~signal?)
-    ->Promise.then(workerDecision =>
+    WorkerPool.validateImageWithWorker(file, ~signal?)->Promise.then(workerDecision =>
       switch workerDecision {
       | Some(isImage) => Promise.resolve((file, isImage))
       | None =>
@@ -59,13 +58,15 @@ let validateFilesAsync = (
   )
 
   Promise.all(tasks)->Promise.then(results => {
-    Promise.resolve(results->Belt.Array.keepMap(((file, isImage)) => {
-      if isImage {
-        Some(file)
-      } else {
-        onInvalid(File.name(file))
-        None
-      }
-    }))
+    Promise.resolve(
+      results->Belt.Array.keepMap(((file, isImage)) => {
+        if isImage {
+          Some(file)
+        } else {
+          onInvalid(File.name(file))
+          None
+        }
+      }),
+    )
   })
 }

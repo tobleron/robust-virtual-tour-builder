@@ -33,7 +33,9 @@ type state = {
 let poolRef: ref<option<state>> = ref(None)
 
 let createPoolSize = (): int => {
-  let cores: int = %raw("(typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 2")
+  let cores: int = %raw(
+    "(typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 2"
+  )
   let proposed = cores - 1
   if proposed < 1 {
     1
@@ -48,59 +50,69 @@ let takeWorker = (pool: state): worker => {
   let idx = pool.nextWorkerIdxRef.contents
   let worker = pool.workers->Belt.Array.getExn(idx)
   let nextIdx = idx + 1
-  pool.nextWorkerIdxRef := if nextIdx >= Belt.Array.length(pool.workers) {0} else {nextIdx}
+  pool.nextWorkerIdxRef := if nextIdx >= Belt.Array.length(pool.workers) {
+      0
+    } else {
+      nextIdx
+    }
   worker
 }
 
 let removeFingerprintWaiter = (pool: state, id: string): option<waiter<option<string>>> => {
   let found = ref(None)
-  pool.fingerprintWaitersRef := pool.fingerprintWaitersRef.contents->Belt.Array.keep(waiter => {
-    if waiter.id == id {
-      found := Some(waiter)
-      false
-    } else {
-      true
-    }
-  })
+  pool.fingerprintWaitersRef :=
+    pool.fingerprintWaitersRef.contents->Belt.Array.keep(waiter => {
+      if waiter.id == id {
+        found := Some(waiter)
+        false
+      } else {
+        true
+      }
+    })
   found.contents
 }
 
 let removeValidateWaiter = (pool: state, id: string): option<waiter<option<bool>>> => {
   let found = ref(None)
-  pool.validateWaitersRef := pool.validateWaitersRef.contents->Belt.Array.keep(waiter => {
-    if waiter.id == id {
-      found := Some(waiter)
-      false
-    } else {
-      true
-    }
-  })
+  pool.validateWaitersRef :=
+    pool.validateWaitersRef.contents->Belt.Array.keep(waiter => {
+      if waiter.id == id {
+        found := Some(waiter)
+        false
+      } else {
+        true
+      }
+    })
   found.contents
 }
 
-let removeTinyWaiter = (pool: state, id: string): option<waiter<option<BrowserBindings.Blob.t>>> => {
+let removeTinyWaiter = (pool: state, id: string): option<
+  waiter<option<BrowserBindings.Blob.t>>,
+> => {
   let found = ref(None)
-  pool.tinyWaitersRef := pool.tinyWaitersRef.contents->Belt.Array.keep(waiter => {
-    if waiter.id == id {
-      found := Some(waiter)
-      false
-    } else {
-      true
-    }
-  })
+  pool.tinyWaitersRef :=
+    pool.tinyWaitersRef.contents->Belt.Array.keep(waiter => {
+      if waiter.id == id {
+        found := Some(waiter)
+        false
+      } else {
+        true
+      }
+    })
   found.contents
 }
 
 let removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {
   let found = ref(None)
-  pool.exifWaitersRef := pool.exifWaitersRef.contents->Belt.Array.keep(waiter => {
-    if waiter.id == id {
-      found := Some(waiter)
-      false
-    } else {
-      true
-    }
-  })
+  pool.exifWaitersRef :=
+    pool.exifWaitersRef.contents->Belt.Array.keep(waiter => {
+      if waiter.id == id {
+        found := Some(waiter)
+        false
+      } else {
+        true
+      }
+    })
   found.contents
 }
 
@@ -221,26 +233,28 @@ let fingerprintWithWorker = (
           finish(None)
         }
         BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
-        removeOnAbort := Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        removeOnAbort :=
+          Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
         if BrowserBindings.AbortSignal.aborted(sig) {
           onAbort()
         }
       })
-      pool.fingerprintWaitersRef := Belt.Array.concat(pool.fingerprintWaitersRef.contents, [{id, resolve}])
-      pool.fingerprintWaitersRef := pool.fingerprintWaitersRef.contents
-      ->Belt.Array.map(waiter =>
-        if waiter.id == id {
-          {
-            ...waiter,
-            resolve: value => {
-              removeOnAbort.contents->Option.forEach(cb => cb())
-              finish(value)
-            },
+      pool.fingerprintWaitersRef :=
+        Belt.Array.concat(pool.fingerprintWaitersRef.contents, [{id, resolve}])
+      pool.fingerprintWaitersRef :=
+        pool.fingerprintWaitersRef.contents->Belt.Array.map(waiter =>
+          if waiter.id == id {
+            {
+              ...waiter,
+              resolve: value => {
+                removeOnAbort.contents->Option.forEach(cb => cb())
+                finish(value)
+              },
+            }
+          } else {
+            waiter
           }
-        } else {
-          waiter
-        }
-      )
+        )
       let worker = takeWorker(pool)
       postMessage(worker, {"id": id, "type": "fingerprint", "file": file})
     })
@@ -270,26 +284,28 @@ let validateImageWithWorker = (
           finish(None)
         }
         BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
-        removeOnAbort := Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        removeOnAbort :=
+          Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
         if BrowserBindings.AbortSignal.aborted(sig) {
           onAbort()
         }
       })
-      pool.validateWaitersRef := Belt.Array.concat(pool.validateWaitersRef.contents, [{id, resolve}])
-      pool.validateWaitersRef := pool.validateWaitersRef.contents
-      ->Belt.Array.map(waiter =>
-        if waiter.id == id {
-          {
-            ...waiter,
-            resolve: value => {
-              removeOnAbort.contents->Option.forEach(cb => cb())
-              finish(value)
-            },
+      pool.validateWaitersRef :=
+        Belt.Array.concat(pool.validateWaitersRef.contents, [{id, resolve}])
+      pool.validateWaitersRef :=
+        pool.validateWaitersRef.contents->Belt.Array.map(waiter =>
+          if waiter.id == id {
+            {
+              ...waiter,
+              resolve: value => {
+                removeOnAbort.contents->Option.forEach(cb => cb())
+                finish(value)
+              },
+            }
+          } else {
+            waiter
           }
-        } else {
-          waiter
-        }
-      )
+        )
       let worker = takeWorker(pool)
       postMessage(worker, {"id": id, "type": "validateImage", "file": file})
     })
@@ -321,26 +337,27 @@ let generateTinyWithWorker = (
           finish(None)
         }
         BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
-        removeOnAbort := Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        removeOnAbort :=
+          Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
         if BrowserBindings.AbortSignal.aborted(sig) {
           onAbort()
         }
       })
       pool.tinyWaitersRef := Belt.Array.concat(pool.tinyWaitersRef.contents, [{id, resolve}])
-      pool.tinyWaitersRef := pool.tinyWaitersRef.contents
-      ->Belt.Array.map(waiter =>
-        if waiter.id == id {
-          {
-            ...waiter,
-            resolve: value => {
-              removeOnAbort.contents->Option.forEach(cb => cb())
-              finish(value)
-            },
+      pool.tinyWaitersRef :=
+        pool.tinyWaitersRef.contents->Belt.Array.map(waiter =>
+          if waiter.id == id {
+            {
+              ...waiter,
+              resolve: value => {
+                removeOnAbort.contents->Option.forEach(cb => cb())
+                finish(value)
+              },
+            }
+          } else {
+            waiter
           }
-        } else {
-          waiter
-        }
-      )
+        )
       let worker = takeWorker(pool)
       postMessage(
         worker,
@@ -382,26 +399,27 @@ let extractExifWithWorker = (
           finish(None)
         }
         BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
-        removeOnAbort := Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        removeOnAbort :=
+          Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
         if BrowserBindings.AbortSignal.aborted(sig) {
           onAbort()
         }
       })
       pool.exifWaitersRef := Belt.Array.concat(pool.exifWaitersRef.contents, [{id, resolve}])
-      pool.exifWaitersRef := pool.exifWaitersRef.contents
-      ->Belt.Array.map(waiter =>
-        if waiter.id == id {
-          {
-            ...waiter,
-            resolve: value => {
-              removeOnAbort.contents->Option.forEach(cb => cb())
-              finish(value)
-            },
+      pool.exifWaitersRef :=
+        pool.exifWaitersRef.contents->Belt.Array.map(waiter =>
+          if waiter.id == id {
+            {
+              ...waiter,
+              resolve: value => {
+                removeOnAbort.contents->Option.forEach(cb => cb())
+                finish(value)
+              },
+            }
+          } else {
+            waiter
           }
-        } else {
-          waiter
-        }
-      )
+        )
       let worker = takeWorker(pool)
       postMessage(worker, {"id": id, "type": "extractExif", "file": file})
     })

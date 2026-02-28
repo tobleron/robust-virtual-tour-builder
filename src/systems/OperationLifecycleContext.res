@@ -19,9 +19,9 @@ let defaultVisibleAfterMs = type_ =>
   | OperationLifecycleTypes.Unknown(_) => 800
   }
 
-let selectContextOperation = (
-  tasks: array<OperationLifecycleTypes.task>,
-): option<OperationLifecycleTypes.task> => {
+let selectContextOperation = (tasks: array<OperationLifecycleTypes.task>): option<
+  OperationLifecycleTypes.task,
+> => {
   let activeOps = tasks->Belt.Array.keep(t => isActiveStatus(t.status))
 
   activeOps

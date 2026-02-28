@@ -38,5 +38,6 @@ external generateExifReportLazy: array<exifSceneDataItem> => Promise.t<exifRepor
 external downloadExifReportLazy: string => Promise.t<unit> = "downloadExifReportLazy"
 
 @module("./FeatureLoaders.js")
-external extractExifFromFileLazy: ReBindings.File.t => Promise.t<result<SharedTypes.exifMetadata, string>> =
-  "extractExifFromFileLazy"
+external extractExifFromFileLazy: ReBindings.File.t => Promise.t<
+  result<SharedTypes.exifMetadata, string>,
+> = "extractExifFromFileLazy"

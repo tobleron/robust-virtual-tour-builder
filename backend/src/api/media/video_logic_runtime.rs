@@ -19,7 +19,10 @@ pub fn apply_capture_mode_impl(tab: &Tab, session_id: &str) -> Result<(), String
     video_runtime_impl::apply_capture_mode(tab, session_id)
 }
 
-pub fn resolve_capture_viewport_impl(tab: &Tab, session_id: &str) -> Result<Page::Viewport, String> {
+pub fn resolve_capture_viewport_impl(
+    tab: &Tab,
+    session_id: &str,
+) -> Result<Page::Viewport, String> {
     video_runtime_impl::resolve_capture_viewport(tab, session_id)
 }
 

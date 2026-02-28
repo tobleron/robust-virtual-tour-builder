@@ -285,12 +285,13 @@ let init = async () => {
                 }
               }
 
-              let detailCoords: option<(float, float)> =
-                if Float.isFinite(detail.yaw) && Float.isFinite(detail.pitch) {
-                  Some((detail.yaw, detail.pitch))
-                } else {
-                  None
-                }
+              let detailCoords: option<(float, float)> = if (
+                Float.isFinite(detail.yaw) && Float.isFinite(detail.pitch)
+              ) {
+                Some((detail.yaw, detail.pitch))
+              } else {
+                None
+              }
 
               let fallbackCoords = switch (
                 Nullable.toOption(ViewerSystem.getActiveViewer()),

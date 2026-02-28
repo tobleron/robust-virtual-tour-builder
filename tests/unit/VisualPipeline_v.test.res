@@ -288,8 +288,7 @@ describe("VisualPipeline", () => {
 
     let node = %raw(`root => root.querySelectorAll('.pipeline-node')[1] ?? null`)(container)
     switch Nullable.toOption(node) {
-    | Some(el) =>
-      %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
+    | Some(el) => %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
     | None => ()
     }
 
@@ -299,106 +298,108 @@ describe("VisualPipeline", () => {
     Dom.removeElement(container)
   })
 
-  testAsync("clicking a pipeline node should fall back to source scene when target is missing", async t => {
-    let container = Dom.createElement("div")
-    Dom.appendChild(Dom.documentBody, container)
+  testAsync(
+    "clicking a pipeline node should fall back to source scene when target is missing",
+    async t => {
+      let container = Dom.createElement("div")
+      Dom.appendChild(Dom.documentBody, container)
 
-    let sourceScene: Types.scene = {
-      id: "s1",
-      name: "Scene 1",
-      label: "",
-      file: Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [
-        {
-          linkId: "h1",
-          yaw: 12.0,
-          pitch: -3.0,
-          target: "",
-          targetSceneId: None,
-          targetYaw: None,
-          targetPitch: None,
-          targetHfov: None,
-          startYaw: None,
-          startPitch: None,
-          startHfov: None,
-          viewFrame: None,
-          waypoints: None,
-          displayPitch: None,
-          transition: None,
-          duration: None,
-          isAutoForward: None,
-        },
-      ],
-      category: "",
-      floor: "1",
-      quality: None,
-      colorGroup: None,
-      categorySet: false,
-      labelSet: false,
-      _metadataSource: "user",
-      isAutoForward: false,
-      sequenceId: 0,
-    }
+      let sourceScene: Types.scene = {
+        id: "s1",
+        name: "Scene 1",
+        label: "",
+        file: Url(""),
+        tinyFile: None,
+        originalFile: None,
+        hotspots: [
+          {
+            linkId: "h1",
+            yaw: 12.0,
+            pitch: -3.0,
+            target: "",
+            targetSceneId: None,
+            targetYaw: None,
+            targetPitch: None,
+            targetHfov: None,
+            startYaw: None,
+            startPitch: None,
+            startHfov: None,
+            viewFrame: None,
+            waypoints: None,
+            displayPitch: None,
+            transition: None,
+            duration: None,
+            isAutoForward: None,
+          },
+        ],
+        category: "",
+        floor: "1",
+        quality: None,
+        colorGroup: None,
+        categorySet: false,
+        labelSet: false,
+        _metadataSource: "user",
+        isAutoForward: false,
+        sequenceId: 0,
+      }
 
-    let otherScene: Types.scene = {
-      id: "s2",
-      name: "Scene 2",
-      label: "",
-      file: Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "",
-      floor: "2",
-      quality: None,
-      colorGroup: None,
-      categorySet: false,
-      labelSet: false,
-      _metadataSource: "user",
-      isAutoForward: false,
-      sequenceId: 1,
-    }
+      let otherScene: Types.scene = {
+        id: "s2",
+        name: "Scene 2",
+        label: "",
+        file: Url(""),
+        tinyFile: None,
+        originalFile: None,
+        hotspots: [],
+        category: "",
+        floor: "2",
+        quality: None,
+        colorGroup: None,
+        categorySet: false,
+        labelSet: false,
+        _metadataSource: "user",
+        isAutoForward: false,
+        sequenceId: 1,
+      }
 
-    let mockState = TestUtils.createMockState(
-      ~scenes=[sourceScene, otherScene],
-      ~activeIndex=0,
-      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      (),
-    )
-    let mockState = {
-      ...mockState,
-      timeline: [
-        {
-          id: "step-2",
-          sceneId: "s1",
-          linkId: "h1",
-          targetScene: "",
-          transition: "fade",
-          duration: 1000,
-        },
-      ],
-    }
+      let mockState = TestUtils.createMockState(
+        ~scenes=[sourceScene, otherScene],
+        ~activeIndex=0,
+        ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+        (),
+      )
+      let mockState = {
+        ...mockState,
+        timeline: [
+          {
+            id: "step-2",
+            sceneId: "s1",
+            linkId: "h1",
+            targetScene: "",
+            transition: "fade",
+            duration: 1000,
+          },
+        ],
+      }
 
-    let mockDispatch = _ => ()
+      let mockDispatch = _ => ()
 
-    let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedVisualPipeline mockState mockDispatch />)
-    await wait(100)
+      let root = ReactDOMClient.createRoot(container)
+      ReactDOMClient.Root.render(root, <WrappedVisualPipeline mockState mockDispatch />)
+      await wait(100)
 
-    let node = Dom.querySelector(container, ".pipeline-node")
-    switch Nullable.toOption(node) {
-    | Some(el) =>
-      %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
-    | None => ()
-    }
+      let node = Dom.querySelector(container, ".pipeline-node")
+      switch Nullable.toOption(node) {
+      | Some(el) => %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
+      | None => ()
+      }
 
-    await wait(40)
+      await wait(40)
 
-    t->expect(getSupervisorTarget())->Expect.toEqual(Some("s1"))
-    Dom.removeElement(container)
-  })
+      t->expect(getSupervisorTarget())->Expect.toEqual(Some("s1"))
+      Dom.removeElement(container)
+    },
+  )
 
   testAsync("locked pipeline should ignore click activation", async t => {
     let container = Dom.createElement("div")
@@ -477,8 +478,7 @@ describe("VisualPipeline", () => {
 
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
-    | Some(el) =>
-      %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
+    | Some(el) => %raw(`(el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`)(el)
     | None => ()
     }
 

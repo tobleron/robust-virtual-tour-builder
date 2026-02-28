@@ -47,18 +47,78 @@ type domainConfig = (CircuitBreaker.config, int)
 
 let defaultConfigForDomain = (d: domain): domainConfig =>
   switch d {
-  | Upload =>
-    ({failureThreshold: 6, successThreshold: 2, timeout: 30000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 4)
-  | Export =>
-    ({failureThreshold: 4, successThreshold: 2, timeout: 45000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 2)
-  | Geocoding =>
-    ({failureThreshold: 3, successThreshold: 1, timeout: 20000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 2)
-  | Project =>
-    ({failureThreshold: 8, successThreshold: 2, timeout: 30000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 3)
-  | Telemetry =>
-    ({failureThreshold: 8, successThreshold: 1, timeout: 10000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 2)
-  | Default =>
-    ({failureThreshold: 5, successThreshold: 2, timeout: 30000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 6)
+  | Upload => (
+      (
+        {
+          failureThreshold: 6,
+          successThreshold: 2,
+          timeout: 30000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      4,
+    )
+  | Export => (
+      (
+        {
+          failureThreshold: 4,
+          successThreshold: 2,
+          timeout: 45000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      2,
+    )
+  | Geocoding => (
+      (
+        {
+          failureThreshold: 3,
+          successThreshold: 1,
+          timeout: 20000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      2,
+    )
+  | Project => (
+      (
+        {
+          failureThreshold: 8,
+          successThreshold: 2,
+          timeout: 30000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      3,
+    )
+  | Telemetry => (
+      (
+        {
+          failureThreshold: 8,
+          successThreshold: 1,
+          timeout: 10000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      2,
+    )
+  | Default => (
+      (
+        {
+          failureThreshold: 5,
+          successThreshold: 2,
+          timeout: 30000,
+          onStateTransition: None,
+          onCircuitOpen: None,
+        }: CircuitBreaker.config
+      ),
+      6,
+    )
   }
 
 let ensureDomainEntry = (d: domain): breakerEntry => {
@@ -70,33 +130,40 @@ let ensureDomainEntry = (d: domain): breakerEntry => {
     let key = domainToKey(d)
     let instrumentedConfig: CircuitBreaker.config = {
       ...config,
-      onStateTransition: Some((fromState, toState) => {
-        Logger.info(
-          ~module_="CircuitBreakerRegistry",
-          ~message="CIRCUIT_STATE_TRANSITION",
-          ~data=Logger.castToJson({
-            "domain": key,
-            "from": CircuitBreaker.stateToString(fromState),
-            "to": CircuitBreaker.stateToString(toState),
-          }),
-          (),
-        )
-      }),
-      onCircuitOpen: Some(() => {
-        NotificationManager.dispatch({
-          id: "circuit-open-" ++ key,
-          importance: Warning,
-          context: Operation("network"),
-          message: "Service temporarily unavailable.",
-          details: Some("Circuit opened for " ++ key ++ " domain."),
-          action: None,
-          duration: 8000,
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }),
+      onStateTransition: Some(
+        (fromState, toState) => {
+          Logger.info(
+            ~module_="CircuitBreakerRegistry",
+            ~message="CIRCUIT_STATE_TRANSITION",
+            ~data=Logger.castToJson({
+              "domain": key,
+              "from": CircuitBreaker.stateToString(fromState),
+              "to": CircuitBreaker.stateToString(toState),
+            }),
+            (),
+          )
+        },
+      ),
+      onCircuitOpen: Some(
+        () => {
+          NotificationManager.dispatch({
+            id: "circuit-open-" ++ key,
+            importance: Warning,
+            context: Operation("network"),
+            message: "Service temporarily unavailable.",
+            details: Some("Circuit opened for " ++ key ++ " domain."),
+            action: None,
+            duration: 8000,
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        },
+      ),
     }
-    let entry: breakerEntry = {breaker: CircuitBreaker.make(~config=instrumentedConfig), bulkheadLimit}
+    let entry: breakerEntry = {
+      breaker: CircuitBreaker.make(~config=instrumentedConfig),
+      bulkheadLimit,
+    }
     Dict.set(registry, key, entry)
     Dict.set(inFlightByDomain, key, 0)
     entry
@@ -122,7 +189,15 @@ let tryAcquireBulkhead = (d: domain): bool => {
 let releaseBulkhead = (d: domain) => {
   let key = domainToKey(d)
   let current = Dict.get(inFlightByDomain, key)->Option.getOr(0)
-  Dict.set(inFlightByDomain, key, if current > 0 {current - 1} else {0})
+  Dict.set(
+    inFlightByDomain,
+    key,
+    if current > 0 {
+      current - 1
+    } else {
+      0
+    },
+  )
 }
 
 let getDomainState = (d: domain): CircuitBreaker.state => {
@@ -131,8 +206,7 @@ let getDomainState = (d: domain): CircuitBreaker.state => {
 }
 
 let getSnapshots = (): array<snapshot> => {
-  Dict.toArray(registry)
-  ->Belt.Array.map(((key, entry)) => {
+  Dict.toArray(registry)->Belt.Array.map(((key, entry)) => {
     let inFlight = Dict.get(inFlightByDomain, key)->Option.getOr(0)
     {
       domain: key,

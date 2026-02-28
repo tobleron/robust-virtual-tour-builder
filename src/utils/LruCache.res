@@ -6,7 +6,11 @@ type t<'v> = {
 }
 
 let make = (~maxEntries: int, ~onEvict: option<(string, 'v) => unit>=?): t<'v> => {
-  maxEntries: if maxEntries > 0 {maxEntries} else {1},
+  maxEntries: if maxEntries > 0 {
+    maxEntries
+  } else {
+    1
+  },
   map: Belt.MutableMap.String.make(),
   orderRef: ref([]),
   onEvict,
@@ -27,8 +31,7 @@ let evictOne = (cache: t<'v>) => {
       Belt.MutableMap.String.remove(cache.map, oldestKey)
       cache.orderRef := cache.orderRef.contents->Belt.Array.keep(k => k != oldestKey)
       cache.onEvict->Option.forEach(cb => cb(oldestKey, value))
-    | None =>
-      cache.orderRef := cache.orderRef.contents->Belt.Array.keep(k => k != oldestKey)
+    | None => cache.orderRef := cache.orderRef.contents->Belt.Array.keep(k => k != oldestKey)
     }
   | None => ()
   }
@@ -70,7 +73,11 @@ let clear = (cache: t<'v>) => {
 }
 
 let shrinkTo = (cache: t<'v>, targetMax: int) => {
-  let bounded = if targetMax > 0 {targetMax} else {1}
+  let bounded = if targetMax > 0 {
+    targetMax
+  } else {
+    1
+  }
   while Belt.MutableMap.String.size(cache.map) > bounded {
     evictOne(cache)
   }

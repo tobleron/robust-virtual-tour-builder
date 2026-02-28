@@ -95,8 +95,7 @@ let make = (
   let style = ReBindings.makeStyle({"--node-color": color})
   let className =
     "pipeline-node pipeline-square visual-pipeline-square" ++
-    (isActive ? " active" : "") ++
-    (interactionDisabled ? " disabled" : "")
+    (isActive ? " active" : "") ++ (interactionDisabled ? " disabled" : "")
 
   <div
     className

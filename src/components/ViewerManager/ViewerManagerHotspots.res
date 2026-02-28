@@ -132,27 +132,31 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
         )
         let fromActiveScene = switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | Some(currentScene) =>
-          Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId)
-          ->Option.flatMap(hIdx =>
-            Belt.Array.get(currentScene.hotspots, hIdx)
-            ->Option.map(hotspot => (currentState.activeIndex, hIdx, hotspot))
+          Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId)->Option.flatMap(
+            hIdx =>
+              Belt.Array.get(currentScene.hotspots, hIdx)->Option.map(
+                hotspot => (currentState.activeIndex, hIdx, hotspot),
+              ),
           )
         | None => None
         }
 
-        let fallbackSearch =
-          if fromActiveScene->Option.isSome {
-            None
-          } else {
-            activeScenes
-            ->Belt.Array.mapWithIndex((sceneIdx, scene) =>
-              Belt.Array.getIndexBy(scene.hotspots, h => h.linkId == linkId)->Option.flatMap(hIdx =>
-                Belt.Array.get(scene.hotspots, hIdx)->Option.map(hotspot => (sceneIdx, hIdx, hotspot))
-              )
-            )
-            ->Belt.Array.keepMap(x => x)
-            ->Belt.Array.get(0)
-          }
+        let fallbackSearch = if fromActiveScene->Option.isSome {
+          None
+        } else {
+          activeScenes
+          ->Belt.Array.mapWithIndex(
+            (sceneIdx, scene) =>
+              Belt.Array.getIndexBy(scene.hotspots, h => h.linkId == linkId)->Option.flatMap(
+                hIdx =>
+                  Belt.Array.get(scene.hotspots, hIdx)->Option.map(
+                    hotspot => (sceneIdx, hIdx, hotspot),
+                  ),
+              ),
+          )
+          ->Belt.Array.keepMap(x => x)
+          ->Belt.Array.get(0)
+        }
 
         let resolvedSource = switch fromActiveScene {
         | Some(_) as found => found

@@ -5,11 +5,11 @@ pub mod image_tasks;
 pub mod serve;
 pub mod similarity;
 pub mod video;
+mod video_capture;
 pub mod video_logic;
 mod video_logic_runtime;
-mod video_capture;
-mod video_request_utils;
 mod video_logic_support;
+mod video_request_utils;
 
 pub use image::*;
 pub use serve::*;

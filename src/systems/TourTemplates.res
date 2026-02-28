@@ -170,7 +170,9 @@ let generateTourHTML = (
       ""
     }
     let saleChipHtml = if marketingShowSale {
-      `<span class="viewer-marketing-chip-export viewer-marketing-chip-sale-export ${if !marketingShowRent {
+      `<span class="viewer-marketing-chip-export viewer-marketing-chip-sale-export ${if (
+          !marketingShowRent
+        ) {
           "viewer-marketing-chip-left-export"
         } else {
           ""
@@ -179,11 +181,15 @@ let generateTourHTML = (
       ""
     }
     let textWrapHtml = if marketingBody != "" {
-      `<span class="viewer-marketing-text-wrap-export ${if !marketingShowRent && !marketingShowSale {
+      `<span class="viewer-marketing-text-wrap-export ${if (
+          !marketingShowRent && !marketingShowSale
+        ) {
           "viewer-marketing-text-wrap-export-left"
         } else {
           ""
-        }}"><span class="viewer-marketing-banner-text-export">${escapeHtml(marketingBody)}</span></span>`
+        }}"><span class="viewer-marketing-banner-text-export">${escapeHtml(
+          marketingBody,
+        )}</span></span>`
     } else {
       ""
     }
@@ -191,7 +197,8 @@ let generateTourHTML = (
   } else {
     ""
   }
-  let hasPortraitMarketing = marketingShowRent || marketingShowSale || marketingPhone1 != "" || marketingPhone2 != ""
+  let hasPortraitMarketing =
+    marketingShowRent || marketingShowSale || marketingPhone1 != "" || marketingPhone2 != ""
   let portraitMarketingHtml = if hasPortraitMarketing {
     let portraitBadgeRentHtml = if marketingShowRent {
       `<span class="viewer-marketing-portrait-badge-export viewer-marketing-portrait-badge-rent-export">RENT</span>`

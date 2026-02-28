@@ -280,14 +280,16 @@ describe("EventBus", _ => {
     )
 
     dispatch(NavCancelled)
-    dispatch(UpdateProcessing({
-      "active": true,
-      "progress": 0.1,
-      "message": "Uploading",
-      "phase": "upload",
-      "error": false,
-      "onCancel": () => (),
-    }))
+    dispatch(
+      UpdateProcessing({
+        "active": true,
+        "progress": 0.1,
+        "message": "Uploading",
+        "phase": "upload",
+        "error": false,
+        "onCancel": () => (),
+      }),
+    )
 
     t->expect(navCount.contents)->Expect.toBe(1)
     unsub()

@@ -73,7 +73,7 @@ let percentile = (values: array<float>, p: float): float => {
     0.0
   } else {
     let sorted = toSortedCopy(values)
-    let idx = Belt.Int.fromFloat(Math.floor((Float.fromInt(len - 1)) *. p))
+    let idx = Belt.Int.fromFloat(Math.floor(Float.fromInt(len - 1) *. p))
     Belt.Array.get(sorted, idx)->Option.getOr(0.0)
   }
 }
@@ -143,7 +143,14 @@ let executeAdaptive = (
   }
 
   let recordError = (isError: bool) => {
-    let _ = Array.push(recentErrors, if isError {1.0} else {0.0})
+    let _ = Array.push(
+      recentErrors,
+      if isError {
+        1.0
+      } else {
+        0.0
+      },
+    )
     if Array.length(recentErrors) > cfg.errorWindow {
       ignore(Array.shift(recentErrors))
     }
@@ -157,7 +164,12 @@ let executeAdaptive = (
     let p95 = percentile(latencies, 0.95)
     let heapPressure = getHeapUsageRatio()->Option.getOr(0.0)
 
-    if isError || p95 > cfg.latencyThresholdMs || heapPressure > 0.8 || currentErrorRate > cfg.errorRateThreshold {
+    if (
+      isError ||
+      p95 > cfg.latencyThresholdMs ||
+      heapPressure > 0.8 ||
+      currentErrorRate > cfg.errorRateThreshold
+    ) {
       let halved = Math.Int.max(cfg.minConcurrency, currentConcurrency.contents / 2)
       let forced = if currentErrorRate > cfg.errorRateThreshold {
         cfg.minConcurrency
@@ -183,7 +195,9 @@ let executeAdaptive = (
       1.0
     }
     onProgress(pct, msg)
-    adjustConcurrencyOnBackpressure(~queueDepth=total - completedCount.contents - activeCount.contents)
+    adjustConcurrencyOnBackpressure(
+      ~queueDepth=total - completedCount.contents - activeCount.contents,
+    )
   }
 
   let (resolve, _) = (ref(ignore), ref(ignore))

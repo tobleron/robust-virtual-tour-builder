@@ -165,7 +165,7 @@ describe("Retry", () => {
     let result = await execute(
       ~fn=async (~signal as _) => Error("NetworkError"),
       ~signal,
-      ~isCircuitOpen=(() => true),
+      ~isCircuitOpen=() => true,
     )
 
     switch result {
@@ -181,7 +181,13 @@ describe("Retry", () => {
     let result = await execute(
       ~fn=async (~signal as _) => Error("NetworkError"),
       ~signal,
-      ~config={...defaultConfig, maxRetries: 3, initialDelayMs: 100, jitter: false, totalDeadlineMs: 1},
+      ~config={
+        ...defaultConfig,
+        maxRetries: 3,
+        initialDelayMs: 100,
+        jitter: false,
+        totalDeadlineMs: 1,
+      },
     )
 
     switch result {

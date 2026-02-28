@@ -183,30 +183,35 @@ describe("NavigationSupervisor", () => {
     AppStateBridge.updateState(staleState)
 
     let seenActions: ref<array<Actions.action>> = ref([])
-    NavigationSupervisor.configure(action => {
-      seenActions := Belt.Array.concat(seenActions.contents, [action])
-    })
+    NavigationSupervisor.configure(
+      action => {
+        seenActions := Belt.Array.concat(seenActions.contents, [action])
+      },
+    )
 
     NavigationSupervisor.requestNavigation("scene-new")
 
-    let hasIdleReset = seenActions.contents->Belt.Array.some(action =>
-      switch action {
-      | Actions.SetNavigationStatus(Idle) => true
-      | _ => false
-      }
+    let hasIdleReset = seenActions.contents->Belt.Array.some(
+      action =>
+        switch action {
+        | Actions.SetNavigationStatus(Idle) => true
+        | _ => false
+        },
     )
-    let hasIncomingCleared = seenActions.contents->Belt.Array.some(action =>
-      switch action {
-      | Actions.SetIncomingLink(None) => true
-      | _ => false
-      }
+    let hasIncomingCleared = seenActions.contents->Belt.Array.some(
+      action =>
+        switch action {
+        | Actions.SetIncomingLink(None) => true
+        | _ => false
+        },
     )
-    let hasLatestIntent = seenActions.contents->Belt.Array.some(action =>
-      switch action {
-      | Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId})) =>
-        targetSceneId == "scene-new"
-      | _ => false
-      }
+    let hasLatestIntent = seenActions.contents->Belt.Array.some(
+      action =>
+        switch action {
+        | Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId})) =>
+          targetSceneId == "scene-new"
+        | _ => false
+        },
     )
 
     t->expect(hasIdleReset)->Expect.toBe(true)

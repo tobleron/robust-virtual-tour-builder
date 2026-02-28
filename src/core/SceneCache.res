@@ -14,19 +14,21 @@ let revokeIfBlobUrl = (url: string) => {
 }
 
 /* Map of sceneId -> blobUrl for pre-calculated snapshots */
-let cache: t = LruCache.make(~maxEntries=snapshotMax, ~onEvict=((_, url) => revokeIfBlobUrl(url)))
+let cache: t = LruCache.make(~maxEntries=snapshotMax, ~onEvict=(_, url) => revokeIfBlobUrl(url))
 
 /* Map of sceneId -> blobUrl for source files */
-let sourceUrls: t = LruCache.make(~maxEntries=sourceMax, ~onEvict=((_, url) => revokeIfBlobUrl(url)))
+let sourceUrls: t = LruCache.make(~maxEntries=sourceMax, ~onEvict=(_, url) => revokeIfBlobUrl(url))
 
 /* Map of sceneId -> blobUrl for thumbnails */
-let thumbUrls: t = LruCache.make(~maxEntries=thumbMax, ~onEvict=((_, url) => revokeIfBlobUrl(url)))
+let thumbUrls: t = LruCache.make(~maxEntries=thumbMax, ~onEvict=(_, url) => revokeIfBlobUrl(url))
 
-@val external measureUserAgentSpecificMemory: unit => Promise.t<{..}> = "performance.measureUserAgentSpecificMemory"
+@val
+external measureUserAgentSpecificMemory: unit => Promise.t<{..}> =
+  "performance.measureUserAgentSpecificMemory"
 let memoryPollTimer: ref<option<int>> = ref(None)
 let memoryHighWatermarkBytes = 500.0 *. 1024.0 *. 1024.0
 
-@get external bytesOrUndefined: ({..}) => option<float> = "bytes"
+@get external bytesOrUndefined: {..} => option<float> = "bytes"
 
 let getBytesUsed = (memObj: {..}): option<float> => bytesOrUndefined(memObj)
 
@@ -114,24 +116,22 @@ let clearAll = () => {
 let startMemoryMonitoring = () => {
   switch memoryPollTimer.contents {
   | Some(_) => ()
-  | None =>
-    memoryPollTimer := Some(
-      Window.setInterval(() => {
-        try {
-          let _ = measureUserAgentSpecificMemory()
-          ->Promise.then(memObj => {
-            let bytesUsed = getBytesUsed(memObj)->Option.getOr(0.0)
-            if bytesUsed > memoryHighWatermarkBytes {
-              applyMemoryPressure()
-            }
-            Promise.resolve()
-          })
-          ->Promise.catch(_ => Promise.resolve())
-        } catch {
-        | _ => ()
-        }
-      }, 10000),
-    )
+  | None => memoryPollTimer := Some(Window.setInterval(() => {
+          try {
+            let _ =
+              measureUserAgentSpecificMemory()
+              ->Promise.then(memObj => {
+                let bytesUsed = getBytesUsed(memObj)->Option.getOr(0.0)
+                if bytesUsed > memoryHighWatermarkBytes {
+                  applyMemoryPressure()
+                }
+                Promise.resolve()
+              })
+              ->Promise.catch(_ => Promise.resolve())
+          } catch {
+          | _ => ()
+          }
+        }, 10000))
   }
 }
 

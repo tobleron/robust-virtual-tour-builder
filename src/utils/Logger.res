@@ -251,8 +251,9 @@ module UnhandledRejectionEvent = {
 
 external toNullable: 'a => Nullable.t<'a> = "%identity"
 external toUnhandledEvent: 'a => UnhandledRejectionEvent.t = "%identity"
-let setGlobalLoggerWarnHook: ((string, string, JSON.t) => unit) => unit =
-  %raw(`function(cb){ globalThis.__vtbLoggerWarn = cb; }`)
+let setGlobalLoggerWarnHook: (
+  (string, string, JSON.t) => unit
+) => unit = %raw(`function(cb){ globalThis.__vtbLoggerWarn = cb; }`)
 
 let batchTimer = ref(None)
 

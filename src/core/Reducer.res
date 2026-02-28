@@ -70,7 +70,8 @@ let isStructuralMutation = (action: Actions.action): bool => {
 let maxBatchDepth = 3
 
 let applyUiOnly = (state: state, action: Actions.action): state => state->apply(action, Ui.reduce)
-let applySceneOnly = (state: state, action: Actions.action): state => state->apply(action, Scene.reduce)
+let applySceneOnly = (state: state, action: Actions.action): state =>
+  state->apply(action, Scene.reduce)
 let applyHotspotOnly = (state: state, action: Actions.action): state =>
   state->apply(action, Hotspot.reduce)
 let applyNavigationOnly = (state: state, action: Actions.action): state =>
@@ -108,7 +109,8 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SyncSceneNames
   | Actions.ApplyLazyRename(_, _)
   | Actions.UpdateSceneMetadata(_, _)
-  | Actions.PatchSceneThumbnail(_, _) => applySceneOnly(state, action)
+  | Actions.PatchSceneThumbnail(_, _) =>
+    applySceneOnly(state, action)
 
   | Actions.AddHotspot(_, _)
   | Actions.RemoveHotspot(_, _)
@@ -117,16 +119,19 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.CommitHotspotMove(_, _, _, _)
   | Actions.ClearHotspots(_)
   | Actions.UpdateHotspotMetadata(_, _, _)
-  | Actions.UpdateHotspotTargetView(_, _, _, _, _) => applyHotspotOnly(state, action)
+  | Actions.UpdateHotspotTargetView(_, _, _, _, _) =>
+    applyHotspotOnly(state, action)
 
   | Actions.SetPreloadingScene(_)
   | Actions.StopLinking
   | Actions.UpdateLinkDraft(_)
   | Actions.SetIsTeasing(_)
-  | Actions.MarkSceneVisited(_) => applyUiOnly(state, action)
+  | Actions.MarkSceneVisited(_) =>
+    applyUiOnly(state, action)
 
   | Actions.StartLinking(_)
-  | Actions.StartAutoPilot(_, _) => applyUiThenSimulation(state, action)
+  | Actions.StartAutoPilot(_, _) =>
+    applyUiThenSimulation(state, action)
 
   | Actions.StopAutoPilot
   | Actions.AddVisitedLink(_)
@@ -134,7 +139,8 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SetStoppingOnArrival(_)
   | Actions.SetSkipAutoForward(_)
   | Actions.UpdateAdvanceTime(_)
-  | Actions.SetPendingAdvance(_) => applySimulationOnly(state, action)
+  | Actions.SetPendingAdvance(_) =>
+    applySimulationOnly(state, action)
 
   | Actions.SetSimulationMode(_)
   | Actions.SetNavigationStatus(_)
@@ -145,7 +151,8 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SetCurrentJourneyId(_)
   | Actions.NavigationCompleted(_)
   | Actions.SetNavigationFsmState(_)
-  | Actions.DispatchNavigationFsmEvent(_) => applyNavigationOnly(state, action)
+  | Actions.DispatchNavigationFsmEvent(_) =>
+    applyNavigationOnly(state, action)
 
   | Actions.AddToTimeline(_)
   | Actions.SetTimeline(_)
@@ -153,7 +160,8 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.RemoveFromTimeline(_)
   | Actions.ReorderTimeline(_, _)
   | Actions.UpdateTimelineStep(_, _)
-  | Actions.CleanupTimeline => applyTimelineOnly(state, action)
+  | Actions.CleanupTimeline =>
+    applyTimelineOnly(state, action)
 
   | Actions.SetTourName(_)
   | Actions.LoadProject(_)
@@ -162,7 +170,8 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SetSessionId(_)
   | Actions.SetLogo(_)
   | Actions.SetMarketingSettings(_, _, _, _, _)
-  | Actions.Reset => applyProjectOnly(state, action)
+  | Actions.Reset =>
+    applyProjectOnly(state, action)
 
   | _ => applyFullPipeline(state, action)
   }

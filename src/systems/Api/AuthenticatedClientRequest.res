@@ -6,11 +6,15 @@ include AuthenticatedClientBase
 let classifyRateLimitScope = (url: string): string => {
   if String.includes(url, "/health") {
     "health"
-  } else if String.includes(url, "/media/process-full") || String.includes(url, "/media/resize-batch") {
+  } else if (
+    String.includes(url, "/media/process-full") || String.includes(url, "/media/resize-batch")
+  ) {
     "media_heavy"
-  } else if String.includes(url, "/project/load") ||
-      String.includes(url, "/project/import/status") ||
-      String.includes(url, "/project/export/status") {
+  } else if (
+    String.includes(url, "/project/load") ||
+    String.includes(url, "/project/import/status") ||
+    String.includes(url, "/project/export/status")
+  ) {
     "read"
   } else if String.includes(url, "/geocoding") || String.includes(url, "/project/file/") {
     "read"
@@ -151,129 +155,129 @@ let request = async (
         if !acquireSucceeded {
           Error("BulkheadRejected: Too many concurrent requests in domain")
         } else {
-        try {
-          // In half-open state, probe health before sending user request.
-          let probeAllowed = if lastState === CircuitBreaker.Open || lastState === CircuitBreaker.HalfOpen {
-            let probeRes = await fetch(
-              Constants.backendUrl ++ "/health",
-              {
-                "method": "GET",
-                "headers": Dict.make(),
-                "signal": Some(signalScope.signal),
-              },
-            )
-            if probeRes.status >= 400 {
-              CircuitBreaker.recordFailure(domainBreaker)
-              false
+          try {
+            // In half-open state, probe health before sending user request.
+            let probeAllowed = if (
+              lastState === CircuitBreaker.Open || lastState === CircuitBreaker.HalfOpen
+            ) {
+              let probeRes = await fetch(
+                Constants.backendUrl ++ "/health",
+                {
+                  "method": "GET",
+                  "headers": Dict.make(),
+                  "signal": Some(signalScope.signal),
+                },
+              )
+              if probeRes.status >= 400 {
+                CircuitBreaker.recordFailure(domainBreaker)
+                false
+              } else {
+                CircuitBreaker.recordSuccess(domainBreaker)
+                true
+              }
             } else {
-              CircuitBreaker.recordSuccess(domainBreaker)
               true
             }
-          } else {
-            true
-          }
 
-          if !probeAllowed {
-            CircuitBreakerRegistry.releaseBulkhead(domain)
-            signalScope.cleanup()
-            Error("Circuit breaker is open")
-          } else {
-          let scopeClass = classifyRateLimitScope(url)
-          let _ = await RequestQueue.waitForScope(~scope=scopeClass)
-          let res = await fetch(url, options)
-
-          if res.status == 429 {
-            signalScope.cleanup()
-            // 429 is a controlled throttling response, not a transport failure.
-            // Do not trip the circuit breaker; rely on Retry-After backoff.
-            CircuitBreakerRegistry.releaseBulkhead(domain)
-
-            let retryAfter =
-              res.headers
-              ->getHeader("Retry-After")
-              ->Nullable.toOption
-              ->Option.flatMap(Belt.Int.fromString)
-              ->Option.getOr(10)
-            let rateScope =
-              res.headers
-              ->getHeader("x-ratelimit-scope")
-              ->Nullable.toOption
-              ->Option.getOr(scopeClass)
-
-            RequestQueue.handleRateLimitForScope(~scope=rateScope, ~seconds=retryAfter)
-
-            EventBus.dispatch(RateLimitBackoff(retryAfter))
-
-            Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
-          } else if res.status >= 400 {
-            signalScope.cleanup()
-            CircuitBreaker.recordFailure(domainBreaker)
-            CircuitBreakerRegistry.releaseBulkhead(domain)
-            let currentState = CircuitBreaker.getState(domainBreaker)
-
-            if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
-              Logger.info(
-                ~module_="AuthenticatedClient",
-                ~message="CIRCUIT_OPENED",
-                ~data=Logger.castToJson({"domain": domainKey}),
-                (),
-              )
-              NotificationManager.dispatch({
-                id: "circuit-breaker-open-" ++ domainKey,
-                importance: Warning,
-                context: Operation("network"),
-                message: "Connection issues detected for service domain.",
-                details: Some(
-                  "Circuit breaker activated to prevent overload in this domain.",
-                ),
-                action: None,
-                duration: 10000,
-                dismissible: true,
-                createdAt: Date.now(),
-              })
-            }
-
-            let errorText = await res.text()
-            Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
-          } else {
-            signalScope.cleanup()
-            CircuitBreaker.recordSuccess(domainBreaker)
-            CircuitBreakerRegistry.releaseBulkhead(domain)
-            Ok(res)
-          }
-          }
-        } catch {
-        | e =>
-          signalScope.cleanup()
-          CircuitBreakerRegistry.releaseBulkhead(domain)
-          // Use JsExn as suggested by deprecation warning
-          let (name, msg) = switch JsExn.fromException(e) {
-          | Some(err) => (
-              Option.getOr(JsExn.name(err), "Unknown"),
-              Option.getOr(JsExn.message(err), "Unknown Error"),
-            )
-          | None => ("Unknown", String.make(e))
-          }
-
-          if name == "AbortError" || name == "Abort" {
-            if signalScope.wasTimedOut() {
-              Error(
-                "TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms",
-              )
+            if !probeAllowed {
+              CircuitBreakerRegistry.releaseBulkhead(domain)
+              signalScope.cleanup()
+              Error("Circuit breaker is open")
             } else {
-              Error("AbortError")
-            }
-          } else {
-            CircuitBreaker.recordFailure(domainBreaker)
-            Error(
-              if msg == "" {
-                "Unknown Error"
+              let scopeClass = classifyRateLimitScope(url)
+              let _ = await RequestQueue.waitForScope(~scope=scopeClass)
+              let res = await fetch(url, options)
+
+              if res.status == 429 {
+                signalScope.cleanup()
+                // 429 is a controlled throttling response, not a transport failure.
+                // Do not trip the circuit breaker; rely on Retry-After backoff.
+                CircuitBreakerRegistry.releaseBulkhead(domain)
+
+                let retryAfter =
+                  res.headers
+                  ->getHeader("Retry-After")
+                  ->Nullable.toOption
+                  ->Option.flatMap(Belt.Int.fromString)
+                  ->Option.getOr(10)
+                let rateScope =
+                  res.headers
+                  ->getHeader("x-ratelimit-scope")
+                  ->Nullable.toOption
+                  ->Option.getOr(scopeClass)
+
+                RequestQueue.handleRateLimitForScope(~scope=rateScope, ~seconds=retryAfter)
+
+                EventBus.dispatch(RateLimitBackoff(retryAfter))
+
+                Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
+              } else if res.status >= 400 {
+                signalScope.cleanup()
+                CircuitBreaker.recordFailure(domainBreaker)
+                CircuitBreakerRegistry.releaseBulkhead(domain)
+                let currentState = CircuitBreaker.getState(domainBreaker)
+
+                if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
+                  Logger.info(
+                    ~module_="AuthenticatedClient",
+                    ~message="CIRCUIT_OPENED",
+                    ~data=Logger.castToJson({"domain": domainKey}),
+                    (),
+                  )
+                  NotificationManager.dispatch({
+                    id: "circuit-breaker-open-" ++ domainKey,
+                    importance: Warning,
+                    context: Operation("network"),
+                    message: "Connection issues detected for service domain.",
+                    details: Some("Circuit breaker activated to prevent overload in this domain."),
+                    action: None,
+                    duration: 10000,
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
+                }
+
+                let errorText = await res.text()
+                Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
               } else {
-                msg
-              },
-            )
+                signalScope.cleanup()
+                CircuitBreaker.recordSuccess(domainBreaker)
+                CircuitBreakerRegistry.releaseBulkhead(domain)
+                Ok(res)
+              }
+            }
+          } catch {
+          | e =>
+            signalScope.cleanup()
+            CircuitBreakerRegistry.releaseBulkhead(domain)
+            // Use JsExn as suggested by deprecation warning
+            let (name, msg) = switch JsExn.fromException(e) {
+            | Some(err) => (
+                Option.getOr(JsExn.name(err), "Unknown"),
+                Option.getOr(JsExn.message(err), "Unknown Error"),
+              )
+            | None => ("Unknown", String.make(e))
+            }
+
+            if name == "AbortError" || name == "Abort" {
+              if signalScope.wasTimedOut() {
+                Error(
+                  "TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms",
+                )
+              } else {
+                Error("AbortError")
+              }
+            } else {
+              CircuitBreaker.recordFailure(domainBreaker)
+              Error(
+                if msg == "" {
+                  "Unknown Error"
+                } else {
+                  msg
+                },
+              )
+            }
           }
-        }
         }
       }
     }

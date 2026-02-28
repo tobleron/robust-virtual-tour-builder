@@ -87,10 +87,12 @@ describe("AsyncQueue", () => {
     let items = [1, 2, 3, 4]
     let worker = (_index, item, _updateStatus) =>
       if item == 2 || item == 4 {
-        Promise.resolve()->Promise.then(_ => {
-          let _ = Js.Exn.raiseError("adaptive fail")
-          Promise.resolve(0)
-        })
+        Promise.resolve()->Promise.then(
+          _ => {
+            let _ = Js.Exn.raiseError("adaptive fail")
+            Promise.resolve(0)
+          },
+        )
       } else {
         Promise.resolve(item)
       }
@@ -111,11 +113,12 @@ describe("AsyncQueue", () => {
       onProgress,
     )
 
-    let failed = adaptive.results->Belt.Array.keep(r =>
-      switch r {
-      | Failed(_, _) => true
-      | _ => false
-      }
+    let failed = adaptive.results->Belt.Array.keep(
+      r =>
+        switch r {
+        | Failed(_, _) => true
+        | _ => false
+        },
     )
 
     t->expect(Array.length(failed))->Expect.toBe(2)

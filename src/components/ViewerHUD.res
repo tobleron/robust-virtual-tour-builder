@@ -164,11 +164,14 @@ let make = React.memo(() => {
 
             {if marketingText.body != "" {
               <span
-                className={`viewer-marketing-text-wrap ${!marketingText.showRent && !marketingText.showSale
+                className={`viewer-marketing-text-wrap ${!marketingText.showRent &&
+                  !marketingText.showSale
                     ? "viewer-marketing-text-wrap-left"
                     : ""}`}
               >
-                <span className="viewer-marketing-banner-text"> {React.string(marketingText.body)} </span>
+                <span className="viewer-marketing-banner-text">
+                  {React.string(marketingText.body)}
+                </span>
               </span>
             } else {
               React.null

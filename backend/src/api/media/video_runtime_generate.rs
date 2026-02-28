@@ -256,7 +256,10 @@ pub fn generate_teaser_sync(
             Ok(Some(status)) => {
                 if !status.success() {
                     drop(browser);
-                    return Err(format!("FFmpeg exited with error code: {:?}", status.code()));
+                    return Err(format!(
+                        "FFmpeg exited with error code: {:?}",
+                        status.code()
+                    ));
                 }
                 break;
             }

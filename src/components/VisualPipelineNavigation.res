@@ -1,2 +1,1 @@
-let goToScene = (sceneId: string) =>
-  NavigationSupervisor.requestNavigation(sceneId)
+let goToScene = (sceneId: string) => NavigationSupervisor.requestNavigation(sceneId)

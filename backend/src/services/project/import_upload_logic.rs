@@ -12,7 +12,8 @@ pub fn validate_project_size(size_bytes: u64, max_bytes: u64) -> Result<usize, S
             max_bytes
         ));
     }
-    usize::try_from(size_bytes).map_err(|_| "Project size is too large for this platform".to_string())
+    usize::try_from(size_bytes)
+        .map_err(|_| "Project size is too large for this platform".to_string())
 }
 
 pub fn validate_chunk_bounds(session: &UploadSession, chunk_index: usize) -> Result<(), String> {

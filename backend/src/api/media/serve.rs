@@ -1,6 +1,4 @@
-use actix_web::http::header::{
-    CACHE_CONTROL, ETAG, HeaderValue, IF_NONE_MATCH, PRAGMA, VARY,
-};
+use actix_web::http::header::{CACHE_CONTROL, ETAG, HeaderValue, IF_NONE_MATCH, PRAGMA, VARY};
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -235,10 +233,9 @@ pub async fn serve_project_file(
                 CACHE_CONTROL,
                 HeaderValue::from_static("public, max-age=3600"),
             );
-            response.headers_mut().insert(
-                VARY,
-                HeaderValue::from_static("Accept-Encoding"),
-            );
+            response
+                .headers_mut()
+                .insert(VARY, HeaderValue::from_static("Accept-Encoding"));
             response
                 .headers_mut()
                 .insert(PRAGMA, HeaderValue::from_static("public"));

@@ -3,11 +3,10 @@
  * This file is updated by scripts/update-version.js
  * It contains both version data and utility functions.
  */
-
-let version = "4.14.2"
-let buildNumber = 2
+let version = "5.0.0"
+let buildNumber = 0
 let generatedBuildInfo = "[Development Build]"
-let buildInfo = "[Development Build 2]"
+let buildInfo = "[Development Build 0]"
 
 /**
  * Returns the current application version.

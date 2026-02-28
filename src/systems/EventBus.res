@@ -88,8 +88,14 @@ let leakWarnThreshold = 50
 
 let classifyChannel = (evt: event): eventChannel =>
   switch evt {
-  | NavStart(_) | NavCompleted(_) | NavCancelled | NavProgress(_) | SceneArrived(_) | LinkPreviewStart(_)
-  | LinkPreviewEnd | PreviewLinkId(_) =>
+  | NavStart(_)
+  | NavCompleted(_)
+  | NavCancelled
+  | NavProgress(_)
+  | SceneArrived(_)
+  | LinkPreviewStart(_)
+  | LinkPreviewEnd
+  | PreviewLinkId(_) =>
     Navigation
   | TriggerUpload | UpdateProcessing(_) => Upload
   | ShowModal(_) | CloseModal | OpenHotspotMenu(_) | ForceHotspotSync | ClearSimUi => Ui
@@ -114,7 +120,9 @@ let subscriptionCount = () =>
 let warnIfTooManySubscriptions = () => {
   let total = subscriptionCount()
   if total > leakWarnThreshold {
-    let payload = JsonCombinators.Json.Encode.object([("totalSubscriptions", JsonCombinators.Json.Encode.int(total))])
+    let payload = JsonCombinators.Json.Encode.object([
+      ("totalSubscriptions", JsonCombinators.Json.Encode.int(total)),
+    ])
     switch loggerWarnHook {
     | Some(loggerWarn) => loggerWarn("EventBus", "SUBSCRIPTION_LEAK_SENTINEL", payload)
     | None => Console.warn2("[EventBus] SUBSCRIPTION_LEAK_SENTINEL", total)

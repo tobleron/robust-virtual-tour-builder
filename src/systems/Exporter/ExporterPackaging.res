@@ -11,7 +11,7 @@ type marketingBannerPayload = {
 }
 
 let normalizeMarketingValue = (value: string): string =>
-  value->String.trim->String.replaceRegExp(%re("/\\s+/g"), " ")->String.trim
+  value->String.trim->String.replaceRegExp(/\\s+/g, " ")->String.trim
 
 let toWebpFilename = (name: string, ~fallback: string): string => {
   let base = name->UrlUtils.stripExtension

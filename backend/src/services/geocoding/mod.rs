@@ -32,7 +32,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_geocoder_suite_sequential() {
-        let _guard = cache::GEOCODING_TEST_MUTEX.lock().expect("test mutex poisoned");
+        let _guard = cache::GEOCODING_TEST_MUTEX
+            .lock()
+            .expect("test mutex poisoned");
         test_coordinate_rounding_internal();
         test_reverse_geocode_with_cache_internal().await;
         test_clear_cache_internal().await;

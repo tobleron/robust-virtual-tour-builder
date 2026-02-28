@@ -131,8 +131,7 @@ let make = React.memo(() => {
 
         // Get target scene and call Supervisor - it handles FSM events and navigation coordination
         switch Belt.Array.get(sceneSlice.scenes, index) {
-        | Some(targetScene) =>
-          NavigationSupervisor.requestNavigation(targetScene.id)
+        | Some(targetScene) => NavigationSupervisor.requestNavigation(targetScene.id)
         | None => ()
         }
       }

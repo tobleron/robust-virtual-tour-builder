@@ -175,7 +175,8 @@ pub(super) fn capture_frames_cdp(
     let _ = tab.call_method(Page::StopScreencast(None));
 
     if let Some(last_frame) = last_frame_data.as_ref() {
-        let expected_total_frames = (start_sim.elapsed().as_secs_f64() * TEASER_OUTPUT_FPS).round() as u64;
+        let expected_total_frames =
+            (start_sim.elapsed().as_secs_f64() * TEASER_OUTPUT_FPS).round() as u64;
         if expected_total_frames > emitted_frames {
             let tail_pad = expected_total_frames - emitted_frames;
             duplicated_frames = duplicated_frames.saturating_add(tail_pad);

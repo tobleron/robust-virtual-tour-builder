@@ -66,9 +66,9 @@ fn decode_cache_payload(
                         },
                     );
                 }
-                let stats = data
-                    .get("stats")
-                    .and_then(|stats_obj| serde_json::from_value::<CacheStats>(stats_obj.clone()).ok());
+                let stats = data.get("stats").and_then(|stats_obj| {
+                    serde_json::from_value::<CacheStats>(stats_obj.clone()).ok()
+                });
                 return (Some(loaded_cache), stats, false);
             }
             Err(_) => return (None, None, true),
@@ -79,9 +79,9 @@ fn decode_cache_payload(
     if let Some(cache_obj) = data.get("cache") {
         match serde_json::from_value::<HashMap<GeocodeKey, CachedGeocode>>(cache_obj.clone()) {
             Ok(loaded_cache) => {
-                let stats = data
-                    .get("stats")
-                    .and_then(|stats_obj| serde_json::from_value::<CacheStats>(stats_obj.clone()).ok());
+                let stats = data.get("stats").and_then(|stats_obj| {
+                    serde_json::from_value::<CacheStats>(stats_obj.clone()).ok()
+                });
                 return (Some(loaded_cache), stats, false);
             }
             Err(_) => return (None, None, true),

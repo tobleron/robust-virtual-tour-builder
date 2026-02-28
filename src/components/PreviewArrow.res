@@ -130,78 +130,81 @@ let make = (
     if !canProceed(~capability=CanEditHotspots, ~context="preview_arrow") {
       ()
     } else {
-    let currentState = AppContext.getBridgeState()
-    let isMovingAny = currentState.movingHotspot != None
+      let currentState = AppContext.getBridgeState()
+      let isMovingAny = currentState.movingHotspot != None
 
-    if isMovingAny {
-      ()
-    } else if toggleInFlightRef.current {
-      ()
-    } else {
-      let activeScenesForGuard = SceneInventory.getActiveScenes(
-        currentState.inventory,
-        currentState.sceneOrder,
-      )
-      let canEnableAutoForward =
-        HotspotHelpers.canEnableAutoForward(activeScenesForGuard, sceneIndex, hotspotIndex)
-
-      let newVal = !localIsAF
-      if newVal && !canEnableAutoForward {
-        NotificationManager.dispatch({
-          id: "autoforward-validation-error",
-          importance: Error,
-          context: Operation("hotspot_action"),
-          message: "Only one auto-forward link per scene",
-          details: Some(
-            "Disable auto-forward on the existing link first, then enable it on this link.",
-          ),
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Error),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+      if isMovingAny {
+        ()
+      } else if toggleInFlightRef.current {
         ()
       } else {
-      toggleInFlightRef.current = true
-
-      // 1. Stylistic Feedback: Start blink on the CURRENT icon
-      setFlickerYellow(_ => true)
-
-      // 2. Immediate Data Update (Robustness)
-      dispatch(
-        Actions.UpdateHotspotMetadata(
+        let activeScenesForGuard = SceneInventory.getActiveScenes(
+          currentState.inventory,
+          currentState.sceneOrder,
+        )
+        let canEnableAutoForward = HotspotHelpers.canEnableAutoForward(
+          activeScenesForGuard,
           sceneIndex,
           hotspotIndex,
-          Logger.castToJson({"isAutoForward": newVal}),
-        ),
-      )
+        )
 
-      // 3. Notification (Instant)
-      NotificationManager.dispatch({
-        id: "",
-        importance: Info,
-        context: Operation("preview_arrow"),
-        message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Info),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
+        let newVal = !localIsAF
+        if newVal && !canEnableAutoForward {
+          NotificationManager.dispatch({
+            id: "autoforward-validation-error",
+            importance: Error,
+            context: Operation("hotspot_action"),
+            message: "Only one auto-forward link per scene",
+            details: Some(
+              "Disable auto-forward on the existing link first, then enable it on this link.",
+            ),
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+          ()
+        } else {
+          toggleInFlightRef.current = true
 
-      // 4. Sequence: Wait for blinks to complete, THEN swap the icon
-      let _ = setTimeout(() => {
-        setFlickerYellow(_ => false)
-        setIsSwapping(_ => true)
-        setLocalIsAF(_ => newVal) // Swap icon now
+          // 1. Stylistic Feedback: Start blink on the CURRENT icon
+          setFlickerYellow(_ => true)
 
-        let _ = setTimeout(() => {
-          setIsSwapping(_ => false)
-          toggleInFlightRef.current = false // Re-enable external syncs
-        }, 400)
-      }, 800)
+          // 2. Immediate Data Update (Robustness)
+          dispatch(
+            Actions.UpdateHotspotMetadata(
+              sceneIndex,
+              hotspotIndex,
+              Logger.castToJson({"isAutoForward": newVal}),
+            ),
+          )
+
+          // 3. Notification (Instant)
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("preview_arrow"),
+            message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+
+          // 4. Sequence: Wait for blinks to complete, THEN swap the icon
+          let _ = setTimeout(() => {
+            setFlickerYellow(_ => false)
+            setIsSwapping(_ => true)
+            setLocalIsAF(_ => newVal) // Swap icon now
+
+            let _ = setTimeout(() => {
+              setIsSwapping(_ => false)
+              toggleInFlightRef.current = false // Re-enable external syncs
+            }, 400)
+          }, 800)
+        }
       }
-    }
     }
   }
 
@@ -235,30 +238,30 @@ let make = (
     if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
       ()
     } else {
-    let currentState = AppContext.getBridgeState()
-    let isMovingAny = currentState.movingHotspot != None
+      let currentState = AppContext.getBridgeState()
+      let isMovingAny = currentState.movingHotspot != None
 
-    if isMovingAny {
-      ()
-    } else {
-      // Start Red Flicker
-      setFlickerRed(_ => true)
-      let _ = setTimeout(() => {
-        setFlickerRed(_ => false)
-        dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-        NotificationManager.dispatch({
-          id: "",
-          importance: Info,
-          context: Operation("preview_arrow"),
-          message: "Hotspot Removed",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }, 800)
-    }
+      if isMovingAny {
+        ()
+      } else {
+        // Start Red Flicker
+        setFlickerRed(_ => true)
+        let _ = setTimeout(() => {
+          setFlickerRed(_ => false)
+          dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("preview_arrow"),
+            message: "Hotspot Removed",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        }, 800)
+      }
     }
   }
 
@@ -267,28 +270,28 @@ let make = (
     if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
       ()
     } else {
-    let currentState = AppContext.getBridgeState()
-    let isMovingThisActual = switch currentState.movingHotspot {
-    | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
-    | None => false
-    }
+      let currentState = AppContext.getBridgeState()
+      let isMovingThisActual = switch currentState.movingHotspot {
+      | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
+      | None => false
+      }
 
-    if isMovingThisActual {
-      dispatch(StopMovingHotspot)
-    } else {
-      dispatch(StartMovingHotspot(sceneIndex, hotspotIndex))
-      NotificationManager.dispatch({
-        id: "hotspot-move-mode",
-        importance: Info,
-        context: Operation("preview_arrow"),
-        message: "Move Mode Active",
-        details: Some("Click anywhere on the panorama to place the link. ESC to cancel."),
-        action: None,
-        duration: 5000,
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    }
+      if isMovingThisActual {
+        dispatch(StopMovingHotspot)
+      } else {
+        dispatch(StartMovingHotspot(sceneIndex, hotspotIndex))
+        NotificationManager.dispatch({
+          id: "hotspot-move-mode",
+          importance: Info,
+          context: Operation("preview_arrow"),
+          message: "Move Mode Active",
+          details: Some("Click anywhere on the panorama to place the link. ESC to cancel."),
+          action: None,
+          duration: 5000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      }
     }
   }
 
