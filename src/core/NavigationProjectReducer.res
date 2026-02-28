@@ -3,27 +3,7 @@
 open Types
 open Actions
 
-module NavSync = {
-  let syncNavigationFsm = (nextState: state): state => {
-    switch nextState.appMode {
-    | Interactive(s) => {
-        ...nextState,
-        navigationState: {...nextState.navigationState, navigationFsm: s.navigation},
-      }
-    | _ => nextState
-    }
-  }
-
-  let syncNavigationFsmInAppMode = (nextState: state, nextNavState: navigationState): state => {
-    switch nextState.appMode {
-    | Interactive(s) => {
-        ...nextState,
-        appMode: Interactive({...s, navigation: nextNavState.navigationFsm}),
-      }
-    | _ => nextState
-    }
-  }
-}
+// NavSync has been moved to src/core/NavSync.res to avoid circular dependencies.
 
 module Navigation = {
   let handleSimulationModeChange = (state: state, _val: bool): state => {
@@ -38,6 +18,14 @@ module Navigation = {
   }
 
   let handleAppFsmEvent = (state: state, event: AppFSM.event): state => {
+    Logger.debug(
+      ~module_="ReducerAppFsm",
+      ~message="Processing Event: " ++
+      AppFSM.eventToString(event) ++
+      " in Mode: " ++
+      AppFSM.toString(state.appMode),
+      (),
+    )
     let nextAppMode = AppFSM.transition(state.appMode, event)
     let nextState = {...state, appMode: nextAppMode}
     NavSync.syncNavigationFsm(nextState)
@@ -124,6 +112,7 @@ module Project = {
           isTeasing: false,
           isLinking: false,
           linkDraft: None,
+          movingHotspot: None,
           nextSceneSequenceId: nextSeqId,
         }
       }

@@ -6,7 +6,7 @@ type optimisticResult<'a> =
 
 let execute = (
   ~action: Actions.action,
-  ~apiCall: unit => Promise.t<result<'a, string>>,
+  ~apiCall: Types.state => Promise.t<result<'a, string>>,
   ~getState: unit => Types.state=AppContext.getBridgeState,
   ~getDispatch: unit => Actions.action => unit=AppContext.getBridgeDispatch,
   ~onRollback: Types.state => unit=AppContext.restoreState,
@@ -14,22 +14,52 @@ let execute = (
   // 1. Capture state
   let currentState = getState()
   let snapshotId = StateSnapshot.capture(currentState, action)
+  
+  // 2. Compute next state for the API call (avoiding bridge lag)
+  let nextState = Reducer.reducer(currentState, action)
+  
+  Logger.debug(
+    ~module_="OptimisticAction",
+    ~message="CAPTURING_SNAPSHOT",
+    ~data=Some(Logger.castToJson({
+      "id": snapshotId,
+      "action": Actions.actionToString(action),
+      "activeIndex": currentState.activeIndex,
+    })),
+    (),
+  )
 
-  // 2. Optimistic dispatch
+  // 3. Optimistic dispatch (to update UI)
   let dispatch = getDispatch()
   dispatch(action)
 
-  // 3. API Call
-  apiCall()
+  // 4. API Call with the computed next state
+  apiCall(nextState)
   ->Promise.then(result => {
     switch result {
     | Ok(data) =>
-      // 4. Success -> Commit
+      // 5. Success -> Commit
+      Logger.debug(
+        ~module_="OptimisticAction",
+        ~message="COMMIT_SUCCESS",
+        ~data=Some(Logger.castToJson({"id": snapshotId})),
+        (),
+      )
       StateSnapshot.commit(snapshotId)
       Promise.resolve(Committed(data))
 
     | Error(msg) =>
-      // 5. Failure -> Rollback
+      // 6. Failure -> Rollback
+      Logger.warn(
+        ~module_="OptimisticAction",
+        ~message="ROLLBACK_TRIGGERED",
+        ~data=Some(Logger.castToJson({
+          "id": snapshotId,
+          "error": msg,
+          "action": Actions.actionToString(action),
+        })),
+        (),
+      )
       switch StateSnapshot.rollback(snapshotId) {
       | Some(restoredState) =>
         onRollback(restoredState)

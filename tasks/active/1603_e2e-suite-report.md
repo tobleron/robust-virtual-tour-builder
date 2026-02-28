@@ -1,0 +1,20 @@
+# 1603_e2e-suite-report
+
+## Summary
+- Completed `npm run test:e2e` after clearing the stale server on `localhost:3000`. Playwright attempted all 389 specs in Chromium but the run aborted only after multiple systemic failures stacked up (auto-cancelled contexts, backend errors, and UI blockers). The failures span accessibility, auto-forward, chunked import, desktop import, editor, error recovery, export templates, feature deep dives, ESC key, etc.
+- Key pain points: the exporter repeatedly logs `EXPORT_INIT_DECODE_FAILED`/`EXPORT_CHUNKED_FALLBACK_TO_LEGACY` because the backend returned `expiresAtEpochMs` as a non-integer string; chunked import sessions returned 429/500/400 HTTP errors and never hit expected state (abort hook never triggered); helper loops that rely on `.scene-item` counts are seeing `Target page, context or browser has been closed` because the app never hydrates the project before Playwright gives up; the desktop import suite never sees the `Start Building/Close` button; Export Templates never transition to an export status or enable the Export button. 
+- Multiple tests also hit strict-mode locator conflicts (duplicate file inputs) and repeated `logo_upload` `ERR_ABORTED` calls, which likely tie back to the import/export backend instability.
+
+## Root causes / reasoning for next steps
+1. **Backend instability**: The exporter’s initialization fails because of the `expiresAtEpochMs` format, so the UI cannot progress to a normal export, keeping the Export button disabled. Chunked upload endpoints emit 429/500 responses and 404/400 for session/complete, so assertions about retries and aborts never run. Loggings such as `OPERATION_FAILED` show the backend rejecting the requests mid-flight. This backend instability also makes the desktop import, editor, and feature suites fail because they depend on hydrating uploaded projects.
+2. **Hydration timeouts**: Many suites use helpers that poll `.scene-item` counts after importing/loading a project. Because the import/export flows do not complete (due to backend issues), the helpers see the browser closing mid-poll and eventually time out. Even accessibility and ESC-key flows end up closing the browser before they can run since the UI never reaches the necessary state.
+3. **UI blockers**: The Export Templates flows expect an “Export” status message and enabled button before triggering downloads, but the UI only ever shows “SCENES/UPLOAD …” progress; the button remains in a disabled state and never becomes clickable. Similar issues exist for the desktop import's Start Building button and other selectors used by the tests.
+
+## Next steps (instructions for the implementer)
+1. Fix the backend data formats/responses used by export/import flows so `expiresAtEpochMs` and other session metadata are integers, chunked upload endpoints return success/400s consistently, and logo uploads stop aborting. Once the backend stops rejecting requests, the exporter/importer flows should finish and allow their UI guards to pass.
+2. Update the hydration helpers (e.g., `waitForProjectHydration`, `loadStandardProject`) to either wait longer or better detect the failure mode so they do not fail with “Target page/closed browser” if the app cannot reach an interactive state. Alternatively, ensure the app reliably reaches that state by fixing the backend issues first.
+3. Once the backend/UI blockers and helper stability is addressed, rerun `npm run test:e2e`; the failing suites should proceed past the previously failing points, and the exported tours should enable the Export button and show the proper status, allowing Playwright to finish the remaining specs.
+
+## Context links
+- See `test-results/...` for screenshots/videos/traces from every failing spec mentioned above. All artifacts are stored under `test-results/` for reference.
+- Logs flagged `OPERATION_FAILED` (export/import) and `EXPORT_INIT_DECODE_FAILED` in the browser console during the run—those logs provide the exact payloads that need fixing.

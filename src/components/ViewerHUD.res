@@ -162,6 +162,7 @@ let make = React.memo(() => {
             ref={fileInputRef->ReactDOM.Ref.domRef}
             onChange=handleFileChange
             className="hidden"
+            id="viewer-logo-upload"
             accept="image/*"
           />
         </div>

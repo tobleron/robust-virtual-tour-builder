@@ -4,11 +4,55 @@ open ReBindings
 open Types
 open Actions
 
+external idToUnknown: string => unknown = "%identity"
+
 type viewport = ViewerSystem.Pool.viewport
 
 type getStateFn = unit => state
 
-let finalizeSwap = (~getState, ~taskId: option<string>=?) => {
+let syncSceneCoupledState = (~viewer, ~state, ~dispatch) => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  let viewerSceneId = Viewer.getScene(viewer)
+  let resolvedIndex = activeScenes->Belt.Array.getIndexBy(scene => scene.id == viewerSceneId)
+
+  resolvedIndex->Option.forEach(index => {
+    let committedYaw = Viewer.getYaw(viewer)
+    let committedPitch = Viewer.getPitch(viewer)
+
+    let needsSceneSync =
+      state.activeIndex != index ||
+      Math.abs(state.activeYaw -. committedYaw) > 0.01 ||
+      Math.abs(state.activePitch -. committedPitch) > 0.01
+
+    if needsSceneSync {
+      dispatch(
+        SetActiveScene(
+          index,
+          committedYaw,
+          committedPitch,
+          Some({type_: Cut, targetHotspotIndex: -1, fromSceneName: None}),
+        ),
+      )
+    }
+
+    let nextTimelineStepId =
+      state.timeline
+      ->Belt.Array.getBy(step => step.sceneId == viewerSceneId)
+      ->Option.map(step => step.id)
+
+    let needsTimelineSync = switch (state.activeTimelineStepId, nextTimelineStepId) {
+    | (Some(current), Some(next)) => current != next
+    | (None, Some(_)) | (Some(_), None) => true
+    | (None, None) => false
+    }
+
+    if needsTimelineSync {
+      dispatch(SetActiveTimelineStep(nextTimelineStepId))
+    }
+  })
+}
+
+let finalizeSwap = (~getState, ~dispatch, ~taskId: option<string>=?) => {
   let shouldFinalize = switch taskId {
   | Some(tid) => NavigationSupervisor.isCurrentTaskId(tid)
   | None => true
@@ -20,15 +64,14 @@ let finalizeSwap = (~getState, ~taskId: option<string>=?) => {
     ->Option.forEach(v => {
       if ViewerSystem.isViewerReady(v) {
         let currentState: state = getState()
-        if currentState.activeIndex != -1 {
-          EventBus.dispatch(ForceHotspotSync)
-          HotspotLine.updateLines(
-            v,
-            currentState,
-            ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
-            (),
-          )
-        }
+        syncSceneCoupledState(~viewer=v, ~state=currentState, ~dispatch)
+        EventBus.dispatch(ForceHotspotSync)
+        HotspotLine.updateLines(
+          v,
+          currentState,
+          ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+          (),
+        )
       }
     })
 
@@ -50,14 +93,14 @@ let clearHotspotLines = () => {
   ->Option.forEach(svg => Dom.setTextContent(svg, ""))
 }
 
-let updateGlobalStateAndViewer = (~getState, nv, ~taskId: option<string>=?) => {
+let updateGlobalStateAndViewer = (~getState, ~dispatch, nv, ~taskId: option<string>=?) => {
   ViewerSystem.Pool.swapActive()
   ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
 
   assignGlobalViewer(nv)
   clearHotspotLines()
 
-  let _ = Window.setTimeout(() => finalizeSwap(~getState, ~taskId?), 50)
+  let _ = Window.setTimeout(() => finalizeSwap(~getState, ~dispatch, ~taskId?), 50)
 }
 
 let updateDomTransitions = (~transition: transition, ~isSimulationActive: bool, av, iv) => {
@@ -193,8 +236,12 @@ let performSwap = (
 
     let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
     let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
-    let firstLoad =
-      ViewerState.state.contents.lastSceneId->Nullable.toOption->Option.isNone && retryCount == 0
+    let isActiveViewerTarget = switch Nullable.toOption(ov) {
+    | Some(v) => ViewerSystem.Adapter.getMetaData(v, "sceneId") == Some(idToUnknown(loadedScene.id))
+    | None => false
+    }
+
+    let firstLoad = isActiveViewerTarget && retryCount == 0
 
     if firstLoad {
       Logger.debug(~module_="SceneTransition", ~message="INITIAL_SWAP_NO_INACTIVE", ())
@@ -206,7 +253,7 @@ let performSwap = (
       switch Nullable.toOption(nv) {
       | Some(newViewer) =>
         Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
-        updateGlobalStateAndViewer(~getState, newViewer, ~taskId?)
+        updateGlobalStateAndViewer(~getState, ~dispatch, newViewer, ~taskId?)
         let isSimulationActive = getState().simulation.status == Running
         updateDomTransitions(~transition, ~isSimulationActive, av, iv)
         scheduleCleanup(ov, ~taskId?)
@@ -227,7 +274,7 @@ let performSwap = (
           ->Nullable.toOption
           ->Option.forEach(assignGlobalViewer)
           dispatch(SyncSceneNames)
-          finalizeSwap(~getState, ~taskId?)
+          finalizeSwap(~getState, ~dispatch, ~taskId?)
           completeSwapTransition(~getState, ~loadedScene, ~dispatch)
         }
       }

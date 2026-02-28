@@ -99,6 +99,21 @@ let isCurrentTaskId = (taskId: taskId): bool => {
   }
 }
 
+let reset = () => {
+  switch currentTask.contents {
+  | Some(task) =>
+    task.abort()
+    task.opId->Option.forEach(id => OperationLifecycle.cancel(id))
+  | None => ()
+  }
+  currentTask := None
+  status := Idle
+  taskCounter := 0
+  runId := 0
+  notifyListeners()
+  Logger.info(~module_="NavigationSupervisor", ~message="SUPERVISOR_RESET", ())
+}
+
 // Internal dispatch helper
 let dispatchRef: ref<option<Actions.action => unit>> = ref(None)
 
@@ -113,6 +128,22 @@ let dispatchInternal = (action: Actions.action) => {
   }
 }
 
+let resetInFlightJourneyState = (~reason: string, ~targetSceneId: string) => {
+  let currentState = AppStateBridge.getState()
+  switch currentState.navigationState.navigation {
+  | Idle => ()
+  | _ =>
+    dispatchInternal(Actions.SetNavigationStatus(Idle))
+    dispatchInternal(Actions.SetIncomingLink(None))
+    Logger.info(
+      ~module_="NavigationSupervisor",
+      ~message="IN_FLIGHT_JOURNEY_RESET",
+      ~data=Some({"reason": reason, "targetSceneId": targetSceneId}),
+      (),
+    )
+  }
+}
+
 let statusToString = (s: status): string => {
   switch s {
   | Idle => "Idle"
@@ -124,6 +155,9 @@ let statusToString = (s: status): string => {
 }
 
 let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
+  // If any journey state is still active, reset it so stale completions cannot win over the latest intent.
+  resetInFlightJourneyState(~reason="request_navigation", ~targetSceneId)
+
   // Cancel previous task if it exists
   switch currentTask.contents {
   | Some(task) =>
@@ -287,6 +321,11 @@ let complete = (taskId: taskId): unit => {
 let abort = (taskId: taskId): unit => {
   // Only process if taskId matches current task
   if isCurrentTaskId(taskId) {
+    let abortedTargetSceneId = switch currentTask.contents {
+    | Some(task) => task.targetSceneId
+    | None => ""
+    }
+
     // Cancel operation
     currentTask.contents->Option.forEach(t =>
       t.opId->Option.forEach(id => OperationLifecycle.cancel(id))
@@ -304,6 +343,8 @@ let abort = (taskId: taskId): unit => {
       }),
       (),
     )
+
+    resetInFlightJourneyState(~reason="task_abort", ~targetSceneId=abortedTargetSceneId)
 
     // Dispatch FSM abort event to update UI state
     dispatchInternal(Actions.DispatchNavigationFsmEvent(Aborted))

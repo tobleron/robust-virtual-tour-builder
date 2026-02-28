@@ -80,12 +80,12 @@ describe("Capability.Policy", () => {
     ->Expect.toBe(false)
   })
 
-  test("navigation remains interruptible while navigation op is active", t => {
+  test("navigation is blocked while navigation op is active", t => {
     let ops = [MockTask.make(~id="nav", ~type_=Navigation, ())]
 
     t
     ->expect(Capability.Policy.evaluate(~capability=CanNavigate, ~appMode=interactiveMode, ops))
-    ->Expect.toBe(true)
+    ->Expect.toBe(false)
     t
     ->expect(Capability.Policy.evaluate(~capability=CanEditHotspots, ~appMode=interactiveMode, ops))
     ->Expect.toBe(false)

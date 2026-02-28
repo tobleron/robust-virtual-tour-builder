@@ -1,4 +1,5 @@
 open ReBindings
+open Logger
 
 type onProgress = ProjectUtils.onProgress
 type apiError = ProjectUtils.apiError
@@ -23,5 +24,31 @@ let loadProject = (
   ~onProgress: option<onProgress>=?,
   ~opId: option<OperationLifecycle.operationId>=?,
 ): Promise.t<BackendApi.apiResult<(string, JSON.t)>> => {
+  let callMeta = Logger.castToJson({
+    "filename": File.name(zipFile),
+    "size": File.size(zipFile),
+  })
+  info(
+    ~module_="ProjectManager",
+    ~message="LOAD_PROJECT_CALLED",
+    ~data=Some(callMeta),
+    (),
+  )
+
   Logic.loadProjectZip(zipFile, ~signal?, ~onProgress?, ~opId?)
+  ->Promise.then(result => {
+    let logData = Logger.castToJson({
+      "status": switch result {
+      | Ok(_) => "ok"
+      | Error(_) => "error"
+      },
+    })
+    info(
+      ~module_="ProjectManager",
+      ~message="LOAD_PROJECT_RESULT",
+      ~data=Some(logData),
+      (),
+    )
+    Promise.resolve(result)
+  })
 }

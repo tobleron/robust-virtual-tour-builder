@@ -1,5 +1,6 @@
 /* tests/unit/NavigationSupervisor_v.test.res */
 open Vitest
+open Types
 
 describe("NavigationSupervisor", () => {
   test("Initial state is idle", t => {
@@ -157,5 +158,61 @@ describe("NavigationSupervisor", () => {
       t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
     | None => t->expect(false)->Expect.toBe(true)
     }
+  })
+
+  test("new request resets in-flight journey state before dispatching latest intent", t => {
+    let staleJourney: journeyData = {
+      journeyId: 7,
+      targetIndex: 1,
+      sourceIndex: 0,
+      hotspotIndex: 0,
+      arrivalYaw: 0.0,
+      arrivalPitch: 0.0,
+      arrivalHfov: 100.0,
+      previewOnly: false,
+      pathData: None,
+    }
+    let staleState: state = {
+      ...State.initialState,
+      navigationState: {
+        ...State.initialState.navigationState,
+        navigation: Navigating(staleJourney),
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+      },
+    }
+    AppStateBridge.updateState(staleState)
+
+    let seenActions: ref<array<Actions.action>> = ref([])
+    NavigationSupervisor.configure(action => {
+      seenActions := Belt.Array.concat(seenActions.contents, [action])
+    })
+
+    NavigationSupervisor.requestNavigation("scene-new")
+
+    let hasIdleReset = seenActions.contents->Belt.Array.some(action =>
+      switch action {
+      | Actions.SetNavigationStatus(Idle) => true
+      | _ => false
+      }
+    )
+    let hasIncomingCleared = seenActions.contents->Belt.Array.some(action =>
+      switch action {
+      | Actions.SetIncomingLink(None) => true
+      | _ => false
+      }
+    )
+    let hasLatestIntent = seenActions.contents->Belt.Array.some(action =>
+      switch action {
+      | Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId})) =>
+        targetSceneId == "scene-new"
+      | _ => false
+      }
+    )
+
+    t->expect(hasIdleReset)->Expect.toBe(true)
+    t->expect(hasIncomingCleared)->Expect.toBe(true)
+    t->expect(hasLatestIntent)->Expect.toBe(true)
+
+    NavigationSupervisor.configure(AppStateBridge.dispatch)
   })
 })

@@ -46,8 +46,10 @@ let make = React.memo(() => {
         let id = switch Nullable.toOption(Dom.getAttribute(target, "id")) {
         | Some(id) => Some(id)
         | None =>
-          // Try parent in case click was on a sub-element (though path doesn't have sub-elements)
-          None
+          // Resolve nested SVG targets by climbing to the nearest arrow node.
+          Dom.closest(target, "[id^='arrow_']")
+          ->Nullable.toOption
+          ->Option.flatMap(el => Dom.getAttribute(el, "id")->Nullable.toOption)
         }
 
         switch id {

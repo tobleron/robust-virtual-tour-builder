@@ -192,9 +192,10 @@ describe("SceneList", () => {
     clickSecondItem(container)
     await wait(50)
 
-    switch lastAction.contents {
-    | Some(Actions.SetActiveScene(idx, _, _, _)) => t->expect(idx)->Expect.toBe(1)
-    | _ => t->expect("First Click")->Expect.toBe("Dispatched")
+    let taskAfterFirstClick = NavigationSupervisor.getCurrentTask()
+    switch taskAfterFirstClick {
+    | Some(task) => t->expect(task.targetSceneId)->Expect.toBe("2")
+    | None => t->expect("No navigation task started")->Expect.toBe("")
     }
 
     lastAction := None
@@ -202,6 +203,13 @@ describe("SceneList", () => {
     // Click 2: Should Fail (Throttled)
     clickSecondItem(container)
     await wait(50)
+
+    let taskAfterSecondClick = NavigationSupervisor.getCurrentTask()
+    switch (taskAfterFirstClick, taskAfterSecondClick) {
+    | (Some(firstTask), Some(secondTask)) =>
+      t->expect(firstTask.token.id)->Expect.toBe(secondTask.token.id)
+    | _ => t->expect("Navigation task unexpectedly missing")->Expect.toBe("")
+    }
 
     t->expect(lastAction.contents)->Expect.toBe(None)
 

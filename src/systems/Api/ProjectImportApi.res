@@ -200,6 +200,12 @@ let requestImportAbort = (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~operationId: option<string>=?,
 ) => {
+  Logger.error(
+    ~module_="ProjectImportApi",
+    ~message="REQUEST_IMPORT_ABORT_START",
+    ~data=Logger.castToJson({"uploadId": uploadId}),
+    (),
+  )
   let body = JsonCombinators.Json.Encode.object([
     ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
   ])
@@ -212,6 +218,33 @@ let requestImportAbort = (
     ~operationId?,
     (),
   )
-  ->Promise.then(_ => Promise.resolve())
-  ->Promise.catch(_ => Promise.resolve())
+  ->Promise.then(result => {
+    switch result {
+    | Retry.Success(_, _) =>
+      Logger.warn(
+        ~module_="ProjectImportApi",
+        ~message="REQUEST_IMPORT_ABORT_SUCCESS",
+        ~data=Logger.castToJson({"uploadId": uploadId}),
+        (),
+      )
+    | Retry.Exhausted(err) =>
+      Logger.error(
+        ~module_="ProjectImportApi",
+        ~message="REQUEST_IMPORT_ABORT_EXHAUSTED",
+        ~data=Logger.castToJson({"uploadId": uploadId, "error": err}),
+        (),
+      )
+    }
+    Promise.resolve()
+  })
+  ->Promise.catch(e => {
+    let (msg, _) = Logger.getErrorDetails(e)
+    Logger.error(
+      ~module_="ProjectImportApi",
+      ~message="REQUEST_IMPORT_ABORT_FAILED",
+      ~data=Logger.castToJson({"uploadId": uploadId, "error": msg}),
+      (),
+    )
+    Promise.resolve()
+  })
 }

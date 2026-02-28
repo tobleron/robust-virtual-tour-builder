@@ -61,24 +61,28 @@ let updateSimulationArrow = (
 
 external asCustom: Viewer.t => customViewerProps = "%identity"
 
+let clearLines = () => {
+  Belt.MutableSet.String.forEach(Utils.lastFrameIds.contents, id => SvgManager.hide(id))
+  Utils.lastFrameIds := Belt.MutableSet.String.make()
+}
+
 let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?, ()) => {
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
   switch Nullable.toOption(svgOpt) {
   | Some(svg) =>
+    if !Logic.isViewerValid(viewer) {
+      clearLines()
+    } else {
     let currentFrameIds = Belt.MutableSet.String.make()
-    if Logic.isViewerValid(viewer) {
       let rect = Dom.getBoundingClientRect(svg)
       if rect.width > 0.0 && state.activeIndex >= 0 {
         let cam = Logic.getCamState(viewer, rect)
         let viewerSceneId = asCustom(viewer).sceneId
         let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-        let sceneToRender = switch Belt.Array.getBy(scenes, s => s.id == viewerSceneId) {
-        | Some(s) => Some(s)
-        | None =>
-          switch Belt.Array.get(scenes, state.activeIndex) {
-          | Some(activeS) if activeS.id == viewerSceneId => Some(activeS)
-          | _ => None
-          }
+        let activeScene = Belt.Array.get(scenes, state.activeIndex)
+        let sceneToRender = switch activeScene {
+        | Some(activeS) if activeS.id == viewerSceneId => Some(activeS)
+        | _ => None
         }
 
         switch sceneToRender {
@@ -104,8 +108,10 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
             })
             Utils.lastFrameIds := currentFrameIds
           }
-        | None => ()
+        | None => clearLines()
         }
+      } else {
+        clearLines()
       }
     }
   | None => ()

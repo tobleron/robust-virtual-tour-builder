@@ -42,6 +42,26 @@ let make = React.memo((
     None
   })
 
+  let sceneItemRef = React.useRef(Nullable.null)
+
+  React.useEffect1(() => {
+    switch Nullable.toOption(sceneItemRef.current) {
+    | Some(el) => ReBindings.Dom.setAttribute(el, "data-scene-id", scene.id)
+    | None => ()
+    }
+    None
+  }, [scene.id])
+
+  let sceneItemRef = React.useRef(Nullable.null)
+
+  React.useEffect0(() => {
+    switch Nullable.toOption(sceneItemRef.current) {
+    | Some(el) => ReBindings.Dom.setAttribute(el, "data-scene-id", scene.id)
+    | None => ()
+    }
+    None
+  })
+
   let thumbUrl = React.useMemo1(() => Logic.getThumbUrl(scene), [scene])
 
   let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
@@ -157,6 +177,7 @@ let make = React.memo((
 
   <div
     key={scene.id}
+    ref={ReactDOM.Ref.domRef(sceneItemRef)}
     className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses} ${throttleClasses} ${lockClasses}`}
     draggable={!interactionLocked}
     onDragStart={e => onItemDragStart(index, e)}

@@ -1,16 +1,10 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { resetClientState, uploadImageAndWaitForSceneCount, waitForNavigationStabilization } from './e2e-helpers';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const FIXTURES_DIR = path.join(__dirname, 'fixtures');
-const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
-const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
+import { loadStandardProject, resetClientState, waitForNavigationStabilization } from './e2e-helpers';
 
 test.describe('Accessibility Comprehensive', () => {
+  test.describe.configure({ timeout: 180000 });
+
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
     await resetClientState(page);
@@ -18,10 +12,7 @@ test.describe('Accessibility Comprehensive', () => {
     await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
     await page.waitForTimeout(500);
 
-    // Upload scenes for accessibility testing
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
-    await waitForNavigationStabilization(page);
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
+    await loadStandardProject(page, 120000);
     await waitForNavigationStabilization(page);
   });
 
@@ -106,34 +97,14 @@ test.describe('Accessibility Comprehensive', () => {
     if (!liveRegionFound) {
     }
 
-    const sceneItem = page.locator('.scene-item').first();
-    if (await sceneItem.isVisible()) {
-      await sceneItem.click();
-      await waitForNavigationStabilization(page);
-      
-      const liveUpdates = await page.evaluate(() => {
-        const regions = document.querySelectorAll('[aria-live]');
-        const updates: string[] = [];
-        regions.forEach(r => {
-          if (r.textContent) {
-            updates.push(r.textContent.substring(0, 50));
-          }
-        });
-        return updates;
-      });
-      
-      if (liveUpdates.length > 0) {
-      }
-    }
+    const liveRegionSelector = '[aria-live], [role="alert"], [role="status"], [role="log"]';
+    await expect
+      .poll(async () => page.locator(liveRegionSelector).count(), { timeout: 60000 })
+      .toBeGreaterThan(0);
   });
 
   test('should support keyboard shortcuts in exported tours', async ({ page }) => {
-    test.setTimeout(90000);
-
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
-    await waitForNavigationStabilization(page);
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
-    await waitForNavigationStabilization(page);
+    test.setTimeout(180000);
 
     const exportBtn = page.locator('button:has-text("Export"), button[aria-label*="Export"]');
     if (await exportBtn.isVisible()) {

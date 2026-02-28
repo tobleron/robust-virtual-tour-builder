@@ -36,6 +36,7 @@ type expectation
 
   vi.mock('../../src/systems/HotspotLine.bs.js', () => ({
     updateLines: vi.fn(),
+    clearLines: vi.fn(),
   }));
 
   vi.mock('../../src/systems/Scene/SceneSwitcher.bs.js', () => ({

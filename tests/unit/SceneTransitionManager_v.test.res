@@ -4,28 +4,46 @@ open Types
 %%raw(`
   import { vi } from "vitest";
 
+  const __activeViewer = {
+    getScene: () => "s1",
+    getYaw: () => 12.0,
+    getPitch: () => -4.0,
+    getHfov: () => 100.0,
+  };
+
+  const __inactiveViewer = {
+    getScene: () => "s1",
+    getYaw: () => 12.0,
+    getPitch: () => -4.0,
+    getHfov: () => 100.0,
+  };
+
   vi.mock("../../src/systems/ViewerSystem.bs.js", () => {
     return {
       Pool: {
         getActive: () => ({id: "v1", containerId: "c1", status: "Active"}),
         getInactive: () => ({id: "v2", containerId: "c2", status: "Background"}),
-        getActiveViewer: () => ({}),
-        getInactiveViewer: () => ({}),
+        getActiveViewer: () => __activeViewer,
+        getInactiveViewer: () => __inactiveViewer,
         swapActive: () => {},
         clearCleanupTimeout: () => {},
         clearInstance: () => {},
         setCleanupTimeout: () => {}
       },
-      getActiveViewer: () => ({}), // Fallback facade
-      getInactiveViewer: () => ({}), // Fallback facade
+      getActiveViewer: () => __activeViewer, // Fallback facade
+      getInactiveViewer: () => __inactiveViewer, // Fallback facade
       isViewerReady: () => true,
-      Adapter: { destroy: () => {} }
+      Adapter: {
+        destroy: () => {},
+        getMetaData: (_viewer, key) => key === "sceneId" ? "initial-scene" : undefined,
+      }
     }
   });
 
   vi.mock("../../src/systems/HotspotLine.bs.js", () => ({
       isViewerReady: () => true,
-      updateLines: () => {}
+      updateLines: () => {},
+      clearLines: () => {},
   }));
 
   vi.mock("../../src/components/ViewerSnapshot.bs.js", () => ({

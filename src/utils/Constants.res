@@ -257,7 +257,10 @@ let getEnv = (name: string, fallback: string): string => {
   value->Nullable.toOption->Option.getOr(fallback)
 }
 
-let backendUrl = getEnv("VITE_BACKEND_URL", "http://localhost:8080")
+let backendUrl = getEnv(
+  "VITE_BACKEND_URL",
+  %raw(`typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080'`),
+)
 
 // ============================================
 // NAVIGATION & SIMULATION

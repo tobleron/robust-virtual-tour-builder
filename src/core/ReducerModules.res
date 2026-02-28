@@ -121,12 +121,14 @@ module Ui = {
     switch action {
     | SetPreloadingScene(idx) => Some({...state, preloadingSceneIndex: idx})
     | StartLinking(draft) =>
-      Some({
-        ...state,
-        isLinking: true,
-        linkDraft: draft,
-        appMode: AppFSM.transition(state.appMode, StartAuthoring),
-      })
+      Some(
+        NavSync.syncNavigationFsm({
+          ...state,
+          isLinking: true,
+          linkDraft: draft,
+          appMode: AppFSM.transition(state.appMode, StartAuthoring),
+        }),
+      )
     | StartAutoPilot(_) =>
       Some({
         ...state,
@@ -135,19 +137,23 @@ module Ui = {
         // Simulation handles its own appMode transition via handleStartAutoPilot
       })
     | StopLinking =>
-      Some({
-        ...state,
-        isLinking: false,
-        linkDraft: None,
-        appMode: AppFSM.transition(state.appMode, StopAuthoring),
-      })
+      Some(
+        NavSync.syncNavigationFsm({
+          ...state,
+          isLinking: false,
+          linkDraft: None,
+          appMode: AppFSM.transition(state.appMode, StopAuthoring),
+        }),
+      )
     | UpdateLinkDraft(draft) => Some({...state, linkDraft: Some(draft)})
     | SetIsTeasing(val) =>
-      Some({
-        ...state,
-        isTeasing: val,
-        appMode: AppFSM.transition(state.appMode, val ? StartTeasing : StopTeasing),
-      })
+      Some(
+        NavSync.syncNavigationFsm({
+          ...state,
+          isTeasing: val,
+          appMode: AppFSM.transition(state.appMode, val ? StartTeasing : StopTeasing),
+        }),
+      )
     | Actions.MarkSceneVisited(id) => Some(HubScene.markSceneAsAnimated(id, state))
     | Actions.Reset => Some(HubScene.resetVisitedScenes(state))
     | _ => None
@@ -156,33 +162,11 @@ module Ui = {
 }
 
 module AppFsm = {
-  let reduce = (state: state, action: action): option<state> => {
-    switch action {
-    | DispatchAppFsmEvent(event) => {
-        Logger.debug(
-          ~module_="ReducerAppFsm",
-          ~message="Processing Event: " ++
-          AppFSM.eventToString(event) ++
-          " in Mode: " ++
-          AppFSM.toString(state.appMode),
-          (),
-        )
-        let nextAppMode = AppFSM.transition(state.appMode, event)
-        let nextState = {...state, appMode: nextAppMode}
-
-        // Unify navigation state: sync internal FSM state to navigationState for components that depend on it
-        switch nextAppMode {
-        | Interactive(s) =>
-          Some({
-            ...nextState,
-            navigationState: {...state.navigationState, navigationFsm: s.navigation},
-          })
-        | _ => Some(nextState)
-        }
-      }
-    | _ => None
-    }
-  }
+  // NOTE: DispatchAppFsmEvent is handled exclusively in
+  // NavigationProjectReducer.Navigation.handleAppFsmEvent, which owns the canonical
+  // AppFSM.transition call + bidirectional nav-state sync. This module is retained
+  // for the Reducer.res alias (Reducer.AppFsm) and potential future responsibilities.
+  let reduce = (_state: state, _action: action): option<state> => None
 }
 
 module Simulation = {

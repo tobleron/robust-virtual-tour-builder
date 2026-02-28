@@ -477,6 +477,9 @@ let initializeBeforeUnloadListener = () => {
   let _ = Window.addEventListener("beforeunload", (_: Dom.event) => flushWithBeaconOnUnload())
 }
 
+let isBrowserRuntime = (): bool =>
+  %raw(`typeof window !== "undefined" && typeof document !== "undefined"`)
+
 let flushTimer = ref(None)
 let startPeriodicFlush = () => {
   switch flushTimer.contents {
@@ -487,6 +490,10 @@ let startPeriodicFlush = () => {
   }
 }
 
-let _ = startPeriodicFlush()
-let _ = initializeNetworkListener()
-let _ = initializeBeforeUnloadListener()
+let _ = if isBrowserRuntime() {
+  startPeriodicFlush()
+  initializeNetworkListener()
+  initializeBeforeUnloadListener()
+} else {
+  ()
+}

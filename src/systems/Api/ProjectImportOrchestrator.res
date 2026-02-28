@@ -90,7 +90,13 @@ let importProject = (
 
         switch uploadResult {
         | Error(msg) =>
-          let _ = requestImportAbort(initData.uploadId, ~signal?, ~operationId?)
+          Logger.error(
+            ~module_="ProjectImportOrchestrator",
+            ~message="IMPORT_ABORT_START",
+            ~data=Logger.castToJson({"uploadId": initData.uploadId, "reason": msg}),
+            (),
+          )
+          let _ = await requestImportAbort(initData.uploadId, ~signal?, ~operationId?)
           Error(msg)
         | Ok(_) =>
           await requestImportComplete(

@@ -333,6 +333,7 @@ let handleSetActiveScene = (
       transition: newTransition,
       isLinking: false,
       linkDraft: None,
+      movingHotspot: None,
     }
   } else {
     state

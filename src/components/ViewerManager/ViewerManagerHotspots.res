@@ -89,7 +89,7 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
               | _ => false
               }
 
-              if !isBusy {
+              if !isBusy && ViewerSystem.isViewerReady(viewer) {
                 try {
                   if !currentState.isTeasing {
                     HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
@@ -117,6 +117,8 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
                     (),
                   )
                 }
+              } else {
+                HotspotLine.clearLines()
               }
             | _ => ()
             }
@@ -128,34 +130,61 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           currentState.inventory,
           currentState.sceneOrder,
         )
-        switch Belt.Array.get(activeScenes, currentState.activeIndex) {
+        let fromActiveScene = switch Belt.Array.get(activeScenes, currentState.activeIndex) {
         | Some(currentScene) =>
-          switch Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId) {
-          | Some(hIdx) =>
-            switch currentScene.hotspots[hIdx] {
-            | Some(hotspot) =>
-              switch HotspotTarget.resolveSceneIndex(activeScenes, hotspot) {
-              | Some(tIdx) =>
-                let (ny, np, nh) = PreviewArrow.Logic.calculateNavParams(hotspot)
-                Scene.Switcher.navigateToScene(
-                  dispatch,
-                  currentState,
-                  tIdx,
-                  currentState.activeIndex,
-                  hIdx,
-                  ~targetYaw=ny,
-                  ~targetPitch=np,
-                  ~targetHfov=nh,
-                  ~previewOnly=true,
-                  (),
-                )
-              | None => ()
-              }
-            | None => ()
-            }
+          Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId)
+          ->Option.flatMap(hIdx =>
+            Belt.Array.get(currentScene.hotspots, hIdx)
+            ->Option.map(hotspot => (currentState.activeIndex, hIdx, hotspot))
+          )
+        | None => None
+        }
+
+        let fallbackSearch =
+          if fromActiveScene->Option.isSome {
+            None
+          } else {
+            activeScenes
+            ->Belt.Array.mapWithIndex((sceneIdx, scene) =>
+              Belt.Array.getIndexBy(scene.hotspots, h => h.linkId == linkId)->Option.flatMap(hIdx =>
+                Belt.Array.get(scene.hotspots, hIdx)->Option.map(hotspot => (sceneIdx, hIdx, hotspot))
+              )
+            )
+            ->Belt.Array.keepMap(x => x)
+            ->Belt.Array.get(0)
+          }
+
+        let resolvedSource = switch fromActiveScene {
+        | Some(_) as found => found
+        | None => fallbackSearch
+        }
+
+        switch resolvedSource {
+        | Some((fromSceneIdx, hIdx, hotspot)) =>
+          switch HotspotTarget.resolveSceneIndex(activeScenes, hotspot) {
+          | Some(tIdx) =>
+            let (ny, np, nh) = PreviewArrow.Logic.calculateNavParams(hotspot)
+            Scene.Switcher.navigateToScene(
+              dispatch,
+              currentState,
+              tIdx,
+              fromSceneIdx,
+              hIdx,
+              ~targetYaw=ny,
+              ~targetPitch=np,
+              ~targetHfov=nh,
+              ~previewOnly=true,
+              (),
+            )
           | None => ()
           }
-        | None => ()
+        | None =>
+          Logger.warn(
+            ~module_="ViewerManagerHotspots",
+            ~message="PREVIEW_LINK_NOT_FOUND",
+            ~data=Some({"linkId": linkId, "activeIndex": currentState.activeIndex}),
+            (),
+          )
         }
       | _ => ()
       }
@@ -175,7 +204,7 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
         | _ => false
         }
 
-        if !isCriticalBusy {
+        if !isCriticalBusy && ViewerSystem.isViewerReady(viewer) {
           let p = Viewer.getPitch(viewer)
           let y = Viewer.getYaw(viewer)
           let h = Viewer.getHfov(viewer)
@@ -188,6 +217,8 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           } catch {
           | _ => () // Transient error during viewer swap/init is expected
           }
+        } else {
+          HotspotLine.clearLines()
         }
       | None => ()
       }

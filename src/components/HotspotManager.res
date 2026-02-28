@@ -175,33 +175,16 @@ let syncHotspots = (
   }
 }
 
-let getProjectData = (state: Types.state) => {
-  let project: Types.project = {
-    tourName: state.tourName,
-    inventory: state.inventory,
-    sceneOrder: state.sceneOrder,
-    lastUsedCategory: state.lastUsedCategory,
-    exifReport: state.exifReport,
-    sessionId: state.sessionId,
-    timeline: state.timeline,
-    logo: state.logo,
-    nextSceneSequenceId: state.nextSceneSequenceId,
-  }
-  JsonParsers.Encoders.project(project)
-}
-
 let handleAddHotspot = async (
   sceneIndex: int,
   hotspot: Types.hotspot,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.AddHotspot(sceneIndex, hotspot),
-    ~apiCall=() => {
-      let state = getState()
+    ~apiCall=state => {
       switch state.sessionId {
       | Some(sid) =>
-        let projectData = getProjectData(state)
+        let projectData = ProjectSystem.encodeProjectFromState(state)
         Api.ProjectApi.saveProject(sid, projectData)
       | None => Promise.resolve(Ok())
       }
@@ -212,15 +195,13 @@ let handleAddHotspot = async (
 let handleDeleteHotspot = async (
   sceneIndex: int,
   hotspotIndex: int,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.RemoveHotspot(sceneIndex, hotspotIndex),
-    ~apiCall=() => {
-      let state = getState()
+    ~apiCall=state => {
       switch state.sessionId {
       | Some(sid) =>
-        let projectData = getProjectData(state)
+        let projectData = ProjectSystem.encodeProjectFromState(state)
         Api.ProjectApi.saveProject(sid, projectData)
       | None => Promise.resolve(Ok())
       }
@@ -231,15 +212,13 @@ let handleDeleteHotspot = async (
 let handleUpdateSceneMetadata = async (
   sceneIndex: int,
   metadata: JSON.t,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.UpdateSceneMetadata(sceneIndex, metadata),
-    ~apiCall=() => {
-      let state = getState()
+    ~apiCall=state => {
       switch state.sessionId {
       | Some(sid) =>
-        let projectData = getProjectData(state)
+        let projectData = ProjectSystem.encodeProjectFromState(state)
         Api.ProjectApi.saveProject(sid, projectData)
       | None => Promise.resolve(Ok())
       }
@@ -250,15 +229,13 @@ let handleUpdateHotspotMetadata = async (
   sceneIndex: int,
   hotspotIndex: int,
   metadata: JSON.t,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.UpdateHotspotMetadata(sceneIndex, hotspotIndex, metadata),
-    ~apiCall=() => {
-      let state = getState()
+    ~apiCall=state => {
       switch state.sessionId {
       | Some(sid) =>
-        let projectData = getProjectData(state)
+        let projectData = ProjectSystem.encodeProjectFromState(state)
         Api.ProjectApi.saveProject(sid, projectData)
       | None => Promise.resolve(Ok())
       }
@@ -271,15 +248,13 @@ let handleCommitHotspotMove = async (
   hotspotIndex: int,
   yaw: float,
   pitch: float,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
 ) => {
   let _ = await OptimisticAction.execute(
     ~action=Actions.CommitHotspotMove(sceneIndex, hotspotIndex, yaw, pitch),
-    ~apiCall=() => {
-      let state = getState()
+    ~apiCall=state => {
       switch state.sessionId {
       | Some(sid) =>
-        let projectData = getProjectData(state)
+        let projectData = ProjectSystem.encodeProjectFromState(state)
         Api.ProjectApi.saveProject(sid, projectData)
       | None => Promise.resolve(Ok())
       }

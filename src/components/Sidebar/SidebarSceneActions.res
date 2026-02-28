@@ -1,12 +1,11 @@
 open SidebarBase
 open ReBindings
 
-let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
-  let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
-    let state = getState()
+let handleDeleteScene = async (index: int) => {
+  let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=state => {
     switch state.sessionId {
     | Some(sid) =>
-      let projectData = getProjectData(state)
+      let projectData = SidebarBase.getProjectData(state)
       Api.ProjectApi.saveProject(sid, projectData)
     | None => Promise.resolve(Error("No active session"))
     }

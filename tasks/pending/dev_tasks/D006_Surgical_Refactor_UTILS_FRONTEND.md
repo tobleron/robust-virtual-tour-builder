@@ -17,13 +17,13 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/AsyncQueue.res** (Metric: [Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.87 | LOC: 465/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/LoggerTelemetry.res** (Metric: [Nesting: 3.00, Density: 0.21, Coupling: 0.06] | Drag: 4.35 | LOC: 441/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/LoggerTelemetry.res** (Metric: [Nesting: 3.00, Density: 0.21, Coupling: 0.06] | Drag: 4.35 | LOC: 447/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 499/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 3.00, Density: 0.13, Coupling: 0.06] | Drag: 4.29 | LOC: 494/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.30, Coupling: 0.03] | Drag: 5.56 | LOC: 376/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.11, Coupling: 0.03] | Drag: 3.14 | LOC: 379/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.10, Coupling: 0.03] | Drag: 3.13 | LOC: 389/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -44,9 +44,9 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - toSortedCopy × 1 (lines: 56)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/utils/LoggerTelemetry.res`
-- `src/utils/LoggerTelemetry.res` (49 functions, fingerprint 5a0c4e5f9f0fce023a11459b52997fb3726cd8bf1ba89f25e49666dcbe918895)
+- `src/utils/LoggerTelemetry.res` (48 functions, fingerprint d8625090a6c46c9a09b88a0cb9329035e238b3eac3cfd0fc92417785b8de273d)
     - Grouped summary:
-        - _ × 3 (lines: 490, 491, 492)
+        - _ × 1 (lines: 493)
         - adaptiveSamplingScale × 1 (lines: 13)
         - attemptSendBatch × 1 (lines: 267)
         - bandwidthBytesSent × 1 (lines: 12)
@@ -58,11 +58,12 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - encodeLogEntry × 1 (lines: 186)
         - encodeTelemetryBatch × 1 (lines: 207)
         - flushTelemetry × 1 (lines: 308)
-        - flushTimer × 1 (lines: 480)
+        - flushTimer × 1 (lines: 483)
         - flushWithBeaconOnUnload × 1 (lines: 462)
         - idleFlushPending × 1 (lines: 10)
         - initializeBeforeUnloadListener × 1 (lines: 476)
         - initializeNetworkListener × 1 (lines: 452)
+        - isBrowserRuntime × 1 (lines: 480)
         - isFlushing × 1 (lines: 7)
         - isTelemetrySuspended × 1 (lines: 31)
         - isTransportQueueOverflow × 1 (lines: 256)
@@ -84,7 +85,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - shouldQueueForPriority × 1 (lines: 162)
         - shouldSampleByLevel × 1 (lines: 363)
         - shouldSendLowPriority × 1 (lines: 151)
-        - startPeriodicFlush × 1 (lines: 481)
+        - startPeriodicFlush × 1 (lines: 484)
         - suspendTelemetry × 1 (lines: 36)
         - suspendTelemetryForMs × 1 (lines: 39)
         - telemetryQueue × 1 (lines: 6)
@@ -102,15 +103,15 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - autosaveCostTargetMs × 1 (lines: 37)
         - autosaveCostWindowSize × 1 (lines: 38)
         - beforeUnloadListener × 1 (lines: 49)
-        - checkRecovery × 1 (lines: 434)
-        - clearSession × 1 (lines: 378)
+        - checkRecovery × 1 (lines: 429)
+        - clearSession × 1 (lines: 373)
         - coalesceMs × 1 (lines: 36)
         - currentSchemaVersion × 1 (lines: 35)
         - debounceMs × 1 (lines: 34)
-        - decodeManifest × 1 (lines: 387)
-        - decodeMetadataSlice × 1 (lines: 406)
+        - decodeManifest × 1 (lines: 382)
+        - decodeMetadataSlice × 1 (lines: 401)
         - encodeMetadataSlice × 1 (lines: 67)
-        - extractFromSlice × 1 (lines: 400)
+        - extractFromSlice × 1 (lines: 395)
         - getAutosaveCostStats × 1 (lines: 142)
         - handleStateChange × 1 (lines: 326)
         - initSubscriber × 1 (lines: 340)
@@ -160,16 +161,16 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - Grouped summary:
         - bindWorkerHandlers × 1 (lines: 107)
         - createPoolSize × 1 (lines: 35)
-        - ensurePool × 1 (lines: 163)
-        - extractExifWithWorker × 1 (lines: 351)
-        - fingerprintWithWorker × 1 (lines: 190)
-        - generateTinyWithWorker × 1 (lines: 288)
+        - ensurePool × 1 (lines: 174)
+        - extractExifWithWorker × 1 (lines: 362)
+        - fingerprintWithWorker × 1 (lines: 201)
+        - generateTinyWithWorker × 1 (lines: 299)
         - poolRef × 1 (lines: 33)
         - removeExifWaiter × 1 (lines: 94)
         - removeFingerprintWaiter × 1 (lines: 55)
         - removeTinyWaiter × 1 (lines: 81)
         - removeValidateWaiter × 1 (lines: 68)
-        - shutdown × 1 (lines: 342)
+        - shutdown × 1 (lines: 353)
         - takeWorker × 1 (lines: 47)
-        - validateImageWithWorker × 1 (lines: 239)
+        - validateImageWithWorker × 1 (lines: 250)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

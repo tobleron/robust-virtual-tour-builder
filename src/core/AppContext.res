@@ -1,5 +1,5 @@
 open Types
-open Actions
+open! Actions
 
 type dispatch = action => unit
 
@@ -8,10 +8,10 @@ let defaultDispatch: dispatch = _ => ()
 let stateBridgeRef: ref<state> = ref(State.initialState)
 let dispatchBridgeRef: ref<dispatch> = ref(defaultDispatch)
 
-let getBridgeState = () => stateBridgeRef.contents
-let setBridgeState = (s: state) => stateBridgeRef.contents = s
-let getBridgeDispatch = () => dispatchBridgeRef.contents
-let restoreState = (nextState: state) => dispatchBridgeRef.contents(Actions.RestoreState(nextState))
+let getBridgeState = AppStateBridge.getState
+let setBridgeState = AppStateBridge.updateState
+let getBridgeDispatch = () => AppStateBridge.dispatch
+let restoreState = (nextState: state) => AppStateBridge.dispatch(Actions.RestoreState(nextState))
 
 // Slices definitions for optimized subscriptions
 type sceneSlice = {
@@ -97,8 +97,7 @@ let dispatchContext = React.createContext(defaultDispatch)
 let isRafBatchableAction = (action: action): bool =>
   switch action {
   | UpdateLinkDraft(_)
-  | SetPreloadingScene(_)
-  | SetNavigationStatus(_) => true
+  | SetPreloadingScene(_) => true
   | _ => false
   }
 
@@ -151,6 +150,10 @@ module Provider = {
     })
 
     let (state, dispatchRaw) = React.useReducer(Reducer.reducer, loadedState)
+
+    // Synchronous Bridge Update: Eliminate bridge lag by updating before child hooks run.
+    AppStateBridge.updateState(state)
+
     let rafIdRef = React.useRef(None)
     let queuedActionsRef = React.useRef([])
 
@@ -166,6 +169,18 @@ module Provider = {
     }
 
     let dispatch = (nextAction: action) => {
+      // Side-effect resets for module-level state on project load/reset
+      switch nextAction {
+      | LoadProject(_)
+      | Reset =>
+        Logger.info(~module_="AppContext", ~message="PERFORMING_MODULE_LEVEL_RESET", ())
+        NavigationSupervisor.reset()
+        OperationLifecycle.reset()
+        ViewerState.resetState()
+        StateSnapshot.clear()
+      | _ => ()
+      }
+
       if isRafBatchableAction(nextAction) {
         queuedActionsRef.current = Belt.Array.concat(queuedActionsRef.current, [nextAction])
         switch rafIdRef.current {
@@ -174,6 +189,13 @@ module Provider = {
           rafIdRef.current = Some(ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()))
         }
       } else {
+        // Synchronous Bridge Update: Eliminate lag for non-batchable actions.
+        // This ensures that any subsequent getState() calls (e.g. in event handlers or 
+        // optimistic actions) see the latest state immediately.
+        let currentState = AppStateBridge.getState()
+        let nextState = Reducer.reducer(currentState, nextAction)
+        AppStateBridge.updateState(nextState)
+
         dispatchRaw(nextAction)
       }
     }
@@ -261,12 +283,6 @@ module Provider = {
     ))
 
     let navigationSlice = React.useMemo1(() => state.navigationState, [state.navigationState])
-
-    React.useEffect1(() => {
-      stateBridgeRef := state
-      AppStateBridge.updateState(state)
-      None
-    }, [state])
 
     React.useEffect1(() => {
       StateDensityMonitor.observe(state)

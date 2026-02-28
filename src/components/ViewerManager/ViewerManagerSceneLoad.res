@@ -5,13 +5,18 @@ open ViewerState
 open Types
 open Actions
 
-let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action => unit) => {
+let sceneIdFromMeta: option<unknown> => string = %raw("(meta) => typeof meta === 'string' ? meta : ''")
+
+let handleMainSceneLoad = (
+  ~activeScenes: array<scene>,
+  state: state,
+  scene: Types.scene,
+  dispatch: action => unit,
+) => {
   let lastId = Nullable.toOption(ViewerState.state.contents.lastSceneId)
 
   let isLastIdValid = switch lastId {
-  | Some(id) =>
-    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    Belt.Array.some(scenes, s => s.id == id)
+  | Some(id) => Belt.Array.some(activeScenes, s => s.id == id)
   | None => true
   }
 
@@ -53,12 +58,107 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
       ~data=Some({"targetId": scene.id, "prevId": currentLastId}),
       (),
     )
-    // NOTE: This is a recovery/initialization path, not user-initiated navigation.
-    // We dispatch FSM event directly to synchronize viewer state with Redux.
-    // This does NOT go through Supervisor to avoid circular dependencies during init.
-    dispatch(
-      DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id, previewOnly: false})),
-    )
+
+    if NavigationSupervisor.isIdle() {
+      switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+      | Some(activeViewer) =>
+        let activeViewerSceneId =
+          ViewerSystem.Adapter.getMetaData(activeViewer, "sceneId")->sceneIdFromMeta
+        if activeViewerSceneId == "" {
+          // Synchronize lastSceneId immediately to prevent infinite dispatch loops in Idle case
+          ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(scene.id)}
+
+          // NOTE: This is a recovery/initialization path, not user-initiated navigation.
+          dispatch(
+            DispatchNavigationFsmEvent(
+              UserClickedScene({targetSceneId: scene.id, previewOnly: false}),
+            ),
+          )
+        } else if activeViewerSceneId != scene.id {
+          let viewerSceneIndex = activeScenes->Belt.Array.getIndexBy(s => s.id == activeViewerSceneId)
+          switch viewerSceneIndex {
+          | Some(idx) =>
+            ViewerState.state := {
+              ...ViewerState.state.contents,
+              lastSceneId: Nullable.make(activeViewerSceneId),
+            }
+            Logger.info(
+              ~module_="ViewerManagerSceneLoad",
+              ~message="REALIGN_TO_ACTIVE_VIEWER_SCENE",
+              ~data=Some({"viewerSceneId": activeViewerSceneId, "viewerSceneIndex": idx}),
+              (),
+            )
+            dispatch(
+              SetActiveScene(
+                idx,
+                Viewer.getYaw(activeViewer),
+                Viewer.getPitch(activeViewer),
+                Some({type_: Cut, targetHotspotIndex: -1, fromSceneName: None}),
+              ),
+            )
+          | None =>
+            // Viewer scene metadata is not represented in state; recover by reloading current state scene.
+            ViewerState.state := {
+              ...ViewerState.state.contents,
+              lastSceneId: Nullable.make(scene.id),
+            }
+            dispatch(
+              DispatchNavigationFsmEvent(
+                UserClickedScene({targetSceneId: scene.id, previewOnly: false}),
+              ),
+            )
+          }
+        } else {
+          // Scene is already loaded in active viewer; keep state in sync without forcing reload.
+          ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(scene.id)}
+          if (
+            Math.abs(state.activeYaw -. Viewer.getYaw(activeViewer)) > 0.01 ||
+              Math.abs(state.activePitch -. Viewer.getPitch(activeViewer)) > 0.01
+          ) {
+            dispatch(
+              SetActiveScene(
+                state.activeIndex,
+                Viewer.getYaw(activeViewer),
+                Viewer.getPitch(activeViewer),
+                Some({type_: Cut, targetHotspotIndex: -1, fromSceneName: None}),
+              ),
+            )
+          }
+        }
+      | None =>
+        // Synchronize lastSceneId immediately to prevent infinite dispatch loops in Idle case
+        ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(scene.id)}
+
+        // NOTE: This is a recovery/initialization path, not user-initiated navigation.
+        dispatch(
+          DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id, previewOnly: false})),
+        )
+      }
+    } else {
+      let fsm = state.navigationState.navigationFsm
+      let isTargeted = switch fsm {
+      | Preloading(t) => t.targetSceneId == scene.id
+      | Transitioning(t) => t.toSceneId == scene.id
+      | Stabilizing(t) => t.targetSceneId == scene.id
+      | _ => false
+      }
+
+      if isTargeted {
+        // Break the loop if we are already transitioning to this scene
+        ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(scene.id)}
+      } else {
+        Logger.debug(
+          ~module_="ViewerManagerSceneLoad",
+          ~message="BYPASS_SKIPPED_ACTIVE_SUPERVISOR",
+          ~data=Some({
+            "supervisorStatus": NavigationSupervisor.statusToString(NavigationSupervisor.getStatus()),
+            "targetId": scene.id,
+            "fsm": NavigationFSM.toString(fsm),
+          }),
+          (),
+        )
+      }
+    }
   } else {
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
@@ -110,7 +210,7 @@ let useMainSceneLoading = (
           activePitch,
           isLinking,
         }
-        handleMainSceneLoad(currentState, scene, dispatch)
+        handleMainSceneLoad(~activeScenes=scenes, currentState, scene, dispatch)
       | None => ()
       }
     }

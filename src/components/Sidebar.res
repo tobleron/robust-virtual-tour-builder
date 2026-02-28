@@ -141,6 +141,7 @@ let make = React.memo(() => {
         multiple=true
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
+        id="sidebar-image-upload"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
           SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target), ~getState, ~dispatch)->ignore
@@ -151,6 +152,7 @@ let make = React.memo(() => {
         ref={ReactDOM.Ref.domRef(projectFileInputRef)}
         accept=".vt.zip,.zip"
         className="hidden"
+        id="sidebar-project-upload"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
           SidebarLogic.handleLoadProject(

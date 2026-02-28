@@ -58,9 +58,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
               label: "Delete",
               class_: "bg-red-500/20 text-white hover:bg-red-500/40",
               onClick: () => {
-                HotspotManager.handleDeleteHotspot(state.activeIndex, index, ~getState=() =>
-                  state
-                )->ignore
+                HotspotManager.handleDeleteHotspot(state.activeIndex, index)->ignore
                 NotificationManager.dispatch({
                   id: "",
                   importance: Success,

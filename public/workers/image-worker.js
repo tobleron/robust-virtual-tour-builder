@@ -12,7 +12,7 @@ self.onmessage = async event => {
       : "";
     const allowed = ["jpg", "jpeg", "png", "webp", "heic", "heif"];
     const isImage = mime.startsWith("image/") || allowed.includes(ext);
-    self.postMessage({ id, ok: true, isImage });
+    self.postMessage({ id, ok: true, isImage, type: "validateImage" });
     return;
   }
 
@@ -62,7 +62,7 @@ self.onmessage = async event => {
   }
 
   if (type !== "fingerprint") {
-    self.postMessage({ id, ok: false, error: "Unsupported worker task type" });
+    self.postMessage({ id, ok: false, error: "Unsupported worker task type", type: "unknown" });
     return;
   }
 

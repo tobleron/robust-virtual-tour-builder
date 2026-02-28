@@ -10,17 +10,17 @@
 
 ### 📚 Valid Roles
 *   **domain-logic**: Pure business logic, entities, and domain services.
-*   **data-model**: Type definitions, schemas, and DTOs (low logic density).
 *   **orchestrator**: App entry points and high-level flow control.
 *   **infra-config**: Build scripts, project configuration, and environment setups.
 *   **util-pure**: Side-effect free helper functions.
-*   **state-reducer**: Deterministic state transitions (Redux/Store style).
-*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
-*   **ui-component**: Visual presentation and user interaction layers.
-*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
-*   **service-orchestrator**: Complex coordination between multiple domain services.
-*   **state-hook**: Custom hooks with high state-to-logic ratio.
 *   **ignored**: Exclude this file from all efficiency metrics and tasks.
+*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
+*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
+*   **data-model**: Type definitions, schemas, and DTOs (low logic density).
+*   **ui-component**: Visual presentation and user interaction layers.
+*   **state-reducer**: Deterministic state transitions (Redux/Store style).
+*   **state-hook**: Custom hooks with high state-to-logic ratio.
+*   **service-orchestrator**: Complex coordination between multiple domain services.
 
 
 ## Tasks

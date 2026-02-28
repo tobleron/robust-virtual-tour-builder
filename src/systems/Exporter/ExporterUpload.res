@@ -136,7 +136,7 @@ type exportInitResponse = {
   uploadId: string,
   chunkSizeBytes: int,
   totalChunks: int,
-  expiresAtEpochMs: int,
+  expiresAtEpochMs: float,
 }
 
 type exportChunkResponse = {
@@ -149,7 +149,7 @@ type exportStatusResponse = {
   receivedChunks: array<int>,
   nextExpectedChunk: int,
   totalChunks: int,
-  expiresAtEpochMs: int,
+  expiresAtEpochMs: float,
 }
 
 type exportCompleteResponse = {
@@ -166,7 +166,7 @@ let decodeExportInitResponse = {
     uploadId: field.required("uploadId", string),
     chunkSizeBytes: field.required("chunkSizeBytes", int),
     totalChunks: field.required("totalChunks", int),
-    expiresAtEpochMs: field.required("expiresAtEpochMs", int),
+    expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
   })
 }
 
@@ -185,7 +185,7 @@ let decodeExportStatusResponse = {
     receivedChunks: field.required("receivedChunks", array(int)),
     nextExpectedChunk: field.required("nextExpectedChunk", int),
     totalChunks: field.required("totalChunks", int),
-    expiresAtEpochMs: field.required("expiresAtEpochMs", int),
+    expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
   })
 }
 

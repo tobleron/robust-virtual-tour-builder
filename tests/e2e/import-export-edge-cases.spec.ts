@@ -48,7 +48,7 @@ test.describe('Import/Export Edge Cases', () => {
   test('should cancel export on user request via cancel button or ESC', async ({ page }) => {
     test.setTimeout(120000);
 
-    const fileInput = page.locator('input[type="file"][accept*=".zip"]');
+    const fileInput = page.locator('#sidebar-project-upload');
     await fileInput.setInputFiles(SIM_ZIP_PATH);
     const startBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();
     if (await startBtn.isVisible()) {
@@ -75,7 +75,7 @@ test.describe('Import/Export Edge Cases', () => {
         const exportStillRunning = await page.locator('.export-progress, .export-spinner').isVisible();
         if (!exportStillRunning) {
         } else {
-          
+
           const cancelBtn = page.locator('button:has-text("Cancel"), button:has-text("Stop")');
           if (await cancelBtn.isVisible()) {
             await cancelBtn.click();
@@ -99,7 +99,7 @@ test.describe('Import/Export Edge Cases', () => {
       return state?.scenes?.map((s: any) => s.floor) || [];
     });
 
-    
+
     // All scenes should have a floor assigned (G by default)
     const allHaveFloor = floorAssignments.every((f: string) => f && f.length > 0);
     if (allHaveFloor) {
@@ -111,35 +111,35 @@ test.describe('Import/Export Edge Cases', () => {
   test.skip('should reject corrupted ZIP files gracefully', async ({ page }) => {
     test.setTimeout(60000);
 
-    
+
     test.skip(true, 'Corrupted ZIP handling not implemented');
   });
 
   test.skip('should migrate old project versions during import', async ({ page }) => {
     test.setTimeout(120000);
 
-    
+
     test.skip(true, 'Version migration uncertain');
   });
 
   test.skip('should handle export timeout gracefully', async ({ page }) => {
     test.setTimeout(180000);
 
-    
+
     test.skip(true, 'Export timeout handling uncertain');
   });
 
   test.skip('should handle missing images in imported project', async ({ page }) => {
     test.setTimeout(120000);
 
-    
+
     test.skip(true, 'Missing image handling uncertain');
   });
 
   test.skip('should block export when no floors assigned', async ({ page }) => {
     test.setTimeout(60000);
 
-    
+
     test.skip(true, 'Floor G is default, export never blocked');
   });
 });

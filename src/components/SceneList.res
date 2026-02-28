@@ -133,11 +133,6 @@ let make = React.memo(() => {
         switch Belt.Array.get(sceneSlice.scenes, index) {
         | Some(targetScene) =>
           NavigationSupervisor.requestNavigation(targetScene.id)
-
-          // Update state for editor mode (non-animated transition)
-          let trans: Types.transition = {type_: Cut, targetHotspotIndex: -1, fromSceneName: None}
-          dispatch(Actions.SetActiveTimelineStep(None))
-          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
         | None => ()
         }
       }

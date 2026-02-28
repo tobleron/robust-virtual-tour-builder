@@ -145,15 +145,26 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
       | None => ()
       }
     | _ =>
-      let fingerprintPayload: fingerprintResponse = getEventData(evt)
-      switch removeFingerprintWaiter(pool, fingerprintPayload.id) {
+      // Defensive fallback: older worker payloads may miss "type" for validateImage.
+      let validatePayload: validateImageResponse = getEventData(evt)
+      switch removeValidateWaiter(pool, validatePayload.id) {
       | Some(waiter) =>
-        if fingerprintPayload.ok {
-          waiter.resolve(fingerprintPayload.checksum)
+        if validatePayload.ok {
+          waiter.resolve(validatePayload.isImage)
         } else {
           waiter.resolve(None)
         }
-      | None => ()
+      | None =>
+        let fingerprintPayload: fingerprintResponse = getEventData(evt)
+        switch removeFingerprintWaiter(pool, fingerprintPayload.id) {
+        | Some(waiter) =>
+          if fingerprintPayload.ok {
+            waiter.resolve(fingerprintPayload.checksum)
+          } else {
+            waiter.resolve(None)
+          }
+        | None => ()
+        }
       }
     }
   })

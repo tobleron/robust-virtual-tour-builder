@@ -15,8 +15,8 @@ test('comprehensive import and interaction with layan_complete_tour.zip', async 
   await page.reload();
 
   const fixturePath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
-  const fileInput = page.locator('input[type="file"][accept*=".zip"]');
-  
+  const fileInput = page.locator('#sidebar-project-upload');
+
   // 1. Upload and wait for the summary modal
   await fileInput.setInputFiles(fixturePath);
   const startBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();

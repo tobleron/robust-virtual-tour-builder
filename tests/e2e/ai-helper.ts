@@ -13,14 +13,28 @@ export async function setupAIObservability(page: Page, options: ObservabilityOpt
 
   // 1. Capture Unhandled Exceptions that might not trigger a crash but indicate bugs
   page.on('pageerror', (exception) => {
+    console.error('[BROWSER][pageerror]', exception?.message ?? 'unknown');
   });
 
   page.on('requestfailed', (request) => {
+    const failure = request.failure();
+    const text = failure?.errorText ?? 'unknown';
+    console.warn(`[BROWSER][requestfailed] ${request.method()} ${request.url()} ${text}`);
+  });
+
+  page.on('response', (response) => {
+    if (response.status() >= 400) {
+      console.warn(
+        `[BROWSER][response] ${response.status()} ${response.url()} (${response.statusText()})`,
+      );
+    }
   });
 
   // 3. Forward Browser Logs to Terminal (errors/warnings by default).
   page.on('console', msg => {
     if (verboseConsole || msg.type() === 'error' || msg.type() === 'warning') {
+      const textParts = [msg.text(), ...msg.args().map(arg => arg.type === 'string' ? arg.value : arg.type)];
+      console.log(`[BROWSER][${msg.type()}] ${textParts.join(' ')}`);
     }
   });
 

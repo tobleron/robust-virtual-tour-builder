@@ -96,6 +96,7 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 %%raw(`
   vi.mock('../../src/systems/HotspotLine.bs.js', () => ({
     updateLines: vi.fn(),
+    clearLines: vi.fn(),
     isViewerReady: vi.fn(() => true),
   }))
 `)

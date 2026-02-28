@@ -47,8 +47,8 @@ let makeInitialState = (): Types.state => {
 }
 
 module MockApi = {
-  let success = () => Promise.resolve(Ok("success"))
-  let failure = () => Promise.resolve(Error("Network Error"))
+  let success = _state => Promise.resolve(Ok("success"))
+  let failure = _state => Promise.resolve(Error("Network Error"))
 }
 
 testAsync("OptimisticAction commits on success", async t => {
@@ -59,11 +59,23 @@ testAsync("OptimisticAction commits on success", async t => {
 
   let action = Actions.SetTourName("New Name")
 
-  let result = await OptimisticAction.execute(~action, ~apiCall=MockApi.success)
+  let capturedState = ref(None)
+  let apiCall = state => {
+    capturedState := Some(state)
+    MockApi.success(state)
+  }
+
+  let result = await OptimisticAction.execute(~action, ~apiCall)
 
   switch result {
   | Committed(_) => t->expect(true)->Expect.toBe(true)
   | RolledBack(_) => t->expect("RolledBack")->Expect.toBe("Committed")
+  }
+
+  // Verify apiCall received NEXT state
+  switch capturedState.contents {
+  | Some(s) => t->expect(s.tourName)->Expect.toBe("New Name")
+  | None => t->expect(false)->Expect.toBe(true)
   }
 
   let latest = StateSnapshot.getLatest()

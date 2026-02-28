@@ -54,7 +54,7 @@ let defaultConfigForDomain = (d: domain): domainConfig =>
   | Geocoding =>
     ({failureThreshold: 3, successThreshold: 1, timeout: 20000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 2)
   | Project =>
-    ({failureThreshold: 4, successThreshold: 2, timeout: 30000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 3)
+    ({failureThreshold: 8, successThreshold: 2, timeout: 30000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 3)
   | Telemetry =>
     ({failureThreshold: 8, successThreshold: 1, timeout: 10000, onStateTransition: None, onCircuitOpen: None}: CircuitBreaker.config, 2)
   | Default =>

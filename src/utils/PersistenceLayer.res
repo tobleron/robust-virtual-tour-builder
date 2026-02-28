@@ -355,12 +355,7 @@ let initSubscriber = (
     OperationJournal.flushAllInFlight()
 
     let state = stateGetterRef.contents()
-    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    let hasContent = Array.length(activeScenes) > 0 || state.tourName != "Tour Name"
-    if hasContent {
-      DomBindings.Dom.preventDefault(event)
-      DomBindings.Dom.setReturnValue(event, "")
-    }
+    ignore(event)
 
     switch lastSaveTimeout.contents {
     | Some(_) => performSave(state)

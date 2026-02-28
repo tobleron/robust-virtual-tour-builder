@@ -127,7 +127,8 @@ let makeListenerEntry = (callback: event => unit): listenerEntry => {
   nextListenerId := id + 1
 
   if hasWeakRefSupport() {
-    {id, strongCallback: None, weakCallback: Some(makeWeakRef(callback))}
+    // Keep strong retention for active app subscriptions; weak ref is only supplemental.
+    {id, strongCallback: Some(callback), weakCallback: Some(makeWeakRef(callback))}
   } else {
     {id, strongCallback: Some(callback), weakCallback: None}
   }

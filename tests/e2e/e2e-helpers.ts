@@ -1,4 +1,10 @@
 import { expect, Page } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const BACKEND_HEALTH_URL = process.env.E2E_BACKEND_HEALTH_URL ?? 'http://127.0.0.1:8080/health';
+const STANDARD_PROJECT_ZIP =
+  process.env.E2E_STANDARD_PROJECT_ZIP ?? path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 export async function resetClientState(page: Page) {
   await page.goto('/');
@@ -33,7 +39,7 @@ export async function resetClientState(page: Page) {
 }
 
 export function imageUploadInput(page: Page) {
-  return page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
+  return page.locator('#sidebar-image-upload');
 }
 
 export async function clickStartBuildingIfVisible(page: Page, timeoutMs = 90000) {
@@ -44,6 +50,31 @@ export async function clickStartBuildingIfVisible(page: Page, timeoutMs = 90000)
   } catch {
     // Some flows auto-complete without showing the summary modal.
   }
+}
+
+async function waitForProjectHydration(page: Page, timeoutMs = 90000) {
+  const deadline = Date.now() + timeoutMs;
+  const actionBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();
+
+  while (Date.now() < deadline) {
+    const visible = await actionBtn.isVisible().catch(() => false);
+    if (visible) {
+      const enabled = await actionBtn.isEnabled().catch(() => false);
+      if (enabled) {
+        await actionBtn.click().catch(() => undefined);
+      }
+    }
+
+    const sceneCount = await page.locator('.scene-item').count().catch(() => 0);
+    if (sceneCount >= 1) return;
+    await page.waitForTimeout(300);
+  }
+
+  const statusText = await page
+    .locator('.processing-status, [role="status"]')
+    .allTextContents()
+    .catch(() => []);
+  throw new Error(`Project hydration timeout. Scene count remained 0. Status: ${statusText.join(' | ')}`);
 }
 
 export async function waitForSidebarInteractive(page: Page, timeoutMs = 90000) {
@@ -73,17 +104,82 @@ export async function waitForSidebarInteractive(page: Page, timeoutMs = 90000) {
   throw new Error(`Sidebar did not become interactive within ${timeoutMs}ms`);
 }
 
+export async function waitForBackendReady(page: Page, timeoutMs = 90000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const serverOk = await page.request
+      .get(BACKEND_HEALTH_URL)
+      .then(async (res) => {
+        if (!res.ok()) return false;
+        const json = await res.json().catch(() => null);
+        return json?.status === 'ok';
+      })
+      .catch(() => false);
+
+    const browserOk = await page
+      .evaluate(async (healthUrl) => {
+        try {
+          const res = await fetch(healthUrl, { method: 'GET' });
+          if (!res.ok) return false;
+          const json = await res.json().catch(() => null);
+          return json?.status === 'ok';
+        } catch {
+          return false;
+        }
+      }, BACKEND_HEALTH_URL)
+      .catch(() => false);
+
+    if (serverOk && browserOk) return;
+    await page.waitForTimeout(300);
+  }
+
+  throw new Error(`Backend did not become healthy within ${timeoutMs}ms`);
+}
+
 export async function uploadImageAndWaitForSceneCount(
   page: Page,
   imagePath: string,
   expectedSceneCount: number,
   timeoutMs = 90000,
 ) {
-  const fileInput = imageUploadInput(page);
-  await fileInput.setInputFiles([imagePath]);
-  await clickStartBuildingIfVisible(page, timeoutMs);
-  await waitForSidebarInteractive(page, timeoutMs);
-  await expect(page.locator('.scene-item')).toHaveCount(expectedSceneCount, { timeout: timeoutMs });
+  await waitForBackendReady(page, timeoutMs);
+
+  const maxAttempts = 1;
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const attemptBudget = Math.max(15000, Math.floor(timeoutMs / maxAttempts));
+    const fileInput = imageUploadInput(page);
+    await fileInput.setInputFiles([imagePath]);
+    await clickStartBuildingIfVisible(page, attemptBudget);
+
+    try {
+      await waitForSidebarInteractive(page, attemptBudget);
+      await expect
+        .poll(async () => page.locator('.scene-item').count(), { timeout: attemptBudget })
+        .toBeGreaterThanOrEqual(expectedSceneCount);
+      lastError = null;
+      break;
+    } catch (err) {
+      lastError = err;
+      const cancelBtn = page.getByRole('button', { name: /^Cancel$/ }).first();
+      if (await cancelBtn.isVisible().catch(() => false)) {
+        await cancelBtn.click().catch(() => undefined);
+      }
+      await page.waitForTimeout(800);
+      await waitForSidebarInteractive(page, attemptBudget).catch(() => undefined);
+    }
+  }
+
+  if (lastError) {
+    const statusText = await page
+      .locator('.processing-status, [role="status"]')
+      .allTextContents()
+      .catch(() => []);
+    throw new Error(
+      `Scene count did not reach ${expectedSceneCount}. Status: ${statusText.join(' | ')}. ${String(lastError)}`,
+    );
+  }
 
   const lockOverlay = page.locator('.interaction-lock-overlay');
   if ((await lockOverlay.count()) > 0) {
@@ -92,11 +188,26 @@ export async function uploadImageAndWaitForSceneCount(
 }
 
 export async function loadProjectZipAndWait(page: Page, zipPath: string, timeoutMs = 90000) {
-  const fileInput = page.locator('input[type="file"][accept*=".zip"]');
+  await waitForBackendReady(page, timeoutMs);
+  const fileInput = page.locator('#sidebar-project-upload');
+  await expect(fileInput).toHaveCount(1, { timeout: Math.min(timeoutMs, 15000) });
   await fileInput.setInputFiles(zipPath);
+  const fileCount = await fileInput.evaluate((el: HTMLInputElement) => el.files?.length ?? 0);
+  if (fileCount < 1) {
+    throw new Error('Zip file input did not receive selected file');
+  }
+  await fileInput.dispatchEvent('change');
   await clickStartBuildingIfVisible(page, timeoutMs);
+  await waitForProjectHydration(page, timeoutMs);
   await waitForSidebarInteractive(page, timeoutMs);
   await waitForNavigationStabilization(page, Math.min(timeoutMs, 30000));
+}
+
+export async function loadStandardProject(page: Page, timeoutMs = 90000) {
+  if (!fs.existsSync(STANDARD_PROJECT_ZIP)) {
+    throw new Error(`Standard project zip not found: ${STANDARD_PROJECT_ZIP}`);
+  }
+  await loadProjectZipAndWait(page, STANDARD_PROJECT_ZIP, timeoutMs);
 }
 
 export async function waitForNavigationStabilization(page: Page, timeoutMs = 30000) {

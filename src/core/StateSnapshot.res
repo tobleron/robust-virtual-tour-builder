@@ -40,6 +40,17 @@ let capture = (state: Types.state, action: Actions.action): string => {
 
   // Prepend to history
   history := Belt.Array.concat([snapshot], history.contents)
+  
+  Logger.debug(
+    ~module_="StateSnapshot",
+    ~message="CAPTURE",
+    ~data=Some(Logger.castToJson({
+      "id": id,
+      "action": Actions.actionToString(action),
+      "historySize": Belt.Array.length(history.contents),
+    })),
+    (),
+  )
 
   // Trim if needed
   if Belt.Array.length(history.contents) > maxSnapshots {

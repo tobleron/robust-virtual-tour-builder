@@ -274,12 +274,68 @@ let init = async () => {
           | Some({sceneIndex, hotspotIndex}) => {
               let customEvent = ViewerClickEvent.fromEvent(e)
               let detail = ViewerClickEvent.detail(customEvent)
-              HotspotManager.handleCommitHotspotMove(
-                sceneIndex,
-                hotspotIndex,
-                detail.yaw,
-                detail.pitch,
-              )->ignore
+
+              let clampPitch = (pitch: float): float => {
+                if pitch > 89.0 {
+                  89.0
+                } else if pitch < -89.0 {
+                  -89.0
+                } else {
+                  pitch
+                }
+              }
+
+              let detailCoords: option<(float, float)> =
+                if Float.isFinite(detail.yaw) && Float.isFinite(detail.pitch) {
+                  Some((detail.yaw, detail.pitch))
+                } else {
+                  None
+                }
+
+              let fallbackCoords = switch (
+                Nullable.toOption(ViewerSystem.getActiveViewer()),
+                ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+              ) {
+              | (Some(viewer), Some(lastMouseEvent)) =>
+                let mouseEvent: Viewer.mouseEvent = {
+                  "clientX": Belt.Int.toFloat(Dom.clientX(lastMouseEvent)),
+                  "clientY": Belt.Int.toFloat(Dom.clientY(lastMouseEvent)),
+                }
+                let coords = Viewer.mouseEventToCoords(viewer, mouseEvent)
+                switch (Belt.Array.get(coords, 1), Belt.Array.get(coords, 0)) {
+                | (Some(yaw), Some(pitch)) if Float.isFinite(yaw) && Float.isFinite(pitch) =>
+                  Some((yaw, pitch))
+                | _ => None
+                }
+              | _ => None
+              }
+
+              let resolvedCoords = switch detailCoords {
+              | Some(coords) => Some(coords)
+              | None => fallbackCoords
+              }
+
+              switch resolvedCoords {
+              | Some((yaw, pitch)) =>
+                HotspotManager.handleCommitHotspotMove(
+                  sceneIndex,
+                  hotspotIndex,
+                  yaw,
+                  clampPitch(pitch),
+                )->ignore
+              | None =>
+                Logger.warn(
+                  ~module_="Main",
+                  ~message="HOTSPOT_MOVE_INVALID_COORDS_IGNORED",
+                  ~data=Some({
+                    "sceneIndex": sceneIndex,
+                    "hotspotIndex": hotspotIndex,
+                    "detailYaw": detail.yaw,
+                    "detailPitch": detail.pitch,
+                  }),
+                  (),
+                )
+              }
             }
           | None =>
             if state.isLinking {

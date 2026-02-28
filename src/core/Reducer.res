@@ -98,7 +98,7 @@ let applyFullPipeline = (state: state, action: Actions.action): state => {
 
 let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   switch action {
-  | Actions.DispatchAppFsmEvent(_) => applyAppFsmThenNavigation(state, action)
+  | Actions.DispatchAppFsmEvent(_) => applyNavigationOnly(state, action)
 
   | Actions.AddScenes(_)
   | Actions.SetActiveScene(_, _, _, _)
