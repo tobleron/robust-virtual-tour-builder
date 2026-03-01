@@ -21,7 +21,7 @@ let pickUploadConcurrency = (files: array<UploadTypes.file>): int => {
     totalMb >= Constants.Media.uploadHeavyFolderThresholdMb ||
       largestMb >= Constants.Media.uploadVeryLargeFileThresholdMb
   ) {
-    1
+    6
   } else if totalMb >= 600.0 {
     3
   } else if totalMb >= 350.0 {
@@ -47,7 +47,7 @@ let pickUploadConcurrency = (files: array<UploadTypes.file>): int => {
 let handleFingerprinting = (
   validFiles: array<UploadTypes.file>,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   journalId: string,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,
@@ -56,7 +56,7 @@ let handleFingerprinting = (
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
   updateProgress(0.0, "Scanning images...", true, "Scanning")
   FingerprintService.fingerprintFiles(validFiles, ~signal?)->Promise.then(results => {
-    updateProgress(18.0, "Preparing batch...", true, "Scanning")
+    updateProgress(10.0, "Preparing batch...", true, "Scanning")
     let currentState = getState()
     let uniqueItems = FingerprintService.filterDuplicates(
       results,

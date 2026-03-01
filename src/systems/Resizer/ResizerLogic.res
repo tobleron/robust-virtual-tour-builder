@@ -27,41 +27,31 @@ let processZipResponse = zipResult => {
 }
 
 let generateAndOverrideTiny = previewBlob => {
-  WorkerPool.generateTinyWithWorker(
-    previewBlob,
-    ~width=256,
-    ~height=144,
-  )->Promise.then(workerTiny =>
-    switch workerTiny {
-    | Some(tiny) => Promise.resolve(tiny)
-    | None =>
-      Promise.make((resolve, _reject) => {
-        let img = Dom.createElement("img")
-        let url = UrlUtils.safeCreateObjectURL(previewBlob)
+  Promise.make((resolve, _reject) => {
+    let img = Dom.createElement("img")
+    let url = UrlUtils.safeCreateObjectURL(previewBlob)
 
-        let onLoad = () => {
-          URL.revokeObjectURL(url)
-          ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
-          ->Promise.then(
-            tinyBlob => {
-              resolve(tinyBlob)
-              Promise.resolve()
-            },
-          )
-          ->ignore
-        }
-
-        let onError = () => {
-          URL.revokeObjectURL(url)
-          resolve(previewBlob)
-        }
-
-        Dom.addEventListenerNoEv(img, "load", onLoad)
-        Dom.addEventListenerNoEv(img, "error", onError)
-        Dom.setAttribute(img, "src", url)
-      })
+    let onLoad = () => {
+      URL.revokeObjectURL(url)
+      ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144, ~hfov=90.0)
+      ->Promise.then(
+        tinyBlob => {
+          resolve(tinyBlob)
+          Promise.resolve()
+        },
+      )
+      ->ignore
     }
-  )
+
+    let onError = () => {
+      URL.revokeObjectURL(url)
+      resolve(previewBlob)
+    }
+
+    Dom.addEventListenerNoEv(img, "load", onLoad)
+    Dom.addEventListenerNoEv(img, "error", onError)
+    Dom.setAttribute(img, "src", url)
+  })
 }
 
 let createResultFiles = async (extractedResult, originalName) => {

@@ -24,90 +24,83 @@ let selectInFlightBudgetMb = (items: array<uploadItem>): float => {
 let finalizeUploads = (
   validProcessed: array<uploadItem>,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   skippedCount: int,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
-  let existingScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+  updateProgress(98.0, "Wrapping up...", true, "Finalizing")
 
-  PanoramaClusterer.clusterScenes(
-    validProcessed,
-    ~existingScenes,
-    ~updateProgress,
-  )->Promise.then(processedWithClusters => {
-    updateProgress(98.0, "Organizing scenes...", true, "Finalizing")
-
-    let wasEmpty = getState().activeIndex == -1
-    if wasEmpty {
-      let currentScenes = SceneInventory.getActiveScenes(
-        getState().inventory,
-        getState().sceneOrder,
-      )
-      if Belt.Array.length(currentScenes) > 0 {
-        dispatch(SetPreloadingScene(0))
-      }
+  let wasEmpty = getState().activeIndex == -1
+  if wasEmpty {
+    let currentScenes = SceneInventory.getActiveScenes(
+      getState().inventory,
+      getState().sceneOrder,
+    )
+    if Belt.Array.length(currentScenes) > 0 {
+      dispatch(SetPreloadingScene(0))
     }
+  }
 
-    UploadReporting.handleExifReport(
-      processedWithClusters,
-      skippedCount,
-      ~getState,
-      ~dispatch,
-    )->Promise.then(report => {
-      updateProgress(100.0, "Upload complete", false, "Done")
-      let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
+  UploadReporting.handleExifReport(
+    validProcessed,
+    skippedCount,
+    ~bypassExifGeneration=true,
+    ~getState,
+    ~dispatch,
+  )->Promise.then(report => {
+    updateProgress(100.0, "Upload complete", false, "Done")
+    let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
-      let qualityResults = Belt.Array.map(
-        processedWithClusters,
-        i => {
-          let q =
-            i.quality
-            ->Option.flatMap(
-              q =>
-                switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-                | Ok(qa) => Some(qa)
-                | Error(msg) => {
-                    Logger.debug(
-                      ~module_="UploadLogic",
-                      ~message="DECODE_FALLBACK_TRIGGERED",
-                      ~data=Some({"error": msg}),
-                      (),
-                    )
+    let qualityResults = Belt.Array.map(
+      validProcessed,
+      i => {
+        let q =
+          i.quality
+          ->Option.flatMap(
+            q =>
+              switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+              | Ok(qa) => Some(qa)
+              | Error(msg) => {
+                  Logger.debug(
+                    ~module_="UploadLogic",
+                    ~message="DECODE_FALLBACK_TRIGGERED",
+                    ~data=Some({"error": msg}),
+                    (),
+                  )
 
-                    let score = switch JsonCombinators.Json.decode(
-                      q,
-                      JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float),
-                    ) {
-                    | Ok(s) => s
-                    | Error(_) => -1.0
-                    }
-
-                    if score >= 0.0 {
-                      Some(unsafeCastToQuality(q))
-                    } else {
-                      None
-                    }
+                  let score = switch JsonCombinators.Json.decode(
+                    q,
+                    JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float),
+                  ) {
+                  | Ok(s) => s
+                  | Error(_) => -1.0
                   }
-                },
-            )
-            ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
-          let preview = Option.getOr(i.preview, i.original)
-          let sanitizedName = UrlUtils.stripExtension(File.name(preview))
-          ({quality: q, newName: sanitizedName}: Types.qualityItem)
-        },
-      )
 
-      Promise.resolve(
-        (
-          {
-            qualityResults,
-            duration: durationStr,
-            report,
-          }: UploadTypes.processResult
-        ),
-      )
-    })
+                  if score >= 0.0 {
+                    Some(unsafeCastToQuality(q))
+                  } else {
+                    None
+                  }
+                }
+              },
+          )
+          ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
+        let preview = Option.getOr(i.preview, i.original)
+        let sanitizedName = UrlUtils.stripExtension(File.name(preview))
+        ({quality: q, newName: sanitizedName}: Types.qualityItem)
+      },
+    )
+
+    Promise.resolve(
+      (
+        {
+          qualityResults,
+          duration: durationStr,
+          report,
+        }: UploadTypes.processResult
+      ),
+    )
   })
 }
 
@@ -115,14 +108,14 @@ let executeProcessingChain = (
   uniqueItems: array<uploadItem>,
   maxConcurrency: int,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   skippedCount: int,
   journalId: string,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
-  updateProgress(20.0, "Optimizing images...", true, "Analyzing")
+  updateProgress(10.0, "Optimizing images...", true, "Analyzing")
 
   let processedCount = ref(0)
   let allProcessedItems = ref([])
@@ -173,10 +166,11 @@ let executeProcessingChain = (
       })
     },
     (pct, msg) => {
-      let scaledPct = 20.0 +. 75.0 *. pct
+      let scaledPct = 10.0 +. 88.0 *. pct
       updateProgress(scaledPct, msg, true, "Optimizing")
     },
-  )->Promise.then(_ => {
+  )
+->Promise.then(_ => {
     let validProcessed = Belt.Array.keep(allProcessedItems.contents, i => i.error == None)
 
     if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
@@ -223,8 +217,35 @@ let executeProcessingChain = (
         let seq = seqStart + i
         let newName = TourLogic.computeSceneFilename(seq, "", "")
 
+        // Simplified Clustering: Map avgLuminance to 1-5 Scale
+        let colorGroup =
+          item.quality
+          ->Option.flatMap(q => {
+            switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+            | Ok(qa) =>
+              let lum = qa.stats.avgLuminance
+              // Map 0-255 luminance to 1-5 buckets
+              // 1: Dark (0-50), 2: Dim (51-100), 3: Normal (101-150), 4: Bright (151-200), 5: Very Bright (201-255)
+              let bucket = if lum <= 50 {
+                "1"
+              } else if lum <= 100 {
+                "2"
+              } else if lum <= 150 {
+                "3"
+              } else if lum <= 200 {
+                "4"
+              } else {
+                "5"
+              }
+              Some(bucket)
+            | Error(_) => None
+            }
+          })
+          ->Option.getOr("3") // Default to normal if data missing
+
         {
           ...item,
+          colorGroup: Some(colorGroup),
           preview: item.preview->Option.map(
             f => {
               File.newFile([f], newName, {"type": File.type_(f)})
@@ -233,15 +254,11 @@ let executeProcessingChain = (
         }
       })
 
-      PanoramaClusterer.clusterScenes(finalItems, ~existingScenes, ~updateProgress=(_, _, _, _) =>
-        ()
-      )->Promise.then(clustered => {
-        let jsonPayload = UploadReporting.createScenePayload(clustered)
-        dispatch(AddScenes(jsonPayload))
-        PersistenceLayer.performSave(getState())
+      let jsonPayload = UploadReporting.createScenePayload(finalItems)
+      dispatch(AddScenes(jsonPayload))
+      PersistenceLayer.performSave(getState())
 
-        finalizeUploads(clustered, startTime, updateProgress, skippedCount, ~getState, ~dispatch)
-      })
+      finalizeUploads(finalItems, startTime, updateProgress, skippedCount, ~getState, ~dispatch)
     }
   })
 }

@@ -135,9 +135,7 @@ let make = React.memo((
       </button>
 
       <button
-        className={`sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed ${savePending
-            ? "btn-loading"
-            : ""}`}
+        className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={_ => {
           let _ = saveExecute()
         }}
@@ -145,13 +143,11 @@ let make = React.memo((
         ariaLabel="Save"
       >
         <LucideIcons.Save size=20 strokeWidth=1.0 />
-        <span> {React.string(savePending ? "Saving" : "Save")} </span>
+        <span> {React.string("Save")} </span>
       </button>
 
       <button
-        className={`sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed ${loadPending
-            ? "btn-loading"
-            : ""}`}
+        className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={_ => {
           let _ = loadExecute()
         }}
@@ -189,7 +185,7 @@ let make = React.memo((
         <LucideIcons.Download
           className="text-white transition-all duration-300" size=20 strokeWidth=1.0
         />
-        <span> {React.string(exportPending ? "Exporting" : "Export")} </span>
+        <span> {React.string("Export")} </span>
       </button>
 
       <button
@@ -268,7 +264,7 @@ let make = React.memo((
         <LucideIcons.Film
           className="text-white transition-all duration-300" size=20 strokeWidth=1.0
         />
-        <span> {React.string(teaserPending ? "Generating" : "Teaser")} </span>
+        <span> {React.string("Teaser")} </span>
       </button>
     </div>
   </div>

@@ -48,12 +48,13 @@ let handleUpload = async (
         ~prefix="Uploading",
         (),
       )
-      await UploadLogic.performUpload(
+      let _ = await UploadLogic.performUpload(
         ~progressToastId=uploadProgressToastId,
         files,
         ~getState,
         ~dispatch,
       )
+
     }
   | _ => ()
   }

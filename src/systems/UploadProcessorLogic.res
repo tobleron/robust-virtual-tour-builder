@@ -52,7 +52,7 @@ let handleExifReport = (
 let finalizeUploads = (
   validProcessed: array<uploadItem>,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   skippedCount: int,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
@@ -76,7 +76,7 @@ let executeProcessingChain = (
   uniqueItems: array<uploadItem>,
   maxConcurrency: int,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   skippedCount: int,
   journalId: string,
   ~getState: unit => Types.state,
@@ -97,7 +97,7 @@ let executeProcessingChain = (
 let handleFingerprinting = (
   validFiles: array<UploadTypes.file>,
   startTime: float,
-  updateProgress: (float, string, bool, string) => unit,
+  updateProgress: (~eta: string=?, float, string, bool, string) => unit,
   journalId: string,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,

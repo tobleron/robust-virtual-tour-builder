@@ -21,6 +21,7 @@ Behavior-alignment tracking for Playwright specs after architecture/UX updates.
 | `rapid-scene-switching.spec.ts` | Aligned | Navigation stabilization pattern in place. |
 | `upload-link-export-workflow.spec.ts` | Needs Update | Requires targeted review for latest export-flow assertions. |
 | `perf-budgets.spec.ts` | Needs Update | Needs contract re-check against current operation lifecycle gating. |
+| `hotspot-label-sidebar-guard.spec.ts` | Aligned | Covers persistent hotspot labels (builder) and sidebar spinner guardrails. |
 
 ## Deterministic Run Order
 1. `npx playwright test --list`

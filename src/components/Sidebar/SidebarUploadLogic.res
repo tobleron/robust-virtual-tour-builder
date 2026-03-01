@@ -19,7 +19,6 @@ let performUpload = async (
 ) => {
   let fileArray = JsHelpers.from(files)
   let startedAtMs = Date.now()
-  let lastEtaToastAtMs = ref(0.0)
   let knownTotalItems = ref(Belt.Array.length(fileArray))
   let lastPctSample = ref(0.0)
   let lastSampleAtMs = ref(startedAtMs)
@@ -32,16 +31,73 @@ let performUpload = async (
   let etaReady = ref(false)
   let wasCancelled = ref(false)
   let cancelToastSent = ref(false)
+  let lastEtaToastAtMs = ref(0.0)
+  let lastEtaToastValue = ref(0)
+  let countdownTimerId = ref(None)
+
+  let stopCountdown = () => {
+    countdownTimerId.contents->Option.forEach(id => ReBindings.Window.clearInterval(id))
+    countdownTimerId := None
+  }
+
+  let startCountdown = () => {
+    stopCountdown()
+    countdownTimerId :=
+      Some(
+        ReBindings.Window.setInterval(() => {
+          if stableEtaSeconds.contents > 1.0 && etaReady.contents && !wasCancelled.contents {
+            stableEtaSeconds := stableEtaSeconds.contents -. 1.0
+            let seconds = Belt.Float.toInt(stableEtaSeconds.contents)
+
+            let now = Date.now()
+            // Throttle toast updates to avoid rapid flickering, but ensure it counts down.
+            if now -. lastEtaToastAtMs.contents >= 900.0 && seconds != lastEtaToastValue.contents {
+              lastEtaToastAtMs := now
+              lastEtaToastValue := seconds
+              EtaSupport.updateEtaToast(
+                ~id=progressToastId,
+                ~contextOperation="eta_upload",
+                ~prefix="Uploading",
+                ~etaSeconds=seconds,
+                (),
+              )
+            }
+          }
+        }, 1000),
+      )
+  }
+
+  let cleanup = () => {
+    stopCountdown()
+    EtaSupport.dismissEtaToast(progressToastId)
+  }
 
   try {
+    startCountdown()
+    EtaSupport.dispatchCalculatingEtaToast(
+      ~id=progressToastId,
+      ~contextOperation="eta_upload",
+      ~prefix="Uploading",
+      (),
+    )
     let result: UploadTypes.processResult = await UploadProcessor.processUploads(
       fileArray,
       Some(
-        (pct, msg, isProc, phase) => {
+        (~eta as processorEta=?, pct, msg, isProc, phase) => {
           if phase == "Cancelled" || String.startsWith(msg, "Cancelled") {
             wasCancelled := true
+            cleanup()
           }
-          updateProgress(~dispatch, pct, msg, isProc, phase)
+
+          let currentEta = if etaReady.contents {
+            Some("ETA " ++ EtaSupport.formatEta(Belt.Float.toInt(stableEtaSeconds.contents)))
+          } else if isProc && pct > 0.0 && pct < 100.0 {
+            Some("Calculating...")
+          } else {
+            processorEta
+          }
+
+          updateProgress(~dispatch, ~eta=?currentEta, pct, msg, isProc, phase)
           if isProc && pct > 0.0 && pct < 100.0 {
             let now = Date.now()
             let parsedMetrics = parseProcessingMetrics(msg)
@@ -57,7 +113,7 @@ let performUpload = async (
                     emaSecondsPerItem := instSecondsPerItem
                   } else {
                     emaSecondsPerItem :=
-                      0.75 *. emaSecondsPerItem.contents +. 0.25 *. instSecondsPerItem
+                      0.60 *. emaSecondsPerItem.contents +. 0.40 *. instSecondsPerItem
                   }
                   completionSampleCount := completionSampleCount.contents + 1
                 }
@@ -73,8 +129,7 @@ let performUpload = async (
               if emaProgressPerSecond.contents <= 0.0 {
                 emaProgressPerSecond := instRate
               } else {
-                // Smooth sudden jumps from early-stage pipeline transitions.
-                emaProgressPerSecond := 0.8 *. emaProgressPerSecond.contents +. 0.2 *. instRate
+                emaProgressPerSecond := 0.7 *. emaProgressPerSecond.contents +. 0.3 *. instRate
               }
               lastPctSample := pct
               lastSampleAtMs := now
@@ -84,101 +139,85 @@ let performUpload = async (
             if (
               !etaReady.contents &&
               completionSampleCount.contents >= 2 &&
-              elapsedSec >= 25.0 &&
-              pct >= 20.0 &&
+              elapsedSec >= 15.0 &&
+              pct >= 10.0 &&
               emaProgressPerSecond.contents > 0.0
             ) {
               etaReady := true
+              // Initial dispatch once ready
+              let seconds = Belt.Float.toInt(stableEtaSeconds.contents)
+              if seconds > 0 {
+                EtaSupport.updateEtaToast(
+                  ~id=progressToastId,
+                  ~contextOperation="eta_upload",
+                  ~prefix="Uploading",
+                  ~etaSeconds=seconds,
+                  (),
+                )
+              }
             }
 
-            let shouldUpdateToast = now -. lastEtaToastAtMs.contents >= 1500.0
-            if shouldUpdateToast {
-              let processedItems = lastCompletedSample.contents
-              let totalItems = knownTotalItems.contents
-              let remainingItems = if totalItems > processedItems {
-                totalItems - processedItems
-              } else {
-                0
-              }
+            let processedItems = lastCompletedSample.contents
+            let totalItems = knownTotalItems.contents
+            let remainingItems = if totalItems > processedItems {
+              totalItems - processedItems
+            } else {
+              0
+            }
 
-              let etaByRecentItemRate = if emaSecondsPerItem.contents > 0.0 && remainingItems > 0 {
-                Some(emaSecondsPerItem.contents *. Belt.Int.toFloat(remainingItems))
-              } else {
-                None
-              }
-              let etaByGlobalItemAverage = if processedItems >= 1 && remainingItems > 0 {
-                let avgSecPerItem = elapsedSec /. Belt.Int.toFloat(processedItems)
-                Some(avgSecPerItem *. Belt.Int.toFloat(remainingItems))
-              } else {
-                None
-              }
+            let etaByRecentItemRate = if emaSecondsPerItem.contents > 0.0 && remainingItems > 0 {
+              Some(emaSecondsPerItem.contents *. Belt.Int.toFloat(remainingItems))
+            } else {
+              None
+            }
+            let etaByGlobalItemAverage = if processedItems >= 1 && remainingItems > 0 {
+              let avgSecPerItem = elapsedSec /. Belt.Int.toFloat(processedItems)
+              Some(avgSecPerItem *. Belt.Int.toFloat(remainingItems))
+            } else {
+              None
+            }
 
-              let etaByProgressSlope = if emaProgressPerSecond.contents > 0.0 {
-                Some((100.0 -. pct) /. emaProgressPerSecond.contents)
-              } else {
-                None
-              }
+            let etaByProgressSlope = if emaProgressPerSecond.contents > 0.0 {
+              Some((100.0 -. pct) /. emaProgressPerSecond.contents)
+            } else {
+              None
+            }
 
-              let blendedEta = EtaSupport.combineEtaCandidates(
-                ~a=etaByRecentItemRate,
-                ~b=etaByGlobalItemAverage,
-                ~c=etaByProgressSlope,
-              )->Option.map(raw => {
-                let utilizationFactor = switch parsedMetrics {
-                | Some(m) =>
-                  // A small utilization-based correction inferred from in-flight pressure.
-                  m.inFlightUtilization
-                  ->Option.map(
-                    u =>
-                      0.95 +. 0.15 *. EtaSupport.clampFloat(~value=u, ~minValue=0.0, ~maxValue=1.0),
-                  )
-                  ->Option.getOr(1.0)
-                | None => 1.0
-                }
-                raw *. utilizationFactor
-              })
-
-              let etaSeconds = switch blendedEta {
-              | Some(candidate) if etaReady.contents =>
-                let smoothed = if stableEtaSeconds.contents <= 0.0 {
-                  candidate
-                } else {
-                  let raw = 0.78 *. stableEtaSeconds.contents +. 0.22 *. candidate
-                  // Bound step changes to avoid jarring jumps in user-facing ETA.
-                  let maxRise = stableEtaSeconds.contents +. 30.0
-                  let maxDrop = stableEtaSeconds.contents -. 20.0
-                  EtaSupport.clampFloat(
-                    ~value=raw,
-                    ~minValue=Math.max(1.0, maxDrop),
-                    ~maxValue=maxRise,
-                  )
-                }
-                stableEtaSeconds := smoothed
-                Belt.Float.toInt(smoothed)
-              | _ => 0
-              }
-
-              lastEtaToastAtMs := now
-              if etaReady.contents {
-                EtaSupport.dispatchEtaToast(
-                  ~id=progressToastId,
-                  ~contextOperation="eta_upload",
-                  ~prefix="Uploading",
-                  ~etaSeconds,
-                  ~details=Some(phase ++ " • " ++ msg),
-                  ~createdAt=now,
-                  (),
+            let blendedEta = switch (etaByProgressSlope, etaByRecentItemRate) {
+            | (Some(slope), Some(rate)) => Some(0.7 *. slope +. 0.3 *. rate)
+            | (Some(slope), None) => Some(slope)
+            | (None, Some(rate)) => Some(rate)
+            | _ => etaByGlobalItemAverage
+            }->Option.map(raw => {
+              let utilizationFactor = switch parsedMetrics {
+              | Some(m) =>
+                m.inFlightUtilization
+                ->Option.map(
+                  u =>
+                    0.92 +. 0.08 *. EtaSupport.clampFloat(~value=u, ~minValue=0.0, ~maxValue=1.0),
                 )
+                ->Option.getOr(1.0)
+              | None => 1.0
+              }
+              raw *. utilizationFactor
+            })
+
+            switch blendedEta {
+            | Some(candidate) if etaReady.contents =>
+              let smoothed = if stableEtaSeconds.contents <= 0.0 {
+                candidate
               } else {
-                EtaSupport.dispatchCalculatingEtaToast(
-                  ~id=progressToastId,
-                  ~contextOperation="eta_upload",
-                  ~prefix="Uploading",
-                  ~details=Some(phase ++ " • " ++ msg),
-                  ~createdAt=now,
-                  (),
+                let raw = 0.65 *. stableEtaSeconds.contents +. 0.35 *. candidate
+                let maxRise = stableEtaSeconds.contents +. 30.0
+                let maxDrop = stableEtaSeconds.contents -. 40.0
+                EtaSupport.clampFloat(
+                  ~value=raw,
+                  ~minValue=Math.max(1.0, maxDrop),
+                  ~maxValue=maxRise,
                 )
               }
+              stableEtaSeconds := smoothed
+            | _ => ()
             }
           }
         },
@@ -187,7 +226,7 @@ let performUpload = async (
       ~dispatch,
       ~onCancel=() => {
         wasCancelled := true
-        NotificationManager.dismiss(progressToastId)
+        cleanup()
         updateProgress(~dispatch, 0.0, "Cancelled", false, "Cancelled")
         if !cancelToastSent.contents {
           cancelToastSent := true
@@ -206,16 +245,15 @@ let performUpload = async (
       },
     )
 
-    if wasCancelled.contents {
-      NotificationManager.dismiss(progressToastId)
-    } else {
+    cleanup()
+
+    if !wasCancelled.contents {
       let qualityResults = result.qualityResults
       let report = result.report
       let successfulCount = Belt.Array.length(report.success)
       let hasAnySuccess = successfulCount > 0
 
       if hasAnySuccess {
-        NotificationManager.dismiss(progressToastId)
         dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
         let processedCount = successfulCount + Belt.Array.length(report.skipped)
         if processedCount > 1 {
@@ -241,7 +279,6 @@ let performUpload = async (
           createdAt: Date.now(),
         })
       } else {
-        NotificationManager.dismiss(progressToastId)
         dispatch(
           Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload failed: no files processed")),
         )
@@ -259,44 +296,51 @@ let performUpload = async (
         updateProgress(~dispatch, 100.0, "Upload failed", false, "Error")
       }
     }
+    Promise.resolve(Ok(result))
   } catch {
-  | JsExn(obj) =>
-    NotificationManager.dismiss(progressToastId)
-    let msg = switch JsExn.message(obj) {
-    | Some(m) => m
-    | None => "Unknown error"
-    }
-    if msg == "CANCELLED" || wasCancelled.contents {
-      updateProgress(~dispatch, 0.0, "Cancelled", false, "Cancelled")
-      if !cancelToastSent.contents {
-        cancelToastSent := true
+  | JsExn(obj) => {
+      cleanup()
+      let msg = switch JsExn.message(obj) {
+      | Some(m) => m
+      | None => "Unknown error"
+      }
+      if msg == "CANCELLED" || wasCancelled.contents {
+        updateProgress(~dispatch, 0.0, "Cancelled", false, "Cancelled")
+        if !cancelToastSent.contents {
+          cancelToastSent := true
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("sidebar_upload"),
+            message: "Upload cancelled",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        }
+      } else {
+        dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)))
         NotificationManager.dispatch({
           id: "",
-          importance: Info,
+          importance: Error,
           context: Operation("sidebar_upload"),
-          message: "Upload cancelled",
+          message: NotificationTypes.truncateForToast("Upload failed: " ++ msg),
           details: None,
           action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
+          duration: NotificationTypes.defaultTimeoutMs(Error),
           dismissible: true,
           createdAt: Date.now(),
         })
+        updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
       }
-    } else {
-      dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)))
-      NotificationManager.dispatch({
-        id: "",
-        importance: Error,
-        context: Operation("sidebar_upload"),
-        message: NotificationTypes.truncateForToast("Upload failed: " ++ msg),
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Error),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-      updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+      Promise.resolve(Error(msg))
     }
-  | _ => dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")))
+  | _ => {
+      cleanup()
+      dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")))
+      Promise.resolve(Error("Unknown error"))
+    }
   }
 }

@@ -8,114 +8,53 @@ let init = () => {
 }
 
 /**
- * Compresses a File/Blob to WebP format using the browser's Canvas API.
- * This saves bandwidth by sending optimized images to the backend.
+ * Compresses a File/Blob to WebP format using WorkerPool's OffscreenCanvas implementation.
+ * This offloads heavy computation (resizing + encoding) to background threads.
  */
 let compressToWebPConstrained = (
   file: File.t,
   ~quality: float,
   ~maxWidth: float,
-  ~maxHeight: float,
+  ~maxHeight as _: float,
 ): Promise.t<result<Blob.t, string>> => {
-  Logger.startOperation(~module_=moduleName, ~operation="COMPRESS_WEBP", ())
+  Logger.startOperation(~module_=moduleName, ~operation="COMPRESS_IMAGE_WORKER", ())
   let startTime = Date.now()
 
-  Promise.make((resolve, _reject) => {
-    let img = Dom.createElement("img")
-    let url = UrlUtils.safeCreateObjectURL(file)
-    if url == "" {
-      resolve(Error("Failed to create object URL"))
-    } else {
-      let onLoad = () => {
-        URL.revokeObjectURL(url)
-        let srcW = Float.fromInt(Dom.getWidth(img))
-        let srcH = Float.fromInt(Dom.getHeight(img))
-        if srcW <= 0.0 || srcH <= 0.0 {
-          resolve(Error("Invalid source image dimensions"))
-        } else {
-          let widthScale = maxWidth /. srcW
-          let heightScale = maxHeight /. srcH
-          let scale = Math.min(1.0, Math.min(widthScale, heightScale))
-          let width = srcW *. scale
-          let height = srcH *. scale
-
-          let canvas = Dom.createElement("canvas")
-          Dom.setWidth(canvas, Float.toInt(width))
-          Dom.setHeight(canvas, Float.toInt(height))
-
-          let ctx = Canvas.getContext2d(canvas, "2d", %raw("{}"))
-          // Using imageSmoothingQuality for better results
-          let _ = %raw("ctx.imageSmoothingQuality = 'high'")
-          Canvas.drawImage(ctx, img, 0.0, 0.0, width, height)
-
-          let toBlob: (Dom.element, Nullable.t<Blob.t> => unit, string, float) => unit = %raw(
-            "(el, cb, type, q) => el.toBlob(cb, type, q)"
-          )
-
-          toBlob(
-            canvas,
-            blob => {
-              switch Nullable.toOption(blob) {
-              | Some(b) =>
-                let duration = Date.now() -. startTime
-                Logger.endOperation(
-                  ~module_=moduleName,
-                  ~operation="COMPRESS_WEBP",
-                  ~data=Some({
-                    "originalSize": File.size(file),
-                    "newSize": Blob.size(b),
-                    "durationMs": duration,
-                    "reduction": Float.toFixed(
-                      100.0 *. (1.0 -. Blob.size(b) /. File.size(file)),
-                      ~digits=1,
-                    ) ++ "%",
-                  }),
-                  (),
-                )
-                resolve(Ok(b))
-              | None =>
-                let error = "WebP compression failed (null blob)"
-                Logger.error(
-                  ~module_=moduleName,
-                  ~message="COMPRESSION_FAILED",
-                  ~data=Some({"error": error}),
-                  (),
-                )
-                resolve(Error(error))
-              }
-            },
-            "image/webp",
-            quality,
-          )
-        }
-      }
-
-      let onError = () => {
-        URL.revokeObjectURL(url)
-        let error = "Failed to load image for compression"
-        Logger.error(
-          ~module_=moduleName,
-          ~message="IMAGE_LOAD_FAILED",
-          ~data=Some({"error": error}),
-          (),
-        )
-        resolve(Error(error))
-      }
-
-      Dom.addEventListenerNoEv(img, "load", onLoad)
-      Dom.addEventListenerNoEv(img, "error", onError)
-      Logger.info(
+  WorkerPool.processFullWithWorker(
+    %raw("(f) => f")(file),
+    ~width=Float.toInt(maxWidth),
+    ~quality,
+    ~format=Constants.Media.uploadFormat,
+  )->Promise.then(res => {
+    let duration = Date.now() -. startTime
+    switch res {
+    | Ok((blob, w, h)) =>
+      Logger.endOperation(
         ~module_=moduleName,
-        ~message="LOADING_IMAGE",
+        ~operation="COMPRESS_IMAGE_WORKER",
         ~data=Some({
-          "name": File.name(file),
-          "size": File.size(file),
-          "type": File.type_(file),
-          "url": url,
+          "originalSize": File.size(file),
+          "newSize": Blob.size(blob),
+          "durationMs": duration,
+          "reduction": Float.toFixed(
+            100.0 *. (1.0 -. Blob.size(blob) /. File.size(file)),
+            ~digits=1,
+          ) ++ "%",
+          "engine": "offscreen-canvas-worker",
+          "format": Constants.Media.uploadFormat,
+          "dimensions": Belt.Int.toString(w) ++ "x" ++ Belt.Int.toString(h),
         }),
         (),
       )
-      Dom.setAttribute(img, "src", url)
+      Promise.resolve(Ok(blob))
+    | Error(msg) =>
+      Logger.error(
+        ~module_=moduleName,
+        ~message="WORKER_COMPRESSION_FAILED",
+        ~data=Some({"error": msg}),
+        (),
+      )
+      Promise.resolve(Error(msg))
     }
   })
 }

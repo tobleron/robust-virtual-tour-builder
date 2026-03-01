@@ -21,13 +21,13 @@ let timeoutTtlExceeded = "OPERATION_TIMEOUT_TTL_EXCEEDED"
 
 let ttlMsForType = (type_: operationType): int =>
   switch type_ {
-  | Upload => 600000
-  | Export => 300000
-  | ProjectLoad => 120000
-  | ProjectSave => 60000
-  | Navigation => 30000
-  | SceneLoad => 30000
-  | _ => 120000
+  | Upload => 7200000 // 2 hours
+  | Export => 3600000 // 1 hour
+  | ProjectLoad => 300000 // 5 mins
+  | ProjectSave => 120000 // 2 mins
+  | Navigation => 60000 // 1 min
+  | SceneLoad => 60000 // 1 min
+  | _ => 300000 // 5 mins
   }
 
 // --- INTERNAL HELPERS ---
@@ -69,8 +69,9 @@ let sweepExpiredOperations = (): unit => {
   ->Belt.Array.forEach(task => {
     if OperationLifecycleContext.isActiveStatus(task.status) {
       let ttl = ttlMsForType(task.type_)
-      let elapsed = now -. task.startedAt
-      if elapsed > Int.toFloat(ttl) {
+      // Use updatedAt for liveness check instead of startedAt to support very slow but active operations.
+      let elapsedSinceUpdate = now -. task.updatedAt
+      if elapsedSinceUpdate > Int.toFloat(ttl) {
         leakedTotal := leakedTotal.contents + 1
         let updatedTask = {
           ...task,
@@ -88,7 +89,7 @@ let sweepExpiredOperations = (): unit => {
             "id": task.id,
             "type": task.type_,
             "ttlMs": ttl,
-            "elapsedMs": elapsed,
+            "elapsedMs": elapsedSinceUpdate,
             "phase": task.phase,
           }),
           (),

@@ -207,10 +207,14 @@ pub fn finalize_webp_buffer(
     src_w: u32,
 ) -> Result<Vec<u8>, String> {
     if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
-        media::inject_remx_chunk(large_bytes, metadata)
+        // Data is already optimized WebP from frontend, just inject the reMX chunk.
+        // We use 'data' (the original upload) because 'large_bytes' would be empty/redundant in the bypass path.
+        media::inject_remx_chunk(data.to_vec(), metadata)
     } else if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
-        Ok(data.to_vec())
+        // Fallback for metadata-only optimization flags
+        media::inject_remx_chunk(data.to_vec(), metadata)
     } else {
+        // Standard path: re-encode resized buffer
         media::inject_remx_chunk(large_bytes, metadata)
     }
 }

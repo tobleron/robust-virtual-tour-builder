@@ -26,18 +26,10 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
 let handleExifReport = (
   processedWithClusters: array<UploadTypes.uploadItem>,
   skippedCount: int,
+  ~bypassExifGeneration: bool=false,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
 ) => {
-  let reportData = Belt.Array.map(processedWithClusters, i => {
-    let item: FeatureLoaders.exifSceneDataItem = {
-      original: i.original,
-      metadataJson: i.metadata,
-      qualityJson: i.quality,
-    }
-    item
-  })
-
   let successNames = Belt.Array.map(processedWithClusters, i => {
     let preview = Option.getOr(i.preview, i.original)
     UrlUtils.stripExtension(File.name(preview))
@@ -45,16 +37,29 @@ let handleExifReport = (
   let skippedNames = Belt.Array.makeBy(skippedCount, i => "Duplicate " ++ Belt.Int.toString(i + 1))
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
-  FeatureLoaders.generateExifReportLazy(reportData)->Promise.then(res => {
-    dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
-    switch res.suggestedProjectName {
-    | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
-      let currentName = getState().tourName
-      if currentName == "" || TourLogic.isUnknownName(currentName) {
-        dispatch(SetTourName(name))
-      }
-    | _ => ()
-    }
+  if bypassExifGeneration {
     Promise.resolve(report)
-  })
+  } else {
+    let reportData = Belt.Array.map(processedWithClusters, i => {
+      let item: FeatureLoaders.exifSceneDataItem = {
+        original: i.original,
+        metadataJson: i.metadata,
+        qualityJson: i.quality,
+      }
+      item
+    })
+
+    FeatureLoaders.generateExifReportLazy(reportData)->Promise.then(res => {
+      dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
+      switch res.suggestedProjectName {
+      | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
+        let currentName = getState().tourName
+        if currentName == "" || TourLogic.isUnknownName(currentName) {
+          dispatch(SetTourName(name))
+        }
+      | _ => ()
+      }
+      Promise.resolve(report)
+    })
+  }
 }

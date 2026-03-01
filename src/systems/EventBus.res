@@ -46,6 +46,8 @@ type event =
         "phase": string,
         "error": bool,
         "onCancel": unit => unit,
+        "cancellable": bool,
+        "eta": option<string>,
       },
     )
   | OpenHotspotMenu({"anchor": Dom.element, "hotspot": Types.hotspot, "index": int})

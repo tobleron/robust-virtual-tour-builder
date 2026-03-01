@@ -87,24 +87,21 @@ let average = (values: array<float>): float => {
   }
 }
 
-let computeStatus = (activeStatuses, completedCount, total) => {
+let computeStatus = (activeStatuses, startedCount, total) => {
   let counts = Dict.make()
+  let activeCount = ref(0)
   Dict.toArray(activeStatuses)->Belt.Array.forEach(((_k, status)) => {
-    let current = Dict.get(counts, status)->Option.getOr(0)
-    Dict.set(counts, status, current + 1)
-  })
-
-  let parts = []
-  Dict.toArray(counts)->Belt.Array.forEach(((status, count)) => {
-    if status != "__DONE__" && count > 0 {
-      let _ = Array.push(parts, status ++ ": " ++ Belt.Int.toString(count))
+    if status != "__DONE__" && status != "__Error__" {
+      activeCount := activeCount.contents + 1
+      let current = Dict.get(counts, status)->Option.getOr(0)
+      Dict.set(counts, status, current + 1)
     }
   })
 
   let baseMsg =
-    "Processing " ++ Belt.Int.toString(completedCount) ++ "/" ++ Belt.Int.toString(total)
-  if Array.length(parts) > 0 {
-    baseMsg ++ "|" ++ Array.join(parts, " \u2022 ")
+    "Processing " ++ Belt.Int.toString(startedCount) ++ "/" ++ Belt.Int.toString(total)
+  if activeCount.contents > 0 {
+    baseMsg ++ " | Active: " ++ Belt.Int.toString(activeCount.contents)
   } else {
     baseMsg
   }
@@ -188,7 +185,7 @@ let executeAdaptive = (
   }
 
   let report = () => {
-    let msg = computeStatus(activeStatuses, completedCount.contents, total)
+    let msg = computeStatus(activeStatuses, currentIndex.contents, total)
     let pct = if total > 0 {
       Float.fromInt(completedCount.contents) /. Float.fromInt(total)
     } else {
@@ -313,7 +310,7 @@ let execute = (
   let activeStatuses = Dict.make()
 
   let report = () => {
-    let msg = computeStatus(activeStatuses, completedCount.contents, total)
+    let msg = computeStatus(activeStatuses, currentIndex.contents, total)
     let pct = if total > 0 {
       Float.fromInt(completedCount.contents) /. Float.fromInt(total)
     } else {
@@ -402,19 +399,13 @@ let executeWeighted = (
   let activeStatuses = Dict.make()
 
   let report = () => {
-    let baseMsg = computeStatus(activeStatuses, completedCount.contents, total)
-    let withBudget =
-      baseMsg ++
-      " | In-flight: " ++
-      Float.toFixed(inFlightWeight.contents, ~digits=1) ++
-      "/" ++
-      Float.toFixed(maxInFlightWeight, ~digits=1) ++ " MB"
+    let msg = computeStatus(activeStatuses, currentIndex.contents, total)
     let pct = if total > 0 {
       Float.fromInt(completedCount.contents) /. Float.fromInt(total)
     } else {
       1.0
     }
-    onProgress(pct, withBudget)
+    onProgress(pct, msg)
   }
 
   let (resolve, _) = (ref(ignore), ref(ignore))

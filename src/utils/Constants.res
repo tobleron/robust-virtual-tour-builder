@@ -305,34 +305,38 @@ module Exporter = {
   let uploadTimeoutMs = if isTestEnvironment() {
     30000
   } else {
-    720000
+    1800000 // 30 minutes
   }
 }
 
 module Media = {
-  // Frontend pre-upload compression quality for WebP conversion (0.0 - 1.0)
-  let uploadWebpQuality = 0.92
+  // Frontend pre-upload compression quality.
+  // Standardized to 0.80 after research: provides ~20% smaller files than 0.85
+  // with <1.5% visual (SSIM) difference, ideal for mass scalability.
+  let uploadWebpQuality = 0.80
+  let uploadJpegQuality = 0.90
+  let uploadFormat = "image/webp"
   // Upload processing defaults; heavy folders are dynamically downshifted at runtime.
   let uploadMaxConcurrencyDefault = 5
   let uploadMaxConcurrencyMin = 2
   let uploadHeavyFolderThresholdMb = 900.0
   let uploadVeryLargeFileThresholdMb = 40.0
-  let uploadInFlightBudgetMbDefault = 120.0
-  let uploadInFlightBudgetMbHeavy = 80.0
+  let uploadInFlightBudgetMbDefault = 250.0
+  let uploadInFlightBudgetMbHeavy = 200.0
   // Adaptive pacing controls for /api/media/process-full requests.
-  let processFullSpacingStartMs = 1200.0
-  let processFullSpacingMinMs = 450.0
+  let processFullSpacingStartMs = 1000.0
+  let processFullSpacingMinMs = 250.0
   let processFullSpacingMaxMs = 8000.0
-  let processFullSpacingStepUpMs = 300.0
-  let processFullSpacingStepDownMs = 80.0
-  let processFullAutotuneSuccessWindow = 4
-  let processFullLatencyLowMs = 1400.0
-  let processFullLatencyHighMs = 2600.0
+  let processFullSpacingStepUpMs = 500.0
+  let processFullSpacingStepDownMs = 200.0
+  let processFullAutotuneSuccessWindow = 1
+  let processFullLatencyLowMs = 1000.0
+  let processFullLatencyHighMs = 2200.0
   let processFullLatencyEmaAlpha = 0.2
-  // Export scene normalization policy
-  let exportSceneWebpQuality = 0.92
+  // Export scene normalization policy (matches upload for zero-re-encode path)
+  let exportSceneWebpQuality = 0.80
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)
-  let exportScenePolicy = "browser-webp92-v1"
+  let exportScenePolicy = "browser-webp80-v1"
   // Branding/logo normalization policy
   let logoWebpQuality = 0.92
   let logoMaxWidth = 1024.0

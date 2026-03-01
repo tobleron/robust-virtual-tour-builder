@@ -272,7 +272,7 @@ let startHeadlessTeaserWithStyle = async (
 
                       lastEtaToastAtMs := now
                       if etaReady.contents {
-                        EtaSupport.dispatchEtaToast(
+                        EtaSupport.updateEtaToast(
                           ~id=teaserEtaToastId,
                           ~contextOperation="eta_teaser",
                           ~prefix="Generating teaser",

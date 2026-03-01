@@ -96,6 +96,7 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
       "error": false,
       "onCancel": () => (),
       "cancellable": false,
+      "eta": (None: option<string>),
     }
   )
 
@@ -158,16 +159,19 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
           })
           isVisible.current = false
         } else {
-          let newState = {
-            "active": active,
-            "progress": progress,
-            "message": message,
-            "phase": op.phase,
-            "error": error,
-            "onCancel": () => OperationLifecycle.cancel(op.id),
-            "cancellable": op.cancellable,
-          }
-          setProcState(_ => newState)
+          setProcState(prev => {
+            let newState = {
+              "active": active,
+              "progress": progress,
+              "message": message,
+              "phase": op.phase,
+              "error": error,
+              "onCancel": () => OperationLifecycle.cancel(op.id),
+              "cancellable": op.cancellable,
+              "eta": prev["eta"], // Preserve ETA from legacy events if any
+            }
+            newState
+          })
           isVisible.current = active
         }
       } // Hide if currently visible
@@ -224,7 +228,14 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         // OperationLifecycle is preferred.
 
         switch activeOpRef.current {
-        | Some(_) => () // Ignore if activeOp exists
+        | Some(_) =>
+          // Update ETA even if activeOp exists, as it's not in Lifecycle yet
+          setProcState(prev => {
+            let next = Object.assign(Object.make(), prev)
+            next["eta"] = payload["eta"]
+            next["message"] = payload["message"]
+            next
+          })
         | None =>
           // Legacy fallback safety:
           // ignore late "active=true" payloads when there is no active lifecycle operation.
@@ -248,6 +259,7 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
                   "error": payload["error"],
                   "onCancel": payload["onCancel"],
                   "cancellable": false,
+                  "eta": payload["eta"],
                 },
             )
           }

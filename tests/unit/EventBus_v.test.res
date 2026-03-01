@@ -288,6 +288,8 @@ describe("EventBus", _ => {
         "phase": "upload",
         "error": false,
         "onCancel": () => (),
+        "cancellable": true,
+        "eta": None,
       }),
     )
 

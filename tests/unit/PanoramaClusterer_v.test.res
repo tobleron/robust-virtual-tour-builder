@@ -53,7 +53,7 @@ describe("PanoramaClusterer", () => {
     let result = await clusterScenes(
       [item1, item2],
       ~existingScenes=[],
-      ~updateProgress=(_, _, _, _) => (),
+      ~updateProgress=(~eta=?, _, _, _, _) => { let _ = eta },
     )
 
     t->expect(Array.length(result))->Expect.toBe(2)
@@ -99,7 +99,7 @@ describe("PanoramaClusterer", () => {
     let result = await clusterScenes(
       [item1, item2],
       ~existingScenes=[],
-      ~updateProgress=(_, _, _, _) => (),
+      ~updateProgress=(~eta=?, _, _, _, _) => { let _ = eta },
     )
 
     let r1 = result[0]->Option.getOrThrow
@@ -151,7 +151,7 @@ describe("PanoramaClusterer", () => {
     let result = await clusterScenes(
       [item1],
       ~existingScenes=[existingScene],
-      ~updateProgress=(_, _, _, _) => (),
+      ~updateProgress=(~eta=?, _, _, _, _) => { let _ = eta },
     )
 
     let r1 = result[0]->Option.getOrThrow

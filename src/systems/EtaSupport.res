@@ -123,7 +123,7 @@ let parseEtaTextSeconds = (text: string): option<int> => {
   }
 }
 
-let dispatchEtaToast = (
+let updateEtaToast = (
   ~id: string,
   ~contextOperation: string,
   ~prefix: string,

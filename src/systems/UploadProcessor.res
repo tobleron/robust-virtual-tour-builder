@@ -9,7 +9,7 @@ open UploadTypes
 
 let processUploads = (
   files: array<UploadTypes.file>,
-  progressCallback: option<(float, string, bool, string) => unit>,
+  progressCallback: option<(~eta: string=?, float, string, bool, string) => unit>,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
@@ -55,11 +55,11 @@ let processUploads = (
     }
   })
 
-  let updateProgress = (pct, msg, isProc, phase) => {
+  let updateProgress = (~eta as _eta=?, pct, msg, isProc, phase) => {
     if !cancelled.contents {
       OperationLifecycle.progress(opId, pct, ~message=msg, ~phase, ())
       switch progressCallback {
-      | Some(cb) => cb(pct, msg, isProc, phase)
+      | Some(cb) => cb(~eta=?_eta, pct, msg, isProc, phase)
       | None => ()
       }
     }

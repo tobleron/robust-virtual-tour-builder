@@ -185,7 +185,7 @@ let handleExport = async (
 
         lastEtaToastAtMs := now
         if etaReady.contents {
-          EtaSupport.dispatchEtaToast(
+          EtaSupport.updateEtaToast(
             ~id=progressToastId,
             ~contextOperation="eta_export",
             ~prefix="Exporting",
@@ -195,6 +195,7 @@ let handleExport = async (
             (),
           )
         } else {
+
           EtaSupport.dispatchCalculatingEtaToast(
             ~id=progressToastId,
             ~contextOperation="eta_export",

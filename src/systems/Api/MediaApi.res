@@ -223,7 +223,7 @@ let processImageFull = (
           maxDelayMs: 5000,
           backoffMultiplier: 2.0,
           jitter: true,
-          totalDeadlineMs: 45000,
+          totalDeadlineMs: 300000, // 5 minutes
         },
         (),
       )

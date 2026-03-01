@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { uploadImageAndWaitForSceneCount } from './e2e-helpers';
+import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
-const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
+const TOUR_ZIP_PATH = path.join(FIXTURES_DIR, 'tour_linked.vt.zip');
 
 test.describe('Visual Regression: Aesthetic Integrity', () => {
     test.beforeEach(async ({ page }) => {
@@ -93,7 +93,11 @@ test.describe('Visual Regression: Aesthetic Integrity', () => {
 
         // Mock health check
         await page.route('**/health*', async (route) => {
-          await route.fulfill({ status: 200, body: 'OK' });
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ status: 'ok' }),
+          });
         });
 
         await page.goto('/');
@@ -108,10 +112,10 @@ test.describe('Visual Regression: Aesthetic Integrity', () => {
 
     test('Sidebar and HUD components should match aesthetic baselines', async ({ page }) => {
         // 1. Setup: Upload an image to populate the Sidebar and Viewer HUD
-        await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 30000);
+        await loadProjectZipAndWait(page, TOUR_ZIP_PATH, 90000);
 
         // 2. Wait for UI to stabilize (animations, images loaded)
-        await expect(page.locator('.scene-item')).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('.scene-item').first()).toBeVisible({ timeout: 15000 });
         await expect(page.locator('#panorama-a')).toBeVisible({ timeout: 30000 });
         // Small delay to ensure blur/glassmorphism effects and transitions are settled
         await page.waitForTimeout(2000);
@@ -139,9 +143,9 @@ test.describe('Visual Regression: Aesthetic Integrity', () => {
 
     test('Modals and Popovers should maintain premium styling', async ({ page }) => {
         // Setup scene
-        await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 30000);
+        await loadProjectZipAndWait(page, TOUR_ZIP_PATH, 90000);
         
-        await expect(page.locator('.scene-item')).toBeVisible();
+        await expect(page.locator('.scene-item').first()).toBeVisible();
 
         // 1. Trigger Link Modal (Alt + Click in center of viewer)
         const viewer = page.locator('#viewer-stage');

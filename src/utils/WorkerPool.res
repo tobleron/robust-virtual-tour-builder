@@ -14,6 +14,14 @@ type fingerprintResponse = {id: string, ok: bool, checksum: option<string>}
 type validateImageResponse = {id: string, ok: bool, isImage: option<bool>}
 type generateTinyResponse = {id: string, ok: bool, tiny: option<BrowserBindings.Blob.t>}
 type exifResponse = {id: string, ok: bool, width: option<int>, height: option<int>}
+type processFullResponse = {
+  id: string,
+  ok: bool,
+  blob: option<BrowserBindings.Blob.t>,
+  width: option<int>,
+  height: option<int>,
+  error: option<string>,
+}
 
 type waiter<'a> = {
   id: string,
@@ -28,6 +36,7 @@ type state = {
   validateWaitersRef: ref<array<waiter<option<bool>>>>,
   tinyWaitersRef: ref<array<waiter<option<BrowserBindings.Blob.t>>>>,
   exifWaitersRef: ref<array<waiter<option<(int, int)>>>>,
+  fullWaitersRef: ref<array<waiter<result<(BrowserBindings.Blob.t, int, int), string>>>>,
 }
 
 let poolRef: ref<option<state>> = ref(None)
@@ -116,6 +125,22 @@ let removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int
   found.contents
 }
 
+let removeFullWaiter = (pool: state, id: string): option<
+  waiter<result<(BrowserBindings.Blob.t, int, int), string>>,
+> => {
+  let found = ref(None)
+  pool.fullWaitersRef :=
+    pool.fullWaitersRef.contents->Belt.Array.keep(waiter => {
+      if waiter.id == id {
+        found := Some(waiter)
+        false
+      } else {
+        true
+      }
+    })
+  found.contents
+}
+
 let bindWorkerHandlers = (pool: state, worker: worker) => {
   setOnMessage(worker, evt => {
     let payload: {"id": string, "type": option<string>} = getEventData(evt)
@@ -156,28 +181,32 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
         }
       | None => ()
       }
-    | _ =>
-      // Defensive fallback: older worker payloads may miss "type" for validateImage.
-      let validatePayload: validateImageResponse = getEventData(evt)
-      switch removeValidateWaiter(pool, validatePayload.id) {
+    | Some("processFull") =>
+      let fullPayload: processFullResponse = getEventData(evt)
+      switch removeFullWaiter(pool, fullPayload.id) {
       | Some(waiter) =>
-        if validatePayload.ok {
-          waiter.resolve(validatePayload.isImage)
+        if fullPayload.ok {
+          switch (fullPayload.blob, fullPayload.width, fullPayload.height) {
+          | (Some(b), Some(w), Some(h)) => waiter.resolve(Ok((b, w, h)))
+          | _ => waiter.resolve(Error("Malformed worker response for processFull"))
+          }
+        } else {
+          waiter.resolve(Error(fullPayload.error->Option.getOr("Unknown worker processing error")))
+        }
+      | None => ()
+      }
+    | Some("fingerprint") =>
+      let fingerprintPayload: fingerprintResponse = getEventData(evt)
+      switch removeFingerprintWaiter(pool, fingerprintPayload.id) {
+      | Some(waiter) =>
+        if fingerprintPayload.ok {
+          waiter.resolve(fingerprintPayload.checksum)
         } else {
           waiter.resolve(None)
         }
-      | None =>
-        let fingerprintPayload: fingerprintResponse = getEventData(evt)
-        switch removeFingerprintWaiter(pool, fingerprintPayload.id) {
-        | Some(waiter) =>
-          if fingerprintPayload.ok {
-            waiter.resolve(fingerprintPayload.checksum)
-          } else {
-            waiter.resolve(None)
-          }
-        | None => ()
-        }
+      | None => ()
       }
+    | _ => ()
     }
   })
   setOnError(worker, _err => ())
@@ -198,6 +227,7 @@ let ensurePool = (): option<state> => {
         validateWaitersRef: ref([]),
         tinyWaitersRef: ref([]),
         exifWaitersRef: ref([]),
+        fullWaitersRef: ref([]),
       }
       workers->Belt.Array.forEach(w => bindWorkerHandlers(pool, w))
       poolRef := Some(pool)
@@ -207,6 +237,59 @@ let ensurePool = (): option<state> => {
       poolRef := None
       None
     }
+  }
+}
+
+let processFullWithWorker = (
+  blob: BrowserBindings.Blob.t,
+  ~width: int=4096,
+  ~quality: float=0.92,
+  ~format: string="image/webp",
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+): Promise.t<result<(BrowserBindings.Blob.t, int, int), string>> => {
+  switch ensurePool() {
+  | None => Promise.resolve(Error("Worker pool not available"))
+  | Some(pool) =>
+    Promise.make((resolve, _reject) => {
+      let id = Math.random()->Float.toString ++ "_" ++ Date.now()->Float.toInt->Int.toString
+      let settled = ref(false)
+      let finish = value => {
+        if !settled.contents {
+          settled := true
+          resolve(value)
+        }
+      }
+      let removeOnAbort = ref(None)
+      signal->Option.forEach(sig => {
+        let onAbort = () => {
+          let _ = removeFullWaiter(pool, id)
+          finish(Error("Processing cancelled by user"))
+        }
+        BrowserBindings.AbortSignal.addEventListener(sig, "abort", onAbort)
+        removeOnAbort :=
+          Some(() => BrowserBindings.AbortSignal.removeEventListener(sig, "abort", onAbort))
+        if BrowserBindings.AbortSignal.aborted(sig) {
+          onAbort()
+        }
+      })
+      pool.fullWaitersRef := Belt.Array.concat(pool.fullWaitersRef.contents, [{id, resolve}])
+      pool.fullWaitersRef :=
+        pool.fullWaitersRef.contents->Belt.Array.map(waiter =>
+          if waiter.id == id {
+            {
+              ...waiter,
+              resolve: value => {
+                removeOnAbort.contents->Option.forEach(cb => cb())
+                finish(value)
+              },
+            }
+          } else {
+            waiter
+          }
+        )
+      let worker = takeWorker(pool)
+      postMessage(worker, {"id": id, "type": "processFull", "blob": blob, "width": width, "quality": quality, "format": format})
+    })
   }
 }
 

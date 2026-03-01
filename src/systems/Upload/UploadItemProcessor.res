@@ -26,7 +26,7 @@ let parseRateLimitedSeconds = (msg: string): option<int> => {
 let processImageWithTimeout = (
   file: ReBindings.File.t,
   ~onStatus: string => unit,
-  ~timeoutMs: int=180000,
+  ~timeoutMs: int=300000,
 ) => {
   Promise.make((resolve, _reject) => {
     let settled = ref(false)
@@ -106,7 +106,8 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     ~data=Some({"filename": File.name(item.original)}),
     (),
   )
-  let rec attemptProcess = (remainingRateLimitRetries: int) =>
+
+  let rec attemptProcess = (remainingRateLimitRetries: int) => {
     processImageWithTimeout(item.original, ~onStatus)->Promise.then(processResult => {
       switch processResult {
       | Ok(res) => Promise.resolve(handleProcessSuccess(res, item))
@@ -120,6 +121,7 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
         }
       }
     })
+  }
 
   attemptProcess(2)->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)

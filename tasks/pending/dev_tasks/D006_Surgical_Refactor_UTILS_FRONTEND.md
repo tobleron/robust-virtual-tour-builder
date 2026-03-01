@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/utils/AsyncQueue.res** (Metric: [Nesting: 3.60, Density: 0.13, Coupling: 0.02] | Drag: 4.86 | LOC: 479/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/AsyncQueue.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.88 | LOC: 471/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/utils/LoggerTelemetry.res** (Metric: [Nesting: 3.00, Density: 0.20, Coupling: 0.06] | Drag: 4.34 | LOC: 453/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -23,7 +23,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.10, Coupling: 0.03] | Drag: 3.11 | LOC: 407/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.11 | LOC: 489/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -31,14 +31,14 @@ Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-sys
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D006/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/utils/AsyncQueue.res`
-- `src/utils/AsyncQueue.res` (9 functions, fingerprint 51330da07cd5d8b5fa52e17eb2b94499d1ad876df901eb721be240242bea220f)
+- `src/utils/AsyncQueue.res` (9 functions, fingerprint 73547a4fed2786fc7e9fcd7af83fd94984b2fc851b1158f78d87422736d8a37f)
     - Grouped summary:
         - average × 1 (lines: 81)
         - computeStatus × 1 (lines: 90)
         - defaultAdaptiveConfig × 1 (lines: 33)
-        - execute × 1 (lines: 303)
-        - executeAdaptive × 1 (lines: 113)
-        - executeWeighted × 1 (lines: 388)
+        - execute × 1 (lines: 300)
+        - executeAdaptive × 1 (lines: 110)
+        - executeWeighted × 1 (lines: 385)
         - getHeapUsageRatio × 1 (lines: 43)
         - percentile × 1 (lines: 70)
         - toSortedCopy × 1 (lines: 56)
@@ -157,20 +157,22 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - waitForDelay × 1 (lines: 146)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/utils/WorkerPool.res`
-- `src/utils/WorkerPool.res` (14 functions, fingerprint 79b792d19c71a516bb4fbd987668f915425a3122916370ca9f101243951051b9)
+- `src/utils/WorkerPool.res` (16 functions, fingerprint 71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6)
     - Grouped summary:
-        - bindWorkerHandlers × 1 (lines: 119)
-        - createPoolSize × 1 (lines: 35)
-        - ensurePool × 1 (lines: 186)
-        - extractExifWithWorker × 1 (lines: 379)
-        - fingerprintWithWorker × 1 (lines: 213)
-        - generateTinyWithWorker × 1 (lines: 315)
-        - poolRef × 1 (lines: 33)
-        - removeExifWaiter × 1 (lines: 105)
-        - removeFingerprintWaiter × 1 (lines: 61)
-        - removeTinyWaiter × 1 (lines: 89)
-        - removeValidateWaiter × 1 (lines: 75)
-        - shutdown × 1 (lines: 370)
-        - takeWorker × 1 (lines: 49)
-        - validateImageWithWorker × 1 (lines: 264)
+        - bindWorkerHandlers × 1 (lines: 144)
+        - createPoolSize × 1 (lines: 44)
+        - ensurePool × 1 (lines: 215)
+        - extractExifWithWorker × 1 (lines: 462)
+        - fingerprintWithWorker × 1 (lines: 296)
+        - generateTinyWithWorker × 1 (lines: 398)
+        - poolRef × 1 (lines: 42)
+        - processFullWithWorker × 1 (lines: 243)
+        - removeExifWaiter × 1 (lines: 114)
+        - removeFingerprintWaiter × 1 (lines: 70)
+        - removeFullWaiter × 1 (lines: 128)
+        - removeTinyWaiter × 1 (lines: 98)
+        - removeValidateWaiter × 1 (lines: 84)
+        - shutdown × 1 (lines: 453)
+        - takeWorker × 1 (lines: 58)
+        - validateImageWithWorker × 1 (lines: 347)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

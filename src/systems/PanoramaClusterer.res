@@ -6,7 +6,7 @@ open SharedTypes
 let clusterScenes = (
   validProcessed: array<UploadTypes.uploadItem>,
   ~existingScenes: array<Types.scene>,
-  ~updateProgress: (float, string, bool, string) => unit,
+  ~updateProgress: (~eta: string=?, float, string, bool, string) => unit,
 ) => {
   updateProgress(95.0, "Syncing scene blocks...", true, "Clustering")
   Logger.debug(~module_="Clusterer", ~message="PHASE_START", ())

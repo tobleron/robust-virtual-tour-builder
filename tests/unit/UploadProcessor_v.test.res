@@ -88,7 +88,8 @@ describe("UploadProcessor", () => {
 
   testAsync("processUploads: should report progress during phases", async t => {
     let progressLog = []
-    let cb = (pct, msg, isProc, phase) => {
+    let cb = (~eta=?, pct, msg, isProc, phase) => {
+      let _ = eta
       let _ = Array.push(progressLog, (pct, msg, isProc, phase))
     }
 
@@ -127,7 +128,8 @@ describe("UploadProcessor", () => {
       NetworkStatus.initialize()
 
       let progressLog = []
-      let cb = (pct, msg, isProc, phase) => {
+      let cb = (~eta=?, pct, msg, isProc, phase) => {
+        let _ = eta
         let _ = Array.push(progressLog, (pct, msg, isProc, phase))
       }
 

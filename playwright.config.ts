@@ -140,7 +140,7 @@ export default defineConfig({
       ? 'npm run dev:frontend'
       : 'npm run res:build && concurrently --kill-others -n "BACK,FRONT" -c "blue,green" "npm run dev:backend" "npm run dev:frontend"',
     url: 'http://localhost:3000',
-    reuseExistingServer: false,
+    reuseExistingServer: false,  // Always start fresh server for tests
     timeout: 120 * 1000,
     env: {
       ...process.env,

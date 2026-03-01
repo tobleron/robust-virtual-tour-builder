@@ -19,6 +19,7 @@ module SidebarTypes = {
     "error": bool,
     "onCancel": unit => unit,
     "cancellable": bool,
+    "eta": option<string>,
   }
 }
 
@@ -27,6 +28,7 @@ let lastPct = ref(0.0)
 let updateProgress = (
   ~dispatch: Actions.action => unit,
   ~onCancel=() => (),
+  ~eta: option<string>=?,
   pct,
   msg,
   active,
@@ -52,6 +54,8 @@ let updateProgress = (
       "phase": phase,
       "error": false,
       "onCancel": onCancel,
+      "cancellable": true,
+      "eta": eta,
     }),
   )
   if active {
