@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Highly Stable Workable - UI interruption spam optimized; duplicate export/teaser button spinner removed; progress spinner preserved
+- Hotspot labels: persistent scene tags centered above hotspot
 
 ## [5.0.1] - 2026-02-28
 

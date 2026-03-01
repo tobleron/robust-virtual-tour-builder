@@ -63,6 +63,27 @@ let cssTemplate = `
     .pnlm-hotspot.flat-arrow.waypoint-ready { opacity: 1 !important; pointer-events: auto !important; transform: scale(1); transition: opacity 0.24s ease, transform 0.24s ease; }
     .custom-arrow-svg { width: 100% !important; height: 100% !important; display: block; pointer-events: none; transform: none; transform-origin: center center; transition: transform 0.2s ease; filter: drop-shadow(0 8px 4px rgba(0,0,0,0.35)); }
     .export-hotspot-root { position: relative; width: 32px; height: 32px; }
+    .export-hotspot-label {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.95), 0px 0px 4px rgba(0,0,0,0.25);
+      pointer-events: none;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      z-index: 6100;
+      transition: opacity 0.2s ease;
+    }
+    body.is-auto-tour-active .export-hotspot-label {
+      opacity: 0;
+    }
     .export-hotspot-btn { position: absolute; inset: 0; background: #ea580c; border-radius: 10px; box-shadow: 0 10px 16px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: background-color 0.2s ease, transform 0.2s ease, filter 0.2s ease; pointer-events: auto; cursor: pointer; }
     .export-hotspot-btn:hover { background: #f97316; transform: scale(1.03); filter: brightness(1.04); }
     .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }

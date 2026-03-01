@@ -2,6 +2,32 @@
 open ReBindings
 open Types
 
+module OpTypes = OperationLifecycleTypes
+
+module OpContext = OperationLifecycleContext
+
+let cleanSceneTag = raw => {
+  let trimmed = raw->String.trim
+  if trimmed == "" {
+    ""
+  } else if String.startsWith(trimmed, "#") {
+    trimmed
+    ->String.substring(~start=1, ~end=String.length(trimmed))
+    ->String.trim
+  } else {
+    trimmed
+  }
+}
+
+let sceneDisplayLabel = (scene: scene) => {
+  let source = if scene.label->String.trim != "" {
+    scene.label
+  } else {
+    scene.name
+  }
+  cleanSceneTag(source)
+}
+
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 let sceneIdFromMeta: option<unknown> => string = %raw(
   "(meta) => typeof meta === 'string' ? meta : ''"
@@ -13,6 +39,20 @@ let make = React.memo(() => {
   let dispatch = AppContext.useAppDispatch()
   let uiSlice = AppContext.useUiSlice()
   let isTeasing = uiSlice.isTeasing
+  let operations = OperationLifecycle.useOperations()
+  let opIsActive = type_ =>
+    operations->Belt.Array.some(task => {
+      OpContext.isActiveStatus(task.status) && task.type_ == type_
+    })
+  let uploadActive = opIsActive(OpTypes.Upload)
+  let exportActive = opIsActive(OpTypes.Export)
+  let teaserActive = opIsActive(OpTypes.Teaser)
+  let operationBusy = uploadActive || exportActive || teaserActive
+  let simulationActive = switch state.simulation.status {
+  | Idle => false
+  | _ => true
+  }
+  let showHotspotLabels = !isTeasing && !operationBusy && !simulationActive
 
   let (cam, setCam) = React.useState(_ => None)
   let (containerRect, setContainerRect) = React.useState(_ => None)
@@ -127,17 +167,35 @@ let make = React.memo(() => {
             | Some(c) =>
               let elementId = "hs-react-" ++ h.linkId
               let isAutoForward = h.isAutoForward->Option.getOr(false)
+              let labelText = switch h.targetSceneId {
+              | Some(targetId) =>
+                activeScenes
+                ->Belt.Array.getBy(scene => scene.id == targetId)
+                ->Option.map(sceneDisplayLabel)
+              | None => None
+              }
 
               <div
                 key={h.linkId}
                 className={`absolute ${isMovingThis
                     ? "pointer-events-none"
-                    : "pointer-events-auto"}`}
+                    : "pointer-events-auto"} relative`}
                 style={makeStyle({
                   "left": Math.round(c.x)->Float.toString ++ "px",
                   "top": Math.round(c.y)->Float.toString ++ "px",
                 })}
               >
+                {if showHotspotLabels {
+                  switch labelText {
+                  | Some(label) if label != "" =>
+                    <div className="hs-hotspot-label pointer-events-none">
+                      {React.string(label)}
+                    </div>
+                  | _ => React.null
+                  }
+                } else {
+                  React.null
+                }}
                 <PreviewArrow
                   sceneIndex={state.activeIndex}
                   hotspotIndex={i}

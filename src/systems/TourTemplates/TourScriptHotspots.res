@@ -5,6 +5,19 @@ let script = `
     let visitedAutoForwards = new Set();
     window.isAutoTourActive = false;
     window.autoTourVisitedScenes = new Set();
+    function stripSceneTag(raw) {
+      const trimmed = typeof raw === "string" ? raw.trim() : "";
+      if (!trimmed) return "";
+      return trimmed.startsWith("#") ? trimmed.slice(1).trim() : trimmed;
+    }
+    function formatSceneLabel(sceneId) {
+      if (!sceneId) return "";
+      const sceneData = scenesData?.[sceneId];
+      if (!sceneData) return "";
+      const rawLabel = (sceneData.label?.trim() || sceneData.name?.trim() || "");
+      if (!rawLabel) return "";
+      return stripSceneTag(rawLabel);
+    }
     function getPlaybackTerminalView(primary) {
       const endYaw = Number.isFinite(primary?.viewFrame?.yaw)
         ? primary.viewFrame.yaw
@@ -145,6 +158,7 @@ let script = `
       hotSpotDiv.style.cursor = "pointer";
       
       const hotspotIndex = args.i ?? 0;
+      const ownerHotspot = scenesData?.[ownerScene]?.hotSpots?.[hotspotIndex];
       const isAutoForwardConfig = args.targetIsAutoForward === true;
       const afKey = ownerScene + ":" + hotspotIndex;
       const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
@@ -161,8 +175,11 @@ let script = `
         hotSpotDiv.style.removeProperty("display");
       }
       
+      const resolvedTargetSceneId = resolveTargetSceneId(args, null);
       hotSpotDiv.dataset.ownerScene = ownerScene;
-      hotSpotDiv.dataset.targetSceneId = resolveTargetSceneId(args, null) ?? "";
+      const targetSceneForLabel = resolvedTargetSceneId ?? ownerHotspot?.targetSceneId ?? "";
+      hotSpotDiv.dataset.targetSceneId = targetSceneForLabel;
+      const labelText = formatSceneLabel(targetSceneForLabel);
       hotSpotDiv.dataset.hotspotIndex = String(hotspotIndex);
       hotSpotDiv.dataset.ready = "false";
       hotSpotDiv.classList.remove("waypoint-ready");
@@ -203,6 +220,12 @@ let script = `
 
       const root = document.createElement("div");
       root.className = "export-hotspot-root" + (isAutoForwardVisual ? " auto-forward" : "");
+      if (labelText) {
+        const labelEl = document.createElement("div");
+        labelEl.className = "export-hotspot-label";
+        labelEl.textContent = labelText;
+        root.appendChild(labelEl);
+      }
       const btn = document.createElement("div");
       btn.className = "export-hotspot-btn";
       const sweep = document.createElement("div");
