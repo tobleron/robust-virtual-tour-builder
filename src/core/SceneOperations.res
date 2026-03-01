@@ -171,20 +171,25 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
       (),
     )
 
-    // 2. Update order (sort current + new)
+    // 2. Update order (sort only if initial upload)
     let mergedOrder = Belt.Array.concat(state.sceneOrder, addedIds)
-    let sortedOrder = Array.copy(mergedOrder)
-    Array.sort(sortedOrder, (a, b) => {
-      let nameA = switch updatedInventory->Belt.Map.String.get(a) {
-      | Some(e) => e.scene.name
-      | None => ""
-      }
-      let nameB = switch updatedInventory->Belt.Map.String.get(b) {
-      | Some(e) => e.scene.name
-      | None => ""
-      }
-      String.localeCompare(nameA, nameB)
-    })
+    let sortedOrder = if wasEmpty {
+      let sorted = Array.copy(mergedOrder)
+      Array.sort(sorted, (a, b) => {
+        let nameA = switch updatedInventory->Belt.Map.String.get(a) {
+        | Some(e) => e.scene.name
+        | None => ""
+        }
+        let nameB = switch updatedInventory->Belt.Map.String.get(b) {
+        | Some(e) => e.scene.name
+        | None => ""
+        }
+        String.localeCompare(nameA, nameB)
+      })
+      sorted
+    } else {
+      mergedOrder
+    }
 
     // 3. Sync names
     let finalizedInventory = SceneNaming.syncInventoryNames(updatedInventory, sortedOrder)

@@ -349,6 +349,48 @@ describe("SceneHelpers", () => {
     t->expect(stateAfterRobustAdd.activePitch)->Expect.toEqual(0.0)
   })
 
+  test("handleAddScenes appends to existing order instead of re-sorting alphabetically", t => {
+    // Initial State with manual order: [b, a]
+    let sceneB = makeDummyScene(~id="b", ~name="b.webp", ())
+    let sceneA = makeDummyScene(~id="a", ~name="a.webp", ())
+
+    let stateManualOrder = mockState(
+      ~scenes=[sceneB, sceneA],
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+
+    // JSON for new scene 'c'
+    let newSceneJson = JSON.parseOrThrow(`{
+      "id": "c",
+      "name": "c.webp",
+      "file": "file_c"
+    }`)
+
+    let result = handleAddScenes(stateManualOrder, [newSceneJson])
+
+    // Result should be [b, a, c] (appended), NOT [a, b, c] (sorted)
+    t->expect(result.sceneOrder)->Expect.toEqual(["b", "a", "c"])
+  })
+
+  test("handleAddScenes sorts alphabetically only on initial load", t => {
+    let stateEmpty = mockState(
+      ~scenes=[],
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+
+    let scenesJson = [
+      JSON.parseOrThrow(`{"id": "z", "name": "z.webp", "file": "f"}`),
+      JSON.parseOrThrow(`{"id": "a", "name": "a.webp", "file": "f"}`),
+    ]
+
+    let result = handleAddScenes(stateEmpty, scenesJson)
+
+    // Result should be [a, z] (sorted)
+    t->expect(result.sceneOrder)->Expect.toEqual(["a", "z"])
+  })
+
   test("handleUpdateSceneMetadata logic", t => {
     let stateWithScenes = mockState(
       ~scenes=[

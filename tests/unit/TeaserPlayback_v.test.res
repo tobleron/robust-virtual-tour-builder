@@ -80,6 +80,7 @@ external mockViewerSetPitch: mockFn = "__mockSetPitch"
   vi.mock('../../src/core/AppStateBridge.bs.js', () => ({
     getState: vi.fn(),
     dispatch: vi.fn(),
+    updateState: vi.fn(),
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
   }));
 

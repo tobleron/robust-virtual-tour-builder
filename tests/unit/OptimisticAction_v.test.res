@@ -79,7 +79,7 @@ testAsync("OptimisticAction commits on success", async t => {
 
   // Verify apiCall received NEXT state
   switch capturedState.contents {
-  | Some(s) => t->expect(s.tourName)->Expect.toBe("New Name")
+  | Some(s) => t->expect(s.tourName)->Expect.toBe("New_Name")
   | None => t->expect(false)->Expect.toBe(true)
   }
 

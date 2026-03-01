@@ -102,6 +102,14 @@ if (typeof global !== 'undefined') global.document = mockWindow.document;
 defineGlobal('navigator', mockWindow.navigator);
 defineGlobal('location', mockWindow.location);
 defineGlobal('screen', mockWindow.screen);
+defineGlobal('fetch', () => Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
+    blob: () => Promise.resolve(new Blob()),
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+}));
 defineGlobal('URL', globalThis.URL);
 globalThis.URL.createObjectURL = (obj) => obj ? `blob:mock-${Math.random()}` : '';
 globalThis.URL.revokeObjectURL = () => { };

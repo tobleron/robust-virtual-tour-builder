@@ -37,7 +37,12 @@ open Types
       isViewerReady: () => true,
       Adapter: {
         destroy: () => { globalThis.mockDestroyCalled = (globalThis.mockDestroyCalled || 0) + 1; },
-        getMetaData: (_viewer, key) => key === "sceneId" ? "initial-scene" : undefined,
+        getMetaData: (_viewer, key) => {
+           if (key === "sceneId") {
+              return globalThis.mockSceneId || "initial-scene";
+           }
+           return undefined;
+        },
       }
     }
   });
@@ -108,6 +113,8 @@ describe("SceneTransition Decoupling", () => {
       fromSceneName: None,
     }
 
+    let _ = %raw(`globalThis.mockSceneId = "initial-scene"`)
+
     // Set a last scene so performSwap takes the swap path, not firstLoad path
     ViewerState.state := {
         ...ViewerState.state.contents,
@@ -141,5 +148,37 @@ describe("SceneTransition Decoupling", () => {
     // Cleanup should have happened
     let destroyCount500: int = %raw(`globalThis.mockDestroyCalled || 0`)
     t->expect(destroyCount500 > 0)->Expect.toBe(true)
+  })
+
+  test("performSwap completes task immediately in firstLoad branch", t => {
+    let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
+    let dispatch = _ => ()
+    let getState = () => State.initialState
+    let transition: Types.transition = {
+      type_: Fade,
+      targetHotspotIndex: -1,
+      fromSceneName: None,
+    }
+
+    let _ = %raw(`globalThis.mockSceneId = "s1"`)
+
+    // Set lastSceneId to null or same as target to trigger firstLoad logic
+    ViewerState.state := {
+        ...ViewerState.state.contents,
+        lastSceneId: Nullable.null,
+      }
+
+    // Start a navigation task
+    NavigationSupervisor.requestNavigation("s1")
+    let currentTask = NavigationSupervisor.getCurrentTask()
+    t->expect(NavigationSupervisor.isBusy())->Expect.toBe(true)
+    let taskId = currentTask->Option.map(t => t.token.id)
+
+    // Perform Swap (firstLoad path)
+    Scene.Transition.performSwap(s1, 0.0, ~taskId?, ~getState, ~dispatch, ~transition)
+
+    // BEFORE FIX: Should fail here (still busy because finalizeSwap wasn't called)
+    // AFTER FIX: Should pass here (Idle)
+    t->expect(NavigationSupervisor.isIdle())->Expect.toBe(true)
   })
 })

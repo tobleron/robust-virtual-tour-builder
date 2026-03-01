@@ -175,9 +175,7 @@ let make = React.memo((
 
     <div className="grid grid-cols-2 gap-2">
       <button
-        className={`sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed ${exportPending
-            ? "btn-loading"
-            : ""}`}
+        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={!exportReady || !isPermitted || exportPending}
         onMouseEnter={_ => {
           ChunkPrefetch.warmExporter()
@@ -195,9 +193,7 @@ let make = React.memo((
       </button>
 
       <button
-        className={`sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed ${teaserPending
-            ? "btn-loading"
-            : ""}`}
+        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={!teaserReady || !isPermitted || isLinking || teaserPending}
         onMouseEnter={_ => {
           ChunkPrefetch.warmTeaser()
