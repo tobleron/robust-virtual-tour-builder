@@ -54,7 +54,6 @@ let handleUpload = async (
         ~getState,
         ~dispatch,
       )
-
     }
   | _ => ()
   }

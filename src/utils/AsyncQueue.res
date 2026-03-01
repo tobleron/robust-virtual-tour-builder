@@ -98,8 +98,7 @@ let computeStatus = (activeStatuses, startedCount, total) => {
     }
   })
 
-  let baseMsg =
-    "Processing " ++ Belt.Int.toString(startedCount) ++ "/" ++ Belt.Int.toString(total)
+  let baseMsg = "Processing " ++ Belt.Int.toString(startedCount) ++ "/" ++ Belt.Int.toString(total)
   if activeCount.contents > 0 {
     baseMsg ++ " | Active: " ++ Belt.Int.toString(activeCount.contents)
   } else {

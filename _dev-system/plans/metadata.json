@@ -1,124 +1,206 @@
 {
-  "rust": [
+  "rescript": [
     {
       "Surgical": {
-        "file": "../../backend/src/services/geocoding/cache.rs",
+        "file": "../../src/systems/Exporter/ExporterPackaging.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
+        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 423/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
-        "platform": "backend",
-        "complexity": 11.868421052631579,
+        "platform": "frontend",
+        "complexity": 16.38274231678487,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
+          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterPackaging.res`",
           "snapshots": [
             {
-              "path": "backend/src/services/geocoding/cache.rs",
+              "path": "src/systems/Exporter/ExporterPackaging.res",
               "functions": [
                 {
-                  "name": "decode_cache_payload",
-                  "signature": "fn decode_cache_payload(",
-                  "line": 47
+                  "name": "normalizeMarketingValue",
+                  "signature": "normalizeMarketingValue = (value: string): string =>",
+                  "line": 13
                 },
                 {
-                  "name": "round_coords",
-                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
-                  "line": 94
-                },
-                {
-                  "name": "get_current_timestamp",
-                  "signature": "pub fn get_current_timestamp() -> u64 {",
-                  "line": 101
-                },
-                {
-                  "name": "get_cache_file_path",
-                  "signature": "fn get_cache_file_path() -> String {",
-                  "line": 108
-                },
-                {
-                  "name": "evict_lru_entry",
-                  "signature": "pub async fn evict_lru_entry(",
-                  "line": 112
-                },
-                {
-                  "name": "get_info",
-                  "signature": "pub async fn get_info() -> GeocoderInfo {",
-                  "line": 140
-                },
-                {
-                  "name": "save_cache_to_disk",
-                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
-                  "line": 149
-                },
-                {
-                  "name": "load_cache_from_disk",
-                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
-                  "line": 191
-                },
-                {
-                  "name": "clear_cache",
-                  "signature": "pub async fn clear_cache() {",
-                  "line": 237
-                },
-                {
-                  "name": "check_cache",
-                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
-                  "line": 245
-                },
-                {
-                  "name": "update_cache",
-                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
-                  "line": 265
-                },
-                {
-                  "name": "manual_insert",
-                  "signature": "pub async fn manual_insert(",
-                  "line": 289
-                },
-                {
-                  "name": "get_cache_len",
-                  "signature": "pub async fn get_cache_len() -> usize {",
-                  "line": 307
-                },
-                {
-                  "name": "cache_contains_key",
-                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
-                  "line": 313
-                },
-                {
-                  "name": "get_cache_entry_access_count",
-                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
-                  "line": 319
-                },
-                {
-                  "name": "get_evictions_count",
-                  "signature": "pub async fn get_evictions_count() -> u64 {",
-                  "line": 325
-                },
-                {
-                  "name": "get_hits_count",
-                  "signature": "pub async fn get_hits_count() -> u64 {",
-                  "line": 331
-                },
-                {
-                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
-                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
-                  "line": 341
-                },
-                {
-                  "name": "decode_cache_payload_reads_entries_format",
-                  "signature": "fn decode_cache_payload_reads_entries_format() {",
-                  "line": 354
+                  "name": "scenePct",
+                  "signature": "scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)",
+                  "line": 422
                 }
               ],
-              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
+              "fingerprint": "7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076"
             }
           ]
         }
       }
-    }
-  ],
-  "rescript": [
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/WorkerPool.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.11 | LOC: 489/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 22.00674846625767,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/WorkerPool.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/WorkerPool.res",
+              "functions": [
+                {
+                  "name": "poolRef",
+                  "signature": "poolRef: ref<option<state>> = ref(None)",
+                  "line": 42
+                },
+                {
+                  "name": "createPoolSize",
+                  "signature": "createPoolSize = (): int => {",
+                  "line": 44
+                },
+                {
+                  "name": "takeWorker",
+                  "signature": "takeWorker = (pool: state): worker => {",
+                  "line": 58
+                },
+                {
+                  "name": "removeFingerprintWaiter",
+                  "signature": "removeFingerprintWaiter = (pool: state, id: string): option<waiter<option<string>>> => {",
+                  "line": 70
+                },
+                {
+                  "name": "removeValidateWaiter",
+                  "signature": "removeValidateWaiter = (pool: state, id: string): option<waiter<option<bool>>> => {",
+                  "line": 84
+                },
+                {
+                  "name": "removeTinyWaiter",
+                  "signature": "removeTinyWaiter = (pool: state, id: string): option<",
+                  "line": 98
+                },
+                {
+                  "name": "removeExifWaiter",
+                  "signature": "removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {",
+                  "line": 114
+                },
+                {
+                  "name": "removeFullWaiter",
+                  "signature": "removeFullWaiter = (pool: state, id: string): option<",
+                  "line": 128
+                },
+                {
+                  "name": "bindWorkerHandlers",
+                  "signature": "bindWorkerHandlers = (pool: state, worker: worker) => {",
+                  "line": 144
+                },
+                {
+                  "name": "ensurePool",
+                  "signature": "ensurePool = (): option<state> => {",
+                  "line": 215
+                },
+                {
+                  "name": "processFullWithWorker",
+                  "signature": "processFullWithWorker = (",
+                  "line": 243
+                },
+                {
+                  "name": "fingerprintWithWorker",
+                  "signature": "fingerprintWithWorker = (",
+                  "line": 296
+                },
+                {
+                  "name": "validateImageWithWorker",
+                  "signature": "validateImageWithWorker = (",
+                  "line": 347
+                },
+                {
+                  "name": "generateTinyWithWorker",
+                  "signature": "generateTinyWithWorker = (",
+                  "line": 398
+                },
+                {
+                  "name": "shutdown",
+                  "signature": "shutdown = () => {",
+                  "line": 453
+                },
+                {
+                  "name": "extractExifWithWorker",
+                  "signature": "extractExifWithWorker = (",
+                  "line": 462
+                }
+              ],
+              "fingerprint": "71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/AsyncQueue.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.88 | LOC: 471/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 21.976008492569004,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/AsyncQueue.res",
+              "functions": [
+                {
+                  "name": "defaultAdaptiveConfig",
+                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
+                  "line": 33
+                },
+                {
+                  "name": "getHeapUsageRatio",
+                  "signature": "getHeapUsageRatio = (): option<float> =>",
+                  "line": 43
+                },
+                {
+                  "name": "toSortedCopy",
+                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
+                  "line": 56
+                },
+                {
+                  "name": "percentile",
+                  "signature": "percentile = (values: array<float>, p: float): float => {",
+                  "line": 70
+                },
+                {
+                  "name": "average",
+                  "signature": "average = (values: array<float>): float => {",
+                  "line": 81
+                },
+                {
+                  "name": "computeStatus",
+                  "signature": "computeStatus = (activeStatuses, startedCount, total) => {",
+                  "line": 90
+                },
+                {
+                  "name": "executeAdaptive",
+                  "signature": "executeAdaptive = (",
+                  "line": 110
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 300
+                },
+                {
+                  "name": "executeWeighted",
+                  "signature": "executeWeighted = (",
+                  "line": 385
+                }
+              ],
+              "fingerprint": "73547a4fed2786fc7e9fcd7af83fd94984b2fc851b1158f78d87422736d8a37f"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../src/utils/LoggerTelemetry.res",
@@ -383,180 +465,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/AsyncQueue.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.88 | LOC: 471/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 21.976008492569004,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/AsyncQueue.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/AsyncQueue.res",
-              "functions": [
-                {
-                  "name": "defaultAdaptiveConfig",
-                  "signature": "defaultAdaptiveConfig: adaptiveConfig = {",
-                  "line": 33
-                },
-                {
-                  "name": "getHeapUsageRatio",
-                  "signature": "getHeapUsageRatio = (): option<float> =>",
-                  "line": 43
-                },
-                {
-                  "name": "toSortedCopy",
-                  "signature": "toSortedCopy = (values: array<float>): array<float> => {",
-                  "line": 56
-                },
-                {
-                  "name": "percentile",
-                  "signature": "percentile = (values: array<float>, p: float): float => {",
-                  "line": 70
-                },
-                {
-                  "name": "average",
-                  "signature": "average = (values: array<float>): float => {",
-                  "line": 81
-                },
-                {
-                  "name": "computeStatus",
-                  "signature": "computeStatus = (activeStatuses, startedCount, total) => {",
-                  "line": 90
-                },
-                {
-                  "name": "executeAdaptive",
-                  "signature": "executeAdaptive = (",
-                  "line": 110
-                },
-                {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 300
-                },
-                {
-                  "name": "executeWeighted",
-                  "signature": "executeWeighted = (",
-                  "line": 385
-                }
-              ],
-              "fingerprint": "73547a4fed2786fc7e9fcd7af83fd94984b2fc851b1158f78d87422736d8a37f"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/Retry.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.152331606217617,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/Retry.res",
-              "functions": [
-                {
-                  "name": "defaultConfig",
-                  "signature": "defaultConfig = {",
-                  "line": 21
-                },
-                {
-                  "name": "defaultBudgetConfig",
-                  "signature": "defaultBudgetConfig = {",
-                  "line": 30
-                },
-                {
-                  "name": "retryBudgets",
-                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
-                  "line": 36
-                },
-                {
-                  "name": "calculateDelay",
-                  "signature": "calculateDelay = (attempt, config) => {",
-                  "line": 38
-                },
-                {
-                  "name": "parseHttpStatusCode",
-                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
-                  "line": 65
-                },
-                {
-                  "name": "parseRetryAfterSeconds",
-                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
-                  "line": 74
-                },
-                {
-                  "name": "isAbortError",
-                  "signature": "isAbortError = (error: string): bool => {",
-                  "line": 90
-                },
-                {
-                  "name": "isRetryableStatus",
-                  "signature": "isRetryableStatus = (status: int): bool => {",
-                  "line": 94
-                },
-                {
-                  "name": "classifyError",
-                  "signature": "classifyError = (error: string): retryClass => {",
-                  "line": 107
-                },
-                {
-                  "name": "defaultShouldRetry",
-                  "signature": "defaultShouldRetry = (error: string) => {",
-                  "line": 136
-                },
-                {
-                  "name": "waitForDelay",
-                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
-                  "line": 146
-                },
-                {
-                  "name": "hasDeadline",
-                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
-                  "line": 180
-                },
-                {
-                  "name": "computeDelay",
-                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
-                  "line": 182
-                },
-                {
-                  "name": "checkAndConsumeBudget",
-                  "signature": "checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {",
-                  "line": 200
-                },
-                {
-                  "name": "getRemainingBudget",
-                  "signature": "getRemainingBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): option<int> => {",
-                  "line": 247
-                },
-                {
-                  "name": "loop",
-                  "signature": "loop = async (",
-                  "line": 265
-                },
-                {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 395
-                }
-              ],
-              "fingerprint": "b559c2d067bf9371275285c5a39b5105aeb8aa80caa1176201cbb907b90e7e97"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/Exporter/ExporterUpload.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.17, Coupling: 0.05] | Drag: 5.39 | LOC: 496/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)",
@@ -657,142 +565,6 @@
                 }
               ],
               "fingerprint": "a0dd909684b143aa3cb34e7f72795c0385e06a284528202c58cd2617cb79a31a"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.11, Coupling: 0.08] | Drag: 5.31 | LOC: 394/300  🎯 Target: Function: `make` (High Local Complexity (17.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.709137055837564,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 14
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 19
-                }
-              ],
-              "fingerprint": "3b5bf578976e0ae1d88321346e1ce3bcf990a1e6b5f27a9aac3d0fb6472b6537"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserRecorderHud.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.27, Coupling: 0.03] | Drag: 6.71 | LOC: 457/300  🎯 Target: Function: `clampCorner` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.406345733041576,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TeaserRecorderHud.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/TeaserRecorderHud.res",
-              "functions": [
-                {
-                  "name": "hdReferenceWidth",
-                  "signature": "hdReferenceWidth = Constants.Teaser.HudReference.stageWidth",
-                  "line": 20
-                },
-                {
-                  "name": "hdReferenceHeight",
-                  "signature": "hdReferenceHeight = Constants.Teaser.HudReference.stageHeight",
-                  "line": 21
-                },
-                {
-                  "name": "checkRoundRect",
-                  "signature": "checkRoundRect: 'a => bool = %raw(\"function(x) { return typeof x === 'function'; }\")",
-                  "line": 23
-                },
-                {
-                  "name": "drawRoundedRect",
-                  "signature": "drawRoundedRect = (ctx, x, y, width, height, radius) => {",
-                  "line": 25
-                },
-                {
-                  "name": "getHudScale",
-                  "signature": "getHudScale = (~canvasWidth: int, ~canvasHeight: int): hudScale => {",
-                  "line": 37
-                },
-                {
-                  "name": "renderWatermark",
-                  "signature": "renderWatermark = (",
-                  "line": 54
-                },
-                {
-                  "name": "renderRoomLabel",
-                  "signature": "renderRoomLabel = (",
-                  "line": 82
-                },
-                {
-                  "name": "renderFloorNav",
-                  "signature": "renderFloorNav = (",
-                  "line": 154
-                },
-                {
-                  "name": "drawRoundedRectCorners",
-                  "signature": "drawRoundedRectCorners = (",
-                  "line": 234
-                },
-                {
-                  "name": "renderMarketingBanner",
-                  "signature": "renderMarketingBanner = (",
-                  "line": 298
-                }
-              ],
-              "fingerprint": "181dd904bb826ca4d127c667db47d44e90e67b625104425cd9b50e075329fad9"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter/ExporterPackaging.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 423/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.38274231678487,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterPackaging.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter/ExporterPackaging.res",
-              "functions": [
-                {
-                  "name": "normalizeMarketingValue",
-                  "signature": "normalizeMarketingValue = (value: string): string =>",
-                  "line": 13
-                },
-                {
-                  "name": "scenePct",
-                  "signature": "scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)",
-                  "line": 422
-                }
-              ],
-              "fingerprint": "7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076"
             }
           ]
         }
@@ -1002,108 +774,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/WorkerPool.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.11 | LOC: 489/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.00674846625767,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/WorkerPool.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/WorkerPool.res",
-              "functions": [
-                {
-                  "name": "poolRef",
-                  "signature": "poolRef: ref<option<state>> = ref(None)",
-                  "line": 42
-                },
-                {
-                  "name": "createPoolSize",
-                  "signature": "createPoolSize = (): int => {",
-                  "line": 44
-                },
-                {
-                  "name": "takeWorker",
-                  "signature": "takeWorker = (pool: state): worker => {",
-                  "line": 58
-                },
-                {
-                  "name": "removeFingerprintWaiter",
-                  "signature": "removeFingerprintWaiter = (pool: state, id: string): option<waiter<option<string>>> => {",
-                  "line": 70
-                },
-                {
-                  "name": "removeValidateWaiter",
-                  "signature": "removeValidateWaiter = (pool: state, id: string): option<waiter<option<bool>>> => {",
-                  "line": 84
-                },
-                {
-                  "name": "removeTinyWaiter",
-                  "signature": "removeTinyWaiter = (pool: state, id: string): option<",
-                  "line": 98
-                },
-                {
-                  "name": "removeExifWaiter",
-                  "signature": "removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {",
-                  "line": 114
-                },
-                {
-                  "name": "removeFullWaiter",
-                  "signature": "removeFullWaiter = (pool: state, id: string): option<",
-                  "line": 128
-                },
-                {
-                  "name": "bindWorkerHandlers",
-                  "signature": "bindWorkerHandlers = (pool: state, worker: worker) => {",
-                  "line": 144
-                },
-                {
-                  "name": "ensurePool",
-                  "signature": "ensurePool = (): option<state> => {",
-                  "line": 215
-                },
-                {
-                  "name": "processFullWithWorker",
-                  "signature": "processFullWithWorker = (",
-                  "line": 243
-                },
-                {
-                  "name": "fingerprintWithWorker",
-                  "signature": "fingerprintWithWorker = (",
-                  "line": 296
-                },
-                {
-                  "name": "validateImageWithWorker",
-                  "signature": "validateImageWithWorker = (",
-                  "line": 347
-                },
-                {
-                  "name": "generateTinyWithWorker",
-                  "signature": "generateTinyWithWorker = (",
-                  "line": 398
-                },
-                {
-                  "name": "shutdown",
-                  "signature": "shutdown = () => {",
-                  "line": 453
-                },
-                {
-                  "name": "extractExifWithWorker",
-                  "signature": "extractExifWithWorker = (",
-                  "line": 462
-                }
-              ],
-              "fingerprint": "71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/OperationLifecycle.res",
         "action": "De-bloat",
         "reason": "[Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 404/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)",
@@ -1273,15 +943,339 @@
           ]
         }
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Retry.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.152331606217617,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/Retry.res",
+              "functions": [
+                {
+                  "name": "defaultConfig",
+                  "signature": "defaultConfig = {",
+                  "line": 21
+                },
+                {
+                  "name": "defaultBudgetConfig",
+                  "signature": "defaultBudgetConfig = {",
+                  "line": 30
+                },
+                {
+                  "name": "retryBudgets",
+                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
+                  "line": 36
+                },
+                {
+                  "name": "calculateDelay",
+                  "signature": "calculateDelay = (attempt, config) => {",
+                  "line": 38
+                },
+                {
+                  "name": "parseHttpStatusCode",
+                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
+                  "line": 65
+                },
+                {
+                  "name": "parseRetryAfterSeconds",
+                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
+                  "line": 74
+                },
+                {
+                  "name": "isAbortError",
+                  "signature": "isAbortError = (error: string): bool => {",
+                  "line": 90
+                },
+                {
+                  "name": "isRetryableStatus",
+                  "signature": "isRetryableStatus = (status: int): bool => {",
+                  "line": 94
+                },
+                {
+                  "name": "classifyError",
+                  "signature": "classifyError = (error: string): retryClass => {",
+                  "line": 107
+                },
+                {
+                  "name": "defaultShouldRetry",
+                  "signature": "defaultShouldRetry = (error: string) => {",
+                  "line": 136
+                },
+                {
+                  "name": "waitForDelay",
+                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
+                  "line": 146
+                },
+                {
+                  "name": "hasDeadline",
+                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
+                  "line": 180
+                },
+                {
+                  "name": "computeDelay",
+                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
+                  "line": 182
+                },
+                {
+                  "name": "checkAndConsumeBudget",
+                  "signature": "checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {",
+                  "line": 200
+                },
+                {
+                  "name": "getRemainingBudget",
+                  "signature": "getRemainingBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): option<int> => {",
+                  "line": 247
+                },
+                {
+                  "name": "loop",
+                  "signature": "loop = async (",
+                  "line": 265
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 395
+                }
+              ],
+              "fingerprint": "b559c2d067bf9371275285c5a39b5105aeb8aa80caa1176201cbb907b90e7e97"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserRecorderHud.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.27, Coupling: 0.03] | Drag: 6.71 | LOC: 457/300  🎯 Target: Function: `clampCorner` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 22.406345733041576,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserRecorderHud.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserRecorderHud.res",
+              "functions": [
+                {
+                  "name": "hdReferenceWidth",
+                  "signature": "hdReferenceWidth = Constants.Teaser.HudReference.stageWidth",
+                  "line": 20
+                },
+                {
+                  "name": "hdReferenceHeight",
+                  "signature": "hdReferenceHeight = Constants.Teaser.HudReference.stageHeight",
+                  "line": 21
+                },
+                {
+                  "name": "checkRoundRect",
+                  "signature": "checkRoundRect: 'a => bool = %raw(\"function(x) { return typeof x === 'function'; }\")",
+                  "line": 23
+                },
+                {
+                  "name": "drawRoundedRect",
+                  "signature": "drawRoundedRect = (ctx, x, y, width, height, radius) => {",
+                  "line": 25
+                },
+                {
+                  "name": "getHudScale",
+                  "signature": "getHudScale = (~canvasWidth: int, ~canvasHeight: int): hudScale => {",
+                  "line": 37
+                },
+                {
+                  "name": "renderWatermark",
+                  "signature": "renderWatermark = (",
+                  "line": 54
+                },
+                {
+                  "name": "renderRoomLabel",
+                  "signature": "renderRoomLabel = (",
+                  "line": 82
+                },
+                {
+                  "name": "renderFloorNav",
+                  "signature": "renderFloorNav = (",
+                  "line": 154
+                },
+                {
+                  "name": "drawRoundedRectCorners",
+                  "signature": "drawRoundedRectCorners = (",
+                  "line": 234
+                },
+                {
+                  "name": "renderMarketingBanner",
+                  "signature": "renderMarketingBanner = (",
+                  "line": 298
+                }
+              ],
+              "fingerprint": "181dd904bb826ca4d127c667db47d44e90e67b625104425cd9b50e075329fad9"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.11, Coupling: 0.08] | Drag: 5.31 | LOC: 394/300  🎯 Target: Function: `make` (High Local Complexity (17.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.709137055837564,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipeline.res",
+              "functions": [
+                {
+                  "name": "injectStyles",
+                  "signature": "injectStyles = () => {",
+                  "line": 14
+                },
+                {
+                  "name": "make",
+                  "signature": "make = () => {",
+                  "line": 19
+                }
+              ],
+              "fingerprint": "3b5bf578976e0ae1d88321346e1ce3bcf990a1e6b5f27a9aac3d0fb6472b6537"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/cache.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 11.868421052631579,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/cache.rs",
+              "functions": [
+                {
+                  "name": "decode_cache_payload",
+                  "signature": "fn decode_cache_payload(",
+                  "line": 47
+                },
+                {
+                  "name": "round_coords",
+                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
+                  "line": 94
+                },
+                {
+                  "name": "get_current_timestamp",
+                  "signature": "pub fn get_current_timestamp() -> u64 {",
+                  "line": 101
+                },
+                {
+                  "name": "get_cache_file_path",
+                  "signature": "fn get_cache_file_path() -> String {",
+                  "line": 108
+                },
+                {
+                  "name": "evict_lru_entry",
+                  "signature": "pub async fn evict_lru_entry(",
+                  "line": 112
+                },
+                {
+                  "name": "get_info",
+                  "signature": "pub async fn get_info() -> GeocoderInfo {",
+                  "line": 140
+                },
+                {
+                  "name": "save_cache_to_disk",
+                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
+                  "line": 149
+                },
+                {
+                  "name": "load_cache_from_disk",
+                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
+                  "line": 191
+                },
+                {
+                  "name": "clear_cache",
+                  "signature": "pub async fn clear_cache() {",
+                  "line": 237
+                },
+                {
+                  "name": "check_cache",
+                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
+                  "line": 245
+                },
+                {
+                  "name": "update_cache",
+                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
+                  "line": 265
+                },
+                {
+                  "name": "manual_insert",
+                  "signature": "pub async fn manual_insert(",
+                  "line": 289
+                },
+                {
+                  "name": "get_cache_len",
+                  "signature": "pub async fn get_cache_len() -> usize {",
+                  "line": 307
+                },
+                {
+                  "name": "cache_contains_key",
+                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
+                  "line": 313
+                },
+                {
+                  "name": "get_cache_entry_access_count",
+                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
+                  "line": 319
+                },
+                {
+                  "name": "get_evictions_count",
+                  "signature": "pub async fn get_evictions_count() -> u64 {",
+                  "line": 325
+                },
+                {
+                  "name": "get_hits_count",
+                  "signature": "pub async fn get_hits_count() -> u64 {",
+                  "line": 331
+                },
+                {
+                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
+                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
+                  "line": 341
+                },
+                {
+                  "name": "decode_cache_payload_reads_entries_format",
+                  "signature": "fn decode_cache_payload_reads_entries_format() {",
+                  "line": 354
+                }
+              ],
+              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
+            }
+          ]
+        }
+      }
     }
   ],
   "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_session.rs",
-        "strategy": ""
-      }
-    },
     {
       "Ambiguity": {
         "file": "../../backend/src/services/project/export_upload_runtime.rs",
@@ -1291,6 +1285,12 @@
     {
       "Ambiguity": {
         "file": "../../backend/src/services/project/export_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_session.rs",
         "strategy": ""
       }
     },

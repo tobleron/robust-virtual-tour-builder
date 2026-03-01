@@ -288,7 +288,17 @@ let processFullWithWorker = (
           }
         )
       let worker = takeWorker(pool)
-      postMessage(worker, {"id": id, "type": "processFull", "blob": blob, "width": width, "quality": quality, "format": format})
+      postMessage(
+        worker,
+        {
+          "id": id,
+          "type": "processFull",
+          "blob": blob,
+          "width": width,
+          "quality": quality,
+          "format": format,
+        },
+      )
     })
   }
 }

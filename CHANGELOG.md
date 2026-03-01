@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Highly Stable Workable - UI interruption spam optimized; duplicate export/teaser button spinner removed; progress spinner preserved
 - Hotspot labels: persistent scene tags centered above hotspot
 - V5.1.2 [TRIPLE]: Highly Stable Workable - Performance optimized image upload with OffscreenCanvas, WebP 80% standardization, and real-time ETA countdown.
+- Re-worked upload images proper
 
 ## [5.0.1] - 2026-02-28
 

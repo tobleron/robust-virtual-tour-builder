@@ -42,14 +42,13 @@ let performUpload = async (
 
   let startCountdown = () => {
     stopCountdown()
-    countdownTimerId :=
-      Some(
-        ReBindings.Window.setInterval(() => {
+    countdownTimerId := Some(ReBindings.Window.setInterval(() => {
           if stableEtaSeconds.contents > 1.0 && etaReady.contents && !wasCancelled.contents {
             stableEtaSeconds := stableEtaSeconds.contents -. 1.0
             let seconds = Belt.Float.toInt(stableEtaSeconds.contents)
 
             let now = Date.now()
+
             // Throttle toast updates to avoid rapid flickering, but ensure it counts down.
             if now -. lastEtaToastAtMs.contents >= 900.0 && seconds != lastEtaToastValue.contents {
               lastEtaToastAtMs := now
@@ -63,8 +62,7 @@ let performUpload = async (
               )
             }
           }
-        }, 1000),
-      )
+        }, 1000))
   }
 
   let cleanup = () => {

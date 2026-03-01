@@ -195,7 +195,6 @@ let handleExport = async (
             (),
           )
         } else {
-
           EtaSupport.dispatchCalculatingEtaToast(
             ~id=progressToastId,
             ~contextOperation="eta_export",

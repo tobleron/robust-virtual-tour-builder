@@ -33,10 +33,7 @@ let finalizeUploads = (
 
   let wasEmpty = getState().activeIndex == -1
   if wasEmpty {
-    let currentScenes = SceneInventory.getActiveScenes(
-      getState().inventory,
-      getState().sceneOrder,
-    )
+    let currentScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
     if Belt.Array.length(currentScenes) > 0 {
       dispatch(SetPreloadingScene(0))
     }
@@ -52,45 +49,42 @@ let finalizeUploads = (
     updateProgress(100.0, "Upload complete", false, "Done")
     let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
-    let qualityResults = Belt.Array.map(
-      validProcessed,
-      i => {
-        let q =
-          i.quality
-          ->Option.flatMap(
-            q =>
-              switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-              | Ok(qa) => Some(qa)
-              | Error(msg) => {
-                  Logger.debug(
-                    ~module_="UploadLogic",
-                    ~message="DECODE_FALLBACK_TRIGGERED",
-                    ~data=Some({"error": msg}),
-                    (),
-                  )
+    let qualityResults = Belt.Array.map(validProcessed, i => {
+      let q =
+        i.quality
+        ->Option.flatMap(
+          q =>
+            switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+            | Ok(qa) => Some(qa)
+            | Error(msg) => {
+                Logger.debug(
+                  ~module_="UploadLogic",
+                  ~message="DECODE_FALLBACK_TRIGGERED",
+                  ~data=Some({"error": msg}),
+                  (),
+                )
 
-                  let score = switch JsonCombinators.Json.decode(
-                    q,
-                    JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float),
-                  ) {
-                  | Ok(s) => s
-                  | Error(_) => -1.0
-                  }
-
-                  if score >= 0.0 {
-                    Some(unsafeCastToQuality(q))
-                  } else {
-                    None
-                  }
+                let score = switch JsonCombinators.Json.decode(
+                  q,
+                  JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float),
+                ) {
+                | Ok(s) => s
+                | Error(_) => -1.0
                 }
-              },
-          )
-          ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
-        let preview = Option.getOr(i.preview, i.original)
-        let sanitizedName = UrlUtils.stripExtension(File.name(preview))
-        ({quality: q, newName: sanitizedName}: Types.qualityItem)
-      },
-    )
+
+                if score >= 0.0 {
+                  Some(unsafeCastToQuality(q))
+                } else {
+                  None
+                }
+              }
+            },
+        )
+        ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
+      let preview = Option.getOr(i.preview, i.original)
+      let sanitizedName = UrlUtils.stripExtension(File.name(preview))
+      ({quality: q, newName: sanitizedName}: Types.qualityItem)
+    })
 
     Promise.resolve(
       (
@@ -169,8 +163,7 @@ let executeProcessingChain = (
       let scaledPct = 10.0 +. 88.0 *. pct
       updateProgress(scaledPct, msg, true, "Optimizing")
     },
-  )
-->Promise.then(_ => {
+  )->Promise.then(_ => {
     let validProcessed = Belt.Array.keep(allProcessedItems.contents, i => i.error == None)
 
     if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
@@ -220,27 +213,29 @@ let executeProcessingChain = (
         // Simplified Clustering: Map avgLuminance to 1-5 Scale
         let colorGroup =
           item.quality
-          ->Option.flatMap(q => {
-            switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-            | Ok(qa) =>
-              let lum = qa.stats.avgLuminance
-              // Map 0-255 luminance to 1-5 buckets
-              // 1: Dark (0-50), 2: Dim (51-100), 3: Normal (101-150), 4: Bright (151-200), 5: Very Bright (201-255)
-              let bucket = if lum <= 50 {
-                "1"
-              } else if lum <= 100 {
-                "2"
-              } else if lum <= 150 {
-                "3"
-              } else if lum <= 200 {
-                "4"
-              } else {
-                "5"
+          ->Option.flatMap(
+            q => {
+              switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+              | Ok(qa) =>
+                let lum = qa.stats.avgLuminance
+                // Map 0-255 luminance to 1-5 buckets
+                // 1: Dark (0-50), 2: Dim (51-100), 3: Normal (101-150), 4: Bright (151-200), 5: Very Bright (201-255)
+                let bucket = if lum <= 50 {
+                  "1"
+                } else if lum <= 100 {
+                  "2"
+                } else if lum <= 150 {
+                  "3"
+                } else if lum <= 200 {
+                  "4"
+                } else {
+                  "5"
+                }
+                Some(bucket)
+              | Error(_) => None
               }
-              Some(bucket)
-            | Error(_) => None
-            }
-          })
+            },
+          )
           ->Option.getOr("3") // Default to normal if data missing
 
         {

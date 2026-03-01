@@ -230,12 +230,14 @@ let useProcessingState = (fileInputRef: React.ref<Nullable.t<Dom.element>>) => {
         switch activeOpRef.current {
         | Some(_) =>
           // Update ETA even if activeOp exists, as it's not in Lifecycle yet
-          setProcState(prev => {
-            let next = Object.assign(Object.make(), prev)
-            next["eta"] = payload["eta"]
-            next["message"] = payload["message"]
-            next
-          })
+          setProcState(
+            prev => {
+              let next = Object.assign(Object.make(), prev)
+              next["eta"] = payload["eta"]
+              next["message"] = payload["message"]
+              next
+            },
+          )
         | None =>
           // Legacy fallback safety:
           // ignore late "active=true" payloads when there is no active lifecycle operation.

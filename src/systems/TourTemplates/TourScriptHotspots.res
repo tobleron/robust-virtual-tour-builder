@@ -16,6 +16,8 @@ let script = `
       if (!sceneData) return "";
       const rawLabel = (sceneData.label?.trim() || sceneData.name?.trim() || "");
       if (!rawLabel) return "";
+      // Untagged logic: If the label is explicitly 'untagged', show nothing.
+      if (rawLabel.toLowerCase().includes("untagged")) return "";
       return stripSceneTag(rawLabel);
     }
     function getPlaybackTerminalView(primary) {
