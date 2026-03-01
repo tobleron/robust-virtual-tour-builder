@@ -277,6 +277,15 @@ let waypointScreenshotThreshold = 1.8 // Degrees - Below this, it renders as a c
 module Simulation = {
   let stepDelay = 5000
 }
+
+module Snapshot = {
+  let debounceWaitMs = 1000
+  let rateLimitMaxCalls = 18
+  let rateLimitWindowMs = 60000
+  let rateLimitMinIntervalMs = 1200
+  let rateLimitToastCooldownMs = 12000.0
+}
+
 let isTestEnvironment = () => {
   try {
     %raw(`(typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'))`)

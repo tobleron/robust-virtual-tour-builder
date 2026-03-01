@@ -6,6 +6,9 @@ describe("ViewerSnapshot", () => {
       if (!global.originalSetTimeout) {
         global.originalSetTimeout = window.setTimeout;
       }
+      if (!global.originalDateNow) {
+        global.originalDateNow = Date.now;
+      }
       if (window.URL && !global.originalRevokeObjectURL) {
         global.originalRevokeObjectURL = window.URL.revokeObjectURL;
       }
@@ -25,6 +28,7 @@ describe("ViewerSnapshot", () => {
 
   let restore = () => {
     let _ = %raw(`window.setTimeout = global.originalSetTimeout`)
+    let _ = %raw(`Date.now = global.originalDateNow`)
     let _ = %raw(`
       (function() {
         if (global.originalRevokeObjectURL) {
@@ -34,6 +38,7 @@ describe("ViewerSnapshot", () => {
     `)
     SceneCache.clearAll()
     InteractionGuard.clear()
+    NotificationManager.clear()
   }
 
   testAsync("snapshot logic should update scene state", async t => {
@@ -177,7 +182,7 @@ describe("ViewerSnapshot", () => {
     restore()
   })
 
-  testAsync("should notify user when rate limited", async t => {
+  testAsync("should not notify user for min-interval throttling", async t => {
     // Setup Mock DOM and Timer
     let _ = %raw(`
       (function(){
@@ -194,6 +199,8 @@ describe("ViewerSnapshot", () => {
           }
           return global.originalSetTimeout(cb, delay);
         };
+        global.mockNow = 100000;
+        Date.now = () => global.mockNow;
       })()
     `)
 
@@ -223,15 +230,72 @@ describe("ViewerSnapshot", () => {
     // Setup Viewer
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
-    // Call 12 times to hit rate limit (limit is 10)
-    for _ in 1 to 12 {
+    // First call succeeds, second call is min-interval throttled (same Date.now)
+    let _ = %raw(`ViewerSnapshot.debouncedSnapshot.call()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
+    let _ = %raw(`ViewerSnapshot.debouncedSnapshot.call()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
+
+    await wait(50)
+
+    t->expect(notificationReceived.contents)->Expect.toBe(false)
+
+    unsubscribe()
+    restore()
+  })
+
+  testAsync("should notify once when quota rate limited within cooldown window", async t => {
+    // Setup Mock DOM and Timer
+    let _ = %raw(`
+      (function(){
+        document.body.innerHTML = '<div id="panorama-a"><canvas></canvas></div>';
+        HTMLCanvasElement.prototype.toBlob = function(cb, type, q) {
+          cb(new Blob(['abc'], {type: 'image/webp'}));
+        };
+
+        global.capturedCallback = null;
+        window.setTimeout = (cb, delay) => {
+          if (delay === 1000) {
+            global.capturedCallback = cb;
+            return 999;
+          }
+          return global.originalSetTimeout(cb, delay);
+        };
+        global.mockNow = 100000;
+        Date.now = () => global.mockNow;
+      })()
+    `)
+
+    let notificationEventCount = ref(0)
+    let unsubscribe = NotificationManager.subscribe(
+      queueState => {
+        let hasRenderingInPending = Belt.Array.some(
+          queueState.pending,
+          notif => notif.message->String.includes("Rendering"),
+        )
+        let hasRenderingInActive = Belt.Array.some(
+          queueState.active,
+          notif => notif.message->String.includes("Rendering"),
+        )
+        if hasRenderingInPending || hasRenderingInActive {
+          notificationEventCount := notificationEventCount.contents + 1
+        }
+      },
+    )
+
+    ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
+
+    // Advance time by > minInterval so accepted calls consume quota quickly in one window.
+    // After quota is exhausted, additional attempts stay within toast cooldown window.
+    for _ in 1 to 22 {
+      let _ = %raw(`global.mockNow += 1300`)
       let _ = %raw(`ViewerSnapshot.debouncedSnapshot.call()`)
       let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
     }
 
     await wait(50)
 
-    t->expect(notificationReceived.contents)->Expect.toBe(true)
+    t->expect(notificationEventCount.contents)->Expect.toBe(1)
 
     unsubscribe()
     restore()

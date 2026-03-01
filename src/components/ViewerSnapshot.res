@@ -63,14 +63,12 @@ let performSnapshot = (~getState: unit => Types.state=AppContext.getBridgeState)
 }
 
 let snapshotGetterRef = ref(AppContext.getBridgeState)
+let lastRateLimitedToastAt = ref(0.0)
 
-let debouncedSnapshot = Debounce.make(~fn=() => {
-  switch InteractionGuard.attempt("viewer_snapshot_limit", SlidingWindow(10, 60000, 2000), () =>
-    performSnapshot(~getState=snapshotGetterRef.contents)
-  ) {
-  | Ok(p) => p
-  | Error(_) =>
-    Logger.debug(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
+let dispatchRateLimitedToast = () => {
+  let now = Date.now()
+  if now -. lastRateLimitedToastAt.contents >= Constants.Snapshot.rateLimitToastCooldownMs {
+    lastRateLimitedToastAt := now
     NotificationManager.dispatch({
       id: "",
       importance: Info,
@@ -80,11 +78,45 @@ let debouncedSnapshot = Debounce.make(~fn=() => {
       action: None,
       duration: NotificationTypes.defaultTimeoutMs(Info),
       dismissible: true,
-      createdAt: Date.now(),
+      createdAt: now,
     })
+  } else {
+    Logger.debug(
+      ~module_="ViewerSnapshot",
+      ~message="SNAPSHOT_RATE_LIMITED_TOAST_COOLDOWN_ACTIVE",
+      (),
+    )
+  }
+}
+
+let debouncedSnapshot = Debounce.make(~fn=() => {
+  switch InteractionGuard.attempt(
+    "viewer_snapshot_limit",
+    SlidingWindow(
+      Constants.Snapshot.rateLimitMaxCalls,
+      Constants.Snapshot.rateLimitWindowMs,
+      Constants.Snapshot.rateLimitMinIntervalMs,
+    ),
+    () => performSnapshot(~getState=snapshotGetterRef.contents),
+  ) {
+  | Ok(p) => p
+  | Error("Rate limited") =>
+    Logger.debug(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
+    dispatchRateLimitedToast()
+    Promise.resolve()
+  | Error("Throttled") =>
+    Logger.debug(~module_="ViewerSnapshot", ~message="SNAPSHOT_MIN_INTERVAL_THROTTLED", ())
+    Promise.resolve()
+  | Error(msg) =>
+    Logger.debug(
+      ~module_="ViewerSnapshot",
+      ~message="SNAPSHOT_CAPTURE_SUPPRESSED",
+      ~data=Some({"reason": msg}),
+      (),
+    )
     Promise.resolve()
   }
-}, ~wait=1000, ~leading=false, ~trailing=true)
+}, ~wait=Constants.Snapshot.debounceWaitMs, ~leading=false, ~trailing=true)
 
 let requestIdleSnapshot = (~getState: unit => Types.state=AppContext.getBridgeState) => {
   switch Nullable.toOption(state.contents.idleSnapshotTimeout) {
