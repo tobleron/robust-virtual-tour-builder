@@ -48,7 +48,8 @@ let handleDeleteScene = (state: state, index: int): state => {
           inventoryWithCleanHotspots,
           updatedOrder,
         )
-        {
+
+        let nextState = {
           ...state,
           inventory: finalizedInventory,
           sceneOrder: updatedOrder,
@@ -60,6 +61,9 @@ let handleDeleteScene = (state: state, index: int): state => {
           activeTimelineStepId,
         }
 
+        // 8. Thourough timeline cleanup (cascading removal of orphaned links)
+        let (cleanedState, _) = TimelineCleanup.applyCleanup(nextState)
+        cleanedState
       | None => state
       }
     | None => state
