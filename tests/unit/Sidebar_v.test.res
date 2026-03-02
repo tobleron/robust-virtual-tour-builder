@@ -59,9 +59,8 @@ module WrappedSidebar = {
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
-      isDiscoveringTitle: mockState.isDiscoveringTitle,
+      discoveringTitleCount: mockState.discoveringTitleCount,
     }
-
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,
@@ -178,7 +177,7 @@ describe("Sidebar", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {...State.initialState, isDiscoveringTitle: true}
+    let mockState = {...State.initialState, discoveringTitleCount: 1}
     let mockDispatch = _ => ()
     AppStateBridge.registerDispatch(mockDispatch)
     AppStateBridge.updateState(mockState)

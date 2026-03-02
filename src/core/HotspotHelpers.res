@@ -194,7 +194,22 @@ let handleUpdateHotspotMetadata = (
 }
 
 let handleStartMovingHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
-  {...state, movingHotspot: Some({sceneIndex, hotspotIndex}), isLinking: false, linkDraft: None}
+  let sceneId = state.sceneOrder->Belt.Array.get(sceneIndex)
+  let hotspotLinkId = switch sceneId {
+  | Some(sid) =>
+    state.inventory
+    ->Belt.Map.String.get(sid)
+    ->Option.flatMap(entry => entry.scene.hotspots->Belt.Array.get(hotspotIndex))
+    ->Option.map(h => h.linkId)
+  | None => None
+  }
+
+  {
+    ...state,
+    movingHotspot: Some({sceneIndex, hotspotIndex, sceneId, hotspotLinkId}),
+    isLinking: false,
+    linkDraft: None,
+  }
 }
 
 let handleStopMovingHotspot = (state: state): state => {

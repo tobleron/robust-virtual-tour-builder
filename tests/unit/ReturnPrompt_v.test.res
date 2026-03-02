@@ -44,6 +44,8 @@ describe("ReturnPrompt", () => {
     let incomingLink: Types.linkInfo = {
       sceneIndex: 0,
       hotspotIndex: 0,
+      sceneId: None,
+      hotspotLinkId: None,
     }
     let scenes = [defaultScene]
 

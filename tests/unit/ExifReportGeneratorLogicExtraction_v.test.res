@@ -120,39 +120,22 @@ describe("ExifReportGeneratorLogicExtraction", () => {
     )
 
     testAsync(
-      "performs local extraction when no metadata provided",
+      "skips local extraction when no metadata provided (Strict Mode)",
       async t => {
         let item = createMockItem(~name="test3.jpg", ())
-
-        let localExif: exifMetadata = {
-          ...defaultExif,
-          make: Nullable.make("LocalMake"),
-        }
-        mockExtractExifTags->mockResolvedValue(Ok((localExif, defaultPanorama)))
 
         let (results, _, _, _) = await extractAllExif([item])
 
         t->expect(Array.length(results))->Expect.toBe(1)
         let r = results->Belt.Array.get(0)->Belt.Option.getExn
-        t->expect(r.exifData.make->Nullable.toOption)->Expect.toBe(Some("LocalMake"))
-      },
-    )
-
-    testAsync(
-      "handles local extraction failure gracefully",
-      async t => {
-        let item = createMockItem(~name="test4.jpg", ())
-
-        mockExtractExifTags->mockResolvedValue(Error("Corrupt file"))
-
-        let (results, gps, _, _) = await extractAllExif([item])
-
-        t->expect(Array.length(results))->Expect.toBe(1)
-        let r = results->Belt.Array.get(0)->Belt.Option.getExn
+        // Should have default values
+        t->expect(r.exifData.make->Nullable.toOption)->Expect.toBe(None)
         t
         ->expect(r.qualityData.analysis->Nullable.toOption)
-        ->Expect.toBe(Some("Local extraction failed: Corrupt file"))
-        t->expect(Array.length(gps))->Expect.toBe(0)
+        ->Expect.toBe(Some("Metadata unavailable (Strict Mode)"))
+
+        // CRITICAL: Should NOT have called local extraction
+        let _ = %raw(`expect(mockExtractExifTags).not.toHaveBeenCalled()`)
       },
     )
   })

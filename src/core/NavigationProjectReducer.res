@@ -147,7 +147,11 @@ module Project = {
     switch action {
     | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
-    | SetIsDiscoveringTitle(val) => Some({...state, isDiscoveringTitle: val})
+    | IncrementDiscoveringTitle =>
+      Some({...state, discoveringTitleCount: state.discoveringTitleCount + 1})
+    | DecrementDiscoveringTitle =>
+      let nextCount = state.discoveringTitleCount - 1
+      Some({...state, discoveringTitleCount: nextCount < 0 ? 0 : nextCount})
 
     | LoadProject(projectDataJson) =>
       // Load the project first

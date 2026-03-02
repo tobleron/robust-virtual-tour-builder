@@ -126,18 +126,26 @@ let showLinkModal = (
         })
       } else if isRetargeting {
         let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
-        // RE-TARGETING LOGIC: Use new direct target updater
+        // RE-TARGETING LOGIC: Use direct target updater with stable IDs
         HotspotManager.handleUpdateHotspotTarget(
-          retarget.sceneIndex,
-          retarget.hotspotIndex,
+          ~sceneIndex=retarget.sceneIndex,
+          ~hotspotIndex=retarget.hotspotIndex,
+          ~sceneId=?retarget.sceneId,
+          ~hotspotLinkId=?retarget.hotspotLinkId,
           targetName,
           targetSceneId,
         )->ignore
 
         // Also update timeline item for this linkId
-        let sourceScene = Belt.Array.get(scenes, retarget.sceneIndex)->Option.getOrThrow
-        let hotspot = Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.getOrThrow
-        let linkId = hotspot.linkId
+        let linkId = switch retarget.hotspotLinkId {
+        | Some(id) => id
+        | None =>
+          // Fallback to index-based lookup for the linkId if ID missing in draft
+          let sourceScene = Belt.Array.get(scenes, retarget.sceneIndex)->Option.getOrThrow
+          let hotspot =
+            Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.getOrThrow
+          hotspot.linkId
+        }
 
         // Find existing timeline item for this linkId and update its target
         state.timeline->Belt.Array.forEach(item => {

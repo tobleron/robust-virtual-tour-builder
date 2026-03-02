@@ -104,10 +104,11 @@ describe("NavigationGraph", () => {
       marketingForSale: false,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
-      isDiscoveringTitle: false,
+      discoveringTitleCount: 0,
       visitedScenes: [],
     }
   }
+
   test("findSceneByName finds existing scene", t => {
     let s1 = createScene("s1", [])
     let s2 = createScene("s2", [])
@@ -141,10 +142,9 @@ describe("NavigationGraph", () => {
       activeIndex: 1,
       navigationState: {
         ...state.navigationState,
-        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
       },
     }
-
     let (yaw, pitch, _hfov) = NavigationGraph.calculateSmartArrivalTarget(
       stateWithIncoming,
       scenes,
@@ -165,10 +165,9 @@ describe("NavigationGraph", () => {
       activeIndex: 1,
       navigationState: {
         ...state.navigationState,
-        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
       },
     }
-
     // Hotspot is at 180.0. Return view is 180.0 + 180.0 = 360.0 -> Normalized to 0.0
     let (yaw1, _, _) = NavigationGraph.calculateSmartArrivalTarget(stateWithIncoming, scenes, 0)
     t->expect(yaw1)->Expect.toBe(0.0)

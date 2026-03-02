@@ -11,7 +11,10 @@ describe("Types", () => {
     let info: linkInfo = {
       sceneIndex: 1,
       hotspotIndex: 2,
+      sceneId: None,
+      hotspotLinkId: None,
     }
+
     t->expect(info.sceneIndex)->Expect.toBe(1)
     t->expect(info.hotspotIndex)->Expect.toBe(2)
   })
@@ -269,10 +272,9 @@ describe("Types", () => {
       marketingForSale: false,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
-      isDiscoveringTitle: false,
+      discoveringTitleCount: 0,
       visitedScenes: [],
     }
-
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)
   })

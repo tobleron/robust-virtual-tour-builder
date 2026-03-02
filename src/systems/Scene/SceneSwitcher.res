@@ -22,12 +22,25 @@ let navigateToScene = (
     let njid = state.navigationState.currentJourneyId + 1
     let currView = NavigationGraph.getCurrentView()
     let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+
+    let sceneId = Belt.Array.get(state.sceneOrder, sourceIdx)
+    let hotspotLinkId = switch sceneId {
+    | Some(sid) =>
+      state.inventory
+      ->Belt.Map.String.get(sid)
+      ->Option.flatMap(entry => entry.scene.hotspots->Belt.Array.get(sourceHIdx))
+      ->Option.map(h => h.linkId)
+    | None => None
+    }
+
     let actions = []
     let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
 
     if previewOnly {
       let _ = Js.Array.push(
-        SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+        SetNavigationStatus(
+          Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx, sceneId, hotspotLinkId}),
+        ),
         actions,
       )
     }
@@ -76,9 +89,12 @@ let navigateToScene = (
     } else {
       let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state, scenes, targetIdx)
       let _ = Js.Array.push(
-        SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+        SetIncomingLink(
+          Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx, sceneId, hotspotLinkId}),
+        ),
         actions,
       )
+
       let _ = Js.Array.push(
         SetActiveScene(
           targetIdx,

@@ -30,6 +30,6 @@ describe("State", () => {
     t->expect(initialState.navigationState.currentJourneyId)->Expect.toBe(0)
     t->expect(initialState.lastUsedCategory)->Expect.toBe("outdoor")
     t->expect(initialState.sessionId)->Expect.toEqual(None)
-    t->expect(initialState.isDiscoveringTitle)->Expect.toBe(false)
+    t->expect(initialState.discoveringTitleCount)->Expect.toBe(0)
   })
 })

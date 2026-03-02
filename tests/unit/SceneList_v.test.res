@@ -19,9 +19,8 @@ module WrappedSceneList = {
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
-      isDiscoveringTitle: mockState.isDiscoveringTitle,
+      discoveringTitleCount: mockState.discoveringTitleCount,
     }
-
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,

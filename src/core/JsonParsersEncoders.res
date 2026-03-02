@@ -214,6 +214,8 @@ let linkInfo = (l: Types.linkInfo) => {
   Encode.object([
     ("sceneIndex", Encode.int(l.sceneIndex)),
     ("hotspotIndex", Encode.int(l.hotspotIndex)),
+    ("sceneId", Encode.option(Encode.string)(l.sceneId)),
+    ("hotspotLinkId", Encode.option(Encode.string)(l.hotspotLinkId)),
   ])
 }
 

@@ -68,7 +68,16 @@ describe("Hotspot Move & Toggle Regression", () => {
 
     let nextState = HotspotHelpers.handleStartMovingHotspot(initialState, 0, 0)
 
-    t->expect(nextState.movingHotspot)->Expect.toEqual(Some({sceneIndex: 0, hotspotIndex: 0}))
+    t
+    ->expect(nextState.movingHotspot)
+    ->Expect.toEqual(
+      Some({
+        sceneIndex: 0,
+        hotspotIndex: 0,
+        sceneId: Some("s1"),
+        hotspotLinkId: Some("h1"),
+      }),
+    )
     t->expect(nextState.isLinking)->Expect.toEqual(false)
     t->expect(nextState.linkDraft)->Expect.toEqual(None)
   })
@@ -87,9 +96,8 @@ describe("Hotspot Move & Toggle Regression", () => {
           },
         ),
       ]),
-      movingHotspot: Some({sceneIndex: 0, hotspotIndex: 0}),
+      movingHotspot: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
     }
-
     let nextState = HotspotHelpers.handleCommitHotspotMove(initialState, 0, 0, 15.0, 25.0)
 
     t->expect(nextState.movingHotspot)->Expect.toEqual(None)
@@ -118,9 +126,8 @@ describe("Hotspot Move & Toggle Regression", () => {
           ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
           (),
         ),
-        movingHotspot: Some({sceneIndex: 0, hotspotIndex: 0}),
+        movingHotspot: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
       }
-
       AppContext.setBridgeState(mockState)
 
       let root = ReactDOMClient.createRoot(container)

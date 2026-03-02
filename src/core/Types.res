@@ -6,6 +6,8 @@ type rec file =
 type linkInfo = {
   sceneIndex: int,
   hotspotIndex: int,
+  sceneId: option<string>,
+  hotspotLinkId: option<string>,
 }
 
 type screenCoords = {x: float, y: float}
@@ -331,7 +333,7 @@ type state = {
   marketingForSale: bool,
   structuralRevision: int,
   nextSceneSequenceId: int,
-  isDiscoveringTitle: bool,
+  discoveringTitleCount: int,
   visitedScenes: array<string>, // Track scenes that have been animated (for one-time animation)
 }
 

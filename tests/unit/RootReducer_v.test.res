@@ -59,7 +59,7 @@ describe("Reducer", () => {
       sceneOrder,
       activeIndex: 0,
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
-      isDiscoveringTitle: false,
+      discoveringTitleCount: 0,
     }
   }
 

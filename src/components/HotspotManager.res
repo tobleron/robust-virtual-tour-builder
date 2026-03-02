@@ -230,30 +230,65 @@ let handleUpdateHotspotMetadata = async (sceneIndex: int, hotspotIndex: int, met
   )
 }
 
+let findIndicesByIds = (state: state, ~sceneId: string, ~hotspotLinkId: string): option<(
+  int,
+  int,
+)> => {
+  state.sceneOrder
+  ->Belt.Array.getIndexBy(id => id == sceneId)
+  ->Option.flatMap(sIdx => {
+    state.inventory
+    ->Belt.Map.String.get(sceneId)
+    ->Option.flatMap(entry => {
+      entry.scene.hotspots
+      ->Belt.Array.getIndexBy(h => h.linkId == hotspotLinkId)
+      ->Option.map(hIdx => (sIdx, hIdx))
+    })
+  })
+}
+
 let handleUpdateHotspotTarget = async (
-  sceneIndex: int,
-  hotspotIndex: int,
+  ~sceneIndex=?,
+  ~hotspotIndex=?,
+  ~sceneId=?,
+  ~hotspotLinkId=?,
   targetName: string,
   targetSceneId: option<string>,
 ) => {
-  let _ = await OptimisticAction.execute(
-    ~action=Actions.UpdateHotspotMetadata(
-      sceneIndex,
-      hotspotIndex,
-      Logger.castToJson({
-        "target": targetName,
-        "targetSceneId": targetSceneId,
-      }),
-    ),
-    ~apiCall=state => {
-      switch state.sessionId {
-      | Some(sid) =>
-        let projectData = ProjectSystem.encodeProjectFromState(state)
-        Api.ProjectApi.saveProject(sid, projectData)
-      | None => Promise.resolve(Ok())
-      }
-    },
-  )
+  let state = AppContext.getBridgeState()
+
+  // Resolve indices: either use provided ones or lookup by stable IDs
+  let resolvedIndices = switch (sceneId, hotspotLinkId) {
+  | (Some(sid), Some(hId)) => findIndicesByIds(state, ~sceneId=sid, ~hotspotLinkId=hId)
+  | _ =>
+    switch (sceneIndex, hotspotIndex) {
+    | (Some(sIdx), Some(hIdx)) => Some((sIdx, hIdx))
+    | _ => None
+    }
+  }
+
+  switch resolvedIndices {
+  | Some((sIdx, hIdx)) =>
+    let _ = await OptimisticAction.execute(
+      ~action=Actions.UpdateHotspotMetadata(
+        sIdx,
+        hIdx,
+        Logger.castToJson({
+          "target": targetName,
+          "targetSceneId": targetSceneId,
+        }),
+      ),
+      ~apiCall=state => {
+        switch state.sessionId {
+        | Some(sid) =>
+          let projectData = ProjectSystem.encodeProjectFromState(state)
+          Api.ProjectApi.saveProject(sid, projectData)
+        | None => Promise.resolve(Ok())
+        }
+      },
+    )
+  | None => Logger.error(~module_="HotspotManager", ~message="RETARGET_LOOKUP_FAILED", ())
+  }
 }
 
 let handleCommitHotspotMove = async (

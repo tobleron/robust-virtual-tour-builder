@@ -45,13 +45,29 @@ let createPoolSize = (): int => {
   let cores: int = %raw(
     "(typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 2"
   )
-  let proposed = cores - 1
-  if proposed < 1 {
-    1
-  } else if proposed > 8 {
-    8
+  let ramGb: float = %raw(
+    "(typeof navigator !== 'undefined' && navigator.deviceMemory) ? navigator.deviceMemory : 8.0"
+  )
+
+  // Conservative heuristic: each 4K/12K image processing task can spike to ~400MB-600MB RAM.
+  // Low Memory (<= 4GB): Max 2 workers to keep system stable.
+  // Medium Memory (<= 8GB): Max 4 workers.
+  // High Memory (> 8GB): Use cores-1 up to 8.
+  let memoryCap = if ramGb <= 4.0 {
+    2
+  } else if ramGb <= 8.0 {
+    4
   } else {
-    proposed
+    8
+  }
+
+  let proposed = cores - 1
+  let size = Math.min(Int.toFloat(proposed), Int.toFloat(memoryCap))
+
+  if size < 1.0 {
+    1
+  } else {
+    Float.toInt(size)
   }
 }
 

@@ -23,7 +23,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 499/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 508/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -159,20 +159,20 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 ### Pre-split snapshot for `src/utils/WorkerPool.res`
 - `src/utils/WorkerPool.res` (16 functions, fingerprint 71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6)
     - Grouped summary:
-        - bindWorkerHandlers × 1 (lines: 144)
+        - bindWorkerHandlers × 1 (lines: 160)
         - createPoolSize × 1 (lines: 44)
-        - ensurePool × 1 (lines: 215)
-        - extractExifWithWorker × 1 (lines: 472)
-        - fingerprintWithWorker × 1 (lines: 306)
-        - generateTinyWithWorker × 1 (lines: 408)
+        - ensurePool × 1 (lines: 231)
+        - extractExifWithWorker × 1 (lines: 488)
+        - fingerprintWithWorker × 1 (lines: 322)
+        - generateTinyWithWorker × 1 (lines: 424)
         - poolRef × 1 (lines: 42)
-        - processFullWithWorker × 1 (lines: 243)
-        - removeExifWaiter × 1 (lines: 114)
-        - removeFingerprintWaiter × 1 (lines: 70)
-        - removeFullWaiter × 1 (lines: 128)
-        - removeTinyWaiter × 1 (lines: 98)
-        - removeValidateWaiter × 1 (lines: 84)
-        - shutdown × 1 (lines: 463)
-        - takeWorker × 1 (lines: 58)
-        - validateImageWithWorker × 1 (lines: 357)
+        - processFullWithWorker × 1 (lines: 259)
+        - removeExifWaiter × 1 (lines: 130)
+        - removeFingerprintWaiter × 1 (lines: 86)
+        - removeFullWaiter × 1 (lines: 144)
+        - removeTinyWaiter × 1 (lines: 114)
+        - removeValidateWaiter × 1 (lines: 100)
+        - shutdown × 1 (lines: 479)
+        - takeWorker × 1 (lines: 74)
+        - validateImageWithWorker × 1 (lines: 373)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

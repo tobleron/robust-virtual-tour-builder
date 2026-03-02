@@ -318,7 +318,12 @@ let make = (
             camYaw: h.viewFrame->Option.map(vf => vf.yaw)->Option.getOr(h.yaw),
             camHfov: h.viewFrame->Option.map(vf => vf.hfov)->Option.getOr(90.0),
             intermediatePoints: None,
-            retargetHotspot: Some({sceneIndex, hotspotIndex}),
+            retargetHotspot: Some({
+              sceneIndex,
+              hotspotIndex,
+              sceneId: Some(scene.id),
+              hotspotLinkId: Some(h.linkId),
+            }),
           }
 
           EventBus.dispatch(TriggerRetargetModal(draft))

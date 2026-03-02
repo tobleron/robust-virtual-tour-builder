@@ -31,9 +31,21 @@ let handleNavigationCompleted = (state: state, journey: journeyData): state => {
         navigationState: {...baseNavState, incomingLink: None},
       }
     } else {
+      let sourceId = Belt.Array.get(state.sceneOrder, journey.sourceIndex)
+      let hotspotId = switch sourceId {
+      | Some(sid) =>
+        state.inventory
+        ->Belt.Map.String.get(sid)
+        ->Option.flatMap(entry => entry.scene.hotspots->Belt.Array.get(journey.hotspotIndex))
+        ->Option.map(h => h.linkId)
+      | None => None
+      }
+
       let incomingLinkVal: linkInfo = {
         sceneIndex: journey.sourceIndex,
         hotspotIndex: journey.hotspotIndex,
+        sceneId: sourceId,
+        hotspotLinkId: hotspotId,
       }
 
       let transition = {

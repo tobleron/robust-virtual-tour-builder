@@ -177,7 +177,7 @@ describe("NavigationSupervisor", () => {
       navigationState: {
         ...State.initialState.navigationState,
         navigation: Navigating(staleJourney),
-        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
       },
     }
     AppStateBridge.updateState(staleState)

@@ -29,7 +29,7 @@ let triggerBackgroundTitleDiscovery = (
   ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadReporting", ~message="START_BACKGROUND_TITLE_DISCOVERY", ())
-  dispatch(SetIsDiscoveringTitle(true))
+  dispatch(IncrementDiscoveringTitle)
 
   // 1. Prepare data from already extracted metadata (NO file re-reading)
   let reportData = Belt.Array.map(validProcessed, i => {
@@ -62,12 +62,12 @@ let triggerBackgroundTitleDiscovery = (
       }
     | _ => ()
     }
-    dispatch(SetIsDiscoveringTitle(false))
+    dispatch(DecrementDiscoveringTitle)
     Promise.resolve()
   })
   ->Promise.catch(_ => {
     Logger.warn(~module_="UploadReporting", ~message="BACKGROUND_TITLE_DISCOVERY_FAILED", ())
-    dispatch(SetIsDiscoveringTitle(false))
+    dispatch(DecrementDiscoveringTitle)
     Promise.resolve()
   })
   ->ignore

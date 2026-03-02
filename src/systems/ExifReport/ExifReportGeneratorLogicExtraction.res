@@ -6,7 +6,7 @@ open SharedTypes
 open ExifReportGeneratorLogicTypes
 
 let resolveExifData = async (item: sceneDataItem) => {
-  let file = item.original
+  let _file = item.original
   switch item.metadataJson {
   | Some(m) => {
       // Heuristic: If it's a ReScript record, it won't have the internal JSON structure expected by decoder
@@ -26,24 +26,14 @@ let resolveExifData = async (item: sceneDataItem) => {
         suggestedName: Nullable.null,
       }
     }
-  | None =>
-    // ONLY extract locally if no JSON provided (rare in new pipeline)
-    let localRes = await ExifParser.extractExifTagsPreferred(File(file))
-    switch localRes {
-    | Ok((exif, _pano)) => {
-        exif,
-        quality: SharedTypes.defaultQuality("Extracted locally"),
-        isOptimized: false,
-        checksum: "",
-        suggestedName: Nullable.null,
-      }
-    | Error(msg) => {
-        exif: SharedTypes.defaultExif,
-        quality: SharedTypes.defaultQuality("Local extraction failed: " ++ msg),
-        isOptimized: false,
-        checksum: "error",
-        suggestedName: Nullable.null,
-      }
+  | None => // STRICT MODE: Skip local extraction to prevent RAM spikes on large files.
+    // If metadata wasn't provided by the backend, we simply return defaults.
+    {
+      exif: SharedTypes.defaultExif,
+      quality: SharedTypes.defaultQuality("Metadata unavailable (Strict Mode)"),
+      isOptimized: false,
+      checksum: "",
+      suggestedName: Nullable.null,
     }
   }
 }

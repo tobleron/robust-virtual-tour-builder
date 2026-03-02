@@ -47,7 +47,7 @@ let makeInitialState = (): Types.state => {
     marketingForSale: false,
     structuralRevision: 0,
     nextSceneSequenceId: 1,
-    isDiscoveringTitle: false,
+    discoveringTitleCount: 0,
     visitedScenes: [],
   }
 }

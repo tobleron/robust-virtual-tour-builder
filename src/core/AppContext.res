@@ -20,7 +20,7 @@ type sceneSlice = {
   tourName: string,
   activeYaw: float,
   activePitch: float,
-  isDiscoveringTitle: bool,
+  discoveringTitleCount: int,
 }
 
 type uiSlice = {
@@ -59,7 +59,7 @@ let defaultSceneSlice: sceneSlice = {
   tourName: State.initialState.tourName,
   activeYaw: State.initialState.activeYaw,
   activePitch: State.initialState.activePitch,
-  isDiscoveringTitle: State.initialState.isDiscoveringTitle,
+  discoveringTitleCount: State.initialState.discoveringTitleCount,
 }
 
 let defaultUiSlice: uiSlice = {
@@ -234,7 +234,7 @@ module Provider = {
         tourName: state.tourName,
         activeYaw: state.activeYaw,
         activePitch: state.activePitch,
-        isDiscoveringTitle: state.isDiscoveringTitle,
+        discoveringTitleCount: state.discoveringTitleCount,
       }
     }, (
       scenes,
@@ -242,7 +242,7 @@ module Provider = {
       state.tourName,
       state.activeYaw,
       state.activePitch,
-      state.isDiscoveringTitle,
+      state.discoveringTitleCount,
     ))
 
     let uiSlice = React.useMemo7(() => {

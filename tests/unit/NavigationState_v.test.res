@@ -107,9 +107,8 @@ test("NavigationState: reduce NavigationCompleted resets state", t => {
     navigation: Navigating(createJourney(10)),
     currentJourneyId: 10,
     autoForwardChain: [1, 2],
-    incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
+    incomingLink: Some({sceneIndex: 0, hotspotIndex: 0, sceneId: None, hotspotLinkId: None}),
   }
-
   let next = NavigationState.reduce(state, NavigationCompleted(createJourney(10)))
 
   switch next {

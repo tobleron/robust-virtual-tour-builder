@@ -161,7 +161,7 @@ let make = React.memo(() => {
 
     <SidebarProjectInfo
       localTourName
-      disabled={!canUpload || sceneSlice.isDiscoveringTitle}
+      disabled={!canUpload || sceneSlice.discoveringTitleCount > 0}
       onTourNameChange={e => {
         let val = JsxEvent.Form.target(e)["value"]
         setLocalTourName(_ => val)
