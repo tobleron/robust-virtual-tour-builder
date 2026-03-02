@@ -60,7 +60,7 @@ module WrappedSidebar = {
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
       isDiscoveringTitle: mockState.isDiscoveringTitle,
-      }
+    }
 
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
@@ -170,6 +170,40 @@ describe("Sidebar", () => {
     }
 
     t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.SetTourName("Updated Name")))
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should disable project name input when isDiscoveringTitle is true", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let mockState = {...State.initialState, isDiscoveringTitle: true}
+    let mockDispatch = _ => ()
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
+    let sidebarCmp = await loadSidebar()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
+
+    await wait(100)
+
+    let input = Dom.querySelector(container, "input#project-name-input")
+    switch Nullable.toOption(input) {
+    | Some(el) => {
+        let isDisabled: bool = %raw(`(el) => el.disabled`)(el)
+        let placeholder = Dom.getAttribute(el, "placeholder")->Nullable.toOption->Option.getOr("")
+        t->expect(isDisabled)->Expect.toBe(true)
+        t->expect(placeholder)->Expect.toBe("Resolving...")
+      }
+    | None => t->expect(false)->Expect.toBe(true)
+    }
 
     Dom.removeElement(container)
   })

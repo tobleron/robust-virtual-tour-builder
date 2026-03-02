@@ -16,8 +16,7 @@ let configure = (~getState: unit => state, ~dispatch: action => unit) => {
 let useStartLinkingEffect = (draftOpt: option<linkDraft>) => {
   React.useEffect1(() => {
     switch draftOpt {
-    | Some(d) if d.retargetHotspot == None =>
-      // Normal Add-Link flow only
+    | Some(d) if d.retargetHotspot == None => // Normal Add-Link flow only
       ()
     | _ => ()
     }

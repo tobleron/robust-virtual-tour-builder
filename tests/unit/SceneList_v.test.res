@@ -1,4 +1,6 @@
 // @efficiency: infra-adapter
+// @vitest-environment jsdom
+/* tests/unit/SceneList_v.test.res */
 open Vitest
 open ReBindings
 open Types
@@ -18,7 +20,7 @@ module WrappedSceneList = {
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
       isDiscoveringTitle: mockState.isDiscoveringTitle,
-      }
+    }
 
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,

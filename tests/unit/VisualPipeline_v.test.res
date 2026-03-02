@@ -1,4 +1,5 @@
 // @efficiency: infra-adapter
+// @vitest-environment jsdom
 /* tests/unit/VisualPipeline_v.test.res */
 open Vitest
 open ReBindings
@@ -15,7 +16,7 @@ module WrappedVisualPipeline = {
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
       isDiscoveringTitle: mockState.isDiscoveringTitle,
-      }
+    }
 
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,

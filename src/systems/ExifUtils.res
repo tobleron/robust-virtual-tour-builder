@@ -58,34 +58,17 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
   }
 
   let timestampPart = switch dateTime {
-  | Some(dt) => {
-      // Support both YYYY:MM:DD and YYYY-MM-DD formats
-      let regex = RegExp.fromString("(\\d{4})[:\\-](\\d{2})[:\\-](\\d{2})\\s+(\\d{2})[:](\\d{2})")
-      switch RegExp.exec(regex, dt) {
-      | Some(result) => {
-          let captures = RegExp.Result.matches(result)
-          let get = i => {
-            switch Belt.Array.get(captures, i) {
-            | Some(n) => n->Belt.Option.getWithDefault("")
-            | None => ""
-            }
-          }
-          if Array.length(captures) >= 5 {
-            let year = get(1) // get(0) is full match
-            let month = get(2)
-            let day = get(3)
-            let hour = get(4)
-            let minute = get(5)
-            let shortYear = String.slice(year, ~start=2, ~end=4)
-            Some(`${day}${month}${shortYear}_${hour}${minute}`)
-          } else {
-            None
-          }
-        }
-      | None => None
-      }
+  | Some(dt) if String.length(dt) >= 16 => {
+      // Input: YYYY:MM:DD HH:MM...
+      let year = String.slice(dt, ~start=0, ~end=4)
+      let month = String.slice(dt, ~start=5, ~end=7)
+      let day = String.slice(dt, ~start=8, ~end=10)
+      let hour = String.slice(dt, ~start=11, ~end=13)
+      let minute = String.slice(dt, ~start=14, ~end=16)
+      let shortYear = String.slice(year, ~start=2, ~end=4)
+      Some(`${day}${month}${shortYear}_${hour}${minute}`)
     }
-  | None => None
+  | _ => None
   }
 
   let timestamp = switch timestampPart {

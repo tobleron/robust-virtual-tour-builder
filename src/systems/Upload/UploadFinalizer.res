@@ -253,8 +253,14 @@ let executeProcessingChain = (
       dispatch(AddScenes(jsonPayload))
       PersistenceLayer.performSave(getState())
 
-      finalizeUploads(finalItems, startTime, updateProgress, skippedCount, ~getState, ~dispatch)
-      ->Promise.then(res => {
+      finalizeUploads(
+        finalItems,
+        startTime,
+        updateProgress,
+        skippedCount,
+        ~getState,
+        ~dispatch,
+      )->Promise.then(res => {
         UploadReporting.triggerBackgroundTitleDiscovery(finalItems, ~getState, ~dispatch)
         Promise.resolve(res)
       })

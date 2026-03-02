@@ -95,7 +95,7 @@ describe("Reducer", () => {
       camHfov: 0.0,
       intermediatePoints: None,
       retargetHotspot: None,
-      }
+    }
 
     let actionLinking = StartLinking(Some(dummyDraft))
     let resultLinking = Reducer.reducer(State.initialState, actionLinking)
@@ -145,7 +145,7 @@ describe("Reducer", () => {
       camHfov: 0.0,
       intermediatePoints: None,
       retargetHotspot: None,
-      }
+    }
 
     let state1 = Reducer.reducer(State.initialState, SetTourName("Test Tour"))
     let state2 = Reducer.reducer(state1, StartLinking(Some(dummyDraft)))

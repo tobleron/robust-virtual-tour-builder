@@ -54,9 +54,7 @@ describe("ImageOptimizer - Browser-side Compression", () => {
     )
 
     switch result {
-    | Ok((blob)) => {
-        t->expect(Blob.size(blob))->Expect.toBe(1024.0)
-      }
+    | Ok(blob) => t->expect(Blob.size(blob))->Expect.toBe(1024.0)
     | Error(msg) => t->expect(msg)->Expect.toBe("Success")
     }
   })

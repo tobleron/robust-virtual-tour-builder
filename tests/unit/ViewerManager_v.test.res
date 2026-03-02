@@ -29,6 +29,8 @@ type mockFn
     configure: vi.fn(),
     handleStageClick: vi.fn(),
     handleStagePointerDown: vi.fn(),
+    useStartLinkingEffect: vi.fn(),
+    useRetargetModalListener: vi.fn(),
   }))
 `)
 
@@ -278,7 +280,7 @@ describe("ViewerManager", () => {
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
       isDiscoveringTitle: mockState.isDiscoveringTitle,
-      }
+    }
 
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,

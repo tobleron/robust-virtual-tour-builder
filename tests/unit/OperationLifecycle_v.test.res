@@ -158,7 +158,7 @@ describe("OperationLifecycle", () => {
     // Update progress at 40s - this should refresh updatedAt to 41000
     OperationLifecycle.progress(id, 0.5, ())
 
-    // Advance another 40s (Total 80s from start). 
+    // Advance another 40s (Total 80s from start).
     // Manual sweep should NOT expire it because only 40s elapsed since updatedAt.
     setSystemTime(1000.0 +. 80000.0)
     OperationLifecycle.sweepExpiredOperations()

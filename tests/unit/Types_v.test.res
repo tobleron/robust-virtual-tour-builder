@@ -147,7 +147,7 @@ describe("Types", () => {
       camHfov: 80.0,
       intermediatePoints: None,
       retargetHotspot: None,
-      }
+    }
 
     t->expect(ld.camHfov)->Expect.toBe(80.0)
   })
@@ -271,7 +271,7 @@ describe("Types", () => {
       nextSceneSequenceId: 1,
       isDiscoveringTitle: false,
       visitedScenes: [],
-      }
+    }
 
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)

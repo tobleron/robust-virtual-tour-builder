@@ -129,7 +129,7 @@ describe("Reducer.Ui", () => {
       camHfov: 90.0,
       intermediatePoints: None,
       retargetHotspot: None,
-      }
+    }
 
     let action = StartLinking(Some(draft))
     let result = Reducer.Ui.reduce(initialState, action)

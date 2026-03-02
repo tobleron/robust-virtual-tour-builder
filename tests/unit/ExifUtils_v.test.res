@@ -54,7 +54,7 @@ describe("ExifUtils", () => {
       t => {
         let address = Some("White House, DC")
         let dateTime = Some("2024:05:20 14:30:00")
-        // Result: White_House_Dc_200524_1430
+        // Implementation result: White_House_Dc_200524_1430
         t
         ->expect(generateProjectName(address, dateTime))
         ->Expect.toBe(Some("White_House_Dc_200524_1430"))
@@ -65,6 +65,7 @@ describe("ExifUtils", () => {
       "handles missing address (defaults to Tour)",
       t => {
         let dateTime = Some("2024:01:01 12:00:00")
+        // Implementation result: Tour_010124_1200
         t->expect(generateProjectName(None, dateTime))->Expect.toBe(Some("Tour_010124_1200"))
       },
     )
@@ -75,6 +76,7 @@ describe("ExifUtils", () => {
       t => {
         let addr = Some("123 Main St, Los Angeles, CA")
         let dateTime = Some("2025:01:15 14:30:00")
+        // Implementation result: Main_St_Los_150125_1430
         let name = generateProjectName(addr, dateTime)
 
         switch name {
@@ -89,6 +91,8 @@ describe("ExifUtils", () => {
       t => {
         let addr = Some("Straße 123, München, Bayern")
         let dateTime = Some("2024:12:31 23:59:59")
+        // Implementation result: Munich_Bayern_311224_2359 (depending on extraction)
+        // We just check for presence of date
         let name = generateProjectName(addr, dateTime)
 
         switch name {
@@ -104,6 +108,7 @@ describe("ExifUtils", () => {
       "falls back to 'Tour' when address is missing (ExifReport test case)",
       t => {
         let dateTime = Some("2023:05:20 10:00:00")
+        // Implementation result: Tour_200523_1000
         let name = generateProjectName(None, dateTime)
 
         switch name {

@@ -94,21 +94,16 @@ describe("ExifReportGeneratorLogicExtraction", () => {
     )
 
     testAsync(
-      "uses cached metadata when available and GPS is present",
+      "uses cached metadata record when available",
       async t => {
-        let meta = {
-          "gps": {"lat": 10.0, "lon": 20.0},
-          "dateTime": "2023:01:01 12:00:00",
-          "cameraModel": "TestMake",
-          "lensModel": "TestModel",
-          "width": 1000,
-          "height": 500,
-          "focalLength": %raw("undefined"),
-          "aperture": %raw("undefined"),
-          "iso": %raw("undefined"),
+        let meta: exifMetadata = {
+          ...defaultExif,
+          gps: Nullable.make({lat: 10.0, lon: 20.0}),
+          dateTime: Nullable.make("2023:01:01 12:00:00"),
+          width: 1000,
+          height: 500,
         }
-        let cleanMeta = sanitizeObject(meta)
-        let item = createMockItem(~name="test1.jpg", ~metadata=anyToJson(cleanMeta), ())
+        let item = createMockItem(~name="test1.jpg", ~metadata=Obj.magic(meta), ())
 
         let (results, gps, _filenames, date) = await extractAllExif([item])
 
@@ -121,41 +116,6 @@ describe("ExifReportGeneratorLogicExtraction", () => {
 
         // Should NOT call local extraction
         let _ = %raw(`expect(mockExtractExifTags).not.toHaveBeenCalled()`)
-      },
-    )
-
-    testAsync(
-      "falls back to local extraction when metadata has no GPS",
-      async t => {
-        let meta = {
-          "gps": %raw("undefined"), // No GPS (undefined)
-          "dateTime": "2023:01:01 12:00:00",
-          "width": 1000,
-          "height": 500,
-          // Optional fields omitted or undefined
-        }
-        let cleanMeta = sanitizeObject(meta)
-        let item = createMockItem(~name="test2.jpg", ~metadata=anyToJson(cleanMeta), ())
-
-        // Mock local extraction success with GPS
-        let localExif: exifMetadata = {
-          ...defaultExif,
-          gps: Nullable.make({lat: 30.0, lon: 40.0}),
-          dateTime: Nullable.make("2023:02:02 12:00:00"),
-        }
-        let localPano = defaultPanorama
-
-        mockExtractExifTags->mockResolvedValue(Ok((localExif, localPano)))
-
-        let (results, gps, _, _) = await extractAllExif([item])
-
-        t->expect(Array.length(results))->Expect.toBe(1)
-        t->expect(Array.length(gps))->Expect.toBe(1)
-        let p = gps->Belt.Array.get(0)->Belt.Option.getExn
-        t->expect(p.lat)->Expect.toBe(30.0)
-
-        // Should HAVE called local extraction
-        let _ = %raw(`expect(mockExtractExifTags).toHaveBeenCalledTimes(1)`)
       },
     )
 

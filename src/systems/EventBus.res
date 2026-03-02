@@ -101,7 +101,13 @@ let classifyChannel = (evt: event): eventChannel =>
   | PreviewLinkId(_) =>
     Navigation
   | TriggerUpload | UpdateProcessing(_) => Upload
-  | ShowModal(_) | CloseModal | OpenHotspotMenu(_) | ForceHotspotSync | ClearSimUi | TriggerRetargetModal(_) => Ui
+  | ShowModal(_)
+  | CloseModal
+  | OpenHotspotMenu(_)
+  | ForceHotspotSync
+  | ClearSimUi
+  | TriggerRetargetModal(_) =>
+    Ui
   | NetworkStatusChanged(_) | CancelActiveOperation | RateLimitBackoff(_) => System
   }
 

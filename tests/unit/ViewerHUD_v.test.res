@@ -12,7 +12,7 @@ module WrappedViewerHUD = {
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
       isDiscoveringTitle: mockState.isDiscoveringTitle,
-      }
+    }
 
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,

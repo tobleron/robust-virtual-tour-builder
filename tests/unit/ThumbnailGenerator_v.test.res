@@ -48,5 +48,4 @@ describe("ThumbnailGenerator", () => {
     t->expect(Blob.size(blob))->Expect.toBe(1024.0)
     t->expect(Blob.type_(blob))->Expect.toBe("image/webp")
   })
-
 })
