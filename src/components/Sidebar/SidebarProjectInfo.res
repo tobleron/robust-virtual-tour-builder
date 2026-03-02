@@ -32,10 +32,11 @@ let make = React.memo((~localTourName, ~onTourNameChange, ~onUploadClick, ~disab
         <input
           id="project-name-input"
           type_="text"
-          className="sidebar-project-input"
-          placeholder="New Tour..."
+          className="sidebar-project-input disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          placeholder={disabled ? "Resolving..." : "New Tour..."}
           value={localTourName}
           onChange={onTourNameChange}
+          disabled
         />
       </div>
     </div>

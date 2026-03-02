@@ -331,6 +331,7 @@ type state = {
   marketingForSale: bool,
   structuralRevision: int,
   nextSceneSequenceId: int,
+  isDiscoveringTitle: bool,
   visitedScenes: array<string>, // Track scenes that have been animated (for one-time animation)
 }
 

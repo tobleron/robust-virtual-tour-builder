@@ -20,6 +20,7 @@ type sceneSlice = {
   tourName: string,
   activeYaw: float,
   activePitch: float,
+  isDiscoveringTitle: bool,
 }
 
 type uiSlice = {
@@ -58,6 +59,7 @@ let defaultSceneSlice: sceneSlice = {
   tourName: State.initialState.tourName,
   activeYaw: State.initialState.activeYaw,
   activePitch: State.initialState.activePitch,
+  isDiscoveringTitle: State.initialState.isDiscoveringTitle,
 }
 
 let defaultUiSlice: uiSlice = {
@@ -225,15 +227,23 @@ module Provider = {
     }, (state.inventory, state.sceneOrder))
 
     // Domain-Specific Slices
-    let sceneSlice = React.useMemo5(() => {
+    let sceneSlice = React.useMemo6(() => {
       {
         scenes,
         activeIndex: state.activeIndex,
         tourName: state.tourName,
         activeYaw: state.activeYaw,
         activePitch: state.activePitch,
+        isDiscoveringTitle: state.isDiscoveringTitle,
       }
-    }, (scenes, state.activeIndex, state.tourName, state.activeYaw, state.activePitch))
+    }, (
+      scenes,
+      state.activeIndex,
+      state.tourName,
+      state.activeYaw,
+      state.activePitch,
+      state.isDiscoveringTitle,
+    ))
 
     let uiSlice = React.useMemo7(() => {
       {

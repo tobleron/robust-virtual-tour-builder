@@ -277,7 +277,9 @@ describe("ViewerManager", () => {
       tourName: mockState.tourName,
       activeYaw: mockState.activeYaw,
       activePitch: mockState.activePitch,
-    }
+      isDiscoveringTitle: mockState.isDiscoveringTitle,
+      }
+
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,

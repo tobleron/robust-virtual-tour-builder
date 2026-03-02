@@ -147,6 +147,8 @@ module Project = {
     switch action {
     | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
+    | SetIsDiscoveringTitle(val) => Some({...state, isDiscoveringTitle: val})
+
     | LoadProject(projectDataJson) =>
       // Load the project first
       let loadedState = handleLoadProject(state, projectDataJson)

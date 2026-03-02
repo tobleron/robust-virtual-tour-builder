@@ -43,5 +43,6 @@ let initialState: state = {
   marketingForSale: false,
   structuralRevision: 0,
   nextSceneSequenceId: 1,
+  isDiscoveringTitle: false,
   visitedScenes: [], // Scenes animate only once for better UX
 }

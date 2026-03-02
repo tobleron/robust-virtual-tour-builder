@@ -12,7 +12,9 @@ module WrappedFloorNavigation = {
       tourName: "Test Tour",
       activeYaw: 0.0,
       activePitch: 0.0,
-    }
+      isDiscoveringTitle: false,
+      }
+
     let uiSlice: AppContext.uiSlice = {
       isLinking,
       isTeasing: false,

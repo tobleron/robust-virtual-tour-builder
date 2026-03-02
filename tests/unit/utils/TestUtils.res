@@ -84,6 +84,7 @@ let createMockState = (
     lastUsedCategory,
     appMode,
     nextSceneSequenceId: sceneOrder->Belt.Array.length + 1,
+    isDiscoveringTitle: false,
     visitedScenes: [], // Scenes animate only once for better UX
   }
 }

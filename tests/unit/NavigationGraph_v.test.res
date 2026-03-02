@@ -104,10 +104,10 @@ describe("NavigationGraph", () => {
       marketingForSale: false,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
+      isDiscoveringTitle: false,
       visitedScenes: [],
-    }
-  }
-
+      }
+      }
   test("findSceneByName finds existing scene", t => {
     let s1 = createScene("s1", [])
     let s2 = createScene("s2", [])

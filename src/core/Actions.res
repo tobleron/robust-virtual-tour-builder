@@ -8,6 +8,7 @@ type rec action =
   | UpdateLinkDraft(linkDraft)
   | SetIsTeasing(bool)
   | SetTourName(string)
+  | SetIsDiscoveringTitle(bool)
   | AddScenes(array<JSON.t>)
   | SetActiveScene(int, float, float, option<transition>)
   | AddHotspot(int, hotspot)
