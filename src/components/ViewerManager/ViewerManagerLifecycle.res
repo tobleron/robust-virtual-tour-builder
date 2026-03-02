@@ -44,6 +44,10 @@ let applyDynamicStageHfov = () => {
 }
 
 let useInitialization = (~getState, ~dispatch) => {
+  let state = AppContext.useAppState()
+  LinkEditorLogic.useStartLinkingEffect(state.linkDraft)
+  LinkEditorLogic.useRetargetModalListener()
+
   React.useEffect0(() => {
     LinkEditorLogic.configure(~getState, ~dispatch)
     let cleanupInput = InputSystem.initInputSystem(~getState, ~dispatch)

@@ -60,7 +60,13 @@ let make = () => {
     let unsubscribe = EventBus.subscribe(event => {
       switch event {
       | ShowModal(config) => setActiveConfig(_ => Some(config))
-      | CloseModal => setActiveConfig(_ => None)
+      | CloseModal =>
+        setActiveConfig(prev => {
+          prev->Option.forEach(config => {
+            config.onClose->Option.forEach(cb => cb())
+          })
+          None
+        })
       | _ => ()
       }
     })

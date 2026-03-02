@@ -13,6 +13,44 @@ let configure = (~getState: unit => state, ~dispatch: action => unit) => {
   dispatchRef := (() => dispatch)
 }
 
+let useStartLinkingEffect = (draftOpt: option<linkDraft>) => {
+  React.useEffect1(() => {
+    switch draftOpt {
+    | Some(d) if d.retargetHotspot == None =>
+      // Normal Add-Link flow only
+      ()
+    | _ => ()
+    }
+    None
+  }, [draftOpt])
+}
+
+let useRetargetModalListener = () => {
+  let dispatch = dispatchRef.contents()
+  let getState = getStateRef.contents
+
+  React.useEffect0(() => {
+    let unsubscribe = EventBus.subscribe(event => {
+      switch event {
+      | TriggerRetargetModal(d) =>
+        LinkModal.showLinkModal(
+          ~pitch=d.pitch,
+          ~yaw=d.yaw,
+          ~camPitch=d.camPitch,
+          ~camYaw=d.camYaw,
+          ~camHfov=d.camHfov,
+          ~linkDraft=Nullable.make(d),
+          ~getState,
+          ~dispatch,
+          (),
+        )
+      | _ => ()
+      }
+    })
+    Some(unsubscribe)
+  })
+}
+
 let handleStageClick = (e: Dom.event) => {
   let currentState = getStateRef.contents()
   let isModifier = Dom.altKey(e) || Dom.metaKey(e)
@@ -74,6 +112,7 @@ let handleStageClick = (e: Dom.event) => {
             camPitch,
             camHfov: hfov,
             intermediatePoints: None,
+            retargetHotspot: None,
           }
 
           if isModifier {
@@ -113,6 +152,7 @@ let handleStageClick = (e: Dom.event) => {
             camPitch,
             camHfov,
             intermediatePoints: None,
+            retargetHotspot: None,
           }
 
           let newPoints = Belt.Array.concat(currentPoints, [newPoint])

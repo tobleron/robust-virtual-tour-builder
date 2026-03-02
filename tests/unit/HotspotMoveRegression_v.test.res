@@ -62,7 +62,9 @@ describe("Hotspot Move & Toggle Regression", () => {
         camYaw: 1.0,
         camHfov: 90.0,
         intermediatePoints: None,
-      }),
+        retargetHotspot: None,
+        }),
+
     }
 
     let nextState = HotspotHelpers.handleStartMovingHotspot(initialState, 0, 0)

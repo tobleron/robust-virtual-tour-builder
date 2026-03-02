@@ -131,6 +131,7 @@ type rec linkDraft = {
   camYaw: float,
   camHfov: float,
   intermediatePoints: option<array<linkDraft>>,
+  retargetHotspot: option<linkInfo>,
 }
 
 type hotspot = {

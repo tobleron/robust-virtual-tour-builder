@@ -54,6 +54,7 @@ type event =
   | ForceHotspotSync
   | TriggerUpload
   | PreviewLinkId(string)
+  | TriggerRetargetModal(Types.linkDraft)
   | NetworkStatusChanged(bool)
   | CancelActiveOperation
   | RateLimitBackoff(int)
@@ -100,7 +101,7 @@ let classifyChannel = (evt: event): eventChannel =>
   | PreviewLinkId(_) =>
     Navigation
   | TriggerUpload | UpdateProcessing(_) => Upload
-  | ShowModal(_) | CloseModal | OpenHotspotMenu(_) | ForceHotspotSync | ClearSimUi => Ui
+  | ShowModal(_) | CloseModal | OpenHotspotMenu(_) | ForceHotspotSync | ClearSimUi | TriggerRetargetModal(_) => Ui
   | NetworkStatusChanged(_) | CancelActiveOperation | RateLimitBackoff(_) => System
   }
 

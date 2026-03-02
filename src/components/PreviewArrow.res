@@ -295,6 +295,40 @@ let make = (
     }
   }
 
+  let handleRetargetClick = e => {
+    e->JsxEvent.Mouse.stopPropagation
+    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
+      ()
+    } else {
+      let getState = AppContext.getBridgeState
+      let currentState = getState()
+      let activeScenes = SceneInventory.getActiveScenes(
+        currentState.inventory,
+        currentState.sceneOrder,
+      )
+      switch Belt.Array.get(activeScenes, sceneIndex) {
+      | Some(scene) =>
+        switch Belt.Array.get(scene.hotspots, hotspotIndex) {
+        | Some(h) =>
+          // Open Modal directly without entering global isLinking mode
+          let draft: Types.linkDraft = {
+            pitch: h.pitch,
+            yaw: h.yaw,
+            camPitch: h.viewFrame->Option.map(vf => vf.pitch)->Option.getOr(h.pitch),
+            camYaw: h.viewFrame->Option.map(vf => vf.yaw)->Option.getOr(h.yaw),
+            camHfov: h.viewFrame->Option.map(vf => vf.hfov)->Option.getOr(90.0),
+            intermediatePoints: None,
+            retargetHotspot: Some({sceneIndex, hotspotIndex}),
+          }
+
+          EventBus.dispatch(TriggerRetargetModal(draft))
+        | None => ()
+        }
+      | None => ()
+      }
+    }
+  }
+
   let centerBaseColor = if isMovingThis {
     "bg-yellow-600"
   } else if localIsAF {
@@ -385,13 +419,27 @@ let make = (
                 ? <LucideIcons.X.make className="text-white" size={14} strokeWidth={3.0} />
                 : <LucideIcons.Move.make className="text-white" size={14} strokeWidth={3.0} />}
             </div>
-            // FAR BOTTOM BUTTON (Delete)
+            // RETARGET BUTTON (#)
+            <div
+              className={`absolute inset-0 bg-[#003da5] hover:bg-[#0046ca] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+                         transition-all duration-300 ease-out 
+                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
+                         opacity-0 translate-y-0
+                         group-hover:opacity-100 group-hover:translate-y-[220%]`}
+              onClick={handleRetargetClick}
+              title="Change Target Scene"
+            >
+              <span className="text-white font-black text-[16px] leading-none mb-0.5">
+                {React.string("#")}
+              </span>
+            </div>
+            // LEFT BUTTON (Delete)
             <div
               className={`absolute inset-0 bg-[#ea580c] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer hover:bg-red-600
                          transition-all duration-300 ease-out 
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
-                         opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[220%]
+                         opacity-0 translate-x-0
+                         group-hover:opacity-100 group-hover:translate-x-[-110%]
                          ${flickerRed ? "animate-flicker-red" : ""}`}
               onClick={handleDeleteClick}
               title="Delete Hotspot"

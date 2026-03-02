@@ -352,6 +352,7 @@ let init = async () => {
                   camYaw: detail.camYaw,
                   camHfov: detail.camHfov,
                   intermediatePoints: Some([]),
+                  retargetHotspot: None,
                 }
                 AppStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
 
@@ -363,6 +364,7 @@ let init = async () => {
                   camYaw: detail.camYaw,
                   camHfov: detail.camHfov,
                   intermediatePoints: None,
+                  retargetHotspot: None,
                 }
 
                 let currentPoints = switch current.intermediatePoints {

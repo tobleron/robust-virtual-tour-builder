@@ -6,7 +6,11 @@ open JsonCombinators.Json
 // Utility alias for the extracted shared parsers
 module Shared = JsonParsersShared
 
-type updateHotspotMetadata = {isAutoForward: option<bool>}
+type updateHotspotMetadata = {
+  isAutoForward: option<bool>,
+  target: option<string>,
+  targetSceneId: option<string>,
+}
 
 // Aliases
 let object = Decode.object
@@ -303,6 +307,8 @@ let updateMetadata = object(field => {
 let updateHotspotMetadata = object(field => {
   {
     isAutoForward: field.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
+    target: field.optional("target", option(string))->Option.flatMap(x => x),
+    targetSceneId: field.optional("targetSceneId", option(string))->Option.flatMap(x => x),
   }
 })
 

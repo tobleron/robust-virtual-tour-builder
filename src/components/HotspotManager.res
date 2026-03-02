@@ -230,6 +230,32 @@ let handleUpdateHotspotMetadata = async (sceneIndex: int, hotspotIndex: int, met
   )
 }
 
+let handleUpdateHotspotTarget = async (
+  sceneIndex: int,
+  hotspotIndex: int,
+  targetName: string,
+  targetSceneId: option<string>,
+) => {
+  let _ = await OptimisticAction.execute(
+    ~action=Actions.UpdateHotspotMetadata(
+      sceneIndex,
+      hotspotIndex,
+      Logger.castToJson({
+        "target": targetName,
+        "targetSceneId": targetSceneId,
+      }),
+    ),
+    ~apiCall=state => {
+      switch state.sessionId {
+      | Some(sid) =>
+        let projectData = ProjectSystem.encodeProjectFromState(state)
+        Api.ProjectApi.saveProject(sid, projectData)
+      | None => Promise.resolve(Ok())
+      }
+    },
+  )
+}
+
 let handleCommitHotspotMove = async (
   sceneIndex: int,
   hotspotIndex: int,

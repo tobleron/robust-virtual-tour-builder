@@ -15,7 +15,9 @@ describe("Actions", _ => {
       camYaw: 0.0,
       camHfov: 0.0,
       intermediatePoints: None,
-    }
+      retargetHotspot: None,
+      }
+
     t->expect(actionToString(UpdateLinkDraft(dummyDraft)))->Expect.toBe("UpdateLinkDraft")
   })
 
@@ -27,7 +29,9 @@ describe("Actions", _ => {
       camYaw: 0.0,
       camHfov: 0.0,
       intermediatePoints: None,
-    }
+      retargetHotspot: None,
+      }
+
     t->expect(actionToString(StartLinking(Some(dummyDraft))))->Expect.toBe("StartLinking")
   })
 

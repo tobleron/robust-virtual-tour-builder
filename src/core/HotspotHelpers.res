@@ -154,7 +154,7 @@ let handleUpdateHotspotMetadata = (
         )
         let meta = switch decoded {
         | Ok(m) => m
-        | Error(_) => {isAutoForward: None}
+        | Error(_) => {isAutoForward: None, target: None, targetSceneId: None}
         }
 
         let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
@@ -164,6 +164,14 @@ let handleUpdateHotspotMetadata = (
               isAutoForward: switch meta.isAutoForward {
               | Some(af) => Some(af)
               | None => h.isAutoForward
+              },
+              target: switch meta.target {
+              | Some(t) => t
+              | None => h.target
+              },
+              targetSceneId: switch meta.targetSceneId {
+              | Some(sid) => Some(sid)
+              | None => h.targetSceneId
               },
             }
           } else {

@@ -33,10 +33,26 @@ let showLinkModal = (
   let nextIndex = state.activeIndex + 1
   let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
 
-  let defaultTargetName =
+  let draftOpt = Nullable.toOption(linkDraft)
+  let isRetargeting = switch draftOpt {
+  | Some(d) => d.retargetHotspot != None
+  | None => false
+  }
+
+  let defaultTargetName = if isRetargeting {
+    let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
+    switch Belt.Array.get(scenes, retarget.sceneIndex) {
+    | Some(sourceScene) =>
+      switch Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex) {
+      | Some(h) => h.target
+      | None => ""
+      }
+    | None => ""
+    }
+  } else {
     scenes
     ->Belt.Array.getIndexBy(s => {
-      let isSelected = switch Nullable.toOption(linkDraft) {
+      let isSelected = switch draftOpt {
       | Some(_) =>
         let idx = scenes->Belt.Array.getIndexBy(x => x.name == s.name)->Option.getOr(-1)
         idx == nextIndex
@@ -47,6 +63,7 @@ let showLinkModal = (
     ->Belt.Option.flatMap(idx => scenes->Belt.Array.get(idx))
     ->Belt.Option.map(s => s.name)
     ->Belt.Option.getWithDefault("")
+  }
 
   let content =
     <div className="flex flex-col gap-4">
@@ -62,7 +79,15 @@ let showLinkModal = (
         <option value="" className="bg-slate-800"> {React.string("-- Select Room --")} </option>
         {scenes
         ->Belt.Array.mapWithIndex((i, s) => {
-          if i == state.activeIndex {
+          // Hide source scene from options
+          let isSource = if isRetargeting {
+            let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
+            i == retarget.sceneIndex
+          } else {
+            i == state.activeIndex
+          }
+
+          if isSource {
             React.null
           } else {
             <option key={s.name} value={s.name} className="bg-slate-800">
@@ -99,6 +124,40 @@ let showLinkModal = (
           dismissible: true,
           createdAt: Date.now(),
         })
+      } else if isRetargeting {
+        let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
+        // RE-TARGETING LOGIC: Use new direct target updater
+        HotspotManager.handleUpdateHotspotTarget(
+          retarget.sceneIndex,
+          retarget.hotspotIndex,
+          targetName,
+          targetSceneId,
+        )->ignore
+
+        // Also update timeline item for this linkId
+        let sourceScene = Belt.Array.get(scenes, retarget.sceneIndex)->Option.getOrThrow
+        let hotspot = Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.getOrThrow
+        let linkId = hotspot.linkId
+
+        // Find existing timeline item for this linkId and update its target
+        state.timeline->Belt.Array.forEach(item => {
+          if item.linkId == linkId {
+            dispatch(
+              Actions.UpdateTimelineStep(
+                item.id,
+                Logger.castToJson({
+                  "targetScene": targetSceneId->Option.getOr(targetName),
+                }),
+              ),
+            )
+          }
+        })
+
+        // Close and cleanup
+        EventBus.dispatch(CloseModal)
+        if state.isLinking {
+          dispatch(Actions.StopLinking)
+        }
       } else {
         let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees
 
@@ -231,7 +290,9 @@ let showLinkModal = (
           // Explicitly hide draft lines on modal close
           SvgManager.hide("link_draft_red")
           SvgManager.hide("link_draft_yellow")
-          dispatch(Actions.StopLinking)
+          if getState().isLinking {
+            dispatch(Actions.StopLinking)
+          }
         },
       ),
       className: Some("modal-blue"),
