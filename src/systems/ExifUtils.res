@@ -59,7 +59,8 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
 
   let timestampPart = switch dateTime {
   | Some(dt) => {
-      let regex = RegExp.fromString("(\\d{4}):(\\d{2}):(\\d{2})\\s+(\\d{2}):(\\d{2})")
+      // Support both YYYY:MM:DD and YYYY-MM-DD formats
+      let regex = RegExp.fromString("(\\d{4})[:\\-](\\d{2})[:\\-](\\d{2})\\s+(\\d{2})[:](\\d{2})")
       switch RegExp.exec(regex, dt) {
       | Some(result) => {
           let captures = RegExp.Result.matches(result)
@@ -70,11 +71,11 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
             }
           }
           if Array.length(captures) >= 5 {
-            let year = get(0)
-            let month = get(1)
-            let day = get(2)
-            let hour = get(3)
-            let minute = get(4)
+            let year = get(1) // get(0) is full match
+            let month = get(2)
+            let day = get(3)
+            let hour = get(4)
+            let minute = get(5)
             let shortYear = String.slice(year, ~start=2, ~end=4)
             Some(`${day}${month}${shortYear}_${hour}${minute}`)
           } else {

@@ -9,69 +9,25 @@ let resolveExifData = async (item: sceneDataItem) => {
   let file = item.original
   switch item.metadataJson {
   | Some(m) => {
-      // Js.log("Metadata present")
-      let meta = switch JsonCombinators.Json.decode(m, JsonParsers.Shared.exifMetadata) {
-      | Ok(meta) => meta
-      | Error(_) => // Js.log("Decode error: " ++ e)
-        SharedTypes.defaultExif
+      // Heuristic: If it's a ReScript record, it won't have the internal JSON structure expected by decoder
+      // Actually, since we know it's coming from our own ResizerLogic, it's already an exifMetadata record.
+      let meta: SharedTypes.exifMetadata = Obj.magic(m)
+
+      let q: SharedTypes.qualityAnalysis = switch item.qualityJson {
+      | Some(qJson) => Obj.magic(qJson)
+      | None => SharedTypes.defaultQuality("Metadata loaded from internal state")
       }
 
-      let hasGps = switch meta.gps->Nullable.toOption {
-      | Some(_) => true
-      | None => false
-      }
-
-      if hasGps {
-        let q =
-          item.qualityJson
-          ->Option.flatMap(q =>
-            switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-            | Ok(qa) => Some(qa)
-            | Error(_) => None
-            }
-          )
-          ->Option.getOr(SharedTypes.defaultQuality("Cached metadata loaded"))
-        {
-          exif: meta,
-          quality: q,
-          isOptimized: false,
-          checksum: "",
-          suggestedName: Nullable.null,
-        }
-      } else {
-        // Js.log("No GPS, extracting locally")
-        let localRes = await ExifParser.extractExifTagsPreferred(File(file))
-        switch localRes {
-        | Ok((exif, _pano)) => {
-            exif,
-            quality: SharedTypes.defaultQuality("GPS recovered locally"),
-            isOptimized: false,
-            checksum: "",
-            suggestedName: Nullable.null,
-          }
-        | Error(_) => {
-            // Js.log("Local extraction error")
-            let q =
-              item.qualityJson
-              ->Option.flatMap(q =>
-                switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-                | Ok(qa) => Some(qa)
-                | Error(_) => None
-                }
-              )
-              ->Option.getOr(SharedTypes.defaultQuality("Cached metadata (no GPS)"))
-            {
-              exif: meta,
-              quality: q,
-              isOptimized: false,
-              checksum: "",
-              suggestedName: Nullable.null,
-            }
-          }
-        }
+      {
+        exif: meta,
+        quality: q,
+        isOptimized: false,
+        checksum: "",
+        suggestedName: Nullable.null,
       }
     }
   | None =>
+    // ONLY extract locally if no JSON provided (rare in new pipeline)
     let localRes = await ExifParser.extractExifTagsPreferred(File(file))
     switch localRes {
     | Ok((exif, _pano)) => {

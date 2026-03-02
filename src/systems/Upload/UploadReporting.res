@@ -23,6 +23,53 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   })
 }
 
+let triggerBackgroundTitleDiscovery = (
+  validProcessed: array<UploadTypes.uploadItem>,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
+) => {
+  Logger.info(~module_="UploadReporting", ~message="START_BACKGROUND_TITLE_DISCOVERY", ())
+
+  // 1. Prepare data from already extracted metadata (NO file re-reading)
+  let reportData = Belt.Array.map(validProcessed, i => {
+    let item: FeatureLoaders.exifSceneDataItem = {
+      original: i.original,
+      metadataJson: i.metadata,
+      qualityJson: i.quality,
+    }
+    item
+  })
+
+  // 2. Fire and forget the report generation
+  FeatureLoaders.generateExifReportLazy(reportData)
+  ->Promise.then(res => {
+    // 3. Store the report string for download later
+    dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
+
+    // 4. Update project title IF it's still empty/generic
+    switch res.suggestedProjectName {
+    | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
+      let currentName = getState().tourName
+      if currentName == "" || TourLogic.isUnknownName(currentName) {
+        Logger.info(
+          ~module_="UploadReporting",
+          ~message="AUTO_TITLING_PROJECT",
+          ~data=Some({"name": name}),
+          (),
+        )
+        dispatch(SetTourName(name))
+      }
+    | _ => ()
+    }
+    Promise.resolve()
+  })
+  ->Promise.catch(_ => {
+    Logger.warn(~module_="UploadReporting", ~message="BACKGROUND_TITLE_DISCOVERY_FAILED", ())
+    Promise.resolve()
+  })
+  ->ignore
+}
+
 let handleExifReport = (
   processedWithClusters: array<UploadTypes.uploadItem>,
   skippedCount: int,
