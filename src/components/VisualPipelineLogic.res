@@ -51,19 +51,20 @@ module Styles = {
     border-radius: 3px;
     overflow: visible;
     background: var(--node-color, var(--primary-ui-blue));
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Removed white border, added thin black angled shadow stroke */
+    border: none;
+    box-shadow: 0.5px 0.5px 0px 0px rgba(0, 0, 0, 0.8),
+                0 1px 3px rgba(0, 0, 0, 0.4);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
                 box-shadow 0.3s ease,
                 filter 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     z-index: 20;
     pointer-events: auto;
   }
 
   .pipeline-node:hover {
     transform: scale(1.4);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.4);
+    box-shadow: 0.5px 0.5px 0px 0px rgba(0, 0, 0, 0.9);
     z-index: 1001;
     filter: brightness(1.2);
   }
@@ -72,9 +73,9 @@ module Styles = {
     transform: scale(0.9);
   }
 
-  /* Active node glow */
+  /* Active node glow - Synchronized with Brand Accent Yellow */
   .pipeline-node.active {
-    box-shadow: 0 0 0 2px var(--orange-brand, #f97316),
+    box-shadow: 0 0 0 2px var(--accent, #ffcc00),
                 0 4px 12px rgba(0, 0, 0, 0.4);
     transform: scale(1.2);
     z-index: 25;
