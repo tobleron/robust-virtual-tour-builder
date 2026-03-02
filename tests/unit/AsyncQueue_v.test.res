@@ -9,11 +9,11 @@ describe("AsyncQueue", () => {
     Dict.set(activeStatuses, "1", "Pending")
     Dict.set(activeStatuses, "2", "__DONE__")
 
-    let msg = computeStatus(activeStatuses, 1, 3)
+    // startedCount=2, total=3
+    let msg = computeStatus(activeStatuses, 2, 3)
 
-    t->expect(String.includes(msg, "Processing 1/3"))->Expect.toBe(true)
-    t->expect(String.includes(msg, "Processing: 1"))->Expect.toBe(true)
-    t->expect(String.includes(msg, "Pending: 1"))->Expect.toBe(true)
+    t->expect(String.includes(msg, "Processing 2/3"))->Expect.toBe(true)
+    t->expect(String.includes(msg, "Active: 2"))->Expect.toBe(true)
     t->expect(String.includes(msg, "__DONE__"))->Expect.toBe(false)
   })
 

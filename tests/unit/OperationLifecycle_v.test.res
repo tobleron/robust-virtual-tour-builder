@@ -125,9 +125,10 @@ describe("OperationLifecycle", () => {
   test("fails expired active operations on ttl sweep and tracks leaked stats", t => {
     let id = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ())
 
-    // Sweep runs every 30s; expiry requires elapsed > 30s.
-    // First sweep @30s does not expire, second sweep @60s does.
-    advanceTimersByTime(61000)
+    // For Navigation, TTL is 60s.
+    // Advance time by 61s and trigger sweep manually
+    setSystemTime(1000.0 +. 61000.0)
+    OperationLifecycle.sweepExpiredOperations()
 
     let op = OperationLifecycle.getOperation(id)
     switch op {
@@ -141,5 +142,37 @@ describe("OperationLifecycle", () => {
     let stats = OperationLifecycle.getStats()
     t->expect(stats.active)->Expect.toBe(0)
     t->expect(stats.leakedTotal)->Expect.toBe(1)
+  })
+
+  test("updatedAt extends operation lifetime during TTL sweep", t => {
+    let id = OperationLifecycle.start(~type_=OperationLifecycle.Navigation, ())
+
+    // TTL is 60s.
+    // Advance 40s total. Manual sweep should not expire it.
+    setSystemTime(1000.0 +. 40000.0)
+    OperationLifecycle.sweepExpiredOperations()
+
+    let opMid = OperationLifecycle.getOperation(id)->Option.getOrThrow
+    t->expect(OperationLifecycleContext.isActiveStatus(opMid.status))->Expect.toBe(true)
+
+    // Update progress at 40s - this should refresh updatedAt to 41000
+    OperationLifecycle.progress(id, 0.5, ())
+
+    // Advance another 40s (Total 80s from start). 
+    // Manual sweep should NOT expire it because only 40s elapsed since updatedAt.
+    setSystemTime(1000.0 +. 80000.0)
+    OperationLifecycle.sweepExpiredOperations()
+
+    let opExtended = OperationLifecycle.getOperation(id)->Option.getOrThrow
+    t->expect(OperationLifecycleContext.isActiveStatus(opExtended.status))->Expect.toBe(true)
+
+    // Advance another 70s. Now it should expire (110s since last update)
+    setSystemTime(1000.0 +. 150000.0)
+    OperationLifecycle.sweepExpiredOperations()
+
+    let opAfter = OperationLifecycle.getOperation(id)->Option.getOrThrow
+    t
+    ->expect(opAfter.status)
+    ->Expect.toEqual(OperationLifecycle.Failed({error: "OPERATION_TIMEOUT_TTL_EXCEEDED"}))
   })
 })

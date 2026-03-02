@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/utils/AsyncQueue.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.88 | LOC: 471/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/AsyncQueue.res** (Metric: [Nesting: 3.60, Density: 0.12, Coupling: 0.02] | Drag: 4.88 | LOC: 470/300  🎯 Target: Function: `toSortedCopy` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/utils/LoggerTelemetry.res** (Metric: [Nesting: 3.00, Density: 0.20, Coupling: 0.06] | Drag: 4.34 | LOC: 453/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -23,7 +23,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.11 | LOC: 489/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 499/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -36,9 +36,9 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - average × 1 (lines: 81)
         - computeStatus × 1 (lines: 90)
         - defaultAdaptiveConfig × 1 (lines: 33)
-        - execute × 1 (lines: 300)
-        - executeAdaptive × 1 (lines: 110)
-        - executeWeighted × 1 (lines: 385)
+        - execute × 1 (lines: 299)
+        - executeAdaptive × 1 (lines: 109)
+        - executeWeighted × 1 (lines: 384)
         - getHeapUsageRatio × 1 (lines: 43)
         - percentile × 1 (lines: 70)
         - toSortedCopy × 1 (lines: 56)
@@ -162,9 +162,9 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - bindWorkerHandlers × 1 (lines: 144)
         - createPoolSize × 1 (lines: 44)
         - ensurePool × 1 (lines: 215)
-        - extractExifWithWorker × 1 (lines: 462)
-        - fingerprintWithWorker × 1 (lines: 296)
-        - generateTinyWithWorker × 1 (lines: 398)
+        - extractExifWithWorker × 1 (lines: 472)
+        - fingerprintWithWorker × 1 (lines: 306)
+        - generateTinyWithWorker × 1 (lines: 408)
         - poolRef × 1 (lines: 42)
         - processFullWithWorker × 1 (lines: 243)
         - removeExifWaiter × 1 (lines: 114)
@@ -172,7 +172,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - removeFullWaiter × 1 (lines: 128)
         - removeTinyWaiter × 1 (lines: 98)
         - removeValidateWaiter × 1 (lines: 84)
-        - shutdown × 1 (lines: 453)
+        - shutdown × 1 (lines: 463)
         - takeWorker × 1 (lines: 58)
-        - validateImageWithWorker × 1 (lines: 347)
+        - validateImageWithWorker × 1 (lines: 357)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

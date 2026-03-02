@@ -39,9 +39,23 @@ describe("Constants", _ => {
   })
 
   test("image processing configuration", t => {
-    t->expect(Constants.webpQuality)->Expect.toBe(0.92)
+    t->expect(Constants.Media.uploadWebpQuality)->Expect.toBe(0.80)
     t->expect(Constants.processedImageWidth)->Expect.toBe(4096)
     t->expect(Constants.imageResizeQuality)->Expect.toBe("high")
+    t->expect(Constants.Media.uploadFormat)->Expect.toBe("image/webp")
+  })
+
+  test("production hardened media limits", t => {
+    t->expect(Constants.Media.uploadMaxConcurrencyDefault)->Expect.toBe(5)
+    t->expect(Constants.Media.uploadInFlightBudgetMbDefault)->Expect.toBe(250.0)
+    t->expect(Constants.Media.processFullSpacingMinMs)->Expect.toBe(250.0)
+    t->expect(Constants.Media.exportSceneWebpQuality)->Expect.toBe(0.80)
+    t->expect(Constants.Media.exportScenePolicy)->Expect.toBe("browser-webp80-v1")
+  })
+
+  test("export timeout configuration", t => {
+    // In test environment it should be 30000ms
+    t->expect(Constants.Exporter.uploadTimeoutMs)->Expect.toBe(30000)
   })
 
   test("progress bar configuration", t => {

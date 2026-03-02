@@ -6,7 +6,8 @@ let make = React.memo((~activeIndex: int, ~scenes: array<scene>) => {
   let (currentLabel, isVisible) = if activeIndex >= 0 {
     switch Belt.Array.get(scenes, activeIndex) {
     | Some(s) =>
-      if s.label == "" {
+      let trimmed = s.label->String.trim
+      if trimmed == "" || trimmed->String.toLowerCase->String.includes("untagged") {
         ("unlabeled", false)
       } else {
         (s.label, true)

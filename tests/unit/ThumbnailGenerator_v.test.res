@@ -42,9 +42,11 @@ describe("ThumbnailGenerator", () => {
       naturalHeight: 2048
     }`)
 
-    let blob = await ThumbnailGenerator.generateRectilinearThumbnail(mockImg, 200, 100)
+    // Test with explicit HFOV 90 (the regression fix)
+    let blob = await ThumbnailGenerator.generateRectilinearThumbnail(mockImg, 256, 144, ~hfov=90.0)
 
     t->expect(Blob.size(blob))->Expect.toBe(1024.0)
     t->expect(Blob.type_(blob))->Expect.toBe("image/webp")
   })
+
 })

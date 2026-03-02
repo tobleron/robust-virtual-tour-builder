@@ -107,10 +107,13 @@ let sceneOverlayFor = (
   scenes
   ->Belt.Array.getBy(scene => scene.id == sceneId)
   ->Option.map((scene): TeaserRecorder.teaserHudOverlay => {
-    roomLabel: if scene.label->String.trim == "" {
-      None
-    } else {
-      Some(scene.label)
+    roomLabel: {
+      let trimmed = scene.label->String.trim
+      if trimmed == "" || trimmed->String.toLowerCase->String.includes("untagged") {
+        None
+      } else {
+        Some(scene.label)
+      }
     },
     activeFloor: if scene.floor->String.trim == "" {
       "ground"

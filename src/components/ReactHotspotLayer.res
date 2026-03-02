@@ -25,7 +25,12 @@ let sceneDisplayLabel = (scene: scene) => {
   } else {
     scene.name
   }
-  cleanSceneTag(source)
+  let cleaned = cleanSceneTag(source)
+  if cleaned->String.toLowerCase->String.includes("untagged") {
+    ""
+  } else {
+    cleaned
+  }
 }
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
