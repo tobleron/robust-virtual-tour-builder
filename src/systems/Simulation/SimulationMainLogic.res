@@ -50,15 +50,13 @@ let getNextMove = (state: state): nextMove => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   switch Belt.Array.get(activeScenes, state.activeIndex) {
   | Some(currentScene) =>
-    Logger.debug(
+    Logger.info(
       ~module_="SimulationMainLogic",
-      ~message="GET_NEXT_MOVE",
+      ~message="GET_NEXT_MOVE_CALLED",
       ~data=Some({
-        "currentSceneId": currentScene.id,
-        "currentSceneName": currentScene.name,
+        "currentScene": currentScene.name,
         "activeIndex": state.activeIndex,
-        "visitedLinkIds": visitedLinkIds,
-        "hotspotCount": Belt.Array.length(currentScene.hotspots),
+        "visitedCount": Belt.Array.length(visitedLinkIds),
       }),
       (),
     )
@@ -67,12 +65,16 @@ let getNextMove = (state: state): nextMove => {
       state,
       visitedLinkIds,
     )
-    Logger.debug(
+    Logger.info(
       ~module_="SimulationMainLogic",
-      ~message="NEXT_LINK_RESULT",
+      ~message="=== NEXT_LINK_RESULT ===",
       ~data=Some({
         "found": Belt.Option.isSome(nextLinkFound),
         "targetIndex": nextLinkFound->Belt.Option.map(l => l.targetIndex),
+        "linkId": nextLinkFound->Belt.Option.map(l => l.hotspot.linkId),
+        "isVisited": nextLinkFound->Belt.Option.map(l => l.isVisited),
+        "currentSceneName": currentScene.name,
+        "visitedLinkIds": visitedLinkIds,
       }),
       (),
     )

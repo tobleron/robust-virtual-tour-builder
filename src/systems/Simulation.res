@@ -13,37 +13,60 @@ include SimulationLogic
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
-  // DEBUG PROBE
-  let isInvalid = %raw(`function(s) { return typeof s === 'undefined' || s === null || typeof s.simulation === 'undefined' || s.simulation === null }`)(
-    state,
-  )
-  if isInvalid {
-    Logger.error(
-      ~module_="Simulation",
-      ~message="CRITICAL: Simulation loaded with invalid state",
-      (),
-    )
-  }
-
-  // Safe access pattern
-  let simulation = if isInvalid {
-    State.initialState.simulation
-  } else {
-    state.simulation
-  }
-  let activeIndex = if isInvalid {
-    -1
-  } else {
-    state.activeIndex
-  }
+  
+  // Safe state access
+  let simulation = state.simulation
+  let activeIndex = state.activeIndex
+  
   let stateRef = React.useRef(state)
   let runIdRef = React.useRef(0)
   let opIdRef = React.useRef(None)
+  
+  // Scene-ID based tracking (more reliable than index during async operations)
+  let advancingForSceneId = React.useRef(None)
+  
+  // Event-driven completion signal
+  let navigationCompleteRef = React.useRef(false)
+  
+  // Retry tracking for debounced recovery
+  let retryCountRef = React.useRef(0)
+  
+  // Trigger ref - incremented when navigation completes to force effect re-run
+  let triggerRef = React.useRef(0)
+  
+  // Track if viewer has been initialized
+  let viewerInitialized = React.useRef(false)
 
   React.useEffect1(() => {
     stateRef.current = state
     None
   }, [state])
+  
+  // Initialize viewer if not already done
+  React.useEffect0(() => {
+    if !viewerInitialized.current && state.activeIndex >= 0 {
+      viewerInitialized.current = true
+      // Ensure background viewer exists before simulation starts
+      Scene.Loader.ensureBackgroundViewer(~_state=state, ~_dispatch=dispatch)
+    }
+    None
+  })
+  
+  // Subscribe to navigation completion events
+  React.useEffect0(() => {
+    let unsubscribe = EventBus.subscribe(e => {
+      switch e {
+      | SimulationAdvanceComplete(_) =>
+        // Signal that navigation completed and simulation can advance
+        navigationCompleteRef.current = true
+        retryCountRef.current = 0
+        // Trigger effect re-run
+        triggerRef.current = triggerRef.current + 1
+      | _ => ()
+      }
+    })
+    Some(unsubscribe)
+  })
 
   // Operation Lifecycle Sync
   React.useEffect1(() => {
@@ -64,18 +87,19 @@ let make = () => {
     None
   }, [simulation.status])
 
-  let advancingForIndex = React.useRef(-1)
-
-  React.useEffect2(() => {
+  React.useEffect3(() => {
     let cancel = ref(false)
 
-    Logger.debug(
+    Logger.info(
       ~module_="Simulation",
-      ~message="EFFECT_RUN",
+      ~message="=== SIM_EFFECT_RUN ===",
       ~data=Some({
         "status": simulation.status == Running ? "Running" : "Stopped",
         "activeIndex": state.activeIndex,
-        "advancingForIndex": advancingForIndex.current,
+        "advancingForSceneId": advancingForSceneId.current,
+        "navigationComplete": navigationCompleteRef.current,
+        "visitedLinkIds": state.simulation.visitedLinkIds,
+        "triggerRef": triggerRef.current,
       }),
       (),
     )
@@ -92,17 +116,14 @@ let make = () => {
         switch currentSceneId {
         | None => ()
         | Some(sceneId) =>
-          if advancingForIndex.current != stateRef.current.activeIndex {
-            advancingForIndex.current = stateRef.current.activeIndex
+          // Scene-ID based tracking (more reliable than index during async operations)
+          if advancingForSceneId.current != Some(sceneId) {
+            advancingForSceneId.current = Some(sceneId)
+            // Don't reset navigationCompleteRef - it was set by SimulationAdvanceComplete event
 
-            // Note: visitedLinkIds tracking is now handled by SimulationMainLogic.getNextMove()
-            // which dispatches AddVisitedLink(hotspot.linkId) when traversing each link
-            // This removed the duplicate scene-index based tracking
-
-            let delay = if stateRef.current.simulation.skipAutoForwardGlobal {
+            let _delay = if stateRef.current.simulation.skipAutoForwardGlobal {
               switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
               | Some(scene) =>
-                // Check if any hotspot in this scene has isAutoForward (link-level)
                 let hasAutoForwardLink = Belt.Array.some(scene.hotspots, h =>
                   switch h.isAutoForward {
                   | Some(true) => true
@@ -120,13 +141,6 @@ let make = () => {
               Constants.Simulation.stepDelay
             }
 
-            Logger.debug(
-              ~module_="Simulation",
-              ~message="SIM_TICK_WAIT",
-              ~data=Some({"sceneId": sceneId, "delay": delay}),
-              (),
-            )
-
             let sAfterInitial = stateRef.current
             let stillRunning =
               isCurrentRun() &&
@@ -139,7 +153,6 @@ let make = () => {
 
             if stillRunning && stillInSameScene {
               try {
-                Logger.debug(~module_="Simulation", ~message="SIM_WAIT_FOR_VIEWER", ())
                 let waitResult = await Navigation.waitForViewerScene(
                   stateRef.current.activeIndex,
                   () => isCurrentRun() && stateRef.current.simulation.status == Running,
@@ -159,12 +172,10 @@ let make = () => {
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 if stillOk {
-                  // Check if this is the first link traversed (for intro pan timing)
                   let isFirstLink = sAfterWait.simulation.visitedLinkIds->Belt.Array.length <= 1
                   let delay = if sAfterWait.simulation.skipAutoForwardGlobal {
                     switch scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
                     | Some(scene) =>
-                      // Check if any hotspot has isAutoForward (link-level takes priority)
                       let hasAutoForwardLink = Belt.Array.some(scene.hotspots, h =>
                         switch h.isAutoForward {
                         | Some(true) => true
@@ -179,18 +190,10 @@ let make = () => {
                     | _ => Constants.Simulation.stepDelay
                     }
                   } else {
-                    // Even if not skipping, first scene should have a healthy delay for the pan (min 3s)
                     Math.max(Constants.Simulation.stepDelay->Int.toFloat, 3000.0)->Float.toInt
                   }
 
                   if delay > 0 {
-                    Logger.debug(
-                      ~module_="Simulation",
-                      ~message="SIM_TICK_WAIT",
-                      ~data=Some({"sceneId": sceneId, "delay": delay}),
-                      (),
-                    )
-
                     let _ = await Promise.make((resolve, _) => {
                       let _ = setTimeout(resolve, delay)
                     })
@@ -211,87 +214,114 @@ let make = () => {
                   if finalOk &&
                   sFinal.navigationState.navigationFsm == IdleFsm &&
                   !OperationLifecycle.isBusy(~type_=Navigation, ()) =>
-                  let move = Logic.getNextMove(sFinal)
-                  switch move {
-                  | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
-                    Logger.info(
-                      ~module_="Simulation",
-                      ~message="SIM_ADVANCING",
-                      ~data=Some({
-                        "from": sFinal.activeIndex,
-                        "to": targetIndex,
-                        "hotspotIndex": hotspotIndex,
-                      }),
-                      (),
-                    )
-                    triggerActions->Belt.Array.forEach(a => dispatch(a))
-                    Scene.Switcher.navigateToScene(
-                      dispatch,
-                      stateRef.current,
-                      targetIndex,
-                      stateRef.current.activeIndex,
-                      hotspotIndex,
-                      ~targetYaw=yaw,
-                      ~targetPitch=pitch,
-                      ~targetHfov=hfov,
-                      (),
-                    )
-                  | Complete({reason}) =>
-                    Logger.info(
-                      ~module_="Simulation",
-                      ~message="SIM_COMPLETE",
-                      ~data=Some({"reason": reason}),
-                      (),
-                    )
-                    NotificationManager.dispatch({
-                      id: "",
-                      importance: Success,
-                      context: Operation("simulation"),
-                      message: "Simulation Complete",
-                      details: None,
-                      action: None,
-                      duration: NotificationTypes.defaultTimeoutMs(Success),
-                      dismissible: true,
-                      createdAt: Date.now(),
-                    })
-                    let _ = await Promise.make((resolve, _) => {
-                      let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
-                    })
-                    if !cancel.contents {
-                      Scene.Switcher.cancelNavigation()
-                      dispatch(StopAutoPilot)
-                    }
-                  | None =>
-                    Logger.warn(~module_="Simulation", ~message="SIM_NO_MOVE", ())
-                    Scene.Switcher.cancelNavigation()
-                    dispatch(StopAutoPilot)
-                  }
-                | Ok() =>
-                  // Re-arm current scene when navigation is still busy so we can retry on IdleFsm.
-                  advancingForIndex.current = -1
-                  Logger.debug(
+                  // For first scene, proceed immediately. For subsequent scenes, wait for navigation completion signal
+                  let isFirstScene = sFinal.simulation.visitedLinkIds->Belt.Array.length == 0
+                  let shouldAdvance = isFirstScene || navigationCompleteRef.current
+                  
+                  Logger.info(
                     ~module_="Simulation",
-                    ~message="SIM_TICK_ABORTED_OR_BUSY",
+                    ~message="=== SIM_CHECK_ADVANCE ===",
                     ~data=Some({
-                      "stillOk": stillOk,
-                      "fsmState": switch sAfterWait.navigationState.navigationFsm {
-                      | IdleFsm => "IdleFsm"
-                      | Preloading(_) => "Preloading"
-                      | Transitioning(_) => "Transitioning"
-                      | Stabilizing(_) => "Stabilizing"
-                      | ErrorFsm(_) => "ErrorFsm"
-                      },
-                      "activeIndex": sAfterWait.activeIndex,
+                      "isFirstScene": isFirstScene,
+                      "navigationComplete": navigationCompleteRef.current,
+                      "shouldAdvance": shouldAdvance,
+                      "visitedCount": Belt.Array.length(sFinal.simulation.visitedLinkIds),
+                      "visitedLinkIds": sFinal.simulation.visitedLinkIds,
+                      "activeIndex": sFinal.activeIndex,
                     }),
                     (),
                   )
+
+                  if shouldAdvance {
+                    retryCountRef.current = 0
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="=== CALLING_GET_NEXT_MOVE ===",
+                      ~data=Some({"activeIndex": sFinal.activeIndex}),
+                      (),
+                    )
+                    let move = Logic.getNextMove(sFinal)
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="=== GET_NEXT_MOVE_RESULT ===",
+                      ~data=Some({
+                        "moveType": switch move {
+                        | Move(_) => "Move"
+                        | Complete({reason}) => "Complete: " ++ reason
+                        | None => "None"
+                        },
+                      }),
+                      (),
+                    )
+                    switch move {
+                    | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
+                      // Reset navigationCompleteRef so we wait for the next scene transition
+                      navigationCompleteRef.current = false
+                      triggerActions->Belt.Array.forEach(a => dispatch(a))
+                      Scene.Switcher.navigateToScene(
+                        dispatch,
+                        stateRef.current,
+                        targetIndex,
+                        stateRef.current.activeIndex,
+                        hotspotIndex,
+                        ~targetYaw=yaw,
+                        ~targetPitch=pitch,
+                        ~targetHfov=hfov,
+                        (),
+                      )
+                    | Complete({reason: _reason}) =>
+                      NotificationManager.dispatch({
+                        id: "",
+                        importance: Success,
+                        context: Operation("simulation"),
+                        message: "Simulation Complete",
+                        details: None,
+                        action: None,
+                        duration: NotificationTypes.defaultTimeoutMs(Success),
+                        dismissible: true,
+                        createdAt: Date.now(),
+                      })
+                      let _ = await Promise.make((resolve, _) => {
+                        let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
+                      })
+                      if !cancel.contents {
+                        Scene.Switcher.cancelNavigation()
+                        dispatch(StopAutoPilot)
+                      }
+                    | None =>
+                      Scene.Switcher.cancelNavigation()
+                      dispatch(StopAutoPilot)
+                    }
+                  } else {
+                    // Not ready to advance yet - retry with backoff
+                    advancingForSceneId.current = None
+                    retryCountRef.current = retryCountRef.current + 1
+                    let maxRetries = 3
+                    if retryCountRef.current <= maxRetries {
+                      let backoffMs = 100 * retryCountRef.current
+                      let _ = ReBindings.Window.setTimeout(() => {
+                        advancingForSceneId.current = None
+                      }, backoffMs)
+                    } else {
+                      Scene.Switcher.cancelNavigation()
+                      dispatch(StopAutoPilot)
+                    }
+                  }
+                | Ok() =>
+                  // Navigation didn't complete - retry with backoff
+                  advancingForSceneId.current = None
+                  retryCountRef.current = retryCountRef.current + 1
+                  let maxRetries = 3
+                  if retryCountRef.current <= maxRetries {
+                    let backoffMs = 100 * retryCountRef.current
+                    let _ = ReBindings.Window.setTimeout(() => {
+                      advancingForSceneId.current = None
+                    }, backoffMs)
+                  } else {
+                    Scene.Switcher.cancelNavigation()
+                    dispatch(StopAutoPilot)
+                  }
                 | Error(msg) =>
-                  Logger.error(
-                    ~module_="Simulation",
-                    ~message="SIM_TICK_ERROR",
-                    ~data={"error": msg},
-                    (),
-                  )
                   NotificationManager.dispatch({
                     id: "",
                     importance: Error,
@@ -303,25 +333,18 @@ let make = () => {
                     dismissible: true,
                     createdAt: Date.now(),
                   })
-                  advancingForIndex.current = -1
+                  advancingForSceneId.current = None
                   Scene.Switcher.cancelNavigation()
                   dispatch(StopAutoPilot)
                 }
               } catch {
               | err =>
-                let (msg, stack) = LoggerCommon.getErrorDetails(err)
-                Logger.error(
-                  ~module_="Simulation",
-                  ~message="SIM_TICK_EXCEPTION",
-                  ~data={"error": msg, "stack": stack},
-                  (),
-                )
-                advancingForIndex.current = -1
+                let (_msg, _) = LoggerCommon.getErrorDetails(err)
+                advancingForSceneId.current = None
                 dispatch(StopAutoPilot)
               }
             } else if isCurrentRun() {
-              // No-op wait cycle on same scene; allow re-check on next effect pass.
-              advancingForIndex.current = -1
+              advancingForSceneId.current = None
             }
           }
         }
@@ -329,7 +352,8 @@ let make = () => {
       let _ = runTick()
     } else {
       runIdRef.current = runIdRef.current + 1
-      advancingForIndex.current = -1
+      advancingForSceneId.current = None
+      navigationCompleteRef.current = false
     }
 
     Some(
@@ -337,7 +361,7 @@ let make = () => {
         cancel := true
       },
     )
-  }, (simulation.status, activeIndex))
+  }, (simulation.status, activeIndex, triggerRef.current))
 
   // Cleanup on unmount
   React.useEffect0(() => {

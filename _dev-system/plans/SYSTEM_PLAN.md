@@ -9,9 +9,9 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
-- [ ] `../../backend/src/services/project/export_session.rs`
 - [ ] `../../backend/src/services/project/export_upload_runtime.rs`
 - [ ] `../../backend/src/services/project/export_upload.rs`
+- [ ] `../../backend/src/services/project/export_session.rs`
 
 ---
 
@@ -19,8 +19,8 @@
 ### Merge Folder: `backend/src/services/geocoding`
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 180 LOC (fits in context). Max Drag: 4.14
 - **Files:**
-  - `backend/src/services/geocoding/../../backend/src/services/geocoding/mod.rs`
   - `backend/src/services/geocoding/../../backend/src/services/geocoding/osm.rs`
+  - `backend/src/services/geocoding/../../backend/src/services/geocoding/mod.rs`
 ### Merge Folder: ``
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 54 LOC (fits in context). Max Drag: 2.20
 - **Files:**

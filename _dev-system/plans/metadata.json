@@ -1,469 +1,240 @@
 {
-  "rescript": [
+  "system": [
     {
-      "Surgical": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.65, Coupling: 0.05] | Drag: 4.65 | LOC: 376/300  🎯 Target: Function: `project` (High Local Complexity (13.4). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.24627659574468,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/core/JsonParsersDecoders.res`",
-          "snapshots": [
-            {
-              "path": "src/core/JsonParsersDecoders.res",
-              "functions": [
-                {
-                  "name": "object",
-                  "signature": "object = Decode.object",
-                  "line": 16
-                },
-                {
-                  "name": "field",
-                  "signature": "field = Decode.field",
-                  "line": 17
-                },
-                {
-                  "name": "array",
-                  "signature": "array = Decode.array",
-                  "line": 18
-                },
-                {
-                  "name": "int",
-                  "signature": "int = Decode.int",
-                  "line": 19
-                },
-                {
-                  "name": "float",
-                  "signature": "float = Decode.float",
-                  "line": 20
-                },
-                {
-                  "name": "string",
-                  "signature": "string = Decode.string",
-                  "line": 21
-                },
-                {
-                  "name": "bool",
-                  "signature": "bool = Decode.bool",
-                  "line": 22
-                },
-                {
-                  "name": "option",
-                  "signature": "option = Decode.option",
-                  "line": 23
-                },
-                {
-                  "name": "map",
-                  "signature": "map = Decode.map",
-                  "line": 24
-                },
-                {
-                  "name": "id",
-                  "signature": "id = Decode.id",
-                  "line": 25
-                },
-                {
-                  "name": "opt",
-                  "signature": "opt = (f: Decode.fieldDecoders, key, decoder, default) => {",
-                  "line": 35
-                },
-                {
-                  "name": "file",
-                  "signature": "file = id->map(json => {",
-                  "line": 43
-                },
-                {
-                  "name": "normalizeLogo",
-                  "signature": "normalizeLogo = (logoOpt: option<Types.file>): option<Types.file> => {",
-                  "line": 56
-                },
-                {
-                  "name": "viewFrame",
-                  "signature": "viewFrame = object(f => {",
-                  "line": 63
-                },
-                {
-                  "name": "hotspot",
-                  "signature": "hotspot = object(f => {",
-                  "line": 71
-                },
-                {
-                  "name": "scene",
-                  "signature": "scene = object(f => {",
-                  "line": 95
-                },
-                {
-                  "name": "timelineItem",
-                  "signature": "timelineItem = object(f => {",
-                  "line": 118
-                },
-                {
-                  "name": "sceneStatus",
-                  "signature": "sceneStatus = map(id, json => {",
-                  "line": 132
-                },
-                {
-                  "name": "sceneEntry",
-                  "signature": "sceneEntry = object(field => {",
-                  "line": 161
-                },
-                {
-                  "name": "inventoryEntry",
-                  "signature": "inventoryEntry = object(field => {",
-                  "line": 168
-                },
-                {
-                  "name": "inventory",
-                  "signature": "inventory = array(id)->map(items => {",
-                  "line": 172
-                },
-                {
-                  "name": "project",
-                  "signature": "project = object(f => {",
-                  "line": 181
-                },
-                {
-                  "name": "persistedSession",
-                  "signature": "persistedSession = object((field): persistedSessionEnvelope => {",
-                  "line": 240
-                },
-                {
-                  "name": "transitionTarget",
-                  "signature": "transitionTarget = object(field => {",
-                  "line": 248
-                },
-                {
-                  "name": "arrivalView",
-                  "signature": "arrivalView = object(field => {",
-                  "line": 257
-                },
-                {
-                  "name": "step",
-                  "signature": "step = object(field => {",
-                  "line": 264
-                },
-                {
-                  "name": "steps",
-                  "signature": "steps = array(step)",
-                  "line": 275
-                },
-                {
-                  "name": "importScene",
-                  "signature": "importScene = object(field => {",
-                  "line": 277
-                },
-                {
-                  "name": "updateMetadata",
-                  "signature": "updateMetadata = object(field => {",
-                  "line": 298
-                },
-                {
-                  "name": "updateHotspotMetadata",
-                  "signature": "updateHotspotMetadata = object(field => {",
-                  "line": 307
-                },
-                {
-                  "name": "decode",
-                  "signature": "decode = object(f => {",
-                  "line": 316
-                },
-                {
-                  "name": "encode",
-                  "signature": "encode = (state: Types.sessionState) => {",
-                  "line": 331
-                },
-                {
-                  "name": "motionAnimationSegment",
-                  "signature": "motionAnimationSegment = object(f => {",
-                  "line": 343
-                },
-                {
-                  "name": "motionTransitionOut",
-                  "signature": "motionTransitionOut = object(f => {",
-                  "line": 356
-                },
-                {
-                  "name": "motionShot",
-                  "signature": "motionShot = object(f => {",
-                  "line": 363
-                },
-                {
-                  "name": "motionManifest",
-                  "signature": "motionManifest = object(f => {",
-                  "line": 410
-                }
-              ],
-              "fingerprint": "69e5550b02111d1ee90511d0d3ebae6e1252bfbe39f9effe0fb87e5cde88e9ab"
-            }
-          ]
-        }
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload_runtime.rs",
+        "strategy": ""
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/utils/LoggerTelemetry.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.20, Coupling: 0.06] | Drag: 4.34 | LOC: 453/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)",
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_upload.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/export_session.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/geocoding",
+        "files": [
+          "../../backend/src/services/geocoding/osm.rs",
+          "../../backend/src/services/geocoding/mod.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 180 LOC (fits in context). Max Drag: 4.14",
         "strategy": "",
-        "platform": "frontend",
-        "complexity": 19.644370860927154,
-        "recommended_splits": 2,
+        "platform": "backend",
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/LoggerTelemetry.res`",
+          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
           "snapshots": [
             {
-              "path": "src/utils/LoggerTelemetry.res",
+              "path": "backend/src/services/geocoding/osm.rs",
               "functions": [
                 {
-                  "name": "telemetryQueue",
-                  "signature": "telemetryQueue: array<logEntry> = []",
-                  "line": 6
+                  "name": "format_address_from_json",
+                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
+                  "line": 2
                 },
                 {
-                  "name": "isFlushing",
-                  "signature": "isFlushing = ref(false)",
-                  "line": 7
-                },
+                  "name": "call_osm_nominatim",
+                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
+                  "line": 40
+                }
+              ],
+              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
+            },
+            {
+              "path": "backend/src/services/geocoding/mod.rs",
+              "functions": [
                 {
-                  "name": "bypassTestEnvCheck",
-                  "signature": "bypassTestEnvCheck = ref(false)",
-                  "line": 8
-                },
-                {
-                  "name": "telemetrySuspendedUntil",
-                  "signature": "telemetrySuspendedUntil = ref(0.0)",
-                  "line": 9
-                },
-                {
-                  "name": "idleFlushPending",
-                  "signature": "idleFlushPending = ref(false)",
-                  "line": 10
-                },
-                {
-                  "name": "bandwidthWindowStartMs",
-                  "signature": "bandwidthWindowStartMs = ref(0.0)",
+                  "name": "reverse_geocode",
+                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
                   "line": 11
                 },
                 {
-                  "name": "bandwidthBytesSent",
-                  "signature": "bandwidthBytesSent = ref(0)",
-                  "line": 12
+                  "name": "test_geocoder_suite_sequential",
+                  "signature": "async fn test_geocoder_suite_sequential() {",
+                  "line": 34
                 },
                 {
-                  "name": "adaptiveSamplingScale",
-                  "signature": "adaptiveSamplingScale = ref(1.0)",
-                  "line": 13
+                  "name": "test_reverse_geocode_with_cache_internal",
+                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
+                  "line": 44
                 },
                 {
-                  "name": "sampleRateInfo",
-                  "signature": "sampleRateInfo = 0.5",
-                  "line": 15
+                  "name": "test_lru_eviction_internal",
+                  "signature": "async fn test_lru_eviction_internal() {",
+                  "line": 61
                 },
                 {
-                  "name": "sampleRateDebugProd",
-                  "signature": "sampleRateDebugProd = 0.1",
-                  "line": 16
+                  "name": "test_coordinate_rounding_internal",
+                  "signature": "fn test_coordinate_rounding_internal() {",
+                  "line": 83
                 },
                 {
-                  "name": "samplingBandwidthBudgetBytesPerSec",
-                  "signature": "samplingBandwidthBudgetBytesPerSec = 10000",
-                  "line": 17
-                },
-                {
-                  "name": "setBypassTestEnvCheck",
-                  "signature": "setBypassTestEnvCheck = (v: bool) => {",
-                  "line": 19
-                },
-                {
-                  "name": "nowMs",
-                  "signature": "nowMs = () => Date.now()",
-                  "line": 23
-                },
-                {
-                  "name": "clearSuspensionIfExpired",
-                  "signature": "clearSuspensionIfExpired = () => {",
-                  "line": 25
-                },
-                {
-                  "name": "isTelemetrySuspended",
-                  "signature": "isTelemetrySuspended = () => {",
-                  "line": 31
-                },
-                {
-                  "name": "suspendTelemetry",
-                  "signature": "suspendTelemetry = () =>",
-                  "line": 36
-                },
-                {
-                  "name": "suspendTelemetryForMs",
-                  "signature": "suspendTelemetryForMs = (durationMs: float) => {",
-                  "line": 39
-                },
-                {
-                  "name": "parseRetryAfterHeaderMs",
-                  "signature": "parseRetryAfterHeaderMs = (res: Fetch.response): option<float> => {",
-                  "line": 49
-                },
-                {
-                  "name": "validateTelemetryResponse",
-                  "signature": "validateTelemetryResponse = async (res: Fetch.response): Promise.t<unit> => {",
-                  "line": 62
-                },
-                {
-                  "name": "canUseTelemetryNetwork",
-                  "signature": "canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()",
-                  "line": 75
-                },
-                {
-                  "name": "noteTelemetryPayloadBytes",
-                  "signature": "noteTelemetryPayloadBytes = (payloadBytes: int) => {",
-                  "line": 77
-                },
-                {
-                  "name": "transportQueue",
-                  "signature": "transportQueue: array<transportTask> = []",
-                  "line": 99
-                },
-                {
-                  "name": "transportActive",
-                  "signature": "transportActive = ref(0)",
-                  "line": 100
-                },
-                {
-                  "name": "transportQueueOverflowReason",
-                  "signature": "transportQueueOverflowReason = \"TelemetryTransportQueueOverflow\"",
-                  "line": 101
-                },
-                {
-                  "name": "processTransportQueue",
-                  "signature": "processTransportQueue = () => {",
-                  "line": 103
-                },
-                {
-                  "name": "scheduleTransport",
-                  "signature": "scheduleTransport = (task: unit => Promise.t<unit>): Promise.t<unit> =>",
-                  "line": 131
-                },
-                {
-                  "name": "queueFillRatio",
-                  "signature": "queueFillRatio = () => {",
-                  "line": 142
-                },
-                {
-                  "name": "shouldSendLowPriority",
-                  "signature": "shouldSendLowPriority = () => {",
-                  "line": 151
-                },
-                {
-                  "name": "shouldQueueForPriority",
-                  "signature": "shouldQueueForPriority = p =>",
-                  "line": 162
-                },
-                {
-                  "name": "sanitizeJson",
-                  "signature": "sanitizeJson = (_entry: JSON.t, _fields: array<string>): JSON.t =>",
-                  "line": 168
-                },
-                {
-                  "name": "sanitizePayload",
-                  "signature": "sanitizePayload = (data: option<JSON.t>): option<JSON.t> =>",
-                  "line": 183
-                },
-                {
-                  "name": "encodeLogEntry",
-                  "signature": "encodeLogEntry = (entry: logEntry) => {",
-                  "line": 186
-                },
-                {
-                  "name": "encodeTelemetryBatch",
-                  "signature": "encodeTelemetryBatch = (batch: telemetryBatch) => {",
-                  "line": 207
-                },
-                {
-                  "name": "deduplicateBatchEntries",
-                  "signature": "deduplicateBatchEntries = (_entries: array<logEntry>): array<logEntry> =>",
-                  "line": 214
-                },
-                {
-                  "name": "isTransportQueueOverflow",
-                  "signature": "isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason",
-                  "line": 256
-                },
-                {
-                  "name": "runIdle",
-                  "signature": "runIdle = (_task: unit => unit) =>",
-                  "line": 258
-                },
-                {
-                  "name": "attemptSendBatch",
-                  "signature": "attemptSendBatch = async (payload: telemetryBatch, retries: int) => {",
-                  "line": 267
-                },
-                {
-                  "name": "flushTelemetry",
-                  "signature": "flushTelemetry = async () => {",
-                  "line": 308
-                },
-                {
-                  "name": "scheduleIdleFlush",
-                  "signature": "scheduleIdleFlush = () => {",
-                  "line": 353
-                },
-                {
-                  "name": "shouldSampleByLevel",
-                  "signature": "shouldSampleByLevel = (level: level): bool => {",
-                  "line": 363
-                },
-                {
-                  "name": "sendTelemetry",
-                  "signature": "sendTelemetry = async entry => {",
-                  "line": 392
-                },
-                {
-                  "name": "initializeNetworkListener",
-                  "signature": "initializeNetworkListener = () => {",
-                  "line": 454
-                },
-                {
-                  "name": "flushWithBeaconOnUnload",
-                  "signature": "flushWithBeaconOnUnload = () => {",
-                  "line": 464
-                },
-                {
-                  "name": "initializeBeforeUnloadListener",
-                  "signature": "initializeBeforeUnloadListener = () => {",
-                  "line": 482
-                },
-                {
-                  "name": "isBrowserRuntime",
-                  "signature": "isBrowserRuntime = (): bool =>",
-                  "line": 486
-                },
-                {
-                  "name": "flushTimer",
-                  "signature": "flushTimer = ref(None)",
-                  "line": 489
-                },
-                {
-                  "name": "startPeriodicFlush",
-                  "signature": "startPeriodicFlush = () => {",
-                  "line": 490
-                },
-                {
-                  "name": "_",
-                  "signature": "_ = if isBrowserRuntime() {",
-                  "line": 499
+                  "name": "test_clear_cache_internal",
+                  "signature": "async fn test_clear_cache_internal() {",
+                  "line": 91
                 }
               ],
-              "fingerprint": "d8625090a6c46c9a09b88a0cb9329035e238b3eac3cfd0fc92417785b8de273d"
+              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
             }
           ]
         }
       }
     },
+    {
+      "Merge": {
+        "folder": "",
+        "files": [
+          "../../src/index.js",
+          "../../src/systems/FeatureLoaders.js"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 54 LOC (fits in context). Max Drag: 2.20",
+        "strategy": "",
+        "platform": "frontend",
+        "verification": {
+          "headline": "Pre-merge snapshots for recursive cluster ``",
+          "snapshots": [
+            {
+              "path": "src/index.js",
+              "functions": [],
+              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "path": "src/systems/FeatureLoaders.js",
+              "functions": [],
+              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/cache.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 11.868421052631579,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/geocoding/cache.rs",
+              "functions": [
+                {
+                  "name": "decode_cache_payload",
+                  "signature": "fn decode_cache_payload(",
+                  "line": 47
+                },
+                {
+                  "name": "round_coords",
+                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
+                  "line": 94
+                },
+                {
+                  "name": "get_current_timestamp",
+                  "signature": "pub fn get_current_timestamp() -> u64 {",
+                  "line": 101
+                },
+                {
+                  "name": "get_cache_file_path",
+                  "signature": "fn get_cache_file_path() -> String {",
+                  "line": 108
+                },
+                {
+                  "name": "evict_lru_entry",
+                  "signature": "pub async fn evict_lru_entry(",
+                  "line": 112
+                },
+                {
+                  "name": "get_info",
+                  "signature": "pub async fn get_info() -> GeocoderInfo {",
+                  "line": 140
+                },
+                {
+                  "name": "save_cache_to_disk",
+                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
+                  "line": 149
+                },
+                {
+                  "name": "load_cache_from_disk",
+                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
+                  "line": 191
+                },
+                {
+                  "name": "clear_cache",
+                  "signature": "pub async fn clear_cache() {",
+                  "line": 237
+                },
+                {
+                  "name": "check_cache",
+                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
+                  "line": 245
+                },
+                {
+                  "name": "update_cache",
+                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
+                  "line": 265
+                },
+                {
+                  "name": "manual_insert",
+                  "signature": "pub async fn manual_insert(",
+                  "line": 289
+                },
+                {
+                  "name": "get_cache_len",
+                  "signature": "pub async fn get_cache_len() -> usize {",
+                  "line": 307
+                },
+                {
+                  "name": "cache_contains_key",
+                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
+                  "line": 313
+                },
+                {
+                  "name": "get_cache_entry_access_count",
+                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
+                  "line": 319
+                },
+                {
+                  "name": "get_evictions_count",
+                  "signature": "pub async fn get_evictions_count() -> u64 {",
+                  "line": 325
+                },
+                {
+                  "name": "get_hits_count",
+                  "signature": "pub async fn get_hits_count() -> u64 {",
+                  "line": 331
+                },
+                {
+                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
+                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
+                  "line": 341
+                },
+                {
+                  "name": "decode_cache_payload_reads_entries_format",
+                  "signature": "fn decode_cache_payload_reads_entries_format() {",
+                  "line": 354
+                }
+              ],
+              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "rescript": [
     {
       "Surgical": {
         "file": "../../src/components/PreviewArrow.res",
@@ -491,140 +262,6 @@
                 }
               ],
               "fingerprint": "a619e1ae65b82326ed53b44fc3e2fcc34a9a38f267ed19e494300ef96825c125"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter/ExporterPackaging.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 423/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.38274231678487,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterPackaging.res`",
-          "snapshots": [
-            {
-              "path": "src/systems/Exporter/ExporterPackaging.res",
-              "functions": [
-                {
-                  "name": "normalizeMarketingValue",
-                  "signature": "normalizeMarketingValue = (value: string): string =>",
-                  "line": 13
-                },
-                {
-                  "name": "scenePct",
-                  "signature": "scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)",
-                  "line": 422
-                }
-              ],
-              "fingerprint": "7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/WorkerPool.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 508/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (6.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 23.899212598425198,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/utils/WorkerPool.res`",
-          "snapshots": [
-            {
-              "path": "src/utils/WorkerPool.res",
-              "functions": [
-                {
-                  "name": "poolRef",
-                  "signature": "poolRef: ref<option<state>> = ref(None)",
-                  "line": 42
-                },
-                {
-                  "name": "createPoolSize",
-                  "signature": "createPoolSize = (): int => {",
-                  "line": 44
-                },
-                {
-                  "name": "takeWorker",
-                  "signature": "takeWorker = (pool: state): worker => {",
-                  "line": 74
-                },
-                {
-                  "name": "removeFingerprintWaiter",
-                  "signature": "removeFingerprintWaiter = (pool: state, id: string): option<waiter<option<string>>> => {",
-                  "line": 86
-                },
-                {
-                  "name": "removeValidateWaiter",
-                  "signature": "removeValidateWaiter = (pool: state, id: string): option<waiter<option<bool>>> => {",
-                  "line": 100
-                },
-                {
-                  "name": "removeTinyWaiter",
-                  "signature": "removeTinyWaiter = (pool: state, id: string): option<",
-                  "line": 114
-                },
-                {
-                  "name": "removeExifWaiter",
-                  "signature": "removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {",
-                  "line": 130
-                },
-                {
-                  "name": "removeFullWaiter",
-                  "signature": "removeFullWaiter = (pool: state, id: string): option<",
-                  "line": 144
-                },
-                {
-                  "name": "bindWorkerHandlers",
-                  "signature": "bindWorkerHandlers = (pool: state, worker: worker) => {",
-                  "line": 160
-                },
-                {
-                  "name": "ensurePool",
-                  "signature": "ensurePool = (): option<state> => {",
-                  "line": 231
-                },
-                {
-                  "name": "processFullWithWorker",
-                  "signature": "processFullWithWorker = (",
-                  "line": 259
-                },
-                {
-                  "name": "fingerprintWithWorker",
-                  "signature": "fingerprintWithWorker = (",
-                  "line": 322
-                },
-                {
-                  "name": "validateImageWithWorker",
-                  "signature": "validateImageWithWorker = (",
-                  "line": 373
-                },
-                {
-                  "name": "generateTinyWithWorker",
-                  "signature": "generateTinyWithWorker = (",
-                  "line": 424
-                },
-                {
-                  "name": "shutdown",
-                  "signature": "shutdown = () => {",
-                  "line": 479
-                },
-                {
-                  "name": "extractExifWithWorker",
-                  "signature": "extractExifWithWorker = (",
-                  "line": 488
-                }
-              ],
-              "fingerprint": "71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6"
             }
           ]
         }
@@ -739,106 +376,201 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/Retry.res",
+        "file": "../../src/utils/PersistenceLayer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.05] | Drag: 4.26 | LOC: 545/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.152331606217617,
+        "complexity": 28.764220183486238,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
+          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
           "snapshots": [
             {
-              "path": "src/utils/Retry.res",
+              "path": "src/utils/PersistenceLayer.res",
               "functions": [
                 {
-                  "name": "defaultConfig",
-                  "signature": "defaultConfig = {",
-                  "line": 21
+                  "name": "key",
+                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
+                  "line": 31
                 },
                 {
-                  "name": "defaultBudgetConfig",
-                  "signature": "defaultBudgetConfig = {",
-                  "line": 30
+                  "name": "manifestKey",
+                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
+                  "line": 32
                 },
                 {
-                  "name": "retryBudgets",
-                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
+                  "name": "sliceKeyPrefix",
+                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
+                  "line": 33
+                },
+                {
+                  "name": "debounceMs",
+                  "signature": "debounceMs = 2000",
+                  "line": 34
+                },
+                {
+                  "name": "currentSchemaVersion",
+                  "signature": "currentSchemaVersion = 2",
+                  "line": 35
+                },
+                {
+                  "name": "coalesceMs",
+                  "signature": "coalesceMs = 500",
                   "line": 36
                 },
                 {
-                  "name": "calculateDelay",
-                  "signature": "calculateDelay = (attempt, config) => {",
+                  "name": "autosaveCostTargetMs",
+                  "signature": "autosaveCostTargetMs = 10.0",
+                  "line": 37
+                },
+                {
+                  "name": "autosaveCostWindowSize",
+                  "signature": "autosaveCostWindowSize = 30",
                   "line": 38
                 },
                 {
-                  "name": "parseHttpStatusCode",
-                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
+                  "name": "stateGetterRef",
+                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
+                  "line": 46
+                },
+                {
+                  "name": "lastSaveTimeout",
+                  "signature": "lastSaveTimeout = ref(None)",
+                  "line": 47
+                },
+                {
+                  "name": "lastSavedRevision",
+                  "signature": "lastSavedRevision = ref(-1)",
+                  "line": 48
+                },
+                {
+                  "name": "beforeUnloadListener",
+                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
+                  "line": 49
+                },
+                {
+                  "name": "subscriberRef",
+                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
+                  "line": 50
+                },
+                {
+                  "name": "lastQueuedAtMs",
+                  "signature": "lastQueuedAtMs = ref(0.0)",
+                  "line": 51
+                },
+                {
+                  "name": "pendingStateRef",
+                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
+                  "line": 52
+                },
+                {
+                  "name": "lastSliceSignatureRef",
+                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
+                  "line": 53
+                },
+                {
+                  "name": "performSaveRef",
+                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
+                  "line": 54
+                },
+                {
+                  "name": "autosaveCostSamplesRef",
+                  "signature": "autosaveCostSamplesRef: ref<array<float>> = ref([])",
+                  "line": 55
+                },
+                {
+                  "name": "sliceKey",
+                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
                   "line": 65
                 },
                 {
-                  "name": "parseRetryAfterSeconds",
-                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
-                  "line": 74
+                  "name": "encodeMetadataSlice",
+                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
+                  "line": 67
                 },
                 {
-                  "name": "isAbortError",
-                  "signature": "isAbortError = (error: string): bool => {",
-                  "line": 90
+                  "name": "signatureOfJson",
+                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
+                  "line": 96
                 },
                 {
-                  "name": "isRetryableStatus",
-                  "signature": "isRetryableStatus = (status: int): bool => {",
-                  "line": 94
+                  "name": "recordAutosaveCost",
+                  "signature": "recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {",
+                  "line": 98
                 },
                 {
-                  "name": "classifyError",
-                  "signature": "classifyError = (error: string): retryClass => {",
-                  "line": 107
+                  "name": "getAutosaveCostStats",
+                  "signature": "getAutosaveCostStats = (): autosaveCostStats => {",
+                  "line": 154
                 },
                 {
-                  "name": "defaultShouldRetry",
-                  "signature": "defaultShouldRetry = (error: string) => {",
-                  "line": 136
-                },
-                {
-                  "name": "waitForDelay",
-                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
-                  "line": 146
-                },
-                {
-                  "name": "hasDeadline",
-                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
+                  "name": "queueIncrementalSave",
+                  "signature": "queueIncrementalSave = (state: state) => {",
                   "line": 180
                 },
                 {
-                  "name": "computeDelay",
-                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
-                  "line": 182
+                  "name": "processQueuedSave",
+                  "signature": "processQueuedSave = () => {",
+                  "line": 190
                 },
                 {
-                  "name": "checkAndConsumeBudget",
-                  "signature": "checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {",
-                  "line": 200
+                  "name": "normalizeProjectData",
+                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
+                  "line": 214
                 },
                 {
-                  "name": "getRemainingBudget",
-                  "signature": "getRemainingBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): option<int> => {",
-                  "line": 247
+                  "name": "performSave",
+                  "signature": "performSave = (state: Types.state) => {",
+                  "line": 228
                 },
                 {
-                  "name": "loop",
-                  "signature": "loop = async (",
-                  "line": 265
+                  "name": "_",
+                  "signature": "_ = performSaveRef := performSave",
+                  "line": 361
                 },
                 {
-                  "name": "execute",
-                  "signature": "execute = (",
-                  "line": 395
+                  "name": "handleStateChange",
+                  "signature": "handleStateChange = (state: state) => {",
+                  "line": 363
+                },
+                {
+                  "name": "notifyStateChange",
+                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
+                  "line": 375
+                },
+                {
+                  "name": "initSubscriber",
+                  "signature": "initSubscriber = (",
+                  "line": 377
+                },
+                {
+                  "name": "clearSession",
+                  "signature": "clearSession = () => {",
+                  "line": 410
+                },
+                {
+                  "name": "decodeManifest",
+                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
+                  "line": 419
+                },
+                {
+                  "name": "extractFromSlice",
+                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
+                  "line": 435
+                },
+                {
+                  "name": "decodeMetadataSlice",
+                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
+                  "line": 441
+                },
+                {
+                  "name": "checkRecovery",
+                  "signature": "checkRecovery = () => {",
+                  "line": 469
                 }
               ],
-              "fingerprint": "b559c2d067bf9371275285c5a39b5105aeb8aa80caa1176201cbb907b90e7e97"
+              "fingerprint": "0ff8db8c4c842daa10eccaae13d382c88ffcb286cb4cb60f6aa71a40bcb7fdad"
             }
           ]
         }
@@ -1122,201 +854,679 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/PersistenceLayer.res",
+        "file": "../../src/utils/WorkerPool.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.12, Coupling: 0.05] | Drag: 4.26 | LOC: 545/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)",
+        "reason": "[Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 508/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (6.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 28.764220183486238,
+        "complexity": 23.899212598425198,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/utils/PersistenceLayer.res`",
+          "headline": "Pre-split snapshot for `src/utils/WorkerPool.res`",
           "snapshots": [
             {
-              "path": "src/utils/PersistenceLayer.res",
+              "path": "src/utils/WorkerPool.res",
               "functions": [
                 {
-                  "name": "key",
-                  "signature": "key = \"autosave_session_latest\" // Legacy monolithic payload for compatibility fallback.",
-                  "line": 31
+                  "name": "poolRef",
+                  "signature": "poolRef: ref<option<state>> = ref(None)",
+                  "line": 42
                 },
                 {
-                  "name": "manifestKey",
-                  "signature": "manifestKey = \"autosave_session_manifest_v2\"",
-                  "line": 32
+                  "name": "createPoolSize",
+                  "signature": "createPoolSize = (): int => {",
+                  "line": 44
                 },
                 {
-                  "name": "sliceKeyPrefix",
-                  "signature": "sliceKeyPrefix = \"autosave_session_slice_\"",
-                  "line": 33
+                  "name": "takeWorker",
+                  "signature": "takeWorker = (pool: state): worker => {",
+                  "line": 74
                 },
                 {
-                  "name": "debounceMs",
-                  "signature": "debounceMs = 2000",
-                  "line": 34
+                  "name": "removeFingerprintWaiter",
+                  "signature": "removeFingerprintWaiter = (pool: state, id: string): option<waiter<option<string>>> => {",
+                  "line": 86
                 },
                 {
-                  "name": "currentSchemaVersion",
-                  "signature": "currentSchemaVersion = 2",
+                  "name": "removeValidateWaiter",
+                  "signature": "removeValidateWaiter = (pool: state, id: string): option<waiter<option<bool>>> => {",
+                  "line": 100
+                },
+                {
+                  "name": "removeTinyWaiter",
+                  "signature": "removeTinyWaiter = (pool: state, id: string): option<",
+                  "line": 114
+                },
+                {
+                  "name": "removeExifWaiter",
+                  "signature": "removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> => {",
+                  "line": 130
+                },
+                {
+                  "name": "removeFullWaiter",
+                  "signature": "removeFullWaiter = (pool: state, id: string): option<",
+                  "line": 144
+                },
+                {
+                  "name": "bindWorkerHandlers",
+                  "signature": "bindWorkerHandlers = (pool: state, worker: worker) => {",
+                  "line": 160
+                },
+                {
+                  "name": "ensurePool",
+                  "signature": "ensurePool = (): option<state> => {",
+                  "line": 231
+                },
+                {
+                  "name": "processFullWithWorker",
+                  "signature": "processFullWithWorker = (",
+                  "line": 259
+                },
+                {
+                  "name": "fingerprintWithWorker",
+                  "signature": "fingerprintWithWorker = (",
+                  "line": 322
+                },
+                {
+                  "name": "validateImageWithWorker",
+                  "signature": "validateImageWithWorker = (",
+                  "line": 373
+                },
+                {
+                  "name": "generateTinyWithWorker",
+                  "signature": "generateTinyWithWorker = (",
+                  "line": 424
+                },
+                {
+                  "name": "shutdown",
+                  "signature": "shutdown = () => {",
+                  "line": 479
+                },
+                {
+                  "name": "extractExifWithWorker",
+                  "signature": "extractExifWithWorker = (",
+                  "line": 488
+                }
+              ],
+              "fingerprint": "71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.65, Coupling: 0.05] | Drag: 4.65 | LOC: 376/300  🎯 Target: Function: `project` (High Local Complexity (13.4). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.24627659574468,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/core/JsonParsersDecoders.res`",
+          "snapshots": [
+            {
+              "path": "src/core/JsonParsersDecoders.res",
+              "functions": [
+                {
+                  "name": "object",
+                  "signature": "object = Decode.object",
+                  "line": 16
+                },
+                {
+                  "name": "field",
+                  "signature": "field = Decode.field",
+                  "line": 17
+                },
+                {
+                  "name": "array",
+                  "signature": "array = Decode.array",
+                  "line": 18
+                },
+                {
+                  "name": "int",
+                  "signature": "int = Decode.int",
+                  "line": 19
+                },
+                {
+                  "name": "float",
+                  "signature": "float = Decode.float",
+                  "line": 20
+                },
+                {
+                  "name": "string",
+                  "signature": "string = Decode.string",
+                  "line": 21
+                },
+                {
+                  "name": "bool",
+                  "signature": "bool = Decode.bool",
+                  "line": 22
+                },
+                {
+                  "name": "option",
+                  "signature": "option = Decode.option",
+                  "line": 23
+                },
+                {
+                  "name": "map",
+                  "signature": "map = Decode.map",
+                  "line": 24
+                },
+                {
+                  "name": "id",
+                  "signature": "id = Decode.id",
+                  "line": 25
+                },
+                {
+                  "name": "opt",
+                  "signature": "opt = (f: Decode.fieldDecoders, key, decoder, default) => {",
                   "line": 35
                 },
                 {
-                  "name": "coalesceMs",
-                  "signature": "coalesceMs = 500",
-                  "line": 36
+                  "name": "file",
+                  "signature": "file = id->map(json => {",
+                  "line": 43
                 },
                 {
-                  "name": "autosaveCostTargetMs",
-                  "signature": "autosaveCostTargetMs = 10.0",
-                  "line": 37
+                  "name": "normalizeLogo",
+                  "signature": "normalizeLogo = (logoOpt: option<Types.file>): option<Types.file> => {",
+                  "line": 56
                 },
                 {
-                  "name": "autosaveCostWindowSize",
-                  "signature": "autosaveCostWindowSize = 30",
-                  "line": 38
+                  "name": "viewFrame",
+                  "signature": "viewFrame = object(f => {",
+                  "line": 63
                 },
                 {
-                  "name": "stateGetterRef",
-                  "signature": "stateGetterRef: ref<unit => state> = ref(() => State.initialState)",
-                  "line": 46
+                  "name": "hotspot",
+                  "signature": "hotspot = object(f => {",
+                  "line": 71
                 },
                 {
-                  "name": "lastSaveTimeout",
-                  "signature": "lastSaveTimeout = ref(None)",
-                  "line": 47
+                  "name": "scene",
+                  "signature": "scene = object(f => {",
+                  "line": 95
                 },
                 {
-                  "name": "lastSavedRevision",
-                  "signature": "lastSavedRevision = ref(-1)",
-                  "line": 48
+                  "name": "timelineItem",
+                  "signature": "timelineItem = object(f => {",
+                  "line": 118
                 },
                 {
-                  "name": "beforeUnloadListener",
-                  "signature": "beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)",
-                  "line": 49
+                  "name": "sceneStatus",
+                  "signature": "sceneStatus = map(id, json => {",
+                  "line": 132
                 },
                 {
-                  "name": "subscriberRef",
-                  "signature": "subscriberRef: ref<option<unit => unit>> = ref(None)",
-                  "line": 50
+                  "name": "sceneEntry",
+                  "signature": "sceneEntry = object(field => {",
+                  "line": 161
                 },
                 {
-                  "name": "lastQueuedAtMs",
-                  "signature": "lastQueuedAtMs = ref(0.0)",
-                  "line": 51
+                  "name": "inventoryEntry",
+                  "signature": "inventoryEntry = object(field => {",
+                  "line": 168
                 },
                 {
-                  "name": "pendingStateRef",
-                  "signature": "pendingStateRef: ref<option<state>> = ref(None)",
-                  "line": 52
+                  "name": "inventory",
+                  "signature": "inventory = array(id)->map(items => {",
+                  "line": 172
                 },
                 {
-                  "name": "lastSliceSignatureRef",
-                  "signature": "lastSliceSignatureRef: ref<Dict.t<string>> = ref(Dict.make())",
-                  "line": 53
+                  "name": "project",
+                  "signature": "project = object(f => {",
+                  "line": 181
                 },
                 {
-                  "name": "performSaveRef",
-                  "signature": "performSaveRef: ref<state => unit> = ref(_ => ())",
-                  "line": 54
+                  "name": "persistedSession",
+                  "signature": "persistedSession = object((field): persistedSessionEnvelope => {",
+                  "line": 240
                 },
                 {
-                  "name": "autosaveCostSamplesRef",
-                  "signature": "autosaveCostSamplesRef: ref<array<float>> = ref([])",
-                  "line": 55
+                  "name": "transitionTarget",
+                  "signature": "transitionTarget = object(field => {",
+                  "line": 248
                 },
                 {
-                  "name": "sliceKey",
-                  "signature": "sliceKey = (name: string) => sliceKeyPrefix ++ name",
-                  "line": 65
+                  "name": "arrivalView",
+                  "signature": "arrivalView = object(field => {",
+                  "line": 257
                 },
                 {
-                  "name": "encodeMetadataSlice",
-                  "signature": "encodeMetadataSlice = (state: state): JSON.t =>",
-                  "line": 67
+                  "name": "step",
+                  "signature": "step = object(field => {",
+                  "line": 264
                 },
                 {
-                  "name": "signatureOfJson",
-                  "signature": "signatureOfJson = (value: JSON.t): string => JsonCombinators.Json.stringify(value)",
-                  "line": 96
+                  "name": "steps",
+                  "signature": "steps = array(step)",
+                  "line": 275
                 },
                 {
-                  "name": "recordAutosaveCost",
-                  "signature": "recordAutosaveCost = (~durationMs: float, ~changedSlices: int, ~sceneCount: int) => {",
-                  "line": 98
+                  "name": "importScene",
+                  "signature": "importScene = object(field => {",
+                  "line": 277
                 },
                 {
-                  "name": "getAutosaveCostStats",
-                  "signature": "getAutosaveCostStats = (): autosaveCostStats => {",
-                  "line": 154
+                  "name": "updateMetadata",
+                  "signature": "updateMetadata = object(field => {",
+                  "line": 298
                 },
                 {
-                  "name": "queueIncrementalSave",
-                  "signature": "queueIncrementalSave = (state: state) => {",
-                  "line": 180
+                  "name": "updateHotspotMetadata",
+                  "signature": "updateHotspotMetadata = object(field => {",
+                  "line": 307
                 },
                 {
-                  "name": "processQueuedSave",
-                  "signature": "processQueuedSave = () => {",
-                  "line": 190
+                  "name": "decode",
+                  "signature": "decode = object(f => {",
+                  "line": 316
                 },
                 {
-                  "name": "normalizeProjectData",
-                  "signature": "normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {",
-                  "line": 214
+                  "name": "encode",
+                  "signature": "encode = (state: Types.sessionState) => {",
+                  "line": 331
                 },
                 {
-                  "name": "performSave",
-                  "signature": "performSave = (state: Types.state) => {",
-                  "line": 228
+                  "name": "motionAnimationSegment",
+                  "signature": "motionAnimationSegment = object(f => {",
+                  "line": 343
                 },
                 {
-                  "name": "_",
-                  "signature": "_ = performSaveRef := performSave",
-                  "line": 361
+                  "name": "motionTransitionOut",
+                  "signature": "motionTransitionOut = object(f => {",
+                  "line": 356
                 },
                 {
-                  "name": "handleStateChange",
-                  "signature": "handleStateChange = (state: state) => {",
+                  "name": "motionShot",
+                  "signature": "motionShot = object(f => {",
                   "line": 363
                 },
                 {
-                  "name": "notifyStateChange",
-                  "signature": "notifyStateChange = (state: state) => handleStateChange(state)",
-                  "line": 375
-                },
-                {
-                  "name": "initSubscriber",
-                  "signature": "initSubscriber = (",
-                  "line": 377
-                },
-                {
-                  "name": "clearSession",
-                  "signature": "clearSession = () => {",
+                  "name": "motionManifest",
+                  "signature": "motionManifest = object(f => {",
                   "line": 410
-                },
-                {
-                  "name": "decodeManifest",
-                  "signature": "decodeManifest = (json: JSON.t): option<sliceManifest> =>",
-                  "line": 419
-                },
-                {
-                  "name": "extractFromSlice",
-                  "signature": "extractFromSlice = (_json: JSON.t, _key: string): option<JSON.t> =>",
-                  "line": 435
-                },
-                {
-                  "name": "decodeMetadataSlice",
-                  "signature": "decodeMetadataSlice = (json: JSON.t): option<metadataSliceDecoded> =>",
-                  "line": 441
-                },
-                {
-                  "name": "checkRecovery",
-                  "signature": "checkRecovery = () => {",
-                  "line": 469
                 }
               ],
-              "fingerprint": "0ff8db8c4c842daa10eccaae13d382c88ffcb286cb4cb60f6aa71a40bcb7fdad"
+              "fingerprint": "69e5550b02111d1ee90511d0d3ebae6e1252bfbe39f9effe0fb87e5cde88e9ab"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LoggerTelemetry.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.20, Coupling: 0.06] | Drag: 4.34 | LOC: 453/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 19.644370860927154,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/LoggerTelemetry.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/LoggerTelemetry.res",
+              "functions": [
+                {
+                  "name": "telemetryQueue",
+                  "signature": "telemetryQueue: array<logEntry> = []",
+                  "line": 6
+                },
+                {
+                  "name": "isFlushing",
+                  "signature": "isFlushing = ref(false)",
+                  "line": 7
+                },
+                {
+                  "name": "bypassTestEnvCheck",
+                  "signature": "bypassTestEnvCheck = ref(false)",
+                  "line": 8
+                },
+                {
+                  "name": "telemetrySuspendedUntil",
+                  "signature": "telemetrySuspendedUntil = ref(0.0)",
+                  "line": 9
+                },
+                {
+                  "name": "idleFlushPending",
+                  "signature": "idleFlushPending = ref(false)",
+                  "line": 10
+                },
+                {
+                  "name": "bandwidthWindowStartMs",
+                  "signature": "bandwidthWindowStartMs = ref(0.0)",
+                  "line": 11
+                },
+                {
+                  "name": "bandwidthBytesSent",
+                  "signature": "bandwidthBytesSent = ref(0)",
+                  "line": 12
+                },
+                {
+                  "name": "adaptiveSamplingScale",
+                  "signature": "adaptiveSamplingScale = ref(1.0)",
+                  "line": 13
+                },
+                {
+                  "name": "sampleRateInfo",
+                  "signature": "sampleRateInfo = 0.5",
+                  "line": 15
+                },
+                {
+                  "name": "sampleRateDebugProd",
+                  "signature": "sampleRateDebugProd = 0.1",
+                  "line": 16
+                },
+                {
+                  "name": "samplingBandwidthBudgetBytesPerSec",
+                  "signature": "samplingBandwidthBudgetBytesPerSec = 10000",
+                  "line": 17
+                },
+                {
+                  "name": "setBypassTestEnvCheck",
+                  "signature": "setBypassTestEnvCheck = (v: bool) => {",
+                  "line": 19
+                },
+                {
+                  "name": "nowMs",
+                  "signature": "nowMs = () => Date.now()",
+                  "line": 23
+                },
+                {
+                  "name": "clearSuspensionIfExpired",
+                  "signature": "clearSuspensionIfExpired = () => {",
+                  "line": 25
+                },
+                {
+                  "name": "isTelemetrySuspended",
+                  "signature": "isTelemetrySuspended = () => {",
+                  "line": 31
+                },
+                {
+                  "name": "suspendTelemetry",
+                  "signature": "suspendTelemetry = () =>",
+                  "line": 36
+                },
+                {
+                  "name": "suspendTelemetryForMs",
+                  "signature": "suspendTelemetryForMs = (durationMs: float) => {",
+                  "line": 39
+                },
+                {
+                  "name": "parseRetryAfterHeaderMs",
+                  "signature": "parseRetryAfterHeaderMs = (res: Fetch.response): option<float> => {",
+                  "line": 49
+                },
+                {
+                  "name": "validateTelemetryResponse",
+                  "signature": "validateTelemetryResponse = async (res: Fetch.response): Promise.t<unit> => {",
+                  "line": 62
+                },
+                {
+                  "name": "canUseTelemetryNetwork",
+                  "signature": "canUseTelemetryNetwork = () => Constants.Telemetry.enabled && !isTelemetrySuspended()",
+                  "line": 75
+                },
+                {
+                  "name": "noteTelemetryPayloadBytes",
+                  "signature": "noteTelemetryPayloadBytes = (payloadBytes: int) => {",
+                  "line": 77
+                },
+                {
+                  "name": "transportQueue",
+                  "signature": "transportQueue: array<transportTask> = []",
+                  "line": 99
+                },
+                {
+                  "name": "transportActive",
+                  "signature": "transportActive = ref(0)",
+                  "line": 100
+                },
+                {
+                  "name": "transportQueueOverflowReason",
+                  "signature": "transportQueueOverflowReason = \"TelemetryTransportQueueOverflow\"",
+                  "line": 101
+                },
+                {
+                  "name": "processTransportQueue",
+                  "signature": "processTransportQueue = () => {",
+                  "line": 103
+                },
+                {
+                  "name": "scheduleTransport",
+                  "signature": "scheduleTransport = (task: unit => Promise.t<unit>): Promise.t<unit> =>",
+                  "line": 131
+                },
+                {
+                  "name": "queueFillRatio",
+                  "signature": "queueFillRatio = () => {",
+                  "line": 142
+                },
+                {
+                  "name": "shouldSendLowPriority",
+                  "signature": "shouldSendLowPriority = () => {",
+                  "line": 151
+                },
+                {
+                  "name": "shouldQueueForPriority",
+                  "signature": "shouldQueueForPriority = p =>",
+                  "line": 162
+                },
+                {
+                  "name": "sanitizeJson",
+                  "signature": "sanitizeJson = (_entry: JSON.t, _fields: array<string>): JSON.t =>",
+                  "line": 168
+                },
+                {
+                  "name": "sanitizePayload",
+                  "signature": "sanitizePayload = (data: option<JSON.t>): option<JSON.t> =>",
+                  "line": 183
+                },
+                {
+                  "name": "encodeLogEntry",
+                  "signature": "encodeLogEntry = (entry: logEntry) => {",
+                  "line": 186
+                },
+                {
+                  "name": "encodeTelemetryBatch",
+                  "signature": "encodeTelemetryBatch = (batch: telemetryBatch) => {",
+                  "line": 207
+                },
+                {
+                  "name": "deduplicateBatchEntries",
+                  "signature": "deduplicateBatchEntries = (_entries: array<logEntry>): array<logEntry> =>",
+                  "line": 214
+                },
+                {
+                  "name": "isTransportQueueOverflow",
+                  "signature": "isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason",
+                  "line": 256
+                },
+                {
+                  "name": "runIdle",
+                  "signature": "runIdle = (_task: unit => unit) =>",
+                  "line": 258
+                },
+                {
+                  "name": "attemptSendBatch",
+                  "signature": "attemptSendBatch = async (payload: telemetryBatch, retries: int) => {",
+                  "line": 267
+                },
+                {
+                  "name": "flushTelemetry",
+                  "signature": "flushTelemetry = async () => {",
+                  "line": 308
+                },
+                {
+                  "name": "scheduleIdleFlush",
+                  "signature": "scheduleIdleFlush = () => {",
+                  "line": 353
+                },
+                {
+                  "name": "shouldSampleByLevel",
+                  "signature": "shouldSampleByLevel = (level: level): bool => {",
+                  "line": 363
+                },
+                {
+                  "name": "sendTelemetry",
+                  "signature": "sendTelemetry = async entry => {",
+                  "line": 392
+                },
+                {
+                  "name": "initializeNetworkListener",
+                  "signature": "initializeNetworkListener = () => {",
+                  "line": 454
+                },
+                {
+                  "name": "flushWithBeaconOnUnload",
+                  "signature": "flushWithBeaconOnUnload = () => {",
+                  "line": 464
+                },
+                {
+                  "name": "initializeBeforeUnloadListener",
+                  "signature": "initializeBeforeUnloadListener = () => {",
+                  "line": 482
+                },
+                {
+                  "name": "isBrowserRuntime",
+                  "signature": "isBrowserRuntime = (): bool =>",
+                  "line": 486
+                },
+                {
+                  "name": "flushTimer",
+                  "signature": "flushTimer = ref(None)",
+                  "line": 489
+                },
+                {
+                  "name": "startPeriodicFlush",
+                  "signature": "startPeriodicFlush = () => {",
+                  "line": 490
+                },
+                {
+                  "name": "_",
+                  "signature": "_ = if isBrowserRuntime() {",
+                  "line": 499
+                }
+              ],
+              "fingerprint": "d8625090a6c46c9a09b88a0cb9329035e238b3eac3cfd0fc92417785b8de273d"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Retry.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.152331606217617,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/Retry.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/Retry.res",
+              "functions": [
+                {
+                  "name": "defaultConfig",
+                  "signature": "defaultConfig = {",
+                  "line": 21
+                },
+                {
+                  "name": "defaultBudgetConfig",
+                  "signature": "defaultBudgetConfig = {",
+                  "line": 30
+                },
+                {
+                  "name": "retryBudgets",
+                  "signature": "retryBudgets = ref(Belt.Map.String.empty)",
+                  "line": 36
+                },
+                {
+                  "name": "calculateDelay",
+                  "signature": "calculateDelay = (attempt, config) => {",
+                  "line": 38
+                },
+                {
+                  "name": "parseHttpStatusCode",
+                  "signature": "parseHttpStatusCode: string => option<int> = %raw(`",
+                  "line": 65
+                },
+                {
+                  "name": "parseRetryAfterSeconds",
+                  "signature": "parseRetryAfterSeconds: string => option<int> = %raw(`",
+                  "line": 74
+                },
+                {
+                  "name": "isAbortError",
+                  "signature": "isAbortError = (error: string): bool => {",
+                  "line": 90
+                },
+                {
+                  "name": "isRetryableStatus",
+                  "signature": "isRetryableStatus = (status: int): bool => {",
+                  "line": 94
+                },
+                {
+                  "name": "classifyError",
+                  "signature": "classifyError = (error: string): retryClass => {",
+                  "line": 107
+                },
+                {
+                  "name": "defaultShouldRetry",
+                  "signature": "defaultShouldRetry = (error: string) => {",
+                  "line": 136
+                },
+                {
+                  "name": "waitForDelay",
+                  "signature": "waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {",
+                  "line": 146
+                },
+                {
+                  "name": "hasDeadline",
+                  "signature": "hasDeadline = (config: config): bool => config.totalDeadlineMs > 0",
+                  "line": 180
+                },
+                {
+                  "name": "computeDelay",
+                  "signature": "computeDelay = (error, attempt, config, getDelay) => {",
+                  "line": 182
+                },
+                {
+                  "name": "checkAndConsumeBudget",
+                  "signature": "checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {",
+                  "line": 200
+                },
+                {
+                  "name": "getRemainingBudget",
+                  "signature": "getRemainingBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): option<int> => {",
+                  "line": 247
+                },
+                {
+                  "name": "loop",
+                  "signature": "loop = async (",
+                  "line": 265
+                },
+                {
+                  "name": "execute",
+                  "signature": "execute = (",
+                  "line": 395
+                }
+              ],
+              "fingerprint": "b559c2d067bf9371275285c5a39b5105aeb8aa80caa1176201cbb907b90e7e97"
             }
           ]
         }
@@ -1390,242 +1600,32 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_session.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload_runtime.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/export_upload.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/services/geocoding",
-        "files": [
-          "../../backend/src/services/geocoding/mod.rs",
-          "../../backend/src/services/geocoding/osm.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 180 LOC (fits in context). Max Drag: 4.14",
-        "strategy": "",
-        "platform": "backend",
-        "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`",
-          "snapshots": [
-            {
-              "path": "backend/src/services/geocoding/mod.rs",
-              "functions": [
-                {
-                  "name": "reverse_geocode",
-                  "signature": "pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 11
-                },
-                {
-                  "name": "test_geocoder_suite_sequential",
-                  "signature": "async fn test_geocoder_suite_sequential() {",
-                  "line": 34
-                },
-                {
-                  "name": "test_reverse_geocode_with_cache_internal",
-                  "signature": "async fn test_reverse_geocode_with_cache_internal() {",
-                  "line": 44
-                },
-                {
-                  "name": "test_lru_eviction_internal",
-                  "signature": "async fn test_lru_eviction_internal() {",
-                  "line": 61
-                },
-                {
-                  "name": "test_coordinate_rounding_internal",
-                  "signature": "fn test_coordinate_rounding_internal() {",
-                  "line": 83
-                },
-                {
-                  "name": "test_clear_cache_internal",
-                  "signature": "async fn test_clear_cache_internal() {",
-                  "line": 91
-                }
-              ],
-              "fingerprint": "7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a"
-            },
-            {
-              "path": "backend/src/services/geocoding/osm.rs",
-              "functions": [
-                {
-                  "name": "format_address_from_json",
-                  "signature": "fn format_address_from_json(json: &serde_json::Value) -> Option<String> {",
-                  "line": 2
-                },
-                {
-                  "name": "call_osm_nominatim",
-                  "signature": "pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {",
-                  "line": 40
-                }
-              ],
-              "fingerprint": "d3cbc084dc46f9e912bfd53d3335e6af69325a63ebd50569374016ef71326bf0"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Merge": {
-        "folder": "",
-        "files": [
-          "../../src/index.js",
-          "../../src/systems/FeatureLoaders.js"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 54 LOC (fits in context). Max Drag: 2.20",
+      "Surgical": {
+        "file": "../../src/systems/Exporter/ExporterPackaging.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 423/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster ``",
-          "snapshots": [
-            {
-              "path": "src/index.js",
-              "functions": [],
-              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-            },
-            {
-              "path": "src/systems/FeatureLoaders.js",
-              "functions": [],
-              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/cache.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 11.868421052631579,
+        "complexity": 16.38274231678487,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/services/geocoding/cache.rs`",
+          "headline": "Pre-split snapshot for `src/systems/Exporter/ExporterPackaging.res`",
           "snapshots": [
             {
-              "path": "backend/src/services/geocoding/cache.rs",
+              "path": "src/systems/Exporter/ExporterPackaging.res",
               "functions": [
                 {
-                  "name": "decode_cache_payload",
-                  "signature": "fn decode_cache_payload(",
-                  "line": 47
+                  "name": "normalizeMarketingValue",
+                  "signature": "normalizeMarketingValue = (value: string): string =>",
+                  "line": 13
                 },
                 {
-                  "name": "round_coords",
-                  "signature": "pub fn round_coords(lat: f64, lon: f64) -> GeocodeKey {",
-                  "line": 94
-                },
-                {
-                  "name": "get_current_timestamp",
-                  "signature": "pub fn get_current_timestamp() -> u64 {",
-                  "line": 101
-                },
-                {
-                  "name": "get_cache_file_path",
-                  "signature": "fn get_cache_file_path() -> String {",
-                  "line": 108
-                },
-                {
-                  "name": "evict_lru_entry",
-                  "signature": "pub async fn evict_lru_entry(",
-                  "line": 112
-                },
-                {
-                  "name": "get_info",
-                  "signature": "pub async fn get_info() -> GeocoderInfo {",
-                  "line": 140
-                },
-                {
-                  "name": "save_cache_to_disk",
-                  "signature": "pub async fn save_cache_to_disk() -> Result<(), String> {",
-                  "line": 149
-                },
-                {
-                  "name": "load_cache_from_disk",
-                  "signature": "pub async fn load_cache_from_disk() -> std::io::Result<()> {",
-                  "line": 191
-                },
-                {
-                  "name": "clear_cache",
-                  "signature": "pub async fn clear_cache() {",
-                  "line": 237
-                },
-                {
-                  "name": "check_cache",
-                  "signature": "pub async fn check_cache(key: GeocodeKey) -> Option<String> {",
-                  "line": 245
-                },
-                {
-                  "name": "update_cache",
-                  "signature": "pub async fn update_cache(key: GeocodeKey, address: String) {",
-                  "line": 265
-                },
-                {
-                  "name": "manual_insert",
-                  "signature": "pub async fn manual_insert(",
-                  "line": 289
-                },
-                {
-                  "name": "get_cache_len",
-                  "signature": "pub async fn get_cache_len() -> usize {",
-                  "line": 307
-                },
-                {
-                  "name": "cache_contains_key",
-                  "signature": "pub async fn cache_contains_key(key: &GeocodeKey) -> bool {",
-                  "line": 313
-                },
-                {
-                  "name": "get_cache_entry_access_count",
-                  "signature": "pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {",
-                  "line": 319
-                },
-                {
-                  "name": "get_evictions_count",
-                  "signature": "pub async fn get_evictions_count() -> u64 {",
-                  "line": 325
-                },
-                {
-                  "name": "get_hits_count",
-                  "signature": "pub async fn get_hits_count() -> u64 {",
-                  "line": 331
-                },
-                {
-                  "name": "decode_cache_payload_handles_invalid_legacy_cache_shape",
-                  "signature": "fn decode_cache_payload_handles_invalid_legacy_cache_shape() {",
-                  "line": 341
-                },
-                {
-                  "name": "decode_cache_payload_reads_entries_format",
-                  "signature": "fn decode_cache_payload_reads_entries_format() {",
-                  "line": 354
+                  "name": "scenePct",
+                  "signature": "scenePct = 15.0 +. 25.0 *. Int.toFloat(idx + 1) /. Int.toFloat(totalScenes)",
+                  "line": 422
                 }
               ],
-              "fingerprint": "a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c"
+              "fingerprint": "7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076"
             }
           ]
         }

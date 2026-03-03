@@ -223,6 +223,38 @@ let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
   ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
   Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
   dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+  
+  // Signal simulation that navigation is complete and ready for next advance
+  let activeScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+  let sceneIndex = activeScenes->Belt.Array.getIndexBy(s => s.id == loadedScene.id)->Option.getOr(-1)
+  
+  Logger.info(
+    ~module_="SceneTransition",
+    ~message="=== DISPATCH_SIMULATION_ADVANCE_COMPLETE ===",
+    ~data=Some({
+      "sceneId": loadedScene.id,
+      "sceneIndex": sceneIndex,
+      "sceneName": loadedScene.name,
+    }),
+    (),
+  )
+  
+  if sceneIndex >= 0 {
+    EventBus.dispatch(SimulationAdvanceComplete({sceneId: loadedScene.id, sceneIndex}))
+    Logger.info(
+      ~module_="SceneTransition",
+      ~message="=== EVENT_DISPATCHED ===",
+      ~data=Some({"sceneIndex": sceneIndex}),
+      (),
+    )
+  } else {
+    Logger.warn(
+      ~module_="SceneTransition",
+      ~message="=== SCENE_INDEX_NOT_FOUND ===",
+      ~data=Some({"sceneId": loadedScene.id}),
+      (),
+    )
+  }
 }
 
 let performSwap = (

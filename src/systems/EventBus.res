@@ -58,6 +58,7 @@ type event =
   | NetworkStatusChanged(bool)
   | CancelActiveOperation
   | RateLimitBackoff(int)
+  | SimulationAdvanceComplete({sceneId: string, sceneIndex: int})
 
 type subscription = unit => unit
 type listenerId = int
@@ -98,7 +99,8 @@ let classifyChannel = (evt: event): eventChannel =>
   | SceneArrived(_)
   | LinkPreviewStart(_)
   | LinkPreviewEnd
-  | PreviewLinkId(_) =>
+  | PreviewLinkId(_)
+  | SimulationAdvanceComplete(_) =>
     Navigation
   | TriggerUpload | UpdateProcessing(_) => Upload
   | ShowModal(_)
