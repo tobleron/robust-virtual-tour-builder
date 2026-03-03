@@ -244,33 +244,42 @@ let make = () => {
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 switch waitResult {
-                | Ok()
-                  if finalOk &&
-                  sFinal.navigationState.navigationFsm == IdleFsm &&
-                  !OperationLifecycle.isBusy(~type_=Navigation, ()) =>
-                  // For first scene, proceed immediately. For subsequent scenes, wait for navigation completion signal
-                  let isFirstScene = sFinal.simulation.visitedLinkIds->Belt.Array.length == 0
-                  let hasSceneCompletionSignal = completedSceneIdRef.current == Some(sceneId)
-                  let shouldAdvance = isFirstScene || hasSceneCompletionSignal
+                | Ok() if finalOk =>
+                  let ctx: SimulationAdvancement.context = {
+                    isFirstScene: sFinal.simulation.visitedLinkIds->Belt.Array.length == 0,
+                    currentSceneId: Some(sceneId),
+                    completedSceneId: completedSceneIdRef.current,
+                    navigationStateIsIdle: sFinal.navigationState.navigationFsm == IdleFsm,
+                    operationLifecycleIsBusy: OperationLifecycle.isBusy(~type_=Navigation, ()),
+                    retryCount: retryCountRef.current,
+                    maxRetries: 3,
+                  }
 
                   Logger.info(
                     ~module_="Simulation",
                     ~message="=== SIM_CHECK_ADVANCE ===",
                     ~data=Some({
-                      "isFirstScene": isFirstScene,
+                      "isFirstScene": ctx.isFirstScene,
                       "navigationComplete": navigationCompleteRef.current,
-                      "completionSceneId": completedSceneIdRef.current->Option.getOr("none"),
+                      "completionSceneId": ctx.completedSceneId->Option.getOr("none"),
                       "currentSceneId": sceneId,
-                      "hasSceneCompletionSignal": hasSceneCompletionSignal,
-                      "shouldAdvance": shouldAdvance,
+                      "shouldAdvance": switch SimulationAdvancement.evaluate(ctx) {
+                      | Advance => true
+                      | _ => false
+                      },
+                      "decision": switch SimulationAdvancement.evaluate(ctx) {
+                      | Advance => "Advance"
+                      | Retry(_) => "Retry"
+                      | Wait({reason}) => "Wait: " ++ reason
+                      | Stop({reason}) => "Stop: " ++ reason
+                      },
                       "visitedCount": Belt.Array.length(sFinal.simulation.visitedLinkIds),
-                      "visitedLinkIds": sFinal.simulation.visitedLinkIds,
-                      "activeIndex": sFinal.activeIndex,
                     }),
                     (),
                   )
 
-                  if shouldAdvance {
+                  switch SimulationAdvancement.evaluate(ctx) {
+                  | Advance =>
                     retryCountRef.current = 0
                     Logger.info(
                       ~module_="Simulation",
@@ -331,8 +340,17 @@ let make = () => {
                       Scene.Switcher.cancelNavigation()
                       dispatch(StopAutoPilot)
                     }
-                  } else {
+
+                  | Retry({count, backoffMs}) =>
                     // Not ready to advance yet - retry with backoff
+                    advancingForSceneId.current = None
+                    retryCountRef.current = count
+                    let _ = ReBindings.Window.setTimeout(() => {
+                      advancingForSceneId.current = None
+                    }, backoffMs)
+
+                  | Wait({reason: _}) =>
+                    // Treat wait as retry for now (consistent with previous fall-through behavior)
                     advancingForSceneId.current = None
                     retryCountRef.current = retryCountRef.current + 1
                     let maxRetries = 3
@@ -345,7 +363,12 @@ let make = () => {
                       Scene.Switcher.cancelNavigation()
                       dispatch(StopAutoPilot)
                     }
+
+                  | Stop({reason: _}) =>
+                    Scene.Switcher.cancelNavigation()
+                    dispatch(StopAutoPilot)
                   }
+
                 | Ok() =>
                   // Navigation didn't complete - retry with backoff
                   advancingForSceneId.current = None

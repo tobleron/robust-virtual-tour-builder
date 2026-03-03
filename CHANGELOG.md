@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Simulation rock solid working
+- T1792: Harden unit regression coverage for simulation and navigation
 
 ## [5.1.1] - 2026-03-03
 

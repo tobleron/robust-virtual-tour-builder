@@ -88,6 +88,21 @@ describe("NavigationFSM", () => {
     }
   })
 
+  test("TextureLoaded mismatch is ignored and stays in Preloading", t => {
+    let state = Preloading({
+      targetSceneId: "scene-correct",
+      attempt: 1,
+      isAnticipatory: false,
+    })
+    let event: navigationEvent = TextureLoaded({targetSceneId: "scene-wrong"})
+    let nextState = NavigationFSM.reducer(state, event)
+
+    switch nextState {
+    | Preloading({targetSceneId}) => t->expect(targetSceneId)->Expect.toBe("scene-correct")
+    | _ => t->expect(true)->Expect.toBe(false)
+    }
+  })
+
   test("Anticipatory load stays Idle after TextureLoaded", t => {
     let state = Preloading({
       targetSceneId: "scene-1",
