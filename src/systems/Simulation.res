@@ -13,27 +13,28 @@ include SimulationLogic
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
-  
+
   // Safe state access
   let simulation = state.simulation
   let activeIndex = state.activeIndex
-  
+
   let stateRef = React.useRef(state)
   let runIdRef = React.useRef(0)
   let opIdRef = React.useRef(None)
-  
+
   // Scene-ID based tracking (more reliable than index during async operations)
   let advancingForSceneId = React.useRef(None)
-  
+
   // Event-driven completion signal
   let navigationCompleteRef = React.useRef(false)
-  
+  let completedSceneIdRef = React.useRef(None)
+
   // Retry tracking for debounced recovery
   let retryCountRef = React.useRef(0)
-  
+
   // Trigger ref - incremented when navigation completes to force effect re-run
   let triggerRef = React.useRef(0)
-  
+
   // Track if viewer has been initialized
   let viewerInitialized = React.useRef(false)
 
@@ -41,7 +42,7 @@ let make = () => {
     stateRef.current = state
     None
   }, [state])
-  
+
   // Initialize viewer if not already done
   React.useEffect0(() => {
     if !viewerInitialized.current && state.activeIndex >= 0 {
@@ -51,17 +52,50 @@ let make = () => {
     }
     None
   })
-  
+
   // Subscribe to navigation completion events
   React.useEffect0(() => {
     let unsubscribe = EventBus.subscribe(e => {
       switch e {
-      | SimulationAdvanceComplete(_) =>
-        // Signal that navigation completed and simulation can advance
-        navigationCompleteRef.current = true
-        retryCountRef.current = 0
-        // Trigger effect re-run
-        triggerRef.current = triggerRef.current + 1
+      | SimulationAdvanceComplete({sceneId, sceneIndex}) =>
+        let currentState = stateRef.current
+        if currentState.simulation.status == Running {
+          // Record completion by sceneId; tick logic decides if it matches current scene.
+          completedSceneIdRef.current = Some(sceneId)
+          navigationCompleteRef.current = true
+          retryCountRef.current = 0
+
+          // Trigger effect re-run
+          triggerRef.current = triggerRef.current + 1
+
+          let scenes = SceneInventory.getActiveScenes(
+            currentState.inventory,
+            currentState.sceneOrder,
+          )
+          let activeSceneId =
+            scenes->Belt.Array.get(currentState.activeIndex)->Option.map(s => s.id)
+          Logger.debug(
+            ~module_="Simulation",
+            ~message="SIMULATION_ADVANCE_EVENT_RECEIVED",
+            ~data=Some({
+              "eventSceneId": sceneId,
+              "eventSceneIndex": sceneIndex,
+              "activeSceneId": activeSceneId->Option.getOr("none"),
+            }),
+            (),
+          )
+        } else {
+          Logger.debug(
+            ~module_="Simulation",
+            ~message="SIMULATION_ADVANCE_EVENT_IGNORED_NOT_RUNNING",
+            ~data=Some({
+              "eventSceneId": sceneId,
+              "eventSceneIndex": sceneIndex,
+              "status": currentState.simulation.status == Running ? "Running" : "Stopped",
+            }),
+            (),
+          )
+        }
       | _ => ()
       }
     })
@@ -216,14 +250,18 @@ let make = () => {
                   !OperationLifecycle.isBusy(~type_=Navigation, ()) =>
                   // For first scene, proceed immediately. For subsequent scenes, wait for navigation completion signal
                   let isFirstScene = sFinal.simulation.visitedLinkIds->Belt.Array.length == 0
-                  let shouldAdvance = isFirstScene || navigationCompleteRef.current
-                  
+                  let hasSceneCompletionSignal = completedSceneIdRef.current == Some(sceneId)
+                  let shouldAdvance = isFirstScene || hasSceneCompletionSignal
+
                   Logger.info(
                     ~module_="Simulation",
                     ~message="=== SIM_CHECK_ADVANCE ===",
                     ~data=Some({
                       "isFirstScene": isFirstScene,
                       "navigationComplete": navigationCompleteRef.current,
+                      "completionSceneId": completedSceneIdRef.current->Option.getOr("none"),
+                      "currentSceneId": sceneId,
+                      "hasSceneCompletionSignal": hasSceneCompletionSignal,
                       "shouldAdvance": shouldAdvance,
                       "visitedCount": Belt.Array.length(sFinal.simulation.visitedLinkIds),
                       "visitedLinkIds": sFinal.simulation.visitedLinkIds,
@@ -257,6 +295,7 @@ let make = () => {
                     | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
                       // Reset navigationCompleteRef so we wait for the next scene transition
                       navigationCompleteRef.current = false
+                      completedSceneIdRef.current = None
                       triggerActions->Belt.Array.forEach(a => dispatch(a))
                       Scene.Switcher.navigateToScene(
                         dispatch,
@@ -354,6 +393,7 @@ let make = () => {
       runIdRef.current = runIdRef.current + 1
       advancingForSceneId.current = None
       navigationCompleteRef.current = false
+      completedSceneIdRef.current = None
     }
 
     Some(

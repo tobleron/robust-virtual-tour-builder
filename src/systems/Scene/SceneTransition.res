@@ -4,11 +4,12 @@ open ReBindings
 open Types
 open Actions
 
-external idToUnknown: string => unknown = "%identity"
-
 type viewport = ViewerSystem.Pool.viewport
 
 type getStateFn = unit => state
+
+let swapFinalizeRetryMs = 50
+let maxSwapFinalizeAttempts = 200
 
 let syncSceneCoupledState = (~viewer, ~state, ~dispatch) => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
@@ -52,32 +53,90 @@ let syncSceneCoupledState = (~viewer, ~state, ~dispatch) => {
   })
 }
 
-let finalizeSwap = (~getState, ~dispatch, ~taskId: option<string>=?) => {
+let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
+  ViewerSnapshot.requestIdleSnapshot(~getState)
+  ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
+  Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
+  dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+
+  // Signal simulation that navigation is complete and ready for next advance
+  let activeScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
+  let sceneIndex =
+    activeScenes->Belt.Array.getIndexBy(s => s.id == loadedScene.id)->Option.getOr(-1)
+
+  Logger.info(
+    ~module_="SceneTransition",
+    ~message="SIMULATION_ADVANCE_READY",
+    ~data=Some({
+      "sceneId": loadedScene.id,
+      "sceneIndex": sceneIndex,
+      "sceneName": loadedScene.name,
+    }),
+    (),
+  )
+
+  if sceneIndex >= 0 {
+    EventBus.dispatch(SimulationAdvanceComplete({sceneId: loadedScene.id, sceneIndex}))
+  } else {
+    Logger.warn(
+      ~module_="SceneTransition",
+      ~message="SIMULATION_ADVANCE_SCENE_INDEX_NOT_FOUND",
+      ~data=Some({"sceneId": loadedScene.id}),
+      (),
+    )
+  }
+}
+
+let completeSupervisorTask = (~taskId: option<string>=?) => {
+  switch taskId {
+  | Some(tid) => NavigationSupervisor.complete(tid)
+  | None => ()
+  }
+}
+
+let rec finalizeSwap = (
+  ~getState,
+  ~dispatch,
+  ~loadedScene: scene,
+  ~taskId: option<string>=?,
+  ~attempt=0,
+) => {
   let shouldFinalize = switch taskId {
   | Some(tid) => NavigationSupervisor.isCurrentTaskId(tid)
   | None => true
   }
 
   if shouldFinalize {
-    ViewerSystem.getActiveViewer()
-    ->Nullable.toOption
-    ->Option.forEach(v => {
-      if ViewerSystem.isViewerReady(v) {
-        let currentState: state = getState()
-        syncSceneCoupledState(~viewer=v, ~state=currentState, ~dispatch)
-        EventBus.dispatch(ForceHotspotSync)
-        HotspotLine.updateLines(
-          v,
-          currentState,
-          ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+    switch ViewerSystem.getActiveViewerReadyForScene(loadedScene.id) {
+    | Some(v) =>
+      let currentState: state = getState()
+      syncSceneCoupledState(~viewer=v, ~state=currentState, ~dispatch)
+      EventBus.dispatch(ForceHotspotSync)
+      HotspotLine.updateLines(
+        v,
+        currentState,
+        ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+        (),
+      )
+      completeSwapTransition(~getState, ~loadedScene, ~dispatch)
+      completeSupervisorTask(~taskId?)
+    | None =>
+      if attempt < maxSwapFinalizeAttempts {
+        let _ = Window.setTimeout(
+          () => finalizeSwap(~getState, ~dispatch, ~loadedScene, ~taskId?, ~attempt=attempt + 1),
+          swapFinalizeRetryMs,
+        )
+      } else {
+        Logger.error(
+          ~module_="SceneTransition",
+          ~message="SWAP_FINALIZE_TIMEOUT",
+          ~data=Some({"sceneId": loadedScene.id, "attempts": attempt}),
           (),
         )
+        // Fail closed: recover FSM/task but do not emit SimulationAdvanceComplete.
+        dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+        completeSupervisorTask(~taskId?)
       }
-    })
-
-    switch taskId {
-    | Some(tid) => NavigationSupervisor.complete(tid)
-    | None => ()
     }
   }
 }
@@ -93,14 +152,20 @@ let clearHotspotLines = () => {
   ->Option.forEach(svg => Dom.setTextContent(svg, ""))
 }
 
-let updateGlobalStateAndViewer = (~getState, ~dispatch, nv, ~taskId: option<string>=?) => {
+let updateGlobalStateAndViewer = (
+  ~getState,
+  ~dispatch,
+  ~loadedScene: scene,
+  nv,
+  ~taskId: option<string>=?,
+) => {
   ViewerSystem.Pool.swapActive()
   ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
 
   assignGlobalViewer(nv)
   clearHotspotLines()
 
-  let _ = Window.setTimeout(() => finalizeSwap(~getState, ~dispatch, ~taskId?), 50)
+  let _ = Window.setTimeout(() => finalizeSwap(~getState, ~dispatch, ~loadedScene, ~taskId?), 50)
 }
 
 let updateDomTransitions = (~transition: transition, ~isSimulationActive: bool, av, iv) => {
@@ -218,45 +283,6 @@ let logNoInactiveViewerFallback = () => {
   }
 }
 
-let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
-  ViewerSnapshot.requestIdleSnapshot(~getState)
-  ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
-  Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
-  dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
-  
-  // Signal simulation that navigation is complete and ready for next advance
-  let activeScenes = SceneInventory.getActiveScenes(getState().inventory, getState().sceneOrder)
-  let sceneIndex = activeScenes->Belt.Array.getIndexBy(s => s.id == loadedScene.id)->Option.getOr(-1)
-  
-  Logger.info(
-    ~module_="SceneTransition",
-    ~message="=== DISPATCH_SIMULATION_ADVANCE_COMPLETE ===",
-    ~data=Some({
-      "sceneId": loadedScene.id,
-      "sceneIndex": sceneIndex,
-      "sceneName": loadedScene.name,
-    }),
-    (),
-  )
-  
-  if sceneIndex >= 0 {
-    EventBus.dispatch(SimulationAdvanceComplete({sceneId: loadedScene.id, sceneIndex}))
-    Logger.info(
-      ~module_="SceneTransition",
-      ~message="=== EVENT_DISPATCHED ===",
-      ~data=Some({"sceneIndex": sceneIndex}),
-      (),
-    )
-  } else {
-    Logger.warn(
-      ~module_="SceneTransition",
-      ~message="=== SCENE_INDEX_NOT_FOUND ===",
-      ~data=Some({"sceneId": loadedScene.id}),
-      (),
-    )
-  }
-}
-
 let performSwap = (
   loadedScene: scene,
   _loadStartTime,
@@ -281,7 +307,7 @@ let performSwap = (
     let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
     let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
     let isActiveViewerTarget = switch Nullable.toOption(ov) {
-    | Some(v) => ViewerSystem.Adapter.getMetaData(v, "sceneId") == Some(idToUnknown(loadedScene.id))
+    | Some(v) => ViewerSystem.isViewerReadyForScene(v, loadedScene.id)
     | None => false
     }
 
@@ -292,17 +318,15 @@ let performSwap = (
       ViewerSystem.getActiveViewer()
       ->Nullable.toOption
       ->Option.forEach(assignGlobalViewer)
-      finalizeSwap(~getState, ~dispatch, ~taskId?)
-      completeSwapTransition(~getState, ~loadedScene, ~dispatch)
+      finalizeSwap(~getState, ~dispatch, ~loadedScene, ~taskId?)
     } else {
       switch Nullable.toOption(nv) {
       | Some(newViewer) =>
         Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
-        updateGlobalStateAndViewer(~getState, ~dispatch, newViewer, ~taskId?)
+        updateGlobalStateAndViewer(~getState, ~dispatch, ~loadedScene, newViewer, ~taskId?)
         let isSimulationActive = getState().simulation.status == Running
         updateDomTransitions(~transition, ~isSimulationActive, av, iv)
         scheduleCleanup(ov, ~taskId?)
-        completeSwapTransition(~getState, ~loadedScene, ~dispatch)
       | None =>
         if retryCount < maxSwapRetries {
           Logger.debug(
@@ -319,8 +343,7 @@ let performSwap = (
           ->Nullable.toOption
           ->Option.forEach(assignGlobalViewer)
           dispatch(SyncSceneNames)
-          finalizeSwap(~getState, ~dispatch, ~taskId?)
-          completeSwapTransition(~getState, ~loadedScene, ~dispatch)
+          finalizeSwap(~getState, ~dispatch, ~loadedScene, ~taskId?)
         }
       }
     }

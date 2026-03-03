@@ -150,6 +150,28 @@ let isViewerReady = (viewer: Viewer.t): bool => {
   }
 }
 
+let isViewerReadyForScene = (viewer: Viewer.t, expectedSceneId: string): bool => {
+  if !isViewerReady(viewer) {
+    false
+  } else {
+    let runtimeSceneId = Adapter.getScene(viewer)
+    let metaSceneId = Adapter.getSceneId(Adapter.asCustom(viewer))
+    runtimeSceneId == expectedSceneId || metaSceneId == Some(expectedSceneId)
+  }
+}
+
+let getActiveViewerReadyForScene = (expectedSceneId: string): option<Viewer.t> => {
+  getActiveViewer()
+  ->Nullable.toOption
+  ->Option.flatMap(viewer =>
+    if isViewerReadyForScene(viewer, expectedSceneId) {
+      Some(viewer)
+    } else {
+      None
+    }
+  )
+}
+
 let getCorrectHfov = () => {
   // Builder runs in a single canonical desktop viewport mode.
   Constants.globalMaxHfov

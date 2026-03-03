@@ -76,7 +76,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v5.1.1"
+let cacheName = "vtb-cache-v5.2.0"
 let manualAssets = [
   "/",
   "/index.html",
@@ -94,7 +94,7 @@ let manualAssets = [
   "/manifest.json",
   "/robots.txt",
   "/sounds/click.wav",
-  "/workers/image-worker.js"
+  "/workers/image-worker.js",
 ]
 
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0

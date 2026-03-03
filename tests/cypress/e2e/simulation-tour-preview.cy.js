@@ -1,134 +1,126 @@
 // tests/cypress/e2e/simulation-tour-preview.cy.js
 // T1790: Tour Preview Simulation Test - Cypress Implementation
+// Verifies: Load project -> Start Building dialog -> Tour Preview -> 4+ scene transitions
 
 describe('T1790: Tour Preview Simulation', () => {
   // Use absolute path from project root
   const EDGE_ZIP_PATH = Cypress.config('projectRoot') + '/artifacts/edge.zip'
-  
+  const readState = (win) => win.__RE_STATE__ || win.store?.state || null
+
   beforeEach(() => {
-    // Enable debug logging
-    cy.enableDebugLogging()
-    
     // Clear browser state
     cy.clearLocalStorage()
     cy.clearCookies()
-    
+
     // Navigate to app
     cy.visit('/', { timeout: 30000 })
-    
+
     // Wait for app to load
     cy.contains('Virtual Tour Builder', { timeout: 30000 }).should('exist')
-    
+
     // Load edge.zip project
     cy.loadProjectZip(EDGE_ZIP_PATH)
-    
+
+    // Enter builder if upload summary modal is present.
+    cy.clickStartBuildingIfPresent()
+
     // Wait for viewer to be ready
     cy.waitForViewerReady()
-    
-    // Additional wait to ensure app is fully stable
-    cy.wait(2000)
   })
-  
-  it('should advance past first scene', () => {
-    cy.log('=== TEST: Should advance past first scene ===')
-    
-    // Create debug overlay to show state
-    cy.document().then((doc) => {
-      const debugDiv = doc.createElement('div')
-      debugDiv.id = 'debug-state'
-      debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:10px;z-index:99999;font-family:monospace;font-size:12px;'
-      doc.body.appendChild(debugDiv)
-    })
-    
-    // Start simulation
+
+  it('should complete full flow: Start Building -> Tour Preview -> 4+ scene transitions', () => {
+    cy.log('=== TEST: Full Tour Preview Flow (4+ Transitions) ===')
+
+    // Safety: if modal still exists, close it.
+    cy.clickStartBuildingIfPresent()
+
+    // Step 1: Start tour preview simulation
     cy.startSimulation()
-    
-    // Update debug overlay with state at intervals
-    const updateDebug = () => {
+
+    cy.log('Simulation started, waiting for scene transitions...')
+
+    // Step 2: Wait until simulation clearly continues.
+    const startedAt = Date.now()
+    const waitForProgress = () => {
       cy.window().then((win) => {
-        const state = win.store?.state
-        const debugDiv = win.document.getElementById('debug-state')
-        if (state && debugDiv) {
-          debugDiv.innerHTML = `
-            activeIndex: ${state.activeIndex}<br>
-            visitedLinkIds: ${JSON.stringify(state.simulation?.visitedLinkIds || [])}<br>
-            simStatus: ${state.simulation?.status}<br>
-            navFsm: ${state.navigationState?.navigationFsm}
-          `
+        const state = readState(win)
+        const visitedCount = state?.simulation?.visitedLinkIds?.length || 0
+        const activeIndex = state?.activeIndex ?? -1
+        cy.log(`Progress: scene=${activeIndex}, visitedLinks=${visitedCount}`)
+
+        if (visitedCount >= 4 && activeIndex >= 1) {
+          return
         }
+
+        if (Date.now() - startedAt > 120000) {
+          throw new Error(
+            `Simulation did not reach expected progress in time. activeIndex=${activeIndex}, visitedLinks=${visitedCount}`,
+          )
+        }
+
+        cy.wait(2000).then(waitForProgress)
       })
     }
-    
-    cy.wait(5000).then(updateDebug)
-    cy.wait(5000).then(updateDebug)
-    cy.wait(5000).then(updateDebug)
-    cy.wait(5000).then(updateDebug)
-    cy.wait(5000).then(updateDebug)
-    
-    // Final assertion
+    waitForProgress()
+
+    // Step 4: Final assertion - verify at least 4 scene transitions occurred
     cy.window().then((win) => {
-      const state = win.store?.state
+      const state = readState(win)
       if (state) {
-        cy.log('Final: activeIndex=' + state.activeIndex + ', visited=' + JSON.stringify(state.simulation?.visitedLinkIds))
-        
-        // Check if simulation advanced
-        if (state.activeIndex !== undefined) {
-          cy.wrap(state.activeIndex).should('be.at.least', 1)
-        }
-        if (state.simulation?.visitedLinkIds) {
-          cy.wrap(state.simulation.visitedLinkIds.length).should('be.at.least', 1)
-        }
+        const visitedCount = state.simulation?.visitedLinkIds?.length || 0
+        const activeIndex = state.activeIndex
+
+        cy.log('=== FINAL STATE ===')
+        cy.log(`Active Scene Index: ${activeIndex}`)
+        cy.log(`Total Transitions: ${visitedCount}`)
+        cy.log(`Visited Link IDs: ${JSON.stringify(state.simulation?.visitedLinkIds)}`)
+
+        // Assert at least 4 transitions (visitedLinkIds tracks completed transitions)
+        cy.wrap(visitedCount, 'Number of scene transitions').should('be.at.least', 4, {
+          timeout: 5000,
+          message: 'Expected at least 4 scene transitions in tour preview'
+        })
+
+        // Also verify we've moved through multiple scenes
+        cy.wrap(activeIndex, 'Active scene index').should('be.at.least', 1, {
+          message: 'Expected to have advanced beyond first scene'
+        })
       }
     })
-    
-    // Stop simulation
+
+    // Step 5: Stop simulation
+    cy.log('Stopping simulation')
     cy.stopSimulation()
-    
-    cy.log('=== TEST COMPLETE ===')
+
+    cy.log('=== TEST COMPLETE: 4+ transitions verified ===')
   })
-  
-  it('should continue advancing through scenes', () => {
-    cy.log('=== TEST: Should continue advancing through scenes ===')
-    
+
+  it('should advance past first scene (legacy test)', () => {
+    cy.log('=== TEST: Should advance past first scene ===')
+
+    cy.clickStartBuildingIfPresent()
+
     // Start simulation
     cy.startSimulation()
-    
-    // Wait for transitions
-    cy.wait(20000)
-    
-    // Check simulation advanced at least once
+
+    // Wait for simulation to run
+    cy.wait(35000)
+
+    // Check simulation state
     cy.window().then((win) => {
-      const state = win.store?.state
+      const state = readState(win)
       if (state) {
-        const visitedCount = state.simulation?.visitedLinkIds?.length || 0
-        const activeIndex = state.activeIndex
-        
-        cy.log('After 20s: activeIndex=' + activeIndex + ', visitedCount=' + visitedCount)
-        
-        // Simulation should have visited at least 1 link
-        cy.wrap(visitedCount).should('be.at.least', 1)
+        cy.log('Final: activeIndex=' + state.activeIndex + ', visited=' + JSON.stringify(state.simulation?.visitedLinkIds))
+
+        // Should have advanced at least to scene 2 (index 1)
+        cy.wrap(state.activeIndex).should('be.at.least', 1)
+        cy.wrap(state.simulation?.visitedLinkIds?.length || 0).should('be.at.least', 1)
       }
     })
-    
-    // Wait more and check again
-    cy.wait(20000)
-    
-    cy.window().then((win) => {
-      const state = win.store?.state
-      if (state) {
-        const visitedCount = state.simulation?.visitedLinkIds?.length || 0
-        const activeIndex = state.activeIndex
-        
-        cy.log('After 40s: activeIndex=' + activeIndex + ', visitedCount=' + visitedCount)
-        
-        // Should have visited more links by now
-        cy.wrap(visitedCount).should('be.at.least', 1)
-      }
-    })
-    
+
     // Stop simulation
     cy.stopSimulation()
-    
+
     cy.log('=== TEST COMPLETE ===')
   })
 })

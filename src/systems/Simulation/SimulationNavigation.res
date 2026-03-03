@@ -7,64 +7,13 @@ open Types
 open SimulationTypes
 
 @val external setTimeout: (unit => 'a, int) => int = "setTimeout"
-@val external clearTimeout: int => unit = "clearTimeout"
 
 module InternalDate = {
   @val @scope("Date") external now: unit => float = "now"
 }
 
-let getGlobalViewerForScene = (sceneId: string): option<Viewer.t> => {
-  let globalViewer = Nullable.toOption(ViewerSystem.getActiveViewer())
-  switch globalViewer {
-  | Some(v) if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
-    Some(v)
-  | _ => None
-  }
-}
-
-let getPooledViewerForScene = (sceneId: string): option<Viewer.t> => {
-  ViewerSystem.Pool.pool.contents
-  ->Belt.Array.getBy(vp => {
-    switch vp.instance {
-    | Some(v) => ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId)
-    | None => false
-    }
-  })
-  ->Option.flatMap(vp => vp.instance)
-}
-
-let getActivePooledViewer = (): option<Viewer.t> => {
-  ViewerSystem.Pool.getActive()->Option.flatMap(vp => vp.instance)
-}
-
-let findViewerForScene = (sceneId: string): option<Viewer.t> => {
-  switch getGlobalViewerForScene(sceneId) {
-  | Some(v) => Some(v)
-  | None => getPooledViewerForScene(sceneId)
-  }
-}
-
-/**
- * More reliable viewer detection:
- * 1. First try to find viewer with matching scene ID
- * 2. If not found, check if active viewer is ready (scene might still be loading metadata)
- * 3. This handles Chromium timing issues where scene ID isn't set immediately
- */
-let findViewerForSceneReliable = (sceneId: string): option<Viewer.t> => {
-  // First try exact match
-  switch findViewerForScene(sceneId) {
-  | Some(v) => Some(v)
-  | None =>
-    // Fallback: check if active viewer exists and is ready
-    // This handles the case where viewer is loaded but scene ID not yet set
-    getActivePooledViewer()->Option.flatMap(v =>
-      if ViewerSystem.isViewerReady(v) {
-        Some(v)
-      } else {
-        None
-      }
-    )
-  }
+let getActiveViewerForExpectedScene = (sceneId: string): option<Viewer.t> => {
+  ViewerSystem.getActiveViewerReadyForScene(sceneId)
 }
 
 let pollForViewer = async (
@@ -84,18 +33,10 @@ let pollForViewer = async (
     } else if InternalDate.now() -. start > timeout {
       Error("Timeout waiting for viewer to load scene " ++ expectedSceneName)
     } else {
-      // Use reliable viewer detection that handles Chromium timing issues
-      let v = findViewerForSceneReliable(expectedSceneId)
+      // Strict scene gate: only the active viewer for the expected scene is accepted.
+      let v = getActiveViewerForExpectedScene(expectedSceneId)
       switch v {
-      | Some(viewer) =>
-        if ViewerSystem.isViewerReady(viewer) {
-          Ok()
-        } else {
-          let _ = await Promise.make((resolve, _) => {
-            let _ = setTimeout(() => resolve(), 100)
-          })
-          await pollLoop()
-        }
+      | Some(_viewer) => Ok()
       | None =>
         let _ = await Promise.make((resolve, _) => {
           let _ = setTimeout(() => resolve(), 100)
