@@ -34,12 +34,24 @@ module Styles = {
     z-index: 20;
   }
 
+  .pipeline-scene-svg-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 12;
+    overflow: visible;
+  }
+
   /* Floor Track */
   .pipeline-track {
     display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center;
     position: relative; width: 100%; gap: 6px;
     min-height: 12px;
     pointer-events: none;
+    z-index: 20;
+    row-gap: 6px;
   }
 
   /* --- Square Node --- */
@@ -194,6 +206,25 @@ module Styles = {
     stroke-linejoin: round;
     filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.4));
     transition: opacity 0.3s ease;
+  }
+
+  .pipeline-edge-line {
+    fill: none;
+    stroke: #f97316;
+    stroke-width: 1.4;
+    opacity: 0.76;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 1px rgba(249, 115, 22, 0.28));
+  }
+
+  .pipeline-edge-return {
+    stroke-dasharray: 2.5 2.5;
+    opacity: 0.62;
+  }
+
+  .pipeline-edge-cross-floor {
+    stroke-width: 1.6;
   }
 
 "

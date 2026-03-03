@@ -50,6 +50,26 @@ module WrappedVisualPipeline = {
 let getSupervisorTarget = () =>
   NavigationSupervisor.getCurrentTask()->Option.map(task => task.targetSceneId)
 
+let makeSelfHotspot = (sceneId: string): Types.hotspot => {
+  linkId: "self_" ++ sceneId,
+  yaw: 0.0,
+  pitch: 0.0,
+  target: "",
+  targetSceneId: Some(sceneId),
+  targetYaw: None,
+  targetPitch: None,
+  targetHfov: None,
+  startYaw: None,
+  startPitch: None,
+  startHfov: None,
+  viewFrame: None,
+  waypoints: None,
+  displayPitch: None,
+  transition: None,
+  duration: None,
+  isAutoForward: None,
+}
+
 describe("VisualPipeline", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
@@ -154,7 +174,7 @@ describe("VisualPipeline", () => {
       file: Url(""),
       tinyFile: None,
       originalFile: None,
-      hotspots: [],
+      hotspots: [makeSelfHotspot("s1")],
       category: "",
       floor: "1",
       quality: None,
@@ -250,7 +270,7 @@ describe("VisualPipeline", () => {
       file: Url(""),
       tinyFile: None,
       originalFile: None,
-      hotspots: [],
+      hotspots: [makeSelfHotspot("s2")],
       category: "",
       floor: "2",
       quality: None,
@@ -352,7 +372,7 @@ describe("VisualPipeline", () => {
         file: Url(""),
         tinyFile: None,
         originalFile: None,
-        hotspots: [],
+        hotspots: [makeSelfHotspot("s2")],
         category: "",
         floor: "2",
         quality: None,
@@ -487,6 +507,146 @@ describe("VisualPipeline", () => {
     await wait(40)
 
     t->expect(getSupervisorTarget())->Expect.toEqual(None)
+    Dom.removeElement(container)
+  })
+
+  testAsync("renders traversal connectors without numeric hub badges", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let hubScene: Types.scene = {
+      id: "s1",
+      name: "Entrance",
+      label: "",
+      file: Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [
+        {
+          linkId: "h1",
+          yaw: 10.0,
+          pitch: 0.0,
+          target: "s2",
+          targetSceneId: Some("s2"),
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          viewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+        },
+        {
+          linkId: "h2",
+          yaw: -10.0,
+          pitch: 0.0,
+          target: "s3",
+          targetSceneId: Some("s3"),
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          viewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+        },
+      ],
+      category: "",
+      floor: "ground",
+      quality: None,
+      colorGroup: None,
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
+      sequenceId: 0,
+    }
+
+    let s2: Types.scene = {
+      id: "s2",
+      name: "Corridor",
+      label: "",
+      file: Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [makeSelfHotspot("s2")],
+      category: "",
+      floor: "ground",
+      quality: None,
+      colorGroup: None,
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
+      sequenceId: 1,
+    }
+
+    let s3: Types.scene = {
+      id: "s3",
+      name: "Living",
+      label: "",
+      file: Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [makeSelfHotspot("s3")],
+      category: "",
+      floor: "ground",
+      quality: None,
+      colorGroup: None,
+      categorySet: false,
+      labelSet: false,
+      _metadataSource: "user",
+      isAutoForward: false,
+      sequenceId: 2,
+    }
+
+    let mockState = TestUtils.createMockState(
+      ~scenes=[hubScene, s2, s3],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+    let mockState = {
+      ...mockState,
+      timeline: [
+        {
+          id: "step-1",
+          sceneId: "s1",
+          linkId: "h1",
+          targetScene: "s2",
+          transition: "fade",
+          duration: 1000,
+        },
+        {
+          id: "step-2",
+          sceneId: "s1",
+          linkId: "h2",
+          targetScene: "s3",
+          transition: "fade",
+          duration: 1000,
+        },
+      ],
+    }
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <WrappedVisualPipeline mockState mockDispatch={_ => ()} />)
+    await wait(120)
+
+    let edgeLines = Dom.querySelectorAll(container, ".pipeline-edge-line")
+    let hubBadges = Dom.querySelectorAll(container, ".pipeline-hub-badge")
+    t->expect(Dom.nodeListLength(edgeLines) > 0)->Expect.toBe(true)
+    t->expect(Dom.nodeListLength(hubBadges))->Expect.toBe(0)
+
     Dom.removeElement(container)
   })
 })

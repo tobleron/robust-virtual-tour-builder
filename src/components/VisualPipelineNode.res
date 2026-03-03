@@ -3,6 +3,7 @@ type nodeItem = {nodeId: string, linkId: string}
 @react.component
 let make = (
   ~item: nodeItem,
+  ~nodeDomId: string,
   ~isActive: bool,
   ~interactionDisabled: bool,
   ~scene: option<Types.scene>,
@@ -98,6 +99,7 @@ let make = (
     (isActive ? " active" : "") ++ (interactionDisabled ? " disabled" : "")
 
   <div
+    id={nodeDomId}
     className
     role="button"
     tabIndex={interactionDisabled ? -1 : 0}

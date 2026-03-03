@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
-  "version": "5.2.0",
-  "buildNumber": 12,
+  "version": "5.2.1",
+  "buildNumber": 0,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
