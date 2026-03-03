@@ -8,6 +8,22 @@ MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
+add_commit_files() {
+    if [ "${INCLUDE_DEV_SYSTEM:-0}" = "1" ]; then
+        git add .
+    else
+        git add . ':(exclude)_dev-system/plans/**' ':(exclude)tasks/pending/dev_tasks/**'
+    fi
+}
+
+add_intent_files() {
+    if [ "${INCLUDE_DEV_SYSTEM:-0}" = "1" ]; then
+        git add -N .
+    else
+        git add -N . ':(exclude)_dev-system/plans/**' ':(exclude)tasks/pending/dev_tasks/**'
+    fi
+}
+
 # --- VALIDATION PHASE ---
 
 if [ "${ALLOW_TRIPLE_COMMIT:-0}" != "1" ]; then
@@ -47,7 +63,7 @@ npm run format
 # 4. Build Verification (Zero Warning Policy)
 echo "🔨 Verifying Build (Strict Mode)..."
 npm run res:clean > /dev/null
-git add -N .
+add_intent_files
 if ! ./node_modules/.bin/rescript build --warn-error "+a"; then 
     echo "❌ Build failed or contains warnings."; 
     git reset > /dev/null
@@ -75,7 +91,7 @@ node scripts/update-readme.js
 # 8. Log & Commit to current branch
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG [TRIPLE]" >> logs/log_changes.txt
 rm -f logs/telemetry.log
-git add .
+add_commit_files
 git commit -m "v$FULL_VER [TRIPLE]: $MSG"
 
 # 9. Sync to main, testing, and development

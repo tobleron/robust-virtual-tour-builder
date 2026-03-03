@@ -206,14 +206,27 @@ let make = () => {
       | Some(parentId) => targets->Belt.Array.keep(targetId => targetId != parentId)
       | None => targets
       }
-      if Belt.Array.length(branchTargets) >= 2 {
-        let hubFloor =
+      let hubFloor =
+        pipelineSlice.scenes
+        ->Belt.Array.getBy(scene => scene.id == hubSceneId)
+        ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
+        ->Option.getOr("ground")
+      let sameFloorTargets =
+        branchTargets->Belt.Array.keep(targetSceneId =>
           pipelineSlice.scenes
-          ->Belt.Array.getBy(scene => scene.id == hubSceneId)
+          ->Belt.Array.getBy(scene => scene.id == targetSceneId)
           ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
-          ->Option.getOr("ground")
+          ->Option.getOr("ground") == hubFloor
+        )
+      let deadEndSameFloorTargets =
+        sameFloorTargets->Belt.Array.keep(targetSceneId => {
+          let targetOutgoing = outgoingTargets->Belt.MutableMap.String.get(targetSceneId)->Option.getOr([])
+          let continuationTargets = targetOutgoing->Belt.Array.keep(nextId => nextId != hubSceneId)
+          Belt.Array.length(continuationTargets) == 0
+        })
+      if Belt.Array.length(deadEndSameFloorTargets) >= 2 {
         let sortedTargets =
-          branchTargets->Belt.SortArray.stableSortBy((a, b) => {
+          deadEndSameFloorTargets->Belt.SortArray.stableSortBy((a, b) => {
             let edgeRankA =
               hubTargetEdgeRank
               ->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ a)
@@ -232,17 +245,9 @@ let make = () => {
           })
         let branchCount = Belt.Array.length(sortedTargets)
         sortedTargets->Belt.Array.forEachWithIndex((rank, targetSceneId) => {
-          let targetFloor =
-            pipelineSlice.scenes
-            ->Belt.Array.getBy(scene => scene.id == targetSceneId)
-            ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
-            ->Option.getOr("ground")
-          if targetFloor == hubFloor {
-            switch clusters->Belt.MutableMap.String.get(targetSceneId) {
-            | Some(_) => ()
-            | None =>
-              clusters->Belt.MutableMap.String.set(targetSceneId, {hubSceneId, rank, branchCount})
-            }
+          switch clusters->Belt.MutableMap.String.get(targetSceneId) {
+          | Some(_) => ()
+          | None => clusters->Belt.MutableMap.String.set(targetSceneId, {hubSceneId, rank, branchCount})
           }
         })
       }

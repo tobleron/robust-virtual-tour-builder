@@ -7,6 +7,22 @@ MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
+add_commit_files() {
+    if [ "${INCLUDE_DEV_SYSTEM:-0}" = "1" ]; then
+        git add .
+    else
+        git add . ':(exclude)_dev-system/plans/**' ':(exclude)tasks/pending/dev_tasks/**'
+    fi
+}
+
+add_intent_files() {
+    if [ "${INCLUDE_DEV_SYSTEM:-0}" = "1" ]; then
+        git add -N .
+    else
+        git add -N . ':(exclude)_dev-system/plans/**' ':(exclude)tasks/pending/dev_tasks/**'
+    fi
+}
+
 CURRENT_BRANCH=$(git branch --show-current)
 TARGET_BRANCH="${2:-development}"
 
@@ -40,7 +56,7 @@ npm run format
 echo "🔨 Verifying Build (Strict Mode)..."
 npm run res:clean > /dev/null
 # Set intent to add so detect-missing-tests sees internal changes
-git add -N .
+add_intent_files
 if ! ./node_modules/.bin/rescript build --warn-error "+a"; then 
     echo "❌ Build failed or contains warnings."; 
     # Cleanup intent to add on failure so we don't leave the repo in a weird state
@@ -64,7 +80,7 @@ node scripts/update-readme.js
 # 9. Log & Commit
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG" >> logs/log_changes.txt
 rm -f logs/telemetry.log
-git add .
+add_commit_files
 git commit -m "v$FULL_VER: $MSG"
 echo "✅ Committed v$FULL_VER"
 

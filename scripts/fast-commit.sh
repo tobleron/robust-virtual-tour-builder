@@ -5,6 +5,14 @@ MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
+add_commit_files() {
+    if [ "${INCLUDE_DEV_SYSTEM:-0}" = "1" ]; then
+        git add .
+    else
+        git add . ':(exclude)_dev-system/plans/**' ':(exclude)tasks/pending/dev_tasks/**'
+    fi
+}
+
 # 0. Branch Guard
 CURRENT_BRANCH=$(git branch --show-current)
 TARGET_BRANCH="${2:-development}"
@@ -33,6 +41,6 @@ echo "📝 Updating Changelog..."
 node scripts/update-changelog.js "$MSG"
 
 # 3. Commit
-git add .
+add_commit_files
 git commit -m "v$FULL_VER [FAST]: $MSG"
 echo "🚀 Fast-Committed v$FULL_VER"
