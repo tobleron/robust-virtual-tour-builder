@@ -19,6 +19,7 @@ let dummyHotspot = (sceneId: string): hotspot => {
   transition: None,
   duration: None,
   isAutoForward: None,
+  sequenceOrder: None,
 }
 
 let makeScene = (~id: string, ~name: string, ()): scene => {

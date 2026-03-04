@@ -21,6 +21,7 @@ let defaultHotspot: hotspot = {
   transition: None,
   duration: None,
   isAutoForward: None,
+  sequenceOrder: None,
 }
 
 let defaultScene: scene = {

@@ -68,6 +68,7 @@ describe("Simulation", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
 
     let scene1 = TestUtils.createMockScene(~id="s1", ~name="S1", ~hotspots=[hotspot], ())

@@ -25,6 +25,7 @@ describe("SceneHelpers", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
     hs
   }

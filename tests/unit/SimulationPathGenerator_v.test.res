@@ -44,6 +44,7 @@ describe("Simulation.PathGenerator", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
   }
 
@@ -103,6 +104,7 @@ describe("Simulation.PathGenerator", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
     let scene0 = {...createScene("0", "scene0", false), hotspots: [hotspot]}
     let scene1 = createScene("1", "scene1", false)

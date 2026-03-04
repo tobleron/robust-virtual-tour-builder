@@ -68,6 +68,7 @@ let makeSelfHotspot = (sceneId: string): Types.hotspot => {
   transition: None,
   duration: None,
   isAutoForward: None,
+  sequenceOrder: None,
 }
 
 describe("VisualPipeline", () => {
@@ -118,6 +119,7 @@ describe("VisualPipeline", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "",
@@ -250,6 +252,7 @@ describe("VisualPipeline", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "",
@@ -352,6 +355,7 @@ describe("VisualPipeline", () => {
             transition: None,
             duration: None,
             isAutoForward: None,
+            sequenceOrder: None,
           },
         ],
         category: "",
@@ -453,6 +457,7 @@ describe("VisualPipeline", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "",
@@ -540,6 +545,7 @@ describe("VisualPipeline", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
         {
           linkId: "h2",
@@ -559,6 +565,7 @@ describe("VisualPipeline", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "",

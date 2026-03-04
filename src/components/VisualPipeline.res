@@ -218,15 +218,11 @@ let make = () => {
           ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
           ->Option.getOr("ground") == hubFloor
         )
-      let deadEndSameFloorTargets =
-        sameFloorTargets->Belt.Array.keep(targetSceneId => {
-          let targetOutgoing = outgoingTargets->Belt.MutableMap.String.get(targetSceneId)->Option.getOr([])
-          let continuationTargets = targetOutgoing->Belt.Array.keep(nextId => nextId != hubSceneId)
-          Belt.Array.length(continuationTargets) == 0
-        })
-      if Belt.Array.length(deadEndSameFloorTargets) >= 2 {
+      // Hub qualification rule:
+      // 2+ same-floor branch targets (parent/exit-back already excluded above).
+      if Belt.Array.length(sameFloorTargets) >= 2 {
         let sortedTargets =
-          deadEndSameFloorTargets->Belt.SortArray.stableSortBy((a, b) => {
+          sameFloorTargets->Belt.SortArray.stableSortBy((a, b) => {
             let edgeRankA =
               hubTargetEdgeRank
               ->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ a)
@@ -535,6 +531,31 @@ let make = () => {
           }
         })
 
+        let hasNodeCollisionOnHorizontal = (
+          ~floorId: string,
+          ~fromNodeId: string,
+          ~toNodeId: string,
+          ~lineY: float,
+          ~xA: float,
+          ~xB: float,
+        ): bool => {
+          let xMin = Math.min(xA, xB)
+          let xMax = Math.max(xA, xB)
+          displayNodes->Belt.Array.some(node => {
+            if node.floorId != floorId || node.id == fromNodeId || node.id == toNodeId {
+              false
+            } else {
+              switch centers->Belt.MutableMap.String.get(node.id) {
+              | Some(point) =>
+                point.x > xMin +. 4.0 &&
+                  point.x < xMax -. 4.0 &&
+                  Math.abs(point.y -. lineY) < 9.0
+              | None => false
+              }
+            }
+          })
+        }
+
         let pairEdgeCandidates = Belt.MutableMap.String.make()
         let pairOrder = Belt.MutableQueue.make()
         graph.edges->Belt.Array.forEach(edge => {
@@ -631,14 +652,66 @@ let make = () => {
                   " " ++
                   toPoint.y->Float.toString
                 } else if Math.abs(fromPoint.y -. toPoint.y) < 0.6 {
-                  "M " ++
-                  fromPoint.x->Float.toString ++
-                  " " ++
-                  fromPoint.y->Float.toString ++
-                  " L " ++
-                  toPoint.x->Float.toString ++
-                  " " ++
-                  toPoint.y->Float.toString
+                  let floorId = fromFloor->Option.getOr("ground")
+                  let hasCollision =
+                    hasNodeCollisionOnHorizontal(
+                      ~floorId,
+                      ~fromNodeId=edge.fromNodeId,
+                      ~toNodeId=edge.toNodeId,
+                      ~lineY=fromPoint.y,
+                      ~xA=fromPoint.x,
+                      ~xB=toPoint.x,
+                    )
+                  if !hasCollision {
+                    "M " ++
+                    fromPoint.x->Float.toString ++
+                    " " ++
+                    fromPoint.y->Float.toString ++
+                    " L " ++
+                    toPoint.x->Float.toString ++
+                    " " ++
+                    toPoint.y->Float.toString
+                  } else {
+                    let lane = 12.0
+                    let detourUp = fromPoint.y -. lane
+                    let detourDown = fromPoint.y +. lane
+                    let upCollision =
+                      hasNodeCollisionOnHorizontal(
+                        ~floorId,
+                        ~fromNodeId=edge.fromNodeId,
+                        ~toNodeId=edge.toNodeId,
+                        ~lineY=detourUp,
+                        ~xA=fromPoint.x,
+                        ~xB=toPoint.x,
+                      )
+                    let chosenY = if !upCollision { detourUp } else { detourDown }
+                    let exitX =
+                      if toPoint.x >= fromPoint.x {
+                        fromPoint.x +. 8.0
+                      } else {
+                        fromPoint.x -. 8.0
+                      }
+                    "M " ++
+                    fromPoint.x->Float.toString ++
+                    " " ++
+                    fromPoint.y->Float.toString ++
+                    " L " ++
+                    exitX->Float.toString ++
+                    " " ++
+                    fromPoint.y->Float.toString ++
+                    " L " ++
+                    exitX->Float.toString ++
+                    " " ++
+                    chosenY->Float.toString ++
+                    " L " ++
+                    toPoint.x->Float.toString ++
+                    " " ++
+                    chosenY->Float.toString ++
+                    " L " ++
+                    toPoint.x->Float.toString ++
+                    " " ++
+                    toPoint.y->Float.toString
+                  }
                 } else {
                   let elbowX =
                     if toPoint.x >= fromPoint.x {

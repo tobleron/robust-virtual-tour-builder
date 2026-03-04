@@ -174,6 +174,7 @@ describe("Types", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
     t->expect(h.linkId)->Expect.toBe("link-1")
     t->expect(h.target)->Expect.toBe("scene-2")

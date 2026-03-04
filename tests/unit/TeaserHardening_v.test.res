@@ -151,6 +151,7 @@ describe("Teaser Hardening Regression", () => {
             transition: None,
             duration: None,
             isAutoForward: None,
+            sequenceOrder: None,
           },
         ],
         category: "",

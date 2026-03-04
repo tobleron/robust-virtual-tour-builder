@@ -22,6 +22,7 @@ describe("SimulationLogic", () => {
     transition: None,
     duration: None,
     isAutoForward: None,
+    sequenceOrder: None,
   }
 
   let baseScene = {
@@ -124,6 +125,7 @@ describe("SimulationLogic", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
     // We need an unvisited path from Scene 1 so it doesn't complete the tour immediately
     let scene1: scene = {

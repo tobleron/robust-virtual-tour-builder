@@ -44,6 +44,7 @@ describe("SimulationChainSkipper", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
   }
 

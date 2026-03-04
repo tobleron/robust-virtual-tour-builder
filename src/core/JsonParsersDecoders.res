@@ -10,6 +10,7 @@ type updateHotspotMetadata = {
   isAutoForward: option<bool>,
   target: option<string>,
   targetSceneId: option<string>,
+  sequenceOrder: option<int>,
 }
 
 // Aliases
@@ -89,6 +90,7 @@ let hotspot = object(f => {
     ->Option.flatMap(x => x)
     ->Option.map(Belt.Float.toInt),
     isAutoForward: f.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
+    sequenceOrder: f.optional("sequenceOrder", option(int))->Option.flatMap(x => x),
   }
 })
 
@@ -309,6 +311,7 @@ let updateHotspotMetadata = object(field => {
     isAutoForward: field.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
     target: field.optional("target", option(string))->Option.flatMap(x => x),
     targetSceneId: field.optional("targetSceneId", option(string))->Option.flatMap(x => x),
+    sequenceOrder: field.optional("sequenceOrder", option(int))->Option.flatMap(x => x),
   }
 })
 

@@ -47,6 +47,7 @@ let hotspot = (h: Types.hotspot) => {
     ("transition", Encode.option(Encode.string)(h.transition)),
     ("duration", Encode.option(i => Encode.float(Belt.Int.toFloat(i)))(h.duration)),
     ("isAutoForward", Encode.option(Encode.bool)(h.isAutoForward)),
+    ("sequenceOrder", Encode.option(Encode.int)(h.sequenceOrder)),
   ])
 }
 

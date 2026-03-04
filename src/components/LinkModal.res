@@ -65,6 +65,36 @@ let showLinkModal = (
     ->Belt.Option.getWithDefault("")
   }
 
+  let retargetLinkId = if isRetargeting {
+    switch draftOpt->Option.flatMap(d => d.retargetHotspot) {
+    | Some(retarget) =>
+      switch retarget.hotspotLinkId {
+      | Some(linkId) => Some(linkId)
+      | None =>
+        switch Belt.Array.get(scenes, retarget.sceneIndex) {
+        | Some(sourceScene) =>
+          Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.map(h => h.linkId)
+        | None => None
+        }
+      }
+    | None => None
+    }
+  } else {
+    None
+  }
+
+  let sequenceByLinkId = if isRetargeting {
+    HotspotSequence.deriveDisplayOrder(~state)
+  } else {
+    Belt.Map.String.empty
+  }
+
+  let sequenceOptionCount = sequenceByLinkId->Belt.Map.String.size
+
+  let retargetSequence = retargetLinkId->Option.flatMap(linkId =>
+    sequenceByLinkId->Belt.Map.String.get(linkId)
+  )
+
   let content =
     <div className="flex flex-col gap-4">
       <label htmlFor="link-target" className="sr-only">
@@ -103,9 +133,71 @@ let showLinkModal = (
         })
         ->React.array}
       </select>
+      {if isRetargeting {
+        <div className="flex flex-col gap-2">
+          <label htmlFor="link-sequence-order" className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">
+            {React.string("Sequence")}
+          </label>
+          {switch retargetSequence {
+          | Some(currentSequence) =>
+            <select
+              id="link-sequence-order"
+              defaultValue={Belt.Int.toString(currentSequence)}
+              className="w-full h-10 px-3 bg-black/30 border border-white/15 rounded-lg text-white font-mono text-[13px] outline-none cursor-pointer"
+              ariaLabel="Select hotspot sequence order"
+            >
+              {Belt.Array.makeBy(sequenceOptionCount, idx => idx + 1)
+              ->Belt.Array.map(order =>
+                <option key={order->Belt.Int.toString} value={order->Belt.Int.toString} className="bg-slate-800">
+                  {React.string(order->Belt.Int.toString)}
+                </option>
+              )
+              ->React.array}
+            </select>
+          | None =>
+            <div className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg text-[11px] text-white/75">
+              {React.string("Return link (R): sequence is not editable.")}
+            </div>
+          }}
+        </div>
+      } else {
+        React.null
+      }}
     </div>
 
   let onSave = () => {
+    let parsedSequenceInput: option<option<int>> = if isRetargeting {
+      switch Nullable.toOption(Dom.getElementById("link-sequence-order")) {
+      | Some(el) =>
+        let raw = Dom.getValue(el)->String.trim
+        if raw == "" {
+          Some(None)
+        } else {
+          switch Belt.Int.fromString(raw) {
+          | Some(value) if value >= 1 => Some(Some(value))
+          | _ => None
+          }
+        }
+      | None => Some(None)
+      }
+    } else {
+      Some(None)
+    }
+
+    switch parsedSequenceInput {
+    | None =>
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation("link_modal"),
+        message: "Sequence must be a positive number",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    | Some(desiredSequenceOrder) =>
     let element = Dom.getElementById("link-target")
     switch Nullable.toOption(element) {
     | Some(el) =>
@@ -160,6 +252,27 @@ let showLinkModal = (
             )
           }
         })
+
+        switch (retargetLinkId, desiredSequenceOrder) {
+        | (Some(activeLinkId), Some(desiredOrder)) =>
+          let reorderUpdates = HotspotSequence.buildReorderUpdates(
+            ~state=getState(),
+            ~linkId=activeLinkId,
+            ~desiredOrder,
+          )
+
+          if reorderUpdates->Belt.Array.length > 0 {
+            let actions = reorderUpdates->Belt.Array.map(update =>
+              Actions.UpdateHotspotMetadata(
+                update.sceneIndex,
+                update.hotspotIndex,
+                Logger.castToJson({"sequenceOrder": update.sequenceOrder}),
+              )
+            )
+            dispatch(Actions.Batch(actions))
+          }
+        | _ => ()
+        }
 
         // Close and cleanup
         EventBus.dispatch(CloseModal)
@@ -225,6 +338,7 @@ let showLinkModal = (
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         }
 
         Logger.info(
@@ -283,6 +397,7 @@ let showLinkModal = (
         }, 50)
       }
     | None => ()
+    }
     }
   }
 

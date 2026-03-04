@@ -36,6 +36,7 @@ describe("HotspotMenuLayer", () => {
     transition: None,
     duration: None,
     isAutoForward: None,
+    sequenceOrder: None,
   }
 
   testAsync("should open popover when OpenHotspotMenu event is dispatched", async t => {

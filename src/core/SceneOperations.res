@@ -49,6 +49,48 @@ let handleDeleteScene = (state: state, index: int): state => {
           updatedOrder,
         )
 
+        let nextMovingHotspot = switch state.movingHotspot {
+        | None => None
+        | Some(mh) =>
+          if mh.sceneIndex == index {
+            None
+          } else {
+            let shiftedSceneIndex = if mh.sceneIndex > index {
+              mh.sceneIndex - 1
+            } else {
+              mh.sceneIndex
+            }
+
+            switch Belt.Array.get(updatedOrder, shiftedSceneIndex) {
+            | None => None
+            | Some(sceneId) =>
+              switch finalizedInventory->Belt.Map.String.get(sceneId) {
+              | Some(sceneEntry) =>
+                switch mh.hotspotLinkId {
+                | Some(linkId) =>
+                  switch sceneEntry.scene.hotspots->Belt.Array.getIndexBy(h => h.linkId == linkId) {
+                  | Some(nextHotspotIndex) =>
+                    Some({
+                      ...mh,
+                      sceneIndex: shiftedSceneIndex,
+                      hotspotIndex: nextHotspotIndex,
+                      sceneId: Some(sceneId),
+                    })
+                  | None => None
+                  }
+                | None =>
+                  if mh.hotspotIndex < Belt.Array.length(sceneEntry.scene.hotspots) {
+                    Some({...mh, sceneIndex: shiftedSceneIndex, sceneId: Some(sceneId)})
+                  } else {
+                    None
+                  }
+                }
+              | None => None
+              }
+            }
+          }
+        }
+
         let nextState = {
           ...state,
           inventory: finalizedInventory,
@@ -57,6 +99,8 @@ let handleDeleteScene = (state: state, index: int): state => {
           activeYaw: newActiveIndex == -1 ? 0.0 : state.activeYaw,
           activePitch: newActiveIndex == -1 ? 0.0 : state.activePitch,
           isLinking: false,
+          linkDraft: None,
+          movingHotspot: nextMovingHotspot,
           timeline: filteredTimeline,
           activeTimelineStepId,
         }

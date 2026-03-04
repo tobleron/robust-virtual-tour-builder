@@ -74,6 +74,7 @@ describe("Actions", _ => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
     t->expect(actionToString(AddHotspot(1, dummyHotspot)))->Expect.toBe("AddHotspot(1)")
   })

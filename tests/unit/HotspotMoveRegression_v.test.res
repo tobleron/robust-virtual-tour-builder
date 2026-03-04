@@ -36,6 +36,7 @@ describe("Hotspot Move & Toggle Regression", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "outdoor",

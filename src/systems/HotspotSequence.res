@@ -1,0 +1,440 @@
+open Types
+
+type badgeKind =
+  | Sequence(int)
+  | Return
+
+type hotspotRef = {
+  sceneId: string,
+  sceneIndex: int,
+  hotspotIndex: int,
+  linkId: string,
+  sceneLabel: string,
+  targetSceneId: string,
+  targetLabel: string,
+  fallbackOrder: int,
+  sequenceOrder: option<int>,
+}
+
+type orderedHotspot = {
+  sceneId: string,
+  sceneIndex: int,
+  hotspotIndex: int,
+  linkId: string,
+  sceneLabel: string,
+  targetSceneId: string,
+  targetLabel: string,
+  sequence: int,
+  sequenceOrder: option<int>,
+}
+
+type sequenceUpdate = {
+  sceneIndex: int,
+  hotspotIndex: int,
+  linkId: string,
+  sequenceOrder: int,
+}
+
+type rankedRef = {
+  item: hotspotRef,
+  baseOrder: int,
+  manualOrder: option<int>,
+}
+
+let stripSceneTag = (raw: string): string => {
+  let trimmed = raw->String.trim
+  if trimmed == "" {
+    ""
+  } else if String.startsWith(trimmed, "#") {
+    trimmed
+    ->String.substring(~start=1, ~end=String.length(trimmed))
+    ->String.trim
+  } else {
+    trimmed
+  }
+}
+
+let displaySceneLabel = (scene: scene): string => {
+  let source = if scene.label->String.trim != "" {
+    scene.label
+  } else {
+    scene.name
+  }
+  let cleaned = stripSceneTag(source)
+  if cleaned == "" {
+    scene.name
+  } else {
+    cleaned
+  }
+}
+
+let clampOrder = (value: int, maxValue: int): int => {
+  if maxValue <= 0 {
+    1
+  } else if value < 1 {
+    1
+  } else if value > maxValue {
+    maxValue
+  } else {
+    value
+  }
+}
+
+let addVisitedLink = (visited: array<string>, linkId: string): array<string> =>
+  if visited->Belt.Array.some(existing => existing == linkId) {
+    visited
+  } else {
+    Belt.Array.concat(visited, [linkId])
+  }
+
+let applyVisitedActions = (~visited: array<string>, ~actions: array<Actions.action>): array<string> =>
+  actions->Belt.Array.reduce(visited, (acc, action) =>
+    switch action {
+    | AddVisitedLink(linkId) => addVisitedLink(acc, linkId)
+    | _ => acc
+    }
+  )
+
+let firstNewLinkId = (~visited: array<string>, ~actions: array<Actions.action>): option<string> =>
+  actions->Belt.Array.reduce(None, (acc, action) =>
+    switch (acc, action) {
+    | (Some(_), _) => acc
+    | (None, AddVisitedLink(linkId)) =>
+      if visited->Belt.Array.some(existing => existing == linkId) {
+        None
+      } else {
+        Some(linkId)
+      }
+    | _ => None
+    }
+  )
+
+let deriveTraversalBadgeByLinkId = (~state: state, ~maxSteps: int=400): Belt.Map.String.t<badgeKind> => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+
+  switch Belt.Array.get(activeScenes, 0) {
+  | None => Belt.Map.String.empty
+  | Some(startScene) =>
+    let badgeByLinkId = ref(Belt.Map.String.empty)
+    let parentBySceneId = ref(Belt.Map.String.empty)
+    let nextSequence = ref(1)
+    let stepCount = ref(0)
+    let continueLoop = ref(true)
+
+    parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(startScene.id, "")
+
+    let currentStateRef = ref({
+      ...state,
+      activeIndex: 0,
+      simulation: {
+        ...state.simulation,
+        status: Running,
+        visitedLinkIds: [],
+      },
+    })
+
+    while continueLoop.contents && stepCount.contents < maxSteps {
+      let currentState = currentStateRef.contents
+
+      switch Belt.Array.get(activeScenes, currentState.activeIndex) {
+      | Some(fromScene) =>
+        switch SimulationMainLogic.getNextMove(currentState) {
+        | Move({targetIndex, triggerActions, hotspotIndex: _, yaw: _, pitch: _, hfov: _}) =>
+          let maybeToScene = Belt.Array.get(activeScenes, targetIndex)
+          let maybeNewLinkId = firstNewLinkId(
+            ~visited=currentState.simulation.visitedLinkIds,
+            ~actions=triggerActions,
+          )
+
+          switch (maybeNewLinkId, maybeToScene) {
+          | (Some(linkId), Some(toScene)) =>
+            let isReturn = switch parentBySceneId.contents->Belt.Map.String.get(fromScene.id) {
+            | Some(parentSceneId) => parentSceneId != "" && parentSceneId == toScene.id
+            | None => false
+            }
+
+            if badgeByLinkId.contents->Belt.Map.String.get(linkId)->Option.isNone {
+              if isReturn {
+                badgeByLinkId := badgeByLinkId.contents->Belt.Map.String.set(linkId, Return)
+              } else {
+                badgeByLinkId :=
+                  badgeByLinkId.contents->Belt.Map.String.set(
+                    linkId,
+                    Sequence(nextSequence.contents),
+                  )
+                nextSequence := nextSequence.contents + 1
+              }
+            }
+
+            if (
+              parentBySceneId.contents->Belt.Map.String.get(toScene.id)->Option.isNone &&
+              toScene.id != fromScene.id
+            ) {
+              parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(
+                toScene.id,
+                fromScene.id,
+              )
+            }
+          | (None, Some(toScene)) =>
+            if (
+              parentBySceneId.contents->Belt.Map.String.get(toScene.id)->Option.isNone &&
+              toScene.id != fromScene.id
+            ) {
+              parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(
+                toScene.id,
+                fromScene.id,
+              )
+            }
+          | _ => ()
+          }
+
+          let visitedAfterMove = applyVisitedActions(
+            ~visited=currentState.simulation.visitedLinkIds,
+            ~actions=triggerActions,
+          )
+
+          currentStateRef := {
+            ...currentState,
+            activeIndex: targetIndex,
+            simulation: {
+              ...currentState.simulation,
+              visitedLinkIds: visitedAfterMove,
+            },
+          }
+
+          stepCount := stepCount.contents + 1
+        | Complete(_) | None => continueLoop := false
+        }
+      | None => continueLoop := false
+      }
+    }
+
+    if stepCount.contents >= maxSteps {
+      Logger.warn(
+        ~module_="HotspotSequence",
+        ~message="HOTSPOT_SEQUENCE_MAX_STEPS_REACHED",
+        ~data=Some({"maxSteps": maxSteps}),
+        (),
+      )
+    }
+
+    // Force parent-back links to Return even when they were not explicitly traversed.
+    // This keeps "came from parent -> go back to parent" links consistently marked as R.
+    let finalizedBadges = ref(badgeByLinkId.contents)
+    activeScenes->Belt.Array.forEach(sourceScene => {
+      switch parentBySceneId.contents->Belt.Map.String.get(sourceScene.id) {
+      | Some(parentSceneId) if parentSceneId != "" =>
+        sourceScene.hotspots->Belt.Array.forEach(hotspot => {
+          switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
+          | Some(targetSceneId) if targetSceneId == parentSceneId =>
+            finalizedBadges := finalizedBadges.contents->Belt.Map.String.set(hotspot.linkId, Return)
+          | _ => ()
+          }
+        })
+      | _ => ()
+      }
+    })
+
+    finalizedBadges.contents
+  }
+}
+
+let collectForwardHotspots = (
+  ~state: state,
+  ~traversalBadges: Belt.Map.String.t<badgeKind>,
+): array<hotspotRef> => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  let sceneById =
+    activeScenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) =>
+      acc->Belt.Map.String.set(s.id, s)
+    )
+
+  let fallbackCounter = ref(0)
+  let rows: array<hotspotRef> = []
+
+  activeScenes->Belt.Array.forEachWithIndex((sceneIndex, sourceScene) => {
+    sourceScene.hotspots->Belt.Array.forEachWithIndex((hotspotIndex, hotspot) => {
+      switch (traversalBadges->Belt.Map.String.get(hotspot.linkId), HotspotTarget.resolveSceneId(activeScenes, hotspot)) {
+      | (Some(Return), _) => ()
+      | (_, Some(targetSceneId)) =>
+        let fallbackOrder = fallbackCounter.contents
+        fallbackCounter := fallbackCounter.contents + 1
+        let targetLabel = switch sceneById->Belt.Map.String.get(targetSceneId) {
+        | Some(targetScene) => displaySceneLabel(targetScene)
+        | None => hotspot.target
+        }
+
+        Array.push(
+          rows,
+          {
+            sceneId: sourceScene.id,
+            sceneIndex,
+            hotspotIndex,
+            linkId: hotspot.linkId,
+            sceneLabel: displaySceneLabel(sourceScene),
+            targetSceneId,
+            targetLabel,
+            fallbackOrder,
+            sequenceOrder: hotspot.sequenceOrder,
+          },
+        )->ignore
+      | _ => ()
+      }
+    })
+  })
+
+  rows
+}
+
+let toRankedRefs = (
+  ~refs: array<hotspotRef>,
+  ~traversalBadges: Belt.Map.String.t<badgeKind>,
+): array<rankedRef> =>
+  refs->Belt.Array.map(item => {
+    let baseOrder = switch traversalBadges->Belt.Map.String.get(item.linkId) {
+    | Some(Sequence(order)) => order
+    | _ => 100000 + item.fallbackOrder
+    }
+    {item, baseOrder, manualOrder: item.sequenceOrder}
+  })
+
+let deriveOrderedForwardRefs = (
+  ~state: state,
+  ~traversalBadges: Belt.Map.String.t<badgeKind>,
+): array<hotspotRef> => {
+  let refs = collectForwardHotspots(~state, ~traversalBadges)
+
+  if refs->Belt.Array.length == 0 {
+    []
+  } else {
+    let rankedRefs = toRankedRefs(~refs, ~traversalBadges)
+    let manual: array<rankedRef> = []
+    let automatic: array<rankedRef> = []
+
+    rankedRefs->Belt.Array.forEach(row => {
+      switch row.manualOrder {
+      | Some(order) if order > 0 => Array.push(manual, row)->ignore
+      | _ => Array.push(automatic, row)->ignore
+      }
+    })
+
+    let sortedAuto =
+      automatic
+      ->Belt.SortArray.stableSortBy((a, b) => {
+        if a.baseOrder == b.baseOrder {
+          a.item.fallbackOrder - b.item.fallbackOrder
+        } else {
+          a.baseOrder - b.baseOrder
+        }
+      })
+      ->Belt.Array.map(row => row.item)
+
+    if manual->Belt.Array.length == 0 {
+      sortedAuto
+    } else {
+      let manualDescending = manual->Belt.SortArray.stableSortBy((a, b) => {
+        let seqA = a.manualOrder->Option.getOr(1)
+        let seqB = b.manualOrder->Option.getOr(1)
+        if seqA == seqB {
+          b.item.fallbackOrder - a.item.fallbackOrder
+        } else {
+          seqB - seqA
+        }
+      })
+
+      let ordered = ref(sortedAuto)
+      manualDescending->Belt.Array.forEach(row => {
+        let desiredOrder = row.manualOrder->Option.getOr(1)
+        let desiredIndex = clampOrder(desiredOrder, ordered.contents->Belt.Array.length + 1) - 1
+        ordered := UiHelpers.insertAt(ordered.contents, desiredIndex, row.item)
+      })
+      ordered.contents
+    }
+  }
+}
+
+let deriveBadgeByLinkId = (~state: state): Belt.Map.String.t<badgeKind> => {
+  let traversalBadges = deriveTraversalBadgeByLinkId(~state)
+  let orderedForward = deriveOrderedForwardRefs(~state, ~traversalBadges)
+
+  let forwardBadgeMap =
+    orderedForward
+    ->Belt.Array.mapWithIndex((idx, item) => (item.linkId, Sequence(idx + 1)))
+    ->Belt.Map.String.fromArray
+
+  traversalBadges->Belt.Map.String.toArray->Belt.Array.reduce(forwardBadgeMap, (acc, (linkId, badge)) =>
+    switch badge {
+    | Return => acc->Belt.Map.String.set(linkId, Return)
+    | Sequence(_) => acc
+    }
+  )
+}
+
+let deriveDisplayOrder = (~state: state): Belt.Map.String.t<int> =>
+  deriveBadgeByLinkId(~state)
+  ->Belt.Map.String.toArray
+  ->Belt.Array.keepMap(((linkId, badge)) =>
+    switch badge {
+    | Sequence(n) => Some((linkId, n))
+    | Return => None
+    }
+  )
+  ->Belt.Map.String.fromArray
+
+let deriveOrderedHotspots = (~state: state): array<orderedHotspot> => {
+  let traversalBadges = deriveTraversalBadgeByLinkId(~state)
+  let ordered = deriveOrderedForwardRefs(~state, ~traversalBadges)
+
+  ordered->Belt.Array.mapWithIndex((idx, item) => {
+    {
+      sceneId: item.sceneId,
+      sceneIndex: item.sceneIndex,
+      hotspotIndex: item.hotspotIndex,
+      linkId: item.linkId,
+      sceneLabel: item.sceneLabel,
+      targetSceneId: item.targetSceneId,
+      targetLabel: item.targetLabel,
+      sequence: idx + 1,
+      sequenceOrder: item.sequenceOrder,
+    }
+  })
+}
+
+let buildReorderUpdates = (
+  ~state: state,
+  ~linkId: string,
+  ~desiredOrder: int,
+): array<sequenceUpdate> => {
+  let traversalBadges = deriveTraversalBadgeByLinkId(~state)
+  let ordered = deriveOrderedForwardRefs(~state, ~traversalBadges)
+  let total = ordered->Belt.Array.length
+
+  if total == 0 {
+    []
+  } else {
+    switch ordered->Belt.Array.getIndexBy(item => item.linkId == linkId) {
+    | None => []
+    | Some(currentIndex) =>
+      let nextOrder = clampOrder(desiredOrder, total)
+      let targetIndex = nextOrder - 1
+      if targetIndex == currentIndex {
+        []
+      } else {
+        switch ordered->Belt.Array.get(currentIndex) {
+        | Some(moved) =>
+          let withoutCurrent = ordered->Belt.Array.keepWithIndex((_, idx) => idx != currentIndex)
+          let reordered = UiHelpers.insertAt(withoutCurrent, targetIndex, moved)
+          reordered->Belt.Array.mapWithIndex((idx, item) => {
+            {
+              sceneIndex: item.sceneIndex,
+              hotspotIndex: item.hotspotIndex,
+              linkId: item.linkId,
+              sequenceOrder: idx + 1,
+            }
+          })
+        | None => []
+        }
+      }
+    }
+  }
+}

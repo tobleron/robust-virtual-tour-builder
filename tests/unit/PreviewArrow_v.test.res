@@ -34,6 +34,7 @@ describe("PreviewArrow", () => {
           transition: None,
           duration: None,
           isAutoForward: None,
+          sequenceOrder: None,
         },
       ],
       category: "outdoor",

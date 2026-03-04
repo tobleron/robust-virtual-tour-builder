@@ -39,6 +39,7 @@ describe("SimulationMainLogic", () => {
     transition: None,
     duration: None,
     isAutoForward: None,
+    sequenceOrder: None,
   }
 
   test("getNextMove should return Move when a path is found", t => {

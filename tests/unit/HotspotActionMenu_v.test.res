@@ -46,6 +46,7 @@ describe("HotspotActionMenu", () => {
     transition: None,
     duration: None,
     isAutoForward: None,
+    sequenceOrder: None,
   }
 
   testAsync("should render hotspot action menu", async t => {
@@ -73,6 +74,7 @@ describe("HotspotActionMenu", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
 
     let root = ReactDOMClient.createRoot(container)

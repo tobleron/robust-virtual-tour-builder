@@ -19,6 +19,7 @@ let makeLinkHotspot = (): hotspot => {
   transition: None,
   duration: None,
   isAutoForward: None,
+  sequenceOrder: None,
 }
 
 describe("TeaserStyleSimpleCrossfade", () => {

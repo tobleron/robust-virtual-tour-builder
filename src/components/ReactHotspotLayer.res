@@ -58,6 +58,11 @@ let make = React.memo(() => {
   | _ => true
   }
   let showHotspotLabels = !isTeasing && !operationBusy && !simulationActive
+  let showHotspotSequenceBadges = showHotspotLabels
+  let hotspotBadgeByLinkId = React.useMemo1(
+    () => HotspotSequence.deriveBadgeByLinkId(~state),
+    [state.structuralRevision],
+  )
 
   let (cam, setCam) = React.useState(_ => None)
   let (containerRect, setContainerRect) = React.useState(_ => None)
@@ -197,6 +202,21 @@ let make = React.memo(() => {
                       {React.string(label)}
                     </div>
                   | _ => React.null
+                  }
+                } else {
+                  React.null
+                }}
+                {if showHotspotSequenceBadges {
+                  switch hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId) {
+                  | Some(HotspotSequence.Sequence(sequenceNo)) =>
+                    <div className="hs-hotspot-sequence-badge pointer-events-none">
+                      {React.string(Int.toString(sequenceNo))}
+                    </div>
+                  | Some(HotspotSequence.Return) =>
+                    <div className="hs-hotspot-sequence-badge is-return pointer-events-none">
+                      {React.string("R")}
+                    </div>
+                  | None => React.null
                   }
                 } else {
                   React.null

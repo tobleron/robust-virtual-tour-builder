@@ -29,6 +29,7 @@ let _ = describe("TourTemplates", () => {
     transition: None,
     duration: None,
     isAutoForward: None,
+    sequenceOrder: None,
   }
 
   let mockScene1: scene = {
@@ -144,6 +145,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene3",
       targetSceneId: Some("sc3"),
       isAutoForward: Some(true),
+    sequenceOrder: None,
     }
     let middleScene = {...mockScene2, hotspots: [hotspotToScene3], isAutoForward: false}
     let html = generateTourHTML(
@@ -166,6 +168,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene2",
       targetSceneId: Some("sc2"),
       isAutoForward: Some(true),
+    sequenceOrder: None,
     }
     let sourceScene = {...mockScene1, hotspots: [autoHotspot]}
     let html = generateTourHTML(
@@ -275,6 +278,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene2",
       targetSceneId: Some("sc2"),
       isAutoForward: None,
+    sequenceOrder: None,
     }
     let sceneFlagOnly = {
       ...mockScene1,
@@ -304,6 +308,7 @@ let _ = describe("TourTemplates", () => {
         target: "scene2",
         targetSceneId: Some("sc2"),
         isAutoForward: Some(true),
+      sequenceOrder: None,
       }
       let autoHotspotB = {
         ...mockHotspot,
@@ -311,6 +316,7 @@ let _ = describe("TourTemplates", () => {
         target: "scene1",
         targetSceneId: Some("sc1"),
         isAutoForward: Some(true),
+      sequenceOrder: None,
       }
       let autoSceneA = {...mockScene1, hotspots: [autoHotspotA], isAutoForward: true}
       let autoSceneB = {...mockScene2, hotspots: [autoHotspotB], isAutoForward: true}

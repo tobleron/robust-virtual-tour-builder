@@ -53,6 +53,7 @@ describe("NavigationGraph", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
   }
 

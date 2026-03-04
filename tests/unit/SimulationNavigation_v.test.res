@@ -23,6 +23,7 @@ describe("SimulationNavigation", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
   }
 

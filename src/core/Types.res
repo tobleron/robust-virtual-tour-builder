@@ -154,6 +154,7 @@ type hotspot = {
   transition: option<string>,
   duration: option<int>,
   isAutoForward: option<bool>,
+  sequenceOrder: option<int>,
 }
 
 type scene = {

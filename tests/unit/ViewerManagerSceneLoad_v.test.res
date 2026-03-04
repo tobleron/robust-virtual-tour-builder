@@ -92,6 +92,7 @@ testAsync(
       transition: None,
       duration: None,
       isAutoForward: Some(true),
+      sequenceOrder: None,
     }
 
     let sceneA: scene = {

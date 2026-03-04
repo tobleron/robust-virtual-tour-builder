@@ -42,6 +42,7 @@ describe("HotspotManager", () => {
       transition: None,
       duration: None,
       isAutoForward: None,
+      sequenceOrder: None,
     }
   }
 

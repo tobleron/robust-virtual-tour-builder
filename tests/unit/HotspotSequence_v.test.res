@@ -1,0 +1,150 @@
+open Vitest
+open Types
+
+let makeHotspot = (
+  ~linkId: string,
+  ~targetSceneId: string,
+  ~sequenceOrder: option<int>=None,
+  (),
+): hotspot => {
+  linkId,
+  yaw: 0.0,
+  pitch: 0.0,
+  target: targetSceneId,
+  targetSceneId: Some(targetSceneId),
+  targetYaw: None,
+  targetPitch: None,
+  targetHfov: None,
+  startYaw: None,
+  startPitch: None,
+  startHfov: None,
+  viewFrame: None,
+  waypoints: None,
+  displayPitch: None,
+  transition: None,
+  duration: None,
+  isAutoForward: None,
+  sequenceOrder,
+}
+
+let makeScene = (~id: string, ~hotspots: array<hotspot>, ()): scene => {
+  id,
+  name: id,
+  file: Url(id ++ ".webp"),
+  tinyFile: None,
+  originalFile: None,
+  hotspots,
+  category: "indoor",
+  floor: "ground",
+  label: id,
+  quality: None,
+  colorGroup: None,
+  _metadataSource: "test",
+  categorySet: true,
+  labelSet: true,
+  isAutoForward: false,
+  sequenceId: 0,
+}
+
+let makeGraphState = (~manual=false, ()) => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ~sequenceOrder=manual ? Some(2) : None, ())
+  let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ~sequenceOrder=manual ? Some(1) : None, ())
+  let hBA = makeHotspot(~linkId="hBA", ~targetSceneId="A", ())
+  let hCB = makeHotspot(~linkId="hCB", ~targetSceneId="B", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[hBC, hBA], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[hCB], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
+}
+
+let makeDisconnectedState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
+  let hCD = makeHotspot(~linkId="hCD", ~targetSceneId="D", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[hCD], ())
+  let sceneD = makeScene(~id="D", ~hotspots=[], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC, sceneD], ~activeIndex=0, ())
+}
+
+let makeParentBacklinkState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
+  let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ())
+  let hBA = makeHotspot(~linkId="hBA", ~targetSceneId="A", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[hBC, hBA], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
+}
+
+let readSeq = (badges: Belt.Map.String.t<HotspotSequence.badgeKind>, linkId: string): option<int> =>
+  switch badges->Belt.Map.String.get(linkId) {
+  | Some(HotspotSequence.Sequence(n)) => Some(n)
+  | _ => None
+  }
+
+let isReturn = (badges: Belt.Map.String.t<HotspotSequence.badgeKind>, linkId: string): bool =>
+  switch badges->Belt.Map.String.get(linkId) {
+  | Some(HotspotSequence.Return) => true
+  | _ => false
+  }
+
+describe("HotspotSequence", () => {
+  test("deriveBadgeByLinkId marks return edges as R", t => {
+    let state = makeGraphState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(2))
+    t->expect(isReturn(badges, "hCB"))->Expect.toBe(true)
+    t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
+  })
+
+  test("manual sequence order only affects forward edges", t => {
+    let state = makeGraphState(~manual=true, ())
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(2))
+    t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(1))
+    t->expect(isReturn(badges, "hCB"))->Expect.toBe(true)
+    t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
+  })
+
+  test("ordered hotspot list excludes return edges", t => {
+    let state = makeGraphState()
+    let ordered = HotspotSequence.deriveOrderedHotspots(~state)
+    let linkIds = ordered->Belt.Array.map(x => x.linkId)
+
+    t->expect(linkIds)->Expect.toEqual(["hAB", "hBC"])
+  })
+
+  test("buildReorderUpdates ignores return links", t => {
+    let state = makeGraphState()
+    let updates = HotspotSequence.buildReorderUpdates(~state, ~linkId="hBA", ~desiredOrder=1)
+
+    t->expect(updates->Belt.Array.length)->Expect.toBe(0)
+  })
+
+  test("numbers forward hotspots even when traversal does not reach their scenes", t => {
+    let state = makeDisconnectedState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hCD"))->Expect.toEqual(Some(2))
+  })
+
+  test("marks parent-back links as R even when not traversed", t => {
+    let state = makeParentBacklinkState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(2))
+    t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
+  })
+})

@@ -19,6 +19,7 @@ let makeHotspot = (~linkId: string, ~targetSceneId: option<string>, ()): hotspot
   transition: None,
   duration: None,
   isAutoForward: None,
+  sequenceOrder: None,
 }
 
 let makeScene = (~id: string, ~name: string, ~floor: string="ground", ~hotspots: array<hotspot>=[], ()): scene => {
