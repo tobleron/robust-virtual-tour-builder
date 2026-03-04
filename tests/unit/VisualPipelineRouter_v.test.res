@@ -41,6 +41,27 @@ let makeScene = (~id: string, ~name: string, ()): scene => {
   sequenceId: 0,
 }
 
+let makeHotspot = (~linkId: string, ~targetSceneId: string, ()): hotspot => {
+  linkId,
+  yaw: 0.0,
+  pitch: 0.0,
+  target: targetSceneId,
+  targetSceneId: Some(targetSceneId),
+  targetYaw: None,
+  targetPitch: None,
+  targetHfov: None,
+  startYaw: None,
+  startPitch: None,
+  startHfov: None,
+  viewFrame: None,
+  waypoints: None,
+  displayPitch: None,
+  transition: None,
+  duration: None,
+  isAutoForward: None,
+  sequenceOrder: None,
+}
+
 let item = (~id, ~sceneId, ~linkId, ~targetScene="", ()) => {
   id,
   sceneId,
@@ -52,10 +73,9 @@ let item = (~id, ~sceneId, ~linkId, ~targetScene="", ()) => {
 
 describe("VisualPipelineRouter", () => {
   test("compute generates orthogonal connector paths", t => {
-    let scenes = [
-      makeScene(~id="s1", ~name="S1", ()),
-      makeScene(~id="s2", ~name="S2", ()),
-    ]
+    let s1 = makeScene(~id="s1", ~name="S1", ())
+    let s2 = makeScene(~id="s2", ~name="S2", ())
+    let scenes = [{...s1, hotspots: [makeHotspot(~linkId="h1", ~targetSceneId="s2", ())]}, s2]
     let timeline = [item(~id="t1", ~sceneId="s1", ~linkId="h1", ~targetScene="s2", ())]
     let graph = VisualPipelineGraph.build(~scenes, ~timeline)
     let layout = VisualPipelineLayout.compute(~graph, ())
@@ -66,10 +86,19 @@ describe("VisualPipelineRouter", () => {
   })
 
   test("return routes to same target share trunk lane", t => {
+    let s1 = makeScene(~id="s1", ~name="Hub", ())
+    let s2 = makeScene(~id="s2", ~name="Room A", ())
+    let s3 = makeScene(~id="s3", ~name="Room B", ())
     let scenes = [
-      makeScene(~id="s1", ~name="Hub", ()),
-      makeScene(~id="s2", ~name="Room A", ()),
-      makeScene(~id="s3", ~name="Room B", ()),
+      {
+        ...s1,
+        hotspots: [
+          makeHotspot(~linkId="to-a", ~targetSceneId="s2", ()),
+          makeHotspot(~linkId="to-b", ~targetSceneId="s3", ()),
+        ],
+      },
+      {...s2, hotspots: [makeHotspot(~linkId="back-a", ~targetSceneId="s1", ())]},
+      {...s3, hotspots: [makeHotspot(~linkId="back-b", ~targetSceneId="s1", ())]},
     ]
     let timeline = [
       item(~id="t1", ~sceneId="s1", ~linkId="to-a", ~targetScene="s2", ()),

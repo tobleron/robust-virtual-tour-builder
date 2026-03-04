@@ -111,6 +111,50 @@ let waitForViewerScene = async (
   }
 }
 
+type candidateLink = {
+  link: enrichedLink,
+  isReturn: bool,
+}
+
+let pickByPriority = (candidates: array<candidateLink>): option<enrichedLink> => {
+  let pick = predicate =>
+    Array.find(candidates, candidate => predicate(candidate))->Option.map(candidate => candidate.link)
+
+  let p1 = pick(candidate =>
+    !candidate.link.isVisited && !candidate.isReturn && !candidate.link.isBridge
+  )
+  switch p1 {
+  | Some(link) => Some(link)
+  | None =>
+    let p2 = pick(candidate =>
+      !candidate.link.isVisited && !candidate.isReturn && candidate.link.isBridge
+    )
+    switch p2 {
+    | Some(link) => Some(link)
+    | None =>
+      let p3 = pick(candidate =>
+        !candidate.link.isVisited && candidate.isReturn && !candidate.link.isBridge
+      )
+      switch p3 {
+      | Some(link) => Some(link)
+      | None =>
+        let p4 = pick(candidate =>
+          !candidate.link.isVisited && candidate.isReturn && candidate.link.isBridge
+        )
+        switch p4 {
+        | Some(link) => Some(link)
+        | None =>
+          let p5 = pick(candidate => candidate.link.isVisited && candidate.isReturn)
+          switch p5 {
+          | Some(link) => Some(link)
+          | None => pick(candidate => candidate.link.targetIndex == 0)
+          }
+        }
+      }
+    }
+  }
+}
+
 let findBestNextLink = (currentScene: scene, state: state, visited: array<int>): option<
   enrichedLink,
 > => {
@@ -119,6 +163,7 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
     None
   } else {
     let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let parentBySceneId = TraversalParentMap.derive(~activeScenes)
     let allLinks =
       hotspots
       ->Belt.Array.mapWithIndex((i, hotspot) => {
@@ -126,17 +171,25 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
         switch targetIdx {
         | Some(idx) =>
           switch Belt.Array.get(activeScenes, idx) {
-          | Some(_targetScene) =>
+          | Some(targetScene) =>
+            let isReturn = TraversalParentMap.isReturnTarget(
+              ~parentBySceneId,
+              ~sourceSceneId=currentScene.id,
+              ~targetSceneId=targetScene.id,
+            )
             Some({
-              hotspot,
-              hotspotIndex: i,
-              targetIndex: idx,
-              isVisited: Array.includes(visited, idx),
-              // Use hotspot-level isAutoForward (more granular than scene-level)
-              isBridge: switch hotspot.isAutoForward {
-              | Some(af) => af
-              | None => false
+              link: {
+                hotspot,
+                hotspotIndex: i,
+                targetIndex: idx,
+                isVisited: Array.includes(visited, idx),
+                // Use hotspot-level isAutoForward (more granular than scene-level)
+                isBridge: switch hotspot.isAutoForward {
+                | Some(af) => af
+                | None => false
+                },
               },
+              isReturn,
             })
           | None => None
           }
@@ -157,24 +210,7 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
       (),
     )
 
-    // Return links deprecated - simplified priority logic
-    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isBridge)
-    switch p1 {
-    | Some(l) => Some(l)
-    | None =>
-      let p2 = Array.find(allLinks, l => !l.isVisited && l.isBridge)
-      switch p2 {
-      | Some(l) => Some(l)
-      | None =>
-        let uniqueVisitedCount = visited->Belt.Set.Int.fromArray->Belt.Set.Int.size
-        let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-        if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
-          Array.find(allLinks, l => l.targetIndex == 0)
-        } else {
-          Array.find(allLinks, l => !l.isVisited)
-        }
-      }
-    }
+    pickByPriority(allLinks)
   }
 }
 
@@ -192,6 +228,7 @@ let findBestNextLinkByLinkId = (
     None
   } else {
     let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+    let parentBySceneId = TraversalParentMap.derive(~activeScenes)
     let allLinks =
       hotspots
       ->Belt.Array.mapWithIndex((i, hotspot) => {
@@ -199,18 +236,26 @@ let findBestNextLinkByLinkId = (
         switch targetIdx {
         | Some(idx) =>
           switch Belt.Array.get(activeScenes, idx) {
-          | Some(_targetScene) =>
+          | Some(targetScene) =>
+            let isReturn = TraversalParentMap.isReturnTarget(
+              ~parentBySceneId,
+              ~sourceSceneId=currentScene.id,
+              ~targetSceneId=targetScene.id,
+            )
             Some({
-              hotspot,
-              hotspotIndex: i,
-              targetIndex: idx,
-              // KEY CHANGE: Check if linkId was traversed, not if scene was visited
-              isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
-              // Use hotspot-level isAutoForward (more granular than scene-level)
-              isBridge: switch hotspot.isAutoForward {
-              | Some(af) => af
-              | None => false
+              link: {
+                hotspot,
+                hotspotIndex: i,
+                targetIndex: idx,
+                // KEY CHANGE: Check if linkId was traversed, not if scene was visited
+                isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
+                // Use hotspot-level isAutoForward (more granular than scene-level)
+                isBridge: switch hotspot.isAutoForward {
+                | Some(af) => af
+                | None => false
+                },
               },
+              isReturn,
             })
           | None => None
           }
@@ -231,23 +276,6 @@ let findBestNextLinkByLinkId = (
       (),
     )
 
-    // Return links deprecated - simplified priority logic
-    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isBridge)
-    switch p1 {
-    | Some(l) => Some(l)
-    | None =>
-      let p2 = Array.find(allLinks, l => !l.isVisited && l.isBridge)
-      switch p2 {
-      | Some(l) => Some(l)
-      | None =>
-        let uniqueVisitedCount = visitedLinkIds->Belt.Set.String.fromArray->Belt.Set.String.size
-        let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-        if uniqueVisitedCount >= Belt.Array.length(activeScenes) {
-          Array.find(allLinks, l => l.targetIndex == 0)
-        } else {
-          Array.find(allLinks, l => !l.isVisited)
-        }
-      }
-    }
+    pickByPriority(allLinks)
   }
 }

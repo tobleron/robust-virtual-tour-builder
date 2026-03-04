@@ -97,11 +97,28 @@ let showLinkModal = (
     Belt.Map.String.empty
   }
 
-  let sequenceOptionCount = sequenceByLinkId->Belt.Map.String.size
-
   let retargetSequence = retargetLinkId->Option.flatMap(linkId =>
     sequenceByLinkId->Belt.Map.String.get(linkId)
   )
+
+  let admissibleSequenceOrders = if isRetargeting {
+    switch retargetLinkId {
+    | Some(linkId) => HotspotSequence.deriveAdmissibleOrders(~state, ~linkId)
+    | None => []
+    }
+  } else {
+    []
+  }
+
+  let sequenceDefaultValue = switch retargetSequence {
+  | Some(currentSequence) =>
+    if admissibleSequenceOrders->Belt.Array.some(order => order == currentSequence) {
+      currentSequence
+    } else {
+      admissibleSequenceOrders->Belt.Array.get(0)->Option.getOr(currentSequence)
+    }
+  | None => admissibleSequenceOrders->Belt.Array.get(0)->Option.getOr(1)
+  }
 
   let content =
     <div className="link-modal-form">
@@ -149,21 +166,27 @@ let showLinkModal = (
             {React.string("Sequence")}
           </label>
           {switch retargetSequence {
-          | Some(currentSequence) =>
-            <select
-              id="link-sequence-order"
-              defaultValue={Belt.Int.toString(currentSequence)}
-              className="link-modal-select link-modal-select-sequence"
-              ariaLabel="Select hotspot sequence order"
-            >
-              {Belt.Array.makeBy(sequenceOptionCount, idx => idx + 1)
-              ->Belt.Array.map(order =>
-                <option key={order->Belt.Int.toString} value={order->Belt.Int.toString} className="bg-slate-800">
-                  {React.string(order->Belt.Int.toString)}
-                </option>
-              )
-              ->React.array}
-            </select>
+          | Some(_) =>
+            if admissibleSequenceOrders->Belt.Array.length > 0 {
+              <select
+                id="link-sequence-order"
+                defaultValue={Belt.Int.toString(sequenceDefaultValue)}
+                className="link-modal-select link-modal-select-sequence"
+                ariaLabel="Select hotspot sequence order"
+              >
+                {admissibleSequenceOrders
+                ->Belt.Array.map(order =>
+                  <option key={order->Belt.Int.toString} value={order->Belt.Int.toString} className="bg-slate-800">
+                    {React.string(order->Belt.Int.toString)}
+                  </option>
+                )
+                ->React.array}
+              </select>
+            } else {
+              <div className="link-modal-return-note">
+                {React.string("No valid sequence positions available for this link.")}
+              </div>
+            }
           | None =>
             <div className="link-modal-return-note">
               {React.string("Return link (R): sequence is not editable.")}
@@ -229,6 +252,29 @@ let showLinkModal = (
         })
       } else if isRetargeting {
         let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
+        let hasInvalidSequenceRequest = switch (retargetLinkId, desiredSequenceOrder) {
+        | (Some(activeLinkId), Some(desiredOrder)) =>
+          let allowedOrders = HotspotSequence.deriveAdmissibleOrders(
+            ~state=getState(),
+            ~linkId=activeLinkId,
+          )
+          allowedOrders->Belt.Array.length > 0 &&
+          !(allowedOrders->Belt.Array.some(order => order == desiredOrder))
+        | _ => false
+        }
+        if hasInvalidSequenceRequest {
+          NotificationManager.dispatch({
+            id: "",
+            importance: Warning,
+            context: Operation("link_modal"),
+            message: "Selected sequence is not valid for current traversal",
+            details: Some("Choose one of the allowed sequence positions."),
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        } else {
         // RE-TARGETING LOGIC: Use direct target updater with stable IDs
         HotspotManager.handleUpdateHotspotTarget(
           ~sceneIndex=retarget.sceneIndex,
@@ -289,6 +335,7 @@ let showLinkModal = (
         EventBus.dispatch(CloseModal)
         if state.isLinking {
           dispatch(Actions.StopLinking)
+        }
         }
       } else {
         let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees

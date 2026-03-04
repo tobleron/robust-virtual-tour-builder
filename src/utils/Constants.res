@@ -336,7 +336,6 @@ module Media = {
   // Export scene normalization policy (matches upload for zero-re-encode path)
   let exportSceneWebpQuality = 0.80
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)
-  let exportScenePolicy = "browser-webp80-v1"
   // Branding/logo normalization policy
   let logoWebpQuality = 0.92
   let logoMaxWidth = 1024.0

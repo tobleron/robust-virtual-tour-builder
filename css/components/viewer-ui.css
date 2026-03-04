@@ -306,7 +306,7 @@
     background-color: rgba(0, 61, 165, 0.85);
     backdrop-filter: blur(var(--glass-blur, 12px));
     color: white;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 0 0;
     height: 27px;
     border-radius: var(--radius-sm);
     font-family: var(--font-ui);
@@ -320,6 +320,36 @@
     pointer-events: none;
     border: 1px solid rgba(255, 255, 255, 0.1);
     letter-spacing: 0.1em;
+    gap: 0;
+    overflow: hidden;
+}
+
+.viewer-persistent-label-seq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: 32px;
+    padding: 0 0.32rem;
+    margin-right: 0.38rem;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: #0a2a66;
+    color: #ffffff;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: none;
+}
+
+.viewer-persistent-label-name {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 0.1rem;
+    line-height: 1;
+    letter-spacing: 0.08em;
 }
 
 .viewer-persistent-label.state-visible {

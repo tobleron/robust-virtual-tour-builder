@@ -34,9 +34,63 @@ let script = `
       const labelEl = document.getElementById("viewer-room-label-export");
       if (!labelEl) return;
       labelEl.classList.remove("state-shortcut-animate");
+      const clearLabel = () => {
+        while (labelEl.firstChild) labelEl.removeChild(labelEl.firstChild);
+        labelEl.classList.remove("state-shortcut-animate");
+        labelEl.classList.remove("state-visible");
+        labelEl.classList.add("state-hidden");
+      };
+      const sceneSequenceMap = new Map();
+      const pushSceneSequence = (sceneId, sequence) => {
+        if (!sceneId || !Number.isInteger(sequence) || sequence < 1) return;
+        const existing = sceneSequenceMap.get(sceneId);
+        if (!Number.isInteger(existing) || sequence < existing) {
+          sceneSequenceMap.set(sceneId, sequence);
+        }
+      };
+      const buildSceneSequenceMap = () => {
+        if (sceneSequenceMap.size > 0) return;
+        const homeSceneId = resolveExistingSceneId(firstSceneId);
+        if (homeSceneId) {
+          pushSceneSequence(homeSceneId, 1);
+        }
+        Object.entries(scenesData || {}).forEach(([sourceSceneId, sourceSceneData]) => {
+          const sourceHotspots = Array.isArray(sourceSceneData?.hotSpots) ? sourceSceneData.hotSpots : [];
+          sourceHotspots.forEach((hotspot, hotspotIndex) => {
+            if (!hotspot || hotspot.isReturnLink === true) return;
+            const seqRaw = Number.isFinite(hotspot.sequenceNumber) ? Math.trunc(hotspot.sequenceNumber) : null;
+            if (!Number.isInteger(seqRaw) || seqRaw < 1) return;
+            pushSceneSequence(sourceSceneId, seqRaw);
+            const targetSceneId = resolveTargetSceneId({
+              sourceSceneId,
+              i: hotspotIndex,
+              targetSceneId: hotspot?.targetSceneId,
+              target: hotspot?.target,
+              targetName: hotspot?.target
+            }, null);
+            if (targetSceneId) {
+              pushSceneSequence(targetSceneId, seqRaw + 1);
+            }
+          });
+        });
+      };
+      const getSceneSequenceNumber = sid => {
+        buildSceneSequenceMap();
+        const seq = sceneSequenceMap.get(sid);
+        return Number.isInteger(seq) && seq >= 1 ? seq : null;
+      };
       const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
       if (rawLabel !== "") {
-        labelEl.textContent = "# " + rawLabel;
+        while (labelEl.firstChild) labelEl.removeChild(labelEl.firstChild);
+        const seqNo = getSceneSequenceNumber(sceneId);
+        const seqEl = document.createElement("span");
+        seqEl.className = "viewer-persistent-label-export-seq";
+        seqEl.textContent = "# " + (Number.isInteger(seqNo) ? String(seqNo) : "-");
+        const nameEl = document.createElement("span");
+        nameEl.className = "viewer-persistent-label-export-name";
+        nameEl.textContent = rawLabel;
+        labelEl.appendChild(seqEl);
+        labelEl.appendChild(nameEl);
         labelEl.classList.remove("state-hidden");
         labelEl.classList.add("state-visible");
         if (animateOnShow === true) {
@@ -45,10 +99,57 @@ let script = `
         }
         return;
       }
-      labelEl.textContent = "";
-      labelEl.classList.remove("state-shortcut-animate");
-      labelEl.classList.remove("state-visible");
-      labelEl.classList.add("state-hidden");
+      clearLabel();
+    }
+    function navigateToSceneBySequenceInput() {
+      const sceneSequenceRows = [];
+      const sequenceBySceneId = new Map();
+      const pushSequence = (sceneId, sequence) => {
+        if (!sceneId || !Number.isInteger(sequence) || sequence < 1) return;
+        const existing = sequenceBySceneId.get(sceneId);
+        if (!Number.isInteger(existing) || sequence < existing) {
+          sequenceBySceneId.set(sceneId, sequence);
+        }
+      };
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (homeSceneId) {
+        pushSequence(homeSceneId, 1);
+      }
+      Object.entries(scenesData || {}).forEach(([sourceSceneId, sourceSceneData]) => {
+        const sourceHotspots = Array.isArray(sourceSceneData?.hotSpots) ? sourceSceneData.hotSpots : [];
+        sourceHotspots.forEach((hotspot, hotspotIndex) => {
+          if (!hotspot || hotspot.isReturnLink === true) return;
+          const seqRaw = Number.isFinite(hotspot.sequenceNumber) ? Math.trunc(hotspot.sequenceNumber) : null;
+          if (!Number.isInteger(seqRaw) || seqRaw < 1) return;
+          pushSequence(sourceSceneId, seqRaw);
+          const targetSceneId = resolveTargetSceneId({
+            sourceSceneId,
+            i: hotspotIndex,
+            targetSceneId: hotspot?.targetSceneId,
+            target: hotspot?.target,
+            targetName: hotspot?.target
+          }, null);
+          if (targetSceneId) {
+            pushSequence(targetSceneId, seqRaw + 1);
+          }
+        });
+      });
+      sequenceBySceneId.forEach((sequence, sceneId) => {
+        sceneSequenceRows.push({ sequence, sceneId });
+      });
+      if (sceneSequenceRows.length === 0) return false;
+      sceneSequenceRows.sort((a, b) => a.sequence - b.sequence);
+      const promptText = "Jump to scene sequence (1-" + String(sceneSequenceRows[sceneSequenceRows.length - 1].sequence) + ")";
+      const rawInput = window.prompt(promptText, "");
+      if (rawInput === null) return false;
+      const normalized = String(rawInput).trim();
+      if (normalized === "") return false;
+      const chosen = Number.parseInt(normalized, 10);
+      if (!Number.isInteger(chosen) || chosen < 1) return false;
+      const targetEntry = sceneSequenceRows.find(item => item.sequence === chosen);
+      if (!targetEntry || !targetEntry.sceneId) return false;
+      navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });
+      return true;
     }
     function navigateToFloorTagShortcut(targetSceneId, options) {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;

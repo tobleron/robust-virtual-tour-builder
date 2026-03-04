@@ -7,6 +7,7 @@ let script = `
     const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
     const IS_HD_EXPORT = __IS_HD_EXPORT__;
+    const EXPORT_TRAVERSAL_MODE = "__EXPORT_TRAVERSAL_MODE__";
     const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;

@@ -8,7 +8,7 @@ use zip::write::FileOptions;
 
 use crate::services::project::package_utils;
 
-const WEBP_QUALITY: f32 = 92.0;
+const WEBP_QUALITY: f32 = 80.0;
 const MAX_EXPORT_SOURCE_WIDTH: u32 = 4096;
 const MAX_EXPORT_SOURCE_HEIGHT: u32 = 4096;
 const TARGETS: [(&str, &str, u32); 3] = [
@@ -37,10 +37,6 @@ fn write_zip_file(
     data: &[u8],
 ) -> Result<(), String> {
     package_utils::write_zip_file(zip, options, path, data)
-}
-
-fn require_scene_policy(fields: &HashMap<String, String>) -> Result<(), String> {
-    package_utils::require_scene_policy(fields)
 }
 
 fn create_root_index() -> String {
@@ -78,7 +74,7 @@ pub fn create_tour_package(
     output_zip_path: std::path::PathBuf,
 ) -> Result<(), String> {
     {
-        require_scene_policy(&fields)?;
+        let _ = fields;
 
         let file = std::fs::File::create(&output_zip_path).map_err(|e| e.to_string())?;
         let mut zip = zip::ZipWriter::new(file);

@@ -28,7 +28,7 @@ describe("PersistentLabel", () => {
     sequenceId: 0,
   }
 
-  testAsync("should render label with correctly", async t => {
+  testAsync("should render sequence badge and label", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -42,7 +42,9 @@ describe("PersistentLabel", () => {
     let labelEl = Dom.getElementById("v-scene-persistent-label")
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
-      t->expect(Dom.getTextContent(el))->Expect.toBe("# " ++ defaultScene.label)
+      let labelText = Dom.getTextContent(el)
+      t->expect(labelText->String.includes("# 1"))->Expect.toBe(true)
+      t->expect(labelText->String.includes(defaultScene.label))->Expect.toBe(true)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
     }
@@ -62,10 +64,10 @@ describe("PersistentLabel", () => {
 
     await wait(50)
 
-    let labelEl = Dom.getElementById("v-scene-persistent-label")
+      let labelEl = Dom.getElementById("v-scene-persistent-label")
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
-      t->expect(Dom.getTextContent(el))->Expect.toBe("# unlabeled")
+      t->expect(Dom.getTextContent(el)->String.includes("unlabeled"))->Expect.toBe(true)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-hidden"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
     }

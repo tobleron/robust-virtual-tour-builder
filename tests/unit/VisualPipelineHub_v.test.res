@@ -41,6 +41,27 @@ let makeScene = (~id: string, ~name: string, ()): scene => {
   sequenceId: 0,
 }
 
+let makeHotspot = (~linkId: string, ~targetSceneId: string, ()): hotspot => {
+  linkId,
+  yaw: 0.0,
+  pitch: 0.0,
+  target: targetSceneId,
+  targetSceneId: Some(targetSceneId),
+  targetYaw: None,
+  targetPitch: None,
+  targetHfov: None,
+  startYaw: None,
+  startPitch: None,
+  startHfov: None,
+  viewFrame: None,
+  waypoints: None,
+  displayPitch: None,
+  transition: None,
+  duration: None,
+  isAutoForward: None,
+  sequenceOrder: None,
+}
+
 let item = (~id, ~sceneId, ~linkId, ~targetScene="", ()) => {
   id,
   sceneId,
@@ -52,10 +73,13 @@ let item = (~id, ~sceneId, ~linkId, ~targetScene="", ()) => {
 
 describe("VisualPipelineHub", () => {
   test("detect marks scene as hub when it has two unique outgoing targets", t => {
+    let s1 = makeScene(~id="s1", ~name="Hub", ())
+    let s2 = makeScene(~id="s2", ~name="Room A", ())
+    let s3 = makeScene(~id="s3", ~name="Room B", ())
     let scenes = [
-      makeScene(~id="s1", ~name="Hub", ()),
-      makeScene(~id="s2", ~name="Room A", ()),
-      makeScene(~id="s3", ~name="Room B", ()),
+      {...s1, hotspots: [makeHotspot(~linkId="a", ~targetSceneId="s2", ()), makeHotspot(~linkId="b", ~targetSceneId="s3", ())]},
+      s2,
+      s3,
     ]
     let timeline = [
       item(~id="t1", ~sceneId="s1", ~linkId="a", ~targetScene="s2", ()),

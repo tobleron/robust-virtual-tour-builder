@@ -1,5 +1,4 @@
 open Types
-open Actions
 
 type node = {
   id: string,
@@ -70,22 +69,8 @@ let resolveTargetSceneId = (~scenes: array<scene>, ~item: timelineItem): option<
   }
 }
 
-let addVisitedLink = (visited: array<string>, linkId: string): array<string> =>
-  if visited->Belt.Array.some(existing => existing == linkId) {
-    visited
-  } else {
-    Belt.Array.concat(visited, [linkId])
-  }
-
-let applyVisitedActions = (visited: array<string>, actions: array<action>): array<string> =>
-  actions->Belt.Array.reduce(visited, (acc, action) =>
-    switch action {
-    | AddVisitedLink(linkId) => addVisitedLink(acc, linkId)
-    | _ => acc
-    }
-  )
-
 let deriveTraversal = (~state: state, ~maxSteps: int=400): traversal => {
+  let _ = maxSteps
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   switch Belt.Array.get(activeScenes, 0) {
   | None => {sceneOrder: [], edges: []}
@@ -102,61 +87,17 @@ let deriveTraversal = (~state: state, ~maxSteps: int=400): traversal => {
     }
 
     addSceneOnce(startScene.id)
-
-    let currentStateRef = ref({
-      ...state,
-      activeIndex: 0,
-      simulation: {
-        ...state.simulation,
-        status: Running,
-        visitedLinkIds: [],
-      },
-    })
-    let stepCount = ref(0)
-    let continueLoop = ref(true)
-
-    while continueLoop.contents && stepCount.contents < maxSteps {
-      let currentState = currentStateRef.contents
-      switch Belt.Array.get(activeScenes, currentState.activeIndex) {
-      | Some(currentScene) =>
-        switch SimulationMainLogic.getNextMove(currentState) {
-        | SimulationMainLogic.Move({targetIndex, triggerActions, hotspotIndex: _, yaw: _, pitch: _, hfov: _}) =>
-          switch Belt.Array.get(activeScenes, targetIndex) {
-          | Some(targetScene) =>
-            if currentScene.id != targetScene.id {
-              edgeQueue->Belt.MutableQueue.add({
-                fromSceneId: currentScene.id,
-                toSceneId: targetScene.id,
-              })
-            }
-            addSceneOnce(targetScene.id)
-            let visitedAfterMove =
-              applyVisitedActions(currentState.simulation.visitedLinkIds, triggerActions)
-            currentStateRef := {
-              ...currentState,
-              activeIndex: targetIndex,
-              simulation: {
-                ...currentState.simulation,
-                visitedLinkIds: visitedAfterMove,
-              },
-            }
-            stepCount := stepCount.contents + 1
-          | None => continueLoop := false
-          }
-        | SimulationMainLogic.Complete(_) | SimulationMainLogic.None => continueLoop := false
-        }
-      | None => continueLoop := false
+    let orderedHotspots = HotspotSequence.deriveOrderedHotspots(~state)
+    orderedHotspots->Belt.Array.forEach(item => {
+      addSceneOnce(item.sceneId)
+      addSceneOnce(item.targetSceneId)
+      if item.sceneId != item.targetSceneId {
+        edgeQueue->Belt.MutableQueue.add({
+          fromSceneId: item.sceneId,
+          toSceneId: item.targetSceneId,
+        })
       }
-    }
-
-    if stepCount.contents >= maxSteps {
-      Logger.warn(
-        ~module_="VisualPipelineGraph",
-        ~message="TRAVERSAL_MAX_STEPS_REACHED",
-        ~data=Some({"maxSteps": maxSteps}),
-        (),
-      )
-    }
+    })
 
     {
       sceneOrder: sceneOrderQueue->Belt.MutableQueue.toArray,

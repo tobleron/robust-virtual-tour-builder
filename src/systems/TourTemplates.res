@@ -203,6 +203,7 @@ let generateTourHTML = (
   | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
+  let exportTraversalMode = "legacy"
   let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
@@ -213,6 +214,7 @@ let generateTourHTML = (
     stageMaxWidth,
     dynamicHfovEnabled,
     normalizedExportType == "hd",
+    ~exportTraversalMode,
   )
   let logoDiv = switch logoFilename {
   | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`

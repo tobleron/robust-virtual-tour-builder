@@ -252,6 +252,15 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
       )
       dispatch(Batch(actions))
       notifySuccess(~message="Hotspot sequence updated")
+    } else {
+      let allowedOrders = HotspotSequence.deriveAdmissibleOrders(~state=liveState, ~linkId)
+      if allowedOrders->Belt.Array.length > 0 &&
+          !(allowedOrders->Belt.Array.some(order => order == desiredOrder)) {
+        notifyWarning(
+          ~message="Sequence position is not valid",
+          ~details="Only traversal-valid positions are allowed for this hotspot.",
+        )
+      }
     }
   }
 

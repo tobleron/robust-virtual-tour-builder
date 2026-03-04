@@ -58,6 +58,14 @@ let script = `
         return;
       }
       if (mapOpen) {
+        if (key === "n" || key === "N") {
+          if (typeof e.preventDefault === "function") e.preventDefault();
+          if (typeof e.stopPropagation === "function") e.stopPropagation();
+          if (typeof navigateToSceneBySequenceInput === "function") {
+            navigateToSceneBySequenceInput();
+          }
+          return;
+        }
         const mapShortcutKey = key.toLowerCase();
         if (typeof navigateExportMapShortcut === "function" && mapShortcutKey !== "") {
           const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);

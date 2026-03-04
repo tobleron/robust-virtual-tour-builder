@@ -237,6 +237,39 @@ let script = `
         const isReturn = hotspot?.isReturnLink === true;
         return { hotspot, hotspotIndex, resolvedTarget, isAutoForward, isReturn };
       });
+
+      if (EXPORT_TRAVERSAL_MODE === "canonical") {
+        const canonicalSorted = resolvedHotspots.slice().sort((a, b) => {
+          const seqA = Number.isFinite(a?.hotspot?.sequenceNumber) ? Math.trunc(a.hotspot.sequenceNumber) : null;
+          const seqB = Number.isFinite(b?.hotspot?.sequenceNumber) ? Math.trunc(b.hotspot.sequenceNumber) : null;
+          const rankA = a.isReturn ? 900000 + a.hotspotIndex : (seqA !== null ? seqA : 100000 + a.hotspotIndex);
+          const rankB = b.isReturn ? 900000 + b.hotspotIndex : (seqB !== null ? seqB : 100000 + b.hotspotIndex);
+          if (rankA !== rankB) return rankA - rankB;
+          if (a.isAutoForward !== b.isAutoForward) return a.isAutoForward ? 1 : -1;
+          return a.hotspotIndex - b.hotspotIndex;
+        });
+
+        const canonicalNext = canonicalSorted.find(h => !h.hotspot.__visited);
+        if (canonicalNext) {
+          canonicalNext.hotspot.__visited = true;
+          return {
+            hotspot: canonicalNext.hotspot,
+            hotspotIndex: canonicalNext.hotspotIndex,
+            autoForward: canonicalNext.isAutoForward,
+            targetSceneId: canonicalNext.resolvedTarget,
+          };
+        }
+
+        const canonicalFallback = canonicalSorted.find(h => h.hotspotIndex === 0) ?? canonicalSorted[0];
+        if (canonicalFallback) {
+          return {
+            hotspot: canonicalFallback.hotspot,
+            hotspotIndex: canonicalFallback.hotspotIndex,
+            autoForward: canonicalFallback.isAutoForward,
+            targetSceneId: canonicalFallback.resolvedTarget,
+          };
+        }
+      }
       
       // PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)
       const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward);

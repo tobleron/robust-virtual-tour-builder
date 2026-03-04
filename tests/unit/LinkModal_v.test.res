@@ -113,11 +113,11 @@ describe("LinkModal", () => {
       const select = document.createElement("select");
       select.id = "link-target";
       const option = document.createElement("option");
-      option.value = "Scene2";
+      option.value = "id_Scene2";
       option.selected = true;
       select.appendChild(option);
       document.body.appendChild(select);
-      select.value = "Scene2"; 
+      select.value = "id_Scene2"; 
     })()`)
 
     switch receivedConfig.contents {
@@ -233,11 +233,11 @@ describe("LinkModal", () => {
       const select = document.createElement("select");
       select.id = "link-target";
       const option = document.createElement("option");
-      option.value = "Scene2";
+      option.value = "id_Scene2";
       option.selected = true;
       select.appendChild(option);
       document.body.appendChild(select);
-      select.value = "Scene2";
+      select.value = "id_Scene2";
 
       const seqInput = document.createElement("input");
       seqInput.id = "link-sequence-order";

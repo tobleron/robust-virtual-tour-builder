@@ -506,6 +506,9 @@ let _ = describe("TourTemplates", () => {
       "navigateToFloorTagShortcut(entry.sceneId, { fromMap: true, mapSelectedRow: row });",
     )
     t->expectToContain(html, "if (currentSceneId && entry.sceneId === currentSceneId) return true;")
+    t->expectToContain(html, "jumpTextEl.textContent = \"jump to sequence\";")
+    t->expectToContain(html, "if (key === \"n\" || key === \"N\") {")
+    t->expectToContain(html, "function navigateToSceneBySequenceInput() {")
   })
 
   test("generateTourHTML renders marketing banner with configured chips", t => {

@@ -236,11 +236,39 @@ let script = `
         exitRow.appendChild(exitTextEl);
         panel.appendChild(exitRow);
       };
+      const appendJumpBySequenceRow = () => {
+        const jumpRow = document.createElement("button");
+        jumpRow.type = "button";
+        jumpRow.className = "floor-map-shortcut-row";
+        jumpRow.setAttribute("aria-label", "Jump to scene sequence");
+        jumpRow.addEventListener("click", () => {
+          if (typeof navigateToSceneBySequenceInput === "function") {
+            navigateToSceneBySequenceInput();
+          }
+        });
+
+        const jumpIndicatorEl = document.createElement("span");
+        jumpIndicatorEl.className = "shortcut-indicator-spacer";
+
+        const jumpKeyEl = document.createElement("span");
+        jumpKeyEl.className = "floor-map-shortcut-key";
+        jumpKeyEl.textContent = "n";
+
+        const jumpTextEl = document.createElement("span");
+        jumpTextEl.className = "floor-map-shortcut-text";
+        jumpTextEl.textContent = "jump to sequence";
+
+        jumpRow.appendChild(jumpIndicatorEl);
+        jumpRow.appendChild(jumpKeyEl);
+        jumpRow.appendChild(jumpTextEl);
+        panel.appendChild(jumpRow);
+      };
       if (!mapEntries || mapEntries.length === 0) {
         const emptyRow = document.createElement("div");
         emptyRow.className = "floor-map-shortcut-empty";
         emptyRow.textContent = "no mapped floors available";
         panel.appendChild(emptyRow);
+        appendJumpBySequenceRow();
         appendExitRow();
         return;
       }
@@ -276,6 +304,7 @@ let script = `
         row.appendChild(textEl);
         panel.appendChild(row);
       });
+      appendJumpBySequenceRow();
       appendExitRow();
     }
 `

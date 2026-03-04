@@ -50,7 +50,7 @@ describe("Constants", _ => {
     t->expect(Constants.Media.uploadInFlightBudgetMbDefault)->Expect.toBe(250.0)
     t->expect(Constants.Media.processFullSpacingMinMs)->Expect.toBe(250.0)
     t->expect(Constants.Media.exportSceneWebpQuality)->Expect.toBe(0.80)
-    t->expect(Constants.Media.exportScenePolicy)->Expect.toBe("browser-webp80-v1")
+    t->expect(Constants.Media.exportSceneMaxWidth)->Expect.toBe(4096.0)
   })
 
   test("export timeout configuration", t => {

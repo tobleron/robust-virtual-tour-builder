@@ -302,7 +302,6 @@ let appendTemplates = (
   FormData.append(formData, "html_desktop_2k_blob", htmlDesktop2kBlob)
   FormData.append(formData, "html_index", htmlIndex)
   FormData.append(formData, "embed_codes", embed)
-  FormData.append(formData, "scene_policy", Constants.Media.exportScenePolicy)
   projectData->Option.forEach(data =>
     FormData.append(formData, "project_data", JsonCombinators.Json.stringify(data))
   )

@@ -119,7 +119,7 @@ describe("ViewerUI", () => {
     Dom.removeElement(container)
   })
 
-  testAsync("should display scene label with # prefix", async t => {
+  testAsync("should display scene label with sequence badge", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -139,7 +139,9 @@ describe("ViewerUI", () => {
     let labelEl = Dom.getElementById("v-scene-persistent-label")
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
-      t->expect(Dom.getTextContent(el))->Expect.toBe("# " ++ defaultScene.label)
+      let labelText = Dom.getTextContent(el)
+      t->expect(labelText->String.includes("# 1"))->Expect.toBe(true)
+      t->expect(labelText->String.includes(defaultScene.label))->Expect.toBe(true)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
     }

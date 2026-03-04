@@ -1,10 +1,7 @@
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
-use std::collections::HashMap;
 use std::io::Write;
 use zip::ZipWriter;
 use zip::write::FileOptions;
-
-pub const REQUIRED_SCENE_POLICY: &str = "browser-webp92-v1";
 
 pub fn target_dimensions(src_w: u32, src_h: u32, max_width: u32) -> (u32, u32) {
     if src_w <= max_width {
@@ -24,22 +21,6 @@ pub fn write_zip_file(
 ) -> Result<(), String> {
     zip.start_file(path, options).map_err(|e| e.to_string())?;
     zip.write_all(data).map_err(|e| e.to_string())?;
-    Ok(())
-}
-
-pub fn require_scene_policy(fields: &HashMap<String, String>) -> Result<(), String> {
-    let provided = fields
-        .get("scene_policy")
-        .map(|v| v.trim())
-        .unwrap_or_default();
-
-    if provided != REQUIRED_SCENE_POLICY {
-        return Err(format!(
-            "Rejected export payload: invalid scene policy (expected '{}', got '{}')",
-            REQUIRED_SCENE_POLICY, provided
-        ));
-    }
-
     Ok(())
 }
 

@@ -26,14 +26,24 @@ let make = () => {
   PerfUtils.useRenderBudget("VisualPipeline")
   injectStyles()
 
+  let state = AppContext.useAppState()
   let pipelineSlice = AppContext.usePipelineSlice()
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
   let isSystemLocked = Capability.useIsSystemLocked()
 
-  let graph = React.useMemo2(
-    () => VisualPipelineGraph.build(~scenes=pipelineSlice.scenes, ~timeline=pipelineSlice.timeline),
-    (pipelineSlice.timeline, pipelineSlice.scenes),
+  let canonicalTraversal = React.useMemo1(
+    () => VisualPipelineGraph.deriveTraversal(~state),
+    [state.structuralRevision],
+  )
+  let graph = React.useMemo3(
+    () =>
+      VisualPipelineGraph.build(
+        ~scenes=pipelineSlice.scenes,
+        ~timeline=pipelineSlice.timeline,
+        ~traversal=Some(canonicalTraversal),
+      ),
+    (pipelineSlice.timeline, pipelineSlice.scenes, canonicalTraversal),
   )
   let displayNodes = graph.nodes
   let sceneOrderIndex = React.useMemo1(() => {
