@@ -51,20 +51,22 @@ let initialize = (id, config) => {
             let cy = Viewer.getYaw(v)
             let hf = Viewer.getHfov(v)
 
-            let dispatchEvent: (float, float, float, float, float) => unit = %raw(`
-                    function(p, y, cp, cy, hf) {
+            let dispatchEvent: (float, float, float, float, float, float, float) => unit = %raw(`
+                    function(p, y, cp, cy, hf, clientX, clientY) {
                       window.document.dispatchEvent(new CustomEvent("viewer-click", {
                         detail: {
                           pitch: p,
                           yaw: y,
                           camPitch: cp,
                           camYaw: cy,
-                          camHfov: hf
+                          camHfov: hf,
+                          clientX: clientX,
+                          clientY: clientY
                         }
                       }));
                     }
                   `)
-            dispatchEvent(p, y, cp, cy, hf)
+            dispatchEvent(p, y, cp, cy, hf, clientX, clientY)
 
             Logger.debug(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
           }

@@ -57,6 +57,8 @@ module ViewerClickEvent = {
     camPitch: float,
     camYaw: float,
     camHfov: float,
+    clientX: float,
+    clientY: float,
   }
 
   type t
@@ -342,11 +344,27 @@ let init = async () => {
             if state.isLinking {
               let customEvent = ViewerClickEvent.fromEvent(e)
               let detail = ViewerClickEvent.detail(customEvent)
+              let resolvedLinkPitch = {
+                let viewer = ViewerSystem.getActiveViewer()
+                switch Nullable.toOption(viewer) {
+                | Some(v) if Float.isFinite(detail.clientX) && Float.isFinite(detail.clientY) =>
+                  let adjustedMouseEvent: Viewer.mouseEvent = {
+                    "clientX": detail.clientX,
+                    "clientY": detail.clientY +. Constants.linkingRodHeight,
+                  }
+                  let adjustedCoords = Viewer.mouseEventToCoords(v, adjustedMouseEvent)
+                  switch Belt.Array.get(adjustedCoords, 0) {
+                  | Some(adjustedPitch) if Float.isFinite(adjustedPitch) => adjustedPitch
+                  | _ => detail.pitch
+                  }
+                | _ => detail.pitch
+                }
+              }
 
               switch state.linkDraft {
               | None =>
                 let newDraft: Types.linkDraft = {
-                  pitch: detail.pitch,
+                  pitch: resolvedLinkPitch,
                   yaw: detail.yaw,
                   camPitch: detail.camPitch,
                   camYaw: detail.camYaw,
@@ -358,7 +376,7 @@ let init = async () => {
 
               | Some(current) =>
                 let newPoint: Types.linkDraft = {
-                  pitch: detail.pitch,
+                  pitch: resolvedLinkPitch,
                   yaw: detail.yaw,
                   camPitch: detail.camPitch,
                   camYaw: detail.camYaw,
