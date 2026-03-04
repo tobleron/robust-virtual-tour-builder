@@ -33,6 +33,14 @@ let script = `
     function handleExportKeydown(e) {
       if (!e || e.altKey || e.ctrlKey || e.metaKey) return;
       const key = typeof e.key === "string" ? e.key : "";
+      const target = e.target;
+      const targetTag = typeof target?.tagName === "string" ? target.tagName.toUpperCase() : "";
+      const isTypingElement =
+        targetTag === "INPUT" ||
+        targetTag === "TEXTAREA" ||
+        targetTag === "SELECT" ||
+        target?.isContentEditable === true;
+      if (isTypingElement) return;
       const mapOpen = typeof isExportMapOpen === "function" && isExportMapOpen();
 
       if (key === "Escape" || key === "Esc") {
@@ -100,6 +108,16 @@ let script = `
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
         navigateToExportHome();
+        return;
+      }
+      if (key === "r" || key === "R") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
+        if (typeof stopAutoTour === "function") stopAutoTour();
+        if (typeof navigateReturnHotspotFromCurrentScene !== "function") return;
+        const didNavigateReturn = navigateReturnHotspotFromCurrentScene();
+        if (!didNavigateReturn) return;
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
         return;
       }
       if (key === "ArrowUp") {

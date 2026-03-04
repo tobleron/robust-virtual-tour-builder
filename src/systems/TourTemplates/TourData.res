@@ -11,6 +11,8 @@ type hotspotData = {
   "target": string,
   "targetSceneId": string,
   "targetIsAutoForward": bool,
+  "isReturnLink": bool,
+  "sequenceNumber": Nullable.t<int>,
   "startYaw": Nullable.t<float>,
   "startPitch": Nullable.t<float>,
   "waypoints": Nullable.t<array<viewFrame>>,
@@ -41,6 +43,13 @@ let encodeHotspot = (h: hotspotData) => {
     ("target", JsonCombinators.Json.Encode.string(h["target"])),
     ("targetSceneId", JsonCombinators.Json.Encode.string(h["targetSceneId"])),
     ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(h["targetIsAutoForward"])),
+    ("isReturnLink", JsonCombinators.Json.Encode.bool(h["isReturnLink"])),
+    (
+      "sequenceNumber",
+      JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.int)(
+        Nullable.toOption(h["sequenceNumber"]),
+      ),
+    ),
     (
       "startYaw",
       JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(

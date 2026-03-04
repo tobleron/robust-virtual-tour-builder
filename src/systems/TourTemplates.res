@@ -39,6 +39,58 @@ let generateTourHTML = (
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
   let rawScenesData = Dict.make()
   let hasSceneId = (sceneId: string) => scenes->Belt.Array.some(ts => ts.id == sceneId)
+  let sequencingState: state = {
+    ...State.initialState,
+    inventory: scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, scene) =>
+      acc->Belt.Map.String.set(scene.id, {scene, status: Active})
+    ),
+    sceneOrder: scenes->Belt.Array.map(scene => scene.id),
+    activeIndex: 0,
+  }
+  let derivedBadgeByLinkId =
+    if scenes->Belt.Array.length > 0 {
+      HotspotSequence.deriveBadgeByLinkId(~state=sequencingState)
+    } else {
+      Belt.Map.String.empty
+    }
+  let maxDerivedSequence =
+    derivedBadgeByLinkId
+    ->Belt.Map.String.toArray
+    ->Belt.Array.reduce(0, (currentMax, (_, badge)) =>
+      switch badge {
+      | HotspotSequence.Sequence(sequenceNo) =>
+        if sequenceNo > currentMax {
+          sequenceNo
+        } else {
+          currentMax
+        }
+      | HotspotSequence.Return => currentMax
+      }
+    )
+  let fallbackSequenceByLinkId = ref(Belt.Map.String.empty)
+  let nextFallbackSequence = ref(maxDerivedSequence + 1)
+  let resolveExportBadge = (
+    ~linkId: string,
+    ~hasValidTarget: bool,
+  ): (bool, option<int>) =>
+    switch derivedBadgeByLinkId->Belt.Map.String.get(linkId) {
+    | Some(HotspotSequence.Return) => (true, None)
+    | Some(HotspotSequence.Sequence(sequenceNo)) => (false, Some(sequenceNo))
+    | None =>
+      if !hasValidTarget {
+        (false, None)
+      } else {
+        switch fallbackSequenceByLinkId.contents->Belt.Map.String.get(linkId) {
+        | Some(sequenceNo) => (false, Some(sequenceNo))
+        | None =>
+          let assignedSequence = nextFallbackSequence.contents
+          nextFallbackSequence := assignedSequence + 1
+          fallbackSequenceByLinkId :=
+            fallbackSequenceByLinkId.contents->Belt.Map.String.set(linkId, assignedSequence)
+          (false, Some(assignedSequence))
+        }
+      }
+    }
 
   scenes->Belt.Array.forEach(s => {
     let rawHotspots =
@@ -60,7 +112,12 @@ let generateTourHTML = (
         | Some(true) => true
         | _ => false
         }
-        if hasSceneId(resolvedTargetId) {
+        let hasValidTarget = hasSceneId(resolvedTargetId)
+        let (isReturnLink, sequenceNumber) = resolveExportBadge(
+          ~linkId=h.linkId,
+          ~hasValidTarget,
+        )
+        if hasValidTarget {
           Some(
             (
               {
@@ -69,6 +126,8 @@ let generateTourHTML = (
                 "target": h.target,
                 "targetSceneId": resolvedTargetId,
                 "targetIsAutoForward": targetIsAutoForward,
+                "isReturnLink": isReturnLink,
+                "sequenceNumber": sequenceNumber->Nullable.fromOption,
                 "startYaw": h.startYaw->Nullable.fromOption,
                 "startPitch": h.startPitch->Nullable.fromOption,
                 "waypoints": h.waypoints->Nullable.fromOption,
@@ -252,7 +311,7 @@ let generateTourHTML = (
     )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [sceneId, data] of Object.entries(scenesData)) {
-      config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+      config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, sequenceNumber: h.sequenceNumber, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     const mountFileProtocolWarning = () => {
       const existing = document.getElementById('file-protocol-warning');

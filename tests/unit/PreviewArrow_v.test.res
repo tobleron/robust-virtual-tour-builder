@@ -81,6 +81,8 @@ describe("PreviewArrow", () => {
         dispatch=mockDispatch
         elementId="arrow-1"
         isTargetAutoForward=false
+        sequenceLabel={None}
+        isReturnNode={false}
         scenes=mockScenes
         state=mockState
       />,

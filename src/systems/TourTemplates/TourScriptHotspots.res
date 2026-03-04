@@ -162,6 +162,15 @@ let script = `
       const hotspotIndex = args.i ?? 0;
       const ownerHotspot = scenesData?.[ownerScene]?.hotSpots?.[hotspotIndex];
       const isAutoForwardConfig = args.targetIsAutoForward === true;
+      const isReturnLink = args.isReturnLink === true || ownerHotspot?.isReturnLink === true;
+      const sequenceFromArgs = Number.isFinite(args.sequenceNumber) && args.sequenceNumber > 0
+        ? Math.trunc(args.sequenceNumber)
+        : null;
+      const sequenceFromOwner = Number.isFinite(ownerHotspot?.sequenceNumber) && ownerHotspot.sequenceNumber > 0
+        ? Math.trunc(ownerHotspot.sequenceNumber)
+        : null;
+      const resolvedSequenceNumber = sequenceFromArgs ?? sequenceFromOwner;
+      const faceText = isReturnLink ? "R" : (resolvedSequenceNumber !== null ? String(resolvedSequenceNumber) : "");
       const afKey = ownerScene + ":" + hotspotIndex;
       const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
 
@@ -183,6 +192,8 @@ let script = `
       hotSpotDiv.dataset.targetSceneId = targetSceneForLabel;
       const labelText = formatSceneLabel(targetSceneForLabel);
       hotSpotDiv.dataset.hotspotIndex = String(hotspotIndex);
+      hotSpotDiv.dataset.returnLink = isReturnLink ? "true" : "false";
+      hotSpotDiv.dataset.sequenceNumber = resolvedSequenceNumber !== null ? String(resolvedSequenceNumber) : "";
       hotSpotDiv.dataset.ready = "false";
       hotSpotDiv.classList.remove("waypoint-ready");
       hotSpotDiv.classList.add("waypoint-pending");
@@ -232,17 +243,21 @@ let script = `
       btn.className = "export-hotspot-btn";
       const sweep = document.createElement("div");
       sweep.className = "export-hotspot-btn-sweep";
-      const icon = document.createElementNS(ns, "svg");
-      icon.setAttribute("class", "export-hotspot-icon");
-      icon.setAttribute("viewBox", "0 0 24 24");
-      if (isAutoForwardVisual) {
-        const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M6 17 L11 12 L6 7"); icon.appendChild(p1);
-        const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M13 17 L18 12 L13 7"); icon.appendChild(p2);
-      } else {
-        const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M6 14 L12 8 L18 14"); icon.appendChild(p);
-      }
       btn.appendChild(sweep);
-      btn.appendChild(icon);
+      if (faceText) {
+        const textEl = document.createElement("span");
+        textEl.className = "export-hotspot-face-text" + (isReturnLink ? " is-return" : "");
+        textEl.textContent = faceText;
+        btn.appendChild(textEl);
+      } else {
+        const icon = document.createElementNS(ns, "svg");
+        icon.setAttribute("class", "export-hotspot-icon");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        const p = document.createElementNS(ns, "path");
+        p.setAttribute("d", "M6 14 L12 8 L18 14");
+        icon.appendChild(p);
+        btn.appendChild(icon);
+      }
       root.appendChild(btn);
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(root);

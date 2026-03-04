@@ -161,7 +161,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "\"autoForwardTargetSceneId\":\"sc3\"")
   })
 
-  test("generateTourHTML keeps two-state hotspot icon rendering", t => {
+  test("generateTourHTML renders in-hotspot text and simple fallback icon", t => {
     let autoHotspot = {
       ...mockHotspot,
       linkId: "auto-link",
@@ -181,9 +181,12 @@ let _ = describe("TourTemplates", () => {
       "1.0",
     )
     t->expectToContain(html, "\"targetIsAutoForward\":true")
-    t->expectToContain(html, "if (isAutoForwardVisual)")
-    t->expectToContain(html, "M6 17 L11 12 L6 7")
+    t->expectToContain(html, "\"sequenceNumber\":1")
+    t->expectToContain(html, "const faceText = isReturnLink ? \"R\"")
+    t->expectToContain(html, "const textEl = document.createElement(\"span\");")
+    t->expectToContain(html, "textEl.className = \"export-hotspot-face-text\"")
     t->expectToContain(html, "M6 14 L12 8 L18 14")
+    t->expect(String.includes(html, "M6 17 L11 12 L6 7"))->Expect.toBe(false)
   })
 
   test("generateTourHTML auto-advance uses explicit route metadata only", t => {
@@ -405,6 +408,19 @@ let _ = describe("TourTemplates", () => {
       html,
       "const isAutoForwardVisual = isAutoForwardConfig && !isHubScene && !isAutoForwardExpired;",
     )
+    t
+    ->expect(
+      String.includes(html, ".export-hotspot-root.auto-forward .export-hotspot-btn { background: #059669;"),
+    )
+    ->Expect.toBe(false)
+  })
+
+  test("generateTourHTML wires export keyboard shortcut R to return link navigation", t => {
+    let html = generateTourHTML([mockScene1, mockScene2], "Return Shortcut Tour", None, "hd", 32, 40, "1.0")
+    t->expectToContain(html, "function resolveSceneReturnHotspot(sceneId)")
+    t->expectToContain(html, "function navigateReturnHotspotFromCurrentScene()")
+    t->expectToContain(html, "if (key === \"r\" || key === \"R\")")
+    t->expectToContain(html, "const didNavigateReturn = navigateReturnHotspotFromCurrentScene();")
   })
 
   test("generateTourHTML suppresses shortcut panel before auto-tour return-home transition", t => {

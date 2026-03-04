@@ -141,6 +141,8 @@ describe("Hotspot Move & Toggle Regression", () => {
             dispatch={_ => ()}
             elementId="arrow-moving"
             isTargetAutoForward=false
+            sequenceLabel={None}
+            isReturnNode={false}
             scenes=mockScenes
             state=mockState
           />
@@ -204,6 +206,8 @@ describe("Hotspot Move & Toggle Regression", () => {
           dispatch=mockDispatch
           elementId="arrow-toggle"
           isTargetAutoForward=false
+          sequenceLabel={None}
+          isReturnNode={false}
           scenes=mockScenes
           state=mockState
         />

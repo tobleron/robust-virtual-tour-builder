@@ -58,7 +58,6 @@ let make = React.memo(() => {
   | _ => true
   }
   let showHotspotLabels = !isTeasing && !operationBusy && !simulationActive
-  let showHotspotSequenceBadges = showHotspotLabels
   let hotspotBadgeByLinkId = React.useMemo1(
     () => HotspotSequence.deriveBadgeByLinkId(~state),
     [state.structuralRevision],
@@ -184,6 +183,12 @@ let make = React.memo(() => {
                 ->Option.map(sceneDisplayLabel)
               | None => None
               }
+              let badge = hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId)
+              let (sequenceLabel, isReturnNode) = switch badge {
+              | Some(HotspotSequence.Sequence(sequenceNo)) => (Some(sequenceNo), false)
+              | Some(HotspotSequence.Return) => (None, true)
+              | None => (None, false)
+              }
 
               <div
                 key={h.linkId}
@@ -206,27 +211,14 @@ let make = React.memo(() => {
                 } else {
                   React.null
                 }}
-                {if showHotspotSequenceBadges {
-                  switch hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId) {
-                  | Some(HotspotSequence.Sequence(sequenceNo)) =>
-                    <div className="hs-hotspot-sequence-badge pointer-events-none">
-                      {React.string(Int.toString(sequenceNo))}
-                    </div>
-                  | Some(HotspotSequence.Return) =>
-                    <div className="hs-hotspot-sequence-badge is-return pointer-events-none">
-                      {React.string("R")}
-                    </div>
-                  | None => React.null
-                  }
-                } else {
-                  React.null
-                }}
                 <PreviewArrow
                   sceneIndex={state.activeIndex}
                   hotspotIndex={i}
                   dispatch={dispatch}
                   elementId={elementId}
                   isTargetAutoForward={isAutoForward}
+                  sequenceLabel
+                  isReturnNode
                   scenes={activeScenes}
                   state={state}
                 />

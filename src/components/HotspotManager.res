@@ -117,6 +117,8 @@ let createHotspotConfig = (
             dispatch={dispatch}
             elementId={elementId}
             isTargetAutoForward={isAutoForward}
+            sequenceLabel={None}
+            isReturnNode={false}
             scenes={SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)}
             state={state}
           />,

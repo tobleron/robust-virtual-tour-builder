@@ -11,6 +11,8 @@ let make = (
   ~dispatch: Actions.action => unit,
   ~elementId: string,
   ~isTargetAutoForward as initialAF: bool,
+  ~sequenceLabel: option<int>,
+  ~isReturnNode: bool,
   ~scenes as _scenes: array<Types.scene>,
   ~state as _stateProp: Types.state,
 ) => {
@@ -65,21 +67,29 @@ let make = (
   }, [isMovingThis])
 
   // 2. Button Swap Logic (Uses localIsAF for instant feedback)
-  let (centerIcon, rightIcon) = if isMovingThis {
-    (
-      <LucideIcons.Move.make className="text-white" size=20 strokeWidth={3.0} />,
-      <LucideIcons.ChevronUp.make className="text-white" size=18 strokeWidth={3.0} />,
-    )
-  } else if localIsAF {
-    (
-      <LucideIcons.ChevronsRight.make className="text-white" size=20 strokeWidth={3.0} />,
-      <LucideIcons.ChevronUp.make className="text-white" size=18 strokeWidth={3.0} />,
-    )
+  let centerContent = if isMovingThis {
+    <LucideIcons.Move.make className="text-white" size=20 strokeWidth={3.0} />
+  } else if isReturnNode {
+    <span className="hs-hotspot-face-text is-return">{React.string("R")}</span>
   } else {
-    (
-      <LucideIcons.ChevronUp.make className="text-white" size=20 strokeWidth={3.0} />,
-      <LucideIcons.ChevronsRight.make className="text-white" size=18 strokeWidth={3.0} />,
-    )
+    switch sequenceLabel {
+    | Some(sequenceNo) =>
+      <span className="hs-hotspot-face-text">{React.string(Int.toString(sequenceNo))}</span>
+    | None =>
+      if localIsAF {
+        <LucideIcons.ChevronsRight.make className="text-white" size=20 strokeWidth={3.0} />
+      } else {
+        <LucideIcons.ChevronUp.make className="text-white" size=20 strokeWidth={3.0} />
+      }
+    }
+  }
+
+  let rightIcon = if isMovingThis {
+    <LucideIcons.ChevronUp.make className="text-white" size=18 strokeWidth={3.0} />
+  } else if localIsAF {
+    <LucideIcons.ChevronUp.make className="text-white" size=18 strokeWidth={3.0} />
+  } else {
+    <LucideIcons.ChevronsRight.make className="text-white" size=18 strokeWidth={3.0} />
   }
 
   // 3. Handlers
@@ -391,7 +401,7 @@ let make = (
               className="absolute inset-0 bg-gradient-to-b from-transparent via-white/25 to-transparent pointer-events-none animate-diagonal-sweep scale-[2]"
             />
           : React.null}
-        {centerIcon}
+        {centerContent}
       </div>
 
       {!isMovingThis

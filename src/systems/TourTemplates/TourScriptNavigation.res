@@ -260,6 +260,47 @@ let script = `
       
       return { hotspot: hotspots[0], hotspotIndex: 0, autoForward: false, targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null };
     }
+    function resolveSceneReturnHotspot(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const sceneData = scenesData?.[resolvedSceneId];
+      const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
+      for (let hotspotIndex = 0; hotspotIndex < hotspots.length; hotspotIndex += 1) {
+        const hotspot = hotspots[hotspotIndex];
+        if (!hotspot || hotspot.isReturnLink !== true) continue;
+        const resolvedTarget = resolveTargetSceneId({
+          sourceSceneId: resolvedSceneId,
+          i: hotspotIndex,
+          targetSceneId: hotspot?.targetSceneId,
+          target: hotspot?.target,
+          targetName: hotspot?.target,
+        }, null);
+        if (!resolvedTarget) continue;
+        return { hotspot, hotspotIndex, targetSceneId: resolvedTarget, sourceSceneId: resolvedSceneId };
+      }
+      return null;
+    }
+    function navigateReturnHotspotFromCurrentScene() {
+      const currentSceneId =
+        resolveExistingSceneId(window.viewer.getScene())
+        ?? normalizeSceneId(window.viewer.getScene());
+      if (!currentSceneId) return false;
+      const returnCandidate = resolveSceneReturnHotspot(currentSceneId);
+      if (!returnCandidate) return false;
+      const options = {
+        fromAutoForward: false,
+        sourceSceneId: currentSceneId,
+        targetSceneId: returnCandidate.targetSceneId,
+      };
+      const hotspotsNow = getSceneHotspots(currentSceneId);
+      const preferred = hotspotsNow.find(el => el.dataset.hotspotIndex === String(returnCandidate.hotspotIndex));
+      if (preferred && typeof preferred.__navigateNext === "function") {
+        preferred.__navigateNext(options);
+        return true;
+      }
+      navigateToNextScene(returnCandidate.hotspot, returnCandidate.targetSceneId, options);
+      return true;
+    }
     function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft, destinationOverride) {
       if (window.viewer.getScene() !== sceneId) return;
       const autoForwardOptions = {
