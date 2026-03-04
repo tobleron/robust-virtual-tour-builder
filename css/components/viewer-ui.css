@@ -208,8 +208,8 @@
 }
 
 .hs-hotspot-face-text.is-return {
-    color: #f97316;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.88), 0 0 1px rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.88);
 }
 
 .hs-hotspot-sequence-badge {

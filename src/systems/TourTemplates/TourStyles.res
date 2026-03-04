@@ -89,7 +89,7 @@ let cssTemplate = `
     .export-hotspot-btn-sweep { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent); pointer-events: none; transform: scale(2); animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite; }
     .export-hotspot-root.auto-forward .export-hotspot-btn-sweep { --sweep-duration: 1.5s; }
     .export-hotspot-face-text { position: relative; z-index: 2; color: #ffffff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 14px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; user-select: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-    .export-hotspot-face-text.is-return { color: #f97316; text-shadow: 0 1px 2px rgba(0,0,0,0.88), 0 0 1px rgba(255,255,255,0.6); }
+    .export-hotspot-face-text.is-return { color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.88); }
     .export-hotspot-icon { position: relative; z-index: 2; width: 20px; height: 20px; overflow: visible; }
     .export-hotspot-icon path { stroke: white; stroke-width: 3.0; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .glow-unit { fill-opacity: 0; fill: var(--glow-color); }

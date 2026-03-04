@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Pre visual hotspot upgrade + appropriate message
 - Inline hotspot sequence/R rendering in builder and export
+- Upgrade complete, app visually stable
 
 ## [5.2.2] - 2026-03-03
 

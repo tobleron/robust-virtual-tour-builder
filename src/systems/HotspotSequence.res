@@ -87,6 +87,13 @@ let addVisitedLink = (visited: array<string>, linkId: string): array<string> =>
     Belt.Array.concat(visited, [linkId])
   }
 
+let addVisitedSceneId = (visited: array<string>, sceneId: string): array<string> =>
+  if sceneId == "" || visited->Belt.Array.some(existing => existing == sceneId) {
+    visited
+  } else {
+    Belt.Array.concat(visited, [sceneId])
+  }
+
 let applyVisitedActions = (~visited: array<string>, ~actions: array<Actions.action>): array<string> =>
   actions->Belt.Array.reduce(visited, (acc, action) =>
     switch action {
@@ -109,19 +116,117 @@ let firstNewLinkId = (~visited: array<string>, ~actions: array<Actions.action>):
     }
   )
 
+type parentTraversalHotspot = {
+  hotspot: hotspot,
+  hotspotIndex: int,
+  isAutoForward: bool,
+}
+
+let orderParentTraversalHotspots = (hotspots: array<hotspot>): array<parentTraversalHotspot> =>
+  hotspots
+  ->Belt.Array.mapWithIndex((hotspotIndex, hotspot) => {
+    let isAutoForward = hotspot.isAutoForward->Option.getOr(false)
+    {hotspot, hotspotIndex, isAutoForward}
+  })
+  ->Belt.SortArray.stableSortBy((a, b) => {
+    if a.isAutoForward == b.isAutoForward {
+      a.hotspotIndex - b.hotspotIndex
+    } else if a.isAutoForward {
+      1
+    } else {
+      -1
+    }
+  })
+
+let deriveParentSceneMap = (~activeScenes: array<scene>): Belt.Map.String.t<string> => {
+  let sceneById =
+    activeScenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, scene) =>
+      acc->Belt.Map.String.set(scene.id, scene)
+    )
+  let visitedSceneIds = ref([])
+  let parentBySceneId = ref(Belt.Map.String.empty)
+
+  let traverseFromSceneId = (rootSceneId: string): unit => {
+    visitedSceneIds := addVisitedSceneId(visitedSceneIds.contents, rootSceneId)
+    let queue: array<string> = [rootSceneId]
+    let cursor = ref(0)
+
+    while cursor.contents < queue->Belt.Array.length {
+      let currentSceneId = queue->Belt.Array.get(cursor.contents)->Option.getOr("")
+      cursor := cursor.contents + 1
+
+      if currentSceneId != "" {
+        switch sceneById->Belt.Map.String.get(currentSceneId) {
+        | Some(currentScene) =>
+          currentScene.hotspots
+          ->orderParentTraversalHotspots
+          ->Belt.Array.forEach(candidate =>
+            switch HotspotTarget.resolveSceneId(activeScenes, candidate.hotspot) {
+            | Some(targetSceneId) if targetSceneId != "" =>
+              let targetSeen =
+                visitedSceneIds.contents->Belt.Array.some(id => id == targetSceneId)
+              if !targetSeen {
+                parentBySceneId :=
+                  parentBySceneId.contents->Belt.Map.String.set(
+                    targetSceneId,
+                    currentSceneId,
+                  )
+                visitedSceneIds :=
+                  addVisitedSceneId(visitedSceneIds.contents, targetSceneId)
+                Array.push(queue, targetSceneId)->ignore
+              }
+            | _ => ()
+            }
+          )
+        | None => ()
+        }
+      }
+    }
+  }
+
+  activeScenes->Belt.Array.forEach(scene => {
+    let alreadyVisited = visitedSceneIds.contents->Belt.Array.some(id => id == scene.id)
+    if !alreadyVisited {
+      traverseFromSceneId(scene.id)
+    }
+  })
+
+  parentBySceneId.contents
+}
+
+let applyParentReturnBadges = (
+  ~activeScenes: array<scene>,
+  ~parentBySceneId: Belt.Map.String.t<string>,
+  ~badges: Belt.Map.String.t<badgeKind>,
+): Belt.Map.String.t<badgeKind> => {
+  let finalizedBadges = ref(badges)
+  activeScenes->Belt.Array.forEach(sourceScene => {
+    switch parentBySceneId->Belt.Map.String.get(sourceScene.id) {
+    | Some(parentSceneId) =>
+      sourceScene.hotspots->Belt.Array.forEach(hotspot =>
+        switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
+        | Some(targetSceneId) if targetSceneId == parentSceneId =>
+          finalizedBadges :=
+            finalizedBadges.contents->Belt.Map.String.set(hotspot.linkId, Return)
+        | _ => ()
+        }
+      )
+    | None => ()
+    }
+  })
+  finalizedBadges.contents
+}
+
 let deriveTraversalBadgeByLinkId = (~state: state, ~maxSteps: int=400): Belt.Map.String.t<badgeKind> => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
 
   switch Belt.Array.get(activeScenes, 0) {
   | None => Belt.Map.String.empty
-  | Some(startScene) =>
+  | Some(_) =>
     let badgeByLinkId = ref(Belt.Map.String.empty)
-    let parentBySceneId = ref(Belt.Map.String.empty)
     let nextSequence = ref(1)
     let stepCount = ref(0)
     let continueLoop = ref(true)
-
-    parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(startScene.id, "")
 
     let currentStateRef = ref({
       ...state,
@@ -137,7 +242,7 @@ let deriveTraversalBadgeByLinkId = (~state: state, ~maxSteps: int=400): Belt.Map
       let currentState = currentStateRef.contents
 
       switch Belt.Array.get(activeScenes, currentState.activeIndex) {
-      | Some(fromScene) =>
+      | Some(_) =>
         switch SimulationMainLogic.getNextMove(currentState) {
         | Move({targetIndex, triggerActions, hotspotIndex: _, yaw: _, pitch: _, hfov: _}) =>
           let maybeToScene = Belt.Array.get(activeScenes, targetIndex)
@@ -147,44 +252,17 @@ let deriveTraversalBadgeByLinkId = (~state: state, ~maxSteps: int=400): Belt.Map
           )
 
           switch (maybeNewLinkId, maybeToScene) {
-          | (Some(linkId), Some(toScene)) =>
-            let isReturn = switch parentBySceneId.contents->Belt.Map.String.get(fromScene.id) {
-            | Some(parentSceneId) => parentSceneId != "" && parentSceneId == toScene.id
-            | None => false
-            }
-
+          | (Some(linkId), Some(_)) =>
             if badgeByLinkId.contents->Belt.Map.String.get(linkId)->Option.isNone {
-              if isReturn {
-                badgeByLinkId := badgeByLinkId.contents->Belt.Map.String.set(linkId, Return)
-              } else {
-                badgeByLinkId :=
-                  badgeByLinkId.contents->Belt.Map.String.set(
-                    linkId,
-                    Sequence(nextSequence.contents),
-                  )
-                nextSequence := nextSequence.contents + 1
-              }
+              badgeByLinkId :=
+                badgeByLinkId.contents->Belt.Map.String.set(
+                  linkId,
+                  Sequence(nextSequence.contents),
+                )
+              nextSequence := nextSequence.contents + 1
             }
-
-            if (
-              parentBySceneId.contents->Belt.Map.String.get(toScene.id)->Option.isNone &&
-              toScene.id != fromScene.id
-            ) {
-              parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(
-                toScene.id,
-                fromScene.id,
-              )
-            }
-          | (None, Some(toScene)) =>
-            if (
-              parentBySceneId.contents->Belt.Map.String.get(toScene.id)->Option.isNone &&
-              toScene.id != fromScene.id
-            ) {
-              parentBySceneId := parentBySceneId.contents->Belt.Map.String.set(
-                toScene.id,
-                fromScene.id,
-              )
-            }
+          | (None, Some(_)) =>
+            ()
           | _ => ()
           }
 
@@ -218,24 +296,12 @@ let deriveTraversalBadgeByLinkId = (~state: state, ~maxSteps: int=400): Belt.Map
       )
     }
 
-    // Force parent-back links to Return even when they were not explicitly traversed.
-    // This keeps "came from parent -> go back to parent" links consistently marked as R.
-    let finalizedBadges = ref(badgeByLinkId.contents)
-    activeScenes->Belt.Array.forEach(sourceScene => {
-      switch parentBySceneId.contents->Belt.Map.String.get(sourceScene.id) {
-      | Some(parentSceneId) if parentSceneId != "" =>
-        sourceScene.hotspots->Belt.Array.forEach(hotspot => {
-          switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
-          | Some(targetSceneId) if targetSceneId == parentSceneId =>
-            finalizedBadges := finalizedBadges.contents->Belt.Map.String.set(hotspot.linkId, Return)
-          | _ => ()
-          }
-        })
-      | _ => ()
-      }
-    })
-
-    finalizedBadges.contents
+    let parentBySceneId = deriveParentSceneMap(~activeScenes)
+    applyParentReturnBadges(
+      ~activeScenes,
+      ~parentBySceneId,
+      ~badges=badgeByLinkId.contents,
+    )
   }
 }
 
@@ -331,19 +397,31 @@ let deriveOrderedForwardRefs = (
 
     if manual->Belt.Array.length == 0 {
       sortedAuto
+    } else if automatic->Belt.Array.length == 0 {
+      manual
+      ->Belt.SortArray.stableSortBy((a, b) => {
+        let seqA = a.manualOrder->Option.getOr(1)
+        let seqB = b.manualOrder->Option.getOr(1)
+        if seqA == seqB {
+          a.item.fallbackOrder - b.item.fallbackOrder
+        } else {
+          seqA - seqB
+        }
+      })
+      ->Belt.Array.map(row => row.item)
     } else {
-      let manualDescending = manual->Belt.SortArray.stableSortBy((a, b) => {
+      let manualAscending = manual->Belt.SortArray.stableSortBy((a, b) => {
         let seqA = a.manualOrder->Option.getOr(1)
         let seqB = b.manualOrder->Option.getOr(1)
         if seqA == seqB {
           b.item.fallbackOrder - a.item.fallbackOrder
         } else {
-          seqB - seqA
+          seqA - seqB
         }
       })
 
       let ordered = ref(sortedAuto)
-      manualDescending->Belt.Array.forEach(row => {
+      manualAscending->Belt.Array.forEach(row => {
         let desiredOrder = row.manualOrder->Option.getOr(1)
         let desiredIndex = clampOrder(desiredOrder, ordered.contents->Belt.Array.length + 1) - 1
         ordered := UiHelpers.insertAt(ordered.contents, desiredIndex, row.item)

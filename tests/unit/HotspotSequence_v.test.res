@@ -83,6 +83,74 @@ let makeParentBacklinkState = () => {
   TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
 }
 
+let makeMultiForwardInboundReturnState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
+  let hAC = makeHotspot(~linkId="hAC", ~targetSceneId="C", ())
+  let hBD = makeHotspot(~linkId="hBD", ~targetSceneId="D", ())
+  let hCE = makeHotspot(~linkId="hCE", ~targetSceneId="E", ())
+  let hED = makeHotspot(~linkId="hED", ~targetSceneId="D", ())
+  let hDA = makeHotspot(~linkId="hDA", ~targetSceneId="A", ())
+  let hDB = makeHotspot(~linkId="hDB", ~targetSceneId="B", ())
+  let hDE = makeHotspot(~linkId="hDE", ~targetSceneId="E", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB, hAC], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[hBD], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[hCE], ())
+  let sceneD = makeScene(~id="D", ~hotspots=[hDA, hDB, hDE], ())
+  let sceneE = makeScene(~id="E", ~hotspots=[hED], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC, sceneD, sceneE], ~activeIndex=0, ())
+}
+
+let makeAutoForwardUnvisitedReturnState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
+  let hBA = makeHotspot(~linkId="hBA", ~targetSceneId="A", ())
+  let hBC = {
+    ...makeHotspot(~linkId="hBC", ~targetSceneId="C", ()),
+    isAutoForward: Some(true),
+  }
+  let hCB = makeHotspot(~linkId="hCB", ~targetSceneId="B", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB], ())
+  // Keep return-first order so traversal can end before visiting C.
+  let sceneB = makeScene(~id="B", ~hotspots=[hBA, hBC], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[hCB], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
+}
+
+let makeMasterBalconyReturnState = () => {
+  let hHM = makeHotspot(~linkId="hHM", ~targetSceneId="master", ())
+  let hMH = {
+    ...makeHotspot(~linkId="hMH", ~targetSceneId="hub", ()),
+    isAutoForward: Some(true),
+  }
+  let hMB = makeHotspot(~linkId="hMB", ~targetSceneId="balcony", ())
+  let hBM = {
+    ...makeHotspot(~linkId="hBM", ~targetSceneId="master", ()),
+    isAutoForward: Some(true),
+  }
+
+  let hub = makeScene(~id="hub", ~hotspots=[hHM], ())
+  let master = makeScene(~id="master", ~hotspots=[hMB, hMH], ())
+  let balcony = makeScene(~id="balcony", ~hotspots=[hBM], ())
+
+  TestUtils.createMockState(~scenes=[hub, master, balcony], ~activeIndex=0, ())
+}
+
+let makeThreeManualForwardState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ~sequenceOrder=Some(3), ())
+  let hAC = makeHotspot(~linkId="hAC", ~targetSceneId="C", ~sequenceOrder=Some(1), ())
+  let hAD = makeHotspot(~linkId="hAD", ~targetSceneId="D", ~sequenceOrder=Some(2), ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB, hAC, hAD], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[], ())
+  let sceneD = makeScene(~id="D", ~hotspots=[], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC, sceneD], ~activeIndex=0, ())
+}
+
 let readSeq = (badges: Belt.Map.String.t<HotspotSequence.badgeKind>, linkId: string): option<int> =>
   switch badges->Belt.Map.String.get(linkId) {
   | Some(HotspotSequence.Sequence(n)) => Some(n)
@@ -146,5 +214,58 @@ describe("HotspotSequence", () => {
     t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
     t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(2))
     t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
+  })
+
+  test("marks only first-parent backlink as return in multi-inbound graph", t => {
+    let state = makeMultiForwardInboundReturnState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(isReturn(badges, "hDB"))->Expect.toBe(true)
+    t->expect(isReturn(badges, "hDE"))->Expect.toBe(false)
+  })
+
+  test("marks unvisited auto-forward target back-link as Return", t => {
+    let state = makeAutoForwardUnvisitedReturnState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
+    t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
+    t->expect(isReturn(badges, "hCB"))->Expect.toBe(true)
+    t->expect(readSeq(badges, "hCB"))->Expect.toEqual(None)
+  })
+
+  test("keeps forward links sequenced and marks only direct back-links as Return", t => {
+    let state = makeMasterBalconyReturnState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(isReturn(badges, "hHM"))->Expect.toBe(false)
+    t->expect(isReturn(badges, "hMB"))->Expect.toBe(false)
+    t->expect(isReturn(badges, "hBM"))->Expect.toBe(true)
+    t->expect(isReturn(badges, "hMH"))->Expect.toBe(true)
+    t->expect(readSeq(badges, "hHM"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hMB"))->Expect.toEqual(Some(2))
+  })
+
+  test("keeps all-manual sequence ordering stable for 3+ hotspots", t => {
+    let state = makeThreeManualForwardState()
+    let badges = HotspotSequence.deriveBadgeByLinkId(~state)
+
+    t->expect(readSeq(badges, "hAC"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hAD"))->Expect.toEqual(Some(2))
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(3))
+  })
+
+  test("buildReorderUpdates keeps selected link at requested order in all-manual mode", t => {
+    let state = makeThreeManualForwardState()
+    let updates = HotspotSequence.buildReorderUpdates(~state, ~linkId="hAB", ~desiredOrder=1)
+
+    let selected = updates->Belt.Array.getBy(update => update.linkId == "hAB")
+    let ordered =
+      updates
+      ->Belt.Array.map(update => update.sequenceOrder)
+      ->Belt.SortArray.stableSortBy((a, b) => a - b)
+
+    t->expect(selected->Option.map(x => x.sequenceOrder))->Expect.toEqual(Some(1))
+    t->expect(ordered)->Expect.toEqual([1, 2, 3])
   })
 })

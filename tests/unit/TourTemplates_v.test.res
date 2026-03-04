@@ -423,6 +423,30 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "const didNavigateReturn = navigateReturnHotspotFromCurrentScene();")
   })
 
+  test("generateTourHTML keeps auto-forward behavior when link is classified as return", t => {
+    let returnAutoHotspot = {
+      ...mockHotspot,
+      linkId: "return-auto-link",
+      target: "scene2",
+      targetSceneId: Some("sc2"),
+      isAutoForward: Some(true),
+      sequenceOrder: None,
+    }
+    let sourceScene = {...mockScene1, hotspots: [returnAutoHotspot]}
+    let html = generateTourHTML(
+      [sourceScene, mockScene2],
+      "Return Auto Forward",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
+    t->expectToContain(html, "\"targetIsAutoForward\":true")
+    t->expectToContain(html, "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;")
+    t->expectToContain(html, "if (isAutoForwardConfig) {")
+  })
+
   test("generateTourHTML suppresses shortcut panel before auto-tour return-home transition", t => {
     let html = generateTourHTML(
       [mockScene1, mockScene2],

@@ -39,12 +39,20 @@ let showLinkModal = (
   | None => false
   }
 
-  let defaultTargetName = if isRetargeting {
+  let defaultTargetSceneId = if isRetargeting {
     let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
     switch Belt.Array.get(scenes, retarget.sceneIndex) {
     | Some(sourceScene) =>
       switch Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex) {
-      | Some(h) => h.target
+      | Some(h) =>
+        switch h.targetSceneId {
+        | Some(sceneId) => sceneId
+        | None =>
+          scenes
+          ->Belt.Array.getBy(s => s.name == h.target)
+          ->Option.map(s => s.id)
+          ->Option.getOr("")
+        }
       | None => ""
       }
     | None => ""
@@ -61,7 +69,7 @@ let showLinkModal = (
       isSelected
     })
     ->Belt.Option.flatMap(idx => scenes->Belt.Array.get(idx))
-    ->Belt.Option.map(s => s.name)
+    ->Belt.Option.map(s => s.id)
     ->Belt.Option.getWithDefault("")
   }
 
@@ -96,46 +104,48 @@ let showLinkModal = (
   )
 
   let content =
-    <div className="flex flex-col gap-4">
-      <label htmlFor="link-target" className="sr-only">
-        {React.string("Select destination room")}
-      </label>
-      <select
-        id="link-target"
-        className="w-full h-11 px-9 pl-3 mb-4 bg-black/30 border border-white/15 rounded-lg text-white font-semibold text-[13px] outline-none cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20fill%3D%22%23ffffff%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_10px_center] bg-[length:20px]"
-        ariaLabel="Select destination room for navigation link"
-        defaultValue={defaultTargetName}
-      >
-        <option value="" className="bg-slate-800"> {React.string("-- Select Room --")} </option>
-        {scenes
-        ->Belt.Array.mapWithIndex((i, s) => {
-          // Hide source scene from options
-          let isSource = if isRetargeting {
-            let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
-            i == retarget.sceneIndex
-          } else {
-            i == state.activeIndex
-          }
+    <div className="link-modal-form">
+      <div className="link-modal-field">
+        <label htmlFor="link-target" className="link-modal-field-label">
+          {React.string("Destination")}
+        </label>
+        <select
+          id="link-target"
+          className="link-modal-select"
+          ariaLabel="Select destination room for navigation link"
+          defaultValue={defaultTargetSceneId}
+        >
+          <option value="" className="bg-slate-800"> {React.string("-- Select Room --")} </option>
+          {scenes
+          ->Belt.Array.mapWithIndex((i, s) => {
+            // Hide source scene from options
+            let isSource = if isRetargeting {
+              let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
+              i == retarget.sceneIndex
+            } else {
+              i == state.activeIndex
+            }
 
-          if isSource {
-            React.null
-          } else {
-            <option key={s.name} value={s.name} className="bg-slate-800">
-              {React.string(
-                if s.label != "" {
-                  s.label
-                } else {
-                  s.name
-                },
-              )}
-            </option>
-          }
-        })
-        ->React.array}
-      </select>
+            if isSource {
+              React.null
+            } else {
+              <option key={s.id} value={s.id} className="bg-slate-800">
+                {React.string(
+                  if s.label != "" {
+                    s.label
+                  } else {
+                    s.name
+                  },
+                )}
+              </option>
+            }
+          })
+          ->React.array}
+        </select>
+      </div>
       {if isRetargeting {
-        <div className="flex flex-col gap-2">
-          <label htmlFor="link-sequence-order" className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">
+        <div className="link-modal-field">
+          <label htmlFor="link-sequence-order" className="link-modal-field-label">
             {React.string("Sequence")}
           </label>
           {switch retargetSequence {
@@ -143,7 +153,7 @@ let showLinkModal = (
             <select
               id="link-sequence-order"
               defaultValue={Belt.Int.toString(currentSequence)}
-              className="w-full h-10 px-3 bg-black/30 border border-white/15 rounded-lg text-white font-mono text-[13px] outline-none cursor-pointer"
+              className="link-modal-select link-modal-select-sequence"
               ariaLabel="Select hotspot sequence order"
             >
               {Belt.Array.makeBy(sequenceOptionCount, idx => idx + 1)
@@ -155,7 +165,7 @@ let showLinkModal = (
               ->React.array}
             </select>
           | None =>
-            <div className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg text-[11px] text-white/75">
+            <div className="link-modal-return-note">
               {React.string("Return link (R): sequence is not editable.")}
             </div>
           }}
@@ -201,10 +211,11 @@ let showLinkModal = (
     let element = Dom.getElementById("link-target")
     switch Nullable.toOption(element) {
     | Some(el) =>
-      let targetName = Dom.getValue(el)
-      let targetSceneOpt = scenes->Belt.Array.getBy(s => s.name == targetName)
+      let selectedSceneId = Dom.getValue(el)
+      let targetSceneOpt = scenes->Belt.Array.getBy(s => s.id == selectedSceneId)
+      let targetName = targetSceneOpt->Option.map(s => s.name)->Option.getOr("")
       let targetSceneId = targetSceneOpt->Option.map(s => s.id)
-      if targetName == "" {
+      if selectedSceneId == "" || targetName == "" {
         NotificationManager.dispatch({
           id: "",
           importance: Warning,
@@ -418,17 +429,17 @@ let showLinkModal = (
           }
         },
       ),
-      className: Some("modal-blue"),
+      className: Some("modal-blue modal-link-destination"),
       buttons: [
         {
           label: "Save Link",
-          class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
+          class_: "modal-link-btn-primary",
           onClick: onSave,
           autoClose: Some(false),
         },
         {
           label: "Cancel",
-          class_: "bg-slate-100/10 text-white hover:bg-white/20",
+          class_: "modal-link-btn-secondary",
           onClick: () => {
             // Explicitly hide draft lines on cancel
             SvgManager.hide("link_draft_red")
