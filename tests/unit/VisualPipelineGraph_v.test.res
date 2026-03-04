@@ -22,13 +22,18 @@ let makeHotspot = (~linkId: string, ~targetSceneId: option<string>, ()): hotspot
   sequenceOrder: None,
 }
 
-let makeScene = (~id: string, ~name: string, ~floor: string="ground", ~hotspots: array<hotspot>=[], ()): scene => {
-  let effectiveHotspots =
-    if Belt.Array.length(hotspots) > 0 {
-      hotspots
-    } else {
-      [makeHotspot(~linkId="self_" ++ id, ~targetSceneId=Some(id), ())]
-    }
+let makeScene = (
+  ~id: string,
+  ~name: string,
+  ~floor: string="ground",
+  ~hotspots: array<hotspot>=[],
+  (),
+): scene => {
+  let effectiveHotspots = if Belt.Array.length(hotspots) > 0 {
+    hotspots
+  } else {
+    [makeHotspot(~linkId="self_" ++ id, ~targetSceneId=Some(id), ())]
+  }
 
   {
     id,
@@ -50,7 +55,13 @@ let makeScene = (~id: string, ~name: string, ~floor: string="ground", ~hotspots:
   }
 }
 
-let makeTimelineItem = (~id: string, ~sceneId: string, ~linkId: string, ~targetScene: string="", ()): timelineItem => {
+let makeTimelineItem = (
+  ~id: string,
+  ~sceneId: string,
+  ~linkId: string,
+  ~targetScene: string="",
+  (),
+): timelineItem => {
   id,
   sceneId,
   linkId,
@@ -122,15 +133,16 @@ describe("VisualPipelineGraph", () => {
       ~hotspots=[makeHotspot(~linkId="back_s1_b", ~targetSceneId=Some("s1"), ())],
       (),
     )
-    let timeline = [makeTimelineItem(~id="t1", ~sceneId="s1", ~linkId="to_s3", ~targetScene="s3", ())]
+    let timeline = [
+      makeTimelineItem(~id="t1", ~sceneId="s1", ~linkId="to_s3", ~targetScene="s3", ()),
+    ]
     let state = TestUtils.createMockState(~scenes=[s1, s2, s3], ~activeIndex=0, ())
     let traversal = VisualPipelineGraph.deriveTraversal(~state)
-    let graph =
-      VisualPipelineGraph.build(
-        ~scenes=[s1, s2, s3],
-        ~timeline,
-        ~traversal=Some(traversal),
-      )
+    let graph = VisualPipelineGraph.build(
+      ~scenes=[s1, s2, s3],
+      ~timeline,
+      ~traversal=Some(traversal),
+    )
 
     let orderedSceneIds = graph.nodes->Belt.Array.map(node => node.representedSceneId)
     t->expect(orderedSceneIds)->Expect.toEqual(["s1", "s2", "s3"])

@@ -58,6 +58,15 @@ let cssTemplate = `
     #viewer-floor-tags-export .floor-map-shortcut-text { font-weight: 400; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #viewer-floor-tags-export .floor-map-shortcut-row-exit .floor-map-shortcut-text { color: #ffffff; }
     #viewer-floor-tags-export .floor-map-shortcut-empty { width: 100%; color: #cbd5e1; font-size: 12.5px; text-transform: lowercase; letter-spacing: 0.01em; }
+    .map-sequence-prompt-export { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-top: 8px; padding: 8px; border-radius: 8px; background: rgba(0, 20, 60, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 16px rgba(0,0,0,0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .map-sequence-prompt-title { color: #ffffff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.1; }
+    .map-sequence-prompt-hint { color: #dbeafe; font-size: 10px; font-weight: 500; line-height: 1.2; letter-spacing: 0.02em; }
+    .map-sequence-prompt-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+    .map-sequence-prompt-input { width: 100%; min-height: 28px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.24); background: rgba(2, 6, 23, 0.7); color: #ffffff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.01em; padding: 0 8px; box-sizing: border-box; outline: none; }
+    .map-sequence-prompt-input:focus { border-color: rgba(251, 146, 60, 0.92); box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.18); }
+    .map-sequence-prompt-btn { min-height: 28px; border-radius: 6px; border: 1px solid rgba(251, 146, 60, 0.75); background: rgba(15, 23, 42, 0.78); color: #ffffff; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0 9px; cursor: pointer; }
+    .map-sequence-prompt-btn:hover { transform: translateY(-1px); }
+    .map-sequence-prompt-error { color: #fca5a5; font-size: 10px; font-weight: 600; letter-spacing: 0.02em; line-height: 1.2; text-transform: lowercase; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     @keyframes diagonal-sweep { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 20%, 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; z-index: 2000 !important; }
@@ -67,7 +76,7 @@ let cssTemplate = `
     .export-hotspot-root { position: relative; width: 28px; height: 28px; }
     .export-hotspot-label {
       position: absolute;
-      top: -34px;
+      top: -28px;
       left: 50%;
       display: inline-flex;
       align-items: center;

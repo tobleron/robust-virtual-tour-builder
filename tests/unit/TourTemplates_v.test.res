@@ -145,7 +145,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene3",
       targetSceneId: Some("sc3"),
       isAutoForward: Some(true),
-    sequenceOrder: None,
+      sequenceOrder: None,
     }
     let middleScene = {...mockScene2, hotspots: [hotspotToScene3], isAutoForward: false}
     let html = generateTourHTML(
@@ -168,7 +168,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene2",
       targetSceneId: Some("sc2"),
       isAutoForward: Some(true),
-    sequenceOrder: None,
+      sequenceOrder: None,
     }
     let sourceScene = {...mockScene1, hotspots: [autoHotspot]}
     let html = generateTourHTML(
@@ -281,7 +281,7 @@ let _ = describe("TourTemplates", () => {
       target: "scene2",
       targetSceneId: Some("sc2"),
       isAutoForward: None,
-    sequenceOrder: None,
+      sequenceOrder: None,
     }
     let sceneFlagOnly = {
       ...mockScene1,
@@ -311,7 +311,7 @@ let _ = describe("TourTemplates", () => {
         target: "scene2",
         targetSceneId: Some("sc2"),
         isAutoForward: Some(true),
-      sequenceOrder: None,
+        sequenceOrder: None,
       }
       let autoHotspotB = {
         ...mockHotspot,
@@ -319,7 +319,7 @@ let _ = describe("TourTemplates", () => {
         target: "scene1",
         targetSceneId: Some("sc1"),
         isAutoForward: Some(true),
-      sequenceOrder: None,
+        sequenceOrder: None,
       }
       let autoSceneA = {...mockScene1, hotspots: [autoHotspotA], isAutoForward: true}
       let autoSceneB = {...mockScene2, hotspots: [autoHotspotB], isAutoForward: true}
@@ -410,13 +410,24 @@ let _ = describe("TourTemplates", () => {
     )
     t
     ->expect(
-      String.includes(html, ".export-hotspot-root.auto-forward .export-hotspot-btn { background: #059669;"),
+      String.includes(
+        html,
+        ".export-hotspot-root.auto-forward .export-hotspot-btn { background: #059669;",
+      ),
     )
     ->Expect.toBe(false)
   })
 
   test("generateTourHTML wires export keyboard shortcut R to return link navigation", t => {
-    let html = generateTourHTML([mockScene1, mockScene2], "Return Shortcut Tour", None, "hd", 32, 40, "1.0")
+    let html = generateTourHTML(
+      [mockScene1, mockScene2],
+      "Return Shortcut Tour",
+      None,
+      "hd",
+      32,
+      40,
+      "1.0",
+    )
     t->expectToContain(html, "function resolveSceneReturnHotspot(sceneId)")
     t->expectToContain(html, "function navigateReturnHotspotFromCurrentScene()")
     t->expectToContain(html, "if (key === \"r\" || key === \"R\")")
@@ -443,7 +454,10 @@ let _ = describe("TourTemplates", () => {
       "1.0",
     )
     t->expectToContain(html, "\"targetIsAutoForward\":true")
-    t->expectToContain(html, "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;")
+    t->expectToContain(
+      html,
+      "const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;",
+    )
     t->expectToContain(html, "if (isAutoForwardConfig) {")
   })
 
@@ -506,7 +520,7 @@ let _ = describe("TourTemplates", () => {
       "navigateToFloorTagShortcut(entry.sceneId, { fromMap: true, mapSelectedRow: row });",
     )
     t->expectToContain(html, "if (currentSceneId && entry.sceneId === currentSceneId) return true;")
-    t->expectToContain(html, "jumpTextEl.textContent = \"jump to sequence\";")
+    t->expectToContain(html, "jumpTextEl.textContent = \"jump to scene\";")
     t->expectToContain(html, "if (key === \"n\" || key === \"N\") {")
     t->expectToContain(html, "function navigateToSceneBySequenceInput() {")
   })

@@ -38,13 +38,13 @@ let deriveLinkSequence = (~state: state, ~maxSteps: int=400): Belt.Map.String.t<
   | None => Belt.Map.String.empty
   | Some(_) =>
     let sequenceByLinkId = ref(Belt.Map.String.empty)
-    let nextSequence = ref(1)
+    let nextSequence = ref(Constants.Scene.Sequence.startSceneNumber)
     let stepCount = ref(0)
     let continueLoop = ref(true)
 
     let currentStateRef = ref({
       ...state,
-      activeIndex: 0,
+      activeIndex: Constants.Scene.Sequence.startSceneIndex,
       simulation: {
         ...state.simulation,
         status: Running,
@@ -57,7 +57,14 @@ let deriveLinkSequence = (~state: state, ~maxSteps: int=400): Belt.Map.String.t<
       switch Belt.Array.get(activeScenes, currentState.activeIndex) {
       | Some(_) =>
         switch SimulationMainLogic.getNextMove(currentState) {
-        | SimulationMainLogic.Move({targetIndex, triggerActions, hotspotIndex: _, yaw: _, pitch: _, hfov: _}) =>
+        | SimulationMainLogic.Move({
+            targetIndex,
+            triggerActions,
+            hotspotIndex: _,
+            yaw: _,
+            pitch: _,
+            hfov: _,
+          }) =>
           let maybeLinkId = firstNewLinkId(
             ~visited=currentState.simulation.visitedLinkIds,
             ~actions=triggerActions,
@@ -65,27 +72,26 @@ let deriveLinkSequence = (~state: state, ~maxSteps: int=400): Belt.Map.String.t<
 
           maybeLinkId->Option.forEach(linkId => {
             if sequenceByLinkId.contents->Belt.Map.String.get(linkId)->Option.isNone {
-              sequenceByLinkId := sequenceByLinkId.contents->Belt.Map.String.set(
-                linkId,
-                nextSequence.contents,
-              )
+              sequenceByLinkId :=
+                sequenceByLinkId.contents->Belt.Map.String.set(linkId, nextSequence.contents)
               nextSequence := nextSequence.contents + 1
             }
           })
 
-          let visitedAfterMove =
-            applyVisitedActions(currentState.simulation.visitedLinkIds, triggerActions)
+          let visitedAfterMove = applyVisitedActions(
+            currentState.simulation.visitedLinkIds,
+            triggerActions,
+          )
           currentStateRef := {
-            ...currentState,
-            activeIndex: targetIndex,
-            simulation: {
-              ...currentState.simulation,
-              visitedLinkIds: visitedAfterMove,
-            },
-          }
+              ...currentState,
+              activeIndex: targetIndex,
+              simulation: {
+                ...currentState.simulation,
+                visitedLinkIds: visitedAfterMove,
+              },
+            }
           stepCount := stepCount.contents + 1
-        | SimulationMainLogic.Complete(_) | SimulationMainLogic.None =>
-          continueLoop := false
+        | SimulationMainLogic.Complete(_) | SimulationMainLogic.None => continueLoop := false
         }
       | None => continueLoop := false
       }

@@ -117,6 +117,12 @@ describe("Constants", _ => {
     t->expect(Constants.Scene.Defaults.description)->Expect.toBe("")
   })
 
+  test("scene sequence defaults", t => {
+    t->expect(Constants.Scene.Sequence.startSceneIndex)->Expect.toBe(0)
+    t->expect(Constants.Scene.Sequence.startSceneNumber)->Expect.toBe(1)
+    t->expect(Constants.Scene.Sequence.startHotspotNumber)->Expect.toBe(2)
+  })
+
   test("scene room labels", t => {
     let hasKitchen = Belt.Array.some(Constants.Scene.RoomLabels.indoor, x => x == "Kitchen")
     t->expect(hasKitchen)->Expect.toBe(true)

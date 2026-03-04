@@ -19,37 +19,35 @@ let deriveSceneSequenceBySceneId = (scenes: array<scene>): Belt.Map.String.t<int
     scenes
     ->Belt.Array.get(0)
     ->Option.forEach(scene =>
-      sequenceBySceneId := sequenceBySceneId.contents->Belt.Map.String.set(scene.id, 1)
+      sequenceBySceneId :=
+        sequenceBySceneId.contents->Belt.Map.String.set(
+          scene.id,
+          Constants.Scene.Sequence.startSceneNumber,
+        )
     )
 
-    HotspotSequence.deriveOrderedHotspots(~state=stateForSequence)
-    ->Belt.Array.forEach(link => {
+    HotspotSequence.deriveOrderedHotspots(~state=stateForSequence)->Belt.Array.forEach(link => {
       switch sequenceBySceneId.contents->Belt.Map.String.get(link.sceneId) {
       | Some(existing) =>
         if link.sequence < existing {
-          sequenceBySceneId := sequenceBySceneId.contents->Belt.Map.String.set(
-            link.sceneId,
-            link.sequence,
-          )
+          sequenceBySceneId :=
+            sequenceBySceneId.contents->Belt.Map.String.set(link.sceneId, link.sequence)
         }
       | None =>
-        sequenceBySceneId := sequenceBySceneId.contents->Belt.Map.String.set(
-          link.sceneId,
-          link.sequence,
-        )
+        sequenceBySceneId :=
+          sequenceBySceneId.contents->Belt.Map.String.set(link.sceneId, link.sequence)
       }
 
       let targetSeq = link.sequence + 1
       switch sequenceBySceneId.contents->Belt.Map.String.get(link.targetSceneId) {
       | Some(existing) =>
         if targetSeq < existing {
-          sequenceBySceneId := sequenceBySceneId.contents->Belt.Map.String.set(
-            link.targetSceneId,
-            targetSeq,
-          )
+          sequenceBySceneId :=
+            sequenceBySceneId.contents->Belt.Map.String.set(link.targetSceneId, targetSeq)
         }
       | None =>
-        sequenceBySceneId := sequenceBySceneId.contents->Belt.Map.String.set(link.targetSceneId, targetSeq)
+        sequenceBySceneId :=
+          sequenceBySceneId.contents->Belt.Map.String.set(link.targetSceneId, targetSeq)
       }
     })
 
@@ -89,7 +87,7 @@ let make = React.memo((~activeIndex: int, ~scenes: array<scene>) => {
       "state-hidden"
     }}
   >
-    <span className="viewer-persistent-label-seq">{React.string(sequenceText)}</span>
-    <span className="viewer-persistent-label-name">{React.string(currentLabel)}</span>
+    <span className="viewer-persistent-label-seq"> {React.string(sequenceText)} </span>
+    <span className="viewer-persistent-label-name"> {React.string(currentLabel)} </span>
   </div>
 })

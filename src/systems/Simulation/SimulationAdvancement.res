@@ -33,18 +33,16 @@ let evaluate = (ctx: context): decision => {
 
     if shouldAdvance {
       Advance
+    } // 3. Not ready - determine retry strategy
+    else if ctx.retryCount <= ctx.maxRetries {
+      let backoffMs = 100 * ctx.retryCount
+      Retry({
+        count: ctx.retryCount + 1,
+        max: ctx.maxRetries,
+        backoffMs,
+      })
     } else {
-      // 3. Not ready - determine retry strategy
-      if ctx.retryCount <= ctx.maxRetries {
-        let backoffMs = 100 * ctx.retryCount
-        Retry({
-          count: ctx.retryCount + 1,
-          max: ctx.maxRetries,
-          backoffMs: backoffMs
-        })
-      } else {
-        Stop({reason: "max_retries_exceeded_waiting_for_signal"})
-      }
+      Stop({reason: "max_retries_exceeded_waiting_for_signal"})
     }
   }
 }

@@ -64,7 +64,10 @@ describe("VisualPipelineLayout", () => {
       VisualPipelineLayout.getPoint(layout, "scene_s1")
       ->Option.map(point => point.y)
       ->Option.getOr(0.0)
-    let yFirst = VisualPipelineLayout.getPoint(layout, "scene_s2")->Option.map(point => point.y)->Option.getOr(0.0)
+    let yFirst =
+      VisualPipelineLayout.getPoint(layout, "scene_s2")
+      ->Option.map(point => point.y)
+      ->Option.getOr(0.0)
     t->expect(yGround > yFirst)->Expect.toBe(true)
   })
 

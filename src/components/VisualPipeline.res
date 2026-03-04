@@ -14,7 +14,11 @@ let nodePitchPx = 18.0
 let branchRisePx = 14.0
 let branchYOffsetForRank = (rank: int): float => {
   let level = rank / 2 + 1
-  let dir = if rank % 2 == 0 { 1.0 } else { -1.0 }
+  let dir = if rank % 2 == 0 {
+    1.0
+  } else {
+    -1.0
+  }
   dir *. (level->Int.toFloat *. branchRisePx)
 }
 let injectStyles = () => {
@@ -47,8 +51,7 @@ let make = () => {
   )
   let displayNodes = graph.nodes
   let sceneOrderIndex = React.useMemo1(() => {
-    displayNodes
-    ->Belt.Array.reduce(Belt.Map.String.empty, (acc, node) => {
+    displayNodes->Belt.Array.reduce(Belt.Map.String.empty, (acc, node) => {
       if acc->Belt.Map.String.get(node.representedSceneId)->Option.isSome {
         acc
       } else {
@@ -74,29 +77,35 @@ let make = () => {
       let sceneRank = sceneOrderIndex->Belt.Map.String.get(sceneId)->Option.getOr(10000)
       let sources = incomingByScene->Belt.MutableMap.String.get(sceneId)->Option.getOr([])
       let beforeSources =
-        sources->Belt.Array.keep(src =>
-          sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000) < sceneRank
+        sources->Belt.Array.keep(
+          src => sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000) < sceneRank,
         )
 
       let parentOpt = if Belt.Array.length(beforeSources) > 0 {
         beforeSources
-        ->Belt.Array.reduce((None: option<(string, int)>), (acc, src) => {
-          let rank = sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000)
-          switch acc {
-          | Some((_bestSceneId, bestRank)) if rank <= bestRank => acc
-          | _ => Some((src, rank))
-          }
-        })
+        ->Belt.Array.reduce(
+          (None: option<(string, int)>),
+          (acc, src) => {
+            let rank = sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000)
+            switch acc {
+            | Some((_bestSceneId, bestRank)) if rank <= bestRank => acc
+            | _ => Some((src, rank))
+            }
+          },
+        )
         ->Option.map(((sceneId, _rank)) => sceneId)
       } else {
         sources
-        ->Belt.Array.reduce((None: option<(string, int)>), (acc, src) => {
-          let rank = sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000)
-          switch acc {
-          | Some((_bestSceneId, bestRank)) if rank >= bestRank => acc
-          | _ => Some((src, rank))
-          }
-        })
+        ->Belt.Array.reduce(
+          (None: option<(string, int)>),
+          (acc, src) => {
+            let rank = sceneOrderIndex->Belt.Map.String.get(src)->Option.getOr(10000)
+            switch acc {
+            | Some((_bestSceneId, bestRank)) if rank >= bestRank => acc
+            | _ => Some((src, rank))
+            }
+          },
+        )
         ->Option.map(((sceneId, _rank)) => sceneId)
       }
 
@@ -176,13 +185,15 @@ let make = () => {
     ->Belt.MutableMap.String.keysToArray
     ->Belt.Array.forEach(fid => {
       let items = groups->Belt.MutableMap.String.get(fid)->Option.getOr([])
-      let sorted =
-        items
-        ->Belt.SortArray.stableSortBy((a, b) => {
-          let sceneRankA = sceneOrderIndex->Belt.Map.String.get(a.representedSceneId)->Option.getOr(10000)
-          let sceneRankB = sceneOrderIndex->Belt.Map.String.get(b.representedSceneId)->Option.getOr(10000)
+      let sorted = items->Belt.SortArray.stableSortBy(
+        (a, b) => {
+          let sceneRankA =
+            sceneOrderIndex->Belt.Map.String.get(a.representedSceneId)->Option.getOr(10000)
+          let sceneRankB =
+            sceneOrderIndex->Belt.Map.String.get(b.representedSceneId)->Option.getOr(10000)
           sceneRankA - sceneRankB
-        })
+        },
+      )
       groups->Belt.MutableMap.String.set(fid, sorted)
     })
 
@@ -221,18 +232,19 @@ let make = () => {
         ->Belt.Array.getBy(scene => scene.id == hubSceneId)
         ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
         ->Option.getOr("ground")
-      let sameFloorTargets =
-        branchTargets->Belt.Array.keep(targetSceneId =>
+      let sameFloorTargets = branchTargets->Belt.Array.keep(
+        targetSceneId =>
           pipelineSlice.scenes
           ->Belt.Array.getBy(scene => scene.id == targetSceneId)
           ->Option.map(scene => scene.floor == "" ? "ground" : scene.floor)
-          ->Option.getOr("ground") == hubFloor
-        )
+          ->Option.getOr("ground") == hubFloor,
+      )
+
       // Hub qualification rule:
       // 2+ same-floor branch targets (parent/exit-back already excluded above).
       if Belt.Array.length(sameFloorTargets) >= 2 {
-        let sortedTargets =
-          sameFloorTargets->Belt.SortArray.stableSortBy((a, b) => {
+        let sortedTargets = sameFloorTargets->Belt.SortArray.stableSortBy(
+          (a, b) => {
             let edgeRankA =
               hubTargetEdgeRank
               ->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ a)
@@ -248,14 +260,18 @@ let make = () => {
               let rb = sceneOrderIndex->Belt.Map.String.get(b)->Option.getOr(10000)
               ra - rb
             }
-          })
+          },
+        )
         let branchCount = Belt.Array.length(sortedTargets)
-        sortedTargets->Belt.Array.forEachWithIndex((rank, targetSceneId) => {
-          switch clusters->Belt.MutableMap.String.get(targetSceneId) {
-          | Some(_) => ()
-          | None => clusters->Belt.MutableMap.String.set(targetSceneId, {hubSceneId, rank, branchCount})
-          }
-        })
+        sortedTargets->Belt.Array.forEachWithIndex(
+          (rank, targetSceneId) => {
+            switch clusters->Belt.MutableMap.String.get(targetSceneId) {
+            | Some(_) => ()
+            | None =>
+              clusters->Belt.MutableMap.String.set(targetSceneId, {hubSceneId, rank, branchCount})
+            }
+          },
+        )
       }
     })
     clusters
@@ -462,7 +478,14 @@ let make = () => {
       })
       None
     }
-  }, (activeFloors, displayNodes, groupedItems, uiSlice.isLinking, uiSlice.isTeasing, isSystemLocked))
+  }, (
+    activeFloors,
+    displayNodes,
+    groupedItems,
+    uiSlice.isLinking,
+    uiSlice.isTeasing,
+    isSystemLocked,
+  ))
 
   React.useLayoutEffect7(() => {
     if uiSlice.isTeasing || uiSlice.isLinking {
@@ -483,7 +506,10 @@ let make = () => {
         let floorBands = Belt.MutableMap.String.make()
         let floorClipIds = Belt.MutableMap.String.make()
         activeFloors->Belt.Array.forEachWithIndex((idx, floorId) => {
-          floorClipIds->Belt.MutableMap.String.set(floorId, "pipeline-floor-clip-" ++ Int.toString(idx))
+          floorClipIds->Belt.MutableMap.String.set(
+            floorId,
+            "pipeline-floor-clip-" ++ Int.toString(idx),
+          )
           switch Dom.getElementById("pipeline-track-" ++ floorId)->Nullable.toOption {
           | Some(trackEl) =>
             let trackRect = trackEl->Dom.getBoundingClientRect
@@ -493,24 +519,22 @@ let make = () => {
           | None => ()
           }
         })
-        let clipDefs =
-          activeFloors
-          ->Belt.Array.keepMap(floorId =>
-            switch (
-              floorClipIds->Belt.MutableMap.String.get(floorId),
-              floorBands->Belt.MutableMap.String.get(floorId),
-            ) {
-            | (Some(clipId), Some(band)) =>
-              Some({
-                id: clipId,
-                x: 0.0,
-                y: band.yTop,
-                width: wrapperRect.width,
-                height: band.yBottom -. band.yTop,
-              })
-            | _ => None
-            }
-          )
+        let clipDefs = activeFloors->Belt.Array.keepMap(floorId =>
+          switch (
+            floorClipIds->Belt.MutableMap.String.get(floorId),
+            floorBands->Belt.MutableMap.String.get(floorId),
+          ) {
+          | (Some(clipId), Some(band)) =>
+            Some({
+              id: clipId,
+              x: 0.0,
+              y: band.yTop,
+              width: wrapperRect.width,
+              height: band.yBottom -. band.yTop,
+            })
+          | _ => None
+          }
+        )
         setSceneEdgeClips(_ => clipDefs)
 
         let sameFloorOutgoing = Belt.MutableMap.String.make()
@@ -533,8 +557,8 @@ let make = () => {
           switch Dom.getElementById("pipeline-node-wrap-" ++ node.id)->Nullable.toOption {
           | Some(el) =>
             let rect = el->Dom.getBoundingClientRect
-            let x = rect.left -. wrapperRect.left +. (rect.width /. 2.0)
-            let y = rect.top -. wrapperRect.top +. (rect.height /. 2.0)
+            let x = rect.left -. wrapperRect.left +. rect.width /. 2.0
+            let y = rect.top -. wrapperRect.top +. rect.height /. 2.0
             let center: scenePoint = {x, y}
             centers->Belt.MutableMap.String.set(node.id, center)
           | None => ()
@@ -557,9 +581,7 @@ let make = () => {
             } else {
               switch centers->Belt.MutableMap.String.get(node.id) {
               | Some(point) =>
-                point.x > xMin +. 4.0 &&
-                  point.x < xMax -. 4.0 &&
-                  Math.abs(point.y -. lineY) < 9.0
+                point.x > xMin +. 4.0 && point.x < xMax -. 4.0 && Math.abs(point.y -. lineY) < 9.0
               | None => false
               }
             }
@@ -571,7 +593,11 @@ let make = () => {
         graph.edges->Belt.Array.forEach(edge => {
           let a = edge.fromSceneId
           let b = edge.toSceneId
-          let pairKey = if a <= b { a ++ "<->" ++ b } else { b ++ "<->" ++ a }
+          let pairKey = if a <= b {
+            a ++ "<->" ++ b
+          } else {
+            b ++ "<->" ++ a
+          }
           switch pairEdgeCandidates->Belt.MutableMap.String.get(pairKey) {
           | Some(existing) =>
             pairEdgeCandidates->Belt.MutableMap.String.set(
@@ -584,7 +610,9 @@ let make = () => {
           }
         })
 
-        let chooseDirectedEdge = (candidates: array<VisualPipelineGraph.edge>): option<VisualPipelineGraph.edge> =>
+        let chooseDirectedEdge = (candidates: array<VisualPipelineGraph.edge>): option<
+          VisualPipelineGraph.edge,
+        > =>
           candidates
           ->Belt.Array.reduce((None: option<(VisualPipelineGraph.edge, int)>), (best, edge) => {
             let hubForward =
@@ -592,14 +620,14 @@ let make = () => {
               ->Belt.MutableMap.String.get(edge.toSceneId)
               ->Option.map(cluster => cluster.hubSceneId == edge.fromSceneId)
               ->Option.getOr(false)
-            let fromRank = sceneOrderIndex->Belt.Map.String.get(edge.fromSceneId)->Option.getOr(100000)
+            let fromRank =
+              sceneOrderIndex->Belt.Map.String.get(edge.fromSceneId)->Option.getOr(100000)
             let toRank = sceneOrderIndex->Belt.Map.String.get(edge.toSceneId)->Option.getOr(100000)
             let chronological = fromRank <= toRank
             let score =
               (edge.kind == Forward ? 400 : 0) +
               (hubForward ? 250 : 0) +
-              (chronological ? 80 : 0) +
-              (edge.isCrossFloor ? 0 : 20)
+              (chronological ? 80 : 0) + (edge.isCrossFloor ? 0 : 20)
             switch best {
             | Some((_bestEdge, bestScore)) if bestScore >= score => best
             | _ => Some((edge, score))
@@ -616,147 +644,147 @@ let make = () => {
             ->Option.flatMap(candidates => chooseDirectedEdge(candidates))
           )
 
-        let nextPaths =
-          uniqueEdges
-          ->Belt.Array.keepMap(edge => {
-            switch (
-              centers->Belt.MutableMap.String.get(edge.fromNodeId),
-              centers->Belt.MutableMap.String.get(edge.toNodeId),
-            ) {
-            | (Some(fromPoint), Some(toPoint)) =>
-              let fromFloor = floorByScene->Belt.MutableMap.String.get(edge.fromSceneId)
-              let toFloor = floorByScene->Belt.MutableMap.String.get(edge.toSceneId)
-              let sameFloor = fromFloor == toFloor
-              if !sameFloor {
-                // Inter-floor linkage is intentionally hidden in the pipeline.
-                // Users infer floor transitions from sequence + floor rows.
-                None
-              } else {
-                let clipId = switch fromFloor {
-                | Some(floorId) => floorClipIds->Belt.MutableMap.String.get(floorId)
-                | _ => None
-                }
-                let isHubFanout =
-                  sameFloorOutgoing
-                  ->Belt.MutableMap.String.get(edge.fromSceneId)
-                  ->Option.map(targets => Belt.Array.length(targets) >= 2)
-                  ->Option.getOr(false)
-                let hubClusterForTarget =
-                  stableHubTargetClusters->Belt.MutableMap.String.get(edge.toSceneId)
-                let d = if isHubFanout &&
-                    hubClusterForTarget
-                    ->Option.map(cluster => cluster.hubSceneId == edge.fromSceneId)
-                    ->Option.getOr(false) {
-                  // Hub fanout uses a deterministic fork trunk.
-                  // Branches start from hub center, then vertical, then horizontal.
-                  "M " ++
-                  fromPoint.x->Float.toString ++
-                  " " ++
-                  fromPoint.y->Float.toString ++
-                  " L " ++
-                  fromPoint.x->Float.toString ++
-                  " " ++
-                  toPoint.y->Float.toString ++
-                  " L " ++
-                  toPoint.x->Float.toString ++
-                  " " ++
-                  toPoint.y->Float.toString
-                } else if Math.abs(fromPoint.y -. toPoint.y) < 0.6 {
-                  let floorId = fromFloor->Option.getOr("ground")
-                  let hasCollision =
-                    hasNodeCollisionOnHorizontal(
-                      ~floorId,
-                      ~fromNodeId=edge.fromNodeId,
-                      ~toNodeId=edge.toNodeId,
-                      ~lineY=fromPoint.y,
-                      ~xA=fromPoint.x,
-                      ~xB=toPoint.x,
-                    )
-                  if !hasCollision {
-                    "M " ++
-                    fromPoint.x->Float.toString ++
-                    " " ++
-                    fromPoint.y->Float.toString ++
-                    " L " ++
-                    toPoint.x->Float.toString ++
-                    " " ++
-                    toPoint.y->Float.toString
-                  } else {
-                    let lane = 12.0
-                    let detourUp = fromPoint.y -. lane
-                    let detourDown = fromPoint.y +. lane
-                    let upCollision =
-                      hasNodeCollisionOnHorizontal(
-                        ~floorId,
-                        ~fromNodeId=edge.fromNodeId,
-                        ~toNodeId=edge.toNodeId,
-                        ~lineY=detourUp,
-                        ~xA=fromPoint.x,
-                        ~xB=toPoint.x,
-                      )
-                    let chosenY = if !upCollision { detourUp } else { detourDown }
-                    let exitX =
-                      if toPoint.x >= fromPoint.x {
-                        fromPoint.x +. 8.0
-                      } else {
-                        fromPoint.x -. 8.0
-                      }
-                    "M " ++
-                    fromPoint.x->Float.toString ++
-                    " " ++
-                    fromPoint.y->Float.toString ++
-                    " L " ++
-                    exitX->Float.toString ++
-                    " " ++
-                    fromPoint.y->Float.toString ++
-                    " L " ++
-                    exitX->Float.toString ++
-                    " " ++
-                    chosenY->Float.toString ++
-                    " L " ++
-                    toPoint.x->Float.toString ++
-                    " " ++
-                    chosenY->Float.toString ++
-                    " L " ++
-                    toPoint.x->Float.toString ++
-                    " " ++
-                    toPoint.y->Float.toString
-                  }
-                } else {
-                  let elbowX =
-                    if toPoint.x >= fromPoint.x {
-                      fromPoint.x +. 10.0
-                    } else {
-                      fromPoint.x -. 10.0
-                    }
-                  "M " ++
-                  fromPoint.x->Float.toString ++
-                  " " ++
-                  fromPoint.y->Float.toString ++
-                  " L " ++
-                  elbowX->Float.toString ++
-                  " " ++
-                  fromPoint.y->Float.toString ++
-                  " L " ++
-                  elbowX->Float.toString ++
-                  " " ++
-                  toPoint.y->Float.toString ++
-                  " L " ++
-                  toPoint.x->Float.toString ++
-                  " " ++
-                  toPoint.y->Float.toString
-                }
-
-                Some({
-                  id: edge.id,
-                  d,
-                  className: "pipeline-edge-line",
-                  clipId,
-                })
+        let nextPaths = uniqueEdges->Belt.Array.keepMap(edge => {
+          switch (
+            centers->Belt.MutableMap.String.get(edge.fromNodeId),
+            centers->Belt.MutableMap.String.get(edge.toNodeId),
+          ) {
+          | (Some(fromPoint), Some(toPoint)) =>
+            let fromFloor = floorByScene->Belt.MutableMap.String.get(edge.fromSceneId)
+            let toFloor = floorByScene->Belt.MutableMap.String.get(edge.toSceneId)
+            let sameFloor = fromFloor == toFloor
+            if !sameFloor {
+              // Inter-floor linkage is intentionally hidden in the pipeline.
+              // Users infer floor transitions from sequence + floor rows.
+              None
+            } else {
+              let clipId = switch fromFloor {
+              | Some(floorId) => floorClipIds->Belt.MutableMap.String.get(floorId)
+              | _ => None
               }
-            | _ => None
+              let isHubFanout =
+                sameFloorOutgoing
+                ->Belt.MutableMap.String.get(edge.fromSceneId)
+                ->Option.map(targets => Belt.Array.length(targets) >= 2)
+                ->Option.getOr(false)
+              let hubClusterForTarget =
+                stableHubTargetClusters->Belt.MutableMap.String.get(edge.toSceneId)
+              let d = if (
+                isHubFanout &&
+                hubClusterForTarget
+                ->Option.map(cluster => cluster.hubSceneId == edge.fromSceneId)
+                ->Option.getOr(false)
+              ) {
+                // Hub fanout uses a deterministic fork trunk.
+                // Branches start from hub center, then vertical, then horizontal.
+                "M " ++
+                fromPoint.x->Float.toString ++
+                " " ++
+                fromPoint.y->Float.toString ++
+                " L " ++
+                fromPoint.x->Float.toString ++
+                " " ++
+                toPoint.y->Float.toString ++
+                " L " ++
+                toPoint.x->Float.toString ++
+                " " ++
+                toPoint.y->Float.toString
+              } else if Math.abs(fromPoint.y -. toPoint.y) < 0.6 {
+                let floorId = fromFloor->Option.getOr("ground")
+                let hasCollision = hasNodeCollisionOnHorizontal(
+                  ~floorId,
+                  ~fromNodeId=edge.fromNodeId,
+                  ~toNodeId=edge.toNodeId,
+                  ~lineY=fromPoint.y,
+                  ~xA=fromPoint.x,
+                  ~xB=toPoint.x,
+                )
+                if !hasCollision {
+                  "M " ++
+                  fromPoint.x->Float.toString ++
+                  " " ++
+                  fromPoint.y->Float.toString ++
+                  " L " ++
+                  toPoint.x->Float.toString ++
+                  " " ++
+                  toPoint.y->Float.toString
+                } else {
+                  let lane = 12.0
+                  let detourUp = fromPoint.y -. lane
+                  let detourDown = fromPoint.y +. lane
+                  let upCollision = hasNodeCollisionOnHorizontal(
+                    ~floorId,
+                    ~fromNodeId=edge.fromNodeId,
+                    ~toNodeId=edge.toNodeId,
+                    ~lineY=detourUp,
+                    ~xA=fromPoint.x,
+                    ~xB=toPoint.x,
+                  )
+                  let chosenY = if !upCollision {
+                    detourUp
+                  } else {
+                    detourDown
+                  }
+                  let exitX = if toPoint.x >= fromPoint.x {
+                    fromPoint.x +. 8.0
+                  } else {
+                    fromPoint.x -. 8.0
+                  }
+                  "M " ++
+                  fromPoint.x->Float.toString ++
+                  " " ++
+                  fromPoint.y->Float.toString ++
+                  " L " ++
+                  exitX->Float.toString ++
+                  " " ++
+                  fromPoint.y->Float.toString ++
+                  " L " ++
+                  exitX->Float.toString ++
+                  " " ++
+                  chosenY->Float.toString ++
+                  " L " ++
+                  toPoint.x->Float.toString ++
+                  " " ++
+                  chosenY->Float.toString ++
+                  " L " ++
+                  toPoint.x->Float.toString ++
+                  " " ++
+                  toPoint.y->Float.toString
+                }
+              } else {
+                let elbowX = if toPoint.x >= fromPoint.x {
+                  fromPoint.x +. 10.0
+                } else {
+                  fromPoint.x -. 10.0
+                }
+                "M " ++
+                fromPoint.x->Float.toString ++
+                " " ++
+                fromPoint.y->Float.toString ++
+                " L " ++
+                elbowX->Float.toString ++
+                " " ++
+                fromPoint.y->Float.toString ++
+                " L " ++
+                elbowX->Float.toString ++
+                " " ++
+                toPoint.y->Float.toString ++
+                " L " ++
+                toPoint.x->Float.toString ++
+                " " ++
+                toPoint.y->Float.toString
+              }
+
+              Some({
+                id: edge.id,
+                d,
+                className: "pipeline-edge-line",
+                clipId,
+              })
             }
-          })
+          | _ => None
+          }
+        })
         let sameFloorPairKeys = Belt.MutableSet.String.make()
         nextPaths->Belt.Array.forEach(path => {
           let edgeOpt = uniqueEdges->Belt.Array.getBy(edge => edge.id == path.id)
@@ -764,7 +792,11 @@ let make = () => {
           | Some(edge) =>
             let a = edge.fromSceneId
             let b = edge.toSceneId
-            let key = if a <= b { a ++ "<->" ++ b } else { b ++ "<->" ++ a }
+            let key = if a <= b {
+              a ++ "<->" ++ b
+            } else {
+              b ++ "<->" ++ a
+            }
             sameFloorPairKeys->Belt.MutableSet.String.add(key)
           | None => ()
           }
@@ -779,13 +811,21 @@ let make = () => {
             switch (Belt.Array.get(rowItems, fromIdx), Belt.Array.get(rowItems, toIdx)) {
             | (Some(node), Some(nextNode)) =>
               let fromIsBranch =
-                stableHubTargetClusters->Belt.MutableMap.String.get(node.representedSceneId)->Option.isSome
+                stableHubTargetClusters
+                ->Belt.MutableMap.String.get(node.representedSceneId)
+                ->Option.isSome
               let toIsBranch =
-                stableHubTargetClusters->Belt.MutableMap.String.get(nextNode.representedSceneId)->Option.isSome
+                stableHubTargetClusters
+                ->Belt.MutableMap.String.get(nextNode.representedSceneId)
+                ->Option.isSome
               if !(fromIsBranch || toIsBranch) {
                 let a = node.representedSceneId
                 let b = nextNode.representedSceneId
-                let pairKey = if a <= b { a ++ "<->" ++ b } else { b ++ "<->" ++ a }
+                let pairKey = if a <= b {
+                  a ++ "<->" ++ b
+                } else {
+                  b ++ "<->" ++ a
+                }
                 if !(sameFloorPairKeys->Belt.MutableSet.String.has(pairKey)) {
                   switch (
                     centers->Belt.MutableMap.String.get(node.id),
@@ -920,6 +960,7 @@ let make = () => {
           )
           ->React.array}
         </svg>
+
         /* Floor Tracks */
         {activeFloors
         ->Belt.Array.map(fid => {
@@ -928,20 +969,20 @@ let make = () => {
           let maxDownStepsRef = ref(0)
           items->Belt.Array.forEach(rowNode => {
             switch stableHubTargetClusters->Belt.MutableMap.String.get(rowNode.representedSceneId) {
-              | Some(cluster) =>
-                let level = cluster.rank / 2 + 1
-                if cluster.rank % 2 == 0 {
-                  if level > maxDownStepsRef.contents {
-                    maxDownStepsRef := level
-                  }
-                } else if level > maxUpStepsRef.contents {
+            | Some(cluster) =>
+              let level = cluster.rank / 2 + 1
+              if cluster.rank % 2 == 0 {
+                if level > maxDownStepsRef.contents {
+                  maxDownStepsRef := level
+                }
+              } else if level > maxUpStepsRef.contents {
                 maxUpStepsRef := level
               }
             | None => ()
             }
           })
-          let laneTopPaddingPx = 6.0 +. (maxUpStepsRef.contents->Int.toFloat *. branchRisePx)
-          let laneBottomPaddingPx = 6.0 +. (maxDownStepsRef.contents->Int.toFloat *. branchRisePx)
+          let laneTopPaddingPx = 6.0 +. maxUpStepsRef.contents->Int.toFloat *. branchRisePx
+          let laneBottomPaddingPx = 6.0 +. maxDownStepsRef.contents->Int.toFloat *. branchRisePx
           let laneMinHeightPx = 12.0 +. laneTopPaddingPx +. laneBottomPaddingPx
           let trackStyle = ReBindings.makeStyle({
             "paddingTop": laneTopPaddingPx->Float.toString ++ "px",
@@ -952,7 +993,12 @@ let make = () => {
           items->Belt.Array.forEachWithIndex((rowIdx, rowNode) => {
             sceneIndexInRow->Belt.MutableMap.String.set(rowNode.representedSceneId, rowIdx)
           })
-          <div id={"pipeline-track-" ++ fid} key={"track-" ++ fid} className="pipeline-track" style={trackStyle}>
+          <div
+            id={"pipeline-track-" ++ fid}
+            key={"track-" ++ fid}
+            className="pipeline-track"
+            style={trackStyle}
+          >
             {items
             ->Belt.Array.mapWithIndex((idx, node) => {
               let isActive =
@@ -981,7 +1027,7 @@ let make = () => {
                 | Some(hubRowIdx) =>
                   let stackColumn = hubRowIdx + 1
                   let delta = stackColumn - idx
-                  let dx = nodePitchPx *. (delta->Int.toFloat)
+                  let dx = nodePitchPx *. delta->Int.toFloat
                   let dy = branchYOffsetForRank(cluster.rank)
                   (dx, dy)
                 | None => (0.0, 0.0)
@@ -989,15 +1035,13 @@ let make = () => {
               | None => (0.0, 0.0)
               }
               let nodeShiftStyle = ReBindings.makeStyle({
-                "transform":
-                  "translate(" ++ sx->Float.toString ++ "px, " ++ sy->Float.toString ++ "px)",
+                "transform": "translate(" ++
+                sx->Float.toString ++
+                "px, " ++
+                sy->Float.toString ++ "px)",
               })
 
-              <div
-                id={"pipeline-node-wrap-" ++ node.id}
-                key={node.id}
-                style={nodeShiftStyle}
-              >
+              <div id={"pipeline-node-wrap-" ++ node.id} key={node.id} style={nodeShiftStyle}>
                 <VisualPipelineNode
                   item
                   nodeDomId={"pipeline-node-" ++ node.id}

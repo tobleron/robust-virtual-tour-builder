@@ -170,7 +170,8 @@ let script = `
         ? Math.trunc(ownerHotspot.sequenceNumber)
         : null;
       const resolvedSequenceNumber = sequenceFromArgs ?? sequenceFromOwner;
-      const faceText = isReturnLink ? "R" : (resolvedSequenceNumber !== null ? String(resolvedSequenceNumber) : "");
+      const displaySequenceNumber = resolvedSequenceNumber !== null ? (resolvedSequenceNumber + 1) : null;
+      const faceText = isReturnLink ? "R" : (displaySequenceNumber !== null ? String(displaySequenceNumber) : "");
       const afKey = ownerScene + ":" + hotspotIndex;
       const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
 

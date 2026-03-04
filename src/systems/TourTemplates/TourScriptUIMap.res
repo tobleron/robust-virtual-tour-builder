@@ -29,6 +29,7 @@ let script = `
     let autoTourHomeReturnCountdownRemaining = 0;
     let suppressShortcutPanelUntilNextLoad = false;
     const mapRuntime = { isOpen: false };
+    const mapSequenceInputState = { isOpen: false, value: "", error: "" };
     const floorTagShortcutState = { sceneId: null, floorId: null, pageStart: 0, totalEntries: 0, hasMap: false, visibleEntries: [], isAutoTourActive: false };
     function clearAutoTourCompletionCountdown() {
       if (autoTourCountdownIntervalId !== null) {
@@ -194,6 +195,12 @@ let script = `
     function closeExportMap() {
       if (!isExportMapOpen()) return;
       setExportMapOpen(false);
+      mapSequenceInputState.isOpen = false;
+      mapSequenceInputState.value = "";
+      mapSequenceInputState.error = "";
+      if (typeof removeMapSequencePromptPanel === "function") {
+        removeMapSequencePromptPanel();
+      }
       if (typeof manualLookingMode !== "undefined" && typeof lookingMode !== "undefined") {
         lookingMode = manualLookingMode;
       }
@@ -240,10 +247,10 @@ let script = `
         const jumpRow = document.createElement("button");
         jumpRow.type = "button";
         jumpRow.className = "floor-map-shortcut-row";
-        jumpRow.setAttribute("aria-label", "Jump to scene sequence");
+        jumpRow.setAttribute("aria-label", "Jump to scene");
         jumpRow.addEventListener("click", () => {
-          if (typeof navigateToSceneBySequenceInput === "function") {
-            navigateToSceneBySequenceInput();
+          if (typeof openSceneSequencePrompt === "function") {
+            openSceneSequencePrompt();
           }
         });
 
@@ -256,7 +263,7 @@ let script = `
 
         const jumpTextEl = document.createElement("span");
         jumpTextEl.className = "floor-map-shortcut-text";
-        jumpTextEl.textContent = "jump to sequence";
+        jumpTextEl.textContent = "jump to scene";
 
         jumpRow.appendChild(jumpIndicatorEl);
         jumpRow.appendChild(jumpKeyEl);
@@ -264,6 +271,9 @@ let script = `
         panel.appendChild(jumpRow);
       };
       if (!mapEntries || mapEntries.length === 0) {
+        if (typeof renderMapSequencePromptPanel === "function") {
+          renderMapSequencePromptPanel(panel);
+        }
         const emptyRow = document.createElement("div");
         emptyRow.className = "floor-map-shortcut-empty";
         emptyRow.textContent = "no mapped floors available";
@@ -271,6 +281,9 @@ let script = `
         appendJumpBySequenceRow();
         appendExitRow();
         return;
+      }
+      if (typeof renderMapSequencePromptPanel === "function") {
+        renderMapSequencePromptPanel(panel);
       }
       mapEntries.forEach(entry => {
         const row = document.createElement("button");

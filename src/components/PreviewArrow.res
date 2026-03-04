@@ -70,11 +70,11 @@ let make = (
   let centerContent = if isMovingThis {
     <LucideIcons.Move.make className="text-white" size=20 strokeWidth={3.0} />
   } else if isReturnNode {
-    <span className="hs-hotspot-face-text is-return">{React.string("R")}</span>
+    <span className="hs-hotspot-face-text is-return"> {React.string("R")} </span>
   } else {
     switch sequenceLabel {
     | Some(sequenceNo) =>
-      <span className="hs-hotspot-face-text">{React.string(Int.toString(sequenceNo))}</span>
+      <span className="hs-hotspot-face-text"> {React.string(Int.toString(sequenceNo))} </span>
     | None =>
       if localIsAF {
         <LucideIcons.ChevronsRight.make className="text-white" size=20 strokeWidth={3.0} />

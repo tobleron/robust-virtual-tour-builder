@@ -82,7 +82,9 @@ describe("VisualPipelineRouter", () => {
     let routed = VisualPipelineRouter.compute(~graph, ~layout).routedEdges
 
     t->expect(Belt.Array.length(routed))->Expect.toBe(1)
-    t->expect(routed[0]->Option.map(edge => String.length(edge.path) > 0))->Expect.toEqual(Some(true))
+    t
+    ->expect(routed[0]->Option.map(edge => String.length(edge.path) > 0))
+    ->Expect.toEqual(Some(true))
   })
 
   test("return routes to same target share trunk lane", t => {
@@ -110,8 +112,13 @@ describe("VisualPipelineRouter", () => {
     let layout = VisualPipelineLayout.compute(~graph, ())
     let routed = VisualPipelineRouter.compute(~graph, ~layout).routedEdges
 
-    let returnRoutes =
-      routed->Belt.Array.keep(edge => switch edge.kind { | VisualPipelineGraph.Return => true | _ => false })
+    let returnRoutes = routed->Belt.Array.keep(
+      edge =>
+        switch edge.kind {
+        | VisualPipelineGraph.Return => true
+        | _ => false
+        },
+    )
     t->expect(Belt.Array.length(returnRoutes) >= 2)->Expect.toBe(true)
 
     let firstLaneKey = returnRoutes->Belt.Array.get(0)->Option.map(edge => edge.laneKey)

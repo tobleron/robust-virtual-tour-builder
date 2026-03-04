@@ -47,12 +47,11 @@ let generateTourHTML = (
     sceneOrder: scenes->Belt.Array.map(scene => scene.id),
     activeIndex: 0,
   }
-  let derivedBadgeByLinkId =
-    if scenes->Belt.Array.length > 0 {
-      HotspotSequence.deriveBadgeByLinkId(~state=sequencingState)
-    } else {
-      Belt.Map.String.empty
-    }
+  let derivedBadgeByLinkId = if scenes->Belt.Array.length > 0 {
+    HotspotSequence.deriveBadgeByLinkId(~state=sequencingState)
+  } else {
+    Belt.Map.String.empty
+  }
   let maxDerivedSequence =
     derivedBadgeByLinkId
     ->Belt.Map.String.toArray
@@ -69,10 +68,7 @@ let generateTourHTML = (
     )
   let fallbackSequenceByLinkId = ref(Belt.Map.String.empty)
   let nextFallbackSequence = ref(maxDerivedSequence + 1)
-  let resolveExportBadge = (
-    ~linkId: string,
-    ~hasValidTarget: bool,
-  ): (bool, option<int>) =>
+  let resolveExportBadge = (~linkId: string, ~hasValidTarget: bool): (bool, option<int>) =>
     switch derivedBadgeByLinkId->Belt.Map.String.get(linkId) {
     | Some(HotspotSequence.Return) => (true, None)
     | Some(HotspotSequence.Sequence(sequenceNo)) => (false, Some(sequenceNo))
@@ -113,10 +109,7 @@ let generateTourHTML = (
         | _ => false
         }
         let hasValidTarget = hasSceneId(resolvedTargetId)
-        let (isReturnLink, sequenceNumber) = resolveExportBadge(
-          ~linkId=h.linkId,
-          ~hasValidTarget,
-        )
+        let (isReturnLink, sequenceNumber) = resolveExportBadge(~linkId=h.linkId, ~hasValidTarget)
         if hasValidTarget {
           Some(
             (

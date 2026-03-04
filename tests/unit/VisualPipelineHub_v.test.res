@@ -77,7 +77,13 @@ describe("VisualPipelineHub", () => {
     let s2 = makeScene(~id="s2", ~name="Room A", ())
     let s3 = makeScene(~id="s3", ~name="Room B", ())
     let scenes = [
-      {...s1, hotspots: [makeHotspot(~linkId="a", ~targetSceneId="s2", ()), makeHotspot(~linkId="b", ~targetSceneId="s3", ())]},
+      {
+        ...s1,
+        hotspots: [
+          makeHotspot(~linkId="a", ~targetSceneId="s2", ()),
+          makeHotspot(~linkId="b", ~targetSceneId="s3", ()),
+        ],
+      },
       s2,
       s3,
     ]

@@ -44,12 +44,10 @@ let sortedFloors = (graph: graph): array<string> => {
 
 let compute = (~graph: graph, ~metrics: metrics=defaultMetrics, ()): layout => {
   let floors = sortedFloors(graph)
-  let floorRows =
-    floors
-    ->Belt.Array.reduce(Belt.Map.String.empty, (acc, floorId) => {
-      let row = Belt.Map.String.size(acc)
-      Belt.Map.String.set(acc, floorId, row)
-    })
+  let floorRows = floors->Belt.Array.reduce(Belt.Map.String.empty, (acc, floorId) => {
+    let row = Belt.Map.String.size(acc)
+    Belt.Map.String.set(acc, floorId, row)
+  })
 
   let countsByFloor = Belt.MutableMap.String.make()
   graph.nodes->Belt.Array.forEach(node => {
@@ -57,38 +55,37 @@ let compute = (~graph: graph, ~metrics: metrics=defaultMetrics, ()): layout => {
     countsByFloor->Belt.MutableMap.String.set(node.floorId, count + 1)
   })
 
-  let maxColumns =
-    floors
-    ->Belt.Array.reduce(0, (acc, floorId) => {
-      let count = countsByFloor->Belt.MutableMap.String.get(floorId)->Option.getOr(0)
-      acc > count ? acc : count
-    })
+  let maxColumns = floors->Belt.Array.reduce(0, (acc, floorId) => {
+    let count = countsByFloor->Belt.MutableMap.String.get(floorId)->Option.getOr(0)
+    acc > count ? acc : count
+  })
 
   let width =
     metrics.leftPadding +.
     metrics.rightPadding +.
-    (maxColumns->Int.toFloat *. (metrics.nodeSize +. metrics.nodeGap))
+    maxColumns->Int.toFloat *. (metrics.nodeSize +. metrics.nodeGap)
   let height =
     metrics.topPadding +.
     metrics.bottomPadding +.
-    (Belt.Array.length(floors)->Int.toFloat *. metrics.rowGap)
+    Belt.Array.length(floors)->Int.toFloat *. metrics.rowGap
 
   let colByFloor = Belt.MutableMap.String.make()
-  let positions =
-    graph.nodes
-    ->Belt.Array.reduce(Belt.Map.String.empty, (acc, node) => {
-      let column = colByFloor->Belt.MutableMap.String.get(node.floorId)->Option.getOr(0)
-      colByFloor->Belt.MutableMap.String.set(node.floorId, column + 1)
-      let row = floorRows->Belt.Map.String.get(node.floorId)->Option.getOr(0)
+  let positions = graph.nodes->Belt.Array.reduce(Belt.Map.String.empty, (acc, node) => {
+    let column = colByFloor->Belt.MutableMap.String.get(node.floorId)->Option.getOr(0)
+    colByFloor->Belt.MutableMap.String.set(node.floorId, column + 1)
+    let row = floorRows->Belt.Map.String.get(node.floorId)->Option.getOr(0)
 
-      let x = metrics.leftPadding +. (column->Int.toFloat *. (metrics.nodeSize +. metrics.nodeGap)) +. (metrics.nodeSize /. 2.0)
-      let y =
-        height -.
-        metrics.bottomPadding -.
-        (row->Int.toFloat *. metrics.rowGap) -.
-        (metrics.nodeSize /. 2.0)
-      Belt.Map.String.set(acc, node.id, {x, y})
-    })
+    let x =
+      metrics.leftPadding +.
+      column->Int.toFloat *. (metrics.nodeSize +. metrics.nodeGap) +.
+      metrics.nodeSize /. 2.0
+    let y =
+      height -.
+      metrics.bottomPadding -.
+      row->Int.toFloat *. metrics.rowGap -.
+      metrics.nodeSize /. 2.0
+    Belt.Map.String.set(acc, node.id, {x, y})
+  })
 
   {
     positions,

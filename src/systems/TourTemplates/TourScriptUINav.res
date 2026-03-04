@@ -101,7 +101,7 @@ let script = `
       }
       clearLabel();
     }
-    function navigateToSceneBySequenceInput() {
+    function buildSceneSequenceRows() {
       const sceneSequenceRows = [];
       const sequenceBySceneId = new Map();
       const pushSequence = (sceneId, sequence) => {
@@ -137,19 +137,141 @@ let script = `
       sequenceBySceneId.forEach((sequence, sceneId) => {
         sceneSequenceRows.push({ sequence, sceneId });
       });
-      if (sceneSequenceRows.length === 0) return false;
       sceneSequenceRows.sort((a, b) => a.sequence - b.sequence);
-      const promptText = "Jump to scene sequence (1-" + String(sceneSequenceRows[sceneSequenceRows.length - 1].sequence) + ")";
-      const rawInput = window.prompt(promptText, "");
-      if (rawInput === null) return false;
-      const normalized = String(rawInput).trim();
-      if (normalized === "") return false;
-      const chosen = Number.parseInt(normalized, 10);
+      return sceneSequenceRows;
+    }
+    function navigateToSceneBySequenceValue(chosen) {
       if (!Number.isInteger(chosen) || chosen < 1) return false;
+      const sceneSequenceRows = buildSceneSequenceRows();
+      if (sceneSequenceRows.length === 0) return false;
       const targetEntry = sceneSequenceRows.find(item => item.sequence === chosen);
       if (!targetEntry || !targetEntry.sceneId) return false;
       navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });
       return true;
+    }
+    function isSceneSequencePromptOpen() {
+      return mapSequenceInputState.isOpen === true;
+    }
+    function closeSceneSequencePrompt() {
+      mapSequenceInputState.isOpen = false;
+      mapSequenceInputState.error = "";
+      mapSequenceInputState.value = "";
+      removeMapSequencePromptPanel();
+      if (typeof updateNavShortcutsV2 === "function") {
+        const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+        if (sid) updateNavShortcutsV2(sid, true);
+      }
+    }
+    function submitSceneSequencePrompt() {
+      const normalized = String(mapSequenceInputState.value || "").trim().toLowerCase();
+      if (normalized === "") {
+        mapSequenceInputState.error = "enter a sequence number";
+        return false;
+      }
+      if (normalized === "e") {
+        closeSceneSequencePrompt();
+        return true;
+      }
+      const chosen = Number.parseInt(normalized, 10);
+      const didNavigate = navigateToSceneBySequenceValue(chosen);
+      if (!didNavigate) {
+        mapSequenceInputState.error = "invalid sequence";
+        return false;
+      }
+      mapSequenceInputState.error = "";
+      closeSceneSequencePrompt();
+      return true;
+    }
+    function openSceneSequencePrompt() {
+      const rows = buildSceneSequenceRows();
+      if (rows.length === 0) return false;
+      mapSequenceInputState.isOpen = true;
+      mapSequenceInputState.error = "";
+      mapSequenceInputState.value = "";
+      if (typeof updateNavShortcutsV2 === "function") {
+        const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+        if (sid) updateNavShortcutsV2(sid, true);
+      }
+      return true;
+    }
+    function navigateToSceneBySequenceInput() {
+      return openSceneSequencePrompt();
+    }
+    function removeMapSequencePromptPanel() {
+      const existing = document.getElementById("viewer-map-sequence-prompt-export");
+      if (existing && existing.parentNode) {
+        existing.parentNode.removeChild(existing);
+      }
+    }
+    function renderMapSequencePromptPanel(panel) {
+      removeMapSequencePromptPanel();
+      if (!panel || mapSequenceInputState.isOpen !== true) return;
+      const rows = buildSceneSequenceRows();
+      const maxSeq = rows.length > 0 ? rows[rows.length - 1].sequence : 0;
+      const prompt = document.createElement("div");
+      prompt.id = "viewer-map-sequence-prompt-export";
+      prompt.className = "map-sequence-prompt-export";
+
+      const title = document.createElement("div");
+      title.className = "map-sequence-prompt-title";
+      title.textContent = "Jump to scene";
+
+      const hint = document.createElement("div");
+      hint.className = "map-sequence-prompt-hint";
+      hint.textContent = maxSeq > 0
+        ? "type 1-" + String(maxSeq) + " or e to exit"
+        : "type e to exit";
+
+      const controls = document.createElement("div");
+      controls.className = "map-sequence-prompt-controls";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "map-sequence-prompt-input";
+      input.setAttribute("inputmode", "numeric");
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("spellcheck", "false");
+      input.setAttribute("aria-label", "Scene sequence input");
+      input.value = String(mapSequenceInputState.value || "");
+      input.addEventListener("input", event => {
+        mapSequenceInputState.value = event?.target?.value ?? "";
+        mapSequenceInputState.error = "";
+      });
+
+      const goBtn = document.createElement("button");
+      goBtn.type = "button";
+      goBtn.className = "map-sequence-prompt-btn";
+      goBtn.textContent = "go";
+      goBtn.addEventListener("click", () => {
+        const didSubmit = submitSceneSequencePrompt();
+        if (!didSubmit && typeof updateNavShortcutsV2 === "function") {
+          const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+          if (sid) updateNavShortcutsV2(sid, true);
+        }
+      });
+
+      controls.appendChild(input);
+      controls.appendChild(goBtn);
+      prompt.appendChild(title);
+      prompt.appendChild(hint);
+      prompt.appendChild(controls);
+
+      if (mapSequenceInputState.error && mapSequenceInputState.error !== "") {
+        const errorEl = document.createElement("div");
+        errorEl.className = "map-sequence-prompt-error";
+        errorEl.textContent = mapSequenceInputState.error;
+        prompt.appendChild(errorEl);
+      }
+
+      panel.appendChild(prompt);
+      setTimeout(() => {
+        try {
+          input.focus({ preventScroll: true });
+          input.select();
+        } catch (_err) {
+          input.focus();
+        }
+      }, 0);
     }
     function navigateToFloorTagShortcut(targetSceneId, options) {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;

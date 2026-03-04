@@ -60,9 +60,9 @@ describe("CanonicalTraversal", () => {
     let model = CanonicalTraversal.derive(~state)
 
     t->expect(model.displayOrderByLinkId->Belt.Map.String.get("hAB"))->Expect.toEqual(Some(1))
-    t->expect(model.badgeByLinkId->Belt.Map.String.get("hBA"))->Expect.toEqual(
-      Some(CanonicalTraversal.Return),
-    )
+    t
+    ->expect(model.badgeByLinkId->Belt.Map.String.get("hBA"))
+    ->Expect.toEqual(Some(CanonicalTraversal.Return))
     t->expect(model.displayOrderByLinkId->Belt.Map.String.get("hBC"))->Expect.toEqual(Some(2))
   })
 

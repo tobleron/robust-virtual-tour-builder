@@ -47,8 +47,18 @@ let makeScene = (~id: string, ~hotspots: array<hotspot>, ()): scene => {
 }
 
 let makeGraphState = (~manual=false, ()) => {
-  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ~sequenceOrder=manual ? Some(2) : None, ())
-  let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ~sequenceOrder=manual ? Some(1) : None, ())
+  let hAB = makeHotspot(
+    ~linkId="hAB",
+    ~targetSceneId="B",
+    ~sequenceOrder=manual ? Some(2) : None,
+    (),
+  )
+  let hBC = makeHotspot(
+    ~linkId="hBC",
+    ~targetSceneId="C",
+    ~sequenceOrder=manual ? Some(1) : None,
+    (),
+  )
   let hBA = makeHotspot(~linkId="hBA", ~targetSceneId="A", ())
   let hCB = makeHotspot(~linkId="hCB", ~targetSceneId="B", ())
 

@@ -169,7 +169,7 @@ let handleUpdateHotspotMetadata = (
               | Some(t) => t
               | None => h.target
               },
-            targetSceneId: switch meta.targetSceneId {
+              targetSceneId: switch meta.targetSceneId {
               | Some(sid) => Some(sid)
               | None => h.targetSceneId
               },

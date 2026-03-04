@@ -49,7 +49,9 @@ let floorOrGround = (sceneOpt: option<scene>): string =>
 
 let resolveSceneId = (~scenes: array<scene>, refValue: option<string>): option<string> =>
   refValue
-  ->Belt.Option.flatMap(value => scenes->Belt.Array.getBy(s => s.id == value)->Option.map(s => s.id))
+  ->Belt.Option.flatMap(value =>
+    scenes->Belt.Array.getBy(s => s.id == value)->Option.map(s => s.id)
+  )
   ->Option.orElse(
     refValue->Belt.Option.flatMap(value =>
       scenes->Belt.Array.getBy(s => s.name == value)->Option.map(s => s.id)
@@ -63,8 +65,7 @@ let resolveTargetSceneId = (~scenes: array<scene>, ~item: timelineItem): option<
     sourceScene->Option.flatMap(s => s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId))
 
   switch sourceHotspot {
-  | Some(hotspot) =>
-    hotspot.targetSceneId->Option.orElse(resolveSceneId(~scenes, timelineRef))
+  | Some(hotspot) => hotspot.targetSceneId->Option.orElse(resolveSceneId(~scenes, timelineRef))
   | None => None
   }
 }
@@ -144,17 +145,15 @@ let build = (
     | None => timelineOrder->Belt.MutableMap.String.get(s.id)->Option.getOr(100000 + s.sequenceId)
     }
 
-  let orderedScenes =
-    scenes
-    ->Belt.SortArray.stableSortBy((a, b) => {
-      let rankA = rankForScene(a)
-      let rankB = rankForScene(b)
-      if rankA != rankB {
-        rankA - rankB
-      } else {
-        a.sequenceId - b.sequenceId
-      }
-    })
+  let orderedScenes = scenes->Belt.SortArray.stableSortBy((a, b) => {
+    let rankA = rankForScene(a)
+    let rankB = rankForScene(b)
+    if rankA != rankB {
+      rankA - rankB
+    } else {
+      a.sequenceId - b.sequenceId
+    }
+  })
 
   let nodes =
     orderedScenes
@@ -182,7 +181,11 @@ let build = (
       let key = fromSceneId ++ "->" ++ toSceneId
       if !(seenEdges->Belt.MutableSet.String.has(key)) {
         seenEdges->Belt.MutableSet.String.add(key)
-        let kind = if seenVisit->Belt.MutableSet.String.has(toSceneId) { Return } else { Forward }
+        let kind = if seenVisit->Belt.MutableSet.String.has(toSceneId) {
+          Return
+        } else {
+          Forward
+        }
         edgesQueue->Belt.MutableQueue.add({
           id,
           fromNodeId: nodeIdForScene(fromSceneId),
@@ -190,8 +193,7 @@ let build = (
           fromSceneId,
           toSceneId,
           kind,
-          isCrossFloor:
-            floorOrGround(scenes->Belt.Array.getBy(s => s.id == fromSceneId)) !=
+          isCrossFloor: floorOrGround(scenes->Belt.Array.getBy(s => s.id == fromSceneId)) !=
             floorOrGround(scenes->Belt.Array.getBy(s => s.id == toSceneId)),
         })
       }
@@ -224,8 +226,7 @@ let build = (
   scenes->Belt.Array.forEach(scene => {
     scene.hotspots->Belt.Array.forEachWithIndex((idx, hotspot) => {
       let fallbackRef = hotspot.target == "" ? None : Some(hotspot.target)
-      let targetSceneId =
-        hotspot.targetSceneId->Option.orElse(resolveSceneId(~scenes, fallbackRef))
+      let targetSceneId = hotspot.targetSceneId->Option.orElse(resolveSceneId(~scenes, fallbackRef))
       switch targetSceneId {
       | Some(targetId) =>
         addEdge(

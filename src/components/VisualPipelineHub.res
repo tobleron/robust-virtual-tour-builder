@@ -15,7 +15,8 @@ let detect = (graph: graph): hubMap => {
   let returnCounts = Belt.MutableMap.String.make()
 
   graph.edges->Belt.Array.forEach(edge => {
-    let existingTargets = outgoingTargets->Belt.MutableMap.String.get(edge.fromSceneId)->Option.getOr([])
+    let existingTargets =
+      outgoingTargets->Belt.MutableMap.String.get(edge.fromSceneId)->Option.getOr([])
     if !(existingTargets->Belt.Array.some(targetId => targetId == edge.toSceneId)) {
       outgoingTargets->Belt.MutableMap.String.set(
         edge.fromSceneId,
@@ -32,8 +33,7 @@ let detect = (graph: graph): hubMap => {
   })
 
   let map = Belt.Map.String.empty
-  graph.nodes
-  ->Belt.Array.reduce(map, (acc, node) => {
+  graph.nodes->Belt.Array.reduce(map, (acc, node) => {
     let branchCount =
       outgoingTargets
       ->Belt.MutableMap.String.get(node.representedSceneId)

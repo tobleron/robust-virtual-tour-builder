@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade complete, app visually stable
 - Hotspot add-link anchor restored to rod tip
 - Label polish: split sequence pill + spacing
+- Simulation/traversal hardening: stable mind-map pipeline routing, hotspot sequence + return semantics, export map jump panel UX, scene-1 canonical start policy, and builder/export visual parity upgrades
 
 ## [5.2.2] - 2026-03-03
 

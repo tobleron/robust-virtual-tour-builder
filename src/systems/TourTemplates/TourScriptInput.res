@@ -40,8 +40,34 @@ let script = `
         targetTag === "TEXTAREA" ||
         targetTag === "SELECT" ||
         target?.isContentEditable === true;
-      if (isTypingElement) return;
       const mapOpen = typeof isExportMapOpen === "function" && isExportMapOpen();
+      const sequencePromptOpen =
+        mapOpen &&
+        typeof isSceneSequencePromptOpen === "function" &&
+        isSceneSequencePromptOpen();
+
+      if (sequencePromptOpen) {
+        if (key === "Escape" || key === "Esc" || key === "e" || key === "E") {
+          if (typeof e.preventDefault === "function") e.preventDefault();
+          if (typeof e.stopPropagation === "function") e.stopPropagation();
+          if (typeof closeSceneSequencePrompt === "function") closeSceneSequencePrompt();
+          return;
+        }
+        if (key === "Enter") {
+          if (typeof e.preventDefault === "function") e.preventDefault();
+          if (typeof e.stopPropagation === "function") e.stopPropagation();
+          if (typeof submitSceneSequencePrompt === "function") {
+            const didSubmit = submitSceneSequencePrompt();
+            if (!didSubmit && typeof updateNavShortcutsV2 === "function") {
+              const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+              if (sid) updateNavShortcutsV2(sid, true);
+            }
+          }
+          return;
+        }
+      }
+
+      if (isTypingElement) return;
 
       if (key === "Escape" || key === "Esc") {
         if (!mapOpen) return;

@@ -158,6 +158,12 @@ let tooltipDelayDuration = 2400
 // ============================================
 
 module Scene = {
+  module Sequence = {
+    let startSceneIndex = 0
+    let startSceneNumber = 1
+    let startHotspotNumber = 2
+  }
+
   module Categories = {
     let indoor = "indoor"
     let outdoor = "outdoor"

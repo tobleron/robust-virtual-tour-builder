@@ -118,7 +118,9 @@ type candidateLink = {
 
 let pickByPriority = (candidates: array<candidateLink>): option<enrichedLink> => {
   let pick = predicate =>
-    Array.find(candidates, candidate => predicate(candidate))->Option.map(candidate => candidate.link)
+    Array.find(candidates, candidate => predicate(candidate))->Option.map(candidate =>
+      candidate.link
+    )
 
   let p1 = pick(candidate =>
     !candidate.link.isVisited && !candidate.isReturn && !candidate.link.isBridge

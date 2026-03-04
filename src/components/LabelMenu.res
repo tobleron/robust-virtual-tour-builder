@@ -18,14 +18,14 @@ let bulkDeleteBlockReason = (state: state): option<string> => {
   }
 
   let navBusy =
-    (switch state.navigationState.navigation {
+    switch state.navigationState.navigation {
     | Idle => false
     | _ => true
-    }) ||
-    (switch state.navigationState.navigationFsm {
+    } ||
+    switch state.navigationState.navigationFsm {
     | IdleFsm => false
     | _ => true
-    })
+    }
 
   if state.isLinking {
     Some("Linking mode is active.")
@@ -112,9 +112,10 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   | None => ""
   }
 
-  let orderedHotspots = React.useMemo1(() => HotspotSequence.deriveOrderedHotspots(~state), [
-    state.structuralRevision,
-  ])
+  let orderedHotspots = React.useMemo1(
+    () => HotspotSequence.deriveOrderedHotspots(~state),
+    [state.structuralRevision],
+  )
 
   // Effect to sync custom label input with current scene label
   React.useEffect1(() => {
@@ -123,11 +124,9 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }, [currentLabel])
 
   React.useEffect1(() => {
-    let drafts =
-      orderedHotspots
-      ->Belt.Array.reduce(Belt.Map.String.empty, (acc, row) => {
-        acc->Belt.Map.String.set(row.linkId, Belt.Int.toString(row.sequence))
-      })
+    let drafts = orderedHotspots->Belt.Array.reduce(Belt.Map.String.empty, (acc, row) => {
+      acc->Belt.Map.String.set(row.linkId, Belt.Int.toString(row.sequence))
+    })
     setSequenceDrafts(_ => drafts)
     None
   }, [state.structuralRevision])
@@ -243,19 +242,20 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     let updates = HotspotSequence.buildReorderUpdates(~state=liveState, ~linkId, ~desiredOrder)
 
     if updates->Belt.Array.length > 0 {
-      let actions = updates->Belt.Array.map(update =>
-        UpdateHotspotMetadata(
+      let actions =
+        updates->Belt.Array.map(update => UpdateHotspotMetadata(
           update.sceneIndex,
           update.hotspotIndex,
           Logger.castToJson({"sequenceOrder": update.sequenceOrder}),
-        )
-      )
+        ))
       dispatch(Batch(actions))
       notifySuccess(~message="Hotspot sequence updated")
     } else {
       let allowedOrders = HotspotSequence.deriveAdmissibleOrders(~state=liveState, ~linkId)
-      if allowedOrders->Belt.Array.length > 0 &&
-          !(allowedOrders->Belt.Array.some(order => order == desiredOrder)) {
+      if (
+        allowedOrders->Belt.Array.length > 0 &&
+          !(allowedOrders->Belt.Array.some(order => order == desiredOrder))
+      ) {
         notifyWarning(
           ~message="Sequence position is not valid",
           ~details="Only traversal-valid positions are allowed for this hotspot.",
@@ -265,13 +265,11 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }
 
   let commitSequenceDraft = (~linkId: string, ~currentSequence: int) => {
-    let currentText = sequenceDrafts->Belt.Map.String.get(linkId)->Option.getOr(
-      Belt.Int.toString(currentSequence),
-    )
+    let currentText =
+      sequenceDrafts->Belt.Map.String.get(linkId)->Option.getOr(Belt.Int.toString(currentSequence))
 
     switch Belt.Int.fromString(currentText) {
-    | Some(parsed) if parsed >= 1 =>
-      applySequenceReorder(linkId, parsed)
+    | Some(parsed) if parsed >= 1 => applySequenceReorder(linkId, parsed)
     | _ =>
       setSequenceDrafts(prev =>
         prev->Belt.Map.String.set(linkId, Belt.Int.toString(currentSequence))
@@ -307,8 +305,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
           dispatch(Batch(actions))
           notifySuccess(
             ~message="Removed " ++
-            Belt.Int.toString(indicesDescending->Belt.Array.length) ++
-            " untagged scenes",
+            Belt.Int.toString(indicesDescending->Belt.Array.length) ++ " untagged scenes",
           )
           onClose()
         }
@@ -337,8 +334,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
               title: "Remove Untagged Scenes",
               description: Some(
                 "This will permanently delete " ++
-                Belt.Int.toString(untaggedCount) ++
-                " untagged scenes from the project.",
+                Belt.Int.toString(untaggedCount) ++ " untagged scenes from the project.",
               ),
               icon: Some("warning"),
               content: Some(
@@ -370,116 +366,122 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     }
   }
 
-  let renderSceneTagTab = () =>
-    <>
-      /* Category Toggle */
-      <div className="px-3 pt-3 pb-2" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
-        <div className="flex bg-slate-100 p-1 rounded-lg">
-          <button
-            className={`flex-1 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
-                currentCategory == "indoor"
-              ) {
-                "bg-white text-primary shadow-sm border-slate-200"
-              } else {
-                "text-slate-400 hover:text-slate-600"
-              }}`}
-            onClick={e => handleSetCategory("indoor", e)}>
-            {React.string("Indoor")}
-          </button>
-          <button
-            className={`flex-1 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
-                currentCategory == "outdoor"
-              ) {
-                "bg-white text-primary shadow-sm border-slate-200"
-              } else {
-                "text-slate-400 hover:text-slate-600"
-              }}`}
-            onClick={e => handleSetCategory("outdoor", e)}>
-            {React.string("Outdoor")}
-          </button>
-        </div>
+  let renderSceneTagTab = () => <>
+    /* Category Toggle */
+    <div className="px-3 pt-3 pb-2" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
+      <div className="flex bg-slate-100 p-1 rounded-lg">
+        <button
+          className={`flex-1 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
+              currentCategory == "indoor"
+            ) {
+              "bg-white text-primary shadow-sm border-slate-200"
+            } else {
+              "text-slate-400 hover:text-slate-600"
+            }}`}
+          onClick={e => handleSetCategory("indoor", e)}
+        >
+          {React.string("Indoor")}
+        </button>
+        <button
+          className={`flex-1 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
+              currentCategory == "outdoor"
+            ) {
+              "bg-white text-primary shadow-sm border-slate-200"
+            } else {
+              "text-slate-400 hover:text-slate-600"
+            }}`}
+          onClick={e => handleSetCategory("outdoor", e)}
+        >
+          {React.string("Outdoor")}
+        </button>
       </div>
+    </div>
 
-      /* Presets Header */
-      <Shadcn.DropdownMenu.Label
-        className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 pb-2 px-3 pt-1">
-        {React.string("Room Presets")}
-      </Shadcn.DropdownMenu.Label>
+    /* Presets Header */
+    <Shadcn.DropdownMenu.Label
+      className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 pb-2 px-3 pt-1"
+    >
+      {React.string("Room Presets")}
+    </Shadcn.DropdownMenu.Label>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {Constants.roomLabelPresets
-        ->Dict.toArray
-        ->Belt.Array.keep(((cat, _)) => cat == currentCategory)
-        ->Belt.Array.map(((category, labels)) => {
-          <Shadcn.DropdownMenu.Group key={category}>
-            <div className="px-3 py-1 flex items-center gap-2">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter">
-                {React.string(category)}
-              </span>
-              <div className="flex-1 h-px bg-slate-100" />
-            </div>
-            {labels
-            ->Belt.Array.map(label => {
-              let isActive = label == currentLabel
-              let isFlickering = flickeringLabel == Some(label)
-              <Shadcn.DropdownMenu.Item
-                key={label}
-                onClick={e => handleSelect(label, e)}
-                className={`mx-1 my-0.5 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer
+    <div className="flex-1 overflow-y-auto custom-scrollbar">
+      {Constants.roomLabelPresets
+      ->Dict.toArray
+      ->Belt.Array.keep(((cat, _)) => cat == currentCategory)
+      ->Belt.Array.map(((category, labels)) => {
+        <Shadcn.DropdownMenu.Group key={category}>
+          <div className="px-3 py-1 flex items-center gap-2">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter">
+              {React.string(category)}
+            </span>
+            <div className="flex-1 h-px bg-slate-100" />
+          </div>
+          {labels
+          ->Belt.Array.map(label => {
+            let isActive = label == currentLabel
+            let isFlickering = flickeringLabel == Some(label)
+            <Shadcn.DropdownMenu.Item
+              key={label}
+              onClick={e => handleSelect(label, e)}
+              className={`mx-1 my-0.5 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer
                 ${isActive ? "bg-primary/10 text-primary" : "text-slate-600"}
                 ${isFlickering ? "animate-flicker-orange-flat" : ""}
-              `}>
-                {React.string(label)}
-              </Shadcn.DropdownMenu.Item>
-            })
-            ->React.array}
-          </Shadcn.DropdownMenu.Group>
-        })
-        ->React.array}
-      </div>
+              `}
+            >
+              {React.string(label)}
+            </Shadcn.DropdownMenu.Item>
+          })
+          ->React.array}
+        </Shadcn.DropdownMenu.Group>
+      })
+      ->React.array}
+    </div>
 
-      <Shadcn.DropdownMenu.Separator />
+    <Shadcn.DropdownMenu.Separator />
 
-      /* Custom Label Section - Wrapped in a non-Item div to prevent auto-close */
-      <div className="p-3 bg-slate-50/50" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
-        <h4 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
-          {React.string("Custom Label")}
-        </h4>
-        <div className="flex gap-1.5">
-          <input
-            type_="text"
-            placeholder="Name..."
-            value={customLabel}
-            onChange={e => {
-              let val = JsxEvent.Form.target(e)["value"]
-              setCustomLabel(_ => val)
-            }}
-            onKeyDown={e => {
-              JsxEvent.Keyboard.stopPropagation(e)
-              if JsxEvent.Keyboard.key(e) == "Enter" {
-                handleApplyCustom()
-              }
-            }}
-            className="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-700 outline-none focus:border-primary transition-all"
-          />
-          <button
-            onClick={_ => handleApplyCustom()}
-            className="px-3 py-1 bg-primary text-white rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-primary-light active:scale-95 transition-all shadow-sm">
-            {React.string("SET")}
-          </button>
-        </div>
+    /* Custom Label Section - Wrapped in a non-Item div to prevent auto-close */
+    <div className="p-3 bg-slate-50/50" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
+      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
+        {React.string("Custom Label")}
+      </h4>
+      <div className="flex gap-1.5">
+        <input
+          type_="text"
+          placeholder="Name..."
+          value={customLabel}
+          onChange={e => {
+            let val = JsxEvent.Form.target(e)["value"]
+            setCustomLabel(_ => val)
+          }}
+          onKeyDown={e => {
+            JsxEvent.Keyboard.stopPropagation(e)
+            if JsxEvent.Keyboard.key(e) == "Enter" {
+              handleApplyCustom()
+            }
+          }}
+          className="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-700 outline-none focus:border-primary transition-all"
+        />
         <button
-          onClick={_ => handleClear()}
-          className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all">
-          {React.string("CLEAR LABEL")}
-        </button>
-        <button
-          onClick={_ => handleRemoveAllUntagged()}
-          className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-red-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all">
-          {React.string("REMOVE ALL UNTAGGED")}
+          onClick={_ => handleApplyCustom()}
+          className="px-3 py-1 bg-primary text-white rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-primary-light active:scale-95 transition-all shadow-sm"
+        >
+          {React.string("SET")}
         </button>
       </div>
-    </>
+      <button
+        onClick={_ => handleClear()}
+        className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
+      >
+        {React.string("CLEAR LABEL")}
+      </button>
+      <button
+        onClick={_ => handleRemoveAllUntagged()}
+        className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-red-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
+      >
+        {React.string("REMOVE ALL UNTAGGED")}
+      </button>
+    </div>
+  </>
 
   let renderSequenceTab = () =>
     <div className="flex flex-col h-full max-h-[300px]">
@@ -499,13 +501,15 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         } else {
           orderedHotspots
           ->Belt.Array.map(row => {
-            let draftValue = sequenceDrafts->Belt.Map.String.get(row.linkId)->Option.getOr(
-              Belt.Int.toString(row.sequence),
-            )
+            let draftValue =
+              sequenceDrafts
+              ->Belt.Map.String.get(row.linkId)
+              ->Option.getOr(Belt.Int.toString(row.sequence))
             let isDirty = draftValue != Belt.Int.toString(row.sequence)
             <div
               key={row.linkId}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-100 hover:border-slate-200 bg-white">
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-100 hover:border-slate-200 bg-white"
+            >
               <input
                 type_="number"
                 min="1"
@@ -528,12 +532,17 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
                 <div className="text-[10px] font-semibold text-slate-700 truncate">
                   {React.string(row.sceneLabel ++ " -> " ++ row.targetLabel)}
                 </div>
-                <div className="text-[9px] font-mono text-slate-400 truncate"> {React.string(row.linkId)} </div>
+                <div className="text-[9px] font-mono text-slate-400 truncate">
+                  {React.string(row.linkId)}
+                </div>
               </div>
               <button
-                onClick={_ => commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
+                onClick={_ =>
+                  commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
                 disabled={!isDirty}
-                className={`px-2 py-1 rounded text-[9px] font-semibold uppercase tracking-wider transition-all ${if isDirty {
+                className={`px-2 py-1 rounded text-[9px] font-semibold uppercase tracking-wider transition-all ${if (
+                    isDirty
+                  ) {
                     "bg-primary text-white hover:bg-primary-light active:scale-95"
                   } else {
                     "bg-slate-200 text-slate-400 cursor-not-allowed"

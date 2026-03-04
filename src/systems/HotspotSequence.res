@@ -25,9 +25,9 @@ type sequenceUpdate = {
 
 let clampOrder = (value: int, maxValue: int): int => {
   if maxValue <= 0 {
-    1
-  } else if value < 1 {
-    1
+    Constants.Scene.Sequence.startSceneNumber
+  } else if value < Constants.Scene.Sequence.startSceneNumber {
+    Constants.Scene.Sequence.startSceneNumber
   } else if value > maxValue {
     maxValue
   } else {
@@ -53,14 +53,14 @@ let deriveDisplayOrder = (~state: state): Belt.Map.String.t<int> =>
   CanonicalTraversal.derive(~state).displayOrderByLinkId
 
 let deriveAdmissibleOrders = (~state: state, ~linkId: string): array<int> =>
-  CanonicalTraversal.derive(~state)
-  .admissibleOrdersByLinkId
+  CanonicalTraversal.derive(~state).admissibleOrdersByLinkId
   ->Belt.Map.String.get(linkId)
   ->Option.getOr([])
 
 let deriveOrderedHotspots = (~state: state): array<orderedHotspot> => {
   let model = CanonicalTraversal.derive(~state)
   model.orderedForwardRefs->Belt.Array.mapWithIndex((idx, item) => {
+    let sequenceValue = idx + Constants.Scene.Sequence.startSceneNumber
     {
       sceneId: item.sceneId,
       sceneIndex: item.sceneIndex,
@@ -69,7 +69,7 @@ let deriveOrderedHotspots = (~state: state): array<orderedHotspot> => {
       sceneLabel: item.sceneLabel,
       targetSceneId: item.targetSceneId,
       targetLabel: item.targetLabel,
-      sequence: idx + 1,
+      sequence: sequenceValue,
       sequenceOrder: item.sequenceOrder,
     }
   })
@@ -88,11 +88,9 @@ let moveToOrder = (
   }
 }
 
-let buildReorderUpdates = (
-  ~state: state,
-  ~linkId: string,
-  ~desiredOrder: int,
-): array<sequenceUpdate> => {
+let buildReorderUpdates = (~state: state, ~linkId: string, ~desiredOrder: int): array<
+  sequenceUpdate,
+> => {
   let model = CanonicalTraversal.derive(~state)
   let ordered = model.orderedForwardRefs
   let total = ordered->Belt.Array.length
@@ -104,14 +102,12 @@ let buildReorderUpdates = (
     | None => []
     | Some(currentIndex) =>
       let nextOrder = clampOrder(desiredOrder, total)
-      let allowed =
-        model.admissibleOrdersByLinkId->Belt.Map.String.get(linkId)->Option.getOr([])
-      let isAllowed =
-        if allowed->Belt.Array.length == 0 {
-          true
-        } else {
-          allowed->Belt.Array.some(order => order == nextOrder)
-        }
+      let allowed = model.admissibleOrdersByLinkId->Belt.Map.String.get(linkId)->Option.getOr([])
+      let isAllowed = if allowed->Belt.Array.length == 0 {
+        true
+      } else {
+        allowed->Belt.Array.some(order => order == nextOrder)
+      }
 
       if !isAllowed {
         []
@@ -122,11 +118,12 @@ let buildReorderUpdates = (
         } else {
           let reordered = moveToOrder(~ordered, ~currentIndex, ~targetIndex)
           reordered->Belt.Array.mapWithIndex((idx, item) => {
+            let sequenceValue = idx + Constants.Scene.Sequence.startSceneNumber
             {
               sceneIndex: item.sceneIndex,
               hotspotIndex: item.hotspotIndex,
               linkId: item.linkId,
-              sequenceOrder: idx + 1,
+              sequenceOrder: sequenceValue,
             }
           })
         }

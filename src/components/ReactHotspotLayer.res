@@ -185,7 +185,14 @@ let make = React.memo(() => {
               }
               let badge = hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId)
               let (sequenceLabel, isReturnNode) = switch badge {
-              | Some(HotspotSequence.Sequence(sequenceNo)) => (Some(sequenceNo), false)
+              | Some(HotspotSequence.Sequence(sequenceNo)) => (
+                  Some(
+                    sequenceNo +
+                    (Constants.Scene.Sequence.startHotspotNumber -
+                    Constants.Scene.Sequence.startSceneNumber),
+                  ),
+                  false,
+                )
               | Some(HotspotSequence.Return) => (None, true)
               | None => (None, false)
               }

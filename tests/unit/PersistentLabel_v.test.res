@@ -64,7 +64,7 @@ describe("PersistentLabel", () => {
 
     await wait(50)
 
-      let labelEl = Dom.getElementById("v-scene-persistent-label")
+    let labelEl = Dom.getElementById("v-scene-persistent-label")
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
       t->expect(Dom.getTextContent(el)->String.includes("unlabeled"))->Expect.toBe(true)

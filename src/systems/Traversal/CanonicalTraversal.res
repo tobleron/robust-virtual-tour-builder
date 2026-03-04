@@ -25,9 +25,7 @@ type model = {
   admissibleOrdersByLinkId: Belt.Map.String.t<array<int>>,
 }
 
-type traversalSnapshot = {
-  orderByLinkId: Belt.Map.String.t<int>,
-}
+type traversalSnapshot = {orderByLinkId: Belt.Map.String.t<int>}
 
 let stripSceneTag = (raw: string): string => {
   let trimmed = raw->String.trim
@@ -58,9 +56,9 @@ let displaySceneLabel = (scene: scene): string => {
 
 let clampOrder = (value: int, maxValue: int): int => {
   if maxValue <= 0 {
-    1
-  } else if value < 1 {
-    1
+    Constants.Scene.Sequence.startSceneNumber
+  } else if value < Constants.Scene.Sequence.startSceneNumber {
+    Constants.Scene.Sequence.startSceneNumber
   } else if value > maxValue {
     maxValue
   } else {
@@ -75,7 +73,9 @@ let addVisitedLink = (visited: array<string>, linkId: string): array<string> =>
     Belt.Array.concat(visited, [linkId])
   }
 
-let applyVisitedActions = (~visited: array<string>, ~actions: array<Actions.action>): array<string> =>
+let applyVisitedActions = (~visited: array<string>, ~actions: array<Actions.action>): array<
+  string,
+> =>
   actions->Belt.Array.reduce(visited, (acc, action) =>
     switch action {
     | AddVisitedLink(linkId) => addVisitedLink(acc, linkId)
@@ -107,13 +107,13 @@ let deriveTraversalSnapshot = (
   | Some(_) =>
     let orderByLinkId = ref(Belt.Map.String.empty)
 
-    let nextOrder = ref(1)
+    let nextOrder = ref(Constants.Scene.Sequence.startSceneNumber)
     let stepCount = ref(0)
     let continueLoop = ref(true)
 
     let currentStateRef = ref({
       ...state,
-      activeIndex: 0,
+      activeIndex: Constants.Scene.Sequence.startSceneIndex,
       simulation: {
         ...state.simulation,
         status: Running,
@@ -147,13 +147,13 @@ let deriveTraversalSnapshot = (
           )
 
           currentStateRef := {
-            ...currentState,
-            activeIndex: targetIndex,
-            simulation: {
-              ...currentState.simulation,
-              visitedLinkIds: visitedAfterMove,
-            },
-          }
+              ...currentState,
+              activeIndex: targetIndex,
+              simulation: {
+                ...currentState.simulation,
+                visitedLinkIds: visitedAfterMove,
+              },
+            }
 
           stepCount := stepCount.contents + 1
         | Complete(_) | None => continueLoop := false
@@ -185,10 +185,12 @@ let deriveReturnLinkIdSet = (
     sourceScene.hotspots->Belt.Array.forEach(hotspot =>
       switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
       | Some(targetSceneId) =>
-        if TraversalParentMap.isReturnTarget(
-          ~parentBySceneId,
-          ~sourceSceneId=sourceScene.id,
-          ~targetSceneId,
+        if (
+          TraversalParentMap.isReturnTarget(
+            ~parentBySceneId,
+            ~sourceSceneId=sourceScene.id,
+            ~targetSceneId,
+          )
         ) {
           returnIds->Belt.MutableSet.String.add(hotspot.linkId)
         }
@@ -283,8 +285,8 @@ let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> =
       }
     )
     ->Belt.SortArray.stableSortBy((a, b) => {
-      let seqA = a.sequenceOrder->Option.getOr(1)
-      let seqB = b.sequenceOrder->Option.getOr(1)
+      let seqA = a.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
+      let seqB = b.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
       if seqA == seqB {
         b.fallbackOrder - a.fallbackOrder
       } else {
@@ -298,9 +300,8 @@ let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> =
     | Some(currentIndex) =>
       let withoutCurrent =
         ordered.contents->Belt.Array.keepWithIndex((_, idx) => idx != currentIndex)
-      let desiredOrder = item.sequenceOrder->Option.getOr(1)
-      let desiredIndex =
-        clampOrder(desiredOrder, withoutCurrent->Belt.Array.length + 1) - 1
+      let desiredOrder = item.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
+      let desiredIndex = clampOrder(desiredOrder, withoutCurrent->Belt.Array.length + 1) - 1
       ordered := UiHelpers.insertAt(withoutCurrent, desiredIndex, item)
     | None => ()
     }
@@ -336,8 +337,7 @@ let isValidForwardOrder = (~ordered: array<forwardRef>): bool => {
         if item.isAutoForward && remainingNonAuto > 0 {
           isValid := false
         } else if !item.isAutoForward && remainingNonAuto > 0 {
-          remainingNonAutoByScene
-          ->Belt.MutableMap.String.set(item.sceneId, remainingNonAuto - 1)
+          remainingNonAutoByScene->Belt.MutableMap.String.set(item.sceneId, remainingNonAuto - 1)
         }
       | None => ()
       }
@@ -349,11 +349,9 @@ let isValidForwardOrder = (~ordered: array<forwardRef>): bool => {
   }
 }
 
-let moveRefToIndex = (
-  ~ordered: array<forwardRef>,
-  ~currentIndex: int,
-  ~nextIndex: int,
-): array<forwardRef> => {
+let moveRefToIndex = (~ordered: array<forwardRef>, ~currentIndex: int, ~nextIndex: int): array<
+  forwardRef,
+> => {
   switch ordered->Belt.Array.get(currentIndex) {
   | None => ordered
   | Some(item) =>
@@ -362,9 +360,9 @@ let moveRefToIndex = (
   }
 }
 
-let deriveAdmissibleOrdersByLinkId = (
-  ~ordered: array<forwardRef>,
-): Belt.Map.String.t<array<int>> => {
+let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<
+  array<int>,
+> => {
   let total = ordered->Belt.Array.length
   if total == 0 {
     Belt.Map.String.empty
@@ -374,12 +372,11 @@ let deriveAdmissibleOrdersByLinkId = (
       let options = ref([])
       for desiredOrder in 1 to total {
         let targetIndex = desiredOrder - 1
-        let candidate =
-          if targetIndex == currentIndex {
-            ordered
-          } else {
-            moveRefToIndex(~ordered, ~currentIndex, ~nextIndex=targetIndex)
-          }
+        let candidate = if targetIndex == currentIndex {
+          ordered
+        } else {
+          moveRefToIndex(~ordered, ~currentIndex, ~nextIndex=targetIndex)
+        }
 
         if isValidForwardOrder(~ordered=candidate) {
           options := Belt.Array.concat(options.contents, [desiredOrder])
@@ -421,12 +418,11 @@ let derive = (~state: state, ~maxSteps: int=400): model => {
 
     let defaultOrdered = sortDefaultForwardRefs(forwardRefs)
     let manualOrdered = applyManualOverrides(defaultOrdered)
-    let finalOrdered =
-      if isValidForwardOrder(~ordered=manualOrdered) {
-        manualOrdered
-      } else {
-        defaultOrdered
-      }
+    let finalOrdered = if isValidForwardOrder(~ordered=manualOrdered) {
+      manualOrdered
+    } else {
+      defaultOrdered
+    }
 
     let displayOrderByLinkId =
       finalOrdered
@@ -436,21 +432,18 @@ let derive = (~state: state, ~maxSteps: int=400): model => {
     let forwardBadgeByLinkId =
       displayOrderByLinkId
       ->Belt.Map.String.toArray
-      ->Belt.Array.reduce(
-          Belt.Map.String.empty,
-          (acc, (linkId, order)) => acc->Belt.Map.String.set(linkId, Sequence(order)),
-        )
+      ->Belt.Array.reduce(Belt.Map.String.empty, (acc, (linkId, order)) =>
+        acc->Belt.Map.String.set(linkId, Sequence(order))
+      )
 
     let badgeByLinkId =
       returnLinkIdSet
       ->Belt.Set.String.toArray
-      ->Belt.Array.reduce(
-          forwardBadgeByLinkId,
-          (acc, linkId) => acc->Belt.Map.String.set(linkId, Return),
-        )
+      ->Belt.Array.reduce(forwardBadgeByLinkId, (acc, linkId) =>
+        acc->Belt.Map.String.set(linkId, Return)
+      )
 
-    let admissibleOrdersByLinkId =
-      deriveAdmissibleOrdersByLinkId(~ordered=finalOrdered)
+    let admissibleOrdersByLinkId = deriveAdmissibleOrdersByLinkId(~ordered=finalOrdered)
 
     {
       badgeByLinkId,
