@@ -48,6 +48,15 @@ let createMockResponse = (ok, status, jsonFn, blobFn) => {
   }
 }
 
+let decodeValidationReport = (projectJson: JSON.t): option<SharedTypes.validationReport> =>
+  switch JsonCombinators.Json.decode(
+    projectJson,
+    JsonCombinators.Json.Decode.field("validationReport", JsonParsers.Shared.validationReport),
+  ) {
+  | Ok(report) => Some(report)
+  | Error(_) => None
+  }
+
 let attachValidationReport = (
   projectJson: JSON.t,
   ~brokenLinksRemoved: int=0,
@@ -166,7 +175,49 @@ describe("ProjectManager.Logic", () => {
     )
 
     switch result {
-    | Ok((sid, _data)) => t->expect(sid)->Expect.toBe(sessionId)
+    | Ok((sid, data)) =>
+      t->expect(sid)->Expect.toBe(sessionId)
+      let report = decodeValidationReport(data)
+      t->expect(report->Option.isSome)->Expect.toBe(true)
+    | Error(msg) => failwith("Expected Ok, got Error: " ++ msg)
+    }
+  })
+
+  testAsync("processLoadedProjectData keeps validation report warnings for UI summary", async t => {
+    let sessionId = "session_123"
+    let project: Types.project = {
+      tourName: "Loaded Tour",
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
+      lastUsedCategory: "indoor",
+      exifReport: None,
+      sessionId: Some(sessionId),
+      timeline: [],
+      logo: None,
+      marketingComment: "",
+      marketingPhone1: "",
+      marketingPhone2: "",
+      marketingForRent: false,
+      marketingForSale: false,
+      nextSceneSequenceId: 1,
+    }
+    let projectJson = JsonParsers.Encoders.project(project)
+    let projectWithValidation = attachValidationReport(
+      projectJson,
+      ~warnings=["Scene order auto-normalized"],
+      ~brokenLinksRemoved=2,
+    )
+
+    let result = await ProjectManager.Logic.processLoadedProjectData(
+      Ok((sessionId, projectWithValidation)),
+      ~loadStartTime=0.0,
+    )
+
+    switch result {
+    | Ok((_sid, data)) =>
+      let report = decodeValidationReport(data)->Option.getOrThrow
+      t->expect(report.brokenLinksRemoved)->Expect.toBe(2)
+      t->expect(Array.length(report.warnings))->Expect.toBe(1)
     | Error(msg) => failwith("Expected Ok, got Error: " ++ msg)
     }
   })

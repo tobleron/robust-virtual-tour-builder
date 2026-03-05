@@ -42,7 +42,7 @@ graph TD
 
 ### Tooltip
 - **Trigger**: Hover over any node.
-- **Content**: Link ID label, scene thumbnail (tiny file or main file), and scene name.
+- **Content**: Scene tag name (instead of generic link ID), scene thumbnail (tiny file or main file), and scene name.
 - **Style**: Dark glass panel (`rgba(15, 23, 42, 0.95)`, `backdrop-filter: blur(4px)`) with 8px border-radius.
 
 ### Auto-Forward Indicator

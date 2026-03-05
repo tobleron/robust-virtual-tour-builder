@@ -4,6 +4,47 @@ open Vitest
 open Types
 
 describe("UploadReport", () => {
+  let buildProjectJson = () => {
+    let project: Types.project = {
+      tourName: "Load Test",
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
+      lastUsedCategory: "indoor",
+      exifReport: None,
+      sessionId: Some("sess"),
+      timeline: [],
+      logo: None,
+      marketingComment: "",
+      marketingPhone1: "",
+      marketingPhone2: "",
+      marketingForRent: false,
+      marketingForSale: false,
+      nextSceneSequenceId: 1,
+    }
+    JsonParsers.Encoders.project(project)
+  }
+
+  let attachValidationReport = (
+    projectJson: JSON.t,
+    ~warnings: array<string>=[],
+    ~errors: array<string>=[],
+    ~brokenLinksRemoved: int=0,
+    ~orphanedScenes: array<string>=[],
+    ~unusedFiles: array<string>=[],
+  ) => {
+    let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
+      %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+    let validationReport =
+      JsonCombinators.Json.Encode.object([
+        ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
+        ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes)),
+        ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles)),
+        ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
+        ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
+      ])
+    mergeValidationReport(projectJson, validationReport)
+  }
+
   let makeQualityItem = (score, name) => {
     let stats: SharedTypes.qualityStats = {
       avgLuminance: 128,
@@ -179,42 +220,7 @@ describe("UploadReport", () => {
   })
 
   test("showFromProjectData should extract names and quality", t => {
-    let projectJson = JSON.Encode.object(
-      Dict.fromArray([
-        (
-          "scenes",
-          JSON.Encode.array([
-            JSON.Encode.object(
-              Dict.fromArray([
-                ("name", JSON.Encode.string("Scene1")),
-                ("file", JSON.Encode.string("file1")),
-                ("file", JSON.Encode.string("file1")),
-                ("hotspots", JSON.Encode.array([])),
-                (
-                  "quality",
-                  JSON.Encode.object(
-                    Dict.fromArray([
-                      ("score", JSON.Encode.float(8.0)),
-                      (
-                        "stats",
-                        JSON.Encode.object(
-                          Dict.fromArray([
-                            ("avgLuminance", JSON.Encode.int(100)),
-                            ("blackClipping", JSON.Encode.float(0.0)),
-                            ("whiteClipping", JSON.Encode.float(0.0)),
-                            ("sharpnessVariance", JSON.Encode.int(50)),
-                          ]),
-                        ),
-                      ),
-                    ]),
-                  ),
-                ),
-              ]),
-            ),
-          ]),
-        ),
-      ]),
-    )
+    let projectJson = buildProjectJson()
 
     let receivedConfig = ref(None)
     let _unsubscribe = EventBus.subscribe(
@@ -233,6 +239,35 @@ describe("UploadReport", () => {
     )
 
     t->expect(receivedConfig.contents !== None)->Expect.toBe(true)
+  })
+
+  test("showFromProjectData should show project validation summary when validation report exists", t => {
+    let projectJson = buildProjectJson()->attachValidationReport(
+      ~brokenLinksRemoved=1,
+      ~warnings=["Auto-fixed stale links"],
+    )
+
+    let receivedConfig = ref(None)
+    let unsubscribe = EventBus.subscribe(
+      evt => {
+        switch evt {
+        | ShowModal(config) => receivedConfig := Some(config)
+        | _ => ()
+        }
+      },
+    )
+
+    UploadReport.showFromProjectData(
+      projectJson,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
+    unsubscribe()
+
+    switch receivedConfig.contents {
+    | Some(config) => t->expect(config.title)->Expect.toBe("Project Validation Summary")
+    | None => t->expect(false)->Expect.toBe(true)
+    }
   })
 
   test("should have correct buttons in the modal", t => {
