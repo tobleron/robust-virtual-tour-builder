@@ -491,10 +491,10 @@ let _ = describe("TourTemplates", () => {
       "1.0",
     )
 
-    t->expectToContain(html, "grid-template-columns: 8px 1.1em auto;")
-    t->expectToContain(html, "exitIndicatorEl.className = \"shortcut-indicator-spacer\";")
+    t->expectToContain(html, "grid-template-columns: 8px 1.1em minmax(0, 1fr);")
+    t->expectToContain(html, "exitIndicatorEl.className = \"shortcut-indicator-arrow\";")
     t->expectToContain(html, "exitRow.appendChild(exitIndicatorEl);")
-    t->expectToContain(html, "exitTextEl.textContent = \"exit map mode\";")
+    t->expectToContain(html, "exitTextEl.textContent = \"Exit Map Mode\";")
   })
 
   test("generateTourHTML map shortcuts keep basement aliases and row navigation wiring", t => {
@@ -520,7 +520,7 @@ let _ = describe("TourTemplates", () => {
       "navigateToFloorTagShortcut(entry.sceneId, { fromMap: true, mapSelectedRow: row });",
     )
     t->expectToContain(html, "if (currentSceneId && entry.sceneId === currentSceneId) return true;")
-    t->expectToContain(html, "jumpTextEl.textContent = \"jump to scene\";")
+    t->expectToContain(html, "jumpTextEl.textContent = \"Jump to Scene\";")
     t->expectToContain(html, "if (key === \"n\" || key === \"N\") {")
     t->expectToContain(html, "function navigateToSceneBySequenceInput() {")
   })

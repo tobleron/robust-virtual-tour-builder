@@ -339,6 +339,7 @@ module Media = {
   let processFullLatencyLowMs = 1000.0
   let processFullLatencyHighMs = 2200.0
   let processFullLatencyEmaAlpha = 0.2
+  let backgroundTitleDiscoveryTimeoutMs = 4000
   // Export scene normalization policy (matches upload for zero-re-encode path)
   let exportSceneWebpQuality = 0.80
   let exportSceneMaxWidth = Float.fromInt(processedImageWidth)

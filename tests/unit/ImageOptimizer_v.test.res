@@ -24,6 +24,21 @@ open ReBindings
       });
     })
   }));
+  globalThis.OffscreenCanvas = class {
+    constructor(width, height) {
+      this.width = width;
+      this.height = height;
+    }
+    getContext() {
+      return {
+        drawImage: () => {},
+        canvas: this
+      };
+    }
+    convertToBlob() {
+      return Promise.resolve(new Blob(['mock-webp'], { type: 'image/webp' }));
+    }
+  };
 `)
 
 describe("ImageOptimizer - Browser-side Compression", () => {

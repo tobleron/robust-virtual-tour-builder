@@ -23,6 +23,8 @@ let parseRateLimitedSeconds = (msg: string): option<int> => {
   }
 }
 
+let isBulkheadRejected = (msg: string): bool => String.startsWith(msg, "BulkheadRejected:")
+
 let processImageWithTimeout = (
   file: ReBindings.File.t,
   ~onStatus: string => unit,
@@ -107,23 +109,34 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     (),
   )
 
-  let rec attemptProcess = (remainingRateLimitRetries: int) => {
+  let rec attemptProcess = (remainingRateLimitRetries: int, remainingBulkheadRetries: int) => {
     processImageWithTimeout(item.original, ~onStatus)->Promise.then(processResult => {
       switch processResult {
       | Ok(res) => Promise.resolve(handleProcessSuccess(res, item))
       | Error(msg) =>
-        switch parseRateLimitedSeconds(msg) {
-        | Some(seconds) if remainingRateLimitRetries > 0 =>
-          onStatus("Rate-limited, retrying in " ++ Belt.Int.toString(seconds) ++ "s")
-          let waitMs = seconds * 1000 + 250
-          sleepMs(waitMs)->Promise.then(() => attemptProcess(remainingRateLimitRetries - 1))
-        | _ => Promise.resolve(handleProcessError(msg, item))
+        if isBulkheadRejected(msg) && remainingBulkheadRetries > 0 {
+          let retryAttempt = 3 - remainingBulkheadRetries + 1
+          let waitMs = retryAttempt * 350
+          onStatus("Upload queue busy, retrying in " ++ Belt.Int.toString(waitMs) ++ "ms")
+          sleepMs(waitMs)->Promise.then(() =>
+            attemptProcess(remainingRateLimitRetries, remainingBulkheadRetries - 1)
+          )
+        } else {
+          switch parseRateLimitedSeconds(msg) {
+          | Some(seconds) if remainingRateLimitRetries > 0 =>
+            onStatus("Rate-limited, retrying in " ++ Belt.Int.toString(seconds) ++ "s")
+            let waitMs = seconds * 1000 + 250
+            sleepMs(waitMs)->Promise.then(() =>
+              attemptProcess(remainingRateLimitRetries - 1, remainingBulkheadRetries)
+            )
+          | _ => Promise.resolve(handleProcessError(msg, item))
+          }
         }
       }
     })
   }
 
-  attemptProcess(2)->Promise.catch(err => {
+  attemptProcess(2, 3)->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
     Logger.error(
       ~module_="UploadLogic",

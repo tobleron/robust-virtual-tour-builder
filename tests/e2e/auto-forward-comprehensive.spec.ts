@@ -108,21 +108,21 @@ test.describe('Auto-Forward Comprehensive', () => {
       
       const initialScene = await page.evaluate(() => {
         // @ts-ignore
-        return window.store?.state?.activeIndex || 0;
+        return window.store.getState()?.activeIndex || 0;
       });
 
       // Wait for scene change (auto-navigation)
       await expect(async () => {
         const currentScene = await page.evaluate(() => {
           // @ts-ignore
-          return window.store?.state?.activeIndex || 0;
+          return window.store.getState()?.activeIndex || 0;
         });
         expect(currentScene).not.toBe(initialScene);
       }).toPass({ timeout: 30000 });
 
       const newScene = await page.evaluate(() => {
         // @ts-ignore
-        return window.store?.state?.activeIndex || 0;
+        return window.store.getState()?.activeIndex || 0;
       });
 
       await stopBtn.click();
@@ -249,7 +249,7 @@ test.describe('Auto-Forward Comprehensive', () => {
 
     const brokenLinks = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       const broken = [];
       state?.scenes?.forEach((scene: any) => {
         scene.hotspots?.forEach((h: any) => {

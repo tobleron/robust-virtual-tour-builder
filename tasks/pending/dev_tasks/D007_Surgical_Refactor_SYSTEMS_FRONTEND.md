@@ -17,6 +17,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 404/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
+- [ ] - **../../src/systems/ProjectSystem.res** (Metric: [Nesting: 3.60, Density: 0.11, Coupling: 0.11] | Drag: 4.71 | LOC: 376/300  🎯 Target: Function: `loadedProject` (High Local Complexity (1.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
 - [ ] - **../../src/systems/Simulation.res** (Metric: [Nesting: 7.20, Density: 0.25, Coupling: 0.08] | Drag: 8.47 | LOC: 383/300  🎯 Target: Function: `make` (High Local Complexity (9.1). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/TeaserRecorderHud.res** (Metric: [Nesting: 5.40, Density: 0.27, Coupling: 0.03] | Drag: 6.71 | LOC: 457/300  🎯 Target: Function: `clampCorner` (High Local Complexity (4.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
@@ -59,6 +61,17 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - updateLoggerContext × 1 (lines: 40)
         - useIsBusy × 1 (lines: 452)
         - useOperations × 1 (lines: 439)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/systems/ProjectSystem.res`
+- `src/systems/ProjectSystem.res` (7 functions, fingerprint c9028bfc3925f6aa383b3403e1cb25e2131663f839aa710706c7a492b3b95f7d)
+    - Grouped summary:
+        - createSavePackage × 1 (lines: 257)
+        - encodeProjectFromState × 1 (lines: 27)
+        - loadProjectZip × 1 (lines: 172)
+        - processLoadedProjectData × 1 (lines: 46)
+        - projectFromState × 1 (lines: 8)
+        - validateProjectStructure × 1 (lines: 37)
+        - validationReportWrapperDecoder × 1 (lines: 33)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/Simulation.res`
 - `src/systems/Simulation.res` (1 functions, fingerprint f640637d426e584650a35e3691a72a356b7a670ecdef934c9fac9763d9533353)

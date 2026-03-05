@@ -35,6 +35,11 @@ open Types
       getActiveViewer: () => __activeViewer,
       getInactiveViewer: () => __inactiveViewer,
       isViewerReady: () => true,
+      isViewerReadyForScene: (v, id) => {
+        if (globalThis.mockForceFirstLoad) return true;
+        return v === __inactiveViewer;
+      },
+      getActiveViewerReadyForScene: () => __activeViewer,
       Adapter: {
         destroy: () => { globalThis.mockDestroyCalled = (globalThis.mockDestroyCalled || 0) + 1; },
         getMetaData: (_viewer, key) => {
@@ -76,6 +81,7 @@ describe("SceneTransition Decoupling", () => {
       (() => {
         globalThis.mockDomElements = {};
         globalThis.classLists = {};
+        globalThis.mockForceFirstLoad = false;
 
         globalThis.document.getElementById = (id) => {
           if (!globalThis.mockDomElements[id]) {
@@ -161,6 +167,7 @@ describe("SceneTransition Decoupling", () => {
     }
 
     let _ = %raw(`globalThis.mockSceneId = "s1"`)
+    let _ = %raw(`globalThis.mockForceFirstLoad = true`)
 
     // Set lastSceneId to null or same as target to trigger firstLoad logic
     ViewerState.state := {

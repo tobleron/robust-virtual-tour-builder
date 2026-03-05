@@ -5,6 +5,26 @@ open ReBindings
 open Actions
 
 describe("Simulation", () => {
+  beforeEach(() => {
+    %raw(`
+      globalThis.pannellum = {
+        viewer: () => ({
+          on: () => {},
+          getScene: () => "s1",
+          getYaw: () => 0,
+          getPitch: () => 0,
+          getHfov: () => 0,
+          setYaw: () => {},
+          setPitch: () => {},
+          setHfov: () => {},
+          lookAt: () => {},
+          resize: () => {},
+          destroy: () => {},
+          isLoaded: () => true
+        })
+      }
+    `)
+  })
   test("Module exists and exports make", t => {
     let _ = Simulation.make
     t->expect(true)->Expect.toBe(true)

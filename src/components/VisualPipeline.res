@@ -643,6 +643,7 @@ let make = () => {
             ->Belt.MutableMap.String.get(pairKey)
             ->Option.flatMap(candidates => chooseDirectedEdge(candidates))
           )
+          ->Belt.Array.keep(edge => edge.kind == Forward)
 
         let nextPaths = uniqueEdges->Belt.Array.keepMap(edge => {
           switch (

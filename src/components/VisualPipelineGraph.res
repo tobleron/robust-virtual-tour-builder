@@ -113,11 +113,18 @@ let build = (
   ~traversal: option<traversal>=None,
 ): graph => {
   let includedSceneIds = Belt.MutableSet.String.make()
-  scenes->Belt.Array.forEach(scene => {
-    if Belt.Array.length(scene.hotspots) > 0 {
-      includedSceneIds->Belt.MutableSet.String.add(scene.id)
-    }
-  })
+  switch traversal {
+  | Some(trace) =>
+    trace.sceneOrder->Belt.Array.forEach(sceneId => {
+      includedSceneIds->Belt.MutableSet.String.add(sceneId)
+    })
+  | None =>
+    scenes->Belt.Array.forEach(scene => {
+      if Belt.Array.length(scene.hotspots) > 0 {
+        includedSceneIds->Belt.MutableSet.String.add(scene.id)
+      }
+    })
+  }
 
   let timelineOrder = Belt.MutableMap.String.make()
   timeline->Belt.Array.forEachWithIndex((idx, item) => {

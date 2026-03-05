@@ -65,6 +65,16 @@ describe("Hotspot Move & Toggle Regression", () => {
         intermediatePoints: None,
         retargetHotspot: None,
       }),
+      sceneOrder: ["s1"],
+      inventory: Belt.Map.String.fromArray([
+        (
+          "s1",
+          {
+            scene: createMockScene("s1", "Scene1.webp"),
+            status: Active,
+          },
+        ),
+      ]),
     }
 
     let nextState = HotspotHelpers.handleStartMovingHotspot(initialState, 0, 0)

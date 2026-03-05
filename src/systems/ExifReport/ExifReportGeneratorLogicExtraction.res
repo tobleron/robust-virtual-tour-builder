@@ -5,30 +5,74 @@ open SharedTypes
 @@warning("-45")
 open ExifReportGeneratorLogicTypes
 
+external unsafeCastExif: JSON.t => exifMetadata = "%identity"
+external unsafeCastQuality: JSON.t => qualityAnalysis = "%identity"
+
+let isLikelyValidExif = (meta: exifMetadata): bool => {
+  let gpsLooksValid = switch meta.gps->Nullable.toOption {
+  | Some(gps) => Float.isFinite(gps.lat) && Float.isFinite(gps.lon)
+  | None => true
+  }
+  meta.width >= 0 && meta.height >= 0 && gpsLooksValid
+}
+
+let isLikelyValidQuality = (q: qualityAnalysis): bool =>
+  Float.isFinite(q.score) && q.issues >= 0 && q.warnings >= 0
+
 let decodeExifMetadata = (json: JSON.t): exifMetadata =>
   switch JsonCombinators.Json.decode(json, JsonParsersShared.exifMetadata) {
   | Ok(meta) => meta
   | Error(e) =>
-    Logger.warn(
-      ~module_="ExifExtraction",
-      ~message="EXIF_METADATA_DECODE_FAILED",
-      ~data={"error": e},
-      (),
-    )
-    SharedTypes.defaultExif
+    switch JsonCombinators.Json.decode(json, JsonParsersShared.metadataResponse) {
+    | Ok(metaResponse) => metaResponse.exif
+    | Error(wrapperError) =>
+      let casted = unsafeCastExif(json)
+      if isLikelyValidExif(casted) {
+        Logger.warn(
+          ~module_="ExifExtraction",
+          ~message="EXIF_METADATA_DECODE_FALLBACK_CAST",
+          ~data={"error": e, "wrapperError": wrapperError},
+          (),
+        )
+        casted
+      } else {
+        Logger.warn(
+          ~module_="ExifExtraction",
+          ~message="EXIF_METADATA_DECODE_FAILED",
+          ~data={"error": e, "wrapperError": wrapperError},
+          (),
+        )
+        SharedTypes.defaultExif
+      }
+    }
   }
 
 let decodeQualityAnalysis = (json: JSON.t): qualityAnalysis =>
   switch JsonCombinators.Json.decode(json, JsonParsersShared.qualityAnalysis) {
   | Ok(q) => q
   | Error(e) =>
-    Logger.warn(
-      ~module_="ExifExtraction",
-      ~message="QUALITY_ANALYSIS_DECODE_FAILED",
-      ~data={"error": e},
-      (),
-    )
-    SharedTypes.defaultQuality("Quality decode failed")
+    switch JsonCombinators.Json.decode(json, JsonParsersShared.metadataResponse) {
+    | Ok(metaResponse) => metaResponse.quality
+    | Error(wrapperError) =>
+      let casted = unsafeCastQuality(json)
+      if isLikelyValidQuality(casted) {
+        Logger.warn(
+          ~module_="ExifExtraction",
+          ~message="QUALITY_ANALYSIS_DECODE_FALLBACK_CAST",
+          ~data={"error": e, "wrapperError": wrapperError},
+          (),
+        )
+        casted
+      } else {
+        Logger.warn(
+          ~module_="ExifExtraction",
+          ~message="QUALITY_ANALYSIS_DECODE_FAILED",
+          ~data={"error": e, "wrapperError": wrapperError},
+          (),
+        )
+        SharedTypes.defaultQuality("Quality decode failed")
+      }
+    }
   }
 
 let resolveExifData = async (item: sceneDataItem) => {

@@ -21,9 +21,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 3.00, Density: 0.12, Coupling: 0.05] | Drag: 4.26 | LOC: 545/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.29, Coupling: 0.03] | Drag: 5.55 | LOC: 386/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.33, Coupling: 0.04] | Drag: 5.59 | LOC: 380/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.09, Coupling: 0.02] | Drag: 3.10 | LOC: 508/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (6.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/WorkerPool.res** (Metric: [Nesting: 1.80, Density: 0.10, Coupling: 0.02] | Drag: 3.10 | LOC: 507/300  🎯 Target: Function: `createPoolSize` (High Local Complexity (7.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
@@ -136,31 +136,31 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - subscriberRef × 1 (lines: 50)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/utils/Retry.res`
-- `src/utils/Retry.res` (17 functions, fingerprint b559c2d067bf9371275285c5a39b5105aeb8aa80caa1176201cbb907b90e7e97)
+- `src/utils/Retry.res` (17 functions, fingerprint 0b700bb0381a21bfee77393e36217dfb14850a0d6f5a7e827ddce731b5297a0b)
     - Grouped summary:
         - calculateDelay × 1 (lines: 38)
-        - checkAndConsumeBudget × 1 (lines: 200)
-        - classifyError × 1 (lines: 107)
-        - computeDelay × 1 (lines: 182)
+        - checkAndConsumeBudget × 1 (lines: 195)
+        - classifyError × 1 (lines: 102)
+        - computeDelay × 1 (lines: 177)
         - defaultBudgetConfig × 1 (lines: 30)
         - defaultConfig × 1 (lines: 21)
-        - defaultShouldRetry × 1 (lines: 136)
-        - execute × 1 (lines: 395)
-        - getRemainingBudget × 1 (lines: 247)
-        - hasDeadline × 1 (lines: 180)
-        - isAbortError × 1 (lines: 90)
-        - isRetryableStatus × 1 (lines: 94)
-        - loop × 1 (lines: 265)
-        - parseHttpStatusCode × 1 (lines: 65)
-        - parseRetryAfterSeconds × 1 (lines: 74)
+        - defaultShouldRetry × 1 (lines: 131)
+        - execute × 1 (lines: 390)
+        - extractCaptureInt × 1 (lines: 65)
+        - getRemainingBudget × 1 (lines: 242)
+        - hasDeadline × 1 (lines: 175)
+        - isAbortError × 1 (lines: 85)
+        - isRetryableStatus × 1 (lines: 89)
+        - loop × 1 (lines: 260)
+        - parseHttpStatusCode × 1 (lines: 76)
         - retryBudgets × 1 (lines: 36)
-        - waitForDelay × 1 (lines: 146)
+        - waitForDelay × 1 (lines: 141)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/utils/WorkerPool.res`
 - `src/utils/WorkerPool.res` (16 functions, fingerprint 71cfa2c85ce54d9a617eed3a1d74b096d37e3efacbec335776bc605cfd7fa0f6)
     - Grouped summary:
         - bindWorkerHandlers × 1 (lines: 160)
-        - createPoolSize × 1 (lines: 44)
+        - createPoolSize × 1 (lines: 48)
         - ensurePool × 1 (lines: 231)
         - extractExifWithWorker × 1 (lines: 488)
         - fingerprintWithWorker × 1 (lines: 322)

@@ -118,7 +118,7 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     // Verify hotspot existence via state check
     const state = await page.evaluate(() => {
       // @ts-ignore
-      return window.store ? window.store.state : null;
+      return window.store ? window.store.getState() : null;
     });
 
     if (state && state.inventory && state.sceneOrder) {

@@ -99,6 +99,7 @@ external mockViewerSetPitch: mockFn = "__mockSetPitch"
       __mockSetYaw: mockSetYaw,
       __mockSetPitch: mockSetPitch,
       getActiveViewer: vi.fn(() => viewer),
+      getActiveViewerReadyForScene: vi.fn(() => Primitive_option.some(viewer)),
       Adapter: {
         getMetaData: vi.fn((_viewer, key) =>
           key === "sceneId" ? Primitive_option.some(currentSceneId) : undefined

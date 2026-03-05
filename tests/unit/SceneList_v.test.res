@@ -1,5 +1,5 @@
-// @efficiency: infra-adapter
 // @vitest-environment jsdom
+// @efficiency: infra-adapter
 /* tests/unit/SceneList_v.test.res */
 open Vitest
 open ReBindings

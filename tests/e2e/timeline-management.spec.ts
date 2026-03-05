@@ -11,6 +11,12 @@ const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
 const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 const IMAGE_PATH_3 = path.join(FIXTURES_DIR, 'image3.jpg');
 
+async function selectFirstLinkTarget(page: any) {
+  const select = page.locator('#link-target');
+  await expect(select).toBeVisible({ timeout: 10000 });
+  await select.selectOption({ index: 1 });
+}
+
 test.describe('Timeline Management (Visual Pipeline)', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
@@ -29,30 +35,28 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     await waitForNavigationStabilization(page);
 
     // Before creating any links, visual pipeline should be empty or minimal
-    const initialSquareCount = await page.locator('.visual-pipeline-square, .pipeline-square').count();
+    const initialSquareCount = await page.locator('.pipeline-node').count();
 
     const addLinkBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
+
       await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
+      await selectFirstLinkTarget(page);
+
+      const saveBtn = page.locator('button:has-text("Save Link"), button:has-text("Save")');
       await saveBtn.click();
       await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
-      
     }
 
     await page.waitForTimeout(1000); // Allow UI to update
-    
-    const newSquareCount = await page.locator('.visual-pipeline-square, .pipeline-square').count();
-    
+
+    const newSquareCount = await page.locator('.pipeline-node').count();
     expect(newSquareCount).toBeGreaterThan(initialSquareCount);
   });
 
-  test('should color-code squares by link type (orange-brown for simple, emerald for auto-forward)', async ({ page }) => {
+  test('should color-code squares by link type (success emerald for auto-forward)', async ({ page }) => {
     test.setTimeout(120000);
 
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
@@ -64,89 +68,35 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
+
       await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
+      await selectFirstLinkTarget(page);
+
+      const saveBtn = page.locator('button:has-text("Save Link"), button:has-text("Save")');
       await saveBtn.click();
       await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
     }
 
-    // Simple links should have orange-brown color (histogram-based)
-    const simpleLinkSquare = page.locator('.visual-pipeline-square:not(.auto-forward), .pipeline-square:not(.auto-forward)').first();
-    if (await simpleLinkSquare.isVisible()) {
-      const bgColor = await simpleLinkSquare.evaluate((el) => {
-        const style = window.getComputedStyle(el);
-        return style.backgroundColor;
-      });
-    }
-
+    // Enable auto-forward on second link
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 600, y: 300 } });
-      
+
       await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 2 });
-      
+      await selectFirstLinkTarget(page);
+
       // Enable auto-forward
-      const autoForwardBtn = page.locator('button:has-text("AUTO"), button[title*="Auto-Forward"]');
-      if (await autoForwardBtn.isVisible()) {
-        await autoForwardBtn.click();
+      const autoForwardToggle = page.locator('button[id$="-auto-forward-toggle"], button:has-text("Auto-Forward")');
+      if (await autoForwardToggle.isVisible()) {
+        await autoForwardToggle.click();
       }
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
-      await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
+
+      await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     }
 
-    const autoForwardSquare = page.locator('.visual-pipeline-square.auto-forward, .pipeline-square.auto-forward, [data-auto-forward="true"]');
-    if (await autoForwardSquare.isVisible({ timeout: 5000 })) {
-      const bgColor = await autoForwardSquare.evaluate((el) => {
-        const style = window.getComputedStyle(el);
-        return style.backgroundColor;
-      });
-    } else {
-    }
-  });
-
-  test('should show tooltip with linkId after 3-second hover', async ({ page }) => {
-    test.setTimeout(60000);
-
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
-    await waitForNavigationStabilization(page);
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
-    await waitForNavigationStabilization(page);
-
-    const addLinkBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
-    if (await addLinkBtn.isVisible()) {
-      await addLinkBtn.click();
-      await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
-      await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
-    }
-
-    const timelineSquare = page.locator('.visual-pipeline-square, .pipeline-square').first();
-    if (await timelineSquare.isVisible()) {
-      await timelineSquare.hover();
-      
-      await page.waitForTimeout(3500); // Wait for delayed tooltip
-      
-      const tooltip = page.locator('[role="tooltip"], .tooltip, [data-testid="tooltip"]');
-      if (await tooltip.isVisible({ timeout: 5000 })) {
-        const tooltipText = await tooltip.textContent();
-        
-        // Tooltip should contain link ID (e.g., "l-Scene 2" or similar)
-        if (tooltipText.includes('l-') || tooltipText.toLowerCase().includes('link')) {
-        } else {
-        }
-      } else {
-      }
-    }
+    const autoForwardSquare = page.locator('.pipeline-node.visual-pipeline-square').last();
+    const style = await autoForwardSquare.getAttribute('style');
+    expect(style).toContain('--node-color');
   });
 
   test('should show thumbnail preview on timeline square hover', async ({ page }) => {
@@ -161,40 +111,18 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
-      await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
+      await selectFirstLinkTarget(page);
+      await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     }
 
-    const timelineSquare = page.locator('.visual-pipeline-square, .pipeline-square').first();
-    if (await timelineSquare.isVisible()) {
-      await timelineSquare.hover();
-      await page.waitForTimeout(500);
-      
-      // Look for thumbnail preview (typically at top of viewer)
-      const thumbnailSelectors = [
-        '.thumbnail-preview',
-        '.pipeline-thumbnail',
-        '.hover-preview',
-        '[data-testid="thumbnail"]',
-        '.viewer-header img',
-      ];
-      
-      let thumbnailFound = false;
-      for (const selector of thumbnailSelectors) {
-        const thumbnail = page.locator(selector);
-        if (await thumbnail.isVisible({ timeout: 3000 }).catch(() => false)) {
-          thumbnailFound = true;
-          break;
-        }
-      }
-      
-      if (!thumbnailFound) {
-      }
-    }
+    const timelineSquare = page.locator('.pipeline-node').first();
+    await expect(timelineSquare).toBeVisible();
+    await timelineSquare.hover();
+    await page.waitForTimeout(200);
+
+    const globalTooltip = page.locator('.pipeline-global-tooltip');
+    await expect(globalTooltip).toBeVisible();
+    await expect(globalTooltip.locator('img')).toBeVisible();
   });
 
   test('should navigate to scene when timeline square is clicked', async ({ page }) => {
@@ -209,12 +137,8 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
-      await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
+      await selectFirstLinkTarget(page);
+      await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     }
 
     const initialActiveIndex = await page.evaluate(() => {
@@ -248,36 +172,25 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
-      await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
+      await selectFirstLinkTarget(page);
+      await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     }
 
-    const initialSquareCount = await page.locator('.visual-pipeline-square, .pipeline-square').count();
+    const initialSquareCount = await page.locator('.pipeline-node').count();
 
-    // Hotspots are now in React layer
     const hotspot = page.locator('[id^="hs-react-"]').first();
-    if (await hotspot.isVisible()) {
-      await hotspot.hover();
-      await page.waitForTimeout(500);
-      
-      const trashBtn = page.locator('button[aria-label*="Delete"], button[title*="Delete"], .trash-icon');
-      if (await trashBtn.isVisible({ timeout: 5000 })) {
-        await trashBtn.click();
-      } else {
-      }
+    await expect(hotspot).toBeVisible();
+    await hotspot.hover();
+    await page.waitForTimeout(500);
+
+    const trashBtn = page.locator('button[aria-label*="Delete"], button[title*="Delete"], .trash-icon');
+    if (await trashBtn.isVisible()) {
+      await trashBtn.click();
     }
 
     await page.waitForTimeout(1000); // Allow UI to update
-    
-    const newSquareCount = await page.locator('.visual-pipeline-square, .pipeline-square').count();
-    
-    if (newSquareCount < initialSquareCount) {
-    } else {
-    }
+    const newSquareCount = await page.locator('.pipeline-node').count();
+    expect(newSquareCount).toBeLessThan(initialSquareCount);
   });
 
   test('should prune timeline squares when Clear Links is triggered for a scene', async ({ page }) => {
@@ -292,12 +205,12 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     await addLinkBtn.click();
     await page.locator('#viewer-stage').click({ position: { x: 420, y: 300 } });
     await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-    await page.selectOption('#link-target', { index: 1 });
-    await page.locator('button:has-text("Save")').click();
+    await selectFirstLinkTarget(page);
+    await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
 
     await page.waitForTimeout(800);
-    const before = await page.locator('.visual-pipeline-square, .pipeline-square').count();
+    const before = await page.locator('.pipeline-node').count();
     expect(before).toBeGreaterThan(0);
 
     await page.locator('.scene-item').first().locator('button[aria-label^="Actions for"]').click();
@@ -305,7 +218,7 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     await expect(page.getByText('Links cleared. Press U to undo.')).toBeVisible({ timeout: 5000 });
 
     await page.waitForTimeout(800);
-    const after = await page.locator('.visual-pipeline-square, .pipeline-square').count();
+    const after = await page.locator('.pipeline-node').count();
     expect(after).toBeLessThan(before);
   });
 
@@ -321,29 +234,21 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
 
     const getSceneOrder = async () => {
       return await page.evaluate(() => {
-        const items = document.querySelectorAll('.scene-item h4, .scene-item .scene-name');
+        const items = document.querySelectorAll('.scene-item h4');
         return Array.from(items).map(el => el.textContent?.trim() || '');
       });
     };
-    
+
     const initialOrder = await getSceneOrder();
 
     const firstScene = page.locator('.scene-item').first();
     const secondScene = page.locator('.scene-item').nth(1);
-    
-    if (await firstScene.isVisible() && await secondScene.isVisible()) {
-      try {
-        await firstScene.dragTo(secondScene);
-        await page.waitForTimeout(500);
-        
-        const newOrder = await getSceneOrder();
-        
-        if (JSON.stringify(newOrder) !== JSON.stringify(initialOrder)) {
-        } else {
-        }
-      } catch (e) {
-      }
-    }
+
+    await firstScene.dragTo(secondScene);
+    await page.waitForTimeout(1000);
+
+    const newOrder = await getSceneOrder();
+    expect(newOrder).not.toEqual(initialOrder);
   });
 
   test('should preserve timeline through save/load cycle', async ({ page }) => {
@@ -358,12 +263,8 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
     if (await addLinkBtn.isVisible()) {
       await addLinkBtn.click();
       await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-      
-      await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
-      await page.selectOption('#link-target', { index: 1 });
-      
-      const saveBtn = page.locator('button:has-text("Save")');
-      await saveBtn.click();
+      await selectFirstLinkTarget(page);
+      await page.locator('button:has-text("Save Link"), button:has-text("Save")').click();
     }
 
     const initialTimeline = await page.evaluate(() => {
@@ -390,9 +291,7 @@ test.describe('Timeline Management (Visual Pipeline)', () => {
       };
     });
 
-    if (timelineAfterLoad.sceneCount === initialTimeline.sceneCount &&
-        timelineAfterLoad.hotspotCount === initialTimeline.hotspotCount) {
-    } else {
-    }
+    expect(timelineAfterLoad.sceneCount).toBe(initialTimeline.sceneCount);
+    expect(timelineAfterLoad.hotspotCount).toBe(initialTimeline.hotspotCount);
   });
 });

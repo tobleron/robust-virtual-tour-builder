@@ -54,7 +54,7 @@ test.describe('Multi-Floor Management', () => {
 
     const floorAssignment = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       const activeScene = state?.scenes?.[state?.activeIndex || 0];
       return activeScene?.floor || null;
     });
@@ -82,7 +82,7 @@ test.describe('Multi-Floor Management', () => {
 
     const floorAssignments = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       return state?.scenes?.map((s: any) => s.floor) || [];
     });
 
@@ -140,7 +140,7 @@ test.describe('Multi-Floor Management', () => {
 
     const initialState = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       return state?.scenes?.map((s: any) => ({
         name: s.name,
         floor: s.floor,
@@ -161,7 +161,7 @@ test.describe('Multi-Floor Management', () => {
 
     const postState = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       return state?.scenes?.map((s: any) => ({
         name: s.name,
         floor: s.floor,

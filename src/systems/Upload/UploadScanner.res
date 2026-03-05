@@ -67,9 +67,25 @@ let handleFingerprinting = (
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
     let uploadConcurrency = pickUploadConcurrency(validFiles)
+    let uploadBulkheadLimit = CircuitBreakerRegistry.getBulkheadLimit(CircuitBreakerRegistry.Upload)
+    let effectiveConcurrency = if uploadConcurrency > uploadBulkheadLimit {
+      uploadBulkheadLimit
+    } else {
+      uploadConcurrency
+    }
+    Logger.info(
+      ~module_="UploadLogic",
+      ~message="UPLOAD_CONCURRENCY_CLAMPED",
+      ~data=Some({
+        "requestedConcurrency": uploadConcurrency,
+        "bulkheadLimit": uploadBulkheadLimit,
+        "effectiveConcurrency": effectiveConcurrency,
+      }),
+      (),
+    )
     UploadFinalizer.executeProcessingChain(
       uniqueItems,
-      uploadConcurrency,
+      effectiveConcurrency,
       startTime,
       updateProgress,
       skippedFromFingerprint,

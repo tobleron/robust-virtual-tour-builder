@@ -95,7 +95,7 @@ test.describe('Import/Export Edge Cases', () => {
 
     const floorAssignments = await page.evaluate(() => {
       // @ts-ignore
-      const state = window.store?.state;
+      const state = window.store.getState();
       return state?.scenes?.map((s: any) => s.floor) || [];
     });
 

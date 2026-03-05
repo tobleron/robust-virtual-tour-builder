@@ -33,6 +33,8 @@ open Types
       getActiveViewer: () => __activeViewer, // Fallback facade
       getInactiveViewer: () => __inactiveViewer, // Fallback facade
       isViewerReady: () => true,
+      isViewerReadyForScene: (v, id) => v === __inactiveViewer,
+      getActiveViewerReadyForScene: () => __activeViewer,
       Adapter: {
         destroy: () => {},
         getMetaData: (_viewer, key) => key === "sceneId" ? "initial-scene" : undefined,

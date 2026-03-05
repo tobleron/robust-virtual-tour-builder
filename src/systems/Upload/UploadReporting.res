@@ -3,6 +3,42 @@ open ReBindings
 open UploadTypes
 open Actions
 
+let shouldAutoApplySuggestedName = (~currentName: string, ~suggestedName: string): bool =>
+  suggestedName != "" &&
+  !RegExp.test(/Unknown/i, suggestedName) &&
+  (currentName == "" || TourLogic.isUnknownName(currentName))
+
+let awaitWithTimeout = (~promise: Promise.t<'a>, ~timeoutMs: int): Promise.t<result<'a, string>> =>
+  Promise.make((resolve, _reject) => {
+    let settled = ref(false)
+    let timeoutId = Window.setTimeout(() => {
+      if !settled.contents {
+        settled := true
+        resolve(Error("TitleDiscoveryTimeout"))
+      }
+    }, timeoutMs)
+
+    promise
+    ->Promise.then(value => {
+      if !settled.contents {
+        settled := true
+        Window.clearTimeout(timeoutId)
+        resolve(Ok(value))
+      }
+      Promise.resolve()
+    })
+    ->Promise.catch(err => {
+      if !settled.contents {
+        settled := true
+        Window.clearTimeout(timeoutId)
+        let (msg, _) = Logger.getErrorDetails(err)
+        resolve(Error(msg))
+      }
+      Promise.resolve()
+    })
+    ->ignore
+  })
+
 let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   Belt.Array.map(items, item => {
     let preview = Option.getOr(item.preview, item.original)
@@ -23,6 +59,14 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   })
 }
 
+let runExifDiscoveryWithTimeout = (reportData: array<FeatureLoaders.exifSceneDataItem>): Promise.t<
+  result<FeatureLoaders.exifReportResult, string>,
+> =>
+  awaitWithTimeout(
+    ~promise=FeatureLoaders.generateExifReportLazy(reportData),
+    ~timeoutMs=Constants.Media.backgroundTitleDiscoveryTimeoutMs,
+  )
+
 let triggerBackgroundTitleDiscovery = (
   validProcessed: array<UploadTypes.uploadItem>,
   ~getState: unit => Types.state,
@@ -41,17 +85,15 @@ let triggerBackgroundTitleDiscovery = (
     item
   })
 
-  // 2. Fire and forget the report generation
-  FeatureLoaders.generateExifReportLazy(reportData)
-  ->Promise.then(res => {
-    // 3. Store the report string for download later
-    dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
-
-    // 4. Update project title IF it's still empty/generic
-    switch res.suggestedProjectName {
-    | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
-      let currentName = getState().tourName
-      if currentName == "" || TourLogic.isUnknownName(currentName) {
+  // 2. Fire and forget the report generation with a hard timeout guard
+  runExifDiscoveryWithTimeout(reportData)
+  ->Promise.then(result => {
+    switch result {
+    | Ok(res) =>
+      dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
+      switch res.suggestedProjectName {
+      | Some(name)
+        if shouldAutoApplySuggestedName(~currentName=getState().tourName, ~suggestedName=name) =>
         Logger.info(
           ~module_="UploadReporting",
           ~message="AUTO_TITLING_PROJECT",
@@ -59,14 +101,23 @@ let triggerBackgroundTitleDiscovery = (
           (),
         )
         dispatch(SetTourName(name))
+      | _ => ()
       }
-    | _ => ()
+    | Error("TitleDiscoveryTimeout") =>
+      Logger.warn(
+        ~module_="UploadReporting",
+        ~message="BACKGROUND_TITLE_DISCOVERY_TIMEOUT",
+        ~data=Some({"timeoutMs": Constants.Media.backgroundTitleDiscoveryTimeoutMs}),
+        (),
+      )
+    | Error(msg) =>
+      Logger.warn(
+        ~module_="UploadReporting",
+        ~message="BACKGROUND_TITLE_DISCOVERY_FAILED",
+        ~data=Some({"error": msg}),
+        (),
+      )
     }
-    dispatch(DecrementDiscoveringTitle)
-    Promise.resolve()
-  })
-  ->Promise.catch(_ => {
-    Logger.warn(~module_="UploadReporting", ~message="BACKGROUND_TITLE_DISCOVERY_FAILED", ())
     dispatch(DecrementDiscoveringTitle)
     Promise.resolve()
   })
@@ -102,11 +153,9 @@ let handleExifReport = (
     FeatureLoaders.generateExifReportLazy(reportData)->Promise.then(res => {
       dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
       switch res.suggestedProjectName {
-      | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
-        let currentName = getState().tourName
-        if currentName == "" || TourLogic.isUnknownName(currentName) {
-          dispatch(SetTourName(name))
-        }
+      | Some(name)
+        if shouldAutoApplySuggestedName(~currentName=getState().tourName, ~suggestedName=name) =>
+        dispatch(SetTourName(name))
       | _ => ()
       }
       Promise.resolve(report)

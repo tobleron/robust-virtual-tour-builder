@@ -104,7 +104,7 @@ test.describe('Application Robustness', () => {
       // Verify Simulation DID NOT start
       const isSimActive = await page.evaluate(() => {
         // @ts-ignore
-        return window.store && window.store.state.simulation.status === 'Running';
+        return window.store && window.store.getState().simulation.status === 'Running';
       });
       expect(isSimActive).toBe(false);
     });

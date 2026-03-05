@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // @efficiency: infra-adapter
 /* tests/unit/Sidebar_v.test.res */
 open Vitest
