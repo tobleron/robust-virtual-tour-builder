@@ -6,9 +6,19 @@ export async function exportTourLazy(
   signal,
   onProgress,
   opId,
+  publishProfiles,
 ) {
   const mod = await import("./Exporter.bs.js");
-  return mod.exportTour(scenes, tourName, logo, projectData, signal, onProgress, opId);
+  return mod.exportTour(
+    scenes,
+    tourName,
+    logo,
+    projectData,
+    signal,
+    onProgress,
+    opId,
+    publishProfiles,
+  );
 }
 
 export async function startTeaserLazy(

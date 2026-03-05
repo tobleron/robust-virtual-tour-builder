@@ -399,6 +399,7 @@ let handleClearLinksWithUndo = SceneActions.handleClearLinksWithUndo
 
 let handleExport = async (
   scenes: array<Types.scene>,
+  ~publishOptions: SidebarBase.SidebarTypes.publishOptions,
   ~tourName: string,
   ~projectData: option<JSON.t>=?,
   ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
@@ -408,6 +409,7 @@ let handleExport = async (
   await ExportLogic.handleExport(
     ~progressToastId=exportProgressToastId,
     scenes,
+    ~publishOptions,
     ~tourName,
     ~projectData?,
     ~dispatch,

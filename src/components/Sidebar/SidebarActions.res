@@ -11,7 +11,11 @@ let make = React.memo((
   ~onSave: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onSettings: unit => unit,
-  ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onExport: (
+    ~options: SidebarBase.SidebarTypes.publishOptions,
+    ~signal: BrowserBindings.AbortSignal.t,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
   ~onTeaser: (
     ~format: string,
     ~styleId: string,
@@ -27,6 +31,14 @@ let make = React.memo((
     format: "webm",
     styleId: TeaserStyleCatalog.toString(TeaserStyleCatalog.defaultStyle),
   })
+  let initialPublishOptions: SidebarBase.SidebarTypes.publishOptions = {
+    selectedProfiles: [#hd, #k2, #k4, #standalone2k],
+    includeLogo: true,
+    includeMarketing: true,
+  }
+  let publishOptionsRef: React.ref<SidebarBase.SidebarTypes.publishOptions> = React.useRef(
+    initialPublishOptions,
+  )
 
   let saveAbortRef = React.useRef(None)
   let (saveExecute, savePending, _saveThrottled) = UseInteraction.useInteraction(
@@ -84,7 +96,7 @@ let make = React.memo((
         | None => ()
         }
       }
-      await onExport(~signal, ~onCancel)
+      await onExport(~options=publishOptionsRef.current, ~signal, ~onCancel)
       exportAbortRef.current = None
     },
   )
@@ -178,14 +190,50 @@ let make = React.memo((
           ChunkPrefetch.warmExif()
         }}
         onClick={_ => {
-          let _ = exportExecute()
+          let nextOptions: SidebarBase.SidebarTypes.publishOptions = {
+            selectedProfiles: [#hd, #k2, #k4, #standalone2k],
+            includeLogo: true,
+            includeMarketing: true,
+          }
+          publishOptionsRef.current = nextOptions
+          EventBus.dispatch(
+            ShowModal({
+              title: "Publish Tour",
+              description: Some("Choose what will be included in the published package."),
+              icon: Some("info"),
+              content: Some(
+                <SidebarPublishOptionsContent
+                  onOptionsChanged={opts => publishOptionsRef.current = opts}
+                />,
+              ),
+              onClose: None,
+              allowClose: Some(true),
+              className: Some("modal-blue modal-publish-options"),
+              buttons: [
+                {
+                  label: "Cancel",
+                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                  onClick: () => (),
+                  autoClose: Some(true),
+                },
+                {
+                  label: "Publish",
+                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
+                  onClick: () => {
+                    let _ = exportExecute()
+                  },
+                  autoClose: Some(true),
+                },
+              ],
+            }),
+          )
         }}
-        ariaLabel="Export Tour"
+        ariaLabel="Publish Tour"
       >
         <LucideIcons.Download
           className="text-white transition-all duration-300" size=20 strokeWidth=1.0
         />
-        <span> {React.string("Export")} </span>
+        <span> {React.string("Publish")} </span>
       </button>
 
       <button

@@ -2,15 +2,40 @@ open SidebarBase
 
 module UploadLogic = SidebarUploadLogic
 
+let profileToKey = (profile: SidebarBase.SidebarTypes.publishProfile): string =>
+  switch profile {
+  | #hd => "hd"
+  | #k2 => "2k"
+  | #k4 => "4k"
+  | #standalone2k => "desktop_blob_2k"
+  }
+
 let handleExport = async (
   ~progressToastId,
   scenes: array<Types.scene>,
+  ~publishOptions: SidebarBase.SidebarTypes.publishOptions,
   ~tourName: string,
   ~projectData: option<JSON.t>=?,
   ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
   ~signal,
   ~onCancel,
 ) => {
+  let selectedProfiles = publishOptions.selectedProfiles->Belt.Array.map(profileToKey)
+
+  if Belt.Array.length(selectedProfiles) == 0 {
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("sidebar_export"),
+      message: "Publish cancelled: select at least one output format.",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+    updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+  } else {
   dispatch(DispatchAppFsmEvent(StartExport))
   let startedAtMs = Date.now()
   let exportSceneCount = scenes->Belt.Array.keep(s => s.floor->String.trim != "")->Belt.Array.length
@@ -209,14 +234,40 @@ let handleExport = async (
   }
 
   try {
+    let publishProjectData = switch projectData {
+    | Some(projectJson) if !publishOptions.includeMarketing =>
+      switch JsonCombinators.Json.decode(projectJson, JsonParsers.Domain.project) {
+      | Ok(project) =>
+        Some(
+          JsonParsers.Encoders.project({
+            ...project,
+            marketingComment: "",
+            marketingPhone1: "",
+            marketingPhone2: "",
+            marketingForRent: false,
+            marketingForSale: false,
+          }),
+        )
+      | Error(_) => projectData
+      }
+    | _ => projectData
+    }
+
+    let logoToUse = if publishOptions.includeLogo {
+      AppContext.getBridgeState().logo
+    } else {
+      None
+    }
+
     let exportResult = await FeatureLoaders.exportTourLazy(
       scenes,
       tourName,
-      AppContext.getBridgeState().logo,
-      projectData,
+      logoToUse,
+      publishProjectData,
       signal,
       Some(handleExportProgress),
       opId,
+      selectedProfiles,
     )
     switch exportResult {
     | Ok() => {
@@ -312,5 +363,6 @@ let handleExport = async (
     EtaSupport.dismissEtaToast(progressToastId)
     dispatch(DispatchAppFsmEvent(ExportComplete))
     updateProgress(~dispatch, 0.0, "Error: Unexpected Error", false, "")
+  }
   }
 }

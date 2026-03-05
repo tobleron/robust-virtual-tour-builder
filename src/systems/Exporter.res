@@ -12,6 +12,7 @@ let exportTour = async (
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
   ~opId: option<OperationLifecycle.operationId>=?,
+  publishProfiles: array<string>,
 ): result<unit, string> => {
   let exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != "")
 
@@ -141,6 +142,7 @@ let exportTour = async (
       ~logoFilename,
       ~version,
       ~projectData?,
+      ~publishProfiles,
     )
 
     /* 3. Append Libraries */

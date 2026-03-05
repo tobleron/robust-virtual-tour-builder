@@ -7,6 +7,7 @@ use zip::ZipWriter;
 use zip::write::FileOptions;
 
 use crate::services::project::package_utils;
+use std::collections::HashSet;
 
 const WEBP_QUALITY: f32 = 80.0;
 const MAX_EXPORT_SOURCE_WIDTH: u32 = 4096;
@@ -69,12 +70,29 @@ fn build_desktop_blob_html(
 
 /// Creates a production-ready tour package ZIP.
 pub fn create_tour_package(
-    image_files: Vec<(String, std::path::PathBuf)>,
-    fields: HashMap<String, String>,
-    output_zip_path: std::path::PathBuf,
+  image_files: Vec<(String, std::path::PathBuf)>,
+  fields: HashMap<String, String>,
+  output_zip_path: std::path::PathBuf,
 ) -> Result<(), String> {
     {
-        let _ = fields;
+        let profile_csv = fields.get("publish_profiles").map(String::as_str).unwrap_or("");
+        let mut selected_profiles: HashSet<String> = profile_csv
+            .split(',')
+            .map(|p| p.trim().to_lowercase())
+            .filter(|p| !p.is_empty())
+            .collect();
+        if selected_profiles.is_empty() {
+            selected_profiles.extend([
+                "4k".to_string(),
+                "2k".to_string(),
+                "hd".to_string(),
+                "desktop_blob_2k".to_string(),
+            ]);
+        }
+        let include_4k = selected_profiles.contains("4k");
+        let include_2k = selected_profiles.contains("2k");
+        let include_hd = selected_profiles.contains("hd");
+        let include_desktop_blob_2k = selected_profiles.contains("desktop_blob_2k");
 
         let file = std::fs::File::create(&output_zip_path).map_err(|e| e.to_string())?;
         let mut zip = zip::ZipWriter::new(file);
@@ -220,6 +238,15 @@ pub fn create_tour_package(
 
         // 4) Write image assets.
         for (resolution_key, _, _) in TARGETS {
+            let should_include = match resolution_key {
+                "4k" => include_4k,
+                "2k" => include_2k || include_desktop_blob_2k,
+                "hd" => include_hd,
+                _ => false,
+            };
+            if !should_include {
+                continue;
+            }
             if let Some(artifacts) = artifacts_by_resolution.get(resolution_key) {
                 for (file_name, data) in artifacts {
                     write_zip_file(
@@ -239,6 +266,15 @@ pub fn create_tour_package(
             ("html_hd", "hd", "tour_hd"),
         ];
         for (field_name, resolution_key, folder) in html_targets {
+            let should_include = match resolution_key {
+                "4k" => include_4k,
+                "2k" => include_2k,
+                "hd" => include_hd,
+                _ => false,
+            };
+            if !should_include {
+                continue;
+            }
             if let Some(web_html) = fields.get(field_name) {
                 let web_only_html = rewrite_tour_html_for_subfolder(web_html, resolution_key);
                 write_zip_file(
@@ -250,24 +286,27 @@ pub fn create_tour_package(
             }
         }
 
-        let desktop_template = fields
-            .get("html_desktop_2k_blob")
-            .or_else(|| fields.get("html_2k"))
-            .ok_or_else(|| "Missing desktop 2k html template".to_string())?;
-        let assets_2k = artifacts_by_resolution
-            .get("2k")
-            .ok_or_else(|| "Missing 2k assets for desktop package".to_string())?;
-        let desktop_html =
-            build_desktop_blob_html(desktop_template, assets_2k, logo_asset.as_ref());
-        write_zip_file(
-            &mut zip,
-            options,
-            "desktop/index.html",
-            desktop_html.as_bytes(),
-        )?;
+        if include_desktop_blob_2k {
+            let desktop_template = fields
+                .get("html_desktop_2k_blob")
+                .or_else(|| fields.get("html_2k"))
+                .ok_or_else(|| "Missing desktop 2k html template".to_string())?;
+            let assets_2k = artifacts_by_resolution
+                .get("2k")
+                .ok_or_else(|| "Missing 2k assets for desktop package".to_string())?;
+            let desktop_html =
+                build_desktop_blob_html(desktop_template, assets_2k, logo_asset.as_ref());
+            write_zip_file(
+                &mut zip,
+                options,
+                "desktop/index.html",
+                desktop_html.as_bytes(),
+            )?;
+        }
 
         // 6) Write indexes, docs, and embeds.
-        if let Some(index_html) = fields.get("html_index") {
+        if (include_4k || include_2k || include_hd) && fields.get("html_index").is_some() {
+            let index_html = fields.get("html_index").expect("checked");
             let web_only_index = rewrite_web_only_index_html(index_html);
             write_zip_file(
                 &mut zip,
@@ -277,20 +316,25 @@ pub fn create_tour_package(
             )?;
         }
 
-        write_zip_file(
-            &mut zip,
-            options,
-            "web_only/DEPLOYMENT_README.txt",
-            create_web_only_deployment_readme().as_bytes(),
-        )?;
-        write_zip_file(
-            &mut zip,
-            options,
-            "desktop/README.txt",
-            create_desktop_readme().as_bytes(),
-        )?;
+        if include_4k || include_2k || include_hd {
+            write_zip_file(
+                &mut zip,
+                options,
+                "web_only/DEPLOYMENT_README.txt",
+                create_web_only_deployment_readme().as_bytes(),
+            )?;
+        }
+        if include_desktop_blob_2k {
+            write_zip_file(
+                &mut zip,
+                options,
+                "desktop/README.txt",
+                create_desktop_readme().as_bytes(),
+            )?;
+        }
 
-        if let Some(embed) = fields.get("embed_codes") {
+        if (include_4k || include_2k || include_hd) && fields.get("embed_codes").is_some() {
+            let embed = fields.get("embed_codes").expect("checked");
             write_zip_file(
                 &mut zip,
                 options,
@@ -299,13 +343,15 @@ pub fn create_tour_package(
             )?;
         }
 
-        let desktop_embed = "DESKTOP PACKAGE\n\nOpen:\ndesktop/index.html\n";
-        write_zip_file(
-            &mut zip,
-            options,
-            "desktop/embed_codes.txt",
-            desktop_embed.as_bytes(),
-        )?;
+        if include_desktop_blob_2k {
+            let desktop_embed = "DESKTOP PACKAGE\n\nOpen:\ndesktop/index.html\n";
+            write_zip_file(
+                &mut zip,
+                options,
+                "desktop/embed_codes.txt",
+                desktop_embed.as_bytes(),
+            )?;
+        }
 
         // 7) Canonical project metadata for parity with .vt.zip saves.
         if let Some(project_data) = fields.get("project_data") {

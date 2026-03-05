@@ -242,7 +242,7 @@ describe("Sidebar", () => {
       originalFile: None,
       hotspots: [hotspot],
       category: "",
-      floor: "",
+      floor: "G",
       quality: None,
       colorGroup: None,
       categorySet: false,
@@ -370,7 +370,7 @@ describe("Sidebar", () => {
     Dom.removeElement(container)
   })
 
-  testAsync("should call exportTour when Export button is clicked", async t => {
+  testAsync("should call exportTour when Publish button flow is completed", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -434,13 +434,23 @@ describe("Sidebar", () => {
 
     await wait(100)
 
-    let exportBtn = Dom.querySelector(container, "button[aria-label='Export Tour']")
-    switch Nullable.toOption(exportBtn) {
+    let publishBtn = Dom.querySelector(container, "button[aria-label='Publish Tour']")
+    switch Nullable.toOption(publishBtn) {
     | Some(btn) => Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
-    await wait(50)
+    await wait(80)
+
+    let modalPublishBtn =
+      %raw(`Array.from(document.querySelectorAll('button')).find(btn => btn.textContent?.trim() === 'Publish' && !btn.getAttribute('aria-label'))`)
+
+    switch Nullable.toOption(modalPublishBtn) {
+    | Some(btn) => Dom.click(btn)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    await wait(80)
 
     let called = %raw(`globalThis.exporterMock.exportTour.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)

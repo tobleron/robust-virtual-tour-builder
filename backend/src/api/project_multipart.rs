@@ -288,6 +288,7 @@ pub async fn parse_tour_package_multipart(
             "html_index",
             "embed_codes",
             "project_data",
+            "publish_profiles",
             "scene_policy",
         ]
         .contains(&name.as_str())

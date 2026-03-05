@@ -7,6 +7,7 @@ external exportTourLazy: (
   BrowserBindings.AbortSignal.t,
   option<(float, float, string) => unit>,
   string,
+  array<string>,
 ) => Promise.t<result<unit, string>> = "exportTourLazy"
 
 @module("./FeatureLoaders.js")

@@ -1,6 +1,8 @@
 /* src/components/Sidebar/SidebarBase.res */
 
 module SidebarTypes = {
+  type publishProfile = [#hd | #k2 | #k4 | #standalone2k]
+
   type procState = {
     active: bool,
     progress: float,
@@ -10,6 +12,12 @@ module SidebarTypes = {
   }
 
   type file = ReBindings.File.t
+
+  type publishOptions = {
+    selectedProfiles: array<publishProfile>,
+    includeLogo: bool,
+    includeMarketing: bool,
+  }
 
   type processingPayload = {
     "active": bool,

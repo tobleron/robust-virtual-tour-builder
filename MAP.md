@@ -7,7 +7,6 @@
 ├── [public/](public/) – Static assets and web app manifest files.
 ├── [css/](css/) – Tailwind and style assets.
 ├── [tests/](tests/) – Vitest and Playwright tests.
-├── [cypress/](cypress/) – Cypress E2E tests.
 ├── [docs/](docs/) – Documentation and runbooks.
 ├── [scripts/](scripts/) – Build/test/dev automation.
 ├── [tasks/](tasks/) – Task workflow files.
