@@ -83,15 +83,27 @@ let initialize = (id, config) => {
 let initializeViewer = initialize
 
 let destroy = v => {
+  let logDestroyWarning = e => {
+    let errorMessage = switch JsExn.message(e) {
+    | Some(message) => message
+    | None => "Unknown destroy error"
+    }
+    Logger.warn(
+      ~module_="ViewerSystem",
+      ~message="PANNELLUM_DESTROY_ERROR_CAUGHT",
+      ~data=Some({"error": errorMessage}),
+      (),
+    )
+  }
   let _ = %raw(`
-    (v) => {
+    (v, logDestroyWarning) => {
       if (!v) return;
       try {
         if (v.destroy) {
           v.destroy();
         }
       } catch(e) {
-        console.warn("[ViewerSystem] Pannellum destroy error caught:", e);
+        logDestroyWarning(e);
       }
 
       try {
@@ -99,7 +111,7 @@ let destroy = v => {
         v._isLoaded = null;
       } catch(e) {}
     }
-  `)(v)
+  `)(v, logDestroyWarning)
 }
 
 let getPitch = v => Viewer.getPitch(v)

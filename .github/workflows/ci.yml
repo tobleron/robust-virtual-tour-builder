@@ -1,7 +1,17 @@
 name: CI
 
 on:
-  workflow_dispatch: # Disabled automatic triggers to stop build failure emails
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:

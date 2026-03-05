@@ -15,7 +15,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/Exporter/ExporterPackaging.res** (Metric: [Nesting: 3.00, Density: 0.06, Coupling: 0.07] | Drag: 4.08 | LOC: 422/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/Exporter/ExporterPackaging.res** (Metric: [Nesting: 3.60, Density: 0.06, Coupling: 0.06] | Drag: 4.67 | LOC: 482/300  🎯 Target: Function: `isAborted` (High Local Complexity (2.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/Exporter/ExporterUpload.res** (Metric: [Nesting: 4.20, Density: 0.17, Coupling: 0.05] | Drag: 5.39 | LOC: 496/300  🎯 Target: Function: `uploadedCount` (High Local Complexity (8.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -28,7 +28,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
 - `src/systems/Exporter/ExporterPackaging.res` (2 functions, fingerprint 7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076)
     - Grouped summary:
         - normalizeMarketingValue × 1 (lines: 13)
-        - scenePct × 1 (lines: 421)
+        - scenePct × 1 (lines: 484)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/Exporter/ExporterUpload.res`
 - `src/systems/Exporter/ExporterUpload.res` (17 functions, fingerprint a0dd909684b143aa3cb34e7f72795c0385e06a284528202c58cd2617cb79a31a)

@@ -92,64 +92,80 @@ module InnerApp = {
         React.null
       }}
 
-      <Sidebar />
-
-      <main
-        id="viewer-container"
-        role="main"
-        className={`viewer-main-container relative w-full h-full overflow-hidden select-none touch-none ${state.isLinking
-            ? "linking-mode"
-            : ""} ${state.movingHotspot != None ? "moving-hotspot" : ""}`}
+      <AppErrorBoundary
+        featureName="Sidebar"
+        fallback={<FeatureCrashFallback featureName="Sidebar" />}
       >
-        <div id="viewer-stage" className="relative w-full h-full">
-          /* Panorama Layers */
-          <div
-            id="panorama-a"
-            className="panorama-layer active"
-            role="img"
-            ariaLabel="Primary Panorama Viewer"
-          />
-          <div
-            id="panorama-b"
-            className="panorama-layer"
-            role="img"
-            ariaLabel="Secondary Panorama Viewer"
-          />
+        <Sidebar />
+      </AppErrorBoundary>
 
-          <div id="cursor-guide" ariaHidden=true />
+      <AppErrorBoundary
+        featureName="ViewerSurface"
+        fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
+      >
+        <main
+          id="viewer-container"
+          role="main"
+          className={`viewer-main-container relative w-full h-full overflow-hidden select-none touch-none ${state.isLinking
+              ? "linking-mode"
+              : ""} ${state.movingHotspot != None ? "moving-hotspot" : ""}`}
+        >
+          <div id="viewer-stage" className="relative w-full h-full">
+            /* Panorama Layers */
+            <div
+              id="panorama-a"
+              className="panorama-layer active"
+              role="img"
+              ariaLabel="Primary Panorama Viewer"
+            />
+            <div
+              id="panorama-b"
+              className="panorama-layer"
+              role="img"
+              ariaLabel="Secondary Panorama Viewer"
+            />
 
-          <div id="viewer-scene-elements-layer">
-            <ViewerSceneElements />
+            <div id="cursor-guide" ariaHidden=true />
+
+            <div id="viewer-scene-elements-layer">
+              <ViewerSceneElements />
+            </div>
+
+            /* Viewer UI Layer */
+            <div id="viewer-ui-layer">
+              <ViewerUI />
+              <VisualPipeline />
+            </div>
           </div>
 
-          /* Viewer UI Layer */
-          <div id="viewer-ui-layer">
-            <ViewerUI />
-            <VisualPipeline />
-          </div>
-        </div>
+          {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) == 0 {
+            <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
+              <h3> {React.string("Ready to build.")} </h3>
+            </div>
+          } else {
+            React.null
+          }}
 
-        {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) == 0 {
-          <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
-            <h3> {React.string("Ready to build.")} </h3>
+          /* Modal & Notification Containers */
+          <div id="modal-container">
+            <ModalContext />
+            <RecoveryCheck />
+            <CriticalErrorMonitor />
           </div>
-        } else {
-          React.null
-        }}
-
-        /* Modal & Notification Containers */
-        <div id="modal-container">
-          <ModalContext />
-          <RecoveryCheck />
-          <CriticalErrorMonitor />
-        </div>
-      </main>
+        </main>
+      </AppErrorBoundary>
 
       /* Logic Controllers */
       <Navigation.Controller />
-      <ViewerManager />
-      <Simulation />
-      <ThumbnailProjectSystem />
+      <AppErrorBoundary featureName="ViewerManager" fallback={React.null}>
+        <ViewerManager />
+      </AppErrorBoundary>
+      <AppErrorBoundary featureName="Simulation" fallback={React.null}>
+        <Simulation />
+      </AppErrorBoundary>
+      <AppErrorBoundary featureName="ThumbnailProjectSystem" fallback={React.null}>
+        <ThumbnailProjectSystem />
+      </AppErrorBoundary>
     </div>
   }
 }

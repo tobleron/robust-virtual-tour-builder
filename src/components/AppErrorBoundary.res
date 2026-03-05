@@ -42,26 +42,32 @@ class SafeErrorBoundaryInternal extends React.Component {
 }
 `)
 
-let handleComponentError = (error, _errorInfo: JSON.t) => {
+let handleComponentError = (~featureName: string, error: JsExn.t, _errorInfo: JSON.t) => {
+  let message = switch JsExn.message(error) {
+  | Some(msg) => msg
+  | None => "Unknown render error"
+  }
+  let stack = JsExn.stack(error)->Option.getOr("")
   Logger.error(
     ~module_="ErrorBoundary",
-    ~message=switch JsExn.message(error) {
-    | Some(msg) => msg
-    | None => "Unknown render error"
-    },
-    ~data=error,
+    ~message="FEATURE_CRASH",
+    ~data=Logger.castToJson({
+      "feature": featureName,
+      "error": message,
+      "stack": stack,
+    }),
     (),
   )
 }
 
 @react.component
-let make = (~children) => {
+let make = (~children, ~featureName="App", ~fallback: option<React.element>=?) => {
   React.createElement(
     internal_component,
     {
       "children": children,
-      "onError": Some(handleComponentError),
-      "fallback": None,
+      "onError": Some((error, info) => handleComponentError(~featureName, error, info)),
+      "fallback": fallback,
     },
   )
 }

@@ -12,7 +12,7 @@
 ### 🔧 Action: Merge Fragmented Folders
 **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `.rs`). CRITICAL: Delete the now-empty `/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
 
-- [ ] Folder: `` (Metric: Recursive Feature Pod: 2 files in subtree sum to 54 LOC (fits in context). Max Drag: 2.20)
+- [ ] Folder: `` (Metric: Recursive Feature Pod: 2 files in subtree sum to 64 LOC (fits in context). Max Drag: 2.20)
     - `../../src/index.js`
     - `../../src/systems/FeatureLoaders.js`
 

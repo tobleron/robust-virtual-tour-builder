@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Harden GPS extraction fallback for supported image uploads
 - Harden project load with verification gate
 - Optimize publish modal and switch publish outputs to HD/2K/4K/2K-standalone
+- Stability hardening: CI main-only, logger/json guards, contracts, feature boundaries
 
 ## [5.2.2] - 2026-03-05
 

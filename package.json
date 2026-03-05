@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "5.2.3",
-  "buildNumber": 13,
+  "buildNumber": 14,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -11,6 +11,7 @@
     "test": "npm run test:all",
     "test:all": "npm run res:build && npm run test:frontend && cd backend && cargo test",
     "test:frontend": "NODE_ENV=test node --import ./tests/node-setup.js tests/TestRunner.bs.js && vitest run",
+    "test:contracts": "npm run res:build && vitest run tests/contracts",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
@@ -32,7 +33,9 @@
     "rs:fmt": "rescript format",
     "rust:fmt": "cd backend && cargo fmt",
     "format": "npm run rs:fmt && npm run rust:fmt",
-    "lint": "npm run format && npm run res:build",
+    "lint": "npm run format && npm run lint:rescript-console && npm run lint:rescript-json-standards && npm run res:build",
+    "lint:rescript-console": "node scripts/check-rescript-console.mjs",
+    "lint:rescript-json-standards": "node scripts/check-rescript-json-standards.mjs",
     "predev": "./scripts/predev.sh",
     "dev": "npm run dev:all",
     "dev:system": "./scripts/dev-system.sh",

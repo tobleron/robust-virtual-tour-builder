@@ -30,14 +30,20 @@ let getMemoryUsage = () => {
 }
 
 let getChecksum = (file: File.t): Promise.t<string> => {
-  let internalGetChecksum: File.t => Promise.t<string> = %raw(`
-     async function(file) {
+  let logWeakChecksumFallback = () =>
+    Logger.warn(
+      ~module_="ResizerUtils",
+      ~message="CRYPTO_SUBTLE_UNAVAILABLE_USING_WEAK_FINGERPRINT_FALLBACK",
+      (),
+    )
+  let internalGetChecksum: (File.t, unit => unit) => Promise.t<string> = %raw(`
+     async function(file, logWeakChecksumFallback) {
         const SMALL_FILE_THRESHOLD = 10 * 1024 * 1024;
         const SAMPLE_SIZE = 1024 * 1024;
         let hashBuffer;
         
         if (typeof crypto === 'undefined' || !crypto.subtle) {
-            console.warn('[ResizerUtils] crypto.subtle is unavailable. Using weak fallback for fingerprinting.');
+            logWeakChecksumFallback();
             const simpleHash = (s) => {
                 let h = 0;
                 for(let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
@@ -68,7 +74,7 @@ let getChecksum = (file: File.t): Promise.t<string> => {
         return hash + "_" + file.size;
      }
    `)
-  internalGetChecksum(file)
+  internalGetChecksum(file, logWeakChecksumFallback)
 }
 
 let checkBackendHealth = () => {

@@ -65,7 +65,7 @@ let exposeToWindow = () => {
     let getCircuitBreakerSnapshots = () => CircuitBreakerRegistry.getSnapshots()
 
     let setupStore = %raw(`
-      function(getState, loadProject, getSnapshot, getCircuitBreakerSnapshots) {
+      function(getState, loadProject, getSnapshot, getCircuitBreakerSnapshots, logWarn, logInfo) {
         window.store = {
           // Read-only getter for state snapshot
           get state() { 
@@ -74,7 +74,7 @@ let exposeToWindow = () => {
           
           // Helper to get full state (frozen)
           getFullState() {
-            console.warn('⚠️ Accessing full state. This is for debugging only.');
+            logWarn('ACCESSING_FULL_STATE_DEBUG_ONLY');
             return Object.freeze(getState());
           },
 
@@ -85,7 +85,7 @@ let exposeToWindow = () => {
           
           // Helper to log state changes
           subscribe(callback) {
-            console.warn('State subscription is not implemented. Use React DevTools instead.');
+            logWarn('STATE_SUBSCRIPTION_NOT_IMPLEMENTED_USE_REACT_DEVTOOLS');
             return () => {};
           },
 
@@ -106,11 +106,18 @@ let exposeToWindow = () => {
         // Make window.store itself read-only
         Object.freeze(window.store);
         
-        console.info('🔍 State Inspector enabled. Access via window.store.state');
+        logInfo('STATE_INSPECTOR_ENABLED_ACCESS_WINDOW_STORE_STATE');
       }
     `)
 
-    setupStore(getState, loadProject, getSnapshot, getCircuitBreakerSnapshots)
+    setupStore(
+      getState,
+      loadProject,
+      getSnapshot,
+      getCircuitBreakerSnapshots,
+      message => Logger.warn(~module_="StateInspector", ~message, ()),
+      message => Logger.info(~module_="StateInspector", ~message, ()),
+    )
   } else {
     // Production: No state exposure
     Logger.info(~module_="StateInspector", ~message="State inspector disabled in production", ())
@@ -121,12 +128,13 @@ let exposeToWindow = () => {
  * Removes state exposure (for cleanup or security)
  */
 let removeFromWindow = () => {
-  let _ = %raw(`
-    (function() {
+  let removeStore: (string => unit) => unit = %raw(`
+    function(logInfo) {
       if (typeof window !== 'undefined' && window.store) {
         delete window.store;
-        console.info('🔒 State Inspector removed');
+        logInfo('STATE_INSPECTOR_REMOVED');
       }
-    })()
+    }
   `)
+  removeStore(message => Logger.info(~module_="StateInspector", ~message, ()))
 }
