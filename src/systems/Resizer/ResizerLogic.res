@@ -5,6 +5,68 @@ open SharedTypes
 open ResizerTypes
 open ResizerUtils
 
+let hasGps = (exif: exifMetadata): bool => exif.gps->Nullable.toOption->Option.isSome
+
+let pickNullable = (primary: Nullable.t<'a>, fallback: Nullable.t<'a>): Nullable.t<'a> =>
+  switch primary->Nullable.toOption {
+  | Some(_) => primary
+  | None => fallback
+  }
+
+let mergeExifPreferBase = (~base: exifMetadata, ~fallback: exifMetadata): exifMetadata => {
+  make: pickNullable(base.make, fallback.make),
+  model: pickNullable(base.model, fallback.model),
+  dateTime: pickNullable(base.dateTime, fallback.dateTime),
+  gps: pickNullable(base.gps, fallback.gps),
+  width: if base.width > 0 {
+    base.width
+  } else {
+    fallback.width
+  },
+  height: if base.height > 0 {
+    base.height
+  } else {
+    fallback.height
+  },
+  focalLength: pickNullable(base.focalLength, fallback.focalLength),
+  aperture: pickNullable(base.aperture, fallback.aperture),
+  iso: pickNullable(base.iso, fallback.iso),
+}
+
+let ensureGpsExtraction = async (
+  ~originalFile: File.t,
+  ~derivedExif: exifMetadata,
+  ~frontendExifOpt: option<exifMetadata>,
+) => {
+  if hasGps(derivedExif) {
+    derivedExif
+  } else {
+    switch frontendExifOpt->Option.filter(hasGps) {
+    | Some(frontendExif) =>
+      Logger.info(
+        ~module_="Resizer",
+        ~message="GPS_RECOVERED_FROM_FRONTEND_EXIF",
+        ~data=Some({"filename": File.name(originalFile)}),
+        (),
+      )
+      mergeExifPreferBase(~base=derivedExif, ~fallback=frontendExif)
+    | None =>
+      let backendMetaResult = await BackendApi.extractMetadata(originalFile)
+      switch backendMetaResult {
+      | Ok(meta) if hasGps(meta.exif) =>
+        Logger.info(
+          ~module_="Resizer",
+          ~message="GPS_RECOVERED_FROM_BACKEND_METADATA",
+          ~data=Some({"filename": File.name(originalFile)}),
+          (),
+        )
+        mergeExifPreferBase(~base=derivedExif, ~fallback=meta.exif)
+      | _ => derivedExif
+      }
+    }
+  }
+}
+
 let processZipResponse = zipResult => {
   switch zipResult {
   | Ok(zip) =>
@@ -164,7 +226,7 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     ImageOptimizer.compressToWebP(file, Constants.Media.uploadWebpQuality),
   ))
   ->Promise.then(((exifResult, compressionResult)) => {
-    let exifData = switch exifResult {
+    let exifDataOpt = switch exifResult {
     | Ok(exif) => Some(exif)
     | Error(_) => None
     }
@@ -172,22 +234,37 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     | Ok(webpBlob) =>
       let webpFile = File.newFile([webpBlob], File.name(file), {"type": "image/webp"})
       reportStatus("Uploading")
-      BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
-    | Error(msg) => Promise.resolve(Error(msg))
+      BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifDataOpt)->Promise.then(
+        result => Promise.resolve((result, exifDataOpt)),
+      )
+    | Error(msg) => Promise.resolve((Error(msg), exifDataOpt))
     }
   })
-  ->Promise.then(result => {
-    switch result {
+  ->Promise.then(((processResult, exifDataOpt)) => {
+    switch processResult {
     | Ok(zipBlob) =>
       reportStatus("Extracting")
       LazyLoad.loadJSZip()
       ->Promise.then(() => JSZip.loadAsync(zipBlob))
-      ->Promise.then(zip => Promise.resolve(Ok(zip)))
-    | Error(msg) => Promise.resolve(Error(msg))
+      ->Promise.then(zip => Promise.resolve((Ok(zip), exifDataOpt)))
+    | Error(msg) => Promise.resolve((Error(msg), exifDataOpt))
     }
   })
-  ->Promise.then(processZipResponse)
-  ->Promise.then(extractedResult => createResultFiles(extractedResult, File.name(file)))
+  ->Promise.then(((zipResult, exifDataOpt)) =>
+    processZipResponse(zipResult)->Promise.then(extractedResult =>
+      Promise.resolve((extractedResult, exifDataOpt))
+    )
+  )
+  ->Promise.then(((extractedResult, exifDataOpt)) =>
+    createResultFiles(extractedResult, File.name(file))->Promise.then(createdResult => {
+      switch createdResult {
+      | Ok(processed) =>
+        ensureGpsExtraction(~originalFile=file, ~derivedExif=processed.metadata, ~frontendExifOpt=exifDataOpt)
+        ->Promise.then(exif => Promise.resolve(Ok({...processed, metadata: exif})))
+      | Error(msg) => Promise.resolve(Error(msg))
+      }
+    })
+  )
   ->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
     Promise.resolve(Error(msg))

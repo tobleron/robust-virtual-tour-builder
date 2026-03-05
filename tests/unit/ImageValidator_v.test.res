@@ -27,4 +27,25 @@ describe("ImageValidator", () => {
     let result = ImageValidator.validateFiles([f1], _ => ())
     t->expect(Array.length(result))->Expect.toBe(1)
   })
+
+  test("validateFiles rejects unsupported image mime types", t => {
+    let f1 = mockFile("test.heic", "image/heic")
+    let invalid = ref([])
+    let result = ImageValidator.validateFiles(
+      [f1],
+      name => {
+        let _ = Array.push(invalid.contents, name)
+      },
+    )
+
+    t->expect(Array.length(result))->Expect.toBe(0)
+    t->expect(Array.length(invalid.contents))->Expect.toBe(1)
+    t->expect(Belt.Array.getExn(invalid.contents, 0))->Expect.toBe("test.heic")
+  })
+
+  test("validateFiles accepts extension fallback when mime is empty", t => {
+    let f1 = mockFile("test.webp", "")
+    let result = ImageValidator.validateFiles([f1], _ => ())
+    t->expect(Array.length(result))->Expect.toBe(1)
+  })
 })

@@ -10,8 +10,9 @@ self.onmessage = async event => {
     const ext = fileName.includes(".")
       ? fileName.split(".").pop().toLowerCase()
       : "";
-    const allowed = ["jpg", "jpeg", "png", "webp", "heic", "heif"];
-    const isImage = mime.startsWith("image/") || allowed.includes(ext);
+    const allowed = ["jpg", "jpeg", "png", "webp"];
+    const allowedMimes = ["image/jpeg", "image/png", "image/webp"];
+    const isImage = mime ? allowedMimes.includes(mime) : allowed.includes(ext);
     self.postMessage({ id, ok: true, isImage, type: "validateImage" });
     return;
   }

@@ -47,7 +47,7 @@ pub fn decode_image(data: &[u8]) -> Result<(image::DynamicImage, image::ImageFor
         })?;
 
     let format = reader.format().ok_or_else(|| {
-        "Unsupported or invalid image format. Please upload JPEG, PNG, WebP, or HEIC.".to_string()
+        "Unsupported or invalid image format. Please upload JPEG, PNG, or WebP.".to_string()
     })?;
 
     let img = reader

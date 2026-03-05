@@ -2,6 +2,7 @@
 open Vitest
 open Resizer
 open ReBindings
+open SharedTypes
 
 /* Mocks */
 %%raw(`
@@ -191,5 +192,37 @@ describe("ResizerLogic", () => {
         }
       },
     )
+  })
+
+  describe("GPS metadata merge helpers", () => {
+    let makeExif = (~gps: option<gpsData>=None, ~width: int=0, ~height: int=0, ()) => {
+      make: Nullable.null,
+      model: Nullable.null,
+      dateTime: Nullable.null,
+      gps: Nullable.fromOption(gps),
+      width,
+      height,
+      focalLength: Nullable.null,
+      aperture: Nullable.null,
+      iso: Nullable.null,
+    }
+
+    test("hasGps detects GPS presence", t => {
+      let withGps = makeExif(~gps=Some({lat: 25.2, lon: 55.3}), ())
+      let withoutGps = makeExif()
+
+      t->expect(ResizerLogic.hasGps(withGps))->Expect.toBe(true)
+      t->expect(ResizerLogic.hasGps(withoutGps))->Expect.toBe(false)
+    })
+
+    test("mergeExifPreferBase keeps base data and fills missing fields from fallback", t => {
+      let base = makeExif(~width=4096, ())
+      let fallback = makeExif(~gps=Some({lat: 1.1, lon: 2.2}), ~width=100, ~height=200, ())
+
+      let merged = ResizerLogic.mergeExifPreferBase(~base, ~fallback)
+      t->expect(merged.width)->Expect.toBe(4096)
+      t->expect(merged.height)->Expect.toBe(200)
+      t->expect(merged.gps->Nullable.toOption->Option.isSome)->Expect.toBe(true)
+    })
   })
 })
