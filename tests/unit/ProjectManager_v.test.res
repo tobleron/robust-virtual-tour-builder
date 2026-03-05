@@ -48,6 +48,27 @@ let createMockResponse = (ok, status, jsonFn, blobFn) => {
   }
 }
 
+let attachValidationReport = (
+  projectJson: JSON.t,
+  ~brokenLinksRemoved: int=0,
+  ~orphanedScenes: array<string>=[],
+  ~unusedFiles: array<string>=[],
+  ~warnings: array<string>=[],
+  ~errors: array<string>=[],
+) => {
+  let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
+    %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+  let validationReport =
+    JsonCombinators.Json.Encode.object([
+      ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
+      ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes)),
+      ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles)),
+      ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
+      ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
+    ])
+  mergeValidationReport(projectJson, validationReport)
+}
+
 describe("ProjectManager.Logic", () => {
   let initialState = State.initialState
 
@@ -128,8 +149,9 @@ describe("ProjectManager.Logic", () => {
       nextSceneSequenceId: 1,
     }
     let projectJson = JsonParsers.Encoders.project(project)
+    let projectWithValidation = attachValidationReport(projectJson)
 
-    let input = Ok((sessionId, projectJson))
+    let input = Ok((sessionId, projectWithValidation))
     let startTime = 0.0
 
     let mockGetItem = Vi.fn()
@@ -146,6 +168,40 @@ describe("ProjectManager.Logic", () => {
     switch result {
     | Ok((sid, _data)) => t->expect(sid)->Expect.toBe(sessionId)
     | Error(msg) => failwith("Expected Ok, got Error: " ++ msg)
+    }
+  })
+
+  testAsync("processLoadedProjectData blocks activation on validation errors", async t => {
+    let sessionId = "session_123"
+    let project: Types.project = {
+      tourName: "Loaded Tour",
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
+      lastUsedCategory: "indoor",
+      exifReport: None,
+      sessionId: Some(sessionId),
+      timeline: [],
+      logo: None,
+      marketingComment: "",
+      marketingPhone1: "",
+      marketingPhone2: "",
+      marketingForRent: false,
+      marketingForSale: false,
+      nextSceneSequenceId: 1,
+    }
+    let projectJson = JsonParsers.Encoders.project(project)
+    let projectWithValidation = attachValidationReport(
+      projectJson,
+      ~errors=["hotspot target points to missing scene"],
+    )
+
+    let input = Ok((sessionId, projectWithValidation))
+    let result = await ProjectManager.Logic.processLoadedProjectData(input, ~loadStartTime=0.0)
+
+    switch result {
+    | Ok(_) => failwith("Expected Error, got Ok")
+    | Error(msg) =>
+      t->expect(msg->String.includes("Project verification failed"))->Expect.toBe(true)
     }
   })
 })

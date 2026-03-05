@@ -41,6 +41,75 @@ let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
   }
 }
 
+let notifyProjectValidationWarnings = (report: SharedTypes.validationReport) => {
+  if report.brokenLinksRemoved > 0 {
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("project_manager"),
+      message: "Project loaded. " ++
+      Belt.Int.toString(report.brokenLinksRemoved) ++ " broken link(s) removed.",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+  }
+  if Array.length(report.orphanedScenes) > 0 {
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("project_manager"),
+      message: "Warning: " ++
+      Belt.Int.toString(Array.length(report.orphanedScenes)) ++ " orphaned scene(s) detected.",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+  }
+  report.warnings->Belt.Array.forEach(message =>
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("project_manager"),
+      message: NotificationTypes.truncateForToast("Project warning: " ++ message),
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+  )
+}
+
+let verifyProjectLoadPolicy = (
+  projectData: JSON.t,
+): result<option<SharedTypes.validationReport>, apiError> => {
+  switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
+  | Ok(r) =>
+    if Array.length(r.errors) > 0 {
+      let firstError = Belt.Array.get(r.errors, 0)->Option.getOr("Unknown validation error")
+      Error(
+        "Project verification failed: " ++
+        firstError ++ " (" ++ Belt.Int.toString(Array.length(r.errors)) ++ " blocking issue(s))",
+      )
+    } else {
+      Ok(Some(r))
+    }
+  | Error(_) =>
+    Logger.warn(
+      ~module_="ProjectManager",
+      ~message="PROJECT_LOAD_VALIDATION_REPORT_MISSING",
+      ~data=Some({"reason": "validationReport field missing or invalid"}),
+      (),
+    )
+    Ok(None)
+  }
+}
+
 /* --- Loader --- */
 
 let processLoadedProjectData = (
@@ -57,112 +126,71 @@ let processLoadedProjectData = (
   switch resultSessionData {
   | Ok((sessionId, projectData)) =>
     progress(70, 100, "Resolving scenes...")
+    progress(75, 100, "Verifying project integrity...")
+    switch verifyProjectLoadPolicy(projectData) {
+    | Error(msg) => Promise.resolve(Error(msg))
+    | Ok(validationReportOpt) =>
+      validationReportOpt->Option.forEach(notifyProjectValidationWarnings)
 
-    // Check validation report
-    switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
-    | Ok(r) =>
-      if r.brokenLinksRemoved > 0 {
-        NotificationManager.dispatch({
-          id: "",
-          importance: Warning,
-          context: Operation("project_manager"),
-          message: "Project loaded. " ++
-          Belt.Int.toString(r.brokenLinksRemoved) ++ " broken link(s) removed.",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Warning),
-          dismissible: true,
-          createdAt: Date.now(),
+      switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
+      | Ok(pd) =>
+        // Rebuild URLs for ALL scenes in the inventory (Active and Deleted)
+        let allInventoryScenes =
+          pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
+
+        let validScenes = ProjectManagerUrl.rebuildSceneUrls(allInventoryScenes, ~sessionId)
+
+        // Sync valid scenes back into inventory, preserving their original status
+        let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {
+          switch acc->Belt.Map.String.get(s.id) {
+          | Some(entry) => acc->Belt.Map.String.set(s.id, {...entry, scene: s})
+          | None => acc // Should not happen if we rebuilt from inventory
+          }
         })
-      }
-      if Array.length(r.orphanedScenes) > 0 {
-        NotificationManager.dispatch({
-          id: "",
-          importance: Warning,
-          context: Operation("project_manager"),
-          message: "Warning: " ++
-          Belt.Int.toString(Array.length(r.orphanedScenes)) ++ " orphaned scene(s) detected.",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Warning),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }
-      r.errors->Belt.Array.forEach(error =>
-        NotificationManager.dispatch({
-          id: "",
-          importance: Error,
-          context: Operation("project_manager"),
-          message: "Error: " ++ error,
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Error),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      )
-    | Error(_) => ()
-    }
 
-    switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
-    | Ok(pd) =>
-      // Rebuild URLs for ALL scenes in the inventory (Active and Deleted)
-      let allInventoryScenes =
-        pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
-
-      let validScenes = ProjectManagerUrl.rebuildSceneUrls(allInventoryScenes, ~sessionId)
-
-      // Sync valid scenes back into inventory, preserving their original status
-      let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {
-        switch acc->Belt.Map.String.get(s.id) {
-        | Some(entry) => acc->Belt.Map.String.set(s.id, {...entry, scene: s})
-        | None => acc // Should not happen if we rebuilt from inventory
+        // Ensure sceneOrder is populated from validScenes if it was empty
+        let finalOrder = if Array.length(pd.sceneOrder) > 0 {
+          pd.sceneOrder
+        } else {
+          validScenes->Belt.Array.map(s => s.id)
         }
-      })
 
-      // Ensure sceneOrder is populated from validScenes if it was empty
-      let finalOrder = if Array.length(pd.sceneOrder) > 0 {
-        pd.sceneOrder
-      } else {
-        validScenes->Belt.Array.map(s => s.id)
-      }
+        let (inventoryWithSeq, nextSeqId) = SceneNaming.ensureSequenceIds(
+          updatedInventory,
+          pd.nextSceneSequenceId,
+        )
 
-      let (inventoryWithSeq, nextSeqId) = SceneNaming.ensureSequenceIds(
-        updatedInventory,
-        pd.nextSceneSequenceId,
-      )
+        let loadedProject: Types.project = {
+          ...pd,
+          inventory: inventoryWithSeq,
+          sceneOrder: finalOrder,
+          nextSceneSequenceId: nextSeqId,
+          sessionId: Some(sessionId),
+          logo: pd.logo->Option.map(l => ProjectManagerUrl.rebuildUrl(l, ~sessionId)),
+        }
 
-      let loadedProject: Types.project = {
-        ...pd,
-        inventory: inventoryWithSeq,
-        sceneOrder: finalOrder,
-        nextSceneSequenceId: nextSeqId,
-        sessionId: Some(sessionId),
-        logo: pd.logo->Option.map(l => ProjectManagerUrl.rebuildUrl(l, ~sessionId)),
-      }
+        loadedProject.logo->Option.forEach(l => {
+          Logger.debug(
+            ~module_="ProjectManager",
+            ~message="LOGO_URL_REBUILT",
+            ~data=Some({"url": Types.fileToUrl(l)}),
+            (),
+          )
+        })
 
-      loadedProject.logo->Option.forEach(l => {
-        Logger.debug(
+        progress(85, 100, "Project data parsed")
+        Logger.endOperation(
           ~module_="ProjectManager",
-          ~message="LOGO_URL_REBUILT",
-          ~data=Some({"url": Types.fileToUrl(l)}),
+          ~operation="PROJECT_LOAD",
+          ~data=Some({
+            "sceneCount": Array.length(validScenes),
+            "durationMs": Date.now() -. loadStartTime,
+          }),
           (),
         )
-      })
-
-      progress(85, 100, "Project data parsed")
-      Logger.endOperation(
-        ~module_="ProjectManager",
-        ~operation="PROJECT_LOAD",
-        ~data=Some({
-          "sceneCount": Array.length(validScenes),
-          "durationMs": Date.now() -. loadStartTime,
-        }),
-        (),
-      )
-      Promise.resolve(Ok((sessionId, JsonParsers.Encoders.project(loadedProject))))
-    | Error(e) => Promise.resolve(Error("Failed to parse project data: " ++ e))
+        Promise.resolve(Ok((sessionId, JsonParsers.Encoders.project(loadedProject))))
+      | Error(e) => Promise.resolve(Error("Failed to parse project data: " ++ e))
+      }
     }
 
   | Error(msg) => Promise.resolve(Error(msg))

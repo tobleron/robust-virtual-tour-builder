@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ultra stable version 5.2.3
 - Harden GPS extraction fallback for supported image uploads
+- Harden project load with verification gate
 
 ## [5.2.2] - 2026-03-05
 
