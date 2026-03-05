@@ -8,6 +8,20 @@ type qualityGroups = {
   pr: array<qualityItem>,
 }
 
+let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
+  field.required("validationReport", JsonParsers.Shared.validationReport)
+})
+
+let renderGroup = (label, count, className, icon) => {
+  <div key=label className="upload-report-group">
+    <div className="upload-report-icon"> icon </div>
+    <div className={className ++ " upload-report-count"}>
+      {React.string(Int.toString(count))}
+    </div>
+    <div className="upload-report-label"> {React.string(label)} </div>
+  </div>
+}
+
 let show = (
   report: uploadReport,
   qualityResults: array<qualityItem>,
@@ -58,19 +72,22 @@ let show = (
       })
     }
 
-    /* Component Generation */
-    let renderGroup = (label, count, className, icon) => {
-      <div key=label className="upload-report-group">
-        <div className="upload-report-icon"> icon </div>
-        <div className={className ++ " upload-report-count"}>
-          {React.string(Int.toString(count))}
-        </div>
-        <div className="upload-report-label"> {React.string(label)} </div>
-      </div>
+    let totalImages = Array.length(report.success) + Array.length(report.skipped)
+    let brief = if totalImages > 0 {
+      "Images: " ++
+      Int.toString(totalImages) ++
+      " | Ready: " ++
+      Int.toString(Array.length(report.success)) ++
+      " | Skipped: " ++
+      Int.toString(Array.length(report.skipped))
+    } else {
+      "No images were accepted in this batch."
     }
 
     let content =
       <div className="upload-report-container">
+        <div className="upload-report-brief"> {React.string(brief)} </div>
+
         <div className="upload-report-grid">
           {renderGroup(
             "Excellent",
@@ -171,6 +188,88 @@ let show = (
   }
 }
 
+let showValidationSummary = (
+  report: SharedTypes.validationReport,
+  ~sceneCount: int,
+  ~dispatch: Actions.action => unit,
+) => {
+  let issueCount = Array.length(report.warnings) + Array.length(report.errors)
+  let healthScore = if issueCount == 0 {
+    10.0
+  } else {
+    let score = 10.0 -. Int.toFloat(issueCount)
+    if score < 0.0 {
+      0.0
+    } else {
+      score
+    }
+  }
+
+  let brief = "Scenes: " ++
+  Int.toString(sceneCount) ++
+  " | Warnings: " ++
+  Int.toString(Array.length(report.warnings)) ++
+  " | Blockers: " ++
+  Int.toString(Array.length(report.errors))
+
+  let content =
+    <div className="upload-report-container">
+      <div className="upload-report-brief"> {React.string(brief)} </div>
+
+      <div className="upload-report-grid">
+        {renderGroup(
+          "Cleanups",
+          report.brokenLinksRemoved,
+          "text-warning",
+          <LucideIcons.Settings size=16 strokeWidth=2.0 />,
+        )}
+        {renderGroup(
+          "Orphans",
+          Array.length(report.orphanedScenes),
+          "text-warning",
+          <LucideIcons.Link size=16 strokeWidth=2.0 />,
+        )}
+        {renderGroup(
+          "Warnings",
+          Array.length(report.warnings),
+          if Array.length(report.warnings) > 0 {
+            "text-warning"
+          } else {
+            "text-success"
+          },
+          <LucideIcons.TriangleAlert size=16 strokeWidth=2.0 />,
+        )}
+      </div>
+
+      <div className="upload-report-footer-score">
+        <div className="upload-report-title"> {React.string("Load Health")} </div>
+        <div className="upload-report-score">
+          {React.string(Float.toFixed(healthScore, ~digits=1))}
+          <span className="upload-report-score-total"> {React.string(" / 10")} </span>
+        </div>
+      </div>
+    </div>
+
+  let options: EventBus.modalConfig = {
+    title: "Project Validation Summary",
+    description: None,
+    icon: None,
+    content: Some(content),
+    buttons: [
+      {
+        label: "Continue",
+        class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
+        onClick: () => dispatch(DispatchAppFsmEvent(CloseSummary)),
+        autoClose: Some(true),
+      },
+    ],
+    onClose: Some(() => dispatch(DispatchAppFsmEvent(CloseSummary))),
+    allowClose: Some(true),
+    className: Some("modal-blue"),
+  }
+  EventBus.dispatch(ShowModal(options))
+}
+
 let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
   let project = switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
   | Ok(p) => p
@@ -214,5 +313,9 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
     }
     {quality: q, newName: s.name}
   })
-  show({success: successNames, skipped: []}, qualityResults, ~getState, ~dispatch)
+
+  switch JsonCombinators.Json.decode(projectDataJson, validationReportWrapperDecoder) {
+  | Ok(report) => showValidationSummary(report, ~sceneCount=Array.length(scenes), ~dispatch)
+  | Error(_) => show({success: successNames, skipped: []}, qualityResults, ~getState, ~dispatch)
+  }
 }

@@ -17,7 +17,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/OperationLifecycle.res** (Metric: [Nesting: 3.60, Density: 0.21, Coupling: 0.03] | Drag: 4.93 | LOC: 404/300  🎯 Target: Function: `ttlMsForType` (High Local Complexity (7.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/systems/ProjectSystem.res** (Metric: [Nesting: 1.80, Density: 0.05, Coupling: 0.10] | Drag: 2.85 | LOC: 404/300  🎯 Target: Function: `notifyProjectValidationWarnings` (High Local Complexity (3.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/systems/ProjectSystem.res** (Metric: [Nesting: 1.80, Density: 0.05, Coupling: 0.10] | Drag: 2.85 | LOC: 420/300  🎯 Target: Function: `notifyProjectValidationWarnings` (High Local Complexity (3.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 - [ ] - **../../src/systems/Simulation.res** (Metric: [Nesting: 7.20, Density: 0.25, Coupling: 0.08] | Drag: 8.47 | LOC: 383/300  🎯 Target: Function: `make` (High Local Complexity (9.1). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -63,13 +63,15 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - useOperations × 1 (lines: 439)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/systems/ProjectSystem.res`
-- `src/systems/ProjectSystem.res` (9 functions, fingerprint 81563e5c30a2419d1dfbd817b670bf0357177f2759e6b6b83a427800c5ec131c)
+- `src/systems/ProjectSystem.res` (11 functions, fingerprint d2a1a7bdd24a590d4b65025c69d448bbce92c387eb2abcdac20fc07e734a2569)
     - Grouped summary:
-        - createSavePackage × 1 (lines: 285)
+        - createSavePackage × 1 (lines: 303)
         - encodeProjectFromState × 1 (lines: 27)
-        - loadProjectZip × 1 (lines: 200)
+        - encodeValidationReport × 1 (lines: 116)
+        - loadProjectZip × 1 (lines: 218)
+        - mergeValidationReport × 1 (lines: 113)
         - notifyProjectValidationWarnings × 1 (lines: 44)
-        - processLoadedProjectData × 1 (lines: 115)
+        - processLoadedProjectData × 1 (lines: 127)
         - projectFromState × 1 (lines: 8)
         - validateProjectStructure × 1 (lines: 37)
         - validationReportWrapperDecoder × 1 (lines: 33)

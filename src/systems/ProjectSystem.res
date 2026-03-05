@@ -110,6 +110,18 @@ let verifyProjectLoadPolicy = (
   }
 }
 
+let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
+  %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+
+let encodeValidationReport = (report: SharedTypes.validationReport): JSON.t =>
+  JsonCombinators.Json.Encode.object([
+    ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(report.brokenLinksRemoved)),
+    ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.orphanedScenes)),
+    ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.unusedFiles)),
+    ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.warnings)),
+    ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.errors)),
+  ])
+
 /* --- Loader --- */
 
 let processLoadedProjectData = (
@@ -188,7 +200,13 @@ let processLoadedProjectData = (
           }),
           (),
         )
-        Promise.resolve(Ok((sessionId, JsonParsers.Encoders.project(loadedProject))))
+        let encodedProject = JsonParsers.Encoders.project(loadedProject)
+        let encodedWithValidation = switch validationReportOpt {
+        | Some(report) =>
+          mergeValidationReport(encodedProject, encodeValidationReport(report))
+        | None => encodedProject
+        }
+        Promise.resolve(Ok((sessionId, encodedWithValidation)))
       | Error(e) => Promise.resolve(Error("Failed to parse project data: " ++ e))
       }
     }
