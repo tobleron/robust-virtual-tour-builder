@@ -228,7 +228,8 @@ let script = `
         exitRow.addEventListener("click", closeExportMap);
 
         const exitIndicatorEl = document.createElement("span");
-        exitIndicatorEl.className = "shortcut-indicator-spacer";
+        exitIndicatorEl.className = "shortcut-indicator-arrow";
+        exitIndicatorEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 
         const exitKeyEl = document.createElement("span");
         exitKeyEl.className = "floor-map-shortcut-key";
@@ -236,7 +237,7 @@ let script = `
 
         const exitTextEl = document.createElement("span");
         exitTextEl.className = "floor-map-shortcut-text";
-        exitTextEl.textContent = "exit map mode";
+        exitTextEl.textContent = "Exit Map Mode";
 
         exitRow.appendChild(exitIndicatorEl);
         exitRow.appendChild(exitKeyEl);
@@ -255,7 +256,8 @@ let script = `
         });
 
         const jumpIndicatorEl = document.createElement("span");
-        jumpIndicatorEl.className = "shortcut-indicator-spacer";
+        jumpIndicatorEl.className = "shortcut-indicator-arrow";
+        jumpIndicatorEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 
         const jumpKeyEl = document.createElement("span");
         jumpKeyEl.className = "floor-map-shortcut-key";
@@ -263,7 +265,7 @@ let script = `
 
         const jumpTextEl = document.createElement("span");
         jumpTextEl.className = "floor-map-shortcut-text";
-        jumpTextEl.textContent = "jump to scene";
+        jumpTextEl.textContent = "Jump to Scene";
 
         jumpRow.appendChild(jumpIndicatorEl);
         jumpRow.appendChild(jumpKeyEl);

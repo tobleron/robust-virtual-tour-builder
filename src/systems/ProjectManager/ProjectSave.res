@@ -58,7 +58,7 @@ let saveProject = (
         ~data=Some(Logger.castToJson({"journalId": journalId})),
         (),
       )
-      let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
+      let useFileHandle = DownloadSystem.hasShowSaveFilePicker()
       let handlePromise = if useFileHandle {
         DownloadSystem.getFileHandle(filename, "application/zip")
         ->Promise.then(h => Promise.resolve(Some(h)))

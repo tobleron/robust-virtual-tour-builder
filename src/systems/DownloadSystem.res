@@ -21,6 +21,11 @@ type savePickerOptions = {
 
 @scope("window") @val
 external showSaveFilePicker: savePickerOptions => Promise.t<fileHandle> = "showSaveFilePicker"
+@scope("window") @val @return(nullable)
+external showSaveFilePickerMaybe: option<savePickerOptions => Promise.t<fileHandle>> =
+  "showSaveFilePicker"
+
+let hasShowSaveFilePicker = () => showSaveFilePickerMaybe->Option.isSome
 
 /* Internal Helpers */
 let getExtension = (filename: string) => {
@@ -107,9 +112,7 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string): result<bo
     (),
   )
 
-  let hasShowSaveFilePicker = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
-
-  if hasShowSaveFilePicker {
+  if hasShowSaveFilePicker() {
     try {
       let mimeType = if Blob.type_(blob) == "" {
         "application/octet-stream"

@@ -5,16 +5,40 @@ open SharedTypes
 @@warning("-45")
 open ExifReportGeneratorLogicTypes
 
+let decodeExifMetadata = (json: JSON.t): exifMetadata =>
+  switch JsonCombinators.Json.decode(json, JsonParsersShared.exifMetadata) {
+  | Ok(meta) => meta
+  | Error(e) =>
+    Logger.warn(
+      ~module_="ExifExtraction",
+      ~message="EXIF_METADATA_DECODE_FAILED",
+      ~data={"error": e},
+      (),
+    )
+    SharedTypes.defaultExif
+  }
+
+let decodeQualityAnalysis = (json: JSON.t): qualityAnalysis =>
+  switch JsonCombinators.Json.decode(json, JsonParsersShared.qualityAnalysis) {
+  | Ok(q) => q
+  | Error(e) =>
+    Logger.warn(
+      ~module_="ExifExtraction",
+      ~message="QUALITY_ANALYSIS_DECODE_FAILED",
+      ~data={"error": e},
+      (),
+    )
+    SharedTypes.defaultQuality("Quality decode failed")
+  }
+
 let resolveExifData = async (item: sceneDataItem) => {
   let _file = item.original
   switch item.metadataJson {
   | Some(m) => {
-      // Heuristic: If it's a ReScript record, it won't have the internal JSON structure expected by decoder
-      // Actually, since we know it's coming from our own ResizerLogic, it's already an exifMetadata record.
-      let meta: SharedTypes.exifMetadata = Obj.magic(m)
+      let meta = decodeExifMetadata(m)
 
-      let q: SharedTypes.qualityAnalysis = switch item.qualityJson {
-      | Some(qJson) => Obj.magic(qJson)
+      let q = switch item.qualityJson {
+      | Some(qJson) => decodeQualityAnalysis(qJson)
       | None => SharedTypes.defaultQuality("Metadata loaded from internal state")
       }
 

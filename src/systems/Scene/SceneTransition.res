@@ -141,10 +141,8 @@ let rec finalizeSwap = (
   }
 }
 
-let assignGlobalViewer = nv => {
-  let assignGlobal: ReBindings.Viewer.t => unit = %raw("(v) => window.pannellumViewer = v")
-  assignGlobal(nv)
-}
+@set external setPannellumViewerOnWindow: ({..}, ReBindings.Viewer.t) => unit = "pannellumViewer"
+let assignGlobalViewer = nv => setPannellumViewerOnWindow(Window.window, nv)
 
 let clearHotspotLines = () => {
   Dom.getElementById("viewer-hotspot-lines")

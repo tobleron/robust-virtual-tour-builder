@@ -119,6 +119,14 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
     // 0d. Handle Teaser Recording Interruption
     if storeState.isTeasing {
       Logger.info(~module_="InputSystem", ~message="ESC_ABORT_TEASER", ())
+      // Force-clear any teaser/snapshot visual overlays immediately to avoid stuck dim states.
+      TeaserRecorder.Recorder.setFadeOpacity(0.0)
+      TeaserRecorder.Recorder.stopRecording()
+      switch ReBindings.Dom.getElementById("viewer-snapshot-overlay") {
+      | Nullable.Value(el) =>
+        ReBindings.Dom.ClassList.remove(ReBindings.Dom.classList(el), "snapshot-visible")
+      | _ => ()
+      }
       dispatch(SetIsTeasing(false))
       dispatch(StopAutoPilot)
     }

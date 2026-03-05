@@ -81,7 +81,7 @@ let request = async (
       // Sync the effective token to cookie for media requests (image GETs cannot send custom headers).
       finalToken->Option.forEach(t => {
         let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
-        let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
+        Dom.setCookie(cookieValue)
       })
 
       finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))

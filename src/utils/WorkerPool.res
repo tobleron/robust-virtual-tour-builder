@@ -41,13 +41,13 @@ type state = {
 
 let poolRef: ref<option<state>> = ref(None)
 
+@scope("navigator") @val @return(nullable)
+external hardwareConcurrencyOpt: option<int> = "hardwareConcurrency"
+@scope("navigator") @val @return(nullable) external deviceMemoryOpt: option<float> = "deviceMemory"
+
 let createPoolSize = (): int => {
-  let cores: int = %raw(
-    "(typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 2"
-  )
-  let ramGb: float = %raw(
-    "(typeof navigator !== 'undefined' && navigator.deviceMemory) ? navigator.deviceMemory : 8.0"
-  )
+  let cores = hardwareConcurrencyOpt->Option.getOr(2)
+  let ramGb = deviceMemoryOpt->Option.getOr(8.0)
 
   // Conservative heuristic: each 4K/12K image processing task can spike to ~400MB-600MB RAM.
   // Low Memory (<= 4GB): Max 2 workers to keep system stable.

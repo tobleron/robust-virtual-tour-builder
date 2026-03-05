@@ -20,7 +20,7 @@ let fetchText = (res: response) => res.text()
 let fetchBlob = (res: response) => res.blob()
 
 external castBody: 'a => JSON.t = "%identity"
-let toUpper: string => string = %raw("(s) => String(s || '').toUpperCase()")
+let toUpper = (s: string) => s->String.toUpperCase
 
 let circuitBreaker = CircuitBreaker.make()
 let getDomainCircuitBreaker = domain => CircuitBreakerRegistry.getBreaker(domain)

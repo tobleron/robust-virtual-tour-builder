@@ -5,8 +5,6 @@ open Actions
 
 // --- TYPES & HELPERS ---
 
-let castToString: 'a => string = %raw("(x) => typeof x === 'string' ? x : ''")
-let castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !== null) ? x : {}")
 external asDynamic: 'a => {..} = "%identity"
 external boolToUnknown: bool => unknown = "%identity"
 external idToUnknown: string => unknown = "%identity"

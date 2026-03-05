@@ -24,12 +24,30 @@ module ContextProvider = {
 @module("./locales/es.json") external es: JSON.t = "default"
 
 let getNestedString = (json: JSON.t, path: string): option<string> => {
-  let value: Nullable.t<string> = %raw(`
-    function(json, path) {
-      return path.split('.').reduce((obj, key) => (obj && obj[key] !== undefined) ? obj[key] : null, json)
+  let keys = String.split(path, ".")
+  let keyCount = Belt.Array.length(keys)
+
+  let rec walk = (current: JSON.t, index: int): option<string> => {
+    if index >= keyCount {
+      switch JsonCombinators.Json.decode(current, JsonCombinators.Json.Decode.string) {
+      | Ok(value) => Some(value)
+      | Error(_) => None
+      }
+    } else {
+      let key = keys->Belt.Array.get(index)->Option.getOr("")
+      switch JsonCombinators.Json.decode(
+        current,
+        JsonCombinators.Json.Decode.object(field =>
+          field.optional(key, JsonCombinators.Json.Decode.id)
+        ),
+      ) {
+      | Ok(Some(next)) => walk(next, index + 1)
+      | _ => None
+      }
     }
-  `)(json, path)
-  value->Nullable.toOption
+  }
+
+  walk(json, 0)
 }
 
 module Provider = {

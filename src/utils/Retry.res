@@ -62,30 +62,25 @@ type retryClass =
   | NonRetryable
   | Aborted
 
-let parseHttpStatusCode: string => option<int> = %raw(`
-  (error) => {
-    const match = /HttpError:\s*Status\s*(\d+)/i.exec(error);
-    if (!match) return undefined;
-    const parsed = Number.parseInt(match[1], 10);
-    return Number.isNaN(parsed) ? undefined : parsed;
+let extractCaptureInt = (error: string, pattern): option<int> => {
+  switch String.match(error, pattern) {
+  | Some(captures) =>
+    switch Belt.Array.get(captures, 1) {
+    | Some(Some(value)) => Belt.Int.fromString(value)
+    | _ => None
+    }
+  | None => None
   }
-`)
+}
 
-let parseRetryAfterSeconds: string => option<int> = %raw(`
-  (error) => {
-    const fromRateLimited = /RateLimited:\s*(\d+)/i.exec(error);
-    if (fromRateLimited) {
-      const parsed = Number.parseInt(fromRateLimited[1], 10);
-      return Number.isNaN(parsed) ? undefined : parsed;
-    }
-    const fromRetryAfter = /Retry-After:\s*(\d+)/i.exec(error);
-    if (fromRetryAfter) {
-      const parsed = Number.parseInt(fromRetryAfter[1], 10);
-      return Number.isNaN(parsed) ? undefined : parsed;
-    }
-    return undefined;
+let parseHttpStatusCode = (error: string): option<int> =>
+  extractCaptureInt(error, /HttpError:\s*Status\s*(\d+)/i)
+
+let parseRetryAfterSeconds = (error: string): option<int> =>
+  switch extractCaptureInt(error, /RateLimited:\s*(\d+)/i) {
+  | Some(seconds) => Some(seconds)
+  | None => extractCaptureInt(error, /Retry-After:\s*(\d+)/i)
   }
-`)
 
 let isAbortError = (error: string): bool => {
   String.includes(error, "AbortError") || String.includes(error, "aborted")

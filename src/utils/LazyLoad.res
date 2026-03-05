@@ -6,9 +6,11 @@ let pannellumLoaded: ref<bool> = ref(false)
 let jszipLoaded: ref<bool> = ref(false)
 let fileSaverLoaded: ref<bool> = ref(false)
 
-let checkGlobal = (_name: string): bool => {
-  %raw(`typeof window[_name] !== 'undefined'`)
-}
+@get_index @return(nullable)
+external getWindowProperty: ({..}, string) => option<unknown> = ""
+
+let checkGlobal = (_name: string): bool =>
+  getWindowProperty(Window.window, _name)->Option.isSome
 
 let loadScript = (src: string, globalName: option<string>) => {
   Promise.make((resolve, _reject) => {

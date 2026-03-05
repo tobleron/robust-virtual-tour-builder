@@ -80,7 +80,7 @@ let generateServerTeaser = (
     Dict.set(headers, "Authorization", "Bearer " ++ t)
     // Keep media GET routes compatible with cookie-based auth middleware.
     let cookieValue = "auth_token=" ++ t ++ "; path=/; SameSite=Strict"
-    let _ = %raw(`(val) => { document.cookie = val }`)(cookieValue)
+    Dom.setCookie(cookieValue)
   })
 
   RequestQueue.schedule(() => {

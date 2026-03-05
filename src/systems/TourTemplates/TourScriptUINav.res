@@ -216,12 +216,6 @@ let script = `
       title.className = "map-sequence-prompt-title";
       title.textContent = "Jump to scene";
 
-      const hint = document.createElement("div");
-      hint.className = "map-sequence-prompt-hint";
-      hint.textContent = maxSeq > 0
-        ? "type 1-" + String(maxSeq) + " or e to exit"
-        : "type e to exit";
-
       const controls = document.createElement("div");
       controls.className = "map-sequence-prompt-controls";
 
@@ -232,6 +226,7 @@ let script = `
       input.setAttribute("autocomplete", "off");
       input.setAttribute("spellcheck", "false");
       input.setAttribute("aria-label", "Scene sequence input");
+      input.placeholder = maxSeq > 0 ? "1-" + String(maxSeq) : "";
       input.value = String(mapSequenceInputState.value || "");
       input.addEventListener("input", event => {
         mapSequenceInputState.value = event?.target?.value ?? "";
@@ -250,11 +245,15 @@ let script = `
         }
       });
 
+      const exitHint = document.createElement("div");
+      exitHint.className = "map-sequence-prompt-exit-hint";
+      exitHint.textContent = "e to exit";
+
       controls.appendChild(input);
       controls.appendChild(goBtn);
       prompt.appendChild(title);
-      prompt.appendChild(hint);
       prompt.appendChild(controls);
+      prompt.appendChild(exitHint);
 
       if (mapSequenceInputState.error && mapSequenceInputState.error !== "") {
         const errorEl = document.createElement("div");

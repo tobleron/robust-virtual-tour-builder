@@ -2,6 +2,8 @@
 open ReBindings
 
 let moduleName = "ImageOptimizer"
+external fileAsBlob: File.t => Blob.t = "%identity"
+@val @return(nullable) external offscreenCanvasCtor: option<unknown> = "OffscreenCanvas"
 
 let init = () => {
   Logger.initialized(~module_=moduleName)
@@ -43,7 +45,7 @@ let compressMainThread = (
           Dom.setWidth(canvas, Float.toInt(width))
           Dom.setHeight(canvas, Float.toInt(height))
 
-          let ctx = Canvas.getContext2d(canvas, "2d", %raw("{}"))
+          let ctx = Canvas.getContext2d(canvas, "2d", {"alpha": false})
           let _ = %raw("ctx.imageSmoothingQuality = 'high'")
           Canvas.drawImage(ctx, img, 0.0, 0.0, width, height)
 
@@ -104,14 +106,14 @@ let compressToWebPConstrained = (
   let startTime = Date.now()
 
   // Detection: Check for OffscreenCanvas support
-  let isOffscreenSupported: bool = %raw(`typeof OffscreenCanvas !== 'undefined'`)
+  let isOffscreenSupported = offscreenCanvasCtor->Option.isSome
 
   if !isOffscreenSupported {
     Logger.warn(~module_=moduleName, ~message="OFFSCREEN_CANVAS_UNSUPPORTED_FALLBACK", ())
     compressMainThread(file, ~quality, ~maxWidth, ~maxHeight)
   } else {
     WorkerPool.processFullWithWorker(
-      %raw("(f) => f")(file),
+      fileAsBlob(file),
       ~width=Float.toInt(maxWidth),
       ~quality,
       ~format=Constants.Media.uploadFormat,

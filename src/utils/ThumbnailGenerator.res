@@ -104,7 +104,7 @@ let generateRectilinearThumbnail = (
       blob => {
         switch Nullable.toOption(blob) {
         | Some(b) => resolve(b)
-        | None => resolve(%raw("new Blob([])"))
+        | None => resolve(Blob.newBlob([], {"type": "image/webp"}))
         }
       },
       "image/webp",

@@ -5,9 +5,8 @@ open ViewerState
 open Types
 open Actions
 
-let sceneIdFromMeta: option<unknown> => string = %raw(
-  "(meta) => typeof meta === 'string' ? meta : ''"
-)
+external unknownToString: unknown => string = "%identity"
+let sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr("")
 
 let handleMainSceneLoad = (
   ~activeScenes: array<scene>,

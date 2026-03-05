@@ -170,7 +170,7 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     }
     switch compressionResult {
     | Ok(webpBlob) =>
-      let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
+      let webpFile = File.newFile([webpBlob], File.name(file), {"type": "image/webp"})
       reportStatus("Uploading")
       BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
     | Error(msg) => Promise.resolve(Error(msg))

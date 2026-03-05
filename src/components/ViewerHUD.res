@@ -25,7 +25,7 @@ let make = React.memo(() => {
     if canUpload {
       switch fileInputRef.current->Nullable.toOption {
       | Some(input) => {
-          let _ = %raw("(input) => input.click()")(input)
+          ReBindings.Dom.click(input)
         }
       | None => ()
       }

@@ -15,9 +15,12 @@
 // We will define the external for creating a blob with options here, but not inside a module named "Blob" that conflicts.
 // Or we can assume BrowserBindings.Blob.t is the type we want.
 
-@val external sendBeacon: (string, string) => bool = "navigator.sendBeacon"
-@val external sendBeaconBlob: (string, BrowserBindings.Blob.t) => bool = "navigator.sendBeacon"
-let hasSendBeacon: unit => bool = %raw(`function() { return typeof navigator.sendBeacon === 'function' }`)
+@scope("navigator") @val external sendBeacon: (string, string) => bool = "sendBeacon"
+@scope("navigator") @val
+external sendBeaconBlob: (string, BrowserBindings.Blob.t) => bool = "sendBeacon"
+@scope("navigator") @val @return(nullable)
+external sendBeaconMaybe: option<(string, string) => bool> = "sendBeacon"
+let hasSendBeacon = () => sendBeaconMaybe->Option.isSome
 
 module URL = {
   @scope("URL") @val external createObjectURL: 'a => string = "createObjectURL"

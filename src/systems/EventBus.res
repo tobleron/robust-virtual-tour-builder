@@ -73,7 +73,8 @@ type listenerEntry = {
 @new external makeWeakRef: (event => unit) => weakRef<event => unit> = "WeakRef"
 @send external weakRefDeref: weakRef<event => unit> => Nullable.t<event => unit> = "deref"
 @val external loggerWarnHook: option<loggerWarnHook> = "__vtbLoggerWarn"
-let hasWeakRefSupport: unit => bool = %raw(`function() { return typeof WeakRef === "function"; }`)
+@val @return(nullable) external weakRefCtor: option<unknown> = "WeakRef"
+let hasWeakRefSupport = () => weakRefCtor->Option.isSome
 
 type eventChannel =
   | Navigation

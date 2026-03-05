@@ -20,6 +20,8 @@ type apiError = {
 
 type apiResult<'a> = result<'a, string>
 
+@new external makeEvent: string => Dom.event = "Event"
+
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
   JsonCombinators.Json.decode(json, JsonParsers.Shared.importResponse)
 }
@@ -112,7 +114,7 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
 let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
   if Fetch.status(response) == 401 {
     Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
-    let _ = %raw("window.dispatchEvent(new Event('auth:logout'))")
+    ignore(Window.dispatchEvent(makeEvent("auth:logout")))
     Logger.warn(
       ~module_="ApiHelpers",
       ~message="UNAUTHORIZED",

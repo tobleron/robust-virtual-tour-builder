@@ -103,6 +103,18 @@ module Overlay = {
     | None => ()
     }
   }
+
+  let clear = () => {
+    switch Dom.getElementById("teaser-overlay")->Nullable.toOption {
+    | Some(d) =>
+      Dom.setAttribute(
+        d,
+        "style",
+        "position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;background:black;opacity:0;transition:opacity 0.1s linear;",
+      )
+    | None => ()
+    }
+  }
 }
 
 let loadLogo = (logo: option<Types.file>) =>
@@ -301,6 +313,11 @@ let startRecording = (~deterministic=false, ()) => {
 }
 
 let stopRecording = () => {
+  // Always reset teaser blackout overlay/fade state, even when stop is called
+  // during cancellation paths where frame loop exits early.
+  internalState := {...internalState.contents, fadeOpacity: 0.0}
+  Overlay.clear()
+
   switch internalState.contents.mediaRecorder {
   | Some(r) =>
     r->stop

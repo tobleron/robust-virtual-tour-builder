@@ -1,3 +1,5 @@
+open ReBindings
+
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
@@ -6,7 +8,7 @@ let make = (~onReload=?) => {
     switch onReload {
     | Some(fn) => fn()
     | None => {
-        let _ = %raw("window.location.reload()")
+        Window.reloadLocation()
       }
     }
   }

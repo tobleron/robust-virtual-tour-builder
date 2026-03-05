@@ -129,7 +129,7 @@ let isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.Ab
   taskMismatch || signalAborted
 }
 
-let castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !== null) ? x : {}")
+@get @return(nullable) external containerIdFromValue: ('a) => option<string> = "container"
 external boolToUnknown: bool => unknown = "%identity"
 external idToUnknown: string => unknown = "%identity"
 
@@ -149,7 +149,7 @@ let onSceneLoad = (
     )
     ()
   } else {
-    let vId = castToDict(v)->Dict.get("container")->Option.getOr("")
+    let vId = containerIdFromValue(v)->Option.getOr("")
     let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
     entry->Option.forEach(e => {
       e.instance->Option.forEach(inst => {

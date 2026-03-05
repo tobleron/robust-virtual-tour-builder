@@ -141,6 +141,8 @@ module Dom = {
   @val @scope("document")
   external createDocumentFragment: unit => element = "createDocumentFragment"
   @val @scope("document") external head: element = "head"
+  @set external setCookieOnDocument: ({..}, string) => unit = "cookie"
+  let setCookie = value => setCookieOnDocument(document, value)
   module Storage2 = {
     type t
     @val @scope("window") external localStorage: t = "localStorage"
@@ -149,10 +151,20 @@ module Dom = {
     @send external removeItem: (t, string) => unit = "removeItem"
     @send external clear: t => unit = "clear"
   }
-  let getActiveElement = (): element => %raw(`document.activeElement`)
+  @val @scope("document") @return(nullable) external activeElementOpt: option<element> =
+    "activeElement"
+  @get external tagName: element => string = "tagName"
+  @get external contentEditable: element => string = "contentEditable"
+
+  let getActiveElement = (): element =>
+    switch activeElementOpt {
+    | Some(el) => el
+    | None => documentBody
+    }
+
   let isInput = (_el: element) => {
-    let tag = %raw(`(_el && _el.tagName) || ""`)
-    tag == "INPUT" || tag == "TEXTAREA" || %raw(`_el && _el.contentEditable === "true"`)
+    let tag = tagName(_el)
+    tag == "INPUT" || tag == "TEXTAREA" || contentEditable(_el) == "true"
   }
 }
 
@@ -183,6 +195,7 @@ module Window = {
   @scope("navigator") @val external navigatorUserAgent: string = "userAgent"
   @val external window: {..} = "window"
   @val external alert: string => unit = "alert"
+  @val @scope("window.location") external reloadLocation: unit => unit = "reload"
   @val external getComputedStyle: Dom.element => Dom.style = "getComputedStyle"
   @val @scope("window") external innerHeight: int = "innerHeight"
   @val @scope("window") external innerWidth: int = "innerWidth"
