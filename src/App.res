@@ -18,6 +18,10 @@ module InnerApp = {
     | SystemBlocking(Exporting(_)) => true
     | _ => false
     }
+    let isProjectLoading = switch state.appMode {
+    | SystemBlocking(ProjectLoading(_)) => true
+    | _ => false
+    }
 
     React.useEffect1(() => {
       Logger.debug(
@@ -28,15 +32,20 @@ module InnerApp = {
       None
     }, [isSystemLocked])
 
-    React.useEffect1(() => {
+    React.useEffect2(() => {
       let bodyClasses = Dom.classList(Dom.documentBody)
       if isExporting {
         bodyClasses->Dom.ClassList.add("export-mode")
       } else {
         bodyClasses->Dom.ClassList.remove("export-mode")
       }
+      if isProjectLoading {
+        bodyClasses->Dom.ClassList.add("project-load-mode")
+      } else {
+        bodyClasses->Dom.ClassList.remove("project-load-mode")
+      }
       None
-    }, [isExporting])
+    }, (isExporting, isProjectLoading))
 
     React.useEffect0(() => {
       Logger.debug(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())

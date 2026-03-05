@@ -63,6 +63,8 @@ module Styles = {
     border-radius: 3px;
     overflow: visible;
     background: var(--node-color, var(--primary-ui-blue));
+    /* Added box-sizing to ensure predictable footprint */
+    box-sizing: border-box;
     /* Removed white border, added thin black angled shadow stroke */
     border: none;
     box-shadow: 0.5px 0.5px 0px 0px rgba(0, 0, 0, 0.8),
@@ -75,10 +77,7 @@ module Styles = {
   }
 
   .pipeline-node:hover {
-    transform: scale(1.4);
-    box-shadow: 0.5px 0.5px 0px 0px rgba(0, 0, 0, 0.9);
-    z-index: 1001;
-    filter: brightness(1.2);
+    /* Visual hover effects disabled */
   }
 
   .pipeline-node:active {
@@ -87,7 +86,8 @@ module Styles = {
 
   /* Active node glow - Synchronized with Brand Accent Yellow */
   .pipeline-node.active {
-    box-shadow: 0 0 0 2px var(--accent, #ffcc00),
+    /* Use inset shadow to keep the highlight 'inside' the square boundary */
+    box-shadow: inset 0 0 0 2px var(--accent, #ffcc00),
                 0 4px 12px rgba(0, 0, 0, 0.4);
     transform: scale(1.2);
     z-index: 25;
@@ -177,10 +177,11 @@ module Styles = {
   }
 
   .tooltip-value {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-weight: 700;
-    font-size: 11px;
+    font-family: var(--font-family, sans-serif);
+    font-weight: 600;
+    font-size: 10px;
     color: var(--orange-brand, #f97316);
+    text-transform: none;
   }
 
   @keyframes localTooltipIn {

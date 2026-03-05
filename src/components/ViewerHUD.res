@@ -24,9 +24,7 @@ let make = React.memo(() => {
   let handleLogoClick = _ => {
     if canUpload {
       switch fileInputRef.current->Nullable.toOption {
-      | Some(input) => {
-          ReBindings.Dom.click(input)
-        }
+      | Some(input) => ReBindings.Dom.click(input)
       | None => ()
       }
     } else {

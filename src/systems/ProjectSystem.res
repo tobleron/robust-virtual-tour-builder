@@ -151,7 +151,7 @@ let processLoadedProjectData = (
         )
       })
 
-      progress(100, 100, "Project Loaded!")
+      progress(85, 100, "Project data parsed")
       Logger.endOperation(
         ~module_="ProjectManager",
         ~operation="PROJECT_LOAD",
@@ -175,32 +175,34 @@ let loadProjectZip = (
   ~onProgress: option<onProgress>=?,
   ~opId: option<OperationLifecycle.operationId>=?,
 ) => {
+  let ownsLifecycle = opId->Option.isNone
   let opId = switch opId {
   | Some(id) => id
   | None =>
     OperationLifecycle.start(
       ~type_=ProjectLoad,
       ~scope=Blocking,
-      ~phase="Uploading",
+      ~phase="Project Load",
       ~meta=Logger.castToJson({"filename": File.name(zipFile), "size": File.size(zipFile)}),
       (),
     )
   }
 
-  let progress = (curr, total, msg) => {
+  let progress = (curr, total, msg, ~phase: option<string>=?) => {
     let pct = if total > 0 {
       Float.fromInt(curr) /. Float.fromInt(total) *. 100.0
     } else {
       0.0
     }
-    OperationLifecycle.progress(opId, pct, ~message=msg, ())
+    let phaseName = phase->Option.getOr("Project Load")
+    OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phaseName, ())
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
     | None => ()
     }
   }
 
-  progress(0, 100, "Uploading project...")
+  progress(0, 100, "Uploading project...", ~phase="Project Load")
   let loadStartTime = Date.now()
   Logger.startOperation(
     ~module_="ProjectManager",
@@ -217,10 +219,10 @@ let loadProjectZip = (
         opId,
         50.0,
         ~message="Processing response...",
-        ~phase="Processing",
+        ~phase="Project Load",
         (),
       )
-      progress(50, 100, "Processing response...")
+      progress(50, 100, "Processing response...", ~phase="Project Load")
       validateProjectStructure(response.projectData)
       ->Belt.Result.map(pd => (response.sessionId, pd))
       ->Promise.resolve
@@ -228,18 +230,24 @@ let loadProjectZip = (
     }
   })
   ->Promise.then(resultSessionData =>
-    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress=progress)
+    processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress=(curr, total, msg) =>
+      progress(curr, total, msg)
+    )
   )
   ->Promise.then(result => {
-    switch result {
-    | Ok(_) => OperationLifecycle.complete(opId, ~result="Success", ())
-    | Error(msg) => OperationLifecycle.fail(opId, msg)
+    if ownsLifecycle {
+      switch result {
+      | Ok(_) => OperationLifecycle.complete(opId, ~result="Success", ())
+      | Error(msg) => OperationLifecycle.fail(opId, msg)
+      }
     }
     Promise.resolve(result)
   })
   ->Promise.catch(err => {
     let (msg, _) = Logger.getErrorDetails(err)
-    OperationLifecycle.fail(opId, msg)
+    if ownsLifecycle {
+      OperationLifecycle.fail(opId, msg)
+    }
     Promise.resolve(Error(msg))
   })
 }

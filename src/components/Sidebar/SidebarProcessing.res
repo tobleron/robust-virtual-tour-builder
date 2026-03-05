@@ -15,6 +15,8 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
       "processing-theme-teaser"
     } else if String.includes(phaseKey, "export") {
       "processing-theme-export"
+    } else if String.includes(phaseKey, "project") {
+      "processing-theme-projectload"
     } else {
       "processing-theme-default"
     }

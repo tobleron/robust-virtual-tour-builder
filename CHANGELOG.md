@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Checkpoint before project load UX lock implementation
+- Stable Version pre test unit adaptation
 
 ## [5.2.2] - 2026-03-04
 

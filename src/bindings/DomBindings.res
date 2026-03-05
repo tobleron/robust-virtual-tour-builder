@@ -151,8 +151,8 @@ module Dom = {
     @send external removeItem: (t, string) => unit = "removeItem"
     @send external clear: t => unit = "clear"
   }
-  @val @scope("document") @return(nullable) external activeElementOpt: option<element> =
-    "activeElement"
+  @val @scope("document") @return(nullable)
+  external activeElementOpt: option<element> = "activeElement"
   @get external tagName: element => string = "tagName"
   @get external contentEditable: element => string = "contentEditable"
 

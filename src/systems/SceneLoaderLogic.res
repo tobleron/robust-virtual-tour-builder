@@ -129,7 +129,7 @@ let isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.Ab
   taskMismatch || signalAborted
 }
 
-@get @return(nullable) external containerIdFromValue: ('a) => option<string> = "container"
+@get @return(nullable) external containerIdFromValue: 'a => option<string> = "container"
 external boolToUnknown: bool => unknown = "%identity"
 external idToUnknown: string => unknown = "%identity"
 

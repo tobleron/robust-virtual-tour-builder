@@ -9,8 +9,7 @@ let fileSaverLoaded: ref<bool> = ref(false)
 @get_index @return(nullable)
 external getWindowProperty: ({..}, string) => option<unknown> = ""
 
-let checkGlobal = (_name: string): bool =>
-  getWindowProperty(Window.window, _name)->Option.isSome
+let checkGlobal = (_name: string): bool => getWindowProperty(Window.window, _name)->Option.isSome
 
 let loadScript = (src: string, globalName: option<string>) => {
   Promise.make((resolve, _reject) => {

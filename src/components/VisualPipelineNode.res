@@ -13,6 +13,9 @@ let make = (
   ~onHoverStart: (option<Types.scene>, string) => unit,
   ~onHoverEnd: unit => unit,
 ) => {
+  ignore(onHoverStart)
+  ignore(onHoverEnd)
+
   let handleClick = (e: ReactEvent.Mouse.t) => {
     ReactEvent.Mouse.preventDefault(e)
     if !interactionDisabled {
@@ -35,53 +38,14 @@ let make = (
     }
   }
 
-  let handleMouseEnter = (_e: ReactEvent.Mouse.t) =>
-    if !interactionDisabled {
-      onHoverStart(scene, item.linkId)
-    }
-  let handleMouseLeave = (_e: ReactEvent.Mouse.t) => onHoverEnd()
-  let handleFocus = (_e: ReactEvent.Focus.t) =>
-    if !interactionDisabled {
-      onHoverStart(scene, item.linkId)
-    }
-  let handleBlur = (_e: ReactEvent.Focus.t) => onHoverEnd()
-
-  let (linkIdVisible, setLinkIdVisible) = React.useState(_ => false)
-  let linkIdTimerRef = React.useRef((None: option<int>))
-
-  React.useEffect2(() => {
-    None
-  }, (isActive, interactionDisabled))
-
-  let startLinkIdTimer = () => {
-    switch linkIdTimerRef.current {
-    | Some(id) => ReBindings.Window.clearTimeout(id)
-    | None => ()
-    }
-    linkIdTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
-        setLinkIdVisible(_ => true)
-      }, 3000))
+  let localHandleMouseEnter = _e => {
+    /* Hover effects disabled */
+    ()
   }
 
-  let stopLinkIdTimer = () => {
-    switch linkIdTimerRef.current {
-    | Some(id) => ReBindings.Window.clearTimeout(id)
-    | None => ()
-    }
-    linkIdTimerRef.current = None
-    setLinkIdVisible(_ => false)
-  }
-
-  let localHandleMouseEnter = e => {
-    if !interactionDisabled {
-      startLinkIdTimer()
-      handleMouseEnter(e)
-    }
-  }
-
-  let localHandleMouseLeave = e => {
-    stopLinkIdTimer()
-    handleMouseLeave(e)
+  let localHandleMouseLeave = _e => {
+    /* Hover effects disabled */
+    ()
   }
 
   let color = if isAutoForward {
@@ -110,15 +74,10 @@ let make = (
     onContextMenu=handleContextMenu
     onMouseEnter=localHandleMouseEnter
     onMouseLeave=localHandleMouseLeave
-    onFocus=handleFocus
-    onBlur=handleBlur
+    onFocus={_ => ()}
+    onBlur={_ => ()}
     style
   >
-    {linkIdVisible
-      ? <div className="pipeline-node-tooltip">
-          <span className="tooltip-label"> {React.string("ID")} </span>
-          <span className="tooltip-value"> {React.string(item.linkId)} </span>
-        </div>
-      : React.null}
+    {React.null}
   </div>
 }

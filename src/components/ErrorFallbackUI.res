@@ -7,9 +7,7 @@ let make = (~onReload=?) => {
   let handleReload = _ => {
     switch onReload {
     | Some(fn) => fn()
-    | None => {
-        Window.reloadLocation()
-      }
+    | None => Window.reloadLocation()
     }
   }
 

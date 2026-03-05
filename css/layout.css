@@ -90,14 +90,16 @@ body.viewer-state-portrait #viewer-stage {
 
 body.auto-pilot-active #sidebar,
 body.teaser-mode #sidebar,
-body.export-mode #sidebar {
+body.export-mode #sidebar,
+body.project-load-mode #sidebar {
     opacity: 0.85;
     transition: all var(--transition-normal) ease;
 }
 
 body.auto-pilot-active #sidebar > :not(.sidebar-processing-card),
 body.teaser-mode #sidebar > :not(.sidebar-processing-card),
-body.export-mode #sidebar > :not(.sidebar-processing-card) {
+body.export-mode #sidebar > :not(.sidebar-processing-card),
+body.project-load-mode #sidebar > :not(.sidebar-processing-card) {
     filter: grayscale(100%);
     pointer-events: none;
 }
@@ -105,19 +107,33 @@ body.export-mode #sidebar > :not(.sidebar-processing-card) {
 body.auto-pilot-active #sidebar .sidebar-processing-card,
 body.teaser-mode #sidebar .sidebar-processing-card,
 body.export-mode #sidebar .sidebar-processing-card,
+body.project-load-mode #sidebar .sidebar-processing-card,
 body.auto-pilot-active #sidebar .sidebar-processing-card *,
 body.teaser-mode #sidebar .sidebar-processing-card *,
-body.export-mode #sidebar .sidebar-processing-card * {
+body.export-mode #sidebar .sidebar-processing-card *,
+body.project-load-mode #sidebar .sidebar-processing-card * {
     filter: none !important;
     pointer-events: auto !important;
 }
 
+body.project-load-mode #viewer-stage,
+body.project-load-mode .panorama-layer.active,
+body.project-load-mode .panorama-layer.active canvas,
+body.project-load-mode .panorama-layer.active .pnlm-dragfix,
+body.project-load-mode #viewer-ui-layer,
+body.project-load-mode #viewer-scene-elements-layer {
+    filter: grayscale(1) saturate(0.55) brightness(0.85);
+    transition: filter 0.2s ease;
+}
+
 /* Keep system lock over viewer during export, but allow sidebar progress cancel actions */
-body.export-mode .interaction-lock-overlay {
+body.export-mode .interaction-lock-overlay,
+body.project-load-mode .interaction-lock-overlay {
     left: 340px;
 }
 
 /* Hide the floating spinner during export - sidebar already shows progress */
-body.export-mode .interaction-lock-overlay .spinner {
+body.export-mode .interaction-lock-overlay .spinner,
+body.project-load-mode .interaction-lock-overlay .spinner {
     display: none;
 }

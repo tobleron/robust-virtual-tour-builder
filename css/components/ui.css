@@ -134,6 +134,35 @@
     color: #c2410c;
 }
 
+.processing-theme-projectload {
+    border-color: rgba(14, 45, 82, 0.25);
+    background:
+        linear-gradient(135deg, rgba(14, 45, 82, 0.08) 0%, rgba(255, 255, 255, 0.96) 55%);
+}
+
+.processing-theme-projectload .sidebar-progress-fill {
+    background: linear-gradient(90deg,
+            #0e2d52 0%,
+            #1d4ed8 35%,
+            #06b6d4 70%,
+            #22d3ee 100%);
+    background-size: 220% 100%;
+    animation: progress-shimmer 1.4s linear infinite;
+}
+
+.processing-theme-projectload .sidebar-progress-spinner {
+    border-color: rgba(14, 45, 82, 0.2);
+    border-top-color: #1d4ed8;
+}
+
+.processing-theme-projectload .sidebar-progress-phase {
+    color: #0e2d52;
+}
+
+.processing-theme-projectload .sidebar-progress-percentage {
+    color: #1d4ed8;
+}
+
 @keyframes progress-shimmer {
     0% {
         background-position: 200% 0;

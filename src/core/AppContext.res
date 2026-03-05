@@ -177,9 +177,12 @@ module Provider = {
       | Reset =>
         Logger.info(~module_="AppContext", ~message="PERFORMING_MODULE_LEVEL_RESET", ())
         NavigationSupervisor.reset()
-        OperationLifecycle.reset()
         ViewerState.resetState()
         StateSnapshot.clear()
+        switch nextAction {
+        | Reset => OperationLifecycle.reset()
+        | _ => ()
+        }
       | _ => ()
       }
 
