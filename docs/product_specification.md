@@ -48,7 +48,7 @@ SystemBlocking(CriticalError) ──► Initializing (on Reset)
 ### 3.1 Uploading Images
 - **Entry point**: The image upload area accepts JPEG, PNG, and WebP panoramic images.
 - **Batch upload**: Multiple images can be selected at once. Processing uses chunked concurrency.
-- **Client-side processing**: Images are resized to optimized WebP with high quality before sending to backend.
+- **Client-side processing**: Multi-core OffscreenCanvas pipeline resizes images to optimized WebP with real-time ETA progress before sending.
 - **Backend processing**: GPS extraction, histogram analysis, quality scoring.
 - **Summary modal**: After a **multi-image upload** (2+ images), a Summary modal appears showing which files succeeded and which were skipped. Single-image uploads should auto-continue without a modal.
 - **"Start Building" button**: Appears in the Summary modal. Clicking it transitions the app to Interactive mode.
@@ -253,12 +253,13 @@ When hovering over a hotspot in the 360° viewer, a 4-button menu appears:
 
 ## 9. Visual Pipeline (Timeline)
 
-### Current State
-- **Automatic ordering**: Pipeline items are auto-generated when links are created (`AddToTimeline` action in `LinkModal.res`).
-- **Manual reorder**: **Deprecated** — no longer supported.
-- **Home + linked-target model**: The first square is always the home scene (scene index `0`), and subsequent squares represent the scenes that links point to.
-- **Click to switch scene**: Clicking a pipeline square routes navigation to the represented scene (same navigation path as scene-list click).
-- When a link is deleted, the corresponding timeline item is automatically removed (`handleRemoveHotspot` filters `state.timeline`).
+### Current State (V3)
+- **Architecture**: Floor-grouped squares with deterministic PCB-style routing connections.
+- **Automatic ordering**: Pipeline items are generated unifying Canonical Traversal generation (`CanonicalTraversal.res`).
+- **Hover/Tooltips**: Hovering over squares reveals a tooltip with the scene tag/name and a preview thumbnail (dimming the current viewport).
+- **Home + linked-target model**: The first square is the home scene. Isolated floors automatically render their own home button.
+- **Auto-forward indication**: Active items have a yellow sync ring; auto-forward items use Emerald/Indigo highlights.
+- **Click to navigate**: Clicking a pipeline square or active route navigates to the target scene.
 
 ---
 
@@ -300,9 +301,10 @@ When hovering over a hotspot in the 360° viewer, a 4-button menu appears:
 ## 12. Export System
 
 ### Flow
-1. Click **"Export Tour"** button → export starts immediately (no options dialog).
-2. Progress bar with ETA toast notifications (EMA-based estimation with scene/upload rate blending).
-3. Download triggers automatically on completion.
+1. Click **"Export Tour"** button → opens **Publish Modal** with quality/format options.
+2. Select desired output: **HD**, **2K**, **4K**, or **2K-standalone** (offline package).
+3. Progress bar with ETA toast notifications (EMA-based estimation with scene/upload rate blending).
+4. Download triggers automatically on completion.
 4. **Cancel**: ESC key or Cancel button during export.
 
 ### Output Structure

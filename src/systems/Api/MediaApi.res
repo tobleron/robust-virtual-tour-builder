@@ -125,32 +125,6 @@ let applyProcessFullBackoff = (seconds: int) => {
   )
 }
 
-/* Helper functions to reduce nesting */
-let handleError = (e, message, logKey) => {
-  let (msg, stack) = Logger.getErrorDetails(e)
-  Logger.error(
-    ~module_="MediaApi",
-    ~message=logKey,
-    ~data=Logger.castToJson({"error": msg, "stack": stack}),
-    (),
-  )
-  Promise.resolve(Error(message))
-}
-
-let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
-  switch decoder(json) {
-  | Ok(data) => Promise.resolve(Ok(data))
-  | Error(msg) =>
-    Logger.error(
-      ~module_="MediaApi",
-      ~message=logKey ++ "_DECODE_FAILED",
-      ~data=Logger.castToJson({"error": msg}),
-      (),
-    )
-    Promise.resolve(Error(errorMessage ++ ": " ++ msg))
-  }
-}
-
 let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()
@@ -169,6 +143,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
         ->Promise.then(
           json =>
             handleJsonDecode(
+              ~module_="MediaApi",
               json,
               decodeMetadataResponse,
               "METADATA",
@@ -178,6 +153,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
         ->Promise.catch(
           e =>
             handleError(
+              ~module_="MediaApi",
               e,
               "Metadata extraction failed: JSON parsing error",
               "METADATA_ERROR_JSON_DECODE",
@@ -186,7 +162,9 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Metadata extraction failed", "METADATA_ERROR"))
+    ->Promise.catch(
+      e => handleError(~module_="MediaApi", e, "Metadata extraction failed", "METADATA_ERROR"),
+    )
   })
 }
 
@@ -237,6 +215,7 @@ let processImageFull = (
             ->Promise.catch(
               e =>
                 handleError(
+                  ~module_="MediaApi",
                   e,
                   "Image processing failed: Blob conversion error",
                   "PROCESSING_ERROR_BLOB_CONVERSION",
@@ -248,7 +227,9 @@ let processImageFull = (
           }
         },
       )
-      ->Promise.catch(e => handleError(e, "Image processing failed", "PROCESSING_ERROR"))
+      ->Promise.catch(
+        e => handleError(~module_="MediaApi", e, "Image processing failed", "PROCESSING_ERROR"),
+      )
     })
   })
 }
@@ -272,16 +253,24 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
       | Retry.Success(response, _) =>
         response.json()
         ->Promise.then(
-          json => {
-            switch decodeSimilarityResponse(json) {
-            | Ok(data) => Promise.resolve(Ok(data.results))
-            | Error(msg) => Promise.resolve(Error(msg))
-            }
-          },
+          json =>
+            handleJsonDecode(
+              ~module_="MediaApi",
+              json,
+              decodeSimilarityResponse,
+              "SIMILARITY_BATCH",
+              "Similarity calculation failed",
+            )->Promise.then(decoded => {
+              switch decoded {
+              | Ok(data) => Promise.resolve(Ok(data.results))
+              | Error(msg) => Promise.resolve(Error(msg))
+              }
+            }),
         )
         ->Promise.catch(
           e =>
             handleError(
+              ~module_="MediaApi",
               e,
               "Similarity calculation failed: JSON parsing error",
               "SIMILARITY_BATCH_ERROR_JSON_DECODE",
@@ -290,6 +279,8 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR"))
+    ->Promise.catch(
+      e => handleError(~module_="MediaApi", e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR"),
+    )
   })
 }

@@ -85,8 +85,21 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
       ]),
       (),
     )
+    let appError = SharedTypes.appErrorFromHttpStatus(~status=Fetch.status(response), ~message=msg)
+    Logger.errorWithAppError(
+      ~module_="ApiHelpers",
+      ~message="BACKEND_HTTP_ERROR",
+      ~appError,
+      ~operationContext="api_response",
+      ~data=
+        JsonCombinators.Json.Encode.object([
+          ("status", JsonCombinators.Json.Encode.int(Fetch.status(response))),
+          ("statusText", JsonCombinators.Json.Encode.string(Fetch.statusText(response))),
+        ]),
+      (),
+    )
     Promise.resolve(
-      Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
+      Error(SharedTypes.appErrorMessage(appError)),
     )
   })
   ->Promise.catch(e => {
@@ -100,12 +113,17 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
       ]),
       (),
     )
+    let appError = SharedTypes.appErrorFromMessage(~message=msg, ~operationContext="api_response")
+    Logger.errorWithAppError(
+      ~module_="ApiHelpers",
+      ~message="BACKEND_FETCH_ERROR",
+      ~appError,
+      ~operationContext="api_response",
+      (),
+    )
     Promise.resolve(
       Error(
-        "Backend error: " ++
-        Belt.Int.toString(Fetch.status(response)) ++
-        " " ++
-        Fetch.statusText(response),
+        SharedTypes.appErrorMessage(appError),
       ),
     )
   })
@@ -139,25 +157,45 @@ let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.respo
 
 let handleError = (~module_, e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
+  let appError = SharedTypes.appErrorFromMessage(~message=msg, ~operationContext=logKey)
   Logger.error(
     ~module_,
     ~message=logKey,
     ~data=Logger.castToJson({"error": msg, "stack": stack}),
     (),
   )
-  Promise.resolve(Error(message))
+  Logger.errorWithAppError(
+    ~module_,
+    ~message=logKey ++ "_STRUCTURED",
+    ~appError,
+    ~operationContext=logKey,
+    ~data=
+      JsonCombinators.Json.Encode.object([
+        ("stack", JsonCombinators.Json.Encode.string(stack)),
+      ]),
+    (),
+  )
+  Promise.resolve(Error(message ++ ": " ++ SharedTypes.appErrorMessage(appError)))
 }
 
 let handleJsonDecode = (~module_, json, decoder, logKey, errorMessage) => {
   switch decoder(json) {
   | Ok(data) => Promise.resolve(Ok(data))
   | Error(msg) =>
+    let appError = SharedTypes.ValidationError({message: msg, field: Some(logKey)})
     Logger.error(
       ~module_,
       ~message=logKey ++ "_DECODE_FAILED",
       ~data=Logger.castToJson({"error": msg}),
       (),
     )
-    Promise.resolve(Error(errorMessage ++ ": " ++ msg))
+    Logger.errorWithAppError(
+      ~module_,
+      ~message=logKey ++ "_DECODE_STRUCTURED",
+      ~appError,
+      ~operationContext=logKey,
+      (),
+    )
+    Promise.resolve(Error(errorMessage ++ ": " ++ SharedTypes.appErrorMessage(appError)))
   }
 }

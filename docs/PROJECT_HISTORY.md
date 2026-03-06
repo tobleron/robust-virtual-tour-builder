@@ -14,6 +14,14 @@ This document tracks the iterative growth, version milestones, and long-term roa
 
 ## 📦 Version History
 
+### v5.2.3: Performance & Export Hardening (2026-03-05)
+- **Focus**: Simulation/Navigation hardening, Export optimization, and UI stabilization.
+- **Key Changes**: 
+  - Implementation of "Floor-Grouped Squares" Visual Pipeline with PCB-style routing and context-aware hover tooltips (scene tags).
+  - High-performance multi-core OffscreenCanvas upload pipeline.
+  - Multi-tier publish modal supporting HD, 2K, 4K, and 2K-standalone offline formats.
+  - Integration of Canonical Traversal with sequence unifications and inline hotspot rendering.
+
 ### v4.14.0: Commercial Readiness (2026-02-04)
 - **Focus**: Expansion of E2E coverage and robustness hardening.
 - **Key Changes**: 12 new E2E tests added covering Circuit Breakers, Rollbacks, Rate Limiting, and Interaction Queues.

@@ -99,6 +99,63 @@ let warn = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Warn, ~
 let error = (~module_, ~message, ~data: 'a=?, ()) =>
   log(~module_, ~level=Error, ~message, ~data?, ())
 
+let logWithAppError = (
+  ~module_: string,
+  ~level: level,
+  ~message: string,
+  ~appError: SharedTypes.appError,
+  ~operationContext: option<string>=?,
+  ~data: option<JSON.t>=?,
+  (),
+) => {
+  let payload = JsonCombinators.Json.Encode.object([
+    ("error_type", JsonCombinators.Json.Encode.string(SharedTypes.appErrorType(appError))),
+    ("error_message", JsonCombinators.Json.Encode.string(SharedTypes.appErrorMessage(appError))),
+    ("retryable", JsonCombinators.Json.Encode.bool(SharedTypes.appErrorRetryable(appError))),
+    (
+      "error_code",
+      switch SharedTypes.appErrorCode(appError) {
+      | Some(code) => JsonCombinators.Json.Encode.string(code)
+      | None => JsonCombinators.Json.Encode.null
+      },
+    ),
+    (
+      "operation_context",
+      switch operationContext {
+      | Some(ctx) => JsonCombinators.Json.Encode.string(ctx)
+      | None => JsonCombinators.Json.Encode.null
+      },
+    ),
+    (
+      "extra",
+      switch data {
+      | Some(v) => v
+      | None => JsonCombinators.Json.Encode.null
+      },
+    ),
+  ])
+
+  log(~module_, ~level, ~message, ~data=Some(payload), ())
+}
+
+let warnWithAppError = (
+  ~module_,
+  ~message,
+  ~appError: SharedTypes.appError,
+  ~operationContext: option<string>=?,
+  ~data: option<JSON.t>=?,
+  (),
+) => logWithAppError(~module_, ~level=Warn, ~message, ~appError, ~operationContext?, ~data?, ())
+
+let errorWithAppError = (
+  ~module_,
+  ~message,
+  ~appError: SharedTypes.appError,
+  ~operationContext: option<string>=?,
+  ~data: option<JSON.t>=?,
+  (),
+) => logWithAppError(~module_, ~level=Error, ~message, ~appError, ~operationContext?, ~data?, ())
+
 let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
   let threshold = LoggerLogic.getPerfThreshold(durationMs)
   let emoji = LoggerLogic.getPerfEmoji(durationMs)

@@ -5,31 +5,6 @@ open ReBindings
 
 include ProjectImportOrchestrator
 
-let handleError = (e, message, logKey) => {
-  let (msg, stack) = Logger.getErrorDetails(e)
-  Logger.error(
-    ~module_="ProjectApi",
-    ~message=logKey,
-    ~data=Logger.castToJson({"error": msg, "stack": stack}),
-    (),
-  )
-  Promise.resolve(Error(message))
-}
-
-let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
-  switch decoder(json) {
-  | Ok(data) => Promise.resolve(Ok(data))
-  | Error(msg) =>
-    Logger.error(
-      ~module_="ProjectApi",
-      ~message=logKey ++ "_DECODE_FAILED",
-      ~data=Logger.castToJson({"error": msg}),
-      (),
-    )
-    Promise.resolve(Error(errorMessage ++ ": " ++ msg))
-  }
-}
-
 let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", JsonCombinators.Json.stringify(projectData))
@@ -49,7 +24,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Project save failed", "SAVE_ERROR"))
+    ->Promise.catch(e => handleError(~module_="ProjectApi", e, "Project save failed", "SAVE_ERROR"))
   })
 }
 
@@ -71,11 +46,19 @@ let calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathR
       | Retry.Success(response, _) =>
         response.json()
         ->Promise.then(
-          json => handleJsonDecode(json, decodeSteps, "CALCULATE_PATH", "Path calculation failed"),
+          json =>
+            handleJsonDecode(
+              ~module_="ProjectApi",
+              json,
+              decodeSteps,
+              "CALCULATE_PATH",
+              "Path calculation failed",
+            ),
         )
         ->Promise.catch(
           e =>
             handleError(
+              ~module_="ProjectApi",
               e,
               "Path calculation failed: JSON parsing error",
               "CALCULATE_PATH_ERROR_JSON_DECODE",
@@ -84,7 +67,9 @@ let calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathR
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Path calculation failed", "CALCULATE_PATH_ERROR"))
+    ->Promise.catch(
+      e => handleError(~module_="ProjectApi", e, "Path calculation failed", "CALCULATE_PATH_ERROR"),
+    )
   })
 }
 
@@ -106,7 +91,14 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
       | Retry.Success(response, _) =>
         response.json()
         ->Promise.then(
-          json => handleJsonDecode(json, decodeGeocodeResponse, "GEOCODE", "Geocoding failed"),
+          json =>
+            handleJsonDecode(
+              ~module_="ProjectApi",
+              json,
+              decodeGeocodeResponse,
+              "GEOCODE",
+              "Geocoding failed",
+            ),
         )
         ->Promise.catch(
           e => {
@@ -117,6 +109,6 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(e, "Geocoding failed", "GEOCODE_FAILED"))
+    ->Promise.catch(e => handleError(~module_="ProjectApi", e, "Geocoding failed", "GEOCODE_FAILED"))
   })
 }

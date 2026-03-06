@@ -215,10 +215,11 @@ let normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {
   switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
   | Ok(project) => Some(JsonParsers.Encoders.project(project))
   | Error(e) =>
-    Logger.warn(
+    Logger.warnWithAppError(
       ~module_="Persistence",
       ~message="Persisted project payload failed validation",
-      ~data={"error": e},
+      ~appError=SharedTypes.ValidationError({message: e, field: Some("projectData")}),
+      ~operationContext="persistence_normalize_project",
       (),
     )
     None
@@ -342,7 +343,18 @@ let performSave = (state: Types.state) => {
         Promise.resolve()
       })
       ->Promise.catch(e => {
-        Logger.error(~module_="Persistence", ~message="Auto-save failed", ~data={"error": e}, ())
+        Logger.errorWithAppError(
+          ~module_="Persistence",
+          ~message="Auto-save failed",
+          ~appError=SharedTypes.InternalError({
+            message: "IndexedDB autosave failed",
+            code: None,
+            retryable: true,
+          }),
+          ~operationContext="persistence_autosave",
+          ~data=JsonCombinators.Json.Encode.object([("error", Logger.castToJson(e))]),
+          (),
+        )
         NotificationManager.dispatch({
           id: "",
           importance: Error,
@@ -580,10 +592,11 @@ let checkRecovery = () => {
               }
             }
           | Error(e) => {
-              Logger.warn(
+              Logger.warnWithAppError(
                 ~module_="Persistence",
                 ~message="Corrupt autosave found (decode failed)",
-                ~data={"error": e},
+                ~appError=SharedTypes.ValidationError({message: e, field: Some("autosave_payload")}),
+                ~operationContext="persistence_recovery",
                 (),
               )
               Promise.resolve(None)
