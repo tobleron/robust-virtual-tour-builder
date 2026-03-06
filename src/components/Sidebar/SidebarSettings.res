@@ -1,6 +1,7 @@
 type tab =
   | Marketing
   | About
+  | SystemHealth
 
 @react.component
 let make = () => {
@@ -43,6 +44,12 @@ let make = () => {
       </button>
       <button className={tabClass(activeTab == About)} onClick={_ => setActiveTab(_ => About)}>
         {React.string("About")}
+      </button>
+      <button
+        className={tabClass(activeTab == SystemHealth)}
+        onClick={_ => setActiveTab(_ => SystemHealth)}
+      >
+        {React.string("System")}
       </button>
     </div>
 
@@ -108,19 +115,24 @@ let make = () => {
           </div>
         </div>
       | About => <SidebarAbout />
+      | SystemHealth => <SidebarSystemHealth />
       }}
 
       <div className="settings-actions">
         <button className="modal-btn-premium modal-btn-full" onClick={_ => onCancel()}>
           <span> {React.string("Cancel")} </span>
         </button>
-        <button
-          className="modal-btn-premium modal-btn-full bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={overLimit}
-          onClick={_ => onSave()}
-        >
-          <span> {React.string("Save")} </span>
-        </button>
+        {switch activeTab {
+        | Marketing =>
+          <button
+            className="modal-btn-premium modal-btn-full bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={overLimit}
+            onClick={_ => onSave()}
+          >
+            <span> {React.string("Save")} </span>
+          </button>
+        | About | SystemHealth => React.null
+        }}
       </div>
     </div>
   </div>

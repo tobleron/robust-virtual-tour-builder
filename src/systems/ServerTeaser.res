@@ -83,21 +83,28 @@ let generateServerTeaser = (
     Dom.setCookie(cookieValue)
   })
 
-  RequestQueue.schedule(() => {
-    Fetch.fetch(
-      Constants.backendUrl ++ "/api/media/generate-teaser",
-      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ~signal?, ()),
-    )
-    ->Promise.then(BackendApi.handleResponse)
-    ->Promise.then(resResult => {
-      switch resResult {
-      | Ok(res) =>
-        progress(50, "Rendering on Server...")
-        Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
-      | Error(msg) => Promise.resolve(Error(msg))
-      }
-    })
-  })
+  let dedupeKey =
+    "server-teaser:" ++ format ++ ":" ++ state.sessionId->Option.getOr("sessionless")
+
+  RequestDeduplicator.run(
+    ~key=dedupeKey,
+    ~task=() =>
+      RequestQueue.schedule(() => {
+        Fetch.fetch(
+          Constants.backendUrl ++ "/api/media/generate-teaser",
+          Fetch.requestInit(~method="POST", ~body=formData, ~headers, ~signal?, ()),
+        )
+        ->Promise.then(BackendApi.handleResponse)
+        ->Promise.then(resResult => {
+          switch resResult {
+          | Ok(res) =>
+            progress(50, "Rendering on Server...")
+            Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+          | Error(msg) => Promise.resolve(Error(msg))
+          }
+        })
+      }),
+  )
   ->Promise.then(blobRes => {
     switch blobRes {
     | Ok(blob) =>

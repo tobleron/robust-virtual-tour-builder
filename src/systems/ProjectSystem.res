@@ -421,6 +421,7 @@ let createSavePackage = (
         ~formData,
         ~signal?,
         ~operationId=opId,
+        ~dedupeKey="project-save-op:" ++ opId,
         (),
       )->Promise.then(
         retryResult => {

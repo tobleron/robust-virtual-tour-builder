@@ -8,8 +8,8 @@
 - **Owned Interfaces**: `/api/health` response schema.
 - **No-Touch Zones**: Core auth logic.
 - **Independent Verification**: 
-  - [ ] `/api/health` returns aggregated status of DB, Cache, and Disk.
-  - [ ] Admin dashboard displays health trends.
+  - [x] `/api/health` returns aggregated status of DB, Cache, and Disk.
+  - [x] Admin dashboard displays health trends.
 - **Depends On**: None
 
 ---
@@ -28,6 +28,6 @@ Improve system visibility by aggregating health signals from all layers (Backend
 ---
 
 ## ✅ Acceptance Criteria
-- [ ] `/api/health` returns `200 OK` only if DB and local disk are healthy.
-- [ ] Dashboard shows active session counts.
-- [ ] Cache hit/miss rates are visible.
+- [x] `/api/health` returns `200 OK` only if DB and local disk are healthy.
+- [x] Dashboard shows active session counts.
+- [x] Cache hit/miss rates are visible.

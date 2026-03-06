@@ -40,6 +40,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save",
       ~method="POST",
       ~formData,
+      ~dedupeKey="project-save:" ++ sessionId,
       (),
     )
     ->Promise.then(resultResponse => {

@@ -231,6 +231,7 @@ let requestExportInit = (
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
     ~operationId?,
+    ~dedupeKey="export-init:" ++ filename,
     (),
   )->Promise.then(resultResponse =>
     switch resultResponse {
@@ -361,6 +362,7 @@ let requestExportComplete = (
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
     ~operationId?,
+    ~dedupeKey="export-complete:" ++ uploadId,
     (),
   )->Promise.then(resultResponse =>
     switch resultResponse {
@@ -393,6 +395,7 @@ let requestExportAbort = (
     ~body=AuthenticatedClient.castBody(body),
     ~signal?,
     ~operationId?,
+    ~dedupeKey="export-abort:" ++ uploadId,
     (),
   )
   ->Promise.then(_ => Promise.resolve())

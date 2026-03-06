@@ -10,6 +10,7 @@ let requestWithRetry = (
   ~signal: option<ReBindings.AbortSignal.t>=?,
   ~retryConfig: option<Retry.config>=?,
   ~operationId: option<string>=?,
+  ~dedupeKey: option<string>=?,
   (),
 ) => {
   // Inject Request ID for distributed tracing and retry linking
@@ -34,79 +35,81 @@ let requestWithRetry = (
   let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
   let domainBreaker = getDomainCircuitBreaker(domain)
 
-  Retry.execute(
-    ~fn=(~signal) =>
-      request(
-        url,
-        ~method=method->Option.getOr("GET"),
-        ~body?,
-        ~formData?,
-        ~headers,
-        ~signal,
-        ~requestId,
-        ~operationId?,
-        (),
-      ),
-    ~signal=resolvedSignal,
-    ~config=Option.getOr(retryConfig, defaultRetryConfig),
-    ~isCircuitOpen=() => CircuitBreaker.getState(domainBreaker) === CircuitBreaker.Open,
-    ~budgetKey="api:" ++ url,
-    ~shouldRetry=error => {
-      if (
-        error == "NetworkOffline" ||
-        error == "OperationCancelled" ||
-        error == "Circuit breaker is open"
-      ) {
-        false
-      } else if String.startsWith(error, "RateLimited: ") {
-        true
-      } else {
-        Retry.defaultShouldRetry(error)
-      }
-    },
-    ~onRetry=(attempt, error, delay) => {
-      Logger.warn(
-        ~module_="AuthenticatedClient",
-        ~message="RETRY_ATTEMPT",
-        ~data=Some({
-          "attempt": attempt,
-          "error": error,
-          "delay": delay,
-        }),
-        (),
-      )
-
-      NotificationManager.dispatch({
-        id: incidentNotificationId,
-        importance: Warning,
-        context: Operation("api"),
-        message: "Connection issue detected. Retrying request.",
-        details: Some(
-          `Attempt ${Belt.Int.toString(
-              attempt,
-            )} failed (${error}). Next attempt in ${Float.toString(
-              Float.fromInt(delay) /. 1000.0,
-            )}s`,
+  let runRequest = () =>
+    Retry.execute(
+      ~fn=(~signal) =>
+        request(
+          url,
+          ~method=method->Option.getOr("GET"),
+          ~body?,
+          ~formData?,
+          ~headers,
+          ~signal,
+          ~requestId,
+          ~operationId?,
+          (),
         ),
-        action: None,
-        duration: 10000,
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    },
-    ~getDelay=(error, _) => {
-      if String.startsWith(error, "RateLimited: ") {
-        let parts = String.split(error, ": ")
-        if Array.length(parts) == 2 {
-          parts[1]->Option.flatMap(Belt.Int.fromString)->Option.map(s => s * 1000)
+      ~signal=resolvedSignal,
+      ~config=Option.getOr(retryConfig, defaultRetryConfig),
+      ~isCircuitOpen=() => CircuitBreaker.getState(domainBreaker) === CircuitBreaker.Open,
+      ~budgetKey="api:" ++ url,
+      ~shouldRetry=error => {
+        if (
+          error == "NetworkOffline" ||
+          error == "OperationCancelled" ||
+          error == "Circuit breaker is open"
+        ) {
+          false
+        } else if String.startsWith(error, "RateLimited: ") {
+          true
+        } else {
+          Retry.defaultShouldRetry(error)
+        }
+      },
+      ~onRetry=(attempt, error, delay) => {
+        Logger.warn(
+          ~module_="AuthenticatedClient",
+          ~message="RETRY_ATTEMPT",
+          ~data=Some({
+            "attempt": attempt,
+            "error": error,
+            "delay": delay,
+          }),
+          (),
+        )
+
+        NotificationManager.dispatch({
+          id: incidentNotificationId,
+          importance: Warning,
+          context: Operation("api"),
+          message: "Connection issue detected. Retrying request.",
+          details: Some(
+            `Attempt ${Belt.Int.toString(
+                attempt,
+              )} failed (${error}). Next attempt in ${Float.toString(
+                Float.fromInt(delay) /. 1000.0,
+              )}s`,
+          ),
+          action: None,
+          duration: 10000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      },
+      ~getDelay=(error, _) => {
+        if String.startsWith(error, "RateLimited: ") {
+          let parts = String.split(error, ": ")
+          if Array.length(parts) == 2 {
+            parts[1]->Option.flatMap(Belt.Int.fromString)->Option.map(s => s * 1000)
+          } else {
+            None
+          }
         } else {
           None
         }
-      } else {
-        None
-      }
-    },
-  )->Promise.then(result => {
+      },
+    )
+    ->Promise.then(result => {
     switch result {
     | Retry.Success(_, attempts) if attempts > 1 =>
       NotificationManager.dispatch({
@@ -138,4 +141,21 @@ let requestWithRetry = (
     }
     Promise.resolve(result)
   })
+
+  switch dedupeKey {
+  | Some(key) =>
+    RequestDeduplicator.run(
+      ~key,
+      ~task=() => {
+        Logger.debug(
+          ~module_="AuthenticatedClient",
+          ~message="REQUEST_DEDUP_ACTIVE",
+          ~data=Some({"key": key, "url": url}),
+          (),
+        )
+        runRequest()
+      },
+    )
+  | None => runRequest()
+  }
 }
