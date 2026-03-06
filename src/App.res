@@ -8,6 +8,12 @@ module InnerApp = {
     @set external setLoadProject: (t, JSON.t => unit) => unit = "__VTB_LOAD_PROJECT__"
   }
 
+  @val external getBootProjectData: unit => option<JSON.t> = "window.__VTB_BOOT_PROJECT_DATA__"
+  @val external getBootProjectSessionId: unit => option<string> =
+    "window.__VTB_BOOT_PROJECT_SESSION_ID__"
+  @val external setTimeoutMs: (unit => unit, int) => int = "setTimeout"
+  @val external clearTimeoutMs: int => unit = "clearTimeout"
+
   @react.component
   let make = () => {
     PerfUtils.useRenderBudget("InnerApp")
@@ -22,6 +28,8 @@ module InnerApp = {
     | SystemBlocking(ProjectLoading(_)) => true
     | _ => false
     }
+    let snapshotTimeoutRef = React.useRef(None)
+    let lastSnapshotRevisionRef = React.useRef(-1)
 
     React.useEffect1(() => {
       Logger.debug(
@@ -52,6 +60,61 @@ module InnerApp = {
       dispatch(DispatchAppFsmEvent(InitializeComplete))
       None
     })
+
+    React.useEffect1(() => {
+      switch getBootProjectData() {
+      | Some(projectData) =>
+        let sessionIdOpt = getBootProjectSessionId()
+        sessionIdOpt->Option.forEach(id => dispatch(Actions.SetSessionId(id)))
+        dispatch(Actions.LoadProject(projectData))
+        let _ = %raw(
+          "((w) => { w.__VTB_BOOT_PROJECT_DATA__ = undefined; w.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined; })(window)"
+        )
+      | None => ()
+      }
+      None
+    }, [dispatch])
+
+    React.useEffect2(() => {
+      let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+      let shouldSync = Array.length(activeScenes) > 0 && !isProjectLoading
+      if !shouldSync {
+        None
+      } else {
+        let timeoutId = setTimeoutMs(() => {
+          if state.structuralRevision > lastSnapshotRevisionRef.current {
+            let projectData = ProjectSystem.encodeProjectFromState(state)
+            let syncPromise = switch state.sessionId {
+            | Some(id) => Api.ProjectApi.syncSnapshot(~sessionId=id, ~projectData)
+            | None => Api.ProjectApi.syncSnapshot(~projectData)
+            }
+            syncPromise
+            ->Promise.then(result => {
+              switch result {
+              | Ok(syncResult) =>
+                lastSnapshotRevisionRef.current = state.structuralRevision
+                switch state.sessionId {
+                | Some(_) => ()
+                | None => dispatch(Actions.SetSessionId(syncResult.sessionId))
+                }
+              | Error(_) => ()
+              }
+              Promise.resolve()
+            })
+            ->ignore
+          }
+        }, 4000)
+        snapshotTimeoutRef.current = Some(timeoutId)
+        Some(() => {
+          switch snapshotTimeoutRef.current {
+          | Some(id) =>
+            clearTimeoutMs(id)
+            snapshotTimeoutRef.current = None
+          | None => ()
+          }
+        })
+      }
+    }, (state.structuralRevision, isProjectLoading))
 
     React.useEffect1(() => {
       let _ = %raw("((s) => { window.__RE_STATE__ = s })(state)")
