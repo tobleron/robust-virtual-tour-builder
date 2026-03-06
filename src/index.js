@@ -10,5 +10,13 @@
 // Import Main Stylesheet (includes Tailwind and all modules)
 import '../css/style.css';
 
-// Import the ReScript-compiled main module
-import './Main.bs.js';
+import { renderPageFramework, resolveAppSurface } from './site/PageFramework.js';
+
+const appRoot = document.getElementById('app');
+const routeTarget = resolveAppSurface(window.location.pathname, window.location.hostname);
+
+if (routeTarget === 'builder') {
+  import('./Main.bs.js');
+} else {
+  renderPageFramework(appRoot, routeTarget);
+}
