@@ -8,9 +8,11 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (1)
+## 🛠️ SURGICAL REFACTOR TASKS (2)
+- [ ] **../../css/components/modals.css**
+  - *Reason:* [Nesting: 1.20, Density: 0.16, Coupling: 0.00] | Drag: 2.36 | LOC: 532/397
 - [ ] **../../css/components/viewer-ui.css**
-  - *Reason:* [Nesting: 1.20, Density: 0.16, Coupling: 0.00] | Drag: 2.36 | LOC: 560/396
+  - *Reason:* [Nesting: 1.20, Density: 0.16, Coupling: 0.00] | Drag: 2.36 | LOC: 560/397
 
 ---
 

@@ -1,7 +1,0 @@
-[2m2026-01-18T11:51:29.522149Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m Starting server at http://localhost:8080
-[2m2026-01-18T11:51:29.522657Z[0m [32m INFO[0m [2mbackend::services::geocoding[0m[2m:[0m CACHE_LOADED_FROM_DISK [3mmodule[0m[2m=[0m"Geocoder" [3mentries[0m[2m=[0m0
-[2m2026-01-18T11:51:29.522741Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m Shutdown manager initialized [3mtimeout_secs[0m[2m=[0m30
-[2m2026-01-18T11:51:29.522753Z[0m [32m INFO[0m [2mbackend[0m[2m:[0m Upload quotas: max_payload=2048 MB, max_concurrent_per_ip=2, max_total=10 GB
-[2m2026-01-18T11:51:29.523481Z[0m [32m INFO[0m [2mactix_server::builder[0m[2m:[0m starting 10 workers
-[2m2026-01-18T11:51:29.523554Z[0m [32m INFO[0m [2mactix_server::server[0m[2m:[0m Actix runtime found; starting in Actix runtime
-[2m2026-01-18T11:51:29.523566Z[0m [32m INFO[0m [2mactix_server::server[0m[2m:[0m starting service: "actix-web-service-0.0.0.0:8080", workers: 10, listening on: 0.0.0.0:8080

@@ -1,6 +1,8 @@
 const DEV_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 
 const ROUTE_MAP = new Map([
+  ['/builder', 'builder'],
+  ['/builder.html', 'builder'],
   ['/home', 'home'],
   ['/home.html', 'home'],
   ['/pricing', 'pricing'],
@@ -28,17 +30,14 @@ function normalizePath(pathname) {
 
 export function resolveAppSurface(pathname, hostname) {
   const path = normalizePath(pathname);
-  const isDevHost = DEV_HOSTS.has((hostname || '').toLowerCase());
-
-  if (path === '/index.html') return 'builder';
-  if (path === '/') return isDevHost ? 'builder' : 'home';
+  if (path === '/index.html' || path === '/') return 'home';
   if (ROUTE_MAP.has(path)) return ROUTE_MAP.get(path);
 
   if (path.startsWith('/api/') || path === '/health' || path === '/metrics') {
     return 'builder';
   }
 
-  return isDevHost ? 'builder' : 'home';
+  return 'home';
 }
 
 function nav(active) {
@@ -89,7 +88,7 @@ function footer() {
         <a href="/pricing">Pricing</a>
         <a href="/signin">Sign In</a>
         <a href="/signup">Sign Up</a>
-        <a href="/index.html">Open Builder</a>
+        <a href="/builder">Open Builder</a>
       </div>
     </footer>
   `;
@@ -103,7 +102,7 @@ function homePage() {
       <p class="site-muted">Author on a robust stage builder, manage projects from one dashboard, and scale delivery with subscription-ready workflows.</p>
       <div class="site-hero-actions">
         <a class="site-btn site-btn-primary" href="/signup">Create Account</a>
-        <a class="site-btn site-btn-ghost" href="/index.html">Open Builder</a>
+        <a class="site-btn site-btn-ghost" href="/builder">Open Builder</a>
       </div>
     </section>
     <section class="site-cards">
@@ -204,38 +203,21 @@ function resetPasswordPage() {
 }
 
 function dashboardPage() {
-  const projects = [
-    { name: 'Palm Residence Showcase', updated: '2h ago', scenes: 32, status: 'Published' },
-    { name: 'Edge Compound Teaser', updated: '5h ago', scenes: 21, status: 'Draft' },
-    { name: 'Marina Duplex Tour', updated: '1d ago', scenes: 44, status: 'Published' },
-  ];
-  const rows = projects
-    .map(
-      p => `
-      <tr>
-        <td>${p.name}</td>
-        <td>${p.scenes}</td>
-        <td>${p.updated}</td>
-        <td><span class="site-chip">${p.status}</span></td>
-        <td><a class="site-link" href="/index.html">Open Builder</a></td>
-      </tr>
-    `
-    )
-    .join('');
-
   return `
     <section class="site-section-head">
       <h1>Dashboard</h1>
       <p class="site-muted">Recent projects, publishing status, and quick actions.</p>
       <div class="site-hero-actions">
-        <a class="site-btn site-btn-primary" href="/index.html">Create New Tour</a>
+        <a class="site-btn site-btn-primary" href="/builder">Create New Tour</a>
         <a class="site-btn site-btn-ghost" href="/pricing">Upgrade Plan</a>
       </div>
     </section>
     <section class="site-card">
       <table class="site-table">
         <thead><tr><th>Project</th><th>Scenes</th><th>Updated</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody id="site-dashboard-projects">
+          <tr><td colspan="5">Loading saved tours...</td></tr>
+        </tbody>
       </table>
     </section>
   `;
@@ -318,6 +300,62 @@ function titleFor(page) {
   return map[page] || 'Home';
 }
 
+function getAuthHeaderValue() {
+  const fromStorage = window.localStorage ? window.localStorage.getItem('auth_token') : null;
+  if (fromStorage && fromStorage.trim() !== '') return `Bearer ${fromStorage}`;
+  if (DEV_HOSTS.has((window.location.hostname || '').toLowerCase())) return 'Bearer dev-token';
+  return null;
+}
+
+async function loadDashboardProjects() {
+  const tbody = document.getElementById('site-dashboard-projects');
+  if (!tbody) return;
+
+  const auth = getAuthHeaderValue();
+  if (!auth) {
+    tbody.innerHTML = `<tr><td colspan="5">Sign in required to load dashboard projects.</td></tr>`;
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/project/dashboard/projects', {
+      method: 'GET',
+      headers: { Authorization: auth },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP_${response.status}`);
+    }
+
+    const projects = await response.json();
+    if (!Array.isArray(projects) || projects.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5">No saved tours yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = projects
+      .map(p => {
+        const sessionId = encodeURIComponent(p.sessionId || '');
+        const projectName = p.tourName || 'Untitled Tour';
+        const scenes = Number.isFinite(p.sceneCount) ? p.sceneCount : 0;
+        const updated = p.updatedAt || '-';
+        return `
+          <tr>
+            <td>${projectName}</td>
+            <td>${scenes}</td>
+            <td>${updated}</td>
+            <td><span class="site-chip">Saved</span></td>
+            <td><a class="site-link" href="/builder?projectId=${sessionId}">Open Builder</a></td>
+          </tr>
+        `;
+      })
+      .join('');
+  } catch (_error) {
+    tbody.innerHTML = `<tr><td colspan="5">Failed to load dashboard projects.</td></tr>`;
+  }
+}
+
 export function renderPageFramework(rootElement, page) {
   if (!rootElement) return;
   document.body.classList.add('site-framework-mode');
@@ -332,4 +370,8 @@ export function renderPageFramework(rootElement, page) {
       ${footer()}
     </div>
   `;
+
+  if (page === 'dashboard') {
+    loadDashboardProjects();
+  }
 }

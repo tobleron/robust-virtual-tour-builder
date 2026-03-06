@@ -125,6 +125,34 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
+                        "/snapshot/sync",
+                        web::post()
+                            .to(project::sync_snapshot)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/dashboard/projects",
+                        web::get()
+                            .to(project::list_dashboard_projects)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/dashboard/projects/{session_id}",
+                        web::get()
+                            .to(project::load_dashboard_project)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/cache/cleanup",
+                        web::post()
+                            .to(project::cleanup_backend_cache)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/import",
                         web::post()
                             .to(project_import::import_project)

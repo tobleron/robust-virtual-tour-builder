@@ -3,7 +3,10 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use serde::Deserialize;
+use serde::Serialize;
+use serde_json::json;
 use std::io::{Seek, SeekFrom};
+use std::path::{Path, PathBuf};
 
 use crate::api::utils::get_temp_path;
 use crate::api::{project_logic, project_multipart};
@@ -11,6 +14,85 @@ use crate::models::{AppError, User};
 use crate::pathfinder::PathRequest;
 use crate::services::media::StorageManager;
 use crate::services::project::{self};
+
+const SNAPSHOT_FILENAME: &str = "project_snapshot.json";
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnapshotSyncPayload {
+    pub session_id: Option<String>,
+    pub project_data: serde_json::Value,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnapshotSyncResponse {
+    pub session_id: String,
+    pub updated_at: String,
+    pub scene_count: usize,
+    pub hotspot_count: usize,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardProjectSummary {
+    pub session_id: String,
+    pub tour_name: String,
+    pub updated_at: String,
+    pub scene_count: usize,
+    pub hotspot_count: usize,
+}
+
+fn count_hotspots(project_data: &serde_json::Value) -> usize {
+    project_data
+        .get("scenes")
+        .and_then(|v| v.as_array())
+        .map(|scenes| {
+            scenes
+                .iter()
+                .map(|scene| {
+                    scene
+                        .get("hotspots")
+                        .and_then(|v| v.as_array())
+                        .map(|hotspots| hotspots.len())
+                        .unwrap_or(0)
+                })
+                .sum()
+        })
+        .unwrap_or(0)
+}
+
+fn scene_count(project_data: &serde_json::Value) -> usize {
+    project_data
+        .get("scenes")
+        .and_then(|v| v.as_array())
+        .map(|scenes| scenes.len())
+        .unwrap_or(0)
+}
+
+fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {
+    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+    let raw = std::fs::read_to_string(snapshot_path).map_err(AppError::IoError)?;
+    serde_json::from_str::<serde_json::Value>(&raw)
+        .map_err(|e| AppError::ValidationError(format!("Invalid snapshot JSON: {}", e)))
+}
+
+fn validate_snapshot_project(project_data: &serde_json::Value) -> Result<serde_json::Value, AppError> {
+    let obj = project_data
+        .as_object()
+        .ok_or_else(|| AppError::ValidationError("Snapshot payload must be a JSON object".into()))?;
+    if !obj.contains_key("inventory") {
+        return Err(AppError::ValidationError(
+            "Snapshot payload missing required key: inventory".into(),
+        ));
+    }
+    if !obj.contains_key("sceneOrder") {
+        return Err(AppError::ValidationError(
+            "Snapshot payload missing required key: sceneOrder".into(),
+        ));
+    }
+    Ok(project_data.clone())
+}
 
 // --- STORAGE HANDLERS ---
 
@@ -146,6 +228,147 @@ pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     tracing::info!(module = "ProjectManager", user_id = %user.id, "LOAD_PROJECT_COMPLETE");
 
     Ok(named_file.into_response(&req))
+}
+
+// --- SNAPSHOT / DASHBOARD HANDLERS ---
+
+/// Persist canonical project snapshot JSON in backend storage and return stable session id.
+pub async fn sync_snapshot(
+    req: HttpRequest,
+    payload: web::Json<SnapshotSyncPayload>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    let payload = payload.into_inner();
+    let validated_project = validate_snapshot_project(&payload.project_data)?;
+    let session_id = payload
+        .session_id
+        .filter(|id| !id.trim().is_empty())
+        .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+
+    let project_dir = StorageManager::ensure_project_dir(&user.id, &session_id).map_err(AppError::IoError)?;
+    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+
+    let serialized = serde_json::to_string_pretty(&validated_project)
+        .map_err(|e| AppError::InternalError(format!("Serialize snapshot failed: {}", e)))?;
+    std::fs::write(snapshot_path, serialized).map_err(AppError::IoError)?;
+
+    let response = SnapshotSyncResponse {
+        session_id,
+        updated_at: chrono::Utc::now().to_rfc3339(),
+        scene_count: scene_count(&validated_project),
+        hotspot_count: count_hotspots(&validated_project),
+    };
+
+    Ok(HttpResponse::Ok().json(response))
+}
+
+/// List persisted projects for dashboard browsing.
+pub async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    let user_path = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
+    if !user_path.exists() {
+        return Ok(HttpResponse::Ok().json(Vec::<DashboardProjectSummary>::new()));
+    }
+
+    let mut projects: Vec<DashboardProjectSummary> = Vec::new();
+    for entry in std::fs::read_dir(&user_path).map_err(AppError::IoError)? {
+        let entry = entry.map_err(AppError::IoError)?;
+        if !entry.file_type().map_err(AppError::IoError)?.is_dir() {
+            continue;
+        }
+
+        let session_id = entry.file_name().to_string_lossy().to_string();
+        let project_dir: PathBuf = entry.path();
+        let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+        if !snapshot_path.exists() {
+            continue;
+        }
+
+        let project_data = read_snapshot(&project_dir)?;
+        let tour_name = project_data
+            .get("tourName")
+            .and_then(|v| v.as_str())
+            .unwrap_or("Untitled Tour")
+            .to_string();
+
+        let updated_at = std::fs::metadata(&snapshot_path)
+            .and_then(|m| m.modified())
+            .ok()
+            .map(|t| chrono::DateTime::<chrono::Utc>::from(t).to_rfc3339())
+            .unwrap_or_else(|| chrono::Utc::now().to_rfc3339());
+
+        projects.push(DashboardProjectSummary {
+            session_id,
+            tour_name,
+            updated_at,
+            scene_count: scene_count(&project_data),
+            hotspot_count: count_hotspots(&project_data),
+        });
+    }
+
+    projects.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    Ok(HttpResponse::Ok().json(projects))
+}
+
+/// Load persisted snapshot for direct dashboard-to-builder open flow.
+pub async fn load_dashboard_project(
+    req: HttpRequest,
+    path: web::Path<String>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let session_id = path.into_inner();
+    let project_dir = StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+    let project_data = read_snapshot(&project_dir)?;
+    Ok(HttpResponse::Ok().json(json!({
+        "sessionId": session_id,
+        "projectData": project_data
+    })))
+}
+
+/// Cleanup temp/cache files that are safe to regenerate (backend/temp/* and chunk caches).
+pub async fn cleanup_backend_cache(req: HttpRequest) -> Result<HttpResponse, AppError> {
+    let _user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    let mut removed_files = 0usize;
+    let mut removed_dirs = 0usize;
+    let temp_dir = PathBuf::from("temp");
+    if temp_dir.exists() {
+        for entry in std::fs::read_dir(&temp_dir).map_err(AppError::IoError)? {
+            let entry = entry.map_err(AppError::IoError)?;
+            let path = entry.path();
+            if path.is_file() {
+                if std::fs::remove_file(&path).is_ok() {
+                    removed_files += 1;
+                }
+            } else if path.is_dir() && std::fs::remove_dir_all(&path).is_ok() {
+                removed_dirs += 1;
+            }
+        }
+    }
+
+    Ok(HttpResponse::Ok().json(json!({
+        "status": "ok",
+        "removedFiles": removed_files,
+        "removedDirs": removed_dirs
+    })))
 }
 
 // --- NAVIGATION HANDLERS ---

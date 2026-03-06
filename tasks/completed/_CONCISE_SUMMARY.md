@@ -2,6 +2,13 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-03-06 Maintenance Consolidation (1555-1797, T1532-T1796)
+- **1555-1576: ReScript Hardening & UX Polish** — Standardized ReScript safe options (`getExn` removal), consolidated ETA logic, added mapping floor shortcuts, and implemented reducer memoization for performance.
+- **1577-1595: Enterprise Resilience & Performance** — Landed major infrastructure upgrades: Web Worker image processing, LRU scene caching, typed EventBus channels, incremental persistence, request queue priority, and backend circuit breaker/backpressure hardening.
+- **1592-1599: Streaming Export Architecture** — Developed and integrated a multi-phase streaming/multipart export pipeline with resumable chunks, frontend/backend session coordination, and progress observability.
+- **1603-1622, T1532-T1627: State Stability & Forensic Repair** — Resolved critical FSM desyncs, AppStateBridge lag, and dual-viewer preloading races. Fixed regressions in teaser generation, hotspot z-index, and export portrait geometry.
+- **1776-1797, T1772-T1796: Traversal & Hotspot Unification** — Standardized hotspot sequencing under a canonical traversal model, optimized worker pool memory, hardened simulation reliability under tour-preview, and refined geocode/GPS average logic.
+
 ## 🗄️ 2026-02-27 D003 Aggregation (1505-1554)
 - **1505: Unified Platform Hardening** — Added dedicated chunked-import E2E certification suite (happy path/resume/429/abort/expiry/mismatch), fixed backend runtime module wiring, and verified frontend/backend test compatibility.
 - **1507: E2E Alignment Matrix** — Added execution matrix + triage rubric and aligned timeline coverage with explicit clear-links pipeline pruning behavior.
