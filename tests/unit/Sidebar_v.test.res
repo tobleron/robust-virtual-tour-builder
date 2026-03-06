@@ -442,8 +442,7 @@ describe("Sidebar", () => {
 
     await wait(80)
 
-    let modalPublishBtn =
-      %raw(`Array.from(document.querySelectorAll('button')).find(btn => btn.textContent?.trim() === 'Publish' && !btn.getAttribute('aria-label'))`)
+    let modalPublishBtn = %raw(`Array.from(document.querySelectorAll('button')).find(btn => btn.textContent?.trim() === 'Publish' && !btn.getAttribute('aria-label'))`)
 
     switch Nullable.toOption(modalPublishBtn) {
     | Some(btn) => Dom.click(btn)

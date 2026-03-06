@@ -108,54 +108,50 @@ let requestWithRetry = (
           None
         }
       },
-    )
-    ->Promise.then(result => {
-    switch result {
-    | Retry.Success(_, attempts) if attempts > 1 =>
-      NotificationManager.dispatch({
-        id: incidentNotificationId,
-        importance: Success,
-        context: Operation("api"),
-        message: "Connection recovered.",
-        details: Some("Request succeeded after retries."),
-        action: None,
-        duration: 4000,
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    | Retry.Exhausted("AbortError") => NotificationManager.dismiss(incidentNotificationId)
-    | Retry.Exhausted("NetworkOffline") => () // Handled by offline banner
-    | Retry.Exhausted(error) =>
-      NotificationManager.dispatch({
-        id: incidentNotificationId,
-        importance: Error,
-        context: Operation("api"),
-        message: "Request failed.",
-        details: Some(error),
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Error),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    | _ => ()
-    }
-    Promise.resolve(result)
-  })
+    )->Promise.then(result => {
+      switch result {
+      | Retry.Success(_, attempts) if attempts > 1 =>
+        NotificationManager.dispatch({
+          id: incidentNotificationId,
+          importance: Success,
+          context: Operation("api"),
+          message: "Connection recovered.",
+          details: Some("Request succeeded after retries."),
+          action: None,
+          duration: 4000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      | Retry.Exhausted("AbortError") => NotificationManager.dismiss(incidentNotificationId)
+      | Retry.Exhausted("NetworkOffline") => () // Handled by offline banner
+      | Retry.Exhausted(error) =>
+        NotificationManager.dispatch({
+          id: incidentNotificationId,
+          importance: Error,
+          context: Operation("api"),
+          message: "Request failed.",
+          details: Some(error),
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      | _ => ()
+      }
+      Promise.resolve(result)
+    })
 
   switch dedupeKey {
   | Some(key) =>
-    RequestDeduplicator.run(
-      ~key,
-      ~task=() => {
-        Logger.debug(
-          ~module_="AuthenticatedClient",
-          ~message="REQUEST_DEDUP_ACTIVE",
-          ~data=Some({"key": key, "url": url}),
-          (),
-        )
-        runRequest()
-      },
-    )
+    RequestDeduplicator.run(~key, ~task=() => {
+      Logger.debug(
+        ~module_="AuthenticatedClient",
+        ~message="REQUEST_DEDUP_ACTIVE",
+        ~data=Some({"key": key, "url": url}),
+        (),
+      )
+      runRequest()
+    })
   | None => runRequest()
   }
 }

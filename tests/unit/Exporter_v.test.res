@@ -168,7 +168,14 @@ describe("Exporter", () => {
     let controller = AbortController.make()
     let signal = AbortController.signal(controller)
 
-    let result = await exportTour(scenes, ~tourName="Test Tour", ~logo=None, ~signal, None, defaultPublishProfiles)
+    let result = await exportTour(
+      scenes,
+      ~tourName="Test Tour",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(true)
@@ -253,7 +260,14 @@ describe("Exporter", () => {
     let controller = AbortController.make()
     let signal = AbortController.signal(controller)
 
-    let result = await exportTour([scene1], ~tourName="Test Tour", ~logo=None, ~signal, None, defaultPublishProfiles)
+    let result = await exportTour(
+      [scene1],
+      ~tourName="Test Tour",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     switch result {
     | Error(msg) =>
@@ -293,7 +307,14 @@ describe("Exporter", () => {
     let signal = AbortController.signal(controller)
 
     // Pass Types.File(logoFile)
-    let _ = await exportTour([scene1], ~tourName="Test", ~logo=Some(File(logoFile)), ~signal, None, defaultPublishProfiles)
+    let _ = await exportTour(
+      [scene1],
+      ~tourName="Test",
+      ~logo=Some(File(logoFile)),
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     // The logo is optimized to WebP and appended as logo.webp
     expectCall(appendSpy)->toHaveBeenCalledWith3(
@@ -319,7 +340,14 @@ describe("Exporter", () => {
     let controller = AbortController.make()
     let signal = AbortController.signal(controller)
 
-    let promise = exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None, defaultPublishProfiles)
+    let promise = exportTour(
+      [scene1],
+      ~tourName="Test",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     AbortController.abort(controller)
 
@@ -348,7 +376,14 @@ describe("Exporter", () => {
     let controller = AbortController.make()
     let signal = AbortController.signal(controller)
 
-    let result = await exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None, defaultPublishProfiles)
+    let result = await exportTour(
+      [scene1],
+      ~tourName="Test",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     // Reset online
     NetworkStatus.forceStatus(true)
@@ -403,7 +438,14 @@ describe("Exporter", () => {
     let signal = AbortController.signal(controller)
 
     // We rely on real timers, so this will take ~4 seconds due to backoff/wait in Exporter.res
-    let result = await exportTour([scene1], ~tourName="Test", ~logo=None, ~signal, None, defaultPublishProfiles)
+    let result = await exportTour(
+      [scene1],
+      ~tourName="Test",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(true)

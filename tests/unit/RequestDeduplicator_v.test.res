@@ -21,8 +21,8 @@ describe("RequestDeduplicator", () => {
 
     t->expect(invoked.contents)->Expect.toBe(1)
     t->expect(Array.length(results))->Expect.toBe(2)
-    t->expect(Array.get(results, 0)->Option.getOrThrow)->Expect.toBe("ok")
-    t->expect(Array.get(results, 1)->Option.getOrThrow)->Expect.toBe("ok")
+    t->expect(results[0]->Option.getOrThrow)->Expect.toBe("ok")
+    t->expect(results[1]->Option.getOrThrow)->Expect.toBe("ok")
   })
 
   testAsync("allows new request after previous one resolves", async t => {

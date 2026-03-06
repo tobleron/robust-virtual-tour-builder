@@ -17,7 +17,10 @@ describe("SharedTypes appError", () => {
     let err = SharedTypes.NetworkError({message: "offline", code: Some("NET_OFFLINE")})
     let payload = SharedTypes.appErrorToTelemetryJson(err, ~operationContext="api_fetch")
     let decodeField = (key: string) =>
-      JsonCombinators.Json.decode(payload, JsonCombinators.Json.Decode.field(key, JsonCombinators.Json.Decode.string))
+      JsonCombinators.Json.decode(
+        payload,
+        JsonCombinators.Json.Decode.field(key, JsonCombinators.Json.Decode.string),
+      )
 
     switch decodeField("error_type") {
     | Ok(v) => t->expect(v)->Expect.toBe("network")

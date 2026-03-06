@@ -65,16 +65,23 @@ let attachValidationReport = (
   ~warnings: array<string>=[],
   ~errors: array<string>=[],
 ) => {
-  let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
-    %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
-  let validationReport =
-    JsonCombinators.Json.Encode.object([
-      ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
-      ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes)),
-      ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles)),
-      ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
-      ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
-    ])
+  let mergeValidationReport: (
+    JSON.t,
+    JSON.t,
+  ) => JSON.t = %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+  let validationReport = JsonCombinators.Json.Encode.object([
+    ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
+    (
+      "orphanedScenes",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes),
+    ),
+    (
+      "unusedFiles",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles),
+    ),
+    ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
+    ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
+  ])
   mergeValidationReport(projectJson, validationReport)
 }
 

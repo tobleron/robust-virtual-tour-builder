@@ -32,16 +32,23 @@ describe("UploadReport", () => {
     ~orphanedScenes: array<string>=[],
     ~unusedFiles: array<string>=[],
   ) => {
-    let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
-      %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
-    let validationReport =
-      JsonCombinators.Json.Encode.object([
-        ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
-        ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes)),
-        ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles)),
-        ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
-        ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
-      ])
+    let mergeValidationReport: (
+      JSON.t,
+      JSON.t,
+    ) => JSON.t = %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+    let validationReport = JsonCombinators.Json.Encode.object([
+      ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(brokenLinksRemoved)),
+      (
+        "orphanedScenes",
+        JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(orphanedScenes),
+      ),
+      (
+        "unusedFiles",
+        JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(unusedFiles),
+      ),
+      ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(warnings)),
+      ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(errors)),
+    ])
     mergeValidationReport(projectJson, validationReport)
   }
 
@@ -241,34 +248,38 @@ describe("UploadReport", () => {
     t->expect(receivedConfig.contents !== None)->Expect.toBe(true)
   })
 
-  test("showFromProjectData should show project validation summary when validation report exists", t => {
-    let projectJson = buildProjectJson()->attachValidationReport(
-      ~brokenLinksRemoved=1,
-      ~warnings=["Auto-fixed stale links"],
-    )
+  test(
+    "showFromProjectData should show project validation summary when validation report exists",
+    t => {
+      let projectJson =
+        buildProjectJson()->attachValidationReport(
+          ~brokenLinksRemoved=1,
+          ~warnings=["Auto-fixed stale links"],
+        )
 
-    let receivedConfig = ref(None)
-    let unsubscribe = EventBus.subscribe(
-      evt => {
-        switch evt {
-        | ShowModal(config) => receivedConfig := Some(config)
-        | _ => ()
-        }
-      },
-    )
+      let receivedConfig = ref(None)
+      let unsubscribe = EventBus.subscribe(
+        evt => {
+          switch evt {
+          | ShowModal(config) => receivedConfig := Some(config)
+          | _ => ()
+          }
+        },
+      )
 
-    UploadReport.showFromProjectData(
-      projectJson,
-      ~getState=AppStateBridge.getState,
-      ~dispatch=AppStateBridge.dispatch,
-    )
-    unsubscribe()
+      UploadReport.showFromProjectData(
+        projectJson,
+        ~getState=AppStateBridge.getState,
+        ~dispatch=AppStateBridge.dispatch,
+      )
+      unsubscribe()
 
-    switch receivedConfig.contents {
-    | Some(config) => t->expect(config.title)->Expect.toBe("Project Validation Summary")
-    | None => t->expect(false)->Expect.toBe(true)
-    }
-  })
+      switch receivedConfig.contents {
+      | Some(config) => t->expect(config.title)->Expect.toBe("Project Validation Summary")
+      | None => t->expect(false)->Expect.toBe(true)
+      }
+    },
+  )
 
   test("should have correct buttons in the modal", t => {
     let report: uploadReport = {

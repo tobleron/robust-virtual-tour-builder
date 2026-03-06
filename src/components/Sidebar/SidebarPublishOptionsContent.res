@@ -137,15 +137,30 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
     <div className="publish-options-section">
       <div className="publish-options-section-label"> {React.string("Output formats")} </div>
       <label className="publish-options-row">
-        <input type_="checkbox" checked={includeHd} onChange={_ => toggleHd()} className="accent-orange-500" />
+        <input
+          type_="checkbox"
+          checked={includeHd}
+          onChange={_ => toggleHd()}
+          className="accent-orange-500"
+        />
         <span> {React.string("HD")} </span>
       </label>
       <label className="publish-options-row">
-        <input type_="checkbox" checked={include2k} onChange={_ => toggle2k()} className="accent-orange-500" />
+        <input
+          type_="checkbox"
+          checked={include2k}
+          onChange={_ => toggle2k()}
+          className="accent-orange-500"
+        />
         <span> {React.string("2K")} </span>
       </label>
       <label className="publish-options-row">
-        <input type_="checkbox" checked={include4k} onChange={_ => toggle4k()} className="accent-orange-500" />
+        <input
+          type_="checkbox"
+          checked={include4k}
+          onChange={_ => toggle4k()}
+          className="accent-orange-500"
+        />
         <span> {React.string("4K")} </span>
       </label>
       <label className="publish-options-row">
@@ -175,8 +190,7 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
                 includeMarketing,
               })
               next
-            })
-          }
+            })}
           className="accent-orange-500"
         />
         <span> {React.string("Include logo branding")} </span>
@@ -194,8 +208,7 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
                 includeMarketing: next,
               })
               next
-            })
-          }
+            })}
           className="accent-orange-500"
         />
         <span> {React.string("Include marketing strip/contact info")} </span>

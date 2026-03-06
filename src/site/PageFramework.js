@@ -47,8 +47,14 @@ function nav(active) {
   return `
     <header class="site-header">
       <div class="site-brand">
-        <div class="site-brand-mark">ROBUST</div>
-        <div class="site-brand-sub">Virtual Tour Builder</div>
+        <div class="site-brand-lockup">
+          <span class="site-brand-title">ROBUST</span>
+          <svg class="site-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" />
+            <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </div>
+        <div class="site-brand-sub">VIRTUAL TOUR BUILDER</div>
       </div>
       <nav class="site-nav">
         ${link('/home', 'Home', 'home')}
@@ -68,7 +74,15 @@ function footer() {
   return `
     <footer class="site-footer">
       <div class="site-footer-left">
-        <span class="site-footer-title">Robust Virtual Tour Builder</span>
+        <span class="site-footer-title">
+          <span class="site-footer-brand-lockup">
+            <span>ROBUST</span>
+            <svg class="site-footer-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" />
+              <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" />
+            </svg>
+          </span>
+        </span>
         <span class="site-footer-copy">Production-ready 360 authoring and publishing workflow.</span>
       </div>
       <div class="site-footer-links">

@@ -85,16 +85,19 @@ let notifyProjectValidationWarnings = (report: SharedTypes.validationReport) => 
   )
 }
 
-let verifyProjectLoadPolicy = (
-  projectData: JSON.t,
-): result<option<SharedTypes.validationReport>, apiError> => {
+let verifyProjectLoadPolicy = (projectData: JSON.t): result<
+  option<SharedTypes.validationReport>,
+  apiError,
+> => {
   switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
   | Ok(r) =>
     if Array.length(r.errors) > 0 {
       let firstError = Belt.Array.get(r.errors, 0)->Option.getOr("Unknown validation error")
       Error(
         "Project verification failed: " ++
-        firstError ++ " (" ++ Belt.Int.toString(Array.length(r.errors)) ++ " blocking issue(s))",
+        firstError ++
+        " (" ++
+        Belt.Int.toString(Array.length(r.errors)) ++ " blocking issue(s))",
       )
     } else {
       Ok(Some(r))
@@ -110,16 +113,30 @@ let verifyProjectLoadPolicy = (
   }
 }
 
-let mergeValidationReport: (JSON.t, JSON.t) => JSON.t =
-  %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
+let mergeValidationReport: (
+  JSON.t,
+  JSON.t,
+) => JSON.t = %raw(`(projectJson, validationReport) => ({...projectJson, validationReport})`)
 
 let encodeValidationReport = (report: SharedTypes.validationReport): JSON.t =>
   JsonCombinators.Json.Encode.object([
     ("brokenLinksRemoved", JsonCombinators.Json.Encode.int(report.brokenLinksRemoved)),
-    ("orphanedScenes", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.orphanedScenes)),
-    ("unusedFiles", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.unusedFiles)),
-    ("warnings", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.warnings)),
-    ("errors", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.errors)),
+    (
+      "orphanedScenes",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.orphanedScenes),
+    ),
+    (
+      "unusedFiles",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.unusedFiles),
+    ),
+    (
+      "warnings",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.warnings),
+    ),
+    (
+      "errors",
+      JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string)(report.errors),
+    ),
   ])
 
 /* --- Loader --- */
@@ -202,8 +219,7 @@ let processLoadedProjectData = (
         )
         let encodedProject = JsonParsers.Encoders.project(loadedProject)
         let encodedWithValidation = switch validationReportOpt {
-        | Some(report) =>
-          mergeValidationReport(encodedProject, encodeValidationReport(report))
+        | Some(report) => mergeValidationReport(encodedProject, encodeValidationReport(report))
         | None => encodedProject
         }
         Promise.resolve(Ok((sessionId, encodedWithValidation)))

@@ -171,10 +171,7 @@ let appErrorCode = (err: appError): option<string> =>
   | ValidationError(_) | TimeoutError(_) => None
   }
 
-let appErrorToTelemetryJson = (
-  err: appError,
-  ~operationContext: option<string>=?,
-): JSON.t => {
+let appErrorToTelemetryJson = (err: appError, ~operationContext: option<string>=?): JSON.t => {
   let encodeOptString = (value: option<string>): JSON.t =>
     switch value {
     | Some(v) => JsonCombinators.Json.Encode.string(v)
@@ -197,13 +194,18 @@ let appErrorToTelemetryJson = (
   ])
 }
 
-let appErrorFromHttpStatus = (~status: int, ~message: string, ~operationContext: option<string>=?): appError =>
+let appErrorFromHttpStatus = (
+  ~status: int,
+  ~message: string,
+  ~operationContext: option<string>=?,
+): appError =>
   switch status {
   | 400 => ValidationError({message, field: operationContext})
   | 401 | 403 => PermissionError({message, code: Some(Belt.Int.toString(status))})
   | 408 | 504 => TimeoutError({message, operation: operationContext})
   | 429 => NetworkError({message, code: Some("RATE_LIMITED")})
-  | _ when status >= 500 => InternalError({message, code: Some(Belt.Int.toString(status)), retryable: true})
+  | _ if status >= 500 =>
+    InternalError({message, code: Some(Belt.Int.toString(status)), retryable: true})
   | _ => InternalError({message, code: Some(Belt.Int.toString(status)), retryable: false})
   }
 

@@ -1,11 +1,6 @@
 open Vitest
 
-let mkHealthJson = (
-  ~status="ok",
-  ~includeRuntime=true,
-  ~includeDetails=false,
-  (),
-): JSON.t => {
+let mkHealthJson = (~status="ok", ~includeRuntime=true, ~includeDetails=false, ()): JSON.t => {
   let baseFields: array<(string, JSON.t)> = [
     ("status", JsonCombinators.Json.Encode.string(status)),
     ("timestamp", JsonCombinators.Json.Encode.string("2026-03-05T10:00:00Z")),
@@ -39,20 +34,21 @@ let mkHealthJson = (
   let withRuntime = if includeRuntime {
     Belt.Array.concat(
       baseFields,
-      [(
-        "runtime",
-        JsonCombinators.Json.Encode.object([("activeSessions", JsonCombinators.Json.Encode.float(3.0))]),
-      )],
+      [
+        (
+          "runtime",
+          JsonCombinators.Json.Encode.object([
+            ("activeSessions", JsonCombinators.Json.Encode.float(3.0)),
+          ]),
+        ),
+      ],
     )
   } else {
     baseFields
   }
 
   let withDetails = if includeDetails {
-    Belt.Array.concat(
-      withRuntime,
-      [("details", JsonCombinators.Json.Encode.string("disk warn"))],
-    )
+    Belt.Array.concat(withRuntime, [("details", JsonCombinators.Json.Encode.string("disk warn"))])
   } else {
     withRuntime
   }

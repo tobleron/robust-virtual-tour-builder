@@ -93,15 +93,13 @@ module InnerApp = {
       }}
 
       <AppErrorBoundary
-        featureName="Sidebar"
-        fallback={<FeatureCrashFallback featureName="Sidebar" />}
+        featureName="Sidebar" fallback={<FeatureCrashFallback featureName="Sidebar" />}
       >
         <Sidebar />
       </AppErrorBoundary>
 
       <AppErrorBoundary
-        featureName="ViewerSurface"
-        fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
+        featureName="ViewerSurface" fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
       >
         <main
           id="viewer-container"

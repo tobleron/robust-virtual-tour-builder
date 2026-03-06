@@ -234,9 +234,11 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     | Ok(webpBlob) =>
       let webpFile = File.newFile([webpBlob], File.name(file), {"type": "image/webp"})
       reportStatus("Uploading")
-      BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifDataOpt)->Promise.then(
-        result => Promise.resolve((result, exifDataOpt)),
-      )
+      BackendApi.processImageFull(
+        webpFile,
+        ~isOptimized=true,
+        ~metadata=?exifDataOpt,
+      )->Promise.then(result => Promise.resolve((result, exifDataOpt)))
     | Error(msg) => Promise.resolve((Error(msg), exifDataOpt))
     }
   })
@@ -259,8 +261,11 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     createResultFiles(extractedResult, File.name(file))->Promise.then(createdResult => {
       switch createdResult {
       | Ok(processed) =>
-        ensureGpsExtraction(~originalFile=file, ~derivedExif=processed.metadata, ~frontendExifOpt=exifDataOpt)
-        ->Promise.then(exif => Promise.resolve(Ok({...processed, metadata: exif})))
+        ensureGpsExtraction(
+          ~originalFile=file,
+          ~derivedExif=processed.metadata,
+          ~frontendExifOpt=exifDataOpt,
+        )->Promise.then(exif => Promise.resolve(Ok({...processed, metadata: exif})))
       | Error(msg) => Promise.resolve(Error(msg))
       }
     })

@@ -1,5 +1,5 @@
-use crate::services::geocoding;
 use crate::metrics::ACTIVE_SESSIONS;
+use crate::services::geocoding;
 use actix_web::{HttpResponse, Responder, web};
 use serde::Serialize;
 use sqlx::SqlitePool;
@@ -56,8 +56,8 @@ fn sqlite_data_dir_from_url(database_url: &str) -> PathBuf {
 }
 
 fn cache_dir_from_env() -> PathBuf {
-    let cache_file =
-        std::env::var("GEOCODING_CACHE_FILE").unwrap_or_else(|_| "../cache/geocoding.json".to_string());
+    let cache_file = std::env::var("GEOCODING_CACHE_FILE")
+        .unwrap_or_else(|_| "../cache/geocoding.json".to_string());
     Path::new(&cache_file)
         .parent()
         .map_or_else(|| PathBuf::from("../cache"), PathBuf::from)
@@ -154,11 +154,17 @@ pub async fn health_check(db_pool: web::Data<SqlitePool>) -> impl Responder {
                 scope.set_tag("system-health", "critical");
                 scope.set_extra("dbStatus", serde_json::json!(response.db.status));
                 scope.set_extra("diskStatus", serde_json::json!(response.disk.status));
-                scope.set_extra("activeSessions", serde_json::json!(response.runtime.active_sessions));
+                scope.set_extra(
+                    "activeSessions",
+                    serde_json::json!(response.runtime.active_sessions),
+                );
                 scope.set_extra("details", serde_json::json!(details.clone()));
             },
             || {
-                sentry::capture_message("Health endpoint reported degraded status", sentry::Level::Error)
+                sentry::capture_message(
+                    "Health endpoint reported degraded status",
+                    sentry::Level::Error,
+                )
             },
         );
         HttpResponse::ServiceUnavailable()

@@ -67,8 +67,8 @@ let calculatePath = (~signal: option<ReBindings.AbortSignal.t>=?, payload: pathR
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(
-      e => handleError(~module_="ProjectApi", e, "Path calculation failed", "CALCULATE_PATH_ERROR"),
+    ->Promise.catch(e =>
+      handleError(~module_="ProjectApi", e, "Path calculation failed", "CALCULATE_PATH_ERROR")
     )
   })
 }
@@ -109,6 +109,8 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(~module_="ProjectApi", e, "Geocoding failed", "GEOCODE_FAILED"))
+    ->Promise.catch(e =>
+      handleError(~module_="ProjectApi", e, "Geocoding failed", "GEOCODE_FAILED")
+    )
   })
 }

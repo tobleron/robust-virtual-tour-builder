@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pre 1804 structured error algebra checkpoint
 - Structured error algebra phase: Api+Persistence telemetry hardening
 - Checkpoint before builder-brand parity tweak
+- Marketing pages responsive + builder-brand parity
 
 ## [5.2.3] - 2026-03-05
 

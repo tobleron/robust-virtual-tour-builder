@@ -162,8 +162,8 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(
-      e => handleError(~module_="MediaApi", e, "Metadata extraction failed", "METADATA_ERROR"),
+    ->Promise.catch(e =>
+      handleError(~module_="MediaApi", e, "Metadata extraction failed", "METADATA_ERROR")
     )
   })
 }
@@ -260,12 +260,14 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
               decodeSimilarityResponse,
               "SIMILARITY_BATCH",
               "Similarity calculation failed",
-            )->Promise.then(decoded => {
-              switch decoded {
-              | Ok(data) => Promise.resolve(Ok(data.results))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            }),
+            )->Promise.then(
+              decoded => {
+                switch decoded {
+                | Ok(data) => Promise.resolve(Ok(data.results))
+                | Error(msg) => Promise.resolve(Error(msg))
+                }
+              },
+            ),
         )
         ->Promise.catch(
           e =>
@@ -279,8 +281,8 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(
-      e => handleError(~module_="MediaApi", e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR"),
+    ->Promise.catch(e =>
+      handleError(~module_="MediaApi", e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR")
     )
   })
 }

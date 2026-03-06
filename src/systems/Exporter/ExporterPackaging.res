@@ -226,28 +226,46 @@ let appendTemplates = (
       webProfiles
       ->Belt.Array.map(profile =>
         switch profile {
-        | "4k" =>
-          `<a href="tour_4k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">4K Ultra HD</a>`
-        | "2k" =>
-          `<a href="tour_2k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">2K Desktop</a>`
-        | _ =>
-          `<a href="tour_hd/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">HD Mobile</a>`
+        | "4k" => `<a href="tour_4k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">4K Ultra HD</a>`
+        | "2k" => `<a href="tour_2k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">2K Desktop</a>`
+        | _ => `<a href="tour_hd/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">HD Mobile</a>`
         }
       )
       ->Array.joinUnsafe("\n")
-    `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(/_/g, " ")}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">Virtual Tour v${version}</p><div style="display:grid;gap:12px;">${cards}</div></div>${logoBlock}</body></html>`
+    `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(
+        /_/g,
+        " ",
+      )}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">Virtual Tour v${version}</p><div style="display:grid;gap:12px;">${cards}</div></div>${logoBlock}</body></html>`
   }
 
   let generateEmbedCodes = () => {
     let lines = ref([`VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n`])
     if hasProfile("4k") {
-      lines := Belt.Array.concat(lines.contents, [`\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`])
+      lines :=
+        Belt.Array.concat(
+          lines.contents,
+          [
+            `\n1. 4K (Desktop):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
+          ],
+        )
     }
     if hasProfile("2k") {
-      lines := Belt.Array.concat(lines.contents, [`\n2. 2K (Desktop/Laptop):\n   <iframe src="tour_2k/index.html" width="100%" height="400" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`])
+      lines :=
+        Belt.Array.concat(
+          lines.contents,
+          [
+            `\n2. 2K (Desktop/Laptop):\n   <iframe src="tour_2k/index.html" width="100%" height="400" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
+          ],
+        )
     }
     if hasProfile("hd") {
-      lines := Belt.Array.concat(lines.contents, [`\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`])
+      lines :=
+        Belt.Array.concat(
+          lines.contents,
+          [
+            `\n3. HD (Mobile):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
+          ],
+        )
     }
     lines.contents->Array.joinUnsafe("")
   }

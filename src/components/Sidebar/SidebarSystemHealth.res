@@ -71,7 +71,15 @@ let make = () => {
         disabled={isLoading}
         onClick={_ => refresh()}
       >
-        <span> {React.string(if isLoading {"Refreshing..."} else {"Refresh"})} </span>
+        <span>
+          {React.string(
+            if isLoading {
+              "Refreshing..."
+            } else {
+              "Refresh"
+            },
+          )}
+        </span>
       </button>
     </div>
 
@@ -84,8 +92,7 @@ let make = () => {
             {React.string(sample.snapshot.status->String.toUpperCase)}
           </div>
           {switch sample.snapshot.details {
-          | Some(details) =>
-            <div className="settings-health-note"> {React.string(details)} </div>
+          | Some(details) => <div className="settings-health-note"> {React.string(details)} </div>
           | None => React.null
           }}
         </div>
@@ -125,13 +132,18 @@ let make = () => {
       </div>
     | None =>
       <div className="settings-health-empty">
-        {React.string(if isLoading {"Collecting health sample..."} else {"No health data yet."})}
+        {React.string(
+          if isLoading {
+            "Collecting health sample..."
+          } else {
+            "No health data yet."
+          },
+        )}
       </div>
     }}
 
     {switch errorMsg {
-    | Some(msg) =>
-      <div className="settings-health-error"> {React.string(msg)} </div>
+    | Some(msg) => <div className="settings-health-error"> {React.string(msg)} </div>
     | None => React.null
     }}
 

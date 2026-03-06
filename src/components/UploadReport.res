@@ -15,9 +15,7 @@ let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field =>
 let renderGroup = (label, count, className, icon) => {
   <div key=label className="upload-report-group">
     <div className="upload-report-icon"> icon </div>
-    <div className={className ++ " upload-report-count"}>
-      {React.string(Int.toString(count))}
-    </div>
+    <div className={className ++ " upload-report-count"}> {React.string(Int.toString(count))} </div>
     <div className="upload-report-label"> {React.string(label)} </div>
   </div>
 }
@@ -205,12 +203,13 @@ let showValidationSummary = (
     }
   }
 
-  let brief = "Scenes: " ++
-  Int.toString(sceneCount) ++
-  " | Warnings: " ++
-  Int.toString(Array.length(report.warnings)) ++
-  " | Blockers: " ++
-  Int.toString(Array.length(report.errors))
+  let brief =
+    "Scenes: " ++
+    Int.toString(sceneCount) ++
+    " | Warnings: " ++
+    Int.toString(Array.length(report.warnings)) ++
+    " | Blockers: " ++
+    Int.toString(Array.length(report.errors))
 
   let content =
     <div className="upload-report-container">

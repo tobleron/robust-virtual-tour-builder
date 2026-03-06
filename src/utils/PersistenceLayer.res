@@ -595,7 +595,10 @@ let checkRecovery = () => {
               Logger.warnWithAppError(
                 ~module_="Persistence",
                 ~message="Corrupt autosave found (decode failed)",
-                ~appError=SharedTypes.ValidationError({message: e, field: Some("autosave_payload")}),
+                ~appError=SharedTypes.ValidationError({
+                  message: e,
+                  field: Some("autosave_payload"),
+                }),
                 ~operationContext="persistence_recovery",
                 (),
               )

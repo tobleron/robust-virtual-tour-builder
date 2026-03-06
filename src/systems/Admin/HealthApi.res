@@ -19,9 +19,7 @@ type healthCache = {
   hitRate: float,
 }
 
-type healthRuntime = {
-  activeSessions: int,
-}
+type healthRuntime = {activeSessions: int}
 
 type healthSnapshot = {
   status: string,
@@ -64,9 +62,9 @@ let healthCacheDecoder = {
 
 let healthRuntimeDecoder = {
   JsonCombinators.Json.Decode.object(field => {
-    activeSessions: field.optional("activeSessions", JsonCombinators.Json.Decode.float)->Option.map(
-      floatToInt,
-    )->Option.getOr(0),
+    activeSessions: field.optional("activeSessions", JsonCombinators.Json.Decode.float)
+    ->Option.map(floatToInt)
+    ->Option.getOr(0),
   })
 }
 

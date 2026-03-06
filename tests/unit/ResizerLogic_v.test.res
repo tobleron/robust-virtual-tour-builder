@@ -207,22 +207,28 @@ describe("ResizerLogic", () => {
       iso: Nullable.null,
     }
 
-    test("hasGps detects GPS presence", t => {
-      let withGps = makeExif(~gps=Some({lat: 25.2, lon: 55.3}), ())
-      let withoutGps = makeExif()
+    test(
+      "hasGps detects GPS presence",
+      t => {
+        let withGps = makeExif(~gps=Some({lat: 25.2, lon: 55.3}), ())
+        let withoutGps = makeExif()
 
-      t->expect(ResizerLogic.hasGps(withGps))->Expect.toBe(true)
-      t->expect(ResizerLogic.hasGps(withoutGps))->Expect.toBe(false)
-    })
+        t->expect(ResizerLogic.hasGps(withGps))->Expect.toBe(true)
+        t->expect(ResizerLogic.hasGps(withoutGps))->Expect.toBe(false)
+      },
+    )
 
-    test("mergeExifPreferBase keeps base data and fills missing fields from fallback", t => {
-      let base = makeExif(~width=4096, ())
-      let fallback = makeExif(~gps=Some({lat: 1.1, lon: 2.2}), ~width=100, ~height=200, ())
+    test(
+      "mergeExifPreferBase keeps base data and fills missing fields from fallback",
+      t => {
+        let base = makeExif(~width=4096, ())
+        let fallback = makeExif(~gps=Some({lat: 1.1, lon: 2.2}), ~width=100, ~height=200, ())
 
-      let merged = ResizerLogic.mergeExifPreferBase(~base, ~fallback)
-      t->expect(merged.width)->Expect.toBe(4096)
-      t->expect(merged.height)->Expect.toBe(200)
-      t->expect(merged.gps->Nullable.toOption->Option.isSome)->Expect.toBe(true)
-    })
+        let merged = ResizerLogic.mergeExifPreferBase(~base, ~fallback)
+        t->expect(merged.width)->Expect.toBe(4096)
+        t->expect(merged.height)->Expect.toBe(200)
+        t->expect(merged.gps->Nullable.toOption->Option.isSome)->Expect.toBe(true)
+      },
+    )
   })
 })

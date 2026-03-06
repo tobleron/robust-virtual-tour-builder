@@ -70,12 +70,15 @@ fn build_desktop_blob_html(
 
 /// Creates a production-ready tour package ZIP.
 pub fn create_tour_package(
-  image_files: Vec<(String, std::path::PathBuf)>,
-  fields: HashMap<String, String>,
-  output_zip_path: std::path::PathBuf,
+    image_files: Vec<(String, std::path::PathBuf)>,
+    fields: HashMap<String, String>,
+    output_zip_path: std::path::PathBuf,
 ) -> Result<(), String> {
     {
-        let profile_csv = fields.get("publish_profiles").map(String::as_str).unwrap_or("");
+        let profile_csv = fields
+            .get("publish_profiles")
+            .map(String::as_str)
+            .unwrap_or("");
         let mut selected_profiles: HashSet<String> = profile_csv
             .split(',')
             .map(|p| p.trim().to_lowercase())

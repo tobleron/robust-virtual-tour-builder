@@ -91,16 +91,13 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
       ~message="BACKEND_HTTP_ERROR",
       ~appError,
       ~operationContext="api_response",
-      ~data=
-        JsonCombinators.Json.Encode.object([
-          ("status", JsonCombinators.Json.Encode.int(Fetch.status(response))),
-          ("statusText", JsonCombinators.Json.Encode.string(Fetch.statusText(response))),
-        ]),
+      ~data=JsonCombinators.Json.Encode.object([
+        ("status", JsonCombinators.Json.Encode.int(Fetch.status(response))),
+        ("statusText", JsonCombinators.Json.Encode.string(Fetch.statusText(response))),
+      ]),
       (),
     )
-    Promise.resolve(
-      Error(SharedTypes.appErrorMessage(appError)),
-    )
+    Promise.resolve(Error(SharedTypes.appErrorMessage(appError)))
   })
   ->Promise.catch(e => {
     let (msg, _) = Logger.getErrorDetails(e)
@@ -121,11 +118,7 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
       ~operationContext="api_response",
       (),
     )
-    Promise.resolve(
-      Error(
-        SharedTypes.appErrorMessage(appError),
-      ),
-    )
+    Promise.resolve(Error(SharedTypes.appErrorMessage(appError)))
   })
 }
 
@@ -169,10 +162,9 @@ let handleError = (~module_, e, message, logKey) => {
     ~message=logKey ++ "_STRUCTURED",
     ~appError,
     ~operationContext=logKey,
-    ~data=
-      JsonCombinators.Json.Encode.object([
-        ("stack", JsonCombinators.Json.Encode.string(stack)),
-      ]),
+    ~data=JsonCombinators.Json.Encode.object([
+      ("stack", JsonCombinators.Json.Encode.string(stack)),
+    ]),
     (),
   )
   Promise.resolve(Error(message ++ ": " ++ SharedTypes.appErrorMessage(appError)))
