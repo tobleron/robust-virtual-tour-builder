@@ -3,11 +3,11 @@ import { renderPageFramework, resolveAppSurface } from '../../src/site/PageFrame
 
 describe('PageFramework', () => {
   test('resolveAppSurface maps routes correctly in dev/prod', () => {
-    expect(resolveAppSurface('/', 'localhost')).toBe('builder');
+    expect(resolveAppSurface('/', 'localhost')).toBe('home');
     expect(resolveAppSurface('/', 'example.com')).toBe('home');
-    expect(resolveAppSurface('/index.html', 'example.com')).toBe('builder');
+    expect(resolveAppSurface('/index.html', 'example.com')).toBe('home');
     expect(resolveAppSurface('/account', 'example.com')).toBe('account');
-    expect(resolveAppSurface('/unknown', 'localhost')).toBe('builder');
+    expect(resolveAppSurface('/unknown', 'localhost')).toBe('home');
     expect(resolveAppSurface('/unknown', 'example.com')).toBe('home');
   });
 

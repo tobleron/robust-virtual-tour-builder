@@ -1,8 +1,9 @@
-use crate::auth;
+use crate::auth as auth_middleware;
 use crate::middleware::rate_limiter::{RateLimitResponseTransformer, RateLimiters};
 use actix_governor::Governor;
 use actix_web::web;
 
+pub mod auth;
 pub mod geocoding;
 pub mod health;
 pub mod media;
@@ -19,7 +20,7 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
         web::scope("/api")
             .service(
                 web::scope("/admin")
-                    .wrap(auth::AuthMiddleware)
+                    .wrap(auth_middleware::AuthMiddleware)
                     .wrap(RateLimitResponseTransformer::new("admin"))
                     .wrap(Governor::new(&limiters.admin))
                     .route("/shutdown", web::post().to(utils::trigger_shutdown)),
@@ -94,8 +95,93 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                     ),
             )
             .service(
+                web::scope("/auth")
+                    .route(
+                        "/signup",
+                        web::post()
+                            .to(auth::signup)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/verify-email",
+                        web::post()
+                            .to(auth::verify_email)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/resend-verification",
+                        web::post()
+                            .to(auth::resend_verification_email)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/signin",
+                        web::post()
+                            .to(auth::signin)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/step-up/verify",
+                        web::post()
+                            .to(auth::verify_step_up_otp)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/step-up/resend",
+                        web::post()
+                            .to(auth::resend_step_up_otp)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/signout",
+                        web::post()
+                            .to(auth::signout)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/forgot-password",
+                        web::post()
+                            .to(auth::forgot_password)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/reset-password",
+                        web::post()
+                            .to(auth::reset_password)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/me",
+                        web::get()
+                            .to(auth::me)
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    ),
+            )
+            .service(
+                web::scope("/auth")
+                    .wrap(auth_middleware::StepUpMiddleware)
+                    .route(
+                        "/trusted-devices/revoke-all",
+                        web::post()
+                            .to(auth::revoke_all_trusted_devices)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    ),
+            )
+            .service(
                 web::scope("/project")
-                    .wrap(auth::AuthMiddleware)
+                    .wrap(auth_middleware::AuthMiddleware)
                     .route(
                         "/save",
                         web::post()

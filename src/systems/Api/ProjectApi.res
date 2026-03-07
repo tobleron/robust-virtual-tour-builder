@@ -14,25 +14,23 @@ type dashboardProject = {
   hotspotCount: int,
 }
 
-let dashboardProjectDecoder =
-  JsonCombinators.Json.Decode.object(field => {
-    sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
-    tourName: field.required("tourName", JsonCombinators.Json.Decode.string),
-    updatedAt: field.required("updatedAt", JsonCombinators.Json.Decode.string),
-    sceneCount: field.required("sceneCount", JsonCombinators.Json.Decode.int),
-    hotspotCount: field.required("hotspotCount", JsonCombinators.Json.Decode.int),
-  })
+let dashboardProjectDecoder = JsonCombinators.Json.Decode.object(field => {
+  sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
+  tourName: field.required("tourName", JsonCombinators.Json.Decode.string),
+  updatedAt: field.required("updatedAt", JsonCombinators.Json.Decode.string),
+  sceneCount: field.required("sceneCount", JsonCombinators.Json.Decode.int),
+  hotspotCount: field.required("hotspotCount", JsonCombinators.Json.Decode.int),
+})
 
 type dashboardLoadResponse = {
   sessionId: string,
   projectData: JSON.t,
 }
 
-let dashboardLoadDecoder =
-  JsonCombinators.Json.Decode.object(field => {
-    sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
-    projectData: field.required("projectData", JsonCombinators.Json.Decode.id),
-  })
+let dashboardLoadDecoder = JsonCombinators.Json.Decode.object(field => {
+  sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
+  projectData: field.required("projectData", JsonCombinators.Json.Decode.id),
+})
 
 type snapshotSyncResponse = {
   sessionId: string,
@@ -41,19 +39,15 @@ type snapshotSyncResponse = {
   hotspotCount: int,
 }
 
-let snapshotSyncDecoder =
-  JsonCombinators.Json.Decode.object(field => {
-    sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
-    updatedAt: field.required("updatedAt", JsonCombinators.Json.Decode.string),
-    sceneCount: field.required("sceneCount", JsonCombinators.Json.Decode.int),
-    hotspotCount: field.required("hotspotCount", JsonCombinators.Json.Decode.int),
-  })
+let snapshotSyncDecoder = JsonCombinators.Json.Decode.object(field => {
+  sessionId: field.required("sessionId", JsonCombinators.Json.Decode.string),
+  updatedAt: field.required("updatedAt", JsonCombinators.Json.Decode.string),
+  sceneCount: field.required("sceneCount", JsonCombinators.Json.Decode.int),
+  hotspotCount: field.required("hotspotCount", JsonCombinators.Json.Decode.int),
+})
 
 let decodeDashboardProjects = json =>
-  JsonCombinators.Json.decode(
-    json,
-    JsonCombinators.Json.Decode.array(dashboardProjectDecoder),
-  )
+  JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(dashboardProjectDecoder))
 
 let decodeDashboardLoadResponse = json => JsonCombinators.Json.decode(json, dashboardLoadDecoder)
 
@@ -179,8 +173,7 @@ let listDashboardProjects = (): Promise.t<apiResult<array<dashboardProject>>> =>
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
-        response.json()
-        ->Promise.then(
+        response.json()->Promise.then(
           json =>
             handleJsonDecode(
               ~module_="ProjectApi",
@@ -209,8 +202,7 @@ let loadDashboardProject = (sessionId: string): Promise.t<apiResult<dashboardLoa
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
-        response.json()
-        ->Promise.then(
+        response.json()->Promise.then(
           json =>
             handleJsonDecode(
               ~module_="ProjectApi",
@@ -224,15 +216,19 @@ let loadDashboardProject = (sessionId: string): Promise.t<apiResult<dashboardLoa
       }
     })
     ->Promise.catch(e =>
-      handleError(~module_="ProjectApi", e, "Dashboard project load failed", "DASHBOARD_LOAD_FAILED")
+      handleError(
+        ~module_="ProjectApi",
+        e,
+        "Dashboard project load failed",
+        "DASHBOARD_LOAD_FAILED",
+      )
     )
   })
 }
 
-let syncSnapshot = (
-  ~sessionId: option<string>=?,
-  ~projectData: JSON.t,
-): Promise.t<apiResult<snapshotSyncResponse>> => {
+let syncSnapshot = (~sessionId: option<string>=?, ~projectData: JSON.t): Promise.t<
+  apiResult<snapshotSyncResponse>,
+> => {
   RequestQueue.schedule(() => {
     let body = JsonCombinators.Json.Encode.object([
       (
@@ -254,8 +250,7 @@ let syncSnapshot = (
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
-        response.json()
-        ->Promise.then(
+        response.json()->Promise.then(
           json =>
             handleJsonDecode(
               ~module_="ProjectApi",
@@ -268,7 +263,9 @@ let syncSnapshot = (
       | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
-    ->Promise.catch(e => handleError(~module_="ProjectApi", e, "Snapshot sync failed", "SNAPSHOT_SYNC_FAILED"))
+    ->Promise.catch(e =>
+      handleError(~module_="ProjectApi", e, "Snapshot sync failed", "SNAPSHOT_SYNC_FAILED")
+    )
   })
 }
 

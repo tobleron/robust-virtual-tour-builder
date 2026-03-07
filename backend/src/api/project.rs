@@ -77,10 +77,12 @@ fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {
         .map_err(|e| AppError::ValidationError(format!("Invalid snapshot JSON: {}", e)))
 }
 
-fn validate_snapshot_project(project_data: &serde_json::Value) -> Result<serde_json::Value, AppError> {
-    let obj = project_data
-        .as_object()
-        .ok_or_else(|| AppError::ValidationError("Snapshot payload must be a JSON object".into()))?;
+fn validate_snapshot_project(
+    project_data: &serde_json::Value,
+) -> Result<serde_json::Value, AppError> {
+    let obj = project_data.as_object().ok_or_else(|| {
+        AppError::ValidationError("Snapshot payload must be a JSON object".into())
+    })?;
     if !obj.contains_key("inventory") {
         return Err(AppError::ValidationError(
             "Snapshot payload missing required key: inventory".into(),
@@ -250,7 +252,8 @@ pub async fn sync_snapshot(
         .filter(|id| !id.trim().is_empty())
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
 
-    let project_dir = StorageManager::ensure_project_dir(&user.id, &session_id).map_err(AppError::IoError)?;
+    let project_dir =
+        StorageManager::ensure_project_dir(&user.id, &session_id).map_err(AppError::IoError)?;
     let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
 
     let serialized = serde_json::to_string_pretty(&validated_project)
@@ -331,7 +334,8 @@ pub async fn load_dashboard_project(
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
     let session_id = path.into_inner();
-    let project_dir = StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+    let project_dir =
+        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
     let project_data = read_snapshot(&project_dir)?;
     Ok(HttpResponse::Ok().json(json!({
         "sessionId": session_id,

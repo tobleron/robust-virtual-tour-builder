@@ -8,9 +8,8 @@ module InnerApp = {
     @set external setLoadProject: (t, JSON.t => unit) => unit = "__VTB_LOAD_PROJECT__"
   }
 
-  @val external getBootProjectData: unit => option<JSON.t> = "window.__VTB_BOOT_PROJECT_DATA__"
-  @val external getBootProjectSessionId: unit => option<string> =
-    "window.__VTB_BOOT_PROJECT_SESSION_ID__"
+  @val external bootProjectData: option<JSON.t> = "window.__VTB_BOOT_PROJECT_DATA__"
+  @val external bootProjectSessionId: option<string> = "window.__VTB_BOOT_PROJECT_SESSION_ID__"
   @val external setTimeoutMs: (unit => unit, int) => int = "setTimeout"
   @val external clearTimeoutMs: int => unit = "clearTimeout"
 
@@ -62,9 +61,9 @@ module InnerApp = {
     })
 
     React.useEffect1(() => {
-      switch getBootProjectData() {
+      switch bootProjectData {
       | Some(projectData) =>
-        let sessionIdOpt = getBootProjectSessionId()
+        let sessionIdOpt = bootProjectSessionId
         sessionIdOpt->Option.forEach(id => dispatch(Actions.SetSessionId(id)))
         dispatch(Actions.LoadProject(projectData))
         let _ = %raw(
@@ -89,30 +88,34 @@ module InnerApp = {
             | None => Api.ProjectApi.syncSnapshot(~projectData)
             }
             syncPromise
-            ->Promise.then(result => {
-              switch result {
-              | Ok(syncResult) =>
-                lastSnapshotRevisionRef.current = state.structuralRevision
-                switch state.sessionId {
-                | Some(_) => ()
-                | None => dispatch(Actions.SetSessionId(syncResult.sessionId))
+            ->Promise.then(
+              result => {
+                switch result {
+                | Ok(syncResult) =>
+                  lastSnapshotRevisionRef.current = state.structuralRevision
+                  switch state.sessionId {
+                  | Some(_) => ()
+                  | None => dispatch(Actions.SetSessionId(syncResult.sessionId))
+                  }
+                | Error(_) => ()
                 }
-              | Error(_) => ()
-              }
-              Promise.resolve()
-            })
+                Promise.resolve()
+              },
+            )
             ->ignore
           }
         }, 4000)
         snapshotTimeoutRef.current = Some(timeoutId)
-        Some(() => {
-          switch snapshotTimeoutRef.current {
-          | Some(id) =>
-            clearTimeoutMs(id)
-            snapshotTimeoutRef.current = None
-          | None => ()
-          }
-        })
+        Some(
+          () => {
+            switch snapshotTimeoutRef.current {
+            | Some(id) =>
+              clearTimeoutMs(id)
+              snapshotTimeoutRef.current = None
+            | None => ()
+            }
+          },
+        )
       }
     }, (state.structuralRevision, isProjectLoading))
 

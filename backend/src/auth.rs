@@ -1,7 +1,7 @@
 // @efficiency-role: functional-service
 use crate::models::{AppError, User};
 use actix_web::{
-    Error, HttpMessage, HttpResponse,
+    Error, HttpMessage, HttpRequest, HttpResponse,
     body::{BoxBody, EitherBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
     http::header,
@@ -100,15 +100,16 @@ pub async fn google_callback(
 // JWT Logic
 // ==========================================
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
     pub exp: usize,
     pub iat: usize,
+    pub step_up_verified_until: Option<usize>,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
-pub fn encode_token(sub: &str) -> Result<String, AppError> {
+pub fn encode_token(sub: &str, step_up_verified_until: Option<usize>) -> Result<String, AppError> {
     let secret = env::var("JWT_SECRET")
         .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
     let expiration = Utc::now()
@@ -120,6 +121,7 @@ pub fn encode_token(sub: &str) -> Result<String, AppError> {
         sub: sub.to_owned(),
         iat: Utc::now().timestamp() as usize,
         exp: expiration as usize,
+        step_up_verified_until,
     };
 
     encode(
@@ -144,6 +146,26 @@ pub fn decode_token(token: &str) -> Result<Claims, AppError> {
     .map_err(|e| AppError::Unauthorized(format!("Invalid token: {}", e)))
 }
 
+pub fn is_step_up_verified(req: &HttpRequest) -> bool {
+    if let Some(claims) = req.extensions().get::<Claims>() {
+        if let Some(until_ts) = claims.step_up_verified_until {
+            return (Utc::now().timestamp() as usize) <= until_ts;
+        }
+    }
+    false
+}
+
+#[allow(dead_code)]
+pub fn require_step_up_verified(req: &HttpRequest) -> Result<(), AppError> {
+    if is_step_up_verified(req) {
+        Ok(())
+    } else {
+        Err(AppError::Unauthorized(
+            "Step-up verification is required for this action.".into(),
+        ))
+    }
+}
+
 // ==========================================
 // Auth Middleware
 // ==========================================
@@ -166,6 +188,70 @@ where
         ready(Ok(AuthMiddlewareMiddleware {
             service: Rc::new(service),
         }))
+    }
+}
+
+pub struct StepUpMiddleware;
+
+impl<S, B> Transform<S, ServiceRequest> for StepUpMiddleware
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: 'static,
+{
+    type Response = ServiceResponse<EitherBody<B, BoxBody>>;
+    type Error = Error;
+    type InitError = ();
+    type Transform = StepUpMiddlewareMiddleware<S>;
+    type Future = Ready<Result<Self::Transform, Self::InitError>>;
+
+    fn new_transform(&self, service: S) -> Self::Future {
+        ready(Ok(StepUpMiddlewareMiddleware {
+            service: Rc::new(service),
+        }))
+    }
+}
+
+pub struct StepUpMiddlewareMiddleware<S> {
+    service: Rc<S>,
+}
+
+impl<S, B> Service<ServiceRequest> for StepUpMiddlewareMiddleware<S>
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    S::Future: 'static,
+    B: 'static,
+{
+    type Response = ServiceResponse<EitherBody<B, BoxBody>>;
+    type Error = Error;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    forward_ready!(service);
+
+    fn call(&self, req: ServiceRequest) -> Self::Future {
+        let service = self.service.clone();
+        Box::pin(async move {
+            if let Err(response) = process_authentication(&req).await {
+                return Ok(req
+                    .into_response(response)
+                    .map_body(|_, b| EitherBody::Right { body: b }));
+            }
+            let allowed = {
+                let http_req = req.request();
+                is_step_up_verified(http_req)
+            };
+            if !allowed {
+                let response = HttpResponse::Unauthorized().json(serde_json::json!({
+                    "error": "Step-up verification required"
+                }));
+                return Ok(req
+                    .into_response(response)
+                    .map_body(|_, b| EitherBody::Right { body: b }));
+            }
+
+            let res = service.call(req).await?;
+            Ok(res.map_body(|_, b| EitherBody::Left { body: b }))
+        })
     }
 }
 
@@ -221,9 +307,14 @@ async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(
         let mock_admin = User {
             id: "dev_user_id".to_string(),
             email: "admin@dev.local".to_string(),
+            username: Some("dev-admin".to_string()),
             password_hash: "".to_string(),
             name: "Dev Administrator".to_string(),
             role: "admin".to_string(),
+            status: Some("active".to_string()),
+            email_verified_at: Some(Utc::now()),
+            force_step_up_reason: None,
+            force_step_up_until: None,
             theme_preference: Some("dark".into()),
             language_preference: Some("en".into()),
             created_at: Utc::now(),
@@ -279,9 +370,14 @@ async fn attach_headless_user(req: &ServiceRequest) -> Result<(), HttpResponse> 
     let user = User {
         id,
         email,
+        username: Some("headless-runtime".to_string()),
         password_hash: String::new(),
         name,
         role,
+        status: Some("active".to_string()),
+        email_verified_at: Some(Utc::now()),
+        force_step_up_reason: None,
+        force_step_up_until: None,
         theme_preference: None,
         language_preference: None,
         created_at: Utc::now(),
@@ -331,6 +427,7 @@ async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse
             "error": e.to_string()
         }))
     })?;
+    req.extensions_mut().insert(claims.clone());
 
     attach_user_to_request(req, &claims.sub).await
 }
@@ -347,7 +444,7 @@ mod tests {
             }
         }
         let sub = "user123";
-        let token = encode_token(sub)?;
+        let token = encode_token(sub, None)?;
         let claims = decode_token(&token)?;
         assert_eq!(claims.sub, sub);
         Ok(())

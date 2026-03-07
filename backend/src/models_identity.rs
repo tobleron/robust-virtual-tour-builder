@@ -7,11 +7,16 @@ use sqlx::FromRow;
 pub struct User {
     pub id: String,
     pub email: String,
+    pub username: Option<String>,
     #[serde(skip)]
     #[allow(dead_code)]
     pub password_hash: String,
     pub name: String,
     pub role: String,
+    pub status: Option<String>,
+    pub email_verified_at: Option<DateTime<Utc>>,
+    pub force_step_up_reason: Option<String>,
+    pub force_step_up_until: Option<DateTime<Utc>>,
     pub theme_preference: Option<String>,
     pub language_preference: Option<String>,
     pub created_at: DateTime<Utc>,
@@ -28,6 +33,7 @@ pub struct AuthResponse {
 pub async fn create_user(
     pool: &sqlx::SqlitePool,
     email: &str,
+    username: &str,
     password_hash: &str,
     name: &str,
     role: &str,
@@ -35,13 +41,14 @@ pub async fn create_user(
     let id = uuid::Uuid::new_v4().to_string();
     let user = sqlx::query_as::<_, User>(
         r#"
-        INSERT INTO users (id, email, password_hash, name, role)
-        VALUES (?, ?, ?, ?, ?)
-        RETURNING id, email, password_hash, name, role, theme_preference, language_preference, created_at
+        INSERT INTO users (id, email, username, password_hash, name, role, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending_verification')
+        RETURNING id, email, username, password_hash, name, role, status, email_verified_at, force_step_up_reason, force_step_up_until, theme_preference, language_preference, created_at
         "#,
     )
     .bind(&id)
     .bind(email)
+    .bind(username)
     .bind(password_hash)
     .bind(name)
     .bind(role)

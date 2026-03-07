@@ -29,12 +29,13 @@ async function preloadDashboardProjectIfRequested() {
   if (!projectId) return;
 
   const auth = authHeaderValue();
-  if (!auth) return;
 
   try {
+    const headers = {};
+    if (auth) headers.Authorization = auth;
     const response = await fetch(`/api/project/dashboard/projects/${encodeURIComponent(projectId)}`, {
       method: 'GET',
-      headers: { Authorization: auth },
+      headers,
       credentials: 'include',
     });
     if (!response.ok) return;

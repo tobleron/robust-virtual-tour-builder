@@ -13,6 +13,10 @@ const ROUTE_MAP = new Map([
   ['/signup.html', 'signup'],
   ['/forgot-password', 'forgot-password'],
   ['/forgot-password.html', 'forgot-password'],
+  ['/check-email', 'check-email'],
+  ['/check-email.html', 'check-email'],
+  ['/verify-email', 'verify-email'],
+  ['/verify-email.html', 'verify-email'],
   ['/reset-password', 'reset-password'],
   ['/reset-password.html', 'reset-password'],
   ['/dashboard', 'dashboard'],
@@ -151,16 +155,18 @@ function pricingPage() {
   `;
 }
 
-function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, includeConfirm) {
+function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, includeConfirm, includeUsername) {
   return `
     <section class="site-auth-wrap">
       <article class="site-auth-card">
         <h1>${title}</h1>
         <p class="site-muted">${subtitle}</p>
-        <form class="site-form" onsubmit="return false;">
-          <label>Email<input type="email" placeholder="you@company.com" /></label>
-          <label>Password<input type="password" placeholder="********" /></label>
-          ${includeConfirm ? '<label>Confirm Password<input type="password" placeholder="********" /></label>' : ''}
+        <form class="site-form" onsubmit="return false;" data-auth-form="${includeConfirm ? 'signup' : 'signin'}">
+          ${includeUsername ? '<label>Username<input type="text" name="username" placeholder="your-username" /></label>' : ''}
+          <label>Email<input type="email" name="email" placeholder="you@company.com" /></label>
+          <label>Password<input type="password" name="password" placeholder="********" /></label>
+          ${includeConfirm ? '<label>Confirm Password<input type="password" name="confirmPassword" placeholder="********" /></label>' : ''}
+          <p class="site-muted" data-auth-message=""></p>
           <button class="site-btn site-btn-primary" type="submit">${primaryLabel}</button>
         </form>
         <a class="site-link-muted" href="${secondaryHref}">${secondaryLabel}</a>
@@ -175,8 +181,9 @@ function forgotPasswordPage() {
       <article class="site-auth-card">
         <h1>Recover your password</h1>
         <p class="site-muted">Enter your account email and we will send a reset link.</p>
-        <form class="site-form" onsubmit="return false;">
-          <label>Email<input type="email" placeholder="you@company.com" /></label>
+        <form class="site-form" onsubmit="return false;" data-auth-form="forgot-password">
+          <label>Email<input type="email" name="email" placeholder="you@company.com" /></label>
+          <p class="site-muted" data-auth-message=""></p>
           <button class="site-btn site-btn-primary" type="submit">Send Reset Link</button>
         </form>
         <a class="site-link-muted" href="/signin">Back to sign in</a>
@@ -191,12 +198,49 @@ function resetPasswordPage() {
       <article class="site-auth-card">
         <h1>Set a new password</h1>
         <p class="site-muted">Use a strong password before continuing to your dashboard.</p>
-        <form class="site-form" onsubmit="return false;">
-          <label>New Password<input type="password" placeholder="********" /></label>
-          <label>Confirm Password<input type="password" placeholder="********" /></label>
+        <form class="site-form" onsubmit="return false;" data-auth-form="reset-password">
+          <label>New Password<input type="password" name="newPassword" placeholder="********" /></label>
+          <label>Confirm Password<input type="password" name="confirmNewPassword" placeholder="********" /></label>
+          <p class="site-muted" data-auth-message=""></p>
           <button class="site-btn site-btn-primary" type="submit">Update Password</button>
         </form>
         <a class="site-link-muted" href="/signin">Return to sign in</a>
+      </article>
+    </section>
+  `;
+}
+
+function verifyEmailPage() {
+  return `
+    <section class="site-auth-wrap">
+      <article class="site-auth-card">
+        <h1>Verify your email</h1>
+        <p class="site-muted">Complete verification to activate your account.</p>
+        <form class="site-form" onsubmit="return false;" data-auth-form="verify-email">
+          <p class="site-muted" data-auth-message="">Press verify to continue.</p>
+          <button class="site-btn site-btn-primary" type="submit">Verify Email</button>
+        </form>
+        <a class="site-link-muted" href="/signin">Go to sign in</a>
+      </article>
+    </section>
+  `;
+}
+
+function checkEmailPage() {
+  return `
+    <section class="site-auth-wrap">
+      <article class="site-auth-card">
+        <h1>Check your email</h1>
+        <p class="site-muted">We sent a verification link to your inbox. Verify your account, then continue to sign in.</p>
+        <form class="site-form" onsubmit="return false;" data-auth-form="check-email">
+          <label>Email<input type="email" name="email" placeholder="you@company.com" /></label>
+          <p class="site-muted" data-auth-message="">Didn’t receive it? Resend a new verification email.</p>
+          <button class="site-btn site-btn-primary" type="submit">Resend Verification Email</button>
+        </form>
+        <div class="site-hero-actions">
+          <a class="site-btn site-btn-ghost" href="/signup">Change Email</a>
+          <a class="site-btn site-btn-ghost" href="/signin">I Already Verified</a>
+        </div>
       </article>
     </section>
   `;
@@ -262,6 +306,7 @@ function contentFor(page) {
         'Sign In',
         '/forgot-password',
         'Forgot password?',
+        false,
         false
       );
     case 'signup':
@@ -271,10 +316,15 @@ function contentFor(page) {
         'Create Account',
         '/signin',
         'Already have an account? Sign in',
+        true,
         true
       );
     case 'forgot-password':
       return forgotPasswordPage();
+    case 'check-email':
+      return checkEmailPage();
+    case 'verify-email':
+      return verifyEmailPage();
     case 'reset-password':
       return resetPasswordPage();
     case 'dashboard':
@@ -293,6 +343,8 @@ function titleFor(page) {
     signin: 'Sign In',
     signup: 'Sign Up',
     'forgot-password': 'Forgot Password',
+    'check-email': 'Check Email',
+    'verify-email': 'Verify Email',
     'reset-password': 'Reset Password',
     dashboard: 'Dashboard',
     account: 'Account Settings',
@@ -307,20 +359,206 @@ function getAuthHeaderValue() {
   return null;
 }
 
+async function authJson(path, payload, method = 'POST') {
+  const auth = getAuthHeaderValue();
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth) headers.Authorization = auth;
+  const response = await fetch(path, {
+    method,
+    headers,
+    body: payload ? JSON.stringify(payload) : undefined,
+    credentials: 'include',
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = json?.details || json?.error || `HTTP_${response.status}`;
+    throw new Error(message);
+  }
+  return json;
+}
+
+function setAuthMessage(form, message, isError = false) {
+  const node = form.querySelector('[data-auth-message]');
+  if (!node) return;
+  node.textContent = message;
+  node.style.color = isError ? '#ffb4b4' : '#c7d4ed';
+}
+
+function ensureStepUpFields(form) {
+  let wrap = form.querySelector('[data-step-up-wrap]');
+  if (wrap) return wrap;
+  wrap = document.createElement('div');
+  wrap.setAttribute('data-step-up-wrap', '1');
+  wrap.innerHTML = `
+    <label>Verification Code<input type="text" name="otpCode" placeholder="6-digit code" /></label>
+    <div style="display:flex; gap:10px;">
+      <button class="site-btn site-btn-ghost" type="button" data-step-up-resend="1">Resend Code</button>
+    </div>
+  `;
+  const submit = form.querySelector('button[type="submit"]');
+  form.insertBefore(wrap, submit);
+  return wrap;
+}
+
+function getTokenFromQuery() {
+  const params = new URLSearchParams(window.location.search || '');
+  const raw = params.get('token');
+  return raw && raw.trim() !== '' ? raw.trim() : null;
+}
+
+function getEmailFromQuery() {
+  const params = new URLSearchParams(window.location.search || '');
+  const raw = params.get('email');
+  return raw && raw.trim() !== '' ? raw.trim() : '';
+}
+
+async function ensureAuthenticatedOrRedirect(currentPage) {
+  if (currentPage !== 'dashboard' && currentPage !== 'account') return true;
+  try {
+    const me = await authJson('/api/auth/me', null, 'GET');
+    if (!me?.authenticated) {
+      window.location.assign('/signin');
+      return false;
+    }
+    return true;
+  } catch (_error) {
+    window.location.assign('/signin');
+    return false;
+  }
+}
+
+function bindAuthForms(page) {
+  if (page === 'check-email') {
+    const emailInput = document.querySelector('input[name="email"]');
+    if (emailInput) {
+      const initial = getEmailFromQuery();
+      if (initial) emailInput.value = initial;
+    }
+  }
+
+  const forms = Array.from(document.querySelectorAll('form[data-auth-form]'));
+  forms.forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const mode = form.getAttribute('data-auth-form');
+      const email = form.querySelector('input[name="email"]')?.value?.trim() || '';
+      const username = form.querySelector('input[name="username"]')?.value?.trim() || '';
+      const password = form.querySelector('input[name="password"]')?.value || '';
+      const confirmPassword = form.querySelector('input[name="confirmPassword"]')?.value || '';
+      const newPassword = form.querySelector('input[name="newPassword"]')?.value || '';
+      const confirmNewPassword = form.querySelector('input[name="confirmNewPassword"]')?.value || '';
+      const tokenFromUrl = getTokenFromQuery();
+
+      try {
+        if (mode === 'signup') {
+          if (password !== confirmPassword) throw new Error('Passwords do not match.');
+          await authJson('/api/auth/signup', {
+            email,
+            username,
+            password,
+            displayName: username,
+          });
+          window.location.assign(`/check-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
+
+        if (mode === 'signin') {
+          const challengeId = form.getAttribute('data-challenge-id');
+          if (challengeId) {
+            const otpCode = form.querySelector('input[name="otpCode"]')?.value?.trim() || '';
+            if (!otpCode) throw new Error('Enter verification code.');
+            const verified = await authJson('/api/auth/step-up/verify', {
+              challengeId,
+              otpCode,
+            });
+            if (window.localStorage && verified?.token) {
+              window.localStorage.setItem('auth_token', verified.token);
+            }
+            form.removeAttribute('data-challenge-id');
+            window.location.assign('/dashboard');
+            return;
+          }
+
+          const result = await authJson('/api/auth/signin', { email, password });
+          if (result?.challengeRequired) {
+            form.setAttribute('data-challenge-id', result.challengeId);
+            ensureStepUpFields(form);
+            const resend = form.querySelector('[data-step-up-resend="1"]');
+            if (resend && !resend.getAttribute('data-bound')) {
+              resend.setAttribute('data-bound', '1');
+              resend.addEventListener('click', async () => {
+                try {
+                  const cid = form.getAttribute('data-challenge-id');
+                  if (!cid) return;
+                  await authJson('/api/auth/step-up/resend', { challengeId: cid });
+                  setAuthMessage(form, 'New code sent to your email.', false);
+                } catch (error) {
+                  setAuthMessage(form, error?.message || 'Resend failed.', true);
+                }
+              });
+            }
+            setAuthMessage(form, result.message || 'We sent a verification code to your email.', false);
+            return;
+          }
+          if (window.localStorage && result?.token) {
+            window.localStorage.setItem('auth_token', result.token);
+          }
+          window.location.assign('/dashboard');
+          return;
+        }
+
+        if (mode === 'check-email') {
+          if (!email) throw new Error('Enter your account email.');
+          await authJson('/api/auth/resend-verification', { email });
+          setAuthMessage(form, 'If this account exists and is not verified, a new email was sent.', false);
+          return;
+        }
+
+        if (mode === 'forgot-password') {
+          await authJson('/api/auth/forgot-password', { email });
+          setAuthMessage(form, 'If your email exists, reset instructions were sent.', false);
+          return;
+        }
+
+        if (mode === 'verify-email') {
+          if (!tokenFromUrl) throw new Error('Missing verification token in URL.');
+          await authJson('/api/auth/verify-email', { token: tokenFromUrl });
+          setAuthMessage(form, 'Email verified. Redirecting to sign in...', false);
+          window.setTimeout(() => window.location.assign('/signin'), 1200);
+          return;
+        }
+
+        if (mode === 'reset-password') {
+          if (!tokenFromUrl) throw new Error('Missing reset token in URL.');
+          if (newPassword !== confirmNewPassword) throw new Error('Passwords do not match.');
+          await authJson('/api/auth/reset-password', { token: tokenFromUrl, newPassword });
+          setAuthMessage(form, 'Password updated. Redirecting to sign in...', false);
+          window.setTimeout(() => window.location.assign('/signin'), 1200);
+          return;
+        }
+      } catch (error) {
+        const msg = error?.message || 'Request failed.';
+        if (mode === 'signin' && msg.toLowerCase().includes('not verified')) {
+          window.location.assign(`/check-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        setAuthMessage(form, msg, true);
+      }
+    });
+  });
+}
+
 async function loadDashboardProjects() {
   const tbody = document.getElementById('site-dashboard-projects');
   if (!tbody) return;
 
-  const auth = getAuthHeaderValue();
-  if (!auth) {
-    tbody.innerHTML = `<tr><td colspan="5">Sign in required to load dashboard projects.</td></tr>`;
-    return;
-  }
-
   try {
+    const auth = getAuthHeaderValue();
+    const headers = {};
+    if (auth) headers.Authorization = auth;
     const response = await fetch('/api/project/dashboard/projects', {
       method: 'GET',
-      headers: { Authorization: auth },
+      headers,
       credentials: 'include',
     });
 
@@ -371,7 +609,9 @@ export function renderPageFramework(rootElement, page) {
     </div>
   `;
 
-  if (page === 'dashboard') {
-    loadDashboardProjects();
-  }
+  ensureAuthenticatedOrRedirect(page).then(isAllowed => {
+    if (!isAllowed) return;
+    if (page === 'dashboard') loadDashboardProjects();
+    bindAuthForms(page);
+  });
 }

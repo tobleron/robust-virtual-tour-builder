@@ -212,11 +212,12 @@ impl User {
     pub async fn create(
         pool: &sqlx::SqlitePool,
         email: &str,
+        username: &str,
         password_hash: &str,
         name: &str,
         role: &str,
     ) -> Result<User, sqlx::Error> {
-        models_identity::create_user(pool, email, password_hash, name, role).await
+        models_identity::create_user(pool, email, username, password_hash, name, role).await
     }
 
     #[allow(dead_code)]
