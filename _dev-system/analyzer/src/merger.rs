@@ -52,7 +52,10 @@ pub fn detect_merge_candidates(
         }
 
         // Priority Guard: don't emit merge for a folder participating in active de-bloat work
-        if surgical_files.iter().any(|f| f.starts_with(&format!("{}/", dir))) {
+        if surgical_files
+            .iter()
+            .any(|f| f.starts_with(&format!("{}/", dir)))
+        {
             continue;
         }
 

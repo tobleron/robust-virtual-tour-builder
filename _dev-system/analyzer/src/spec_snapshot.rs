@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::path::Path;
-use tree_sitter::{Parser, Query, QueryCursor, StreamingIterator, Node};
+use tree_sitter::{Node, Parser, Query, QueryCursor, StreamingIterator};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct FunctionDetail {
@@ -67,21 +67,21 @@ fn parse_rescript_functions_ast(content: &str) -> Vec<FunctionDetail> {
     } else {
         return Vec::new();
     };
-    
+
     let query_str = "(let_binding) @binding";
     let query = if let Ok(q) = Query::new(&language, query_str) {
         q
     } else {
         return Vec::new();
     };
-    
+
     let mut cursor = QueryCursor::new();
     let mut matches = cursor.matches(&query, tree.root_node(), content.as_bytes());
-    
+
     let mut functions = Vec::new();
     while let Some(m) = matches.next() {
         let binding_node: Node = m.nodes_for_capture_index(0).next().unwrap();
-        
+
         // Check for nesting (skip local variables)
         let mut parent = binding_node.parent();
         let mut is_nested = false;
@@ -104,8 +104,13 @@ fn parse_rescript_functions_ast(content: &str) -> Vec<FunctionDetail> {
                 break;
             }
         }
-        
-        if name.chars().next().map(|c: char| c.is_uppercase()).unwrap_or(false) {
+
+        if name
+            .chars()
+            .next()
+            .map(|c: char| c.is_uppercase())
+            .unwrap_or(false)
+        {
             continue;
         }
         if matches!(name.as_str(), "module" | "type" | "open" | "unknown") {
@@ -115,14 +120,14 @@ fn parse_rescript_functions_ast(content: &str) -> Vec<FunctionDetail> {
         let start_byte = binding_node.start_byte();
         let line = line_number_at(content, start_byte);
         let signature = extract_line(content, start_byte);
-        
+
         functions.push(FunctionDetail {
             name,
             signature,
             line,
         });
     }
-    
+
     functions.sort_by_key(|f| f.line);
     functions.dedup_by(|a, b| a.name == b.name && a.line == b.line);
     functions

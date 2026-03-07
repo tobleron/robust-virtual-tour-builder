@@ -21,7 +21,6 @@
     "nesting_weight": 0.6,
     "density_weight": 1.0,
     "drag_target": 1.8,
-    "confidence_threshold": 0.95,
     "state_weight": 8.0,
     "max_depth_threshold": 4,
     "_formula_version": "2.0",
@@ -153,6 +152,31 @@
         "{": 0.2
       },
       "forbidden_patterns": []
+    },
+    "web": {
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".html"
+      ],
+      "complexity_dictionary": {
+        "if ": 0.5,
+        "switch": 0.4,
+        "await ": 0.6,
+        "import ": 0.2,
+        "require(": 0.3,
+        "useState": 0.5,
+        "useReducer": 2.0,
+        "addEventListener": 0.4,
+        "querySelector": 0.3
+      },
+      "forbidden_patterns": [
+        "console.log",
+        "eval(",
+        "new Function(",
+        "JSON.parse",
+        "JSON.stringify"
+      ]
     }
   },
   "taxonomy": {

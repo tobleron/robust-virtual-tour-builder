@@ -274,7 +274,9 @@ fn generate_work_units(
                 let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
                 // Use the dynamic limit (respects taxonomy/exceptions) instead of hard-coded 300
                 let target_module_size = limit.max(config.settings.soft_floor_loc);
-                let recommended_splits = (metrics.loc as f64 / target_module_size as f64).ceil().max(1.0) as usize;
+                let recommended_splits = (metrics.loc as f64 / target_module_size as f64)
+                    .ceil()
+                    .max(1.0) as usize;
                 let verification = spec_map.get(p_str).map(|snapshot| VerificationBundle {
                     headline: format!("Pre-split snapshot for `{}`", snapshot.path),
                     snapshots: vec![snapshot.clone()],

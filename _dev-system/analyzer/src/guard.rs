@@ -1,5 +1,5 @@
-use crate::config::MapTreeConfig;
 use crate::config::EfficiencyConfig;
+use crate::config::MapTreeConfig;
 use anyhow::Result;
 use regex::Regex;
 use std::collections::HashSet;
@@ -297,7 +297,11 @@ pub fn get_mapped_files(config: &GuardConfig) -> HashSet<String> {
     mapped_paths
 }
 
-pub fn check_map(config: &GuardConfig, rules: &ExclusionRules, analyzer_config: &EfficiencyConfig) -> Result<()> {
+pub fn check_map(
+    config: &GuardConfig,
+    rules: &ExclusionRules,
+    analyzer_config: &EfficiencyConfig,
+) -> Result<()> {
     if !Path::new(&config.map_file).exists() {
         return Ok(());
     }
@@ -1104,11 +1108,7 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
         }
         if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
             for entry in entries.filter_map(|e| e.ok()) {
-                if entry
-                    .file_name()
-                    .to_string_lossy()
-                    .contains(task_pattern)
-                {
+                if entry.file_name().to_string_lossy().contains(task_pattern) {
                     return Some(entry.path());
                 }
             }
