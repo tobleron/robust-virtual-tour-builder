@@ -1,4 +1,4 @@
-# Task D007: Surgical Refactor SYSTEMS FRONTEND
+# Task D011: Surgical Refactor SYSTEMS FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -25,8 +25,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D007/verification.json` (files at `_dev-system/tmp/D007/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D007/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D011/verification.json` (files at `_dev-system/tmp/D011/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D011/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/systems/OperationLifecycle.res`
 - `src/systems/OperationLifecycle.res` (30 functions, fingerprint 880f85b7aa4348a6bf7de207fbf48640013017efa496058736f409353bb93dbe)

@@ -1,4 +1,4 @@
-# Task D005: Surgical Refactor EXPORTER FRONTEND
+# Task D006: Surgical Refactor EXPORTER FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -21,8 +21,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D005/verification.json` (files at `_dev-system/tmp/D005/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D005/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-system/tmp/D006/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D006/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/systems/Exporter/ExporterPackaging.res`
 - `src/systems/Exporter/ExporterPackaging.res` (2 functions, fingerprint 7cbb1e18bbdfe0a8746bcf2173a0711833d63d80b6e4887abcc46300a73a3076)

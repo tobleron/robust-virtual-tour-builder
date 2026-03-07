@@ -23,6 +23,9 @@ jobs:
       - name: Setup flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Enforce Main Release Guard
+        run: ./scripts/guard-main-release.sh main
+
       - name: Deploy
         run: flyctl deploy --remote-only --config fly.toml --app app-still-dust-2222
         env:

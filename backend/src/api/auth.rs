@@ -163,6 +163,18 @@ fn config_i64(var_name: &str, default_value: i64) -> i64 {
         .unwrap_or(default_value)
 }
 
+fn config_bool(var_name: &str, default_value: bool) -> bool {
+    std::env::var(var_name)
+        .ok()
+        .map(|value| {
+            matches!(
+                value.trim().to_ascii_lowercase().as_str(),
+                "1" | "true" | "yes" | "on"
+            )
+        })
+        .unwrap_or(default_value)
+}
+
 fn normalize_email(input: &str) -> String {
     input.trim().to_lowercase()
 }
@@ -358,7 +370,11 @@ fn app_base_url() -> String {
     std::env::var("APP_BASE_URL").unwrap_or_else(|_| "http://localhost:3000".to_string())
 }
 
-async fn issue_verification_email(pool: &SqlitePool, user_id: &str, email: &str) -> Result<(), AppError> {
+async fn issue_verification_email(
+    pool: &SqlitePool,
+    user_id: &str,
+    email: &str,
+) -> Result<(), AppError> {
     let now = Utc::now();
     sqlx::query(
         r#"
@@ -486,6 +502,56 @@ fn parse_user_agent_family(ua: &str) -> Option<String> {
         return Some("opera".to_string());
     }
     None
+}
+
+fn is_local_request_host(value: &str) -> bool {
+    let lowered = value.trim().to_ascii_lowercase();
+    lowered.contains("localhost")
+        || lowered.contains("127.0.0.1")
+        || lowered.contains("0.0.0.0")
+        || lowered.contains("[::1]")
+        || lowered.starts_with("::1")
+}
+
+fn is_local_dev_request(req: &HttpRequest) -> bool {
+    if req
+        .connection_info()
+        .realip_remote_addr()
+        .map(is_local_request_host)
+        .unwrap_or(false)
+    {
+        return true;
+    }
+
+    ["Origin", "Referer"]
+        .iter()
+        .filter_map(|header_name| req.headers().get(*header_name))
+        .filter_map(|value| value.to_str().ok())
+        .any(is_local_request_host)
+}
+
+fn dev_auth_bootstrap_enabled() -> bool {
+    !is_production() && config_bool("ALLOW_DEV_AUTH_BOOTSTRAP", true)
+}
+
+fn dev_auth_email() -> String {
+    normalize_email(
+        &std::env::var("DEV_AUTH_EMAIL").unwrap_or_else(|_| "dev@robust.local".to_string()),
+    )
+}
+
+fn dev_auth_username() -> String {
+    normalize_username(
+        &std::env::var("DEV_AUTH_USERNAME").unwrap_or_else(|_| "dev-local".to_string()),
+    )
+}
+
+fn dev_auth_name() -> String {
+    std::env::var("DEV_AUTH_NAME").unwrap_or_else(|_| "Local Developer".to_string())
+}
+
+fn dev_auth_password() -> String {
+    std::env::var("DEV_AUTH_PASSWORD").unwrap_or_else(|_| "dev-password-123".to_string())
 }
 
 fn evaluate_ip_reputation(req: &HttpRequest) -> IpReputation {
@@ -1181,7 +1247,9 @@ pub async fn resend_verification_email(
     .bind(&email)
     .fetch_optional(pool.get_ref())
     .await
-    .map_err(|e| AppError::InternalError(format!("Resend verification user lookup failed: {}", e)))?;
+    .map_err(|e| {
+        AppError::InternalError(format!("Resend verification user lookup failed: {}", e))
+    })?;
 
     if let Some((user_id, email_verified_at)) = row {
         if email_verified_at.is_none() {
@@ -1430,6 +1498,129 @@ pub async fn signin(
         Some("trusted_login_no_step_up"),
         &context,
         None,
+    )
+    .await?;
+
+    Ok(HttpResponse::Ok()
+        .cookie(auth_cookie)
+        .cookie(device_cookie)
+        .json(AuthSuccessResponse {
+            token,
+            user: public_user(&user),
+        }))
+}
+
+async fn ensure_dev_bootstrap_user(pool: &SqlitePool) -> Result<User, AppError> {
+    let email = dev_auth_email();
+    let username = dev_auth_username();
+    let display_name = dev_auth_name();
+
+    if let Some(existing) = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ?")
+        .bind(&email)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| AppError::InternalError(format!("Dev auth user lookup failed: {}", e)))?
+    {
+        if existing.email_verified_at.is_none() || existing.status.as_deref() != Some("active") {
+            let now = Utc::now();
+            sqlx::query(
+                r#"
+                UPDATE users
+                SET username = COALESCE(username, ?), name = ?, status = 'active', email_verified_at = COALESCE(email_verified_at, ?)
+                WHERE id = ?
+                "#,
+            )
+            .bind(&username)
+            .bind(&display_name)
+            .bind(now)
+            .bind(&existing.id)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                AppError::InternalError(format!("Dev auth user activation failed: {}", e))
+            })?;
+        }
+
+        return sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+            .bind(&existing.id)
+            .fetch_one(pool)
+            .await
+            .map_err(|e| AppError::InternalError(format!("Dev auth user reload failed: {}", e)));
+    }
+
+    validate_username(&username)?;
+    validate_password(&dev_auth_password())?;
+    let password_hash = hash_password(&dev_auth_password())?;
+    let now = Utc::now();
+    let user_id = Uuid::new_v4().to_string();
+
+    sqlx::query(
+        r#"
+        INSERT INTO users (id, email, username, password_hash, name, role, status, email_verified_at)
+        VALUES (?, ?, ?, ?, ?, 'user', 'active', ?)
+        "#,
+    )
+    .bind(&user_id)
+    .bind(&email)
+    .bind(&username)
+    .bind(&password_hash)
+    .bind(&display_name)
+    .bind(now)
+    .execute(pool)
+    .await
+    .map_err(|e| AppError::InternalError(format!("Dev auth user insert failed: {}", e)))?;
+
+    sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+        .bind(&user_id)
+        .fetch_one(pool)
+        .await
+        .map_err(|e| AppError::InternalError(format!("Dev auth user fetch failed: {}", e)))
+}
+
+pub async fn dev_signin(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+) -> Result<HttpResponse, AppError> {
+    if !dev_auth_bootstrap_enabled() || !is_local_dev_request(&req) {
+        return Err(AppError::Unauthorized(
+            "Development login is unavailable in this environment.".into(),
+        ));
+    }
+
+    let user = ensure_dev_bootstrap_user(pool.get_ref()).await?;
+    let context = extract_login_context(&req);
+    let current_device_token = req
+        .cookie(DEVICE_COOKIE_NAME)
+        .map(|cookie| cookie.value().to_string())
+        .unwrap_or_else(make_device_token);
+
+    upsert_trusted_device(pool.get_ref(), &user.id, &current_device_token, &context).await?;
+
+    let step_up_hours = config_i64("STEP_UP_SESSION_HOURS", STEP_UP_SESSION_HOURS_DEFAULT);
+    let step_up_until = Some((Utc::now() + Duration::hours(step_up_hours)).timestamp() as usize);
+    let token = encode_token(&user.id, step_up_until)?;
+    let auth_cookie = create_auth_cookie(&token);
+    let device_cookie = create_device_cookie(&current_device_token);
+
+    log_login_attempt(
+        pool.get_ref(),
+        Some(&user.id),
+        &user.email,
+        &context,
+        Some(&hash_token(&current_device_token)),
+        true,
+        Some("dev_bootstrap_login"),
+    )
+    .await?;
+    log_auth_event(
+        pool.get_ref(),
+        Some(&user.id),
+        "signin_success",
+        "allow",
+        Some(0),
+        Some("dev_bootstrap_login"),
+        &context,
+        Some(r#"{"devBootstrap":true}"#),
     )
     .await?;
 

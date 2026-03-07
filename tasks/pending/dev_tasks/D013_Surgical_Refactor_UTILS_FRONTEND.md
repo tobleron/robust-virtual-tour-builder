@@ -1,4 +1,4 @@
-# Task D006: Surgical Refactor UTILS FRONTEND
+# Task D013: Surgical Refactor UTILS FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -29,8 +29,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-system/tmp/D006/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D006/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D013/verification.json` (files at `_dev-system/tmp/D013/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D013/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/utils/AsyncQueue.res`
 - `src/utils/AsyncQueue.res` (9 functions, fingerprint 73547a4fed2786fc7e9fcd7af83fd94984b2fc851b1158f78d87422736d8a37f)

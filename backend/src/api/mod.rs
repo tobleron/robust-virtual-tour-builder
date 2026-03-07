@@ -125,6 +125,13 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
+                        "/dev-login",
+                        web::post()
+                            .to(auth::dev_signin)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/step-up/verify",
                         web::post()
                             .to(auth::verify_step_up_otp)

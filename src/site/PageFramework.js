@@ -156,6 +156,7 @@ function pricingPage() {
 }
 
 function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, includeConfirm, includeUsername) {
+  const showDevLogin = !includeConfirm && DEV_HOSTS.has((window.location.hostname || '').toLowerCase());
   return `
     <section class="site-auth-wrap">
       <article class="site-auth-card">
@@ -168,6 +169,7 @@ function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, 
           ${includeConfirm ? '<label>Confirm Password<input type="password" name="confirmPassword" placeholder="********" /></label>' : ''}
           <p class="site-muted" data-auth-message=""></p>
           <button class="site-btn site-btn-primary" type="submit">${primaryLabel}</button>
+          ${showDevLogin ? '<button class="site-btn site-btn-ghost" type="button" data-auth-dev-login="1">Use Dev Account</button><p class="site-muted">Local development only. Creates or reuses a verified local user and signs in immediately.</p>' : ''}
         </form>
         <a class="site-link-muted" href="${secondaryHref}">${secondaryLabel}</a>
       </article>
@@ -438,6 +440,22 @@ function bindAuthForms(page) {
 
   const forms = Array.from(document.querySelectorAll('form[data-auth-form]'));
   forms.forEach(form => {
+    const devLoginButton = form.querySelector('[data-auth-dev-login="1"]');
+    if (devLoginButton && !devLoginButton.getAttribute('data-bound')) {
+      devLoginButton.setAttribute('data-bound', '1');
+      devLoginButton.addEventListener('click', async () => {
+        try {
+          const result = await authJson('/api/auth/dev-login', null);
+          if (window.localStorage && result?.token) {
+            window.localStorage.setItem('auth_token', result.token);
+          }
+          window.location.assign('/dashboard');
+        } catch (error) {
+          setAuthMessage(form, error?.message || 'Development login failed.', true);
+        }
+      });
+    }
+
     form.addEventListener('submit', async event => {
       event.preventDefault();
       const mode = form.getAttribute('data-auth-form');

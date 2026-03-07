@@ -1,4 +1,4 @@
-# Task D019: Surgical Refactor PROJECT BACKEND
+# Task D008: Surgical Refactor PROJECT BACKEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -19,8 +19,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D019/verification.json` (files at `_dev-system/tmp/D019/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D019/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D008/verification.json` (files at `_dev-system/tmp/D008/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D008/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `backend/src/services/project/package.rs`
 - `backend/src/services/project/package.rs` (9 functions, fingerprint cd2bc06d5a4a57e8752b4c38ecbe912e94ffaeaf10cb2731d161777dfc2418a2)

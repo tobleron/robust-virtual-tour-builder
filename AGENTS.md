@@ -10,7 +10,7 @@ This file provides universal guidelines for agents working with code in this rep
 3. **Root-Relative Paths**: All file references must be relative to repository root
 
 **Commitment Constraint:**
-- NEVER run `commit.sh`, `fast-commit.sh`, or `triple-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
+- NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
 - Only commit when the user explicitly provides a message or instruction
 
 **Task Protocol:**
@@ -43,7 +43,8 @@ This file provides universal guidelines for agents working with code in this rep
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
 - **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push. Note: Tests are currently Bypassed/Manual).
-- **Triple Path (Deprecated/Explicit Override Only)**: `ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh "msg"` (Use only when explicitly requested to sync main/testing/development).
+- **Main Branch Guard**: `main` is production-bound. Dev-only auth/bootstrap shortcuts must never be promoted there; `./scripts/guard-main-release.sh main` is enforced by scripts and CI.
+- **Selective Promotion Rule**: Dev-only features must live in isolated commits so production-safe improvements can be promoted to `main` without carrying development shortcuts.
 - **Storage Check**: Before committing, audit for unnecessary large files (logs, temp zips, etc.) and ask the user for cleanup permission.
 - **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.
 
@@ -140,7 +141,8 @@ npm run rust:fmt
 - **Explicit Permission Required**: Only commit when the user provides a message or instruction ("save", "checkpoint", or "commit")
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` - Quick, local-only, no tests/push
 - **Standard Path (Push to Branch)**: `./scripts/commit.sh "msg" [branch]` - Build guard, commit, and push. Note: Tests are currently bypassed/manual
-- **Triple Path (Deprecated/Explicit Override Only)**: `ALLOW_TRIPLE_COMMIT=1 ./scripts/triple-commit.sh "msg"` - Use only when explicitly requested to sync main/testing/development
+- **Main Branch Guard**: `main` must pass `./scripts/guard-main-release.sh` and remain free of dev-only auth/bootstrap markers
+- **Promotion Policy**: Never mix dev-only shortcuts and production improvements in the same commit if the work may later be promoted to `main`
 - **Manual Verification**: `./scripts/pre-push.sh` is available for manual pre-push verification if needed
 
 ## Architecture Overview

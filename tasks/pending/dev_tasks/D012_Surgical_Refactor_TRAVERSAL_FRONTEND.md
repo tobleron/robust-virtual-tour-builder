@@ -1,4 +1,4 @@
-# Task D016: Surgical Refactor TRAVERSAL FRONTEND
+# Task D012: Surgical Refactor TRAVERSAL FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -19,8 +19,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D016/verification.json` (files at `_dev-system/tmp/D016/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D016/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D012/verification.json` (files at `_dev-system/tmp/D012/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D012/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/systems/Traversal/CanonicalTraversal.res`
 - `src/systems/Traversal/CanonicalTraversal.res` (16 functions, fingerprint 96250445eef351dda54515476ff38bfe188d43f2bd05772b4831f219b18deddc)

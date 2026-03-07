@@ -8,11 +8,15 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.03, Coupling: 0.03] | Drag: 4.06 | LOC: 496/300
+## 🛠️ SURGICAL REFACTOR TASKS (5)
+- [ ] **../../backend/src/api/auth.rs**
+  - *Reason:* [Nesting: 2.40, Density: 0.03, Coupling: 0.01] | Drag: 3.44 | LOC: 2209/300
 - [ ] **../../backend/src/services/project/package.rs**
   - *Reason:* [Nesting: 3.00, Density: 0.05, Coupling: 0.02] | Drag: 4.41 | LOC: 378/300
+- [ ] **../../backend/src/api/project.rs**
+  - *Reason:* [Nesting: 3.00, Density: 0.03, Coupling: 0.03] | Drag: 4.06 | LOC: 500/300
+- [ ] **../../backend/src/auth.rs**
+  - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.03] | Drag: 3.44 | LOC: 452/300
 - [ ] **../../backend/src/services/geocoding/cache.rs**
   - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300
 

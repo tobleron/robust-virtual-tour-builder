@@ -8,15 +8,3 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (4)
-- [ ] **../../tests/unit/LabelMenu_v.test.setup.jsx**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 117)
-- [ ] **../../tests/vitest-setup.js**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 80)
-- [ ] **../../tests/unit/Components_v.test.setup.jsx**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 73)
-- [ ] **../../tests/node-setup.js**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 185)
-
----
-

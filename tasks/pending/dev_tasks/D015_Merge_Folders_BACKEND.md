@@ -1,4 +1,4 @@
-# Task D009: Merge Folders BACKEND
+# Task D015: Merge Folders BACKEND
 
 ## Objective
 ## 🧩 Merge Objective
@@ -10,15 +10,17 @@
 ## Tasks
 
 ### 🔧 Action: Merge Fragmented Folders
-**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `geocoding.res`). CRITICAL: Delete the now-empty `backend/src/services/geocoding/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
+**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `geocoding.res`). Preserve the existing folder unless it is truly empty and no other generated task still touches that subtree.
 
 - [ ] Folder: `backend/src/services/geocoding` (Metric: Recursive Feature Pod: 2 files in subtree sum to 180 LOC (fits in context). Max Drag: 4.14)
-    - `backend/src/services/geocoding/../../backend/src/services/geocoding/mod.rs`
-    - `backend/src/services/geocoding/../../backend/src/services/geocoding/osm.rs`
+    - `backend/src/services/geocoding/mod.rs`
+    - `backend/src/services/geocoding/osm.rs`
+    - Conflict Guard: preserve `backend/src/services/geocoding` because the folder still contains non-merged paths: `backend/src/services/geocoding/cache.rs`.
+    - Sequencing: run after descendant tasks settle because this subtree still has split task `backend/src/services/geocoding/cache.rs`.
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D009/verification.json` (files at `_dev-system/tmp/D009/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D009/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D015/verification.json` (files at `_dev-system/tmp/D015/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D015/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-merge snapshots for recursive cluster `backend/src/services/geocoding`
 - `backend/src/services/geocoding/mod.rs` (6 functions, fingerprint 7aa26080b2fea105c2f710bf3f41ec9c7fd190b46d564bfe9479c1e87f0e8e0a)

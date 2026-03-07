@@ -1,4 +1,4 @@
-# Task D017: Surgical Refactor SIDEBAR FRONTEND
+# Task D009: Surgical Refactor SIDEBAR FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -19,8 +19,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D017/verification.json` (files at `_dev-system/tmp/D017/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D017/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D009/verification.json` (files at `_dev-system/tmp/D009/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D009/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`
 - `src/components/Sidebar/SidebarLogicHandler.res` (12 functions, fingerprint d345f455c16d05e39796fedb6f0b8d99991f54b509baeb97e2395959bd459872)

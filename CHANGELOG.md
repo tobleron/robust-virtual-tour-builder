@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Make dev-task generation conflict-safe and dependency-ordered
+- Enforce branch-safe commit protocol and add local dev auth bootstrap
 
 ## [5.2.3] - 2026-03-06
 
