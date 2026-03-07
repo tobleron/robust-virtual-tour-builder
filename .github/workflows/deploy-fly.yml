@@ -14,7 +14,7 @@ jobs:
   deploy:
     name: Deploy to Fly (main only)
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && secrets.FLY_API_TOKEN != ''
     environment: production
     steps:
       - name: Checkout code
