@@ -130,7 +130,7 @@ describe("SceneList", () => {
     switch Nullable.toOption(sceneName) {
     | Some(el) =>
       let text = Dom.getTextContent(el)
-      t->expect(text)->Expect.toBe("Scene 1")
+      t->expect(text)->Expect.toBe("Scene_1")
     | None => ()
     }
 
