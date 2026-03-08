@@ -8,7 +8,11 @@ type teaserRequest = {
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
-  ~onSave: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onSave: (
+    ~mode: PersistencePreferences.saveTarget,
+    ~signal: BrowserBindings.AbortSignal.t,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
   ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onSettings: unit => unit,
   ~onExport: (
@@ -27,6 +31,9 @@ let make = React.memo((
   ~isLinking: bool,
 ) => {
   let isPermitted = Hooks.useIsInteractionPermitted()
+  let (preferredSaveTarget, setPreferredSaveTarget) = React.useState(_ =>
+    PersistencePreferences.get().preferredSaveTarget
+  )
   let teaserStyleRequestRef: React.ref<teaserRequest> = React.useRef({
     format: "webm",
     styleId: TeaserStyleCatalog.toString(TeaserStyleCatalog.defaultStyle),
@@ -41,6 +48,7 @@ let make = React.memo((
   )
 
   let saveAbortRef = React.useRef(None)
+  let saveTargetRef = React.useRef(preferredSaveTarget)
   let (saveExecute, savePending, _saveThrottled) = UseInteraction.useInteraction(
     ~id="project_save",
     ~policy=InteractionPolicies.projectMutation,
@@ -54,10 +62,29 @@ let make = React.memo((
         | None => ()
         }
       }
-      await onSave(~signal, ~onCancel)
+      await onSave(~mode=saveTargetRef.current, ~signal, ~onCancel)
       saveAbortRef.current = None
     },
   )
+
+  React.useEffect1(() => {
+    saveTargetRef.current = preferredSaveTarget
+    None
+  }, [preferredSaveTarget])
+
+  let saveTargetLabel = target =>
+    switch target {
+    | PersistencePreferences.Offline => "Save Offline"
+    | PersistencePreferences.Server => "Save to Server"
+    | PersistencePreferences.Both => "Save Both"
+    }
+
+  let runSaveForTarget = target => {
+    setPreferredSaveTarget(_ => target)
+    saveTargetRef.current = target
+    PersistencePreferences.setPreferredSaveTarget(target)->ignore
+    let _ = saveExecute()
+  }
 
   let loadAbortRef = React.useRef(None)
   let (loadExecute, loadPending, _loadThrottled) = UseInteraction.useInteraction(
@@ -149,10 +176,59 @@ let make = React.memo((
       <button
         className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={_ => {
-          let _ = saveExecute()
+          EventBus.dispatch(
+            ShowModal({
+              title: "Save Project",
+              description: Some("Choose where this save should go. Server saves create snapshot history, offline saves create a .vt.zip package."),
+              icon: Some("info"),
+              content: None,
+              onClose: None,
+              allowClose: Some(true),
+              className: Some("modal-blue modal-publish-options"),
+              buttons: [
+                {
+                  label: "Cancel",
+                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                  onClick: () => (),
+                  autoClose: Some(true),
+                },
+                {
+                  label: if preferredSaveTarget == PersistencePreferences.Server {
+                    "Save to Server (Default)"
+                  } else {
+                    "Save to Server"
+                  },
+                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
+                  onClick: () => runSaveForTarget(PersistencePreferences.Server),
+                  autoClose: Some(true),
+                },
+                {
+                  label: if preferredSaveTarget == PersistencePreferences.Offline {
+                    "Save Offline (Default)"
+                  } else {
+                    "Save Offline (.vt.zip)"
+                  },
+                  class_: "bg-white/10 text-white hover:bg-white/20",
+                  onClick: () => runSaveForTarget(PersistencePreferences.Offline),
+                  autoClose: Some(true),
+                },
+                {
+                  label: if preferredSaveTarget == PersistencePreferences.Both {
+                    "Save Both (Default)"
+                  } else {
+                    "Save Both"
+                  },
+                  class_: "bg-emerald-500/20 text-white hover:bg-emerald-500/35",
+                  onClick: () => runSaveForTarget(PersistencePreferences.Both),
+                  autoClose: Some(true),
+                },
+              ],
+            }),
+          )
         }}
         disabled={!isPermitted || savePending}
-        ariaLabel="Save"
+        ariaLabel={saveTargetLabel(preferredSaveTarget)}
+        title={saveTargetLabel(preferredSaveTarget)}
       >
         <LucideIcons.Save size=20 strokeWidth=1.0 />
         <span> {React.string("Save")} </span>

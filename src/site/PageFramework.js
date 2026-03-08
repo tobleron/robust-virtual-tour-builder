@@ -25,6 +25,22 @@ const ROUTE_MAP = new Map([
   ['/account.html', 'account'],
 ]);
 
+const builderPickerState = {
+  isOpen: false,
+  loading: false,
+  error: '',
+  projects: [],
+  histories: {},
+  historyLoading: {},
+  historyErrors: {},
+};
+
+const dashboardHistoryState = {
+  histories: {},
+  loading: {},
+  errors: {},
+};
+
 function normalizePath(pathname) {
   if (!pathname || pathname === '') return '/';
   const trimmed = pathname.trim().toLowerCase();
@@ -42,6 +58,74 @@ export function resolveAppSurface(pathname, hostname) {
   }
 
   return 'home';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => {
+    switch (char) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return char;
+    }
+  });
+}
+
+function preferredUserLabel(user) {
+  if (!user) return 'Account';
+  return user.name?.trim() || user.username?.trim() || user.email?.trim() || 'Account';
+}
+
+function preferredUserMeta(user) {
+  if (!user) return '';
+  return user.username?.trim() || user.email?.trim() || '';
+}
+
+function renderAuthActions(session, variant = 'site') {
+  const isAuthenticated = Boolean(session?.authenticated && session?.user);
+  if (!isAuthenticated) {
+    return `
+      <a class="site-btn site-btn-ghost" href="/signin">Sign In</a>
+      <a class="site-btn site-btn-primary" href="/signup">Start Free</a>
+    `;
+  }
+
+  const label = escapeHtml(preferredUserLabel(session.user));
+  const meta = escapeHtml(preferredUserMeta(session.user));
+  const accountLabel = variant === 'builder' ? 'Profile' : 'Account Settings';
+
+  if (variant === 'builder') {
+    return `
+      <a class="site-user-chip site-user-chip-link" href="/account" title="Open account settings">
+        <span class="site-user-avatar" aria-hidden="true">${label.slice(0, 1).toUpperCase()}</span>
+        <span class="site-user-copy">
+          <strong>${label}</strong>
+          ${meta ? `<span>${meta}</span>` : ''}
+        </span>
+      </a>
+      <button class="site-btn site-btn-primary" type="button" data-auth-signout="1">Sign Out</button>
+    `;
+  }
+
+  return `
+    <div class="site-user-chip">
+      <span class="site-user-avatar" aria-hidden="true">${label.slice(0, 1).toUpperCase()}</span>
+      <span class="site-user-copy">
+        <strong>${label}</strong>
+        ${meta ? `<span>${meta}</span>` : ''}
+      </span>
+    </div>
+    <a class="site-btn site-btn-ghost" href="/account">${accountLabel}</a>
+    <button class="site-btn site-btn-primary" type="button" data-auth-signout="1">Sign Out</button>
+  `;
 }
 
 function nav(active) {
@@ -65,9 +149,8 @@ function nav(active) {
         ${link('/dashboard', 'Dashboard', 'dashboard')}
         ${link('/account', 'Account', 'account')}
       </nav>
-      <div class="site-header-actions">
-        <a class="site-btn site-btn-ghost" href="/signin">Sign In</a>
-        <a class="site-btn site-btn-primary" href="/signup">Start Free</a>
+      <div class="site-header-actions" data-auth-surface="site">
+        ${renderAuthActions({ authenticated: false, user: null }, 'site')}
       </div>
     </header>
   `;
@@ -379,6 +462,34 @@ async function authJson(path, payload, method = 'POST') {
   return json;
 }
 
+function formatShortTimestamp(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
+
+async function getAuthSession() {
+  try {
+    const me = await authJson('/api/auth/me', null, 'GET');
+    if (me?.authenticated && me?.user) return me;
+    return { authenticated: false, user: null };
+  } catch (_error) {
+    return { authenticated: false, user: null };
+  }
+}
+
+function updateAuthSurfaces(session) {
+  document.querySelectorAll('[data-auth-surface]').forEach(node => {
+    node.innerHTML = renderAuthActions(session, node.getAttribute('data-auth-surface') || 'site');
+  });
+}
+
 function setAuthMessage(form, message, isError = false) {
   const node = form.querySelector('[data-auth-message]');
   if (!node) return;
@@ -414,19 +525,484 @@ function getEmailFromQuery() {
   return raw && raw.trim() !== '' ? raw.trim() : '';
 }
 
-async function ensureAuthenticatedOrRedirect(currentPage) {
+function redirectIfProtectedPageRequiresAuth(currentPage, session) {
   if (currentPage !== 'dashboard' && currentPage !== 'account') return true;
+  if (session?.authenticated) return true;
+  window.location.assign('/signin');
+  return false;
+}
+
+function clearLocalAuthToken() {
+  if (!window.localStorage) return;
+  window.localStorage.removeItem('auth_token');
+}
+
+async function signOutAndRedirect() {
   try {
-    const me = await authJson('/api/auth/me', null, 'GET');
-    if (!me?.authenticated) {
-      window.location.assign('/signin');
-      return false;
-    }
-    return true;
+    await authJson('/api/auth/signout', null);
   } catch (_error) {
+    // Keep sign-out resilient; the local token is the critical path.
+  } finally {
+    clearLocalAuthToken();
     window.location.assign('/signin');
-    return false;
   }
+}
+
+function builderModalRoot() {
+  return document.getElementById('builder-project-modal');
+}
+
+function builderStateSummary() {
+  const state = window.__RE_STATE__;
+  if (!state || typeof state !== 'object') return { hasContent: false, tourName: '' };
+  const sceneOrder = Array.isArray(state.sceneOrder) ? state.sceneOrder : [];
+  const tourName = typeof state.tourName === 'string' ? state.tourName.trim() : '';
+  return {
+    hasContent: sceneOrder.length > 0 || (tourName !== '' && tourName !== 'Tour Name'),
+    tourName,
+  };
+}
+
+function confirmBuilderProjectReplace(label) {
+  const summary = builderStateSummary();
+  if (!summary.hasContent) return true;
+  return window.confirm(`Open "${label}"? Current in-editor state will be replaced.`);
+}
+
+function builderCanLoadSavedProject() {
+  return typeof window.__VTB_SET_SESSION_ID__ === 'function' && typeof window.__VTB_LOAD_PROJECT__ === 'function';
+}
+
+function applySavedProjectToBuilder(sessionId, projectData) {
+  if (!builderCanLoadSavedProject()) {
+    throw new Error('Builder is still starting. Try again in a moment.');
+  }
+  window.__VTB_SET_SESSION_ID__(sessionId);
+  window.__VTB_LOAD_PROJECT__(projectData);
+  window.history.replaceState({}, '', `/builder?projectId=${encodeURIComponent(sessionId)}`);
+}
+
+async function fetchDashboardProjects() {
+  const auth = getAuthHeaderValue();
+  const headers = {};
+  if (auth) headers.Authorization = auth;
+  const response = await fetch('/api/project/dashboard/projects', {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+  if (!response.ok) throw new Error(`HTTP_${response.status}`);
+  return response.json();
+}
+
+async function fetchProjectSnapshots(sessionId) {
+  const auth = getAuthHeaderValue();
+  const headers = {};
+  if (auth) headers.Authorization = auth;
+  const response = await fetch(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}/snapshots`, {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+  if (!response.ok) throw new Error(`HTTP_${response.status}`);
+  return response.json();
+}
+
+async function fetchLatestProject(sessionId) {
+  const auth = getAuthHeaderValue();
+  const headers = {};
+  if (auth) headers.Authorization = auth;
+  const response = await fetch(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}`, {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+  if (!response.ok) throw new Error(`HTTP_${response.status}`);
+  return response.json();
+}
+
+async function fetchSnapshotProject(sessionId, snapshotId) {
+  const auth = getAuthHeaderValue();
+  const headers = {};
+  if (auth) headers.Authorization = auth;
+  const response = await fetch(
+    `/api/project/dashboard/projects/${encodeURIComponent(sessionId)}/snapshots/${encodeURIComponent(snapshotId)}`,
+    {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    }
+  );
+  if (!response.ok) throw new Error(`HTTP_${response.status}`);
+  return response.json();
+}
+
+async function deleteDashboardProject(sessionId) {
+  return authJson(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}`, null, 'DELETE');
+}
+
+function builderProjectRow(project) {
+  const sessionId = escapeHtml(project.sessionId || '');
+  const projectName = escapeHtml(project.tourName || 'Untitled Tour');
+  const updated = escapeHtml(project.updatedAt || '-');
+  const scenes = Number.isFinite(project.sceneCount) ? project.sceneCount : 0;
+  const history = builderPickerState.histories[project.sessionId];
+  const historyError = builderPickerState.historyErrors[project.sessionId] || '';
+  const historyLoading = Boolean(builderPickerState.historyLoading[project.sessionId]);
+
+  return `
+    <article class="builder-project-row">
+      <div class="builder-project-main">
+        <div>
+          <h3>${projectName}</h3>
+          <p>${scenes} scene${scenes === 1 ? '' : 's'} • Updated ${updated}</p>
+        </div>
+        <div class="builder-project-actions">
+          <button class="site-btn site-btn-primary" type="button" data-builder-open-latest="${sessionId}" data-project-name="${projectName}">
+            Open Latest
+          </button>
+          <button class="site-btn site-btn-ghost" type="button" data-builder-history-toggle="${sessionId}">
+            ${history ? 'Hide History' : 'Show History'}
+          </button>
+        </div>
+      </div>
+      ${
+        history
+          ? `
+            <div class="builder-history-list">
+              ${historyLoading ? '<p class="site-muted">Loading snapshot history…</p>' : ''}
+              ${historyError ? `<p class="builder-modal-error">${escapeHtml(historyError)}</p>` : ''}
+              ${
+                history.length === 0
+                  ? '<p class="site-muted">No retained snapshots yet.</p>'
+                  : history
+                      .map(
+                        item => `
+                          <div class="builder-history-row">
+                            <div>
+                              <strong>${escapeHtml(item.tourName || 'Snapshot')}</strong>
+                              <span>${escapeHtml(formatShortTimestamp(item.createdAt || '-'))} • ${escapeHtml((item.origin || 'auto').toUpperCase())} • ${item.sceneCount || 0} scenes • ${item.hotspotCount || 0} hotspots</span>
+                            </div>
+                            <button
+                              class="site-btn site-btn-ghost"
+                              type="button"
+                              data-builder-open-snapshot="${escapeHtml(item.snapshotId || '')}"
+                              data-builder-session-id="${sessionId}"
+                              data-project-name="${projectName}"
+                            >
+                              Open Snapshot
+                            </button>
+                          </div>
+                        `
+                      )
+                      .join('')
+              }
+            </div>
+          `
+          : ''
+      }
+    </article>
+  `;
+}
+
+function renderBuilderProjectPicker() {
+  const modal = builderModalRoot();
+  if (!modal) return;
+  modal.hidden = !builderPickerState.isOpen;
+  if (!builderPickerState.isOpen) {
+    modal.innerHTML = '';
+    return;
+  }
+
+  const session = window.__VTB_AUTH_SESSION__ || { authenticated: false, user: null };
+  let body = '';
+
+  if (!session.authenticated) {
+    body = `
+      <div class="builder-modal-state">
+        <p class="site-muted">Sign in to open saved tours and restore retained snapshots.</p>
+        <div class="site-hero-actions">
+          <a class="site-btn site-btn-primary" href="/signin">Sign In</a>
+          <a class="site-btn site-btn-ghost" href="/signup">Create Account</a>
+        </div>
+      </div>
+    `;
+  } else if (builderPickerState.loading) {
+    body = `<div class="builder-modal-state"><p class="site-muted">Loading your saved tours…</p></div>`;
+  } else if (builderPickerState.error) {
+    body = `<div class="builder-modal-state"><p class="builder-modal-error">${escapeHtml(builderPickerState.error)}</p></div>`;
+  } else if (!builderPickerState.projects.length) {
+    body = `<div class="builder-modal-state"><p class="site-muted">No saved tours yet. Start editing and the backend snapshot history will begin automatically.</p></div>`;
+  } else {
+    body = builderPickerState.projects.map(builderProjectRow).join('');
+  }
+
+  modal.innerHTML = `
+    <div class="builder-modal-backdrop" data-builder-close-modal="1"></div>
+    <div class="builder-modal-card" role="dialog" aria-modal="true" aria-label="Open saved tour">
+      <div class="builder-modal-head">
+        <div>
+          <h2>Open Saved Tour</h2>
+          <p class="site-muted">Load the latest project state or open one of the retained backend snapshots.</p>
+        </div>
+        <button class="site-btn site-btn-ghost" type="button" data-builder-close-modal="1">Close</button>
+      </div>
+      <div class="builder-modal-body">${body}</div>
+    </div>
+  `;
+}
+
+async function openBuilderProjectPicker() {
+  builderPickerState.isOpen = true;
+  builderPickerState.loading = true;
+  builderPickerState.error = '';
+  renderBuilderProjectPicker();
+
+  try {
+    const projects = await fetchDashboardProjects();
+    builderPickerState.projects = Array.isArray(projects) ? projects : [];
+    builderPickerState.loading = false;
+    renderBuilderProjectPicker();
+  } catch (_error) {
+    builderPickerState.loading = false;
+    builderPickerState.error = 'Failed to load saved tours.';
+    renderBuilderProjectPicker();
+  }
+}
+
+function closeBuilderProjectPicker() {
+  builderPickerState.isOpen = false;
+  renderBuilderProjectPicker();
+}
+
+async function toggleBuilderProjectHistory(sessionId) {
+  if (builderPickerState.histories[sessionId]) {
+    delete builderPickerState.histories[sessionId];
+    delete builderPickerState.historyErrors[sessionId];
+    delete builderPickerState.historyLoading[sessionId];
+    renderBuilderProjectPicker();
+    return;
+  }
+
+  builderPickerState.historyLoading[sessionId] = true;
+  builderPickerState.historyErrors[sessionId] = '';
+  builderPickerState.histories[sessionId] = [];
+  renderBuilderProjectPicker();
+
+  try {
+    const snapshots = await fetchProjectSnapshots(sessionId);
+    builderPickerState.histories[sessionId] = Array.isArray(snapshots) ? snapshots : [];
+  } catch (_error) {
+    builderPickerState.historyErrors[sessionId] = 'Failed to load snapshot history.';
+  } finally {
+    builderPickerState.historyLoading[sessionId] = false;
+    renderBuilderProjectPicker();
+  }
+}
+
+async function handleBuilderLatestOpen(sessionId, label) {
+  if (!confirmBuilderProjectReplace(label)) return;
+  try {
+    const payload = await fetchLatestProject(sessionId);
+    applySavedProjectToBuilder(payload.sessionId || sessionId, payload.projectData);
+    closeBuilderProjectPicker();
+  } catch (error) {
+    builderPickerState.error = error?.message || 'Failed to open saved tour.';
+    renderBuilderProjectPicker();
+  }
+}
+
+async function handleBuilderSnapshotOpen(sessionId, snapshotId, label) {
+  if (!confirmBuilderProjectReplace(`${label} snapshot`)) return;
+  try {
+    const payload = await fetchSnapshotProject(sessionId, snapshotId);
+    applySavedProjectToBuilder(payload.sessionId || sessionId, payload.projectData);
+    closeBuilderProjectPicker();
+  } catch (error) {
+    builderPickerState.error = error?.message || 'Failed to open snapshot.';
+    renderBuilderProjectPicker();
+  }
+}
+
+async function handleDashboardProjectDelete(sessionId, label) {
+  const confirmed = window.confirm(`Delete "${label}"? This removes the project and its retained snapshots.`);
+  if (!confirmed) return;
+  try {
+    await deleteDashboardProject(sessionId);
+    delete dashboardHistoryState.histories[sessionId];
+    delete dashboardHistoryState.loading[sessionId];
+    delete dashboardHistoryState.errors[sessionId];
+    await loadDashboardProjects();
+  } catch (_error) {
+    window.alert('Failed to delete the project.');
+  }
+}
+
+function renderDashboardHistoryRows(project) {
+  const history = dashboardHistoryState.histories[project.sessionId];
+  if (!history) return '';
+
+  const loading = Boolean(dashboardHistoryState.loading[project.sessionId]);
+  const error = dashboardHistoryState.errors[project.sessionId] || '';
+  const colSpan = 5;
+
+  return `
+    <tr class="site-dashboard-history-row">
+      <td colspan="${colSpan}">
+        <div class="site-dashboard-history-panel">
+          ${loading ? '<p class="site-muted">Loading snapshot history...</p>' : ''}
+          ${error ? `<p class="builder-modal-error">${escapeHtml(error)}</p>` : ''}
+          ${
+            !loading && !error && history.length === 0
+              ? '<p class="site-muted">No retained snapshots yet.</p>'
+              : ''
+          }
+          ${
+            history
+              .map(
+                item => `
+                  <div class="site-dashboard-history-item">
+                    <div>
+                      <strong>${escapeHtml(item.tourName || 'Snapshot')}</strong>
+                      <span>${escapeHtml(formatShortTimestamp(item.createdAt || '-'))} • ${escapeHtml((item.origin || 'auto').toUpperCase())} • ${item.sceneCount || 0} scenes • ${item.hotspotCount || 0} hotspots</span>
+                    </div>
+                    <button
+                      class="site-link site-link-button"
+                      type="button"
+                      data-dashboard-open-snapshot="${escapeHtml(item.snapshotId || '')}"
+                      data-dashboard-session-id="${escapeHtml(project.sessionId || '')}"
+                      data-project-name="${escapeHtml(project.tourName || 'Untitled Tour')}"
+                    >
+                      Open in Builder
+                    </button>
+                  </div>
+                `
+              )
+              .join('')
+          }
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+async function toggleDashboardProjectHistory(sessionId) {
+  if (dashboardHistoryState.histories[sessionId]) {
+    delete dashboardHistoryState.histories[sessionId];
+    delete dashboardHistoryState.loading[sessionId];
+    delete dashboardHistoryState.errors[sessionId];
+    await loadDashboardProjects();
+    return;
+  }
+
+  dashboardHistoryState.loading[sessionId] = true;
+  dashboardHistoryState.errors[sessionId] = '';
+  dashboardHistoryState.histories[sessionId] = [];
+  await loadDashboardProjects();
+
+  try {
+    const snapshots = await fetchProjectSnapshots(sessionId);
+    dashboardHistoryState.histories[sessionId] = Array.isArray(snapshots) ? snapshots : [];
+  } catch (_error) {
+    dashboardHistoryState.errors[sessionId] = 'Failed to load snapshot history.';
+  } finally {
+    dashboardHistoryState.loading[sessionId] = false;
+    await loadDashboardProjects();
+  }
+}
+
+async function handleDashboardSnapshotOpen(sessionId, snapshotId, label) {
+  const confirmed = window.confirm(`Open "${label}" snapshot in the builder?`);
+  if (!confirmed) return;
+  window.location.assign(
+    `/builder?projectId=${encodeURIComponent(sessionId)}&snapshotId=${encodeURIComponent(snapshotId)}`
+  );
+}
+
+function bindGlobalChromeHandlers() {
+  if (document.body.getAttribute('data-auth-chrome-bound') === '1') return;
+  document.body.setAttribute('data-auth-chrome-bound', '1');
+
+  document.addEventListener('click', event => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const signOutButton = target.closest('[data-auth-signout="1"]');
+    if (signOutButton) {
+      event.preventDefault();
+      signOutAndRedirect();
+      return;
+    }
+
+    const openTourButton = target.closest('[data-builder-open-tour="1"]');
+    if (openTourButton) {
+      event.preventDefault();
+      openBuilderProjectPicker();
+      return;
+    }
+
+    const closeModalButton = target.closest('[data-builder-close-modal="1"]');
+    if (closeModalButton) {
+      event.preventDefault();
+      closeBuilderProjectPicker();
+      return;
+    }
+
+    const latestButton = target.closest('[data-builder-open-latest]');
+    if (latestButton) {
+      event.preventDefault();
+      handleBuilderLatestOpen(
+        latestButton.getAttribute('data-builder-open-latest') || '',
+        latestButton.getAttribute('data-project-name') || 'saved tour'
+      );
+      return;
+    }
+
+    const historyButton = target.closest('[data-builder-history-toggle]');
+    if (historyButton) {
+      event.preventDefault();
+      toggleBuilderProjectHistory(historyButton.getAttribute('data-builder-history-toggle') || '');
+      return;
+    }
+
+    const openSnapshotButton = target.closest('[data-builder-open-snapshot]');
+    if (openSnapshotButton) {
+      event.preventDefault();
+      handleBuilderSnapshotOpen(
+        openSnapshotButton.getAttribute('data-builder-session-id') || '',
+        openSnapshotButton.getAttribute('data-builder-open-snapshot') || '',
+        openSnapshotButton.getAttribute('data-project-name') || 'saved tour'
+      );
+      return;
+    }
+
+    const dashboardHistoryToggle = target.closest('[data-dashboard-history-toggle]');
+    if (dashboardHistoryToggle) {
+      event.preventDefault();
+      toggleDashboardProjectHistory(dashboardHistoryToggle.getAttribute('data-dashboard-history-toggle') || '');
+      return;
+    }
+
+    const dashboardSnapshotOpen = target.closest('[data-dashboard-open-snapshot]');
+    if (dashboardSnapshotOpen) {
+      event.preventDefault();
+      handleDashboardSnapshotOpen(
+        dashboardSnapshotOpen.getAttribute('data-dashboard-session-id') || '',
+        dashboardSnapshotOpen.getAttribute('data-dashboard-open-snapshot') || '',
+        dashboardSnapshotOpen.getAttribute('data-project-name') || 'saved tour'
+      );
+      return;
+    }
+
+    const deleteButton = target.closest('[data-dashboard-delete]');
+    if (deleteButton) {
+      event.preventDefault();
+      handleDashboardProjectDelete(
+        deleteButton.getAttribute('data-dashboard-delete') || '',
+        deleteButton.getAttribute('data-project-name') || 'saved tour'
+      );
+    }
+  });
 }
 
 function bindAuthForms(page) {
@@ -518,6 +1094,7 @@ function bindAuthForms(page) {
             setAuthMessage(form, result.message || 'We sent a verification code to your email.', false);
             return;
           }
+
           if (window.localStorage && result?.token) {
             window.localStorage.setItem('auth_token', result.token);
           }
@@ -552,7 +1129,6 @@ function bindAuthForms(page) {
           await authJson('/api/auth/reset-password', { token: tokenFromUrl, newPassword });
           setAuthMessage(form, 'Password updated. Redirecting to sign in...', false);
           window.setTimeout(() => window.location.assign('/signin'), 1200);
-          return;
         }
       } catch (error) {
         const msg = error?.message || 'Request failed.';
@@ -571,20 +1147,7 @@ async function loadDashboardProjects() {
   if (!tbody) return;
 
   try {
-    const auth = getAuthHeaderValue();
-    const headers = {};
-    if (auth) headers.Authorization = auth;
-    const response = await fetch('/api/project/dashboard/projects', {
-      method: 'GET',
-      headers,
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP_${response.status}`);
-    }
-
-    const projects = await response.json();
+    const projects = await fetchDashboardProjects();
     if (!Array.isArray(projects) || projects.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5">No saved tours yet.</td></tr>`;
       return;
@@ -595,15 +1158,24 @@ async function loadDashboardProjects() {
         const sessionId = encodeURIComponent(p.sessionId || '');
         const projectName = p.tourName || 'Untitled Tour';
         const scenes = Number.isFinite(p.sceneCount) ? p.sceneCount : 0;
-        const updated = p.updatedAt || '-';
+        const updated = formatShortTimestamp(p.updatedAt || '-');
+        const isHistoryOpen = Boolean(dashboardHistoryState.histories[p.sessionId]);
         return `
           <tr>
-            <td>${projectName}</td>
+            <td>${escapeHtml(projectName)}</td>
             <td>${scenes}</td>
-            <td>${updated}</td>
+            <td>${escapeHtml(updated)}</td>
             <td><span class="site-chip">Saved</span></td>
-            <td><a class="site-link" href="/builder?projectId=${sessionId}">Open Builder</a></td>
-          </tr>
+            <td>
+              <div class="site-table-actions">
+                <a class="site-link" href="/builder?projectId=${sessionId}">Open Builder</a>
+                <button class="site-link site-link-button" type="button" data-dashboard-history-toggle="${sessionId}">
+                  ${isHistoryOpen ? 'Hide History' : 'History'}
+                </button>
+                <button class="site-icon-button" type="button" aria-label="Delete project" title="Delete project" data-dashboard-delete="${sessionId}" data-project-name="${escapeHtml(projectName)}">🗑</button>
+              </div>
+            </td>
+          </tr>${renderDashboardHistoryRows(p)}
         `;
       })
       .join('');
@@ -614,6 +1186,7 @@ async function loadDashboardProjects() {
 
 export function renderPageFramework(rootElement, page) {
   if (!rootElement) return;
+  bindGlobalChromeHandlers();
   document.body.classList.add('site-framework-mode');
   document.title = `Robust Virtual Tour Builder | ${titleFor(page)}`;
 
@@ -627,9 +1200,47 @@ export function renderPageFramework(rootElement, page) {
     </div>
   `;
 
-  ensureAuthenticatedOrRedirect(page).then(isAllowed => {
-    if (!isAllowed) return;
+  bindAuthForms(page);
+  getAuthSession().then(session => {
+    window.__VTB_AUTH_SESSION__ = session;
+    updateAuthSurfaces(session);
+    if (!redirectIfProtectedPageRequiresAuth(page, session)) return;
     if (page === 'dashboard') loadDashboardProjects();
-    bindAuthForms(page);
+  });
+}
+
+export function renderBuilderFramework(rootElement) {
+  if (!rootElement) return;
+  bindGlobalChromeHandlers();
+  document.body.classList.add('builder-overlay-mode');
+  document.title = 'Robust Virtual Tour Builder | Builder';
+
+  if (!document.getElementById('builder-shell-overlay')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'builder-shell-overlay';
+    overlay.className = 'builder-overlay-bar';
+    overlay.innerHTML = `
+      <div class="builder-overlay-left">
+        <a class="site-btn site-btn-ghost" href="/dashboard">Back to Dashboard</a>
+        <button class="site-btn site-btn-ghost builder-open-tour" type="button" data-builder-open-tour="1">Open Tour</button>
+      </div>
+      <div class="builder-overlay-right" data-auth-surface="builder">
+        ${renderAuthActions({ authenticated: false, user: null }, 'builder')}
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  if (!document.getElementById('builder-project-modal')) {
+    const modal = document.createElement('div');
+    modal.id = 'builder-project-modal';
+    modal.className = 'builder-project-modal';
+    modal.hidden = true;
+    document.body.appendChild(modal);
+  }
+
+  getAuthSession().then(session => {
+    window.__VTB_AUTH_SESSION__ = session;
+    updateAuthSurfaces(session);
   });
 }

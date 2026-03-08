@@ -5,23 +5,33 @@ use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
+use uuid::Uuid;
 
 use crate::api::utils::get_temp_path;
 use crate::api::{project_logic, project_multipart};
+use crate::api::project_logic::reference::collect_referenced_project_files;
 use crate::models::{AppError, User};
 use crate::pathfinder::PathRequest;
 use crate::services::media::StorageManager;
 use crate::services::project::{self};
 
 const SNAPSHOT_FILENAME: &str = "project_snapshot.json";
+const SNAPSHOT_HISTORY_DIR: &str = "snapshots";
+const MAX_PROJECT_SNAPSHOTS: usize = 9;
+
+fn default_snapshot_origin() -> String {
+    "auto".to_string()
+}
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SnapshotSyncPayload {
     pub session_id: Option<String>,
     pub project_data: serde_json::Value,
+    pub save_origin: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -41,6 +51,47 @@ pub struct DashboardProjectSummary {
     pub updated_at: String,
     pub scene_count: usize,
     pub hotspot_count: usize,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct SnapshotHistoryEnvelope {
+    snapshot_id: String,
+    created_at: String,
+    tour_name: String,
+    scene_count: usize,
+    hotspot_count: usize,
+    content_hash: String,
+    #[serde(default = "default_snapshot_origin")]
+    origin: String,
+    project_data: serde_json::Value,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnapshotHistoryItem {
+    pub snapshot_id: String,
+    pub created_at: String,
+    pub tour_name: String,
+    pub scene_count: usize,
+    pub hotspot_count: usize,
+    pub content_hash: String,
+    pub origin: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnapshotRestoreResponse {
+    pub session_id: String,
+    pub snapshot_id: String,
+    pub project_data: serde_json::Value,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnapshotAssetSyncResponse {
+    pub session_id: String,
+    pub stored_files: usize,
 }
 
 fn count_hotspots(project_data: &serde_json::Value) -> usize {
@@ -68,6 +119,238 @@ fn scene_count(project_data: &serde_json::Value) -> usize {
         .and_then(|v| v.as_array())
         .map(|scenes| scenes.len())
         .unwrap_or(0)
+}
+
+fn project_tour_name(project_data: &serde_json::Value) -> String {
+    project_data
+        .get("tourName")
+        .and_then(|v| v.as_str())
+        .unwrap_or("Untitled Tour")
+        .to_string()
+}
+
+fn snapshot_history_dir(project_dir: &Path) -> PathBuf {
+    project_dir.join(SNAPSHOT_HISTORY_DIR)
+}
+
+fn snapshot_content_hash(project_data: &serde_json::Value) -> Result<String, AppError> {
+    let serialized = serde_json::to_vec(project_data)
+        .map_err(|e| AppError::InternalError(format!("Serialize snapshot hash failed: {}", e)))?;
+    let mut hasher = Sha256::new();
+    hasher.update(serialized);
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+fn write_current_snapshot(
+    project_dir: &Path,
+    project_data: &serde_json::Value,
+) -> Result<(), AppError> {
+    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+    let serialized = serde_json::to_string_pretty(project_data)
+        .map_err(|e| AppError::InternalError(format!("Serialize snapshot failed: {}", e)))?;
+    std::fs::write(snapshot_path, serialized).map_err(AppError::IoError)
+}
+
+fn load_snapshot_history(project_dir: &Path) -> Result<Vec<SnapshotHistoryEnvelope>, AppError> {
+    let history_dir = snapshot_history_dir(project_dir);
+    if !history_dir.exists() {
+        return Ok(Vec::new());
+    }
+
+    let mut entries: Vec<SnapshotHistoryEnvelope> = Vec::new();
+    for entry in std::fs::read_dir(&history_dir).map_err(AppError::IoError)? {
+        let entry = entry.map_err(AppError::IoError)?;
+        if !entry.file_type().map_err(AppError::IoError)?.is_file() {
+            continue;
+        }
+        let raw = std::fs::read_to_string(entry.path()).map_err(AppError::IoError)?;
+        let envelope = serde_json::from_str::<SnapshotHistoryEnvelope>(&raw).map_err(|e| {
+            AppError::ValidationError(format!("Invalid snapshot history JSON: {}", e))
+        })?;
+        entries.push(envelope);
+    }
+
+    entries.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+    Ok(entries)
+}
+
+fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError> {
+    let history_dir = snapshot_history_dir(project_dir);
+    if !history_dir.exists() {
+        return Ok(());
+    }
+
+    let mut file_entries: Vec<(PathBuf, SnapshotHistoryEnvelope)> = Vec::new();
+    for entry in std::fs::read_dir(&history_dir).map_err(AppError::IoError)? {
+        let entry = entry.map_err(AppError::IoError)?;
+        if !entry.file_type().map_err(AppError::IoError)?.is_file() {
+            continue;
+        }
+        let path = entry.path();
+        let raw = std::fs::read_to_string(&path).map_err(AppError::IoError)?;
+        let envelope = serde_json::from_str::<SnapshotHistoryEnvelope>(&raw).map_err(|e| {
+            AppError::ValidationError(format!("Invalid snapshot history JSON: {}", e))
+        })?;
+        file_entries.push((path, envelope));
+    }
+
+    file_entries.sort_by(|a, b| b.1.created_at.cmp(&a.1.created_at));
+    for (path, _) in file_entries.into_iter().skip(MAX_PROJECT_SNAPSHOTS) {
+        std::fs::remove_file(path).map_err(AppError::IoError)?;
+    }
+
+    Ok(())
+}
+
+fn persist_snapshot_history(
+    project_dir: &Path,
+    project_data: &serde_json::Value,
+    origin: &str,
+) -> Result<SnapshotHistoryEnvelope, AppError> {
+    let history_dir = snapshot_history_dir(project_dir);
+    std::fs::create_dir_all(&history_dir).map_err(AppError::IoError)?;
+
+    let content_hash = snapshot_content_hash(project_data)?;
+    let existing_history = load_snapshot_history(project_dir)?;
+    if let Some(existing_latest) = existing_history.first() {
+        if existing_latest.content_hash == content_hash {
+            return Ok(existing_latest.clone());
+        }
+    }
+
+    let created_at = chrono::Utc::now().to_rfc3339();
+    let snapshot_id = Uuid::new_v4().to_string();
+    let envelope = SnapshotHistoryEnvelope {
+        snapshot_id: snapshot_id.clone(),
+        created_at: created_at.clone(),
+        tour_name: project_tour_name(project_data),
+        scene_count: scene_count(project_data),
+        hotspot_count: count_hotspots(project_data),
+        content_hash,
+        origin: origin.to_string(),
+        project_data: project_data.clone(),
+    };
+
+    let filename = format!(
+        "snapshot_{}_{}.json",
+        chrono::Utc::now().format("%Y%m%dT%H%M%S%.3fZ"),
+        snapshot_id
+    );
+    let serialized = serde_json::to_string_pretty(&envelope).map_err(|e| {
+        AppError::InternalError(format!("Serialize snapshot history failed: {}", e))
+    })?;
+    std::fs::write(history_dir.join(filename), serialized).map_err(AppError::IoError)?;
+    prune_snapshot_history(project_dir)?;
+    Ok(envelope)
+}
+
+fn snapshot_item_from_envelope(envelope: &SnapshotHistoryEnvelope) -> SnapshotHistoryItem {
+    SnapshotHistoryItem {
+        snapshot_id: envelope.snapshot_id.clone(),
+        created_at: envelope.created_at.clone(),
+        tour_name: envelope.tour_name.clone(),
+        scene_count: envelope.scene_count,
+        hotspot_count: envelope.hotspot_count,
+        content_hash: envelope.content_hash.clone(),
+        origin: envelope.origin.clone(),
+    }
+}
+
+fn persist_project_asset(
+    project_dir: &Path,
+    filename: &str,
+    temp_path: &Path,
+) -> Result<(), AppError> {
+    let safe_filename = crate::api::utils::sanitize_filename(filename)
+        .map_err(AppError::ValidationError)?;
+    let target_path = if safe_filename == "logo_upload" {
+        project_dir.join("logo_upload")
+    } else {
+        let images_dir = project_dir.join("images");
+        std::fs::create_dir_all(&images_dir).map_err(AppError::IoError)?;
+        images_dir.join(safe_filename)
+    };
+    std::fs::copy(temp_path, target_path).map_err(AppError::IoError)?;
+    Ok(())
+}
+
+fn find_existing_project_asset(project_dir: &Path, filename: &str) -> Option<PathBuf> {
+    let images_path = project_dir.join("images").join(filename);
+    if images_path.exists() && images_path.is_file() {
+        return Some(images_path);
+    }
+
+    let root_path = project_dir.join(filename);
+    if root_path.exists() && root_path.is_file() {
+        return Some(root_path);
+    }
+
+    None
+}
+
+fn repair_missing_project_assets(
+    user_root: &Path,
+    project_dir: &Path,
+    project_data: &serde_json::Value,
+) -> Result<(), AppError> {
+    let referenced_files = collect_referenced_project_files(project_data);
+    if referenced_files.is_empty() {
+        return Ok(());
+    }
+
+    let mut missing_files: Vec<String> = referenced_files
+        .into_iter()
+        .filter(|filename| find_existing_project_asset(project_dir, filename).is_none())
+        .collect();
+
+    if missing_files.is_empty() {
+        return Ok(());
+    }
+
+    let mut candidate_dirs: Vec<PathBuf> = std::fs::read_dir(user_root)
+        .map_err(AppError::IoError)?
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            entry
+                .file_type()
+                .ok()
+                .filter(|ft| ft.is_dir())
+                .map(|_| entry.path())
+        })
+        .filter(|path| path != project_dir)
+        .collect();
+
+    candidate_dirs.sort_by(|a, b| {
+        let a_time = std::fs::metadata(a.join(SNAPSHOT_FILENAME))
+            .and_then(|m| m.modified())
+            .ok();
+        let b_time = std::fs::metadata(b.join(SNAPSHOT_FILENAME))
+            .and_then(|m| m.modified())
+            .ok();
+        b_time.cmp(&a_time)
+    });
+
+    for candidate_dir in candidate_dirs {
+        let remaining = missing_files.clone();
+        for filename in remaining {
+            if let Some(source) = find_existing_project_asset(&candidate_dir, &filename) {
+                let target = if filename == "logo_upload" {
+                    project_dir.join("logo_upload")
+                } else {
+                    let images_dir = project_dir.join("images");
+                    std::fs::create_dir_all(&images_dir).map_err(AppError::IoError)?;
+                    images_dir.join(&filename)
+                };
+                std::fs::copy(source, target).map_err(AppError::IoError)?;
+                missing_files.retain(|item| item != &filename);
+            }
+        }
+        if missing_files.is_empty() {
+            break;
+        }
+    }
+
+    Ok(())
 }
 
 fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {
@@ -254,15 +537,16 @@ pub async fn sync_snapshot(
 
     let project_dir =
         StorageManager::ensure_project_dir(&user.id, &session_id).map_err(AppError::IoError)?;
-    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
-
-    let serialized = serde_json::to_string_pretty(&validated_project)
-        .map_err(|e| AppError::InternalError(format!("Serialize snapshot failed: {}", e)))?;
-    std::fs::write(snapshot_path, serialized).map_err(AppError::IoError)?;
+    write_current_snapshot(&project_dir, &validated_project)?;
+    let history_entry = persist_snapshot_history(
+        &project_dir,
+        &validated_project,
+        payload.save_origin.as_deref().unwrap_or("auto"),
+    )?;
 
     let response = SnapshotSyncResponse {
         session_id,
-        updated_at: chrono::Utc::now().to_rfc3339(),
+        updated_at: history_entry.created_at,
         scene_count: scene_count(&validated_project),
         hotspot_count: count_hotspots(&validated_project),
     };
@@ -334,12 +618,155 @@ pub async fn load_dashboard_project(
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
     let session_id = path.into_inner();
+    let user_root = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
     let project_dir =
         StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
     let project_data = read_snapshot(&project_dir)?;
+    repair_missing_project_assets(&user_root, &project_dir, &project_data)?;
     Ok(HttpResponse::Ok().json(json!({
         "sessionId": session_id,
         "projectData": project_data
+    })))
+}
+
+/// List retained snapshot history for a project.
+pub async fn list_project_snapshots(
+    req: HttpRequest,
+    path: web::Path<String>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let session_id = path.into_inner();
+    let project_dir =
+        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+
+    let history = load_snapshot_history(&project_dir)?
+        .into_iter()
+        .map(|entry| snapshot_item_from_envelope(&entry))
+        .collect::<Vec<_>>();
+
+    Ok(HttpResponse::Ok().json(history))
+}
+
+/// Load a retained snapshot into the builder without promoting it to latest.
+pub async fn load_project_snapshot(
+    req: HttpRequest,
+    path: web::Path<(String, String)>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let (session_id, snapshot_id) = path.into_inner();
+    let user_root = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
+    let project_dir =
+        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+
+    let history = load_snapshot_history(&project_dir)?;
+    let snapshot = history
+        .into_iter()
+        .find(|entry| entry.snapshot_id == snapshot_id)
+        .ok_or_else(|| AppError::ValidationError("Snapshot not found".into()))?;
+
+    repair_missing_project_assets(&user_root, &project_dir, &snapshot.project_data)?;
+
+    Ok(HttpResponse::Ok().json(SnapshotRestoreResponse {
+        session_id,
+        snapshot_id,
+        project_data: snapshot.project_data,
+    }))
+}
+
+/// Restore a retained snapshot as the latest canonical project state.
+pub async fn restore_project_snapshot(
+    req: HttpRequest,
+    path: web::Path<(String, String)>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let (session_id, snapshot_id) = path.into_inner();
+    let project_dir =
+        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+
+    let history = load_snapshot_history(&project_dir)?;
+    let restored = history
+        .into_iter()
+        .find(|entry| entry.snapshot_id == snapshot_id)
+        .ok_or_else(|| AppError::ValidationError("Snapshot not found".into()))?;
+
+    write_current_snapshot(&project_dir, &restored.project_data)?;
+    let latest_entry = persist_snapshot_history(&project_dir, &restored.project_data, "manual")?;
+
+    Ok(HttpResponse::Ok().json(SnapshotRestoreResponse {
+        session_id,
+        snapshot_id: latest_entry.snapshot_id,
+        project_data: restored.project_data,
+    }))
+}
+
+/// Persist uploaded panorama/logo assets into the project directory for snapshot-backed reopen flows.
+pub async fn sync_snapshot_assets(
+    req: HttpRequest,
+    payload: Multipart,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    let (_project_json, session_id_opt, temp_images) =
+        project_multipart::parse_save_project_multipart(payload).await?;
+    let session_id = session_id_opt
+        .filter(|value| !value.trim().is_empty())
+        .ok_or_else(|| AppError::ValidationError("Missing session_id for asset sync".into()))?;
+
+    let project_dir =
+        StorageManager::ensure_project_dir(&user.id, &session_id).map_err(AppError::IoError)?;
+
+    let mut stored_files = 0usize;
+    for (filename, temp_path) in &temp_images {
+      persist_project_asset(&project_dir, filename, temp_path)?;
+      stored_files += 1;
+    }
+    for (_, temp_path) in temp_images {
+      let _ = std::fs::remove_file(temp_path);
+    }
+
+    Ok(HttpResponse::Ok().json(SnapshotAssetSyncResponse {
+        session_id,
+        stored_files,
+    }))
+}
+
+/// Delete a persisted project and all retained snapshots/assets.
+pub async fn delete_dashboard_project(
+    req: HttpRequest,
+    path: web::Path<String>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let session_id = path.into_inner();
+    let project_dir =
+        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
+
+    if project_dir.exists() {
+        std::fs::remove_dir_all(project_dir).map_err(AppError::IoError)?;
+    }
+
+    Ok(HttpResponse::Ok().json(json!({
+        "ok": true,
+        "sessionId": session_id
     })))
 }
 

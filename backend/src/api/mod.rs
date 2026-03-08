@@ -239,6 +239,41 @@ pub fn config(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
                             .wrap(Governor::new(&limiters.read)),
                     )
                     .route(
+                        "/dashboard/projects/{session_id}",
+                        web::delete()
+                            .to(project::delete_dashboard_project)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/dashboard/projects/{session_id}/snapshots",
+                        web::get()
+                            .to(project::list_project_snapshots)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/dashboard/projects/{session_id}/snapshots/{snapshot_id}/restore",
+                        web::post()
+                            .to(project::restore_project_snapshot)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/dashboard/projects/{session_id}/snapshots/{snapshot_id}",
+                        web::get()
+                            .to(project::load_project_snapshot)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/snapshot/assets",
+                        web::post()
+                            .to(project::sync_snapshot_assets)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/cache/cleanup",
                         web::post()
                             .to(project::cleanup_backend_cache)

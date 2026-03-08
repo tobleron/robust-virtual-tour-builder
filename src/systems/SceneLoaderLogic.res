@@ -4,7 +4,7 @@ open Actions
 
 /* --- Config --- */
 
-let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+let blankPanorama = "/images/blank-panorama.svg"
 
 let getHotspots = (scene: scene, ~state, ~dispatch) =>
   scene.hotspots->Belt.Array.mapWithIndex((idx, h) => {

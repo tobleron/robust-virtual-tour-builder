@@ -69,11 +69,11 @@ let make = React.memo(() => {
             reload()
           }
         }}
-        onSave={(~signal, ~onCancel) => {
+        onSave={(~mode, ~signal, ~onCancel) => {
           // Unconditionally stop linking to ensure visual artifacts (yellow lines) are cleared
           Logger.info(~module_="Sidebar", ~message="FORCE_STOP_LINKING_ON_SAVE", ())
           dispatch(Actions.StopLinking)
-          UseSidebarProcessing.handleSave(~getState, ~signal, ~onCancel, ~dispatch)
+          UseSidebarProcessing.handleSave(~mode, ~getState, ~signal, ~onCancel, ~dispatch)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
