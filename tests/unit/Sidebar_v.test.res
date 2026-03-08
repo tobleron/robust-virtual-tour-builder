@@ -91,6 +91,8 @@ describe("Sidebar", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
+  let unmountRoot: 'root => unit = %raw(`root => root.unmount()`)
+
   let loadSidebar = async () => {
     let m = await %raw(`import('../../src/components/Sidebar.bs.js')`)
     m["make"]
@@ -128,6 +130,7 @@ describe("Sidebar", () => {
     let version = Dom.querySelector(container, ".sidebar-version-line")
     t->expect(Nullable.toOption(version)->Belt.Option.isSome)->Expect.toBe(true)
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -171,6 +174,7 @@ describe("Sidebar", () => {
 
     t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.SetTourName("Updated Name")))
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -205,6 +209,7 @@ describe("Sidebar", () => {
     | None => t->expect(false)->Expect.toBe(true)
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -286,6 +291,7 @@ describe("Sidebar", () => {
     | _ => t->expect(false)->Expect.toBe(true)
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -330,10 +336,11 @@ describe("Sidebar", () => {
     ->expect(Dom.getTextContent(Nullable.getUnsafe(messageText)))
     ->Expect.toBe("Uploading icons...")
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
-  testAsync("should call saveProject when Save button is clicked", async t => {
+  testAsync("should open save dialog with the available save targets", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -356,17 +363,44 @@ describe("Sidebar", () => {
 
     await wait(100)
 
-    let saveBtn = Dom.querySelector(container, "button[aria-label='Save']")
+    let saveBtn = %raw(`(root) => {
+      const buttons = Array.from(root.querySelectorAll('button'));
+      return buttons.find(button => (button.textContent || '').trim() === 'Save');
+    }`)(container)
     switch Nullable.toOption(saveBtn) {
     | Some(btn) => Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
-    await wait(50)
+    await wait(100)
 
-    let called = %raw(`globalThis.pmMock.saveProject.mock.calls.length > 0`)
-    t->expect(called)->Expect.toBe(true)
+    let saveToServerBtn = %raw(`(root) => {
+      const buttons = Array.from(root.querySelectorAll('button'));
+      return buttons.find(button => (button.textContent || '').includes('Save to Server'));
+    }`)(Dom.documentBody)
+    let saveOfflineBtn = %raw(`(root) => {
+      const buttons = Array.from(root.querySelectorAll('button'));
+      return buttons.find(button => (button.textContent || '').includes('Save Offline'));
+    }`)(Dom.documentBody)
+    let saveBothBtn = %raw(`(root) => {
+      const buttons = Array.from(root.querySelectorAll('button'));
+      return buttons.find(button => (button.textContent || '').includes('Save Both'));
+    }`)(Dom.documentBody)
 
+    switch Nullable.toOption(saveToServerBtn) {
+    | Some(_) => t->expect(true)->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+    switch Nullable.toOption(saveOfflineBtn) {
+    | Some(_) => t->expect(true)->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+    switch Nullable.toOption(saveBothBtn) {
+    | Some(_) => t->expect(true)->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -454,6 +488,7 @@ describe("Sidebar", () => {
     let called = %raw(`globalThis.exporterMock.exportTour.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -552,6 +587,7 @@ describe("Sidebar", () => {
     let called = %raw(`globalThis.teaserMock.startHeadlessTeaserWithStyle.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -595,6 +631,7 @@ describe("Sidebar", () => {
     | None => t->expect(false)->Expect.toBe(true)
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 })

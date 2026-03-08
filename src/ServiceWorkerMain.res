@@ -81,6 +81,7 @@ let manualAssets = [
   "/",
   "/index.html",
   "/early-boot.js",
+  "/images/blank-panorama.svg",
   "/images/icon-192.png",
   "/images/icon-512.png",
   "/images/logo.jpeg",

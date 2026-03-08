@@ -10,6 +10,8 @@ describe("PopOver", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
+  let unmountRoot: 'root => unit = %raw(`root => root.unmount()`)
+
   // Setup global mocks
   beforeEach(() => {
     let _ = %raw(`
@@ -90,6 +92,7 @@ describe("PopOver", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
@@ -117,6 +120,7 @@ describe("PopOver", () => {
 
     t->expect(closed.contents)->Expect.toBe(true)
 
+    unmountRoot(root)
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
@@ -165,6 +169,7 @@ describe("PopOver", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
@@ -213,6 +218,7 @@ describe("PopOver", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
@@ -246,6 +252,7 @@ describe("PopOver", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
