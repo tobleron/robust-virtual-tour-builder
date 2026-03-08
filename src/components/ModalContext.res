@@ -173,6 +173,8 @@ let make = () => {
               <LucideIcons.CircleAlert className="modal-icon text-danger" size=40 />
             | "warning" | "warning_amber" =>
               <LucideIcons.TriangleAlert className="modal-icon text-warning" size=40 />
+            | "reorder" =>
+              <LucideIcons.Move className="modal-icon modal-icon-reorder" size=40 />
             | "link" | "add_link" =>
               <LucideIcons.Link className="modal-icon text-primary" size=40 />
             | "info" | "info_outline" | _ =>

@@ -51,6 +51,44 @@ describe("TourLogic", () => {
     t->expect(computeSceneFilename(3, "Bed/Bath", "orig"))->Expect.toBe("003_Bed_Bath.webp")
   })
 
+  test("toUnderscoreDisplayName formats words into underscore-separated title case", t => {
+    t->expect(toUnderscoreDisplayName("living room"))->Expect.toBe("Living_Room")
+    t->expect(toUnderscoreDisplayName("LIVING_room-main"))->Expect.toBe("Living_Room_Main")
+    t->expect(toUnderscoreDisplayName("032_untagged"))->Expect.toBe("032_Untagged")
+  })
+
+  test("formatDisplayLabel applies underscore display formatting consistently with persistence naming", t => {
+    let labeledScene: Types.scene = {
+      id: "s1",
+      name: "001_living_room.webp",
+      file: Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [],
+      category: "",
+      floor: "G",
+      label: "living room_main",
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "user",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
+      sequenceId: 1,
+    }
+    let unnamedScene: Types.scene = {
+      ...labeledScene,
+      id: "s2",
+      name: "032_untagged.webp",
+      label: "",
+      sequenceId: 0,
+    }
+
+    t->expect(formatDisplayLabel(labeledScene))->Expect.toBe("001_Living_Room_Main")
+    t->expect(formatDisplayLabel(unnamedScene))->Expect.toBe("032_Untagged")
+    t->expect(computeSceneFilename(1, "living room_main", "ignored"))->Expect.toBe("001_Living_Room_Main.webp")
+  })
+
   test("validateTourIntegrity", t => {
     let scenes = [
       {
