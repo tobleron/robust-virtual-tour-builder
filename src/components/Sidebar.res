@@ -1,6 +1,7 @@
 // @efficiency-role: ui-component
 
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
+@val @scope("window") external openSavedToursMaybe: option<unit => unit> = "__VTB_OPEN_TOUR_PICKER__"
 
 @react.component
 let make = React.memo(() => {
@@ -76,10 +77,47 @@ let make = React.memo(() => {
           UseSidebarProcessing.handleSave(~mode, ~getState, ~signal, ~onCancel, ~dispatch)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
-          switch Nullable.toOption(projectFileInputRef.current) {
-          | Some(el) => ReBindings.Dom.click(el)
-          | None => ()
-          }
+          let openLocalFile = () =>
+            switch Nullable.toOption(projectFileInputRef.current) {
+            | Some(el) => ReBindings.Dom.click(el)
+            | None => ()
+            }
+
+          EventBus.dispatch(
+            ShowModal({
+              title: "Load Project",
+              description: Some("Open a saved server tour or import a local .vt.zip package."),
+              icon: Some("info"),
+              content: None,
+              onClose: None,
+              allowClose: Some(true),
+              className: Some("modal-blue"),
+              buttons: [
+                {
+                  label: "Cancel",
+                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                  onClick: () => (),
+                  autoClose: Some(true),
+                },
+                {
+                  label: "Open Saved Tour",
+                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
+                  onClick: () =>
+                    switch openSavedToursMaybe {
+                    | Some(openSavedTours) => openSavedTours()
+                    | None => openLocalFile()
+                    },
+                  autoClose: Some(true),
+                },
+                {
+                  label: "Import .vt.zip",
+                  class_: "bg-white/10 text-white hover:bg-white/20",
+                  onClick: () => openLocalFile(),
+                  autoClose: Some(true),
+                },
+              ],
+            }),
+          )
           Promise.resolve()
         }}
         onSettings={() => {

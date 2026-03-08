@@ -571,12 +571,43 @@ function builderCanLoadSavedProject() {
   return typeof window.__VTB_SET_SESSION_ID__ === 'function' && typeof window.__VTB_LOAD_PROJECT__ === 'function';
 }
 
+export function buildProjectAssetUrl(sessionId, filename) {
+  if (!sessionId || !filename) return '';
+  return `/api/project/${encodeURIComponent(sessionId)}/file/${encodeURIComponent(filename)}`;
+}
+
+export function normalizeLogoForBuilder(sessionId, logo) {
+  if (!logo) return logo;
+  if (typeof logo !== 'string') return logo;
+  if (logo === 'logo_upload') return buildProjectAssetUrl(sessionId, 'logo_upload');
+  if (logo.startsWith('/api/project/') || logo.startsWith('http')) {
+    const fileMarker = '/file/';
+    const markerIndex = logo.indexOf(fileMarker);
+    if (markerIndex >= 0) {
+      const filename = logo.slice(markerIndex + fileMarker.length).split('?')[0].split('#')[0];
+      return buildProjectAssetUrl(sessionId, filename);
+    }
+    return logo;
+  }
+  if (logo.trim() !== '') return buildProjectAssetUrl(sessionId, logo.split('/').pop() || logo);
+  return logo;
+}
+
+export function normalizeProjectDataForBuilder(sessionId, projectData) {
+  if (!projectData || typeof projectData !== 'object') return projectData;
+  const normalized = { ...projectData };
+  if (Object.prototype.hasOwnProperty.call(normalized, 'logo')) {
+    normalized.logo = normalizeLogoForBuilder(sessionId, normalized.logo);
+  }
+  return normalized;
+}
+
 function applySavedProjectToBuilder(sessionId, projectData) {
   if (!builderCanLoadSavedProject()) {
     throw new Error('Builder is still starting. Try again in a moment.');
   }
   window.__VTB_SET_SESSION_ID__(sessionId);
-  window.__VTB_LOAD_PROJECT__(projectData);
+  window.__VTB_LOAD_PROJECT__(normalizeProjectDataForBuilder(sessionId, projectData));
   window.history.replaceState({}, '', `/builder?projectId=${encodeURIComponent(sessionId)}`);
 }
 
@@ -766,6 +797,12 @@ async function openBuilderProjectPicker() {
     builderPickerState.error = 'Failed to load saved tours.';
     renderBuilderProjectPicker();
   }
+}
+
+function installBuilderTourPickerBridge() {
+  window.__VTB_OPEN_TOUR_PICKER__ = () => {
+    openBuilderProjectPicker();
+  };
 }
 
 function closeBuilderProjectPicker() {
@@ -1204,7 +1241,6 @@ export function renderBuilderFramework(rootElement) {
     overlay.innerHTML = `
       <div class="builder-overlay-left">
         <a class="site-btn site-btn-ghost" href="/dashboard">Back to Dashboard</a>
-        <button class="site-btn site-btn-ghost builder-open-tour" type="button" data-builder-open-tour="1">Open Tour</button>
       </div>
       <div class="builder-overlay-right" data-auth-surface="builder">
         ${renderAuthActions({ authenticated: false, user: null }, 'builder')}
@@ -1220,6 +1256,8 @@ export function renderBuilderFramework(rootElement) {
     modal.hidden = true;
     document.body.appendChild(modal);
   }
+
+  installBuilderTourPickerBridge();
 
   getAuthSession().then(session => {
     window.__VTB_AUTH_SESSION__ = session;

@@ -10,7 +10,12 @@
 // Import Main Stylesheet (includes Tailwind and all modules)
 import '../css/style.css';
 
-import { renderBuilderFramework, renderPageFramework, resolveAppSurface } from './site/PageFramework.js';
+import {
+  normalizeProjectDataForBuilder,
+  renderBuilderFramework,
+  renderPageFramework,
+  resolveAppSurface,
+} from './site/PageFramework.js';
 
 const appRoot = document.getElementById('app');
 const routeTarget = resolveAppSurface(window.location.pathname, window.location.hostname);
@@ -46,8 +51,9 @@ async function preloadDashboardProjectIfRequested() {
 
     const payload = await response.json();
     if (payload && payload.projectData) {
-      window.__VTB_BOOT_PROJECT_DATA__ = payload.projectData;
-      window.__VTB_BOOT_PROJECT_SESSION_ID__ = payload.sessionId || projectId;
+      const sessionId = payload.sessionId || projectId;
+      window.__VTB_BOOT_PROJECT_DATA__ = normalizeProjectDataForBuilder(sessionId, payload.projectData);
+      window.__VTB_BOOT_PROJECT_SESSION_ID__ = sessionId;
     }
   } catch (_error) {
     // Keep boot resilient; builder still opens normally if preload fails.
