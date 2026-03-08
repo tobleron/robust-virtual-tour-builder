@@ -47,74 +47,86 @@ let make = () => {
           ~data=Some({"id": s.id, "name": s.name}),
           (),
         )
-        isProcessing.current = true
-        let opId = OperationLifecycle.start(
-          ~type_=ThumbnailGeneration,
-          ~scope=Ambient,
-          ~phase="Generating",
-          ~meta=Logger.castToJson({"id": s.id}),
-          (),
-        )
+        let sourceFile = SceneLoaderLogic.resolveScenePanoramaFile(s)
+        let srcUrl = Types.fileToUrl(sourceFile)
 
-        let srcUrl = Types.fileToUrl(s.file)
-        let img = Dom.createElement("img")
-
-        let cleanup = () => {
-          // Clear processing lock before state update so next render can continue the queue.
-          isProcessing.current = false
-          setProcessedIds(prev => Belt.Set.String.add(prev, s.id))
-        }
-
-        let onLoad = () => {
-          Logger.debug(
+        if srcUrl == "" {
+          Logger.warn(
             ~module_="ThumbnailProjectSystem",
-            ~message="GENERATING_RECTILINEAR",
-            ~data=Some({"id": s.id}),
+            ~message="SKIP_MISSING_SOURCE",
+            ~data=Some({"id": s.id, "name": s.name}),
             (),
           )
-          ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
-          ->Promise.then(blob => {
+          setProcessedIds(prev => Belt.Set.String.add(prev, s.id))
+        } else {
+          isProcessing.current = true
+          let opId = OperationLifecycle.start(
+            ~type_=ThumbnailGeneration,
+            ~scope=Ambient,
+            ~phase="Generating",
+            ~meta=Logger.castToJson({"id": s.id}),
+            (),
+          )
+
+          let img = Dom.createElement("img")
+
+          let cleanup = () => {
+            // Clear processing lock before state update so next render can continue the queue.
+            isProcessing.current = false
+            setProcessedIds(prev => Belt.Set.String.add(prev, s.id))
+          }
+
+          let onLoad = () => {
             Logger.debug(
               ~module_="ThumbnailProjectSystem",
-              ~message="PATCHING_THUMBNAIL_SUCCESS",
+              ~message="GENERATING_RECTILINEAR",
               ~data=Some({"id": s.id}),
               (),
             )
-            OperationLifecycle.complete(opId, ())
-            dispatch(PatchSceneThumbnail(s.id, Blob(blob)))
-            cleanup()
-            Promise.resolve()
-          })
-          ->Promise.catch(err => {
-            let (msg, _) = Logger.getErrorDetails(err)
+            ThumbnailGenerator.generateRectilinearThumbnail(img, 256, 144)
+            ->Promise.then(blob => {
+              Logger.debug(
+                ~module_="ThumbnailProjectSystem",
+                ~message="PATCHING_THUMBNAIL_SUCCESS",
+                ~data=Some({"id": s.id}),
+                (),
+              )
+              OperationLifecycle.complete(opId, ())
+              dispatch(PatchSceneThumbnail(s.id, Blob(blob)))
+              cleanup()
+              Promise.resolve()
+            })
+            ->Promise.catch(err => {
+              let (msg, _) = Logger.getErrorDetails(err)
+              Logger.error(
+                ~module_="ThumbnailProjectSystem",
+                ~message="GENERATION_FAILED",
+                ~data=Some({"id": s.id, "error": msg}),
+                (),
+              )
+              OperationLifecycle.fail(opId, msg)
+              cleanup()
+              Promise.resolve()
+            })
+            ->ignore
+          }
+
+          let onError = () => {
             Logger.error(
               ~module_="ThumbnailProjectSystem",
-              ~message="GENERATION_FAILED",
-              ~data=Some({"id": s.id, "error": msg}),
+              ~message="LOAD_ERROR",
+              ~data=Some({"id": s.id, "url": srcUrl}),
               (),
             )
-            OperationLifecycle.fail(opId, msg)
+            OperationLifecycle.fail(opId, "Image load error")
             cleanup()
-            Promise.resolve()
-          })
-          ->ignore
-        }
+          }
 
-        let onError = () => {
-          Logger.error(
-            ~module_="ThumbnailProjectSystem",
-            ~message="LOAD_ERROR",
-            ~data=Some({"id": s.id}),
-            (),
-          )
-          OperationLifecycle.fail(opId, "Image load error")
-          cleanup()
+          Dom.addEventListenerNoEv(img, "load", onLoad)
+          Dom.addEventListenerNoEv(img, "error", onError)
+          Dom.setAttribute(img, "crossOrigin", "anonymous")
+          Dom.setAttribute(img, "src", srcUrl)
         }
-
-        Dom.addEventListenerNoEv(img, "load", onLoad)
-        Dom.addEventListenerNoEv(img, "error", onError)
-        Dom.setAttribute(img, "crossOrigin", "anonymous")
-        Dom.setAttribute(img, "src", srcUrl)
       | None => ()
       }
     }

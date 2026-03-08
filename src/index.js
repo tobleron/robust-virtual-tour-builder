@@ -10,7 +10,7 @@
 // Import Main Stylesheet (includes Tailwind and all modules)
 import '../css/style.css';
 
-import { renderPageFramework, resolveAppSurface } from './site/PageFramework.js';
+import { renderBuilderFramework, renderPageFramework, resolveAppSurface } from './site/PageFramework.js';
 
 const appRoot = document.getElementById('app');
 const routeTarget = resolveAppSurface(window.location.pathname, window.location.hostname);
@@ -26,6 +26,7 @@ function authHeaderValue() {
 async function preloadDashboardProjectIfRequested() {
   const params = new URLSearchParams(window.location.search || '');
   const projectId = params.get('projectId');
+  const snapshotId = params.get('snapshotId');
   if (!projectId) return;
 
   const auth = authHeaderValue();
@@ -33,7 +34,10 @@ async function preloadDashboardProjectIfRequested() {
   try {
     const headers = {};
     if (auth) headers.Authorization = auth;
-    const response = await fetch(`/api/project/dashboard/projects/${encodeURIComponent(projectId)}`, {
+    const endpoint = snapshotId
+      ? `/api/project/dashboard/projects/${encodeURIComponent(projectId)}/snapshots/${encodeURIComponent(snapshotId)}`
+      : `/api/project/dashboard/projects/${encodeURIComponent(projectId)}`;
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers,
       credentials: 'include',
@@ -51,6 +55,7 @@ async function preloadDashboardProjectIfRequested() {
 }
 
 if (routeTarget === 'builder') {
+  renderBuilderFramework(appRoot);
   preloadDashboardProjectIfRequested().finally(() => {
     import('./Main.bs.js');
   });

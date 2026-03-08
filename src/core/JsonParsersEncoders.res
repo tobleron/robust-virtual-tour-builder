@@ -12,13 +12,14 @@ let nullable = (encoder, v: Nullable.t<'a>) => {
   }
 }
 
-let file = (f: Types.file) => {
+let fileWithFallback = (f: Types.file, ~fallbackName: string) => {
   switch f {
   | Url(u) => Encode.string(u)
-  | File(_) => Encode.string("")
-  | Blob(_) => Encode.string("")
+  | File(_) | Blob(_) => Encode.string(fallbackName)
   }
 }
+
+let file = (f: Types.file) => fileWithFallback(f, ~fallbackName="")
 
 let viewFrame = (v: Types.viewFrame) => {
   Encode.object([
@@ -55,9 +56,15 @@ let scene = (s: Types.scene) => {
   Encode.object([
     ("id", Encode.string(s.id)),
     ("name", Encode.string(s.name)),
-    ("file", file(s.file)),
-    ("tinyFile", Encode.option(file)(s.tinyFile)),
-    ("originalFile", Encode.option(file)(s.originalFile)),
+    ("file", fileWithFallback(s.file, ~fallbackName=s.name)),
+    (
+      "tinyFile",
+      Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.tinyFile),
+    ),
+    (
+      "originalFile",
+      Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.originalFile),
+    ),
     ("hotspots", Encode.array(hotspot)(s.hotspots)),
     ("category", Encode.string(s.category)),
     ("floor", Encode.string(s.floor)),

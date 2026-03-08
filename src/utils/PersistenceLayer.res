@@ -373,7 +373,13 @@ let performSave = (state: Types.state) => {
 let _ = performSaveRef := performSave
 
 let handleStateChange = (state: state) => {
-  if state.structuralRevision > lastSavedRevision.contents {
+  let prefs = PersistencePreferences.get()
+  let localAutosaveEnabled = switch prefs.autosaveMode {
+  | Off => false
+  | LocalOnly | Hybrid => true
+  }
+
+  if localAutosaveEnabled && state.structuralRevision > lastSavedRevision.contents {
     switch lastSaveTimeout.contents {
     | Some(id) => clearTimeout(id)
     | None => ()
@@ -406,9 +412,15 @@ let initSubscriber = (
     let state = stateGetterRef.contents()
     ignore(event)
 
-    switch lastSaveTimeout.contents {
-    | Some(_) => performSave(state)
-    | None => ()
+    let prefs = PersistencePreferences.get()
+    let localAutosaveEnabled = switch prefs.autosaveMode {
+    | Off => false
+    | LocalOnly | Hybrid => true
+    }
+
+    switch (localAutosaveEnabled, lastSaveTimeout.contents) {
+    | (true, Some(_)) => performSave(state)
+    | _ => ()
     }
   }
 

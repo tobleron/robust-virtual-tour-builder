@@ -1,5 +1,6 @@
 type tab =
   | Marketing
+  | Persistence
   | About
   | SystemHealth
 
@@ -8,11 +9,14 @@ let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
   let (activeTab, setActiveTab) = React.useState(_ => Marketing)
+  let initialPrefs = PersistencePreferences.get()
   let (comment, setComment) = React.useState(_ => state.marketingComment)
   let (phone1, setPhone1) = React.useState(_ => state.marketingPhone1)
   let (phone2, setPhone2) = React.useState(_ => state.marketingPhone2)
   let (forRent, setForRent) = React.useState(_ => state.marketingForRent)
   let (forSale, setForSale) = React.useState(_ => state.marketingForSale)
+  let (autosaveMode, setAutosaveMode) = React.useState(_ => initialPrefs.autosaveMode)
+  let (snapshotCadence, setSnapshotCadence) = React.useState(_ => initialPrefs.snapshotCadence)
 
   let preview = MarketingText.compose(~comment, ~phone1, ~phone2, ~forRent, ~forSale)
   let charCount = preview.full->String.length
@@ -29,9 +33,14 @@ let make = () => {
 
   let onCancel = () => EventBus.dispatch(CloseModal)
   let onSave = () => {
-    if !overLimit {
+    switch activeTab {
+    | Marketing if !overLimit =>
       dispatch(Actions.SetMarketingSettings(comment, phone1, phone2, forRent, forSale))
       EventBus.dispatch(CloseModal)
+    | Persistence =>
+      PersistencePreferences.setAutosave(~autosaveMode, ~snapshotCadence)->ignore
+      EventBus.dispatch(CloseModal)
+    | _ => ()
     }
   }
 
@@ -41,6 +50,12 @@ let make = () => {
         className={tabClass(activeTab == Marketing)} onClick={_ => setActiveTab(_ => Marketing)}
       >
         {React.string("Marketing")}
+      </button>
+      <button
+        className={tabClass(activeTab == Persistence)}
+        onClick={_ => setActiveTab(_ => Persistence)}
+      >
+        {React.string("Persistence")}
       </button>
       <button className={tabClass(activeTab == About)} onClick={_ => setActiveTab(_ => About)}>
         {React.string("About")}
@@ -114,6 +129,78 @@ let make = () => {
             </div>
           </div>
         </div>
+      | Persistence =>
+        <div className="w-full h-full flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="settings-field-label"> {React.string("Autosave Mode")} </label>
+            <div className="grid grid-cols-1 gap-2">
+              <button
+                className={tabClass(autosaveMode == PersistencePreferences.Off)}
+                onClick={_ => setAutosaveMode(_ => PersistencePreferences.Off)}
+              >
+                {React.string("Off")}
+              </button>
+              <button
+                className={tabClass(autosaveMode == PersistencePreferences.LocalOnly)}
+                onClick={_ => setAutosaveMode(_ => PersistencePreferences.LocalOnly)}
+              >
+                {React.string("Local Only")}
+              </button>
+              <button
+                className={tabClass(autosaveMode == PersistencePreferences.Hybrid)}
+                onClick={_ => setAutosaveMode(_ => PersistencePreferences.Hybrid)}
+              >
+                {React.string("Hybrid (local + server)")}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="settings-field-label"> {React.string("Snapshot Cadence")} </label>
+            <div className="grid grid-cols-1 gap-2">
+              <button
+                className={tabClass(snapshotCadence == PersistencePreferences.Conservative)}
+                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Conservative)}
+              >
+                {React.string("Conservative")}
+              </button>
+              <button
+                className={tabClass(snapshotCadence == PersistencePreferences.Balanced)}
+                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Balanced)}
+              >
+                {React.string("Balanced")}
+              </button>
+              <button
+                className={tabClass(snapshotCadence == PersistencePreferences.Frequent)}
+                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Frequent)}
+              >
+                {React.string("Frequent")}
+              </button>
+            </div>
+          </div>
+
+          <div className="settings-preview-wrap">
+            <div className="settings-preview-header">
+              <span className="settings-field-label">
+                {React.string("Behavior")}
+              </span>
+            </div>
+            <div className="settings-preview-banner">
+              <span className="settings-preview-text">
+                {React.string(
+                  switch autosaveMode {
+                  | PersistencePreferences.Off =>
+                    "Autosave disabled. Use the Save menu to persist your work."
+                  | PersistencePreferences.LocalOnly =>
+                    "Autosave writes only to this browser for recovery. Server history is manual."
+                  | PersistencePreferences.Hybrid =>
+                    "Autosave writes locally and creates server snapshots when online and signed in."
+                  },
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
       | About => <SidebarAbout />
       | SystemHealth => <SidebarSystemHealth />
       }}
@@ -127,6 +214,13 @@ let make = () => {
           <button
             className="modal-btn-premium modal-btn-full bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={overLimit}
+            onClick={_ => onSave()}
+          >
+            <span> {React.string("Save")} </span>
+          </button>
+        | Persistence =>
+          <button
+            className="modal-btn-premium modal-btn-full bg-white/20"
             onClick={_ => onSave()}
           >
             <span> {React.string("Save")} </span>
