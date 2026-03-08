@@ -92,8 +92,39 @@ let generateLinkId = (usedIds: Belt.Set.String.t) => {
 /**
  * Calculate the standardized filename for a scene based on its index and label.
  */
+let toDisplaySegment = segment => {
+  if segment == "" {
+    ""
+  } else if RegExp.test(/^\d+$/, segment) {
+    segment
+  } else {
+    let lower = String.toLowerCase(segment)
+    let first = String.substring(lower, ~start=0, ~end=1)->String.toUpperCase
+    let rest = String.substring(lower, ~start=1, ~end=String.length(lower))
+    first ++ rest
+  }
+}
+
+let toUnderscoreDisplayName = value => {
+  let normalized =
+    value
+    ->sanitizeName
+    ->String.replaceRegExp(/-+/g, "_")
+    ->String.replaceRegExp(/_+/g, "_")
+    ->String.replaceRegExp(/^_+|_+$/g, "")
+
+  if normalized == "" {
+    "Untagged"
+  } else {
+    normalized
+    ->String.split("_")
+    ->Belt.Array.map(toDisplaySegment)
+    ->Belt.Array.joinWith("_", segment => segment)
+  }
+}
+
 let toSlug = (label, maxLength) => {
-  let initial = sanitizeName(label, ~maxLength)->String.replaceRegExp(/[\s-]+/g, "_")
+  let initial = toUnderscoreDisplayName(label)->String.substring(~start=0, ~end=maxLength)
   // Use a Unicode-aware regex to preserve letters and numbers from any script while stripping dangerous symbols.
   // \p{L} matches any Unicode letter, \p{N} any Unicode number.
   let slug = %raw(`(str) => {
@@ -197,9 +228,9 @@ let formatDisplayLabel = (scene: Types.scene) => {
   }
   if scene.label != "" {
     let seq = normalizeSequenceId(scene.sequenceId)
-    sequencePrefix(seq) ++ "_" ++ label
+    sequencePrefix(seq) ++ "_" ++ toUnderscoreDisplayName(label)
   } else {
-    label
+    toUnderscoreDisplayName(label)
   }
 }
 

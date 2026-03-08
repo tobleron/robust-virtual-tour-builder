@@ -36,6 +36,7 @@ module WrappedSceneList = {
         <AppContext.SceneSliceProvider value=sceneSlice>
           <AppContext.UiSliceProvider value=uiSlice>
             {React.createElement(sceneListCmp, Object.make())}
+            <ModalContext />
           </AppContext.UiSliceProvider>
         </AppContext.SceneSliceProvider>
       </AppContext.GlobalProvider>
@@ -48,6 +49,8 @@ describe("SceneList", () => {
     Promise.make((resolve, _) => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
+
+  let unmountRoot: 'root => unit = %raw(`root => root.unmount()`)
 
   afterEach(() => {
     OperationLifecycle.reset()
@@ -102,6 +105,7 @@ describe("SceneList", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -130,6 +134,7 @@ describe("SceneList", () => {
     | None => ()
     }
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -155,6 +160,7 @@ describe("SceneList", () => {
     t->expect(Dom.nodeListLength(items) < 50)->Expect.toBe(true)
     t->expect(Dom.nodeListLength(items) > 10)->Expect.toBe(true)
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -216,6 +222,7 @@ describe("SceneList", () => {
 
     t->expect(lastAction.contents)->Expect.toBe(None)
 
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 
@@ -260,9 +267,66 @@ describe("SceneList", () => {
       let qualityText = Dom.querySelector(el, ".text-danger")
       // Should be text-danger because score 5.0 < 6.5
       t->expect(Belt.Option.isSome(Nullable.toOption(qualityText)))->Expect.toBe(true)
+
+      let draggerNumber = Dom.querySelector(el, ".scene-item-order-chip")
+      t->expect(Belt.Option.isSome(Nullable.toOption(draggerNumber)))->Expect.toBe(true)
+      switch Nullable.toOption(draggerNumber) {
+      | Some(orderEl) => t->expect(Dom.getTextContent(orderEl))->Expect.toBe("1")
+      | None => ()
+      }
+
+      let thumbnailNumber = %raw(`(root) => root.querySelector('.absolute.top-1.left-1')`)(el)
+      t->expect(Belt.Option.isSome(Nullable.toOption(thumbnailNumber)))->Expect.toBe(false)
     | None => t->expect(true)->Expect.toBe(false)
     }
 
+    unmountRoot(root)
+    Dom.removeElement(container)
+  })
+
+  testAsync("double clicking the dragger opens a reorder dialog with position options", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let scenes = [createScene("1", "Scene 1"), createScene("2", "Scene 2"), createScene("3", "Scene 3")]
+    let mockState = TestUtils.createMockState(
+      ~scenes,
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
+    let mockDispatch = _ => ()
+
+    let sceneListCmp = await loadSceneList()
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch sceneListCmp />)
+
+    await wait(100)
+
+    let dragger = Dom.querySelector(container, ".scene-item-dragger")
+    switch Nullable.toOption(dragger) {
+    | Some(el) =>
+      let _ = %raw(`el => el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))`)(el)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    await wait(100)
+
+    let modalTitle = Dom.getElementById("modal-title")
+    switch Nullable.toOption(modalTitle) {
+    | Some(el) => t->expect(Dom.getTextContent(el))->Expect.toBe("Reorder Scene")
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    let selectEl = Dom.getElementById("scene-reorder-target-select")
+    switch Nullable.toOption(selectEl) {
+    | Some(el) =>
+      let options = Dom.querySelectorAll(el, "option")
+      t->expect(Dom.nodeListLength(options))->Expect.toBe(3)
+      t->expect(Dom.getValue(el))->Expect.toBe("0")
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    unmountRoot(root)
     Dom.removeElement(container)
   })
 

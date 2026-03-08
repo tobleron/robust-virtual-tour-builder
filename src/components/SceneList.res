@@ -2,6 +2,37 @@
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
+@val external parseIntJs: string => float = "parseInt"
+
+module ReorderDialog = {
+  @react.component
+  let make = (~currentIndex: int, ~sceneCount: int, ~sceneName: string) => {
+    <div className="reorder-scene-panel">
+      <div className="reorder-scene-current">
+        <span className="reorder-scene-current-label"> {React.string("Selected")} </span>
+        <strong className="reorder-scene-current-name"> {React.string(sceneName)} </strong>
+      </div>
+      <label
+        className="reorder-scene-label"
+        htmlFor="scene-reorder-target-select"
+      >
+        {React.string("Move scene to")}
+      </label>
+      <select
+        id="scene-reorder-target-select"
+        defaultValue={Belt.Int.toString(currentIndex)}
+        className="reorder-scene-select"
+      >
+        {Belt.Array.makeBy(sceneCount, idx => {
+          <option key={Belt.Int.toString(idx)} value={Belt.Int.toString(idx)}>
+            {React.string("Position " ++ Belt.Int.toString(idx + 1))}
+          </option>
+        })->React.array}
+      </select>
+    </div>
+  }
+}
+
 @react.component
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
@@ -159,6 +190,82 @@ let make = React.memo(() => {
     }
   , [canMutateProject])
 
+  let openReorderDialog = React.useMemo3(() =>
+    index => {
+      if !canMutateProject {
+        Logger.warn(
+          ~module_="SceneList",
+          ~message="SCENE_REORDER_DIALOG_REJECTED_LOCK_HELD",
+          ~data=Some({"index": index}),
+          (),
+        )
+      } else {
+        let currentPosition = index + 1
+        let sceneName =
+          switch Belt.Array.get(sceneSlice.scenes, index) {
+          | Some(scene) => TourLogic.formatDisplayLabel(scene)
+          | None => "Selected Scene"
+          }
+        EventBus.dispatch(
+          ShowModal({
+            title: "Reorder Scene",
+            description: Some("Choose a new order position."),
+            content: Some(
+              <ReorderDialog
+                currentIndex=index
+                sceneCount={Array.length(sceneSlice.scenes)}
+                sceneName
+              />
+            ),
+            buttons: [
+              {
+                label: "Confirm",
+                class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
+                onClick: () => {
+                  let selectEl = ReBindings.Dom.getElementById("scene-reorder-target-select")
+                  switch Nullable.toOption(selectEl) {
+                  | Some(el) =>
+                    let rawValue = ReBindings.Dom.getValue(el)
+                    let parsed = parseIntJs(rawValue)
+                    if !Float.isNaN(parsed) {
+                      let targetIndex = parsed->Float.toInt
+                      if targetIndex != index {
+                        Logger.info(
+                          ~module_="SceneList",
+                          ~message="SCENE_REORDER_DIALOG_CONFIRMED",
+                          ~data=Some({
+                            "from": index,
+                            "to": targetIndex,
+                            "fromPosition": currentPosition,
+                            "toPosition": targetIndex + 1,
+                          }),
+                          (),
+                        )
+                        dispatch(Actions.ReorderScenes(index, targetIndex))
+                      }
+                    }
+                  | None => ()
+                  }
+                },
+                autoClose: Some(true),
+              },
+              {
+                label: "Cancel",
+                class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                onClick: () => (),
+                autoClose: Some(true),
+              },
+            ],
+            icon: Some("reorder"),
+            allowClose: Some(true),
+            onClose: None,
+            className: Some("modal-blue modal-reorder-scene"),
+          }),
+        )
+      }
+    }
+  , (canMutateProject, dispatch, sceneSlice.scenes))
+
   let handleClearLinks = React.useMemo1(() =>
     index => {
       if canMutateProject {
@@ -267,6 +374,7 @@ let make = React.memo(() => {
               onItemDragStart={onDragStart}
               onItemDragOver={onDragOver}
               onItemDrop={onDrop}
+              onItemRequestReorder={openReorderDialog}
               onItemDelete={handleDelete}
               onItemClearLinks={handleClearLinks}
             />

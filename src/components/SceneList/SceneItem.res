@@ -28,6 +28,7 @@ let make = React.memo((
   ~onItemDragStart: (int, JsxEvent.Mouse.t) => unit,
   ~onItemDragOver: (int, JsxEvent.Mouse.t) => unit,
   ~onItemDrop: (int, JsxEvent.Mouse.t) => unit,
+  ~onItemRequestReorder: int => unit,
   ~onItemDelete: int => unit,
   ~onItemClearLinks: int => unit,
 ) => {
@@ -202,8 +203,17 @@ let make = React.memo((
     ariaBusy=isBusy
   >
     <div
-      className="flex items-center justify-center w-5 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing transition-colors self-stretch"
+      className="scene-item-dragger flex flex-col items-center justify-center gap-1 w-8 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing transition-colors self-stretch"
+      onDoubleClick={e => {
+        JsxEvent.Mouse.preventDefault(e)
+        JsxEvent.Mouse.stopPropagation(e)
+        onItemRequestReorder(index)
+      }}
+      title="Drag to reorder. Double-click to choose a position."
     >
+      <span className="scene-item-order-chip text-[10px] font-semibold text-slate-500 leading-none">
+        {React.int(index + 1)}
+      </span>
       <LucideIcons.GripVertical size=14 />
     </div>
 
@@ -220,12 +230,6 @@ let make = React.memo((
           React.null
         }}
         <div className="absolute inset-0 bg-transparent" />
-
-        <div
-          className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[10px] font-semibold text-white border border-white/10 z-10"
-        >
-          {React.int(index + 1)}
-        </div>
       </div>
     </div>
 
