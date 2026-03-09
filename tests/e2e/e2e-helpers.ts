@@ -1,13 +1,15 @@
 import { expect, Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { Locator } from '@playwright/test';
 
 const BACKEND_HEALTH_URL = process.env.E2E_BACKEND_HEALTH_URL ?? 'http://127.0.0.1:8080/health';
 const STANDARD_PROJECT_ZIP =
-  process.env.E2E_STANDARD_PROJECT_ZIP ?? path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
+  process.env.E2E_STANDARD_PROJECT_ZIP ??
+  path.resolve(process.cwd(), 'tests/e2e/fixtures/tour.vt.zip');
 
 export async function resetClientState(page: Page) {
-  await page.goto('/');
+  await page.goto('/builder');
   await page.evaluate(async () => {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
@@ -38,12 +40,26 @@ export async function resetClientState(page: Page) {
   await page.reload();
 }
 
+export async function waitForBuilderShellReady(page: Page, timeoutMs = 30000) {
+  await waitForBackendReady(page, timeoutMs);
+  await expect(page.locator('#sidebar-project-upload')).toHaveCount(1, { timeout: timeoutMs });
+  await expect(page.locator('#sidebar-image-upload')).toHaveCount(1, { timeout: timeoutMs });
+}
+
+export function sceneItems(page: Page): Locator {
+  return page.locator('.scene-item, button[aria-label^="Select scene "]');
+}
+
+export function sceneItem(page: Page, index: number): Locator {
+  return sceneItems(page).nth(index);
+}
+
 export function imageUploadInput(page: Page) {
   return page.locator('#sidebar-image-upload');
 }
 
 export async function clickStartBuildingIfVisible(page: Page, timeoutMs = 90000) {
-  const startBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();
+  const startBtn = page.getByRole('button', { name: /Start Building|Close|Continue/i }).first();
   try {
     await startBtn.waitFor({ state: 'visible', timeout: Math.min(timeoutMs, 15000) });
     await startBtn.click();
@@ -54,7 +70,7 @@ export async function clickStartBuildingIfVisible(page: Page, timeoutMs = 90000)
 
 async function waitForProjectHydration(page: Page, timeoutMs = 90000) {
   const deadline = Date.now() + timeoutMs;
-  const actionBtn = page.getByRole('button', { name: /Start Building|Close/i }).first();
+  const actionBtn = page.getByRole('button', { name: /Start Building|Close|Continue/i }).first();
 
   while (Date.now() < deadline) {
     const visible = await actionBtn.isVisible().catch(() => false);
@@ -65,7 +81,7 @@ async function waitForProjectHydration(page: Page, timeoutMs = 90000) {
       }
     }
 
-    const sceneCount = await page.locator('.scene-item').count().catch(() => 0);
+    const sceneCount = await sceneItems(page).count().catch(() => 0);
     if (sceneCount >= 1) return;
     await page.waitForTimeout(300);
   }
@@ -79,7 +95,7 @@ async function waitForProjectHydration(page: Page, timeoutMs = 90000) {
 
 export async function waitForSidebarInteractive(page: Page, timeoutMs = 90000) {
   const newButton = page.getByRole('button', { name: 'New' });
-  const modalActionButton = page.getByRole('button', { name: /Start Building|Close/i }).first();
+  const modalActionButton = page.getByRole('button', { name: /Start Building|Close|Continue/i }).first();
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
@@ -156,7 +172,7 @@ export async function uploadImageAndWaitForSceneCount(
     try {
       await waitForSidebarInteractive(page, attemptBudget);
       await expect
-        .poll(async () => page.locator('.scene-item').count(), { timeout: attemptBudget })
+        .poll(async () => sceneItems(page).count(), { timeout: attemptBudget })
         .toBeGreaterThanOrEqual(expectedSceneCount);
       lastError = null;
       break;
@@ -220,6 +236,16 @@ export async function waitForNavigationStabilization(page: Page, timeoutMs = 300
       return fsm?.TAG === 0;
     }, { timeout: timeoutMs })
     .catch(() => undefined);
+}
+
+export async function waitForViewerReady(page: Page, timeoutMs = 45000) {
+  await expect(page.locator('#panorama-a.active, #panorama-b.active').first()).toBeVisible({
+    timeout: timeoutMs,
+  });
+  await expect(page.locator('#react-hotspot-layer')).toBeVisible({ timeout: timeoutMs });
+  await expect(page.getByRole('alert').filter({ hasText: 'Viewer not initialized' })).toHaveCount(0, {
+    timeout: timeoutMs,
+  });
 }
 
 export async function createHotspotAtViewerCenter(page: Page) {

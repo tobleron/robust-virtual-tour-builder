@@ -50,6 +50,7 @@ let optimizeBlobAsWebp = async (
 let appendLogo = async (
   ~formData: FormData.t,
   ~logo: option<file>,
+  ~allowDefaultLogoFallback: bool=true,
   ~authToken: option<string>,
   ~signal: option<BrowserBindings.AbortSignal.t>,
 ): option<string> => {
@@ -137,7 +138,7 @@ let appendLogo = async (
   | None => ()
   }
 
-  if logoFilename.contents == None {
+  if allowDefaultLogoFallback && logoFilename.contents == None {
     try {
       let extensions = ["png", "jpg", "jpeg", "webp"]
       let rec findLogo = async exts => {

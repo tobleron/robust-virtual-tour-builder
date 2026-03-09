@@ -7,6 +7,7 @@ import {
   resetClientState,
   selectFirstLinkTarget,
   uploadImageAndWaitForSceneCount,
+  waitForBuilderShellReady,
   waitForNavigationStabilization,
 } from './e2e-helpers';
 
@@ -23,7 +24,7 @@ test.describe('Editor Interactions', () => {
     await resetClientState(page);
 
     // Jules hardening: Wait for viewer logic to stabilize after load
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(1000);
 
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);

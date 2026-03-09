@@ -7,6 +7,7 @@ import {
   uploadImageAndWaitForSceneCount,
   waitForNavigationStabilization,
   waitForSidebarInteractive,
+  waitForBuilderShellReady,
   loadProjectZipAndWait,
 } from './e2e-helpers';
 
@@ -21,7 +22,7 @@ test.describe('Import/Export Edge Cases', () => {
     await setupAIObservability(page);
     await resetClientState(page);
 
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);
   });
 

@@ -3,6 +3,7 @@ external exportTourLazy: (
   array<Types.scene>,
   string,
   option<Types.file>,
+  bool,
   option<JSON.t>,
   BrowserBindings.AbortSignal.t,
   option<(float, float, string) => unit>,

@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { resetClientState, uploadImageAndWaitForSceneCount, waitForNavigationStabilization } from './e2e-helpers';
+import { resetClientState, uploadImageAndWaitForSceneCount, waitForBuilderShellReady, waitForNavigationStabilization } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +13,7 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 async function startWithTwoScenes(page: Page) {
   await setupAIObservability(page);
   await resetClientState(page);
-  await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+  await waitForBuilderShellReady(page);
   await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
   await waitForNavigationStabilization(page);
   await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);

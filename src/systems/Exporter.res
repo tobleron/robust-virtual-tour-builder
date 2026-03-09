@@ -8,6 +8,7 @@ let exportTour = async (
   scenes: array<scene>,
   ~tourName: string,
   ~logo: option<file>,
+  ~includeLogo: bool=true,
   ~projectData: option<JSON.t>=?,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
@@ -106,6 +107,7 @@ let exportTour = async (
     let logoFilename = await ExporterPackaging.appendLogo(
       ~formData,
       ~logo,
+      ~allowDefaultLogoFallback=includeLogo,
       ~authToken=finalToken,
       ~signal=Some(signal),
     )

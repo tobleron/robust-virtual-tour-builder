@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { loadProjectZipAndWait, resetClientState } from './e2e-helpers';
+import { loadProjectZipAndWait, resetClientState, waitForBuilderShellReady } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +39,7 @@ test.describe('Export Templates', () => {
     await setupAIObservability(page);
     await resetClientState(page);
 
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);
 
     await loadProjectZipAndWait(page, SIM_ZIP_PATH, 90000);

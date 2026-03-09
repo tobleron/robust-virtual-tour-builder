@@ -5,6 +5,7 @@ import { setupAIObservability } from './ai-helper';
 import {
   resetClientState,
   uploadImageAndWaitForSceneCount,
+  waitForBuilderShellReady,
   waitForNavigationStabilization,
 } from './e2e-helpers';
 
@@ -19,7 +20,7 @@ test.describe('Teaser Advanced Features', () => {
     await setupAIObservability(page);
     await resetClientState(page);
 
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);
   });
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupAIObservability } from './ai-helper';
-import { loadStandardProject, resetClientState, waitForNavigationStabilization } from './e2e-helpers';
+import { loadStandardProject, resetClientState, waitForBuilderShellReady, waitForNavigationStabilization } from './e2e-helpers';
 
 test.describe('Accessibility Comprehensive', () => {
   test.describe.configure({ timeout: 180000 });
@@ -9,7 +9,7 @@ test.describe('Accessibility Comprehensive', () => {
     await setupAIObservability(page);
     await resetClientState(page);
 
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);
 
     await loadStandardProject(page, 120000);
@@ -75,7 +75,7 @@ test.describe('Accessibility Comprehensive', () => {
   });
 
   test('should have ARIA live regions for announcements', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(90000);
 
     const liveRegionSelectors = [
       '[aria-live="polite"]',

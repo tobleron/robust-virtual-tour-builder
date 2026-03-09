@@ -35,9 +35,17 @@ let optimizeBlobAsWebp = async (
 let appendLogo = async (
   ~formData: FormData.t,
   ~logo: option<file>,
+  ~allowDefaultLogoFallback: bool=true,
   ~authToken: option<string>,
   ~signal: option<BrowserBindings.AbortSignal.t>,
-): option<string> => await ExporterPackagingAssets.appendLogo(~formData, ~logo, ~authToken, ~signal)
+): option<string> =>
+  await ExporterPackagingAssets.appendLogo(
+    ~formData,
+    ~logo,
+    ~allowDefaultLogoFallback,
+    ~authToken,
+    ~signal,
+  )
 
 let appendTemplates = (
   ~formData: FormData.t,

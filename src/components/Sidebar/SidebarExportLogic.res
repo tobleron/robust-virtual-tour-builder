@@ -82,6 +82,7 @@ let handleExport = async (
         scenes,
         tourName,
         logoToUse,
+        publishOptions.includeLogo,
         publishProjectData,
         signal,
         Some(handleExportProgress),

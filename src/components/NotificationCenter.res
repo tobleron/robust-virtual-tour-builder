@@ -26,6 +26,14 @@ module Toast = {
 
     let importanceKey = NotificationTypes.importanceToString(notification.importance)
     let contextClass = getContextClass(notification.context)
+    let isAssertive = switch notification.importance {
+    | NotificationTypes.Error
+    | NotificationTypes.Critical
+    | NotificationTypes.Warning => true
+    | NotificationTypes.Success
+    | NotificationTypes.Info
+    | NotificationTypes.Transient => false
+    }
 
     <div
       className={"viewer-toast " ++
@@ -36,6 +44,9 @@ module Toast = {
         ""
       } ++
       contextClass}
+      role={if isAssertive {"alert"} else {"status"}}
+      ariaLive={if isAssertive {#assertive} else {#polite}}
+      ariaAtomic=true
     >
       <div className="viewer-toast-icon"> icon </div>
 
@@ -81,16 +92,12 @@ let make = React.memo(() => {
 
   let isFadingOut = id => Belt.Array.some(state.fadingOut, fadingId => fadingId === id)
 
-  if Array.length(state.active) == 0 {
-    React.null
-  } else {
-    /* Scoped to the viewer container */
-    <div id="viewer-notifications-container">
-      {state.active
-      ->Belt.Array.map(notif => {
-        <Toast key=notif.id notification=notif isFadingOut={isFadingOut(notif.id)} />
-      })
-      ->React.array}
-    </div>
-  }
+  /* Keep a live region mounted even when no toast is currently visible. */
+  <div id="viewer-notifications-container" ariaLive=#polite ariaAtomic=true>
+    {state.active
+    ->Belt.Array.map(notif => {
+      <Toast key=notif.id notification=notif isFadingOut={isFadingOut(notif.id)} />
+    })
+    ->React.array}
+  </div>
 })
