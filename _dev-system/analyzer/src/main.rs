@@ -34,6 +34,17 @@ enum SurgicalTrigger {
     DragRisk,
 }
 
+fn is_test_only_helper(path: &str) -> bool {
+    let file_name = Path::new(path)
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or_default();
+    file_name.ends_with("_tests.rs")
+        || file_name.ends_with("_test.rs")
+        || file_name.ends_with("_v.test.res")
+        || file_name.ends_with("_v.test.bs.js")
+}
+
 fn main() -> Result<()> {
     // Load configuration and state
     let mut state = state::AnalyzerState::load();
@@ -233,7 +244,10 @@ fn generate_work_units(
             calculate_dynamic_limit(drag, p_mod, cohesion_bonus, dynamic_base, config, p_str);
 
         // Dead code task
-        if dead_files.contains(p_str) && metrics.loc > config.settings.min_dead_code_loc {
+        if dead_files.contains(p_str)
+            && !is_test_only_helper(p_str)
+            && metrics.loc > config.settings.min_dead_code_loc
+        {
             buffer
                 .entry(d_name.clone())
                 .or_default()
@@ -263,6 +277,10 @@ fn generate_work_units(
                 limit,
                 drag,
                 metrics.hotspot_symbol.is_some(),
+                metrics.max_nesting,
+                density,
+                coupling_score,
+                metrics.hotspot_reason.as_deref(),
                 config,
             ) {
                 is_surgical = true;
@@ -274,11 +292,24 @@ fn generate_work_units(
                     nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit
                 );
 
-                if trigger == SurgicalTrigger::DragRisk && metrics.loc <= split_threshold(limit) {
-                    reason.push_str(&format!(
-                        "  ⚠️ Trigger: Drag above target ({:.2}) with file already at {} LOC.",
-                        config.settings.drag_target, metrics.loc
-                    ));
+                match trigger {
+                    SurgicalTrigger::DragRisk if metrics.loc <= working_band_upper_loc(config) => {
+                        reason.push_str(&format!(
+                            "  ⚠️ Trigger: Drag above target ({:.2}) with file already at {} LOC.",
+                            config.settings.drag_target, metrics.loc
+                        ));
+                    }
+                    SurgicalTrigger::DragRisk => {
+                        reason.push_str(&format!(
+                            "  ⚠️ Trigger: Drag above target ({:.2}); keep the module within the 250-350 LOC working band if you extract helpers.",
+                            config.settings.drag_target
+                        ));
+                    }
+                    SurgicalTrigger::Oversized => {
+                        reason.push_str(
+                            "  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+                        );
+                    }
                 }
 
                 if let Some(symbol) = &metrics.hotspot_symbol {
@@ -294,10 +325,7 @@ fn generate_work_units(
                 }
 
                 let complexity = ((metrics.loc.saturating_sub(limit)) as f64 / 10.0) + drag;
-                let target_module_size = limit.max(config.settings.soft_floor_loc);
-                let recommended_splits = (metrics.loc as f64 / target_module_size as f64)
-                    .ceil()
-                    .max(1.0) as usize;
+                let recommended_splits = recommended_module_count(metrics.loc, config);
                 let verification = spec_map.get(p_str).map(|snapshot| VerificationBundle {
                     headline: format!("Pre-split snapshot for `{}`", snapshot.path),
                     snapshots: vec![snapshot.clone()],
@@ -396,6 +424,44 @@ fn drag_trigger_min_loc(config: &EfficiencyConfig) -> usize {
     config.settings.soft_floor_loc.saturating_sub(50).max(250)
 }
 
+fn working_band_upper_loc(config: &EfficiencyConfig) -> usize {
+    config.settings.soft_floor_loc + 50
+}
+
+fn module_count_score(loc: usize, modules: usize, config: &EfficiencyConfig) -> f64 {
+    let average_loc = loc as f64 / modules as f64;
+    let center = config.settings.soft_floor_loc as f64;
+    let lower = drag_trigger_min_loc(config) as f64;
+    let mut score = (average_loc - center).abs();
+
+    // Strongly discourage fragmenting into helper shards that fall below the working floor.
+    if average_loc < lower {
+        score += 100.0 + ((lower - average_loc) * 2.0);
+    }
+
+    score
+}
+
+fn recommended_module_count(loc: usize, config: &EfficiencyConfig) -> usize {
+    if loc <= working_band_upper_loc(config) {
+        return 1;
+    }
+
+    let max_modules = ((loc as f64 / drag_trigger_min_loc(config) as f64).ceil() as usize).max(1);
+    let mut best_modules = 1usize;
+    let mut best_score = module_count_score(loc, best_modules, config);
+
+    for modules in 2..=max_modules {
+        let score = module_count_score(loc, modules, config);
+        if score < best_score {
+            best_score = score;
+            best_modules = modules;
+        }
+    }
+
+    best_modules
+}
+
 fn matches_exception_with_max_loc(path: &str, config: &EfficiencyConfig) -> bool {
     config
         .exceptions
@@ -452,6 +518,43 @@ fn drag_risk_threshold(has_hotspot: bool, config: &EfficiencyConfig) -> f64 {
     config.settings.drag_target + margin
 }
 
+fn is_thin_shell_drag_exempt(
+    loc: usize,
+    max_nesting: usize,
+    density: f64,
+    coupling_score: f64,
+    config: &EfficiencyConfig,
+) -> bool {
+    loc <= config.settings.soft_floor_loc
+        && max_nesting <= 3
+        && density <= 0.20
+        && coupling_score <= 0.05
+}
+
+fn hotspot_complexity_score(hotspot_reason: Option<&str>) -> Option<f64> {
+    let reason = hotspot_reason?;
+    let prefix = "High Local Complexity (";
+    let start = reason.find(prefix)? + prefix.len();
+    let remainder = &reason[start..];
+    let end = remainder.find(')')?;
+    remainder[..end].parse::<f64>().ok()
+}
+
+fn is_low_value_drag_churn(
+    loc: usize,
+    density: f64,
+    coupling_score: f64,
+    hotspot_reason: Option<&str>,
+    config: &EfficiencyConfig,
+) -> bool {
+    loc <= config.settings.soft_floor_loc
+        && density <= 0.25
+        && coupling_score <= 0.08
+        && hotspot_complexity_score(hotspot_reason)
+            .map(|value| value <= 2.5)
+            .unwrap_or(false)
+}
+
 fn surgical_trigger(
     path: &str,
     content: &str,
@@ -461,13 +564,16 @@ fn surgical_trigger(
     limit: usize,
     drag: f64,
     has_hotspot: bool,
+    max_nesting: usize,
+    density: f64,
+    coupling_score: f64,
+    hotspot_reason: Option<&str>,
     config: &EfficiencyConfig,
 ) -> Option<SurgicalTrigger> {
-    if loc > limit && loc > split_threshold(limit) {
-        return Some(SurgicalTrigger::Oversized);
-    }
-
     if is_drag_risk_exempt(path, content, taxonomy, driver_name, config) {
+        if loc > limit && loc > split_threshold(limit) {
+            return Some(SurgicalTrigger::Oversized);
+        }
         return None;
     }
 
@@ -476,8 +582,18 @@ fn surgical_trigger(
     } else {
         config.settings.soft_floor_loc
     };
+    if is_thin_shell_drag_exempt(loc, max_nesting, density, coupling_score, config) {
+        return None;
+    }
+    if is_low_value_drag_churn(loc, density, coupling_score, hotspot_reason, config) {
+        return None;
+    }
     if drag >= drag_risk_threshold(has_hotspot, config) && loc >= min_loc {
         return Some(SurgicalTrigger::DragRisk);
+    }
+
+    if loc > limit && loc > split_threshold(limit) {
+        return Some(SurgicalTrigger::Oversized);
     }
 
     None
@@ -547,6 +663,10 @@ mod tests {
                 300,
                 1.2,
                 false,
+                2,
+                0.08,
+                0.08,
+                None,
                 &config,
             ),
             Some(SurgicalTrigger::Oversized)
@@ -566,6 +686,33 @@ mod tests {
                 300,
                 4.0,
                 true,
+                5,
+                0.15,
+                0.09,
+                Some("High Local Complexity (5.0). Logic heavy."),
+                &config,
+            ),
+            Some(SurgicalTrigger::DragRisk)
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_prefers_drag_risk_when_drag_and_size_both_qualify() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/Exporter/ExporterUpload.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                410,
+                300,
+                5.3,
+                true,
+                5,
+                0.14,
+                0.09,
+                Some("High Local Complexity (9.0). Logic heavy."),
                 &config,
             ),
             Some(SurgicalTrigger::DragRisk)
@@ -585,6 +732,10 @@ mod tests {
                 300,
                 3.5,
                 true,
+                4,
+                0.11,
+                0.08,
+                Some("High Local Complexity (4.0). Logic heavy."),
                 &config,
             ),
             None
@@ -595,6 +746,21 @@ mod tests {
     fn drag_trigger_min_loc_tracks_soft_floor_with_guardrail() {
         let config = config();
         assert_eq!(drag_trigger_min_loc(&config), 250);
+    }
+
+    #[test]
+    fn recommended_module_count_keeps_medium_drag_risk_modules_in_place() {
+        let config = config();
+        assert_eq!(recommended_module_count(368, &config), 1);
+        assert_eq!(recommended_module_count(420, &config), 1);
+    }
+
+    #[test]
+    fn recommended_module_count_splits_only_when_modules_stay_near_centerline() {
+        let config = config();
+        assert_eq!(recommended_module_count(520, &config), 2);
+        assert_eq!(recommended_module_count(750, &config), 3);
+        assert_eq!(recommended_module_count(1011, &config), 3);
     }
 
     #[test]
@@ -610,6 +776,10 @@ mod tests {
                 500,
                 4.66,
                 true,
+                4,
+                0.13,
+                0.08,
+                Some("High Local Complexity (6.0). Logic heavy."),
                 &config,
             ),
             None
@@ -629,6 +799,10 @@ mod tests {
                 408,
                 2.3,
                 false,
+                2,
+                0.08,
+                0.04,
+                None,
                 &config,
             ),
             None
@@ -648,6 +822,10 @@ mod tests {
                 300,
                 1.9,
                 false,
+                2,
+                0.10,
+                0.04,
+                None,
                 &config,
             ),
             None
@@ -662,9 +840,91 @@ mod tests {
                 337,
                 2.82,
                 false,
+                2,
+                0.10,
+                0.04,
+                None,
                 &config,
             ),
             None
         );
+    }
+
+    #[test]
+    fn surgical_trigger_skips_thin_shell_drag_risk_modules() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/Navigation/NavigationSupervisor.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                285,
+                300,
+                3.16,
+                true,
+                3,
+                0.19,
+                0.04,
+                Some("High Local Complexity (7.0). Logic heavy."),
+                &config,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_keeps_real_hotspots_even_when_medium_sized() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/Navigation/NavigationController.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                258,
+                300,
+                4.09,
+                true,
+                5,
+                0.09,
+                0.10,
+                Some("High Local Complexity (18.0). Logic heavy."),
+                &config,
+            ),
+            Some(SurgicalTrigger::DragRisk)
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_skips_low_value_in_band_drag_churn() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/TeaserRecorder.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                294,
+                300,
+                6.64,
+                true,
+                9,
+                0.22,
+                0.07,
+                Some("High Local Complexity (2.0). Logic heavy."),
+                &config,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn test_only_helper_files_are_not_dead_code_candidates() {
+        assert!(is_test_only_helper("../../backend/src/api/auth_tests.rs"));
+        assert!(is_test_only_helper(
+            "../../tests/unit/PreviewArrow_v.test.res"
+        ));
+        assert!(!is_test_only_helper("../../backend/src/api/auth.rs"));
     }
 }

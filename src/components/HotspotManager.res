@@ -22,47 +22,9 @@ let createHotspotConfig = (
   ~scene as _scene: scene,
   ~dispatch: Actions.action => unit,
 ) => {
-  let isSimulationMode = state.simulation.status != Idle
-  let incomingLink = state.navigationState.incomingLink
-
-  // NAVIGATION LOGIC
-  let isReturnLink = switch incomingLink {
-  | Some(inc) =>
-    let scenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    switch Belt.Array.get(scenes, inc.sceneIndex) {
-    | Some(prevScene) => HotspotTarget.pointsToScene(hotspot, prevScene)
-    | None => false
-    }
-  | None => false
-  }
-
   let isAutoForward = switch hotspot.isAutoForward {
   | Some(b) => b
   | None => false
-  }
-
-  // Determine if this specific hotspot is the one we are currently navigating towards
-  let isTargetOfActiveNav = switch state.navigationState.navigation {
-  | Navigating(data) => data.hotspotIndex == index
-  | _ => false
-  }
-
-  // CSS Class (Always Gold, only 3rd chevron changes)
-  let cssClass = ref("pnlm-hotspot flat-arrow arrow-gold")
-  if isAutoForward {
-    cssClass := cssClass.contents ++ " auto-forward"
-  }
-  if isReturnLink {
-    cssClass := cssClass.contents ++ " return-link"
-  }
-  if isSimulationMode {
-    cssClass := cssClass.contents ++ " in-simulation"
-  }
-  if isTargetOfActiveNav {
-    cssClass := cssClass.contents ++ " active-sim-target"
-  }
-  if hotspot.displayPitch == None {
-    cssClass := cssClass.contents ++ " freely-placed"
   }
 
   {
@@ -78,54 +40,10 @@ let createHotspotConfig = (
     "yaw": hotspot.yaw,
     "type": "info",
     "text": " " /* Ensure trigger */,
-    "cssClass": cssClass.contents,
+    "cssClass": HotspotManagerSupport.hotspotCssClass(~hotspot, ~index, ~state, ~isAutoForward),
     "tooltipAlwaysVisible": true,
     "createTooltipFunc": (div: Dom.element) => {
-      Logger.debug(~module_="HotspotManager", ~message="CREATE_TOOLTIP_FUNC_CALLED", ())
-      // Create Container - APPEND classes, don't overwrite to preserve Pannellum positioning
-      Dom.classList(div)->Dom.ClassList.add("pnlm-hotspot-base")
-      Dom.classList(div)->Dom.ClassList.add("group")
-      Dom.classList(div)->Dom.ClassList.add("relative")
-      Dom.classList(div)->Dom.ClassList.add("flex")
-      Dom.classList(div)->Dom.ClassList.add("items-center")
-      Dom.classList(div)->Dom.ClassList.add("justify-center")
-      // We render it as a 0x0 size anchor, effectively checking center.
-      // But the children are absolute/fixed relative to it?
-      // No, children are absolute. Let's give it w-12 h-12 to match click area if needed
-      // Actually, Pannellum hotspots are usually 0x0 div with visible overflow.
-      // Let's stick to overflow-visible.
-      Dom.setPointerEvents(div, "auto")
-      Dom.setCursor(div, "default")
-
-      // Use React 18 createRoot to render the PreviewArrow component into the div
-      // We rely on Pannellum to manage the DIV lifecycle (removing it when scene changes)
-      // Note: In a perfect world we would unmount the root, but Pannellum just nukes the DOM.
-      // Garbage collection should handle the detached nodes.
-
-      try {
-        let root = ReBindings.ReactDOMClient.createRoot(div)
-
-        // We pass a dummy elementId because we're not using the HotspotLine loop anymore
-        // Pannellum handles the positioning of 'div' automatically.
-        let elementId = "hs-react-" ++ Belt.Int.toString(index)
-
-        ReBindings.ReactDOMClient.Root.render(
-          root,
-          <PreviewArrow
-            sceneIndex={state.activeIndex}
-            hotspotIndex={index}
-            dispatch={dispatch}
-            elementId={elementId}
-            isTargetAutoForward={isAutoForward}
-            sequenceLabel={None}
-            isReturnNode={false}
-            scenes={SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)}
-            state={state}
-          />,
-        )
-      } catch {
-      | _ => () // Silence errors during rapid scene cleanup
-      }
+      HotspotManagerSupport.renderPreviewArrow(~div, ~index, ~state, ~dispatch, ~isAutoForward)
     },
   }
 }

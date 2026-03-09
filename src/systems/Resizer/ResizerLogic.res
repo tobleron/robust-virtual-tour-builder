@@ -122,53 +122,7 @@ let createResultFiles = async (extractedResult, originalName) => {
       switch JsonCombinators.Json.decode(json, JsonParsers.Shared.metadataResponse) {
       | Ok(metadata) =>
         let suggestedName = Nullable.toOption(metadata.suggestedName)
-
-        let computeNewName = (suggestedName: option<string>, originalName: string) => {
-          switch suggestedName {
-          | Some(name) => name
-          | None =>
-            let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
-            // Try PureShot format first: IMG_YYYYMMDD_HHMMSS_XX_SSS -> IMG_MMSS_SSS
-            switch String.match(originalName, /IMG_\d{8}_(\d{6})_\d{2}_(\d{3})/) {
-            | Some(captures) =>
-              let hhmmss = switch Belt.Array.get(captures, 1) {
-              | Some(Some(v)) => v
-              | _ => ""
-              }
-              let sss = switch Belt.Array.get(captures, 2) {
-              | Some(Some(v)) => v
-              | _ => ""
-              }
-              if hhmmss != "" && sss != "" {
-                let mmss = String.slice(hhmmss, ~start=2, ~end=6)
-                "IMG_" ++ mmss ++ "_" ++ sss
-              } else {
-                baseName
-              }
-            | None =>
-              // Fallback to legacy format
-              switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
-              | Some(captures) =>
-                let p1 = switch Belt.Array.get(captures, 1) {
-                | Some(Some(v)) => v
-                | _ => ""
-                }
-                let p2 = switch Belt.Array.get(captures, 2) {
-                | Some(Some(v)) => v
-                | _ => ""
-                }
-                if p1 != "" && p2 != "" {
-                  p1 ++ "_" ++ p2
-                } else {
-                  baseName
-                }
-              | None => baseName
-              }
-            }
-          }
-        }
-
-        let newName = computeNewName(suggestedName, originalName)
+        let newName = ResizerLogicSupport.computeNewName(~suggestedName, ~originalName)
 
         let previewFile = File.newFile(
           [previewBlob],
@@ -301,29 +255,15 @@ let generateResolutions = (file: File.t): Promise.t<result<dict<Blob.t>, string>
   ->Promise.then(zipResult => {
     switch zipResult {
     | Ok(zip) =>
-      let files = [("4k", "4k.webp"), ("2k", "2k.webp"), ("hd", "hd.webp")]
-      let promises = Belt.Array.map(files, ((key, name)) => {
-        let zipFile = JSZip.file(zip, name)
-        switch Nullable.toOption(zipFile) {
-        | Some(z) => JSZip.async(z, "blob")->Promise.then(b => Promise.resolve((key, Some(b))))
-        | None => Promise.resolve((key, None))
-        }
-      })
-      Promise.all(promises)->Promise.then(results => Promise.resolve(Ok(results)))
+      ResizerLogicSupport.extractResolutionFiles(zip)->Promise.then(results =>
+        Promise.resolve(Ok(results))
+      )
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })
   ->Promise.then(resultsResult => {
     switch resultsResult {
-    | Ok(results) =>
-      let d = Dict.make()
-      Belt.Array.forEach(results, ((key, blobOpt)) => {
-        switch blobOpt {
-        | Some(b) => Dict.set(d, key, b)
-        | None => ()
-        }
-      })
-      Promise.resolve(Ok(d))
+    | Ok(results) => Promise.resolve(Ok(ResizerLogicSupport.buildResolutionBlobDict(results)))
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })

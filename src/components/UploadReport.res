@@ -2,12 +2,6 @@
 
 open Types
 
-type qualityGroups = {
-  ex: array<qualityItem>,
-  md: array<qualityItem>,
-  pr: array<qualityItem>,
-}
-
 let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
   field.required("validationReport", JsonParsers.Shared.validationReport)
 })
@@ -48,84 +42,8 @@ let show = (
     }
     EventBus.dispatch(ShowModal(options))
   } else {
-    let avgScore = ref(0.0)
-    let groups = {
-      ex: [],
-      md: [],
-      pr: [],
-    }
-
-    if Array.length(qualityResults) > 0 {
-      let totalScore = Belt.Array.reduce(qualityResults, 0.0, (acc, r) => acc +. r.quality.score)
-      avgScore := totalScore /. Int.toFloat(Array.length(qualityResults))
-
-      Belt.Array.forEach(qualityResults, r => {
-        if r.quality.score >= 8.0 {
-          Array.push(groups.ex, r)
-        } else if r.quality.score >= 6.0 {
-          Array.push(groups.md, r)
-        } else {
-          Array.push(groups.pr, r)
-        }
-      })
-    }
-
-    let totalImages = Array.length(report.success) + Array.length(report.skipped)
-    let brief = if totalImages > 0 {
-      "Images: " ++
-      Int.toString(totalImages) ++
-      " | Ready: " ++
-      Int.toString(Array.length(report.success)) ++
-      " | Skipped: " ++
-      Int.toString(Array.length(report.skipped))
-    } else {
-      "No images were accepted in this batch."
-    }
-
-    let content =
-      <div className="upload-report-container">
-        <div className="upload-report-brief"> {React.string(brief)} </div>
-
-        <div className="upload-report-grid">
-          {renderGroup(
-            "Excellent",
-            Array.length(groups.ex),
-            "text-success",
-            <LucideIcons.Sparkles size=16 strokeWidth=2.0 />,
-          )}
-          {renderGroup(
-            "Moderate",
-            Array.length(groups.md),
-            "text-warning",
-            <LucideIcons.BarChart3 size=16 strokeWidth=2.0 />,
-          )}
-          {renderGroup(
-            "Review",
-            Array.length(groups.pr),
-            "text-danger",
-            <LucideIcons.TriangleAlert size=16 strokeWidth=2.0 />,
-          )}
-        </div>
-
-        {if Array.length(report.skipped) > 0 {
-          <div className="upload-report-skipped-container">
-            <div className="upload-report-skipped-badge">
-              <LucideIcons.Copy size=12 className="mr-1" />
-              {React.string(`${Int.toString(Array.length(report.skipped))} Duplicates Skipped`)}
-            </div>
-          </div>
-        } else {
-          React.null
-        }}
-
-        <div className="upload-report-footer-score">
-          <div className="upload-report-title"> {React.string("Batch Health")} </div>
-          <div className="upload-report-score">
-            {React.string(Float.toFixed(avgScore.contents, ~digits=1))}
-            <span className="upload-report-score-total"> {React.string(" / 10")} </span>
-          </div>
-        </div>
-      </div>
+    let (avgScore, groups) = UploadReportSupport.summarizeQualityResults(qualityResults)
+    let content = UploadReportSupport.uploadSummaryContent(~renderGroup, ~report, ~groups, ~avgScore)
 
     let btnDownload: EventBus.button = {
       label: "Download Data Report",
@@ -191,63 +109,7 @@ let showValidationSummary = (
   ~sceneCount: int,
   ~dispatch: Actions.action => unit,
 ) => {
-  let issueCount = Array.length(report.warnings) + Array.length(report.errors)
-  let healthScore = if issueCount == 0 {
-    10.0
-  } else {
-    let score = 10.0 -. Int.toFloat(issueCount)
-    if score < 0.0 {
-      0.0
-    } else {
-      score
-    }
-  }
-
-  let brief =
-    "Scenes: " ++
-    Int.toString(sceneCount) ++
-    " | Warnings: " ++
-    Int.toString(Array.length(report.warnings)) ++
-    " | Blockers: " ++
-    Int.toString(Array.length(report.errors))
-
-  let content =
-    <div className="upload-report-container">
-      <div className="upload-report-brief"> {React.string(brief)} </div>
-
-      <div className="upload-report-grid">
-        {renderGroup(
-          "Cleanups",
-          report.brokenLinksRemoved,
-          "text-warning",
-          <LucideIcons.Settings size=16 strokeWidth=2.0 />,
-        )}
-        {renderGroup(
-          "Orphans",
-          Array.length(report.orphanedScenes),
-          "text-warning",
-          <LucideIcons.Link size=16 strokeWidth=2.0 />,
-        )}
-        {renderGroup(
-          "Warnings",
-          Array.length(report.warnings),
-          if Array.length(report.warnings) > 0 {
-            "text-warning"
-          } else {
-            "text-success"
-          },
-          <LucideIcons.TriangleAlert size=16 strokeWidth=2.0 />,
-        )}
-      </div>
-
-      <div className="upload-report-footer-score">
-        <div className="upload-report-title"> {React.string("Load Health")} </div>
-        <div className="upload-report-score">
-          {React.string(Float.toFixed(healthScore, ~digits=1))}
-          <span className="upload-report-score-total"> {React.string(" / 10")} </span>
-        </div>
-      </div>
-    </div>
+  let content = UploadReportSupport.validationSummaryContent(~renderGroup, ~report, ~sceneCount)
 
   let options: EventBus.modalConfig = {
     title: "Project Validation Summary",

@@ -30,16 +30,12 @@ module ControllerHooks = {
           (),
         )
         let sourceSceneId = scenes->Belt.Array.get(activeIndex)->Option.map(s => s.id)
-
-        // Mock state for Scene.Loader (it expects state record)
-        // TODO: Refactor Scene.Loader to take granular dependencies
-        let mockState: state = {
-          ...State.initialState,
-          inventory,
-          sceneOrder,
-          activeIndex,
-          navigationState,
-        }
+        let mockState = NavigationControllerRuntime.buildMockState(
+          ~inventory,
+          ~sceneOrder,
+          ~activeIndex,
+          ~navigationState,
+        )
 
         Scene.Loader.loadNewScene(
           ~state=mockState,
@@ -47,21 +43,24 @@ module ControllerHooks = {
           ~sourceSceneId?,
           ~targetSceneId,
           ~isAnticipatory,
-          ~taskId=?taskInfo->Option.map(t => t.token.id),
-          ~signal=?taskInfo->Option.map(t => t.token.signal),
+          ~taskId=?NavigationControllerRuntime.taskIdOpt(
+            ~taskInfo,
+            ~getId=t => t.token.id,
+          ),
+          ~signal=?NavigationControllerRuntime.taskSignalOpt(
+            ~taskInfo,
+            ~getSignal=t => t.token.signal,
+          ),
         )
 
         let timeoutId = Window.setTimeout(() => {
-          switch taskInfo {
-          | Some(t) if NavigationSupervisor.isCurrentToken(t.token) =>
-            if isAnticipatory {
-              dispatch(Actions.DispatchNavigationFsmEvent(Reset))
-            } else {
-              NavigationSupervisor.abort(t.token.id)
-              dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
-            }
-          | _ => ()
-          }
+          NavigationControllerRuntime.handleLoadTimeout(
+            ~taskInfo,
+            ~isAnticipatory,
+            ~dispatch,
+            ~isCurrentTask=t => NavigationSupervisor.isCurrentToken(t.token),
+            ~abortTask=t => NavigationSupervisor.abort(t.token.id),
+          )
         }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
       | Transitioning({progress, isPreview: _isPreview}) if progress == 0.0 =>
@@ -81,57 +80,17 @@ module ControllerHooks = {
           ~data=Some({"targetSceneId": targetSceneId}),
           (),
         )
-        let _ = Window.requestAnimationFrame(() => {
-          let sceneOpt = scenes->Belt.Array.getBy(s => s.id == targetSceneId)
-          switch sceneOpt {
-          | Some(ts) =>
-            Logger.debug(
-              ~module_="NavigationController",
-              ~message="PERFORMING_SWAP",
-              ~data=Some({"sceneId": ts.id, "sceneName": ts.name}),
-              (),
-            )
-            let current = NavigationSupervisor.getCurrentTask()
-            switch current {
-            | Some(t) if NavigationSupervisor.isCurrentToken(t.token) =>
-              Scene.Transition.performSwap(
-                ts,
-                0.0,
-                ~taskId=?Some(t.token.id),
-                ~getState,
-                ~dispatch,
-                ~transition,
-              )
-            | _ =>
-              // Failsafe: Perform swap even if no task exists (e.g., initial load or recovery)
-              // to prevent FSM from getting stuck in Stabilizing.
-              Logger.info(
-                ~module_="NavigationController",
-                ~message="STABILIZING_WITHOUT_TASK_FALLBACK",
-                ~data=Some({"targetSceneId": targetSceneId}),
-                (),
-              )
-              Scene.Transition.performSwap(ts, 0.0, ~getState, ~dispatch, ~transition)
-            }
-          | None =>
-            Logger.error(
-              ~module_="NavigationController",
-              ~message="STABILIZING_SCENE_NOT_FOUND",
-              ~data=Some({
-                "targetSceneId": targetSceneId,
-                "availableScenes": scenes->Belt.Array.map(s => s.id),
-              }),
-              (),
-            )
-            // Abort task if in Supervisor mode
-            let taskInfo = NavigationSupervisor.getCurrentTask()
-            switch taskInfo {
-            | Some(t) => NavigationSupervisor.abort(t.token.id)
-            | None => ()
-            }
-            dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
-          }
-        })
+        let _ = Window.requestAnimationFrame(() =>
+          NavigationControllerRuntime.performStabilizingSwap(
+            ~scenes,
+            ~targetSceneId,
+            ~getState,
+            ~dispatch,
+            ~transition,
+            ~getSceneId=s => s.id,
+            ~getSceneName=s => s.name,
+          )
+        )
         None
       | IdleFsm =>
         switch navigationState.navigation {
@@ -166,94 +125,14 @@ module ControllerHooks = {
       switch navigationStatus {
       | Navigating(j) =>
         if ajid.current != Some(j.journeyId) {
-          // NEW JOURNEY DETECTED: Cancel previous and start new
           req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
-
           ajid.current = Some(j.journeyId)
-          Logger.debug(
-            ~module_="NavigationController",
-            ~message="START_JOURNEY_ANIMATION",
-            ~data=Some({"journeyId": j.journeyId}),
-            (),
+          NavigationControllerAnimation.handleJourneyAnimation(
+            ~journey=j,
+            ~dispatch,
+            ~getState,
+            ~req,
           )
-          let viewerOpt = ViewerSystem.getActiveViewer()->Nullable.toOption
-          Logger.debug(
-            ~module_="NavigationController",
-            ~message="VIEWER_CHECK_FOR_ANIMATION",
-            ~data=Some({
-              "journeyId": j.journeyId,
-              "hasViewer": viewerOpt->Option.isSome,
-              "hasPathData": j.pathData->Option.isSome,
-            }),
-            (),
-          )
-          viewerOpt->Option.forEach(v => {
-            switch j.pathData {
-            | Some(pd) =>
-              let currentState = getState()
-              let scenes = SceneInventory.getActiveScenes(
-                currentState.inventory,
-                currentState.sceneOrder,
-              )
-              let targetSceneId = scenes->Belt.Array.get(j.targetIndex)->Option.map(s => s.id)
-
-              let isBuilder =
-                Constants.isDebugBuild() ||
-                Option.isSome(currentState.sessionId) ||
-                currentState.isLinking ||
-                currentState.movingHotspot != None
-
-              let hasAnimated = if isBuilder {
-                false
-              } else {
-                switch targetSceneId {
-                | Some(id) => HubScene.hasSceneAnimated(id, currentState)
-                | None => false
-                }
-              }
-
-              if hasAnimated {
-                Logger.info(
-                  ~module_="NavigationController",
-                  ~message="SCENE_ANIMATION_SKIPPED_REVISIT",
-                  ~data=Some({"sceneId": targetSceneId->Option.getOr("unknown")}),
-                  (),
-                )
-                // Skip animation - snap to target immediately and complete
-                Viewer.setPitch(v, pd.targetPitchForPan, false)
-                Viewer.setYaw(v, pd.targetYawForPan, false)
-                dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-              } else {
-                Logger.debug(
-                  ~module_="NavigationController",
-                  ~message="STARTING_ANIMATION_LOOP",
-                  ~data=Some({"journeyId": j.journeyId}),
-                  (),
-                )
-                NavigationRenderer.AnimationLoop.startLoop(v, j, pd, getState, dispatch, req)
-
-                if !isBuilder {
-                  targetSceneId->Option.forEach(id => dispatch(MarkSceneVisited(id)))
-                }
-              }
-            | None =>
-              Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
-              dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-            }
-          })
-
-          if viewerOpt->Option.isNone {
-            Logger.warn(
-              ~module_="NavigationController",
-              ~message="NO_ACTIVE_VIEWER_FALLBACK",
-              ~data=Some({
-                "journeyId": j.journeyId,
-                "hasPathData": j.pathData->Option.isSome,
-              }),
-              (),
-            )
-            dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-          }
         }
       | Idle =>
         if ajid.current != None {

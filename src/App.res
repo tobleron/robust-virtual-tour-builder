@@ -97,263 +97,42 @@ module InnerApp = {
     let lastServerSyncAtMsRef = React.useRef(0.0)
     let burstChangeCountRef = React.useRef(0)
     let syncInFlightRef = React.useRef(false)
+    let syncRefs: AppAutosave.syncRefs = {
+      snapshotTimeoutRef,
+      lastSnapshotRevisionRef,
+      lastAssetSyncSignatureRef,
+      latestStateRef,
+      dirtySinceMsRef,
+      lastChangeAtMsRef,
+      lastServerSyncAtMsRef,
+      burstChangeCountRef,
+      syncInFlightRef,
+    }
 
     latestStateRef.current = state
 
-    React.useEffect1(() => {
-      Logger.debug(
-        ~module_="App",
-        ~message="SYSTEM_LOCKED_STATUS: " ++ (isSystemLocked ? "LOCKED" : "UNLOCKED"),
-        (),
-      )
-      None
-    }, [isSystemLocked])
-
-    React.useEffect2(() => {
-      let bodyClasses = Dom.classList(Dom.documentBody)
-      if isExporting {
-        bodyClasses->Dom.ClassList.add("export-mode")
-      } else {
-        bodyClasses->Dom.ClassList.remove("export-mode")
-      }
-      if isProjectLoading {
-        bodyClasses->Dom.ClassList.add("project-load-mode")
-      } else {
-        bodyClasses->Dom.ClassList.remove("project-load-mode")
-      }
-      None
-    }, (isExporting, isProjectLoading))
-
-    React.useEffect0(() => {
-      Logger.debug(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())
-      dispatch(DispatchAppFsmEvent(InitializeComplete))
-      None
-    })
-
-    React.useEffect1(() => {
-      switch bootProjectData {
-      | Some(projectData) =>
-        let sessionIdOpt = bootProjectSessionId
-        sessionIdOpt->Option.forEach(id => dispatch(Actions.SetSessionId(id)))
-        dispatch(Actions.LoadProject(projectData))
-        let _ = %raw(
-          "((w) => { w.__VTB_BOOT_PROJECT_DATA__ = undefined; w.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined; })(window)"
-        )
-      | None => ()
-      }
-      None
-    }, [dispatch])
-
-    React.useEffect2(() => {
-      let prefs = PersistencePreferences.get()
-      let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-      let canUseServerAutosave = switch prefs.autosaveMode {
-      | PersistencePreferences.Hybrid => true
-      | PersistencePreferences.Off | PersistencePreferences.LocalOnly => false
-      }
-      let shouldSync =
-        canUseServerAutosave &&
-        canSyncToServer() &&
-        Array.length(activeScenes) > 0 &&
-        !isProjectLoading
-
-      let scheduleSync = (delayMs: int) => {
-        switch snapshotTimeoutRef.current {
-        | Some(id) => clearTimeoutMs(id)
-        | None => ()
-        }
-        let timeoutId = setTimeoutMs(() => {
-          let syncState = latestStateRef.current
-          let latestScenes = SceneInventory.getActiveScenes(syncState.inventory, syncState.sceneOrder)
-          if syncInFlightRef.current || Array.length(latestScenes) == 0 {
-            ()
-          } else if syncState.structuralRevision > lastSnapshotRevisionRef.current {
-            syncInFlightRef.current = true
-            let projectData = ProjectSystem.encodeProjectFromState(syncState)
-            let syncPromise = switch syncState.sessionId {
-            | Some(id) => Api.ProjectApi.syncSnapshot(~sessionId=id, ~projectData, ~origin=Auto)
-            | None => Api.ProjectApi.syncSnapshot(~projectData, ~origin=Auto)
-            }
-            syncPromise
-            ->Promise.then(result => {
-              switch result {
-              | Ok(syncResult) =>
-                lastSnapshotRevisionRef.current = syncState.structuralRevision
-                lastServerSyncAtMsRef.current = Date.now()
-                dirtySinceMsRef.current = 0.0
-                burstChangeCountRef.current = 0
-                let assetSignature = localAssetSyncSignature(syncState)
-                if assetSignature != "" && assetSignature != lastAssetSyncSignatureRef.current {
-                  Api.ProjectApi.syncSnapshotAssets(~sessionId=syncResult.sessionId, ~state=syncState)
-                  ->Promise.then(assetResult => {
-                    switch assetResult {
-                    | Ok(_) => lastAssetSyncSignatureRef.current = assetSignature
-                    | Error(_) => ()
-                    }
-                    Promise.resolve()
-                  })
-                  ->ignore
-                }
-                switch syncState.sessionId {
-                | Some(_) => ()
-                | None => dispatch(Actions.SetSessionId(syncResult.sessionId))
-                }
-              | Error(_) => ()
-              }
-              syncInFlightRef.current = false
-              Promise.resolve()
-            })
-            ->Promise.catch(_ => {
-              syncInFlightRef.current = false
-              Promise.resolve()
-            })
-            ->ignore
-          }
-        }, delayMs)
-        snapshotTimeoutRef.current = Some(timeoutId)
-      }
-
-      if !shouldSync {
-        switch snapshotTimeoutRef.current {
-        | Some(id) =>
-          clearTimeoutMs(id)
-          snapshotTimeoutRef.current = None
-        | None => ()
-        }
-        None
-      } else {
-        let now = Date.now()
-        if dirtySinceMsRef.current == 0.0 {
-          dirtySinceMsRef.current = now
-          burstChangeCountRef.current = 1
-        } else if now -. lastChangeAtMsRef.current < 12000.0 {
-          burstChangeCountRef.current = burstChangeCountRef.current + 1
-        } else {
-          burstChangeCountRef.current = 1
-        }
-        lastChangeAtMsRef.current = now
-
-        let policy = cadencePolicy(prefs.snapshotCadence)
-        let burstDelay =
-          if burstChangeCountRef.current >= policy.burstThreshold {
-            policy.burstDelayMs
-          } else {
-            policy.idleDelayMs
-          }
-        let sinceLastSync = now -. lastServerSyncAtMsRef.current
-        let cooldownRemaining = intMax(0, 800 - (sinceLastSync->Belt.Int.fromFloat))
-        let maxStalenessRemaining = intMax(
-          0,
-          policy.maxStalenessMs - (now -. dirtySinceMsRef.current)->Belt.Int.fromFloat,
-        )
-        let baseDelay = intMax(cooldownRemaining, burstDelay)
-        let finalDelay =
-          if maxStalenessRemaining == 0 {
-            250
-          } else {
-            intMin(baseDelay, maxStalenessRemaining)
-          }
-        scheduleSync(finalDelay)
-
-        Some(() => ())
-      }
-    }, (state.structuralRevision, isProjectLoading))
-
-    React.useEffect2(() => {
-      let flushServerAutosave = (_event: Dom.event) => {
-        let prefs = PersistencePreferences.get()
-        let canUseServerAutosave = switch prefs.autosaveMode {
-        | PersistencePreferences.Hybrid => true
-        | PersistencePreferences.Off | PersistencePreferences.LocalOnly => false
-        }
-        let flushState = latestStateRef.current
-        let activeScenes = SceneInventory.getActiveScenes(flushState.inventory, flushState.sceneOrder)
-        if
-          canUseServerAutosave &&
-          canSyncToServer() &&
-          !syncInFlightRef.current &&
-          !isProjectLoading &&
-          Array.length(activeScenes) > 0 &&
-          flushState.structuralRevision > lastSnapshotRevisionRef.current
-        {
-          let projectData = ProjectSystem.encodeProjectFromState(flushState)
-          let syncPromise = switch flushState.sessionId {
-          | Some(id) => Api.ProjectApi.syncSnapshot(~sessionId=id, ~projectData, ~origin=Auto)
-          | None => Api.ProjectApi.syncSnapshot(~projectData, ~origin=Auto)
-          }
-          syncInFlightRef.current = true
-          syncPromise
-          ->Promise.then(result => {
-            switch result {
-            | Ok(syncResult) =>
-              lastSnapshotRevisionRef.current = flushState.structuralRevision
-              lastServerSyncAtMsRef.current = Date.now()
-              let assetSignature = localAssetSyncSignature(flushState)
-              if assetSignature != "" && assetSignature != lastAssetSyncSignatureRef.current {
-                Api.ProjectApi.syncSnapshotAssets(~sessionId=syncResult.sessionId, ~state=flushState)
-                ->Promise.then(assetResult => {
-                  switch assetResult {
-                  | Ok(_) => lastAssetSyncSignatureRef.current = assetSignature
-                  | Error(_) => ()
-                  }
-                  Promise.resolve()
-                })
-                ->ignore
-              }
-              switch flushState.sessionId {
-              | Some(_) => ()
-              | None => dispatch(Actions.SetSessionId(syncResult.sessionId))
-              }
-            | Error(_) => ()
-            }
-            syncInFlightRef.current = false
-            Promise.resolve()
-          })
-          ->Promise.catch(_ => {
-            syncInFlightRef.current = false
-            Promise.resolve()
-          })
-          ->ignore
-        }
-      }
-
-      let onVisibilityChange = (_event: Dom.event) => {
-        if documentVisibilityState == "hidden" {
-          flushServerAutosave(_event)
-        }
-      }
-
-      DomBindings.Window.addEventListener("pagehide", flushServerAutosave)
-      DomBindings.Window.addEventListener("visibilitychange", onVisibilityChange)
-
-      Some(() => {
-        DomBindings.Window.removeEventListener("pagehide", flushServerAutosave)
-        DomBindings.Window.removeEventListener("visibilitychange", onVisibilityChange)
-      })
-    }, (isProjectLoading, dispatch))
-
-    React.useEffect1(() => {
-      let _ = %raw("((s) => { window.__RE_STATE__ = s })(state)")
-      None
-    }, [state])
-
-    React.useEffect0(() => {
-      let _ = %raw("(isBusyFn, evaluateFn) => { 
-        window.OperationLifecycle = { 
-          isBusy: (opts) => {
-            const t = opts ? opts.type : undefined;
-            const s = opts ? opts.scope : undefined;
-            return isBusyFn(t, s, undefined);
-          }
-        };
-        window.Capability = { 
-          evaluate: (opts) => {
-             return evaluateFn(opts.capability, opts.appMode, opts.operations);
-          }
-        };
-      }")(OperationLifecycle.isBusy, Capability.Policy.evaluate)
-      None
-    })
+    AppEffects.useSystemLockLogging(~isSystemLocked)
+    AppEffects.useBodyModeClasses(~isExporting, ~isProjectLoading)
+    AppEffects.useInitComplete(~dispatch)
+    AppEffects.useBootProject(~bootProjectData, ~bootProjectSessionId, ~dispatch)
+    AppAutosave.useScheduledServerAutosave(
+      ~state,
+      ~isProjectLoading,
+      ~dispatch,
+      ~refs=syncRefs,
+      ~cadencePolicy=(cadence => (cadencePolicy(cadence) :> AppAutosave.cadencePolicy)),
+      ~canSyncToServer,
+      ~localAssetSyncSignature,
+    )
+    AppAutosave.useFlushServerAutosave(
+      ~isProjectLoading,
+      ~dispatch,
+      ~refs=syncRefs,
+      ~canSyncToServer,
+      ~localAssetSyncSignature,
+    )
+    AppEffects.useExposeState(~state)
+    AppEffects.useExposeLifecycleBridges()
 
     React.useEffect1(() => {
       let loadProjectFn = data => dispatch(Actions.LoadProject(data))

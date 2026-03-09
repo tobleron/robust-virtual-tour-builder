@@ -846,6 +846,13 @@ fn surgical_reason_is_size_only(reason: &str, drag_target: f64) -> bool {
         .unwrap_or(false)
 }
 
+fn surgical_working_band(soft_floor_loc: usize) -> (usize, usize) {
+    (
+        soft_floor_loc.saturating_sub(50).max(250),
+        soft_floor_loc + 50,
+    )
+}
+
 /// Extract the base strategy text for a surgical work unit (without split count)
 fn surgical_base_strategy(reason: &str, drag_target: f64) -> &'static str {
     if surgical_reason_is_size_only(reason, drag_target) {
@@ -862,14 +869,25 @@ fn surgical_base_strategy(reason: &str, drag_target: f64) -> &'static str {
 }
 
 /// Generate strategic directive for a work unit (full version with split count, used in metadata/JSON)
-pub fn generate_strategic_directive(unit: &WorkUnit, drag_target: f64) -> String {
+pub fn generate_strategic_directive(
+    unit: &WorkUnit,
+    drag_target: f64,
+    soft_floor_loc: usize,
+) -> String {
+    let (lower, upper) = surgical_working_band(soft_floor_loc);
     match unit {
         WorkUnit::Surgical { reason, recommended_splits, .. } => {
             let base = surgical_base_strategy(reason, drag_target);
             if *recommended_splits > 1 {
-                format!("{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules to respect the Read Tax (avg 300 LOC/module).", base, recommended_splits)
+                format!(
+                    "{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules while keeping each module within the {}-{} LOC working band (center ~{} LOC).",
+                    base, recommended_splits, lower, upper, soft_floor_loc
+                )
             } else {
-                format!("{} Refactor in-place to reduce drag score.", base)
+                format!(
+                    "{} Refactor in-place to reduce drag score while keeping the module near the ~{} LOC centerline.",
+                    base, soft_floor_loc
+                )
             }
         },
         WorkUnit::Merge { folder, .. } => {
@@ -909,7 +927,14 @@ fn persist_verification_baseline(
     verification: &[VerificationBundle],
 ) -> Result<BaselineInfo> {
     let repo_root = Path::new("../..");
-    let baseline_root = repo_root.join("_dev-system").join("tmp").join(id);
+    let baseline_folder = format!("{}_{}", id, category);
+    let baseline_root = repo_root
+        .join("_dev-system")
+        .join("tmp")
+        .join(&baseline_folder);
+    if baseline_root.exists() {
+        fs::remove_dir_all(&baseline_root)?;
+    }
     let files_root = baseline_root.join("files");
     fs::create_dir_all(&files_root)?;
 
@@ -931,7 +956,7 @@ fn persist_verification_baseline(
         }
     }
 
-    let relative_root = Path::new("_dev-system").join("tmp").join(id);
+    let relative_root = Path::new("_dev-system").join("tmp").join(&baseline_folder);
     let report = VerificationReport {
         task: id.to_string(),
         category: category.to_string(),
@@ -978,10 +1003,11 @@ pub fn sync_all_architectural_tasks(
     let mut surgical_fe_units: Vec<SurgicalEntry> = Vec::new();
     let mut surgical_be_units: Vec<SurgicalEntry> = Vec::new();
     let drag_target = config.settings.drag_target;
+    let soft_floor_loc = config.settings.soft_floor_loc;
 
     for units in buffer.values() {
         for unit in units {
-            let strategy = generate_strategic_directive(unit, drag_target);
+            let strategy = generate_strategic_directive(unit, drag_target, soft_floor_loc);
             match unit {
                 WorkUnit::Ambiguity { file, .. } => {
                     ambiguities_grouped
@@ -1176,6 +1202,7 @@ pub fn sync_all_architectural_tasks(
     )>,
                          platform: &str|
      -> Vec<GeneratedTaskSpec> {
+        let (working_band_lower, working_band_upper) = surgical_working_band(soft_floor_loc);
         let mut specs = Vec::new();
         let mut domain_groups: HashMap<
             String,
@@ -1238,9 +1265,12 @@ pub fn sync_all_architectural_tasks(
                 for (file, reason, splits, size_only, maybe_bundle) in items.iter() {
                     // Embed per-file split recommendation inline
                     let split_note = if *splits > 1 {
-                        format!(" → 🏗️ Split into {} modules (target ~300 LOC each)", splits)
+                        format!(
+                            " → 🏗️ Split into {} modules (target {}-{} LOC each, center ~{} LOC)",
+                            splits, working_band_lower, working_band_upper, soft_floor_loc
+                        )
                     } else {
-                        " → Refactor in-place".to_string()
+                        format!(" → Refactor in-place (keep near ~{} LOC)", soft_floor_loc)
                     };
                     let size_note = if *size_only {
                         " [Size-only candidate; drag already within target.]"
@@ -1793,5 +1823,45 @@ mod tests {
             ),
             "Right-size Surface: Keep the module as the orchestration boundary and extract only adjacent sections that reduce file length without fragmenting the public API."
         );
+    }
+
+    #[test]
+    fn generate_strategic_directive_uses_working_band_for_split_targets() {
+        let directive = generate_strategic_directive(
+            &WorkUnit::Surgical {
+                file: "src/App.res".to_string(),
+                action: "De-bloat".to_string(),
+                reason: "[Nesting: 6.60, Density: 0.34, Coupling: 0.11] | Drag: 7.94 | LOC: 429/300  🎯 Target: Function: `make` (High Local Complexity (35.3). Logic heavy.)".to_string(),
+                strategy: String::new(),
+                platform: "frontend".to_string(),
+                complexity: 7.94,
+                recommended_splits: 2,
+                verification: None,
+            },
+            1.8,
+            300,
+        );
+        assert!(directive.contains("250-350 LOC working band"));
+        assert!(directive.contains("center ~300 LOC"));
+    }
+
+    #[test]
+    fn generate_strategic_directive_keeps_in_place_drag_work_near_centerline() {
+        let directive = generate_strategic_directive(
+            &WorkUnit::Surgical {
+                file: "src/systems/Navigation/NavigationController.res".to_string(),
+                action: "De-bloat".to_string(),
+                reason: "[Nesting: 4.20, Density: 0.10, Coupling: 0.09] | Drag: 5.30 | LOC: 293/300  ⚠️ Trigger: Drag above target (1.80) with file already at 293 LOC.  🎯 Target: Function: `taskInfo` (High Local Complexity (18.2). Logic heavy.)".to_string(),
+                strategy: String::new(),
+                platform: "frontend".to_string(),
+                complexity: 5.30,
+                recommended_splits: 1,
+                verification: None,
+            },
+            1.8,
+            300,
+        );
+        assert!(directive.contains("Refactor in-place"));
+        assert!(directive.contains("~300 LOC centerline"));
     }
 }

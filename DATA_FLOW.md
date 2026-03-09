@@ -36,6 +36,7 @@ User Click Event
       → Calls SceneLoader with taskId and AbortSignal from Supervisor
   → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
       → [src/systems/SceneLoaderLogic.res] constructs scene configuration and Pannellum setup parameters
+      → [src/systems/Scene/SceneLoaderSupport.res] manages reusable-instance and fresh-viewer setup helpers
       → [src/core/SceneCache.res] manages preloaded scene state
       → [src/components/ViewerManager.res], [src/components/ViewerManager/ViewerManagerLifecycle.res], [src/components/ViewerManager/ViewerManagerCleanup.res], [src/components/ViewerManager/ViewerManagerPreloading.res], [src/components/ViewerManager/ViewerManagerSceneLoad.res], [src/components/ViewerManager/ViewerManagerHotspots.res], [src/components/ViewerManager/ViewerManagerRatchet.res], [src/components/ViewerManager/ViewerManagerSimulation.res], and [src/components/ViewerManager/ViewerManagerIntro.res] manage active viewers and hook-level synchronization
       → [src/components/ViewerSceneElements.res], [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render scene and interactive overlays
@@ -44,6 +45,7 @@ User Click Event
       → [src/systems/PannellumLifecycle.res] interface with engine
   → [src/systems/Scene/SceneSwitcher.res] handles journey initialization and auto-forwarding
   → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping (with Supervisor coordination)
+      → [src/systems/Scene/SceneTransitionSupport.res] handles scene-sync reconciliation and DOM transition helpers
   → [src/systems/Navigation/NavigationGraph.res] projects link geometry and scene graph candidates
   → [src/systems/Navigation/NavigationRenderer.res] updates interactive navigation markers (using [src/components/Tooltip.res], [src/components/PreviewArrow.res], and [src/components/PersistentLabel.res])
   → [src/systems/AudioManager.res] triggers spatial audio transitions
@@ -159,6 +161,7 @@ User clicks to add hotspot
 User clicks "Start Simulation"
   → [src/systems/Simulation.res] initializes simulation
   → [src/systems/SimulationLogic.res] and [src/systems/Simulation/SimulationMainLogic.res] orchestrate waypoint logic
+      → [src/systems/SimulationDriverRuntimeSupport.res] supports transition planning and runtime step assembly for driver-oriented simulation flows
       → [src/systems/Simulation/SimulationPathGenerator.res] generates optimal paths using [src/systems/Simulation/SimulationTypes.res]
       → [src/systems/Simulation/SimulationNavigation.res] and [src/systems/Simulation/SimulationChainSkipper.res] manage movement
       → [src/systems/PanoramaClusterer.res] assists in logical grouping
@@ -166,7 +169,7 @@ User clicks "Start Simulation"
   → [src/systems/Navigation/NavigationFSM.res] drives scene transitions
   → [src/systems/TeaserManager.res] manages recording sessions
       → [src/systems/TeaserManagerLogic.res], [src/systems/Teaser.res], [src/systems/TeaserLogic.res], [src/systems/TeaserLogicHelpers.res], [src/systems/TeaserPlayback.res], [src/systems/TeaserPlaybackManifest.res], [src/systems/TeaserStyleConfig.res], and [src/systems/TeaserState.res] handle playback and movement logic
-      → [src/systems/TeaserHeadlessLogic.res] and [src/systems/TeaserRecorderHud.res] support headless rendering setup and recorder HUD behavior
+      → [src/systems/TeaserHeadlessLogic.res], [src/systems/TeaserHeadlessLogicSupport.res], and [src/systems/TeaserRecorderHud.res] support headless rendering setup, branding/runtime preparation, and recorder HUD behavior
       → [src/systems/TeaserPathfinder.res] specialized cinematic pathfinding
   → [src/systems/TeaserRecorder.res] captures viewports (using [src/components/SnapshotOverlay.res], [src/components/ViewerSnapshot.res])
   → [src/systems/TeaserStyleCatalog.res] provides style type definitions and availability flags
@@ -279,7 +282,8 @@ Save/Export Trigger:
       → [backend/src/api/project_logic/zip.rs] handles zip extraction/creation and secure path handling
   → [backend/src/services/project/mod.rs] handles persistence
   → [backend/src/api/utils.rs] for request validation
-  → [backend/src/services/mod.rs], [backend/src/services/project/package.rs], and [backend/src/services/project/package_utils.rs] create ZIP (Export only)
+  → [backend/src/services/mod.rs], [backend/src/services/project/package.rs], [backend/src/services/project/package_assets.rs], [backend/src/services/project/package_output.rs], and [backend/src/services/project/package_utils.rs] create ZIP (Export only)
+  → [backend/src/services/project/export_upload_runtime_session.rs] assembles resumable export-upload session chunks when upload-backed export delivery is used
 
 Load Trigger:
   → [src/utils/FileSlicer.res] slices project archive for chunked/resumable import uploads
@@ -331,7 +335,7 @@ Test runner
 [backend/src/main.rs] entry point
   → [backend/src/startup.rs] initializes HTTP server
   → [backend/src/lib.rs] provides core application logic
-  → [backend/src/middleware.rs], [backend/src/middleware/rate_limiter.rs], and [backend/src/auth.rs] handle CORS/Auth/rate limiting
+  → [backend/src/middleware.rs], [backend/src/middleware/rate_limiter.rs], [backend/src/auth.rs], [backend/src/auth_handlers.rs], and [backend/src/auth_requests.rs] handle CORS/Auth/rate limiting
   → [backend/src/services/database.rs] connection pool
   → [backend/src/services/upload_quota.rs] and [backend/src/services/upload_quota_tests.rs] enforce limits
   → [backend/src/api/health.rs] provides service diagnostics
@@ -384,11 +388,11 @@ CI job
 
 ### Progressive Web App (PWA)
 **Purpose:** Offline capabilities and asset pre-caching.
-- [src/ServiceWorker.res] and [src/ServiceWorkerMain.res] (Entry point: [src/index.js])
+- [src/ServiceWorker.res], [src/ServiceWorkerMain.res], and [src/ServiceWorkerMainSupport.res] (Entry point: [src/index.js])
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/utils/FileSlicer.res], [src/core/InteractionGuard.res], [src/core/Capability.res], [src/systems/OperationLifecycle.res], [src/systems/OperationLifecycleContext.res], [src/systems/OperationLifecycleTypes.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
+- [src/utils/AsyncQueue.res], [src/utils/AsyncQueueRuntime.res], [src/utils/AsyncQueueAdaptiveRuntime.res], [src/utils/AsyncQueueWeightedRuntime.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/utils/FileSlicer.res], [src/core/InteractionGuard.res], [src/core/Capability.res], [src/systems/OperationLifecycle.res], [src/systems/OperationLifecycleContext.res], [src/systems/OperationLifecycleTypes.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res], [src/utils/PerfUtils.res], [src/utils/StateDensityMonitor.res]
@@ -398,7 +402,11 @@ CI job
 - [src/utils/ProjectionMath.res], [src/utils/GeoUtils.res], [src/utils/PathInterpolation.res], [src/utils/Constants.res]
 
 ### Global Support & Metadata
-- [src/utils/Version.res], [src/utils/TourLogic.res], [src/components/UtilityBar.res], [src/i18n/I18n.res], [src/utils/ImageOptimizer.res], [src/utils/LazyLoad.res]
+- [src/utils/Version.res], [src/utils/TourLogic.res], [src/components/UtilityBar.res], [src/i18n/I18n.res], [src/utils/ImageOptimizer.res], [src/utils/LazyLoad.res], [src/utils/LoggerLogic.res], [src/utils/LoggerPerf.res], [src/utils/LoggerDiagnostics.res]
+
+### Site Pages & Offline Runtime
+**Purpose:** Static marketing/dashboard chrome and offline asset caching.
+- [src/site/PageFramework.js], [src/site/PageFrameworkShared.js], [src/site/PageFrameworkAuth.js], [src/site/PageFrameworkDashboard.js], [src/site/PageFrameworkBuilder.js], [src/site/PageFrameworkContent.js], and [src/site/PageFrameworkRoutes.js]
 
 ---
 
@@ -407,17 +415,6 @@ CI job
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
-
-(Utilities and Infrastructure modules are excluded from flow documentation by design)
-
-*(None currently - all detected modules have been integrated into flows.)*
-
-
----
-(Utilities and Infrastructure modules are excluded from flow documentation by design)
-
-*(None currently - all detected modules have been integrated into flows.)*
-
 *(None currently - all detected modules have been integrated into flows.)*
 
 ## 🆕 Unmapped Modules

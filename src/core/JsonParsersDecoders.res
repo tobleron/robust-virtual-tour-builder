@@ -37,203 +37,48 @@ let opt = (f: Decode.fieldDecoders, key, decoder, default) => {
   f.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
 }
 
-external unsafeCastToFile: JSON.t => ReBindings.File.t = "%identity"
-external unsafeCastToBlob: JSON.t => ReBindings.Blob.t = "%identity"
-external unsafeCastToString: JSON.t => string = "%identity"
-
 let file = id->map(json => {
-  switch JsonCombinators.Json.decode(json, string) {
-  | Ok(s) => Types.Url(s)
-  | Error(_) =>
-    if %raw("(t => t instanceof File)")(json) {
-      Types.File(unsafeCastToFile(json))
-    } else if %raw("(t => t instanceof Blob)")(json) {
-      Types.Blob(unsafeCastToBlob(json))
-    } else {
-      Console.warn2("File Decoder Fallback triggered for:", json)
-      Types.Url("")
-    }
-  }
+  JsonParsersProjectDecoders.decodeFile(json)
 })
 
 let normalizeLogo = (logoOpt: option<Types.file>): option<Types.file> => {
-  switch logoOpt {
-  | Some(Types.Url(u)) if u == "" => None
-  | _ => logoOpt
-  }
+  JsonParsersProjectDecoders.normalizeLogo(logoOpt)
 }
 
 let viewFrame = object(f => {
-  {
-    Types.yaw: f->opt("yaw", float, 0.0),
-    pitch: f->opt("pitch", float, 0.0),
-    hfov: f->opt("hfov", float, 0.0),
-  }
+  JsonParsersProjectDecoders.decodeViewFrame(f)
 })
 
 let hotspot = object(f => {
-  {
-    Types.linkId: f->opt("linkId", string, ""),
-    yaw: f->opt("yaw", float, 0.0),
-    pitch: f->opt("pitch", float, 0.0),
-    target: f->opt("target", string, ""),
-    targetSceneId: f.optional("targetSceneId", option(string))->Option.flatMap(x => x),
-    targetYaw: f.optional("targetYaw", option(float))->Option.flatMap(x => x),
-    targetPitch: f.optional("targetPitch", option(float))->Option.flatMap(x => x),
-    targetHfov: f.optional("targetHfov", option(float))->Option.flatMap(x => x),
-    startYaw: f.optional("startYaw", option(float))->Option.flatMap(x => x),
-    startPitch: f.optional("startPitch", option(float))->Option.flatMap(x => x),
-    startHfov: f.optional("startHfov", option(float))->Option.flatMap(x => x),
-    viewFrame: f.optional("viewFrame", option(viewFrame))->Option.flatMap(x => x),
-    waypoints: f.optional("waypoints", option(array(viewFrame)))->Option.flatMap(x => x),
-    displayPitch: f.optional("displayPitch", option(float))->Option.flatMap(x => x),
-    transition: f.optional("transition", option(string))->Option.flatMap(x => x),
-    duration: f.optional("duration", option(float))
-    ->Option.flatMap(x => x)
-    ->Option.map(Belt.Float.toInt),
-    isAutoForward: f.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
-    sequenceOrder: f.optional("sequenceOrder", option(int))->Option.flatMap(x => x),
-  }
+  JsonParsersProjectDecoders.decodeHotspot(f)
 })
 
 let scene = object(f => {
-  let cat = f.optional("category", string)
-  let lbl = f.optional("label", string)
-  {
-    Types.id: f->opt("id", string, ""),
-    name: f.required("name", string),
-    file: f->opt("file", file, Types.Url("")),
-    tinyFile: f.optional("tinyFile", option(file))->Option.flatMap(x => x),
-    originalFile: f.optional("originalFile", option(file))->Option.flatMap(x => x),
-    hotspots: f->opt("hotspots", array(hotspot), []),
-    category: cat->Option.getOr("outdoor"),
-    floor: f->opt("floor", string, "ground"),
-    label: lbl->Option.getOr(""),
-    quality: f.optional("quality", id),
-    colorGroup: f.optional("colorGroup", option(string))->Option.flatMap(x => x),
-    _metadataSource: f->opt("_metadataSource", string, "user"),
-    categorySet: f.optional("categorySet", bool)->Option.getOr(cat->Option.isSome),
-    labelSet: f.optional("labelSet", bool)->Option.getOr(lbl->Option.isSome),
-    isAutoForward: f->opt("isAutoForward", bool, false),
-    sequenceId: f.optional("sequenceId", int)->Option.getOr(0),
-  }
+  JsonParsersProjectDecoders.decodeScene(f)
 })
 
 let timelineItem = object(f => {
-  {
-    Types.id: f->opt("id", string, ""),
-    linkId: f->opt("linkId", string, ""),
-    sceneId: f->opt("sceneId", string, ""),
-    targetScene: f->opt("targetScene", string, ""),
-    transition: f->opt("transition", string, ""),
-    duration: f.optional("duration", option(float))
-    ->Option.flatMap(x => x)
-    ->Option.map(Belt.Float.toInt)
-    ->Option.getOr(0),
-  }
+  JsonParsersProjectDecoders.decodeTimelineItem(f)
 })
 
 let sceneStatus = map(id, json => {
-  switch JsonCombinators.Json.decode(json, string) {
-  | Ok(s) =>
-    if s == "Active" {
-      Types.Active
-    } else {
-      Types.Deleted(0.0)
-    }
-  | Error(_) =>
-    let raw = JsonCombinators.Json.decode(
-      json,
-      object(f => {
-        let statusStr = f.required("status", string)
-        let ts = f.optional("timestamp", float)->Option.getOr(0.0)
-        (statusStr, ts)
-      }),
-    )
-    switch raw {
-    | Ok(("Deleted", ts)) => Types.Deleted(ts)
-    | _ => Types.Active
-    }
-  }
+  JsonParsersProjectDecoders.decodeSceneStatus(json)
 })
 
 let sceneEntry = object(field => {
-  {
-    Types.scene: field.required("scene", scene),
-    status: field.required("status", sceneStatus),
-  }
+  JsonParsersProjectDecoders.decodeSceneEntry(field)
 })
 
 let inventoryEntry = object(field => {
-  (field.required("id", string), field.required("entry", sceneEntry))
+  JsonParsersProjectDecoders.decodeInventoryEntry(field)
 })
 
 let inventory = array(id)->map(items => {
-  items->Belt.Array.reduce(Belt.Map.String.empty, (acc, item) => {
-    switch JsonCombinators.Json.decode(item, inventoryEntry) {
-    | Ok((id, entry)) => acc->Belt.Map.String.set(id, entry)
-    | Error(_) => acc
-    }
-  })
+  JsonParsersProjectDecoders.decodeInventory(items)
 })
 
 let project = object(f => {
-  let robustScenes = map(array(id), items => {
-    items->Belt.Array.keepMap(
-      item => {
-        switch JsonCombinators.Json.decode(item, scene) {
-        | Ok(s) => Some(s)
-        | Error(_) => None
-        }
-      },
-    )
-  })
-  let scenes = f->opt("scenes", robustScenes, [])
-  let inventoryOpt = f->opt("inventory", inventory, Belt.Map.String.empty)
-  let sceneOrderOpt = f->opt("sceneOrder", array(string), [])
-
-  let (finalInventory, finalOrder) = if (
-    !Belt.Map.String.isEmpty(inventoryOpt) && Array.length(sceneOrderOpt) > 0
-  ) {
-    (inventoryOpt, sceneOrderOpt)
-  } else {
-    // Migrate from legacy scenes with robustness: ensure IDs are never empty
-    let inv = scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) => {
-      let id = if s.id == "" {
-        "legacy_" ++ s.name
-      } else {
-        s.id
-      }
-      acc->Belt.Map.String.set(id, {Types.scene: {...s, id}, status: Types.Active})
-    })
-    let order = scenes->Belt.Array.map(s => {
-      if s.id == "" {
-        "legacy_" ++ s.name
-      } else {
-        s.id
-      }
-    })
-    (inv, order)
-  }
-
-  {
-    Types.tourName: f
-    ->opt("tourName", string, "Untitled Tour")
-    ->(s => s == "" ? "Untitled Tour" : s),
-    inventory: finalInventory,
-    sceneOrder: finalOrder,
-    lastUsedCategory: f->opt("lastUsedCategory", string, "outdoor"),
-    exifReport: f.optional("exifReport", id),
-    sessionId: f.optional("sessionId", option(string))->Option.flatMap(x => x),
-    timeline: f->opt("timeline", array(timelineItem), []),
-    logo: f.optional("logo", option(file))->Option.flatMap(x => x)->normalizeLogo,
-    marketingComment: f->opt("marketingComment", string, ""),
-    marketingPhone1: f->opt("marketingPhone1", string, ""),
-    marketingPhone2: f->opt("marketingPhone2", string, ""),
-    marketingForRent: f->opt("marketingForRent", bool, false),
-    marketingForSale: f->opt("marketingForSale", bool, false),
-    nextSceneSequenceId: f.optional("nextSceneSequenceId", int)->Option.getOr(1),
-  }
+  JsonParsersProjectDecoders.decodeProject(f)
 })
 
 let persistedSession = object((field): persistedSessionEnvelope => {

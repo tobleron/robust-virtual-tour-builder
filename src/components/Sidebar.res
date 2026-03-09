@@ -1,7 +1,17 @@
 // @efficiency-role: ui-component
 
-@scope(("window", "location")) @val external reload: unit => unit = "reload"
+@scope(("window", "location")) @val external assignLocation: string => unit = "assign"
 @val @scope("window") external openSavedToursMaybe: option<unit => unit> = "__VTB_OPEN_TOUR_PICKER__"
+
+let resetAndStartNewProject = () => {
+  SessionStore.clearState()
+  PersistenceLayer.clearSession()
+  ignore(%raw(`(() => {
+    window.__VTB_BOOT_PROJECT_DATA__ = undefined
+    window.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined
+  })()`))
+  assignLocation("/builder")
+}
 
 @react.component
 let make = React.memo(() => {
@@ -56,18 +66,14 @@ let make = React.memo(() => {
                   {
                     label: "Discard & New",
                     class_: "bg-red-500/20 text-white hover:bg-red-500/40",
-                    onClick: () => {
-                      SessionStore.clearState()
-                      reload()
-                    },
+                    onClick: resetAndStartNewProject,
                     autoClose: Some(true),
                   },
                 ],
               }),
             )
           } else {
-            SessionStore.clearState()
-            reload()
+            resetAndStartNewProject()
           }
         }}
         onSave={(~mode, ~signal, ~onCancel) => {

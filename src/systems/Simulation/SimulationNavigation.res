@@ -111,50 +111,10 @@ let waitForViewerScene = async (
   }
 }
 
-type candidateLink = {
-  link: enrichedLink,
-  isReturn: bool,
-}
-
-let pickByPriority = (candidates: array<candidateLink>): option<enrichedLink> => {
-  let pick = predicate =>
-    Array.find(candidates, candidate => predicate(candidate))->Option.map(candidate =>
-      candidate.link
-    )
-
-  let p1 = pick(candidate =>
-    !candidate.link.isVisited && !candidate.isReturn && !candidate.link.isBridge
-  )
-  switch p1 {
-  | Some(link) => Some(link)
-  | None =>
-    let p2 = pick(candidate =>
-      !candidate.link.isVisited && !candidate.isReturn && candidate.link.isBridge
-    )
-    switch p2 {
-    | Some(link) => Some(link)
-    | None =>
-      let p3 = pick(candidate =>
-        !candidate.link.isVisited && candidate.isReturn && !candidate.link.isBridge
-      )
-      switch p3 {
-      | Some(link) => Some(link)
-      | None =>
-        let p4 = pick(candidate =>
-          !candidate.link.isVisited && candidate.isReturn && candidate.link.isBridge
-        )
-        switch p4 {
-        | Some(link) => Some(link)
-        | None =>
-          let p5 = pick(candidate => candidate.link.isVisited && candidate.isReturn)
-          switch p5 {
-          | Some(link) => Some(link)
-          | None => pick(candidate => candidate.link.targetIndex == 0)
-          }
-        }
-      }
-    }
-  }
+let pickByPriority = (
+  candidates: array<SimulationNavigationSupport.candidateLink>,
+): option<enrichedLink> => {
+  SimulationNavigationSupport.pickByPriority(candidates)
 }
 
 let findBestNextLink = (currentScene: scene, state: state, visited: array<int>): option<
@@ -164,41 +124,11 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
   if Array.length(hotspots) == 0 {
     None
   } else {
-    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    let parentBySceneId = TraversalParentMap.derive(~activeScenes)
-    let allLinks =
-      hotspots
-      ->Belt.Array.mapWithIndex((i, hotspot) => {
-        let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
-        switch targetIdx {
-        | Some(idx) =>
-          switch Belt.Array.get(activeScenes, idx) {
-          | Some(targetScene) =>
-            let isReturn = TraversalParentMap.isReturnTarget(
-              ~parentBySceneId,
-              ~sourceSceneId=currentScene.id,
-              ~targetSceneId=targetScene.id,
-            )
-            Some({
-              link: {
-                hotspot,
-                hotspotIndex: i,
-                targetIndex: idx,
-                isVisited: Array.includes(visited, idx),
-                // Use hotspot-level isAutoForward (more granular than scene-level)
-                isBridge: switch hotspot.isAutoForward {
-                | Some(af) => af
-                | None => false
-                },
-              },
-              isReturn,
-            })
-          | None => None
-          }
-        | None => None
-        }
-      })
-      ->Belt.Array.keepMap(x => x)
+    let allLinks = SimulationNavigationSupport.buildCandidateLinks(
+      ~currentScene,
+      ~state,
+      ~isVisited=link => Array.includes(visited, link.targetIndex),
+    )
 
     Logger.debug(
       ~module_="SimulationNavigation",
@@ -229,42 +159,11 @@ let findBestNextLinkByLinkId = (
   if Array.length(hotspots) == 0 {
     None
   } else {
-    let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-    let parentBySceneId = TraversalParentMap.derive(~activeScenes)
-    let allLinks =
-      hotspots
-      ->Belt.Array.mapWithIndex((i, hotspot) => {
-        let targetIdx = HotspotTarget.resolveSceneIndex(activeScenes, hotspot)
-        switch targetIdx {
-        | Some(idx) =>
-          switch Belt.Array.get(activeScenes, idx) {
-          | Some(targetScene) =>
-            let isReturn = TraversalParentMap.isReturnTarget(
-              ~parentBySceneId,
-              ~sourceSceneId=currentScene.id,
-              ~targetSceneId=targetScene.id,
-            )
-            Some({
-              link: {
-                hotspot,
-                hotspotIndex: i,
-                targetIndex: idx,
-                // KEY CHANGE: Check if linkId was traversed, not if scene was visited
-                isVisited: Array.includes(visitedLinkIds, hotspot.linkId),
-                // Use hotspot-level isAutoForward (more granular than scene-level)
-                isBridge: switch hotspot.isAutoForward {
-                | Some(af) => af
-                | None => false
-                },
-              },
-              isReturn,
-            })
-          | None => None
-          }
-        | None => None
-        }
-      })
-      ->Belt.Array.keepMap(x => x)
+    let allLinks = SimulationNavigationSupport.buildCandidateLinks(
+      ~currentScene,
+      ~state,
+      ~isVisited=link => Array.includes(visitedLinkIds, link.hotspot.linkId),
+    )
 
     Logger.debug(
       ~module_="SimulationNavigation",

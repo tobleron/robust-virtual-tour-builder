@@ -1,0 +1,234 @@
+#modal-container {
+    position: absolute;
+    inset: 0;
+    z-index: 20000;
+    pointer-events: none;
+}
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 30000;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: auto;
+}
+
+.modal-box-premium {
+    background: var(--gradient-brand);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 24px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-premium);
+    width: 320px;
+    height: 320px;
+    max-width: 90vw;
+    max-height: 90vh;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.modal-blue {
+    background: #0e2d52;
+}
+
+.modal-box-premium h2,
+.modal-box-premium h3 {
+    color: white;
+    font-family: var(--font-heading);
+    margin-bottom: 8px;
+}
+
+.modal-box-premium p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.modal-icon-container {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.modal-icon {
+    font-size: 40px;
+    color: var(--warning-light);
+    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+}
+
+.modal-icon-reorder {
+    color: #f6c445;
+    filter: drop-shadow(0 0 10px rgba(246, 196, 69, 0.38));
+}
+
+.modal-title-custom {
+    margin: 0 0 2px 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: white;
+}
+
+.modal-description-custom {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 16px;
+    text-align: center;
+    width: 100%;
+}
+
+.modal-content-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    width: 100%;
+}
+
+.modal-btn-full {
+    width: 100%;
+}
+
+.modal-box-premium.modal-teaser-style {
+    width: min(360px, 92vw);
+    min-height: 320px;
+    height: auto;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-description-custom {
+    margin-bottom: 12px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-actions {
+    margin-top: 10px;
+    gap: 6px;
+    max-height: min(240px, 48vh);
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.modal-box-premium.modal-teaser-style .modal-btn-premium {
+    white-space: normal;
+    line-height: 1.25;
+}
+
+.modal-box-premium.modal-settings-panel {
+    width: min(820px, 92vw);
+    height: min(620px, 90vh);
+    max-width: 92vw;
+    max-height: 90vh;
+    aspect-ratio: auto;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 18px;
+    text-align: left;
+}
+
+.modal-box-premium.modal-settings-panel .modal-content-body {
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.modal-box-premium.modal-settings-panel .modal-actions {
+    display: none;
+}
+
+.modal-box-premium.modal-publish-options {
+    width: min(460px, 92vw);
+    min-height: 0;
+    height: auto;
+    max-height: 88vh;
+    aspect-ratio: auto;
+    justify-content: flex-start;
+    align-items: stretch;
+    text-align: left;
+    padding: 18px;
+}
+
+.modal-box-premium.modal-publish-options .modal-icon-container {
+    margin-bottom: 10px;
+}
+
+.modal-box-premium.modal-publish-options .modal-title-custom {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.modal-box-premium.modal-publish-options .modal-description-custom {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.modal-box-premium.modal-publish-options .modal-content-body {
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.modal-box-premium.modal-publish-options .modal-actions {
+    margin-top: 12px;
+}
+
+.modal-box-premium.modal-reorder-scene {
+    width: min(380px, 92vw);
+    height: min(380px, 92vw);
+    min-height: 0;
+    max-height: 88vh;
+    aspect-ratio: 1 / 1;
+    justify-content: center;
+    align-items: stretch;
+    text-align: left;
+    padding: 18px;
+    border-radius: 22px;
+}
+
+.modal-box-premium.modal-reorder-scene .modal-title-custom {
+    text-align: center;
+    font-size: 17px;
+    margin-bottom: 4px;
+}
+
+.modal-box-premium.modal-reorder-scene .modal-description-custom {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.modal-box-premium.modal-reorder-scene .modal-content-body {
+    align-items: stretch;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.modal-box-premium.modal-reorder-scene .modal-actions {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}

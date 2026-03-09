@@ -1,0 +1,292 @@
+/* =========================================
+   Refactor: ViewerUI Specific Classes
+   ========================================= */
+
+/* --- Utility Bar Buttons --- */
+/* Add Link Button */
+.v-util-btn-add-link.state-empty {
+    background-color: var(--slate-500);
+    color: white;
+}
+
+.v-util-btn-add-link.state-linking {
+    background-color: var(--accent);
+    color: black;
+}
+
+.v-util-btn-add-link.state-idle {
+    background-color: var(--danger);
+    color: white;
+}
+
+.v-util-btn-add-link-icon {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Semantic Hover States */
+.v-util-btn-add-link.state-idle:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-add-link.state-linking:hover {
+    background-color: var(--accent-light);
+}
+
+.v-util-btn-add-link.state-empty:hover {
+    background-color: var(--slate-500);
+    cursor: not-allowed;
+}
+
+/* Auto-Pilot Button */
+.v-util-btn-autopilot.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-autopilot.state-active {
+    background-color: var(--danger);
+}
+
+.v-util-btn-autopilot.state-idle {
+    background-color: var(--danger);
+}
+
+.v-util-btn-autopilot.state-active:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-autopilot.state-idle:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-icon {
+    font-size: 18px;
+    color: white;
+}
+
+/* Category Button */
+.v-util-btn-category.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-category.cat-outdoor {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-indoor {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-none {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-outdoor:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-category.cat-indoor:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-category.cat-none:hover {
+    background-color: var(--danger-light);
+}
+
+/* Label Button */
+.v-util-btn-label.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-label.state-loaded {
+    background-color: var(--danger);
+}
+
+.v-util-btn-label.state-loaded:hover {
+    background-color: var(--danger-light);
+}
+
+/* Global Disabled State for Buttons (Used during Auto-Pilot for non-active buttons) */
+.v-util-btn.state-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    transition: all 0.3s ease;
+}
+
+/* HUD Labels */
+/* Moved dynamic logic to CSS classes if possible, but opacity/transform is best handled by conditional classes already present */
+
+/* --- Quality Badges --- */
+.quality-badge {
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    opacity: 0.9;
+}
+
+.quality-badge.q-blurry {
+    background-color: var(--danger);
+}
+
+.quality-badge.q-soft {
+    background-color: var(--warning);
+}
+
+.quality-badge.q-dark {
+    background-color: var(--slate-900);
+}
+
+.quality-badge.q-dim {
+    background-color: var(--slate-500);
+}
+
+/* --- Viewer Logo --- */
+.viewer-logo-masked {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+}
+
+/* --- Linking Hint --- */
+.linking-hint-text {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    color: white;
+}
+
+.linking-hint-subtext {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.hs-hotspot-label {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: #ffffff;
+    text-shadow: 1.5px 1.5px 0px rgba(0, 0, 0, 0.95), 0px 0px 4px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    z-index: 6100;
+}
+
+.hs-hotspot-face-text {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 12px;
+    color: #ffffff;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hs-hotspot-face-text.is-return {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.88);
+}
+
+.hs-hotspot-sequence-badge {
+    position: absolute;
+    top: -26px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 9999px;
+    background: var(--primary-navy, #003da5);
+    color: #ffffff;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    pointer-events: none;
+    z-index: 6200;
+}
+
+.hs-hotspot-sequence-badge.is-return {
+    color: #f97316;
+}
+
+/* --- Floor Navigation --- */
+.floor-circle-shadow-selected {
+    box-shadow: 0 0 12px rgba(0, 61, 165, 0.5);
+}
+
+.floor-circle-shadow-idle {
+    box-shadow: 1px 1px 1px black;
+}
+
+.floor-suffix {
+    font-size: 10px;
+    margin-left: 1px;
+}
+
+.floor-combo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.floor-main {
+    line-height: 1;
+}
+
+/* Desktop/default controls */
+#viewer-floor-nav button {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    line-height: 1;
+    font-size: 15px;
+}
+
+#viewer-floor-nav button sup {
+    font-size: 10px !important;
+}
+
+#viewer-floor-nav button .floor-combo .floor-suffix {
+    position: absolute;
+    top: -0.42em;
+    right: -0.52em;
+    margin-left: 0 !important;
+    font-size: 0.55em !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+}

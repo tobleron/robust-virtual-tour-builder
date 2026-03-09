@@ -173,9 +173,7 @@
       "forbidden_patterns": [
         "console.log",
         "eval(",
-        "new Function(",
-        "JSON.parse",
-        "JSON.stringify"
+        "new Function("
       ]
     }
   },

@@ -36,160 +36,60 @@ type budgetState = {windowStartMs: float, usedRetries: int}
 let retryBudgets = ref(Belt.Map.String.empty)
 
 let calculateDelay = (attempt, config) => {
-  let baseDelay = Float.toInt(
-    Float.fromInt(config.initialDelayMs) *.
-    Math.pow(config.backoffMultiplier, ~exp=Float.fromInt(attempt - 1)),
+  RetryTiming.calculateDelay(
+    ~attempt,
+    ~initialDelayMs=config.initialDelayMs,
+    ~maxDelayMs=config.maxDelayMs,
+    ~backoffMultiplier=config.backoffMultiplier,
+    ~jitter=config.jitter,
   )
-  let cappedBase = Math.Int.min(baseDelay, config.maxDelayMs)
-
-  if config.jitter {
-    // Bound jitter to +/-20% while never exceeding maxDelayMs.
-    let jitterFactor = 0.8 +. Math.random() *. 0.4
-    let jittered = Float.toInt(Float.fromInt(cappedBase) *. jitterFactor)
-    let nonNegative = if jittered < 0 {
-      0
-    } else {
-      jittered
-    }
-    Math.Int.min(nonNegative, config.maxDelayMs)
-  } else {
-    cappedBase
-  }
 }
 
-type retryClass =
+type retryClass = RetryClassification.retryClass =
   | Retryable
   | NonRetryable
   | Aborted
 
-let extractCaptureInt = (error: string, pattern): option<int> => {
-  switch String.match(error, pattern) {
-  | Some(captures) =>
-    switch Belt.Array.get(captures, 1) {
-    | Some(Some(value)) => Belt.Int.fromString(value)
-    | _ => None
-    }
-  | None => None
-  }
-}
+@warning("-32")
+let extractCaptureInt = (error: string, pattern): option<int> =>
+  RetryClassification.extractCaptureInt(error, pattern)
 
+@warning("-32")
 let parseHttpStatusCode = (error: string): option<int> =>
   extractCaptureInt(error, /HttpError:\s*Status\s*(\d+)/i)
 
-let parseRetryAfterSeconds = (error: string): option<int> =>
-  switch extractCaptureInt(error, /RateLimited:\s*(\d+)/i) {
-  | Some(seconds) => Some(seconds)
-  | None => extractCaptureInt(error, /Retry-After:\s*(\d+)/i)
-  }
-
 let isAbortError = (error: string): bool => {
-  String.includes(error, "AbortError") || String.includes(error, "aborted")
+  RetryClassification.isAbortError(error)
 }
 
+@warning("-32")
 let isRetryableStatus = (status: int): bool => {
-  switch status {
-  | 408
-  | 425
-  | 429
-  | 500
-  | 502
-  | 503
-  | 504 => true
-  | _ => false
-  }
+  RetryClassification.isRetryableStatus(status)
 }
 
+@warning("-32")
 let classifyError = (error: string): retryClass => {
-  if isAbortError(error) {
-    Aborted
-  } else {
-    switch parseHttpStatusCode(error) {
-    | Some(status) =>
-      if isRetryableStatus(status) {
-        Retryable
-      } else {
-        NonRetryable
-      }
-    | None =>
-      if (
-        String.includes(error, "NetworkError") ||
-        String.includes(error, "fetch failed") ||
-        String.includes(error, "Failed to fetch") ||
-        String.includes(error, "Network request failed") ||
-        String.includes(error, "connection refused") ||
-        String.includes(error, "ETIMEDOUT") ||
-        String.includes(error, "TimeoutError")
-      ) {
-        Retryable
-      } else {
-        NonRetryable
-      }
-    }
-  }
+  RetryClassification.classifyError(error)
 }
 
 let defaultShouldRetry = (error: string) => {
-  switch classifyError(error) {
-  | Retryable => true
-  | NonRetryable
-  | Aborted => false
-  }
+  RetryClassification.defaultShouldRetry(error)
 }
 
 @get external aborted: ReBindings.AbortSignal.t => bool = "aborted"
 
-let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {
-  Promise.make((resolve, _reject) => {
-    if aborted(signal) {
-      resolve(false)
-    } else {
-      let timeoutId = ref(None)
-      let done = ref(false)
-
-      let rec onAbort = () => {
-        if !done.contents {
-          done := true
-          switch timeoutId.contents {
-          | Some(id) => ReBindings.Window.clearTimeout(id)
-          | None => ()
-          }
-          signal->ReBindings.AbortSignal.removeEventListener("abort", onAbort)
-          resolve(false)
-        }
-      }
-
-      signal->ReBindings.AbortSignal.addEventListener("abort", onAbort)
-      let tid = ReBindings.Window.setTimeout(() => {
-        if !done.contents {
-          done := true
-          signal->ReBindings.AbortSignal.removeEventListener("abort", onAbort)
-          resolve(true)
-        }
-      }, delay)
-
-      timeoutId := Some(tid)
-    }
-  })
-}
+let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> =>
+  RetryDelay.waitForDelay(signal, delay)
 
 let hasDeadline = (config: config): bool => config.totalDeadlineMs > 0
 
 let computeDelay = (error, attempt, config, getDelay) => {
-  let fromRetryAfter =
-    parseRetryAfterSeconds(error)->Option.map(seconds => Math.Int.max(0, seconds * 1000))
-
-  switch fromRetryAfter {
-  | Some(delay) => delay
-  | None =>
-    switch getDelay {
-    | Some(f) =>
-      switch f(error, attempt) {
-      | Some(d) => d
-      | None => calculateDelay(attempt, config)
-      }
-    | None => calculateDelay(attempt, config)
-    }
-  }
+  RetryTiming.computeDelay(
+    ~error,
+    ~attempt,
+    ~getDelay,
+    ~calculateDelay=attempt => calculateDelay(attempt, config),
+  )
 }
 
 let checkAndConsumeBudget = (budgetKey: option<string>, budgetCfg: budgetConfig): bool => {
