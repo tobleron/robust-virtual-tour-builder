@@ -1,4 +1,5 @@
 use crate::config::EfficiencyConfig;
+use crate::graph::DependencyGraph;
 use crate::verification::{VerificationBundle, VerificationReport};
 use anyhow::Result;
 use serde_json;
@@ -428,6 +429,25 @@ fn dedupe_sorted_paths(paths: Vec<String>) -> Vec<String> {
     set.into_iter().collect()
 }
 
+fn surgical_domain_category_fragment(domain: &str) -> String {
+    let normalized = normalize_repo_relative_path(domain);
+    let parts = normalized
+        .split('/')
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>();
+
+    if parts.is_empty() {
+        return "ROOT".to_string();
+    }
+
+    let start = parts.len().saturating_sub(2);
+    parts[start..]
+        .iter()
+        .map(|part| part.to_uppercase())
+        .collect::<Vec<_>>()
+        .join("_")
+}
+
 fn build_architectural_task_spec(
     category_name: &str,
     platform: &str,
@@ -470,6 +490,17 @@ fn task_specs_overlap(a: &GeneratedTaskSpec, b: &GeneratedTaskSpec) -> bool {
         b.merge_scopes.iter().any(|right| {
             path_is_same_or_descendant(left, right) || path_is_same_or_descendant(right, left)
         })
+    })
+}
+
+fn task_spec_matches_path(spec: &GeneratedTaskSpec, path: &str) -> bool {
+    let normalized = normalize_repo_relative_path(path);
+    spec.touch_paths.iter().any(|candidate| {
+        path_is_same_or_descendant(candidate, &normalized)
+            || path_is_same_or_descendant(&normalized, candidate)
+    }) || spec.merge_scopes.iter().any(|scope| {
+        path_is_same_or_descendant(scope, &normalized)
+            || path_is_same_or_descendant(&normalized, scope)
     })
 }
 
@@ -524,6 +555,44 @@ fn attach_topological_dependencies(specs: &mut [GeneratedTaskSpec]) {
                 } else if right_depends_on_left {
                     specs[right_idx].dependencies.insert(left.key.clone());
                 }
+            }
+        }
+    }
+}
+
+fn attach_file_graph_dependencies(specs: &mut [GeneratedTaskSpec], dep_graph: &DependencyGraph) {
+    let normalized_edges = dep_graph
+        .adj
+        .iter()
+        .flat_map(|(from, tos)| {
+            tos.iter().map(|to| {
+                (
+                    normalize_repo_relative_path(from),
+                    normalize_repo_relative_path(to),
+                )
+            })
+        })
+        .filter(|(from, to)| !from.is_empty() && !to.is_empty())
+        .collect::<Vec<_>>();
+
+    let len = specs.len();
+    for left_idx in 0..len {
+        for right_idx in (left_idx + 1)..len {
+            let left_depends_on_right = normalized_edges.iter().any(|(from, to)| {
+                task_spec_matches_path(&specs[left_idx], from)
+                    && task_spec_matches_path(&specs[right_idx], to)
+            });
+            let right_depends_on_left = normalized_edges.iter().any(|(from, to)| {
+                task_spec_matches_path(&specs[right_idx], from)
+                    && task_spec_matches_path(&specs[left_idx], to)
+            });
+
+            if left_depends_on_right && !right_depends_on_left {
+                let dependency = specs[right_idx].key.clone();
+                specs[left_idx].dependencies.insert(dependency);
+            } else if right_depends_on_left && !left_depends_on_right {
+                let dependency = specs[left_idx].key.clone();
+                specs[right_idx].dependencies.insert(dependency);
             }
         }
     }
@@ -606,6 +675,29 @@ fn topologically_sort_task_specs(specs: Vec<GeneratedTaskSpec>) -> Vec<Generated
                 .then_with(|| left.key.cmp(&right.key))
         });
         fallback
+    }
+}
+
+fn is_valid_generated_task_spec(spec: &GeneratedTaskSpec) -> bool {
+    if spec.lines.is_empty() {
+        return false;
+    }
+
+    match spec.kind {
+        GeneratedTaskKind::Merge => {
+            !spec.merge_scopes.is_empty()
+                && spec
+                    .merge_scopes
+                    .iter()
+                    .all(|scope| !normalize_repo_relative_path(scope).is_empty())
+        }
+        _ => {
+            !spec.touch_paths.is_empty()
+                && spec
+                    .touch_paths
+                    .iter()
+                    .all(|path| !normalize_repo_relative_path(path).is_empty())
+        }
     }
 }
 
@@ -738,9 +830,27 @@ fn write_architectural_task(
     Ok(path)
 }
 
+fn extract_drag_from_reason(reason: &str) -> Option<f64> {
+    let marker = "Drag:";
+    let start = reason.find(marker)?;
+    let raw_value = reason[start + marker.len()..]
+        .trim_start()
+        .split(|ch: char| ch.is_whitespace() || ch == '|' || ch == ')')
+        .next()?;
+    raw_value.parse::<f64>().ok()
+}
+
+fn surgical_reason_is_size_only(reason: &str, drag_target: f64) -> bool {
+    extract_drag_from_reason(reason)
+        .map(|drag| drag <= drag_target && !reason.contains("🎯 Target:"))
+        .unwrap_or(false)
+}
+
 /// Extract the base strategy text for a surgical work unit (without split count)
-fn surgical_base_strategy(reason: &str) -> &'static str {
-    if reason.contains("Nesting") && reason.contains("Density") {
+fn surgical_base_strategy(reason: &str, drag_target: f64) -> &'static str {
+    if surgical_reason_is_size_only(reason, drag_target) {
+        "Right-size Surface: Keep the module as the orchestration boundary and extract only adjacent sections that reduce file length without fragmenting the public API."
+    } else if reason.contains("Nesting") && reason.contains("Density") {
         "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions."
     } else if reason.contains("Nesting") {
         "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching."
@@ -752,10 +862,10 @@ fn surgical_base_strategy(reason: &str) -> &'static str {
 }
 
 /// Generate strategic directive for a work unit (full version with split count, used in metadata/JSON)
-pub fn generate_strategic_directive(unit: &WorkUnit) -> String {
+pub fn generate_strategic_directive(unit: &WorkUnit, drag_target: f64) -> String {
     match unit {
         WorkUnit::Surgical { reason, recommended_splits, .. } => {
-            let base = surgical_base_strategy(reason);
+            let base = surgical_base_strategy(reason, drag_target);
             if *recommended_splits > 1 {
                 format!("{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules to respect the Read Tax (avg 300 LOC/module).", base, recommended_splits)
             } else {
@@ -842,6 +952,7 @@ fn persist_verification_baseline(
 pub fn sync_all_architectural_tasks(
     buffer: &HashMap<String, Vec<WorkUnit>>,
     config: &EfficiencyConfig,
+    dep_graph: &DependencyGraph,
 ) -> Result<()> {
     let conflict_plan = build_conflict_plan(buffer);
     let mut ambiguities_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
@@ -866,10 +977,11 @@ pub fn sync_all_architectural_tasks(
     );
     let mut surgical_fe_units: Vec<SurgicalEntry> = Vec::new();
     let mut surgical_be_units: Vec<SurgicalEntry> = Vec::new();
+    let drag_target = config.settings.drag_target;
 
     for units in buffer.values() {
         for unit in units {
-            let strategy = generate_strategic_directive(unit);
+            let strategy = generate_strategic_directive(unit, drag_target);
             match unit {
                 WorkUnit::Ambiguity { file, .. } => {
                     ambiguities_grouped
@@ -1087,47 +1199,58 @@ pub fn sync_all_architectural_tasks(
 
         for (domain, domain_units) in domain_groups {
             let mut action_groups: HashMap<
-                String,
-                Vec<(String, String, String, usize, Option<VerificationBundle>)>,
+                (String, String),
+                Vec<(String, String, usize, bool, Option<VerificationBundle>)>,
             > = HashMap::new();
 
-            for (file, reason, action, strategy, _comp, splits, verification) in domain_units {
-                action_groups.entry(action).or_default().push((
-                    file,
-                    reason,
-                    strategy,
-                    splits,
-                    verification,
-                ));
+            for (file, reason, action, _strategy, _comp, splits, verification) in domain_units {
+                let base_strategy = surgical_base_strategy(&reason, drag_target).to_string();
+                let size_only = surgical_reason_is_size_only(&reason, drag_target);
+                action_groups
+                    .entry((action, base_strategy))
+                    .or_default()
+                    .push((file, reason, splits, size_only, verification));
             }
 
-            let domain_name = Path::new(&domain)
-                .file_name()
-                .map(|n| n.to_string_lossy().to_uppercase())
-                .unwrap_or_default();
-            let category_name = format!("Surgical_Refactor_{}", domain_name);
+            let category_name = format!(
+                "Surgical_Refactor_{}",
+                surgical_domain_category_fragment(&domain)
+            );
 
             let mut lines = Vec::new();
             let mut domain_verification = Vec::new();
             let mut domain_touch_paths = Vec::new();
 
-            for (action, mut items) in action_groups {
+            let mut action_keys = action_groups.keys().cloned().collect::<Vec<_>>();
+            action_keys.sort();
+
+            for (action, base_strategy) in action_keys {
+                let Some(items) = action_groups.get_mut(&(action.clone(), base_strategy.clone()))
+                else {
+                    continue;
+                };
                 items.sort_by(|a, b| a.0.cmp(&b.0));
-                // Use the base strategy (without split count) for the shared header
-                let base_strategy = surgical_base_strategy(&items[0].1);
                 lines.push(format!(
                     "\n### 🔧 Action: {}\n**Directive:** {}\n",
                     action, base_strategy
                 ));
 
-                for (file, reason, _, splits, maybe_bundle) in &items {
+                for (file, reason, splits, size_only, maybe_bundle) in items.iter() {
                     // Embed per-file split recommendation inline
                     let split_note = if *splits > 1 {
                         format!(" → 🏗️ Split into {} modules (target ~300 LOC each)", splits)
                     } else {
                         " → Refactor in-place".to_string()
                     };
-                    let entry = format!("- **{}** (Metric: {}){}\n", file, reason, split_note);
+                    let size_note = if *size_only {
+                        " [Size-only candidate; drag already within target.]"
+                    } else {
+                        ""
+                    };
+                    let entry = format!(
+                        "- **{}** (Metric: {}){}{}\n",
+                        file, reason, split_note, size_note
+                    );
                     lines.push(entry);
                     domain_touch_paths.push(file.clone());
                     if let Some(bundle) = maybe_bundle {
@@ -1343,7 +1466,9 @@ pub fn sync_all_architectural_tasks(
         task_specs.push(spec);
     }
 
+    task_specs.retain(is_valid_generated_task_spec);
     attach_topological_dependencies(&mut task_specs);
+    attach_file_graph_dependencies(&mut task_specs, dep_graph);
     let ordered_specs = topologically_sort_task_specs(task_specs);
     let dev_tasks_dir = Path::new("../../tasks/pending/dev_tasks");
     fs::create_dir_all(dev_tasks_dir)?;
@@ -1566,6 +1691,107 @@ mod tests {
                 "Surgical_Refactor_GEOCODING_BACKEND".to_string(),
                 "Merge_Folders_BACKEND".to_string(),
             ]
+        );
+    }
+
+    #[test]
+    fn file_graph_dependencies_order_consumers_after_providers() {
+        let mut specs = vec![
+            build_architectural_task_spec(
+                "App",
+                "Frontend",
+                &[String::from("app line")],
+                "app objective",
+                &[],
+                GeneratedTaskKind::Surgical,
+                vec!["src/App.res".to_string()],
+                Vec::new(),
+            )
+            .expect("app spec"),
+            build_architectural_task_spec(
+                "ProjectSystem",
+                "Frontend",
+                &[String::from("project line")],
+                "project objective",
+                &[],
+                GeneratedTaskKind::Surgical,
+                vec!["src/systems/ProjectSystem.res".to_string()],
+                Vec::new(),
+            )
+            .expect("project spec"),
+        ];
+
+        let mut graph = DependencyGraph::new();
+        graph.add_dependency("../../src/App.res", "../../src/systems/ProjectSystem.res");
+
+        attach_topological_dependencies(&mut specs);
+        attach_file_graph_dependencies(&mut specs, &graph);
+
+        let ordered = topologically_sort_task_specs(specs);
+        let ordered_keys = ordered.into_iter().map(|spec| spec.key).collect::<Vec<_>>();
+
+        assert_eq!(
+            ordered_keys,
+            vec![
+                "ProjectSystem_FRONTEND".to_string(),
+                "App_FRONTEND".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn invalid_merge_specs_are_filtered_out() {
+        let invalid = build_architectural_task_spec(
+            "Merge_Folders",
+            "Frontend",
+            &[String::from("merge line")],
+            "merge objective",
+            &[],
+            GeneratedTaskKind::Merge,
+            vec!["src/index.js".to_string()],
+            Vec::new(),
+        )
+        .expect("invalid merge spec should still build");
+
+        assert!(!is_valid_generated_task_spec(&invalid));
+    }
+
+    #[test]
+    fn surgical_domain_category_fragment_disambiguates_same_basename_paths() {
+        assert_eq!(
+            surgical_domain_category_fragment("css/components"),
+            "CSS_COMPONENTS".to_string()
+        );
+        assert_eq!(
+            surgical_domain_category_fragment("src/components"),
+            "SRC_COMPONENTS".to_string()
+        );
+        assert_eq!(
+            surgical_domain_category_fragment("src/components/Sidebar"),
+            "COMPONENTS_SIDEBAR".to_string()
+        );
+    }
+
+    #[test]
+    fn surgical_reason_is_size_only_when_drag_is_within_target_without_hotspot() {
+        assert!(surgical_reason_is_size_only(
+            "[Nesting: 0.60, Density: 0.00, Coupling: 0.04] | Drag: 1.60 | LOC: 390/300",
+            1.8
+        ));
+        assert!(!surgical_reason_is_size_only(
+            "[Nesting: 3.00, Density: 0.03, Coupling: 0.02] | Drag: 4.08 | LOC: 927/300  🎯 Target: Function: `load_project` (High Local Complexity (9.0). Logic heavy.)",
+            1.8
+        ));
+    }
+
+    #[test]
+    fn surgical_base_strategy_uses_right_size_surface_for_size_only_modules() {
+        assert_eq!(
+            surgical_base_strategy(
+                "[Nesting: 0.60, Density: 0.00, Coupling: 0.04] | Drag: 1.60 | LOC: 390/300",
+                1.8
+            ),
+            "Right-size Surface: Keep the module as the orchestration boundary and extract only adjacent sections that reduce file length without fragmenting the public API."
         );
     }
 }

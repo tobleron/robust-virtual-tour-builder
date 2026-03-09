@@ -1,4 +1,4 @@
-# Task D013: Surgical Refactor UTILS FRONTEND
+# Task D010: Surgical Refactor SRC UTILS FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -21,7 +21,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/utils/LoggerTelemetry.res** (Metric: [Nesting: 3.00, Density: 0.20, Coupling: 0.06] | Drag: 4.34 | LOC: 453/300  🎯 Target: Function: `parseRetryAfterHeaderMs` (High Local Complexity (4.8). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
-- [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 4.80, Density: 0.31, Coupling: 0.05] | Drag: 6.25 | LOC: 561/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../src/utils/PersistenceLayer.res** (Metric: [Nesting: 4.80, Density: 0.31, Coupling: 0.05] | Drag: 6.25 | LOC: 571/300  🎯 Target: Function: `getAutosaveCostStats` (High Local Complexity (12.0). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+
+- [ ] - **../../src/utils/RequestQueue.res** (Metric: [Nesting: 3.00, Density: 0.16, Coupling: 0.06] | Drag: 4.25 | LOC: 269/300  ⚠️ Trigger: Drag above target (1.80) with file already at 269 LOC.  🎯 Target: Function: `promoteStarved` (High Local Complexity (8.0). Logic heavy.)) → Refactor in-place
 
 - [ ] - **../../src/utils/Retry.res** (Metric: [Nesting: 4.20, Density: 0.33, Coupling: 0.04] | Drag: 5.59 | LOC: 380/300  🎯 Target: Function: `classifyError` (High Local Complexity (4.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
@@ -29,8 +31,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D013/verification.json` (files at `_dev-system/tmp/D013/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D013/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D010/verification.json` (files at `_dev-system/tmp/D010/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D010/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/utils/AsyncQueue.res`
 - `src/utils/AsyncQueue.res` (9 functions, fingerprint 73547a4fed2786fc7e9fcd7af83fd94984b2fc851b1158f78d87422736d8a37f)
@@ -158,18 +160,18 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - autosaveCostTargetMs × 1 (lines: 37)
         - autosaveCostWindowSize × 1 (lines: 38)
         - beforeUnloadListener × 1 (lines: 49)
-        - checkRecovery × 1 (lines: 481)
-        - clearSession × 1 (lines: 422)
+        - checkRecovery × 1 (lines: 493)
+        - clearSession × 1 (lines: 434)
         - coalesceMs × 1 (lines: 36)
         - currentSchemaVersion × 1 (lines: 35)
         - debounceMs × 1 (lines: 34)
-        - decodeManifest × 1 (lines: 431)
-        - decodeMetadataSlice × 1 (lines: 453)
+        - decodeManifest × 1 (lines: 443)
+        - decodeMetadataSlice × 1 (lines: 465)
         - encodeMetadataSlice × 1 (lines: 67)
-        - extractFromSlice × 1 (lines: 447)
+        - extractFromSlice × 1 (lines: 459)
         - getAutosaveCostStats × 1 (lines: 154)
         - handleStateChange × 1 (lines: 375)
-        - initSubscriber × 1 (lines: 389)
+        - initSubscriber × 1 (lines: 395)
         - key × 1 (lines: 31)
         - lastQueuedAtMs × 1 (lines: 51)
         - lastSaveTimeout × 1 (lines: 47)
@@ -177,7 +179,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - lastSliceSignatureRef × 1 (lines: 53)
         - manifestKey × 1 (lines: 32)
         - normalizeProjectData × 1 (lines: 214)
-        - notifyStateChange × 1 (lines: 387)
+        - notifyStateChange × 1 (lines: 393)
         - pendingStateRef × 1 (lines: 52)
         - performSave × 1 (lines: 229)
         - performSaveRef × 1 (lines: 54)
@@ -189,6 +191,37 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
         - sliceKeyPrefix × 1 (lines: 33)
         - stateGetterRef × 1 (lines: 46)
         - subscriberRef × 1 (lines: 50)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
+### Pre-split snapshot for `src/utils/RequestQueue.res`
+- `src/utils/RequestQueue.res` (27 functions, fingerprint 2e9c38c24430464a8cc471f0a744b3786ca874bb7a7028a337e83911be78cc60)
+    - Grouped summary:
+        - activeCount × 1 (lines: 6)
+        - backgroundQueue × 1 (lines: 22)
+        - criticalBurstSlots × 1 (lines: 5)
+        - criticalQueue × 1 (lines: 20)
+        - currentConcurrencyLimit × 1 (lines: 103)
+        - drain × 1 (lines: 208)
+        - handleRateLimit × 1 (lines: 166)
+        - handleRateLimitForScope × 1 (lines: 184)
+        - initializeNetworkListener × 1 (lines: 232)
+        - length × 1 (lines: 28)
+        - logQueueDepths × 1 (lines: 31)
+        - maxConcurrent × 1 (lines: 3)
+        - maxQueued × 1 (lines: 4)
+        - normalQueue × 1 (lines: 21)
+        - nowMs × 1 (lines: 25)
+        - pause × 1 (lines: 145)
+        - paused × 1 (lines: 24)
+        - process × 1 (lines: 111)
+        - promoteStarved × 1 (lines: 56)
+        - pushByPriority × 1 (lines: 48)
+        - resume × 1 (lines: 155)
+        - schedule × 1 (lines: 242)
+        - scheduleWithPriority × 1 (lines: 246)
+        - scheduleWithRetry × 1 (lines: 277)
+        - scopeBackoffUntilMs × 1 (lines: 26)
+        - shiftNext × 1 (lines: 91)
+        - waitForScope × 1 (lines: 195)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.
 ### Pre-split snapshot for `src/utils/Retry.res`
 - `src/utils/Retry.res` (17 functions, fingerprint 0b700bb0381a21bfee77393e36217dfb14850a0d6f5a7e827ddce731b5297a0b)

@@ -8,6 +8,35 @@ use crate::verification::VerificationBundle;
 use std::collections::HashMap;
 use std::path::Path;
 
+fn normalize_scope_path(path: &str) -> String {
+    path.trim().trim_matches('/').replace('\\', "/")
+}
+
+fn scope_depth(path: &str) -> usize {
+    normalize_scope_path(path)
+        .split('/')
+        .filter(|part| !part.is_empty())
+        .count()
+}
+
+fn is_invalid_merge_scope(scope: &str, config: &EfficiencyConfig) -> bool {
+    let normalized = normalize_scope_path(scope);
+    if normalized.is_empty() || scope_depth(&normalized) < 2 {
+        return true;
+    }
+
+    config
+        .scanned_roots
+        .as_ref()
+        .map(|roots| {
+            roots
+                .iter()
+                .map(|root| normalize_scope_path(root))
+                .any(|root| root == normalized)
+        })
+        .unwrap_or(false)
+}
+
 /// Detect merge candidates from directory statistics
 pub fn detect_merge_candidates(
     dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64, f64)>>,
@@ -33,6 +62,10 @@ pub fn detect_merge_candidates(
         .collect();
 
     for ((dir, _ext), files) in dir_stats {
+        if is_invalid_merge_scope(&dir, config) {
+            continue;
+        }
+
         // Stability Guard: Don't merge if the folder is locked
         if state.is_locked(&dir) {
             continue;
@@ -189,6 +222,10 @@ pub fn detect_recursive_clusters(
     for ((platform, _ext), files) in recursive_groups {
         let clusters = find_recursive_clusters(files, config.settings.hard_ceiling_loc);
         for cluster in clusters {
+            if is_invalid_merge_scope(&cluster.root_folder, config) {
+                continue;
+            }
+
             let projected_limit = calculate_dynamic_limit(
                 cluster.max_drag,
                 1.0,
@@ -244,4 +281,28 @@ pub fn detect_recursive_clusters(
     }
 
     (cluster_units, processed_merge_files)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_invalid_merge_scope;
+    use crate::config::EfficiencyConfig;
+
+    fn config() -> EfficiencyConfig {
+        EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load")
+    }
+
+    #[test]
+    fn merge_scope_rejects_empty_and_scanned_root_paths() {
+        let config = config();
+
+        assert!(is_invalid_merge_scope("", &config));
+        assert!(is_invalid_merge_scope("src", &config));
+        assert!(is_invalid_merge_scope("backend/src", &config));
+        assert!(!is_invalid_merge_scope("src/site", &config));
+        assert!(!is_invalid_merge_scope(
+            "backend/src/services/geocoding",
+            &config
+        ));
+    }
 }

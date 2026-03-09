@@ -1,4 +1,4 @@
-# Task D007: Surgical Refactor GEOCODING BACKEND
+# Task D005: Surgical Refactor SERVICES GEOCODING BACKEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -19,8 +19,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D007/verification.json` (files at `_dev-system/tmp/D007/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D007/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D005/verification.json` (files at `_dev-system/tmp/D005/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D005/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `backend/src/services/geocoding/cache.rs`
 - `backend/src/services/geocoding/cache.rs` (19 functions, fingerprint a64447b3c2614d1b23c46e01888e24c0efcd524c7c479879bc672bc08a5fdf6c)

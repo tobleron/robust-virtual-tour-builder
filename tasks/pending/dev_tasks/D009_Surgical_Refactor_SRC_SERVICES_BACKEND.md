@@ -1,4 +1,4 @@
-# Task D009: Surgical Refactor SIDEBAR FRONTEND
+# Task D009: Surgical Refactor SRC SERVICES BACKEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -15,26 +15,26 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/components/Sidebar/SidebarLogicHandler.res** (Metric: [Nesting: 4.80, Density: 0.15, Coupling: 0.11] | Drag: 5.99 | LOC: 393/300  🎯 Target: Function: `state` (High Local Complexity (9.5). Logic heavy.)) → 🏗️ Split into 2 modules (target ~300 LOC each)
+- [ ] - **../../backend/src/services/upload_quota.rs** (Metric: [Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.45 | LOC: 326/300  ⚠️ Trigger: Drag above target (1.80) with file already at 326 LOC.) → 🏗️ Split into 2 modules (target ~300 LOC each)
 
 
 ## 🔎 Programmatic Verification
 Baseline artifacts: `_dev-system/tmp/D009/verification.json` (files at `_dev-system/tmp/D009/files/`).
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D009/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
-### Pre-split snapshot for `src/components/Sidebar/SidebarLogicHandler.res`
-- `src/components/Sidebar/SidebarLogicHandler.res` (12 functions, fingerprint d345f455c16d05e39796fedb6f0b8d99991f54b509baeb97e2395959bd459872)
+### Pre-split snapshot for `backend/src/services/upload_quota.rs`
+- `backend/src/services/upload_quota.rs` (13 functions, fingerprint f001259d11524a4fcc99456f703d08cc03357eacc882a74507589c6e148be6e3)
     - Grouped summary:
-        - delayMs × 1 (lines: 50)
-        - exportProgressToastId × 1 (lines: 12)
-        - getActiveSceneId × 1 (lines: 18)
-        - handleClearLinksWithUndo × 1 (lines: 398)
-        - handleDeleteScene × 1 (lines: 396)
-        - handleDeleteSceneWithUndo × 1 (lines: 397)
-        - handleExport × 1 (lines: 400)
-        - handleLoadProject × 1 (lines: 134)
-        - handleUpload × 1 (lines: 89)
-        - isProjectViewerReady × 1 (lines: 23)
-        - uploadProgressToastId × 1 (lines: 11)
-        - waitForProjectReady × 1 (lines: 55)
+        - add_upload × 1 (lines: 124)
+        - check_disk_space × 1 (lines: 271)
+        - cleanup_old × 1 (lines: 135)
+        - count_in_window × 1 (lines: 128)
+        - default × 1 (lines: 31)
+        - env_u64 × 1 (lines: 68)
+        - env_usize × 1 (lines: 60)
+        - from_env × 1 (lines: 77)
+        - get_stats × 1 (lines: 305)
+        - new × 2 (lines: 118, 149)
+        - try_register_upload × 1 (lines: 159)
+        - unregister_upload × 1 (lines: 248)
     - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

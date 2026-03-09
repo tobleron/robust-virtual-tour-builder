@@ -8,3 +8,9 @@
 
 ---
 
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../src/site/PageFramework.js**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 1176)
+
+---
+

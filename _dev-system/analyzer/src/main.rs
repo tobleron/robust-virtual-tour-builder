@@ -28,6 +28,12 @@ use merger::{detect_merge_candidates, detect_recursive_clusters};
 use task_generator::{sync_all_architectural_tasks, WorkUnit};
 use verification::VerificationBundle;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SurgicalTrigger {
+    Oversized,
+    DragRisk,
+}
+
 fn main() -> Result<()> {
     // Load configuration and state
     let mut state = state::AnalyzerState::load();
@@ -138,7 +144,7 @@ fn main() -> Result<()> {
     let json_data = serde_json::to_string_pretty(&buffer).unwrap_or_default();
     let _ = fs::write("../plans/metadata.json", json_data);
     flush_plans(&buffer, &config)?;
-    sync_all_architectural_tasks(&buffer, &config)?;
+    sync_all_architectural_tasks(&buffer, &config, &dep_graph)?;
 
     let _ = guard::check_map(&guard_config, &config.exclusion_rules, &config);
     if let Some(map_tree_cfg) = &config.map_tree {
@@ -247,9 +253,18 @@ fn generate_work_units(
         }
 
         let mut is_surgical = false;
-        if taxonomy != "unknown" && metrics.loc > limit {
-            let split_threshold = (limit as f64 * 1.25) as usize;
-            if metrics.loc > split_threshold {
+        if taxonomy != "unknown" {
+            if let Some(trigger) = surgical_trigger(
+                p_str,
+                content,
+                taxonomy,
+                d_name,
+                metrics.loc,
+                limit,
+                drag,
+                metrics.hotspot_symbol.is_some(),
+                config,
+            ) {
                 is_surgical = true;
                 let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
                 let density_factor = density * config.settings.density_weight;
@@ -258,6 +273,13 @@ fn generate_work_units(
                     "[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
                     nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit
                 );
+
+                if trigger == SurgicalTrigger::DragRisk && metrics.loc <= split_threshold(limit) {
+                    reason.push_str(&format!(
+                        "  ⚠️ Trigger: Drag above target ({:.2}) with file already at {} LOC.",
+                        config.settings.drag_target, metrics.loc
+                    ));
+                }
 
                 if let Some(symbol) = &metrics.hotspot_symbol {
                     reason = format!(
@@ -271,8 +293,7 @@ fn generate_work_units(
                     );
                 }
 
-                let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
-                // Use the dynamic limit (respects taxonomy/exceptions) instead of hard-coded 300
+                let complexity = ((metrics.loc.saturating_sub(limit)) as f64 / 10.0) + drag;
                 let target_module_size = limit.max(config.settings.soft_floor_loc);
                 let recommended_splits = (metrics.loc as f64 / target_module_size as f64)
                     .ceil()
@@ -367,6 +388,101 @@ fn generate_work_units(
     Ok(())
 }
 
+fn split_threshold(limit: usize) -> usize {
+    (limit as f64 * 1.25) as usize
+}
+
+fn drag_trigger_min_loc(config: &EfficiencyConfig) -> usize {
+    config.settings.soft_floor_loc.saturating_sub(50).max(250)
+}
+
+fn matches_exception_with_max_loc(path: &str, config: &EfficiencyConfig) -> bool {
+    config
+        .exceptions
+        .as_ref()
+        .map(|rules| {
+            rules
+                .iter()
+                .any(|rule| rule.max_loc.is_some() && path.contains(&rule.pattern))
+        })
+        .unwrap_or(false)
+}
+
+fn matches_protected_pattern(path: &str, content: &str, config: &EfficiencyConfig) -> bool {
+    config
+        .protected_patterns
+        .as_ref()
+        .map(|patterns| {
+            patterns
+                .iter()
+                .any(|pattern| path.contains(pattern) || content.contains(pattern))
+        })
+        .unwrap_or(false)
+}
+
+fn is_drag_risk_exempt(
+    path: &str,
+    content: &str,
+    taxonomy: &str,
+    driver_name: &str,
+    config: &EfficiencyConfig,
+) -> bool {
+    if driver_name == "css" {
+        return true;
+    }
+
+    if taxonomy == "data-model" {
+        return true;
+    }
+
+    if matches_exception_with_max_loc(path, config)
+        || matches_protected_pattern(path, content, config)
+    {
+        return true;
+    }
+
+    matches!(
+        Path::new(path).file_name().and_then(|name| name.to_str()),
+        Some("mod.rs" | "models.rs")
+    )
+}
+
+fn drag_risk_threshold(has_hotspot: bool, config: &EfficiencyConfig) -> f64 {
+    let margin = if has_hotspot { 0.8 } else { 1.4 };
+    config.settings.drag_target + margin
+}
+
+fn surgical_trigger(
+    path: &str,
+    content: &str,
+    taxonomy: &str,
+    driver_name: &str,
+    loc: usize,
+    limit: usize,
+    drag: f64,
+    has_hotspot: bool,
+    config: &EfficiencyConfig,
+) -> Option<SurgicalTrigger> {
+    if loc > limit && loc > split_threshold(limit) {
+        return Some(SurgicalTrigger::Oversized);
+    }
+
+    if is_drag_risk_exempt(path, content, taxonomy, driver_name, config) {
+        return None;
+    }
+
+    let min_loc = if has_hotspot {
+        drag_trigger_min_loc(config)
+    } else {
+        config.settings.soft_floor_loc
+    };
+    if drag >= drag_risk_threshold(has_hotspot, config) && loc >= min_loc {
+        return Some(SurgicalTrigger::DragRisk);
+    }
+
+    None
+}
+
 fn generate_structural_tasks(
     feature_map: &HashMap<String, Vec<(String, String)>>,
     buffer: &mut HashMap<String, Vec<WorkUnit>>,
@@ -407,5 +523,148 @@ fn generate_structural_tasks(
                     });
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn config() -> EfficiencyConfig {
+        EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load")
+    }
+
+    #[test]
+    fn surgical_trigger_keeps_existing_size_based_gate() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/Example.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                401,
+                300,
+                1.2,
+                false,
+                &config,
+            ),
+            Some(SurgicalTrigger::Oversized)
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_adds_drag_risk_for_medium_sized_files() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/core/HotspotHelpers.res",
+                "",
+                "domain-logic",
+                "rescript",
+                280,
+                300,
+                4.0,
+                true,
+                &config,
+            ),
+            Some(SurgicalTrigger::DragRisk)
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_ignores_small_high_drag_files() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/systems/Example.res",
+                "",
+                "service-orchestrator",
+                "rescript",
+                220,
+                300,
+                3.5,
+                true,
+                &config,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn drag_trigger_min_loc_tracks_soft_floor_with_guardrail() {
+        let config = config();
+        assert_eq!(drag_trigger_min_loc(&config), 250);
+    }
+
+    #[test]
+    fn surgical_trigger_skips_protected_entrypoints_for_drag_risk() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../src/Main.res",
+                "@efficiency-role: orchestrator",
+                "orchestrator",
+                "rescript",
+                362,
+                500,
+                4.66,
+                true,
+                &config,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_skips_css_drag_risk() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../css/components/viewer-hotspots.css",
+                "",
+                "ui-component",
+                "css",
+                269,
+                408,
+                2.3,
+                false,
+                &config,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn surgical_trigger_skips_mod_rs_and_data_models_for_drag_risk() {
+        let config = config();
+        assert_eq!(
+            surgical_trigger(
+                "../../backend/src/services/project/mod.rs",
+                "",
+                "orchestrator",
+                "rust",
+                261,
+                300,
+                1.9,
+                false,
+                &config,
+            ),
+            None
+        );
+        assert_eq!(
+            surgical_trigger(
+                "../../backend/src/models.rs",
+                "",
+                "data-model",
+                "rust",
+                280,
+                337,
+                2.82,
+                false,
+                &config,
+            ),
+            None
+        );
     }
 }
