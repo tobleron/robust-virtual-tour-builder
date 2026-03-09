@@ -9,9 +9,27 @@
   --site-orange: #f26a21;
 }
 
+html:has(body.site-framework-mode) {
+  height: auto;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
 body.site-framework-mode {
   background: linear-gradient(145deg, #d7e3f8 0%, #f5f8ff 55%, #e8eefb 100%);
   color: var(--site-text);
+  height: auto;
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+body.site-framework-mode #app {
+  display: block;
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+  background: transparent;
+  border-top: 0;
 }
 
 .site-shell {

@@ -1,6 +1,10 @@
 open ReBindings
 open Types
 
+let linkingDeadZone = 0.35
+let linkingYawSensitivity = 2.0
+let linkingPitchSensitivity = 1.3
+
 let isInsideDeadZone = (startPt, lastMouse) => {
   switch (startPt, lastMouse) {
   | (Some(st), Some(ev)) =>
@@ -67,13 +71,13 @@ let rec updateFollowLoop = (~getState: unit => state) => {
         let pb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityY)
         let yd = insideDz
           ? 0.0
-          : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *.
-            1.5 *.
+          : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, linkingDeadZone) *.
+            linkingYawSensitivity *.
             (1.0 +. yb)
         let pd = insideDz
           ? 0.0
-          : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *.
-            1.0 *.
+          : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, linkingDeadZone) *.
+            linkingPitchSensitivity *.
             (1.0 +. pb)
         ViewerState.state := {
             ...ViewerState.state.contents,
