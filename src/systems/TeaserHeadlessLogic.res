@@ -18,6 +18,7 @@ let startHeadlessTeaserWithStyle = async (
   ~finalizeTeaser,
   format: string,
   ~styleId: option<string>,
+  ~panSpeedId: option<string>,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
@@ -53,6 +54,10 @@ let startHeadlessTeaserWithStyle = async (
           styleId
           ->Option.map(raw => StyleCatalog.fromString(raw))
           ->Option.getOr(StyleCatalog.defaultStyle)
+        let selectedPanSpeed = switch selectedStyle {
+        | Cinematic => TeaserStyleConfig.resolvePanSpeedOption(panSpeedId)
+        | _ => TeaserStyleConfig.defaultPanSpeed
+        }
         if !StyleCatalog.isAvailable(selectedStyle) {
           NotificationManager.dispatch({
             id: "",
@@ -80,6 +85,8 @@ let startHeadlessTeaserWithStyle = async (
             ~meta=Logger.castToJson({
               "format": format,
               "style": StyleCatalog.toString(selectedStyle),
+              "panSpeedId": selectedPanSpeed.id,
+              "panSpeedDegPerSec": selectedPanSpeed.speedDegPerSec,
               "sceneCount": Belt.Array.length(activeScenes),
             }),
             (),
@@ -152,8 +159,12 @@ let startHeadlessTeaserWithStyle = async (
               dispatch(Actions.SetIsTeasing(false))
               ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
             | Ok(manifest) =>
+              let calibratedManifest = switch selectedStyle {
+              | Cinematic => TeaserStyleConfig.applyPanSpeedOption(manifest, selectedPanSpeed)
+              | _ => manifest
+              }
               let success = await OfflineCfrRenderer.renderWebMDeterministic(
-                manifest,
+                calibratedManifest,
                 true,
                 ~getState,
                 ~dispatch,

@@ -15,6 +15,7 @@ external exportTourLazy: (
 external startTeaserLazy: (
   string,
   option<string>,
+  option<string>,
   unit => Types.state,
   Actions.action => unit,
   option<BrowserBindings.AbortSignal.t>,

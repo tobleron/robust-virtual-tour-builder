@@ -20,6 +20,14 @@ This is the single shared pending task for deferred unit-test review after itera
 - [ ] [src/systems/TourTemplates/TourScriptUINav.res](src/systems/TourTemplates/TourScriptUINav.res): review export shortcut-panel coverage.
 - [ ] [src/systems/TourTemplates/TourScripts.res](src/systems/TourTemplates/TourScripts.res): review export load-script/runtime wiring coverage.
 - [ ] [backend/src/api/project_snapshot.rs](backend/src/api/project_snapshot.rs): review/add backend unit tests for snapshot-origin dedupe behavior.
+- [ ] [src/components/Sidebar.res](src/components/Sidebar.res): review teaser request wiring coverage for dialog-selected speed/style settings.
+- [ ] [src/components/Sidebar/SidebarActions.res](src/components/Sidebar/SidebarActions.res): review sidebar teaser action coverage for extended teaser request payload.
+- [ ] [src/components/Sidebar/SidebarActionsSupport.res](src/components/Sidebar/SidebarActionsSupport.res): review teaser settings modal coverage for style/speed selection behavior.
+- [ ] [src/systems/FeatureLoaders.res](src/systems/FeatureLoaders.res): review lazy teaser-loader binding coverage for extended argument ordering.
+- [ ] [src/systems/Teaser.res](src/systems/Teaser.res): review teaser facade coverage for speed-calibrated headless teaser options.
+- [ ] [src/systems/TeaserHeadlessLogic.res](src/systems/TeaserHeadlessLogic.res): review motion-manifest retiming coverage for teaser pan-speed presets.
+- [ ] [src/systems/TeaserManagerLogic.res](src/systems/TeaserManagerLogic.res): review manager wiring coverage for passing speed options to headless teaser generation.
+- [ ] [src/systems/TeaserStyleConfig.res](src/systems/TeaserStyleConfig.res): review preset selection and manifest retiming coverage for teaser pan-speed calibration.
 
 ## Execution Notes
 - Prefer updating existing relevant test files before creating new ones.

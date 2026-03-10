@@ -65,6 +65,7 @@ module Manager = {
   let startHeadlessTeaserWithStyle = async (
     format: string,
     ~styleId: option<string>,
+    ~panSpeedId: option<string>,
     ~getState: unit => Types.state,
     ~dispatch: Actions.action => unit,
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
@@ -74,6 +75,7 @@ module Manager = {
       ~finalizeTeaser,
       format,
       ~styleId,
+      ~panSpeedId,
       ~getState,
       ~dispatch,
       ~signal?,
@@ -88,7 +90,15 @@ module Manager = {
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
     ~onCancel: option<unit => unit>=?,
   ) =>
-    startHeadlessTeaserWithStyle(format, ~styleId=None, ~getState, ~dispatch, ~signal?, ~onCancel?)
+    startHeadlessTeaserWithStyle(
+      format,
+      ~styleId=None,
+      ~panSpeedId=None,
+      ~getState,
+      ~dispatch,
+      ~signal?,
+      ~onCancel?,
+    )
 
   let startAutoTeaser = (
     format: string,

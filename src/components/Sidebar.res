@@ -152,7 +152,7 @@ let make = React.memo(() => {
             ~onCancel,
           )
         }}
-        onTeaser={(~format, ~styleId, ~signal, ~onCancel) => {
+        onTeaser={(~format, ~styleId, ~panSpeedId, ~signal, ~onCancel) => {
           // Seed the progress bar cancel callback so clicking "Cancel" aborts the signal.
           SidebarLogic.updateProgress(
             ~dispatch,
@@ -165,6 +165,7 @@ let make = React.memo(() => {
           FeatureLoaders.startTeaserLazy(
             format,
             Some(styleId),
+            Some(panSpeedId),
             getState,
             dispatch,
             Some(signal),

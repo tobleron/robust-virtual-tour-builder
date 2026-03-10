@@ -26,6 +26,7 @@ export async function exportTourLazy(
 export async function startTeaserLazy(
   format,
   styleId,
+  panSpeedId,
   getState,
   dispatch,
   signal,
@@ -35,6 +36,7 @@ export async function startTeaserLazy(
   return mod.startHeadlessTeaserWithStyle(
     format,
     styleId,
+    panSpeedId,
     getState,
     dispatch,
     signal,

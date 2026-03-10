@@ -18,6 +18,7 @@ let make = React.memo((
   ~onTeaser: (
     ~format: string,
     ~styleId: string,
+    ~panSpeedId: string,
     ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
@@ -30,10 +31,7 @@ let make = React.memo((
     PersistencePreferences.get().preferredSaveTarget
   )
   let teaserStyleRequestRef: React.ref<SidebarActionsSupport.teaserRequest> = React.useRef(
-    ({
-      format: "webm",
-      styleId: TeaserStyleCatalog.toString(TeaserStyleCatalog.defaultStyle),
-    }: SidebarActionsSupport.teaserRequest),
+    (SidebarActionsSupport.defaultTeaserRequest(): SidebarActionsSupport.teaserRequest),
   )
   let initialPublishOptions = SidebarActionsSupport.resetPublishOptions()
   let publishOptionsRef: React.ref<SidebarBase.SidebarTypes.publishOptions> = React.useRef(
@@ -135,6 +133,7 @@ let make = React.memo((
       await onTeaser(
         ~format=teaserStyleRequestRef.current.format,
         ~styleId=teaserStyleRequestRef.current.styleId,
+        ~panSpeedId=teaserStyleRequestRef.current.panSpeedId,
         ~signal,
         ~onCancel,
       )
