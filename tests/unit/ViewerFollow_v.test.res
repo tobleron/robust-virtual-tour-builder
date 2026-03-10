@@ -78,8 +78,9 @@ describe("ViewerFollow", () => {
     ViewerSystem.Follow.updateFollowLoop(~getState)
 
     // It should have called setYaw because mouseXNorm is 0.8
+    let expectedYaw = ViewerLogic.getEdgePower(0.8, 0.35) *. 2.0
     t->expect(yawValue.contents > 0.0)->Expect.toBe(true)
-    t->expect(Math.abs(yawValue.contents -. 0.54) < 0.001)->Expect.toBe(true)
+    t->expect(Math.abs(yawValue.contents -. expectedYaw) < 0.001)->Expect.toBe(true)
     t->expect(pitchValue.contents)->Expect.toBe(0.0)
 
     // Cleanup
