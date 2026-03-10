@@ -1,0 +1,129 @@
+/* Link Destination modal tuning */
+.modal-box-premium.modal-link-destination {
+    --viewer-scale: min(100vw, 100vh);
+    --link-modal-size: clamp(300px, calc(var(--viewer-scale) * 0.56), 380px);
+    width: var(--link-modal-size);
+    height: var(--link-modal-size);
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    justify-content: flex-start;
+    align-items: stretch;
+    text-align: left;
+    padding: 20px 18px 16px;
+}
+
+.modal-box-premium.modal-link-destination .modal-icon-container {
+    margin-bottom: 10px;
+}
+
+.modal-box-premium.modal-link-destination .modal-title-custom {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.modal-box-premium.modal-link-destination .modal-content-body {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-grow: 0;
+}
+
+.link-modal-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.link-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.link-modal-field-label {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.link-modal-select {
+    width: 100%;
+    height: 44px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(4, 16, 43, 0.58);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 36px 0 14px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg%20fill%3D%22%23ffffff%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.link-modal-select-sequence {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.link-modal-select:focus,
+.link-modal-select:hover {
+    border-color: rgba(249, 115, 22, 0.85);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.45);
+    background-color: rgba(7, 26, 67, 0.78);
+}
+
+.link-modal-return-note {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(3, 12, 33, 0.5);
+    color: rgba(255, 255, 255, 0.78);
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.modal-box-premium.modal-link-destination .modal-actions {
+    margin-top: 14px;
+    gap: 10px;
+}
+
+.modal-link-btn-primary {
+    background: rgba(107, 136, 178, 0.36);
+    border-color: rgba(249, 115, 22, 0.85);
+    color: #ffffff;
+}
+
+.modal-link-btn-primary:hover:not(:disabled) {
+    background: rgba(107, 136, 178, 0.52);
+    border-color: rgba(251, 146, 60, 1);
+}
+
+.modal-link-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.modal-link-btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 640px) {
+    .modal-box-premium.modal-link-destination {
+        --link-modal-size: clamp(270px, 80vmin, 340px);
+        padding: 18px 14px 14px;
+    }
+
+    .link-modal-select {
+        height: 42px;
+        border-radius: 14px;
+    }
+}

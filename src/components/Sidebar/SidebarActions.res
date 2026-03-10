@@ -1,10 +1,5 @@
 // @efficiency-role: ui-component
 
-type teaserRequest = {
-  format: string,
-  styleId: string,
-}
-
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
@@ -23,6 +18,7 @@ let make = React.memo((
   ~onTeaser: (
     ~format: string,
     ~styleId: string,
+    ~panSpeedId: string,
     ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
@@ -34,15 +30,10 @@ let make = React.memo((
   let (preferredSaveTarget, setPreferredSaveTarget) = React.useState(_ =>
     PersistencePreferences.get().preferredSaveTarget
   )
-  let teaserStyleRequestRef: React.ref<teaserRequest> = React.useRef({
-    format: "webm",
-    styleId: TeaserStyleCatalog.toString(TeaserStyleCatalog.defaultStyle),
-  })
-  let initialPublishOptions: SidebarBase.SidebarTypes.publishOptions = {
-    selectedProfiles: [#hd, #k2, #k4, #standalone2k],
-    includeLogo: true,
-    includeMarketing: true,
-  }
+  let teaserStyleRequestRef: React.ref<SidebarActionsSupport.teaserRequest> = React.useRef(
+    (SidebarActionsSupport.defaultTeaserRequest(): SidebarActionsSupport.teaserRequest),
+  )
+  let initialPublishOptions = SidebarActionsSupport.resetPublishOptions()
   let publishOptionsRef: React.ref<SidebarBase.SidebarTypes.publishOptions> = React.useRef(
     initialPublishOptions,
   )
@@ -71,13 +62,6 @@ let make = React.memo((
     saveTargetRef.current = preferredSaveTarget
     None
   }, [preferredSaveTarget])
-
-  let saveTargetLabel = target =>
-    switch target {
-    | PersistencePreferences.Offline => "Save Offline"
-    | PersistencePreferences.Server => "Save to Server"
-    | PersistencePreferences.Both => "Save Both"
-    }
 
   let runSaveForTarget = target => {
     setPreferredSaveTarget(_ => target)
@@ -149,6 +133,7 @@ let make = React.memo((
       await onTeaser(
         ~format=teaserStyleRequestRef.current.format,
         ~styleId=teaserStyleRequestRef.current.styleId,
+        ~panSpeedId=teaserStyleRequestRef.current.panSpeedId,
         ~signal,
         ~onCancel,
       )
@@ -177,58 +162,12 @@ let make = React.memo((
         className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={_ => {
           EventBus.dispatch(
-            ShowModal({
-              title: "Save Project",
-              description: Some("Choose where this save should go. Server saves create snapshot history, offline saves create a .vt.zip package."),
-              icon: Some("info"),
-              content: None,
-              onClose: None,
-              allowClose: Some(true),
-              className: Some("modal-blue modal-publish-options"),
-              buttons: [
-                {
-                  label: "Cancel",
-                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                  onClick: () => (),
-                  autoClose: Some(true),
-                },
-                {
-                  label: if preferredSaveTarget == PersistencePreferences.Server {
-                    "Save to Server (Default)"
-                  } else {
-                    "Save to Server"
-                  },
-                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
-                  onClick: () => runSaveForTarget(PersistencePreferences.Server),
-                  autoClose: Some(true),
-                },
-                {
-                  label: if preferredSaveTarget == PersistencePreferences.Offline {
-                    "Save Offline (Default)"
-                  } else {
-                    "Save Offline (.vt.zip)"
-                  },
-                  class_: "bg-white/10 text-white hover:bg-white/20",
-                  onClick: () => runSaveForTarget(PersistencePreferences.Offline),
-                  autoClose: Some(true),
-                },
-                {
-                  label: if preferredSaveTarget == PersistencePreferences.Both {
-                    "Save Both (Default)"
-                  } else {
-                    "Save Both"
-                  },
-                  class_: "bg-emerald-500/20 text-white hover:bg-emerald-500/35",
-                  onClick: () => runSaveForTarget(PersistencePreferences.Both),
-                  autoClose: Some(true),
-                },
-              ],
-            }),
+            ShowModal(SidebarActionsSupport.saveModalConfig(~preferredSaveTarget, ~runSaveForTarget)),
           )
         }}
         disabled={!isPermitted || savePending}
-        ariaLabel={saveTargetLabel(preferredSaveTarget)}
-        title={saveTargetLabel(preferredSaveTarget)}
+        ariaLabel={SidebarActionsSupport.saveTargetLabel(preferredSaveTarget)}
+        title={SidebarActionsSupport.saveTargetLabel(preferredSaveTarget)}
       >
         <LucideIcons.Save size=20 strokeWidth=1.0 />
         <span> {React.string("Save")} </span>
@@ -266,42 +205,17 @@ let make = React.memo((
           ChunkPrefetch.warmExif()
         }}
         onClick={_ => {
-          let nextOptions: SidebarBase.SidebarTypes.publishOptions = {
-            selectedProfiles: [#hd, #k2, #k4, #standalone2k],
-            includeLogo: true,
-            includeMarketing: true,
-          }
+          let nextOptions = SidebarActionsSupport.resetPublishOptions()
           publishOptionsRef.current = nextOptions
           EventBus.dispatch(
-            ShowModal({
-              title: "Publish Tour",
-              description: Some("Choose what will be included in the published package."),
-              icon: Some("info"),
-              content: Some(
-                <SidebarPublishOptionsContent
-                  onOptionsChanged={opts => publishOptionsRef.current = opts}
-                />,
+            ShowModal(
+              SidebarActionsSupport.publishModalConfig(
+                ~onOptionsChanged={opts => publishOptionsRef.current = opts},
+                ~onPublish={(() => {
+                  let _ = exportExecute()
+                })},
               ),
-              onClose: None,
-              allowClose: Some(true),
-              className: Some("modal-blue modal-publish-options"),
-              buttons: [
-                {
-                  label: "Cancel",
-                  class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                  onClick: () => (),
-                  autoClose: Some(true),
-                },
-                {
-                  label: "Publish",
-                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
-                  onClick: () => {
-                    let _ = exportExecute()
-                  },
-                  autoClose: Some(true),
-                },
-              ],
-            }),
+            ),
           )
         }}
         ariaLabel="Publish Tour"
@@ -319,68 +233,15 @@ let make = React.memo((
           ChunkPrefetch.warmTeaser()
         }}
         onClick={_ => {
-          let styleButtons: array<
-            EventBus.button,
-          > = TeaserStyleCatalog.options->Belt.Array.map(opt => {
-            if opt.available {
-              (
-                {
-                  label: opt.label ++ " (WebM)",
-                  class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
-                  onClick: () => {
-                    teaserStyleRequestRef.current = {format: "webm", styleId: opt.id}
-                    let _ = teaserExecute()
-                  },
-                  autoClose: Some(true),
-                }: EventBus.button
-              )
-            } else {
-              (
-                {
-                  label: opt.label ++ " (Soon)",
-                  class_: "bg-slate-100/10 text-white/55 cursor-not-allowed",
-                  onClick: () => {
-                    NotificationManager.dispatch({
-                      id: "",
-                      importance: Info,
-                      context: Operation("teaser"),
-                      message: opt.label ++ " style unavailable.",
-                      details: Some(opt.description),
-                      action: None,
-                      duration: NotificationTypes.defaultTimeoutMs(Info),
-                      dismissible: true,
-                      createdAt: Date.now(),
-                    })
-                  },
-                  autoClose: Some(false),
-                }: EventBus.button
-              )
-            }
-          })
-
           EventBus.dispatch(
-            ShowModal({
-              title: "Choose Teaser Style",
-              description: Some(
-                "Select the teaser rendering style. Only Cinematic is currently available.",
+            ShowModal(
+              SidebarActionsSupport.teaserModalConfig(
+                ~teaserStyleRequestRef,
+                ~onSelect={(() => {
+                  let _ = teaserExecute()
+                })},
               ),
-              icon: Some("info"),
-              content: None,
-              onClose: None,
-              allowClose: Some(true),
-              className: Some("modal-blue modal-teaser-style"),
-              buttons: Belt.Array.concat(
-                styleButtons,
-                [
-                  {
-                    label: "Cancel",
-                    class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                    onClick: () => (),
-                    autoClose: Some(true),
-                  },
-                ],
-              ),
-            }),
+            ),
           )
         }}
         ariaLabel="Create Teaser"

@@ -5,6 +5,7 @@ import { setupAIObservability } from './ai-helper';
 import {
   resetClientState,
   uploadImageAndWaitForSceneCount,
+  waitForBuilderShellReady,
   waitForNavigationStabilization,
 } from './e2e-helpers';
 
@@ -35,7 +36,7 @@ test.describe('Scene Delete Undo', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
     await resetClientState(page);
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
     await waitForNavigationStabilization(page);
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);

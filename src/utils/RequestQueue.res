@@ -55,49 +55,28 @@ let pushByPriority = (item: queuedItem) => {
 
 let promoteStarved = () => {
   let now = nowMs.contents()
-  let backgroundToPromote = Belt.Array.keep(backgroundQueue, item =>
-    now -. item.enqueuedAtMs >= 30000.0
-  )
-  let backgroundRemaining = Belt.Array.keep(backgroundQueue, item =>
-    now -. item.enqueuedAtMs < 30000.0
-  )
-  let _ = Array.splice(
-    backgroundQueue,
-    ~start=0,
-    ~remove=Array.length(backgroundQueue),
-    ~insert=backgroundRemaining,
-  )
-  backgroundToPromote->Belt.Array.forEach(item => {
-    pushByPriority({...item, priority: Normal})
-  })
+  let promoteQueue = (~queue, ~thresholdMs: float, ~priority) => {
+    let (keep, promote) = queue->Belt.Array.partition(item => now -. item.enqueuedAtMs < thresholdMs)
+    let _ = Array.splice(queue, ~start=0, ~remove=Array.length(queue), ~insert=keep)
+    promote->Belt.Array.forEach(item => {
+      pushByPriority({...item, priority})
+    })
+    Array.length(promote)
+  }
 
-  let normalToPromote = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs >= 60000.0)
-  let normalRemaining = Belt.Array.keep(normalQueue, item => now -. item.enqueuedAtMs < 60000.0)
-  let _ = Array.splice(
-    normalQueue,
-    ~start=0,
-    ~remove=Array.length(normalQueue),
-    ~insert=normalRemaining,
-  )
-  normalToPromote->Belt.Array.forEach(item => {
-    pushByPriority({...item, priority: Critical})
-  })
+  let backgroundPromotions = promoteQueue(~queue=backgroundQueue, ~thresholdMs=30000.0, ~priority=Normal)
+  let normalPromotions = promoteQueue(~queue=normalQueue, ~thresholdMs=60000.0, ~priority=Critical)
 
-  if Array.length(backgroundToPromote) > 0 || Array.length(normalToPromote) > 0 {
+  if backgroundPromotions > 0 || normalPromotions > 0 {
     logQueueDepths(~reason="starvation-promotion")
   }
 }
 
 let shiftNext = (): option<queuedItem> => {
   promoteStarved()
-  switch Array.shift(criticalQueue) {
-  | Some(item) => Some(item)
-  | None =>
-    switch Array.shift(normalQueue) {
-    | Some(item) => Some(item)
-    | None => Array.shift(backgroundQueue)
-    }
-  }
+  [criticalQueue, normalQueue, backgroundQueue]
+  ->Belt.Array.getBy(queue => Array.length(queue) > 0)
+  ->Option.flatMap(Array.shift)
 }
 
 let currentConcurrencyLimit = () => {

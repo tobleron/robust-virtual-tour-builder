@@ -12,6 +12,7 @@ let loadEventScript = `
       if (!transitionFrom && !isFirstLoad && !window.isAutoTourActive) return;
       if (sd?.hotSpots?.length > 0) applyCurrentHfov();
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
+      if (typeof applyPendingSequenceContext === "function") applyPendingSequenceContext(sid);
       updateExportFloorNav(sid);
       const suppressRoomLabelOnThisLoad = suppressNextRoomLabelOnLoad === true;
       suppressNextRoomLabelOnLoad = false;

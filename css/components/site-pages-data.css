@@ -1,0 +1,141 @@
+.site-table-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.site-icon-button {
+  border: 1px solid rgba(10, 35, 77, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--site-navy-900);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.site-icon-button:hover {
+  background: rgba(232, 119, 41, 0.12);
+  border-color: rgba(232, 119, 41, 0.25);
+}
+
+.site-dashboard-history-row td {
+  background: rgba(15, 37, 71, 0.03);
+}
+
+.site-dashboard-history-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 4px;
+}
+
+.site-dashboard-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(10, 35, 77, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.site-dashboard-history-item strong {
+  display: block;
+  color: var(--site-navy-900);
+  font-size: 14px;
+}
+
+.site-dashboard-history-item span {
+  display: block;
+  color: var(--site-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.site-table th,
+.site-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid rgba(10, 35, 77, 0.08);
+}
+
+.site-chip {
+  border-radius: 999px;
+  background: rgba(27, 79, 157, 0.12);
+  color: var(--site-navy-900);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 24px;
+  background: var(--site-navy-900);
+  color: #fff;
+}
+
+.site-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.site-footer-title {
+  font-weight: 700;
+}
+
+.site-footer-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.site-footer-brand-icon {
+  width: 18px;
+  height: 18px;
+  color: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.site-footer-copy {
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.site-footer-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.site-footer-links a {
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.site-footer-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+}

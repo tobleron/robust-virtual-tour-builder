@@ -1,25 +1,21 @@
 // @efficiency-role: functional-service
-use crate::models::{AppError, User};
+#[path = "auth_handlers.rs"]
+mod auth_handlers;
+#[path = "auth_requests.rs"]
+mod auth_requests;
+
+use crate::models::AppError;
 use actix_web::{
-    Error, HttpMessage, HttpRequest, HttpResponse,
+    Error, HttpRequest, HttpResponse,
     body::{BoxBody, EitherBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
-    http::header,
     web,
 };
-use chrono::{Duration, Utc};
 use futures_util::future::LocalBoxFuture;
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use oauth2::basic::BasicClient;
-use oauth2::{
-    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, Scope, TokenUrl,
-};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
-use std::env;
 use std::future::{Ready, ready};
 use std::rc::Rc;
-use uuid::Uuid;
 
 // ==========================================
 // Handlers & Client
@@ -33,30 +29,7 @@ pub struct AuthService {
 #[allow(dead_code)]
 impl AuthService {
     pub fn new() -> Result<Self, AppError> {
-        let client_id = ClientId::new(
-            env::var("GOOGLE_CLIENT_ID")
-                .map_err(|_| AppError::InternalError("GOOGLE_CLIENT_ID not set".into()))?,
-        );
-        let client_secret = ClientSecret::new(
-            env::var("GOOGLE_CLIENT_SECRET")
-                .map_err(|_| AppError::InternalError("GOOGLE_CLIENT_SECRET not set".into()))?,
-        );
-        let auth_url = AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string())
-            .map_err(|e| AppError::InternalError(format!("Invalid Auth URL: {}", e)))?;
-        let token_url = TokenUrl::new("https://www.googleapis.com/oauth2/v3/token".to_string())
-            .map_err(|e| AppError::InternalError(format!("Invalid Token URL: {}", e)))?;
-
-        let client = BasicClient::new(client_id, Some(client_secret), auth_url, Some(token_url))
-            .set_redirect_uri(
-                RedirectUrl::new(env::var("GOOGLE_REDIRECT_URL").unwrap_or_else(|_| {
-                    "http://localhost:8080/api/auth/google/callback".to_string()
-                }))
-                .map_err(|e| AppError::InternalError(format!("Invalid Redirect URL: {}", e)))?,
-            );
-
-        Ok(Self {
-            google_client: client,
-        })
+        auth_handlers::new_auth_service()
     }
 }
 
@@ -69,31 +42,15 @@ pub struct AuthCallbackParams {
 
 #[allow(dead_code)]
 pub async fn google_login(auth_service: web::Data<AuthService>) -> Result<HttpResponse, AppError> {
-    let (pkce_challenge, _pkce_verifier) = PkceCodeChallenge::new_random_sha256();
-
-    let (auth_url, _csrf_token) = auth_service
-        .google_client
-        .authorize_url(CsrfToken::new_random)
-        .add_scope(Scope::new(
-            "https://www.googleapis.com/auth/userinfo.email".to_string(),
-        ))
-        .add_scope(Scope::new(
-            "https://www.googleapis.com/auth/userinfo.profile".to_string(),
-        ))
-        .set_pkce_challenge(pkce_challenge)
-        .url();
-
-    Ok(HttpResponse::Found()
-        .append_header(("Location", auth_url.to_string()))
-        .finish())
+    auth_handlers::google_login(auth_service).await
 }
 
 #[allow(dead_code)]
 pub async fn google_callback(
-    _params: web::Query<AuthCallbackParams>,
-    _auth_service: web::Data<AuthService>,
+    params: web::Query<AuthCallbackParams>,
+    auth_service: web::Data<AuthService>,
 ) -> Result<HttpResponse, AppError> {
-    Ok(HttpResponse::NotImplemented().finish())
+    auth_handlers::google_callback(params, auth_service).await
 }
 
 // ==========================================
@@ -110,60 +67,20 @@ pub struct Claims {
 
 #[cfg_attr(not(test), allow(dead_code))]
 pub fn encode_token(sub: &str, step_up_verified_until: Option<usize>) -> Result<String, AppError> {
-    let secret = env::var("JWT_SECRET")
-        .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
-    let expiration = Utc::now()
-        .checked_add_signed(Duration::hours(24))
-        .ok_or_else(|| AppError::InternalError("Timestamp overflow".to_string()))?
-        .timestamp();
-
-    let claims = Claims {
-        sub: sub.to_owned(),
-        iat: Utc::now().timestamp() as usize,
-        exp: expiration as usize,
-        step_up_verified_until,
-    };
-
-    encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(secret.as_bytes()),
-    )
-    .map_err(|e| AppError::InternalError(format!("Token creation failed: {}", e)))
+    auth_handlers::encode_token(sub, step_up_verified_until)
 }
 
 pub fn decode_token(token: &str) -> Result<Claims, AppError> {
-    let secret = env::var("JWT_SECRET")
-        .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
-    let validation = Validation::default();
-
-    decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(secret.as_bytes()),
-        &validation,
-    )
-    .map(|data| data.claims)
-    .map_err(|e| AppError::Unauthorized(format!("Invalid token: {}", e)))
+    auth_handlers::decode_token(token)
 }
 
 pub fn is_step_up_verified(req: &HttpRequest) -> bool {
-    if let Some(claims) = req.extensions().get::<Claims>() {
-        if let Some(until_ts) = claims.step_up_verified_until {
-            return (Utc::now().timestamp() as usize) <= until_ts;
-        }
-    }
-    false
+    auth_handlers::is_step_up_verified(req)
 }
 
 #[allow(dead_code)]
 pub fn require_step_up_verified(req: &HttpRequest) -> Result<(), AppError> {
-    if is_step_up_verified(req) {
-        Ok(())
-    } else {
-        Err(AppError::Unauthorized(
-            "Step-up verification is required for this action.".into(),
-        ))
-    }
+    auth_handlers::require_step_up_verified(req)
 }
 
 // ==========================================
@@ -287,149 +204,38 @@ where
     }
 }
 
+#[allow(dead_code)]
 fn extract_token(req: &ServiceRequest) -> Option<String> {
-    if let Some(header) = req.headers().get(header::AUTHORIZATION) {
-        if let Ok(header_str) = header.to_str() {
-            if let Some(token) = header_str.strip_prefix("Bearer ") {
-                return Some(token.to_string());
-            }
-        }
-    }
-    if let Some(token) = req.cookie("auth_token") {
-        return Some(token.value().to_string());
-    }
-
-    None
+    auth_requests::extract_token(req)
 }
 
+#[allow(dead_code)]
 async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(), HttpResponse> {
-    if user_id == "dev_user_id" {
-        let mock_admin = User {
-            id: "dev_user_id".to_string(),
-            email: "admin@dev.local".to_string(),
-            username: Some("dev-admin".to_string()),
-            password_hash: "".to_string(),
-            name: "Dev Administrator".to_string(),
-            role: "admin".to_string(),
-            status: Some("active".to_string()),
-            email_verified_at: Some(Utc::now()),
-            force_step_up_reason: None,
-            force_step_up_until: None,
-            theme_preference: Some("dark".into()),
-            language_preference: Some("en".into()),
-            created_at: Utc::now(),
-        };
-        req.extensions_mut().insert(mock_admin);
-        return Ok(());
-    }
-
-    let pool = req.app_data::<web::Data<SqlitePool>>().ok_or_else(|| {
-        tracing::error!("Database pool not found in app_data");
-        HttpResponse::InternalServerError().finish()
-    })?;
-
-    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
-        .bind(user_id)
-        .fetch_optional(pool.get_ref())
-        .await
-        .map_err(|e| {
-            tracing::error!("Database error during auth: {}", e);
-            HttpResponse::InternalServerError().json(serde_json::json!({"error": "Database error"}))
-        })?
-        .ok_or_else(|| {
-            HttpResponse::Unauthorized().json(serde_json::json!({"error": "User not found"}))
-        })?;
-
-    req.extensions_mut().insert(user);
-    Ok(())
+    auth_requests::attach_user_to_request(req, user_id).await
 }
 
+#[allow(dead_code)]
 fn headless_token() -> Option<String> {
-    std::env::var("HEADLESS_API_TOKEN").ok()
+    auth_requests::headless_token()
 }
 
+#[allow(dead_code)]
 fn headless_user_metadata() -> (String, String, String, String) {
-    let id = std::env::var("HEADLESS_USER_ID").unwrap_or_else(|_| Uuid::new_v4().to_string());
-    let email = std::env::var("HEADLESS_USER_EMAIL")
-        .unwrap_or_else(|_| "headless@vtb.internal".to_string());
-    let name =
-        std::env::var("HEADLESS_USER_NAME").unwrap_or_else(|_| "Headless Teaser".to_string());
-    let role = std::env::var("HEADLESS_USER_ROLE").unwrap_or_else(|_| "system".to_string());
-    (id, email, name, role)
+    auth_requests::headless_user_metadata()
 }
 
+#[allow(dead_code)]
 fn is_headless_token(token: &str) -> bool {
-    match headless_token() {
-        Some(expected) => expected == token,
-        None => false,
-    }
+    auth_requests::is_headless_token(token)
 }
 
+#[allow(dead_code)]
 async fn attach_headless_user(req: &ServiceRequest) -> Result<(), HttpResponse> {
-    let (id, email, name, role) = headless_user_metadata();
-    let user = User {
-        id,
-        email,
-        username: Some("headless-runtime".to_string()),
-        password_hash: String::new(),
-        name,
-        role,
-        status: Some("active".to_string()),
-        email_verified_at: Some(Utc::now()),
-        force_step_up_reason: None,
-        force_step_up_until: None,
-        theme_preference: None,
-        language_preference: None,
-        created_at: Utc::now(),
-    };
-    req.extensions_mut().insert(user);
-    Ok(())
+    auth_requests::attach_headless_user(req).await
 }
 
 async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse> {
-    let token = extract_token(req).ok_or_else(|| {
-        HttpResponse::Unauthorized().json(serde_json::json!({
-            "error": "Missing Authorization header or auth_token cookie"
-        }))
-    })?;
-
-    let is_prod = crate::startup::is_production();
-    let bypass_allowed = !is_prod
-        && std::env::var("BYPASS_AUTH")
-            .map(|v| v == "true")
-            .unwrap_or(false);
-
-    if is_headless_token(&token) {
-        tracing::info!(target: "auth", "HEADLESS_TEASER_AUTHENTICATED");
-        return attach_headless_user(req).await;
-    }
-
-    if bypass_allowed && token.trim() == "dev-token" {
-        tracing::warn!(
-            target: "auth",
-            "⚠️  INSECURE: Using DEV_TOKEN bypass for authentication. This is only allowed in non-production environments."
-        );
-        return attach_user_to_request(req, "dev_user_id").await;
-    }
-
-    if token.trim() == "dev-token" && is_prod {
-        tracing::error!(
-            target: "auth",
-            "🛑 SECURITY ALERT: Attempted to use dev-token in PRODUCTION environment. Request rejected."
-        );
-        return Err(HttpResponse::Unauthorized().json(serde_json::json!({
-            "error": "Insecure authentication method rejected in production"
-        })));
-    }
-
-    let claims = decode_token(&token).map_err(|e| {
-        HttpResponse::Unauthorized().json(serde_json::json!({
-            "error": e.to_string()
-        }))
-    })?;
-    req.extensions_mut().insert(claims.clone());
-
-    attach_user_to_request(req, &claims.sub).await
+    auth_requests::process_authentication(req).await
 }
 
 #[cfg(test)]

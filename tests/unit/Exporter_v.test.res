@@ -1,6 +1,7 @@
 // @efficiency: infra-adapter
 open Vitest
 open Exporter
+open ExporterPackagingAssets
 open ReBindings
 open Types
 
@@ -68,6 +69,10 @@ let mockFetch = (urlPart, status, bodyBlob) => {
 %%raw(`
 vi.mock('../../src/utils/ImageOptimizer.bs.js', () => ({
   compressToWebPConstrained: vi.fn().mockResolvedValue({
+    TAG: "Ok",
+    _0: new Blob(["mock"], {type: "image/webp"})
+  }),
+  compressLogoToWebPConstrained: vi.fn().mockResolvedValue({
     TAG: "Ok",
     _0: new Blob(["mock"], {type: "image/webp"})
   }),
@@ -322,6 +327,37 @@ describe("Exporter", () => {
       %raw(`expect.anything()`),
       Constants.Media.logoOutputFilename,
     )
+  })
+
+  testAsync("appendLogo: skips default branding fallback when disabled", async t => {
+    let _ = %raw(`
+      globalThis.fetch = vi.fn((u) => Promise.resolve({
+        ok: true,
+        status: 200,
+        blob: () => Promise.resolve(new Blob(["content"], {type: "image/png"}))
+      }))
+    `)
+
+    let formData = FormData.newFormData()
+    let result = await appendLogo(
+      ~formData,
+      ~logo=None,
+      ~allowDefaultLogoFallback=false,
+      ~authToken=None,
+      ~signal=None,
+    )
+
+    switch result {
+    | None => t->expect(true)->Expect.toBe(true)
+    | Some(filename) => t->expect(filename)->Expect.toBe("Should not package a logo")
+    }
+
+    let fetchCalls = %raw(`() => globalThis.fetch.mock.calls.map(call => call[0])`)()
+    let requestedDefaultLogo =
+      fetchCalls->Belt.Array.some(url =>
+        String.includes(url, "/images/logo.") || String.includes(url, "/images/logo")
+      )
+    t->expect(requestedDefaultLogo)->Expect.toBe(false)
   })
 
   // Note: XHR abort spy is unreliable in Vitest test environment

@@ -30,7 +30,55 @@ let script = `
     let suppressShortcutPanelUntilNextLoad = false;
     const mapRuntime = { isOpen: false };
     const mapSequenceInputState = { isOpen: false, value: "", error: "" };
-    const floorTagShortcutState = { sceneId: null, floorId: null, pageStart: 0, totalEntries: 0, hasMap: false, visibleEntries: [], isAutoTourActive: false };
+    const floorTagShortcutState = {
+      sceneId: null,
+      floorId: null,
+      pageStart: 0,
+      totalEntries: 0,
+      hasMap: false,
+      visibleEntries: [],
+      isAutoTourActive: false,
+      nextHotspotIndex: null,
+      nextSequenceNumber: null,
+      prevHotspotIndex: null,
+      prevUsesReturnLink: false,
+      autoTourSpeedMultiplier: 1.0,
+    };
+    function setAutoTourSpeedMultiplier(nextMultiplier) {
+      const normalized =
+        Number.isFinite(nextMultiplier) && nextMultiplier > 0
+          ? nextMultiplier
+          : 1.0;
+      floorTagShortcutState.autoTourSpeedMultiplier = normalized;
+      window.autoTourSpeedMultiplier = normalized;
+    }
+    function resetAutoTourSpeedMultiplier() {
+      setAutoTourSpeedMultiplier(1.0);
+    }
+    function applyAutoTourBaseSpeed() {
+      setAutoTourSpeedMultiplier(AUTO_TOUR_BASE_SPEED_MULTIPLIER);
+    }
+    function getAutoTourSpeedMultiplier() {
+      const raw = floorTagShortcutState.autoTourSpeedMultiplier;
+      return Number.isFinite(raw) && raw > 0 ? raw : 1.0;
+    }
+    function isAutoTourSpeedBoosted() {
+      return getAutoTourSpeedMultiplier() > AUTO_TOUR_BASE_SPEED_MULTIPLIER + 0.001;
+    }
+    function speedUpAutoTour() {
+      if (!floorTagShortcutState.isAutoTourActive) return false;
+      if (isAutoTourSpeedBoosted()) {
+        applyAutoTourBaseSpeed();
+      } else {
+        setAutoTourSpeedMultiplier(AUTO_TOUR_BASE_SPEED_MULTIPLIER * AUTO_TOUR_SPEED_UP_MULTIPLIER);
+      }
+      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+      if (sid && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sid, true);
+      }
+      return true;
+    }
+    resetAutoTourSpeedMultiplier();
     function clearAutoTourCompletionCountdown() {
       if (autoTourCountdownIntervalId !== null) {
         clearInterval(autoTourCountdownIntervalId);
@@ -78,6 +126,7 @@ let script = `
       if (!floorTagShortcutState.isAutoTourActive) return;
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
+      resetAutoTourSpeedMultiplier();
       document.body.classList.remove('is-auto-tour-active');
       if (waypointRuntime.autoForwardTimeoutId) {
         clearTimeout(waypointRuntime.autoForwardTimeoutId);

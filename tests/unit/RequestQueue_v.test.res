@@ -214,6 +214,37 @@ describe("RequestQueue", () => {
     t->expect(Belt.Array.getExn(order.contents, 0))->Expect.toBe("critical-1")
   })
 
+  testAsync("starvation promotion escalates queued work before dequeue", async t => {
+    pause()
+    let order = ref([])
+    nowMs := (_ => 0.0)
+
+    let _ = scheduleWithPriority(
+      ~priority=Background,
+      () => {
+        order := Belt.Array.concat(order.contents, ["background-1"])
+        Promise.resolve()
+      },
+    )->swallowRejection
+    let _ = scheduleWithPriority(
+      ~priority=Normal,
+      () => {
+        order := Belt.Array.concat(order.contents, ["normal-1"])
+        Promise.resolve()
+      },
+    )->swallowRejection
+
+    nowMs := (_ => 60001.0)
+    resume()
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 30)
+      },
+    )
+
+    t->expect(order.contents)->Expect.toEqual(["normal-1", "background-1"])
+  })
+
   testAsync("critical can use burst slots when base concurrency is saturated", async t => {
     let resolves: array<unit => unit> = []
     let blocker = () =>

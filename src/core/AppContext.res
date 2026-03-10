@@ -13,79 +13,39 @@ let setBridgeState = AppStateBridge.updateState
 let getBridgeDispatch = () => AppStateBridge.dispatch
 let restoreState = (nextState: state) => AppStateBridge.dispatch(Actions.RestoreState(nextState))
 
-// Slices definitions for optimized subscriptions
-type sceneSlice = {
-  scenes: array<scene>,
-  activeIndex: int,
-  tourName: string,
-  activeYaw: float,
-  activePitch: float,
-  discoveringTitleCount: int,
-}
+type sceneSlice = AppContextSlices.sceneSlice
+type uiSlice = AppContextSlices.uiSlice
+type simSlice = AppContextSlices.simSlice
+type pipelineSlice = AppContextSlices.pipelineSlice
+type navigationSlice = AppContextSlices.navigationSlice
 
-type uiSlice = {
-  isLinking: bool,
-  isTeasing: bool,
-  linkDraft: option<linkDraft>,
-  movingHotspot: option<movingHotspot>,
-  appMode: appMode,
-  logo: option<file>,
-  preloadingSceneIndex: int,
-}
-
-type simSlice = {
-  simulation: simulationState,
-  navigation: navigationStatus,
-  currentJourneyId: int,
-  incomingLink: option<linkInfo>,
-}
-
-type pipelineSlice = {
-  timeline: array<timelineItem>,
-  scenes: array<scene>,
-  activeIndex: int,
-  activeTimelineStepId: option<string>,
-}
-
-type navigationSlice = navigationState
-
-// Default values for initialization
 let defaultSceneSlice: sceneSlice = {
-  scenes: SceneInventory.getActiveScenes(
-    State.initialState.inventory,
-    State.initialState.sceneOrder,
-  ),
-  activeIndex: State.initialState.activeIndex,
-  tourName: State.initialState.tourName,
-  activeYaw: State.initialState.activeYaw,
-  activePitch: State.initialState.activePitch,
-  discoveringTitleCount: State.initialState.discoveringTitleCount,
+  scenes: AppContextSlices.defaultSceneSlice.scenes,
+  activeIndex: AppContextSlices.defaultSceneSlice.activeIndex,
+  tourName: AppContextSlices.defaultSceneSlice.tourName,
+  activeYaw: AppContextSlices.defaultSceneSlice.activeYaw,
+  activePitch: AppContextSlices.defaultSceneSlice.activePitch,
+  discoveringTitleCount: AppContextSlices.defaultSceneSlice.discoveringTitleCount,
 }
 
 let defaultUiSlice: uiSlice = {
-  isLinking: State.initialState.isLinking,
-  isTeasing: State.initialState.isTeasing,
-  linkDraft: State.initialState.linkDraft,
-  movingHotspot: State.initialState.movingHotspot,
-  appMode: State.initialState.appMode,
-  logo: State.initialState.logo,
-  preloadingSceneIndex: State.initialState.preloadingSceneIndex,
+  isLinking: AppContextSlices.defaultUiSlice.isLinking,
+  isTeasing: AppContextSlices.defaultUiSlice.isTeasing,
+  linkDraft: AppContextSlices.defaultUiSlice.linkDraft,
+  movingHotspot: AppContextSlices.defaultUiSlice.movingHotspot,
+  appMode: AppContextSlices.defaultUiSlice.appMode,
+  logo: AppContextSlices.defaultUiSlice.logo,
+  preloadingSceneIndex: AppContextSlices.defaultUiSlice.preloadingSceneIndex,
 }
 
 let defaultSimSlice: simSlice = {
-  simulation: State.initialState.simulation,
-  navigation: State.initialState.navigationState.navigation,
-  currentJourneyId: State.initialState.navigationState.currentJourneyId,
-  incomingLink: State.initialState.navigationState.incomingLink,
+  simulation: AppContextSlices.defaultSimSlice.simulation,
+  navigation: AppContextSlices.defaultSimSlice.navigation,
+  currentJourneyId: AppContextSlices.defaultSimSlice.currentJourneyId,
+  incomingLink: AppContextSlices.defaultSimSlice.incomingLink,
 }
 
-// Specialized Contexts
-let globalContext = React.createContext(State.initialState)
-let sceneContext = React.createContext(defaultSceneSlice)
-let uiContext = React.createContext(defaultUiSlice)
-let simContext = React.createContext(defaultSimSlice)
-let navigationContext = React.createContext(NavigationState.initial())
-let pipelineContext = React.createContext({
+let defaultPipelineSlice: pipelineSlice = {
   timeline: State.initialState.timeline,
   scenes: SceneInventory.getActiveScenes(
     State.initialState.inventory,
@@ -93,15 +53,22 @@ let pipelineContext = React.createContext({
   ),
   activeIndex: State.initialState.activeIndex,
   activeTimelineStepId: State.initialState.activeTimelineStepId,
+}
+
+let globalContext = React.createContext(State.initialState)
+let sceneContext = React.createContext(defaultSceneSlice)
+let uiContext = React.createContext(defaultUiSlice)
+let simContext = React.createContext(defaultSimSlice)
+let navigationContext = React.createContext(NavigationState.initial())
+let pipelineContext = React.createContext({
+  ...defaultPipelineSlice,
+  activeIndex: defaultPipelineSlice.activeIndex,
 })
 let dispatchContext = React.createContext(defaultDispatch)
 
-let isRafBatchableAction = (action: action): bool =>
-  switch action {
-  | UpdateLinkDraft(_)
-  | SetPreloadingScene(_) => true
-  | _ => false
-  }
+let isRafBatchableAction = (action: action): bool => {
+  AppContextProviderHooks.isRafBatchableAction(action)
+}
 
 module GlobalProvider = {
   let make = React.Context.provider(globalContext)
@@ -135,20 +102,7 @@ module Provider = {
   @react.component
   let make = (~children, ~initialState as injectedState=?) => {
     let loadedState = React.useMemo0(() => {
-      switch injectedState {
-      | Some(s) => s
-      | None =>
-        switch SessionStore.loadState() {
-        | Some(s) => {
-            ...State.initialState,
-            activeYaw: s.activeYaw,
-            activePitch: s.activePitch,
-            isLinking: false,
-            isTeasing: false,
-          }
-        | None => State.initialState
-        }
-      }
+      AppContextProviderHooks.loadInitialState(injectedState)
     })
 
     let (state, dispatchRaw) = React.useReducer(Reducer.reducer, loadedState)
@@ -156,73 +110,9 @@ module Provider = {
     // Synchronous Bridge Update: Eliminate bridge lag by updating before child hooks run.
     AppStateBridge.updateState(state)
 
-    let rafIdRef = React.useRef(None)
-    let queuedActionsRef = React.useRef([])
+    let dispatch = AppContextProviderHooks.useManagedDispatch(dispatchRaw)
 
-    let flushQueuedActions = () => {
-      let queuedActions = queuedActionsRef.current
-      queuedActionsRef.current = []
-      rafIdRef.current = None
-      switch Belt.Array.length(queuedActions) {
-      | 0 => ()
-      | 1 => dispatchRaw(queuedActions->Belt.Array.getExn(0))
-      | _ => dispatchRaw(Batch(queuedActions))
-      }
-    }
-
-    let dispatch = (nextAction: action) => {
-      // Side-effect resets for module-level state on project load/reset
-      switch nextAction {
-      | LoadProject(_)
-      | Reset =>
-        Logger.info(~module_="AppContext", ~message="PERFORMING_MODULE_LEVEL_RESET", ())
-        NavigationSupervisor.reset()
-        ViewerState.resetState()
-        StateSnapshot.clear()
-        switch nextAction {
-        | Reset => OperationLifecycle.reset()
-        | _ => ()
-        }
-      | _ => ()
-      }
-
-      if isRafBatchableAction(nextAction) {
-        queuedActionsRef.current = Belt.Array.concat(queuedActionsRef.current, [nextAction])
-        switch rafIdRef.current {
-        | Some(_) => ()
-        | None =>
-          rafIdRef.current = Some(
-            ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()),
-          )
-        }
-      } else {
-        // Synchronous Bridge Update: Eliminate lag for non-batchable actions.
-        // This ensures that any subsequent getState() calls (e.g. in event handlers or
-        // optimistic actions) see the latest state immediately.
-        let currentState = AppStateBridge.getState()
-        let nextState = Reducer.reducer(currentState, nextAction)
-        AppStateBridge.updateState(nextState)
-
-        dispatchRaw(nextAction)
-      }
-    }
-
-    // Load timeline from session if available
-    React.useEffect0(() => {
-      switch SessionStore.loadState() {
-      | Some(s) =>
-        switch s.timeline {
-        | Some(t) if Array.length(t) > 0 => dispatch(Actions.SetTimeline(t))
-        | _ => ()
-        }
-        switch s.activeTimelineStepId {
-        | Some(id) => dispatch(Actions.SetActiveTimelineStep(Some(id)))
-        | _ => ()
-        }
-      | None => ()
-      }
-      None
-    })
+    AppContextProviderHooks.useLoadSessionTimeline(dispatch)
 
     // Domain-Specific Slices
     let scenes = React.useMemo2(() => {
@@ -230,7 +120,7 @@ module Provider = {
     }, (state.inventory, state.sceneOrder))
 
     // Domain-Specific Slices
-    let sceneSlice = React.useMemo6(() => {
+    let sceneSlice: sceneSlice = React.useMemo6((): AppContextSlices.sceneSlice => {
       {
         scenes,
         activeIndex: state.activeIndex,
@@ -248,7 +138,7 @@ module Provider = {
       state.discoveringTitleCount,
     ))
 
-    let uiSlice = React.useMemo7(() => {
+    let uiSlice: uiSlice = React.useMemo7((): AppContextSlices.uiSlice => {
       {
         isLinking: state.isLinking,
         isTeasing: state.isTeasing,
@@ -268,7 +158,7 @@ module Provider = {
       state.preloadingSceneIndex,
     ))
 
-    let simSlice = React.useMemo4(() => {
+    let simSlice: simSlice = React.useMemo4((): AppContextSlices.simSlice => {
       {
         simulation: state.simulation,
         navigation: state.navigationState.navigation,
@@ -282,7 +172,7 @@ module Provider = {
       state.navigationState.incomingLink,
     ))
 
-    let pipelineSlice = React.useMemo5(() => {
+    let pipelineSlice: pipelineSlice = React.useMemo5((): AppContextSlices.pipelineSlice => {
       {
         timeline: state.timeline,
         scenes: SceneInventory.getActiveScenes(state.inventory, state.sceneOrder),
@@ -314,56 +204,9 @@ module Provider = {
       None
     })
 
-    let sessionCore = React.useMemo6(() => {
-      (
-        state.tourName,
-        state.activeIndex,
-        state.activeYaw,
-        state.activePitch,
-        state.isLinking,
-        state.isTeasing,
-      )
-    }, (
-      state.tourName,
-      state.activeIndex,
-      state.activeYaw,
-      state.activePitch,
-      state.isLinking,
-      state.isTeasing,
-    ))
+    let sessionSlice = AppContextProviderHooks.useSessionSlice(state)
 
-    let sessionPipeline = React.useMemo2(() => {
-      (state.timeline, state.activeTimelineStepId)
-    }, (state.timeline, state.activeTimelineStepId))
-
-    let sessionSlice = React.useMemo2(() => {
-      let (tourName, activeIndex, activeYaw, activePitch, isLinking, isTeasing) = sessionCore
-      let (timeline, activeTimelineStepId) = sessionPipeline
-
-      let s: Types.sessionState = {
-        tourName,
-        activeIndex,
-        activeYaw,
-        activePitch,
-        isLinking,
-        isTeasing,
-        timeline: Some(timeline),
-        activeTimelineStepId,
-      }
-      s
-    }, (sessionCore, sessionPipeline))
-
-    React.useEffect1(() => {
-      let timerId = setTimeout(() => {
-        SessionStore.save(sessionSlice)
-      }, 500)
-
-      Some(
-        () => {
-          clearTimeout(timerId)
-        },
-      )
-    }, [sessionSlice])
+    AppContextProviderHooks.usePersistSessionSlice(sessionSlice)
 
     <DispatchProvider value=dispatch>
       <GlobalProvider value=state>

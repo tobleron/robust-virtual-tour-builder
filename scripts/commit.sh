@@ -32,6 +32,9 @@ if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
     exit 1
 fi
 
+# 1.4 Main Release Guard
+./scripts/guard-main-release.sh "$CURRENT_BRANCH"
+
 # 1.5 Project Guard (Static Analysis)
 ./scripts/project-guard.sh
 

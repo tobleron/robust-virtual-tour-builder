@@ -1,10 +1,9 @@
 use crate::config::EfficiencyConfig;
-use crate::task_generator::WorkUnit;
+use crate::task_generator::{resolve_merge_member_path, WorkUnit};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::Path;
 
 /// Flush work unit plans to markdown files
 pub fn flush_plans(
@@ -120,10 +119,8 @@ pub fn flush_plans(
                         .as_bytes(),
                     )?;
                     for f in files {
-                        let full_path = Path::new(folder).join(f);
-                        file.write_all(
-                            format!("  - `{}`\n", full_path.to_string_lossy()).as_bytes(),
-                        )?;
+                        let full_path = resolve_merge_member_path(folder, f);
+                        file.write_all(format!("  - `{}`\n", full_path).as_bytes())?;
                     }
                 }
             }

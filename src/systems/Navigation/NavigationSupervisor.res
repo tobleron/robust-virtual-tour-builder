@@ -41,28 +41,11 @@ let () = {
 }
 
 let notifyListeners = () => {
-  listeners.contents->Belt.Array.forEach(cb => {
-    try {
-      cb(status.contents)
-    } catch {
-    | exn =>
-      let (msg, _) = Logger.getErrorDetails(exn)
-      Logger.error(
-        ~module_="NavigationSupervisor",
-        ~message="LISTENER_ERROR",
-        ~data=Some({"error": msg}),
-        (),
-      )
-    }
-  })
+  NavigationSupervisorRuntime.notifyListeners(status.contents, listeners)
 }
 
 let addStatusListener = (cb: status => unit): (unit => unit) => {
-  listeners := Belt.Array.concat(listeners.contents, [cb])
-  // Return unsubscribe function
-  () => {
-    listeners := listeners.contents->Belt.Array.keep(x => x !== cb)
-  }
+  NavigationSupervisorRuntime.addStatusListener(listeners, cb)
 }
 
 let isIdle = (): bool => {
@@ -100,18 +83,79 @@ let isCurrentTaskId = (taskId: taskId): bool => {
 }
 
 let reset = () => {
-  switch currentTask.contents {
-  | Some(task) =>
-    task.abort()
-    task.opId->Option.forEach(id => OperationLifecycle.cancel(id))
-  | None => ()
-  }
-  currentTask := None
-  status := Idle
-  taskCounter := 0
-  runId := 0
+  NavigationSupervisorState.cancelTask(
+    ~taskOpt=currentTask.contents,
+    ~abortTask=task => task.abort(),
+    ~cancelOp=task => task.opId->Option.forEach(id => OperationLifecycle.cancel(id)),
+  )
+  NavigationSupervisorState.resetSupervisorState(
+    ~currentTaskRef=currentTask,
+    ~statusRef=status,
+    ~taskCounterRef=taskCounter,
+    ~runIdRef=runId,
+    ~idleStatus=Idle,
+  )
   notifyListeners()
   Logger.info(~module_="NavigationSupervisor", ~message="SUPERVISOR_RESET", ())
+}
+
+let cancelExistingTask = (~targetSceneId: string) => {
+  NavigationSupervisorLifecycle.cancelTaskWithLog(
+    ~taskOpt=currentTask.contents,
+    ~targetSceneId,
+    ~abortTask=task => task.abort(),
+    ~cancelOp=task => task.opId->Option.forEach(id => OperationLifecycle.cancel(id)),
+    ~getTaskId=task => task.token.id,
+    ~getTargetSceneId=task => task.targetSceneId,
+  )
+}
+
+let makeTask = (targetSceneId: string): task => {
+  let seed = NavigationSupervisorLifecycle.makeTaskSeed(
+    ~targetSceneId,
+    ~taskCounterRef=taskCounter,
+    ~runIdRef=runId,
+  )
+  let token = {
+    id: seed.taskId,
+    epoch: seed.epoch,
+    signal: seed.signal,
+  }
+  {
+    token,
+    targetSceneId,
+    abort: () => BrowserBindings.AbortController.abort(seed.controller),
+    startedAt: seed.startedAt,
+    opId: Some(seed.opId),
+  }
+}
+
+let setTaskActive = (~task, ~previewOnly: bool) => {
+  currentTask := Some(task)
+  status := if previewOnly {
+      Panning(task.token.id, task.targetSceneId)
+    } else {
+      Loading(task.token.id, task.targetSceneId)
+    }
+  notifyListeners()
+}
+
+let updateLifecyclePhase = (newStatus: status) => {
+  NavigationSupervisorLifecycle.updateLifecyclePhase(
+    ~currentTaskOpt=currentTask.contents,
+    ~newStatus,
+    ~getOpId=task => task.opId,
+    ~isSwapping=status =>
+      switch status {
+      | Swapping(_, _) => true
+      | _ => false
+      },
+    ~isStabilizing=status =>
+      switch status {
+      | Stabilizing(_, _) => true
+      | _ => false
+      },
+  )
 }
 
 // Internal dispatch helper
@@ -155,73 +199,16 @@ let statusToString = (s: status): string => {
 }
 
 let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
-  // If any journey state is still active, reset it so stale completions cannot win over the latest intent.
   resetInFlightJourneyState(~reason="request_navigation", ~targetSceneId)
-
-  // Cancel previous task if it exists
-  switch currentTask.contents {
-  | Some(task) =>
-    task.abort()
-    // Cancel operation in Lifecycle
-    task.opId->Option.forEach(id => OperationLifecycle.cancel(id))
-
-    Logger.debug(
-      ~module_="NavigationSupervisor",
-      ~message="PREVIOUS_TASK_CANCELLED",
-      ~data=Some({
-        "previousTaskId": task.token.id,
-        "previousSceneId": task.targetSceneId,
-        "newSceneId": targetSceneId,
-      }),
-      (),
-    )
-  | None => ()
-  }
-
-  // Create new task with AbortController
-  let controller = BrowserBindings.AbortController.make()
-  let abortSignal = BrowserBindings.AbortController.signal(controller)
-  taskCounter := taskCounter.contents + 1
-  runId := runId.contents + 1
-  let taskId = `task_${Date.now()->Float.toString}_${taskCounter.contents->Belt.Int.toString}`
-  let token = {
-    id: taskId,
-    epoch: runId.contents,
-    signal: abortSignal,
-  }
-
-  // Start Global Operation
-  let opId = OperationLifecycle.start(
-    ~type_=Navigation,
-    ~scope=Blocking,
-    ~phase="Loading",
-    ~meta=Logger.castToJson({"targetSceneId": targetSceneId}),
-    (),
-  )
-
-  let task = {
-    token,
-    targetSceneId,
-    abort: () => {
-      BrowserBindings.AbortController.abort(controller)
-    },
-    startedAt: Date.now(),
-    opId: Some(opId),
-  }
-
-  currentTask := Some(task)
-  status := if previewOnly {
-      Panning(taskId, targetSceneId)
-    } else {
-      Loading(taskId, targetSceneId)
-    }
-  notifyListeners()
+  cancelExistingTask(~targetSceneId)
+  let task = makeTask(targetSceneId)
+  setTaskActive(~task, ~previewOnly)
 
   Logger.debug(
     ~module_="NavigationSupervisor",
     ~message="NAVIGATION_REQUESTED",
     ~data=Some({
-      "taskId": taskId,
+      "taskId": task.token.id,
       "targetSceneId": targetSceneId,
       "previewOnly": previewOnly,
     }),
@@ -237,28 +224,13 @@ let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
 let transitionTo = (taskId: taskId, newStatus: status): unit => {
   // Only process if taskId matches current task (stale-task guard)
   if isCurrentTaskId(taskId) {
-    if status.contents == newStatus {
-      ()
-    } else {
-      let prevStatus = status.contents
-      status := newStatus
-      notifyListeners()
-
-      // Update OperationLifecycle Phase
-      switch newStatus {
-      | Swapping(_, _) =>
-        currentTask.contents->Option.forEach(t =>
-          t.opId->Option.forEach(id => OperationLifecycle.progress(id, 50.0, ~phase="Swapping", ()))
-        )
-      | Stabilizing(_, _) =>
-        currentTask.contents->Option.forEach(t =>
-          t.opId->Option.forEach(id =>
-            OperationLifecycle.progress(id, 80.0, ~phase="Stabilizing", ())
-          )
-        )
-      | _ => ()
-      }
-
+    NavigationSupervisorState.advanceStatus(
+      ~statusRef=status,
+      ~newStatus,
+      ~notify=notifyListeners,
+      ~onProgress=updateLifecyclePhase,
+    )
+    ->Option.forEach(prevStatus =>
       Logger.debug(
         ~module_="NavigationSupervisor",
         ~message="STATUS_TRANSITION",
@@ -269,17 +241,17 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
         }),
         (),
       )
-    }
+    )
   } else {
     Logger.debug(
-      ~module_="NavigationSupervisor",
-      ~message="STALE_TASK_IGNORED",
-      ~data=Some({
-        "staleTaskId": taskId,
-        "currentTaskId": switch currentTask.contents {
-        | Some(t) => t.token.id
-        | None => "none"
-        },
+        ~module_="NavigationSupervisor",
+        ~message="STALE_TASK_IGNORED",
+        ~data=Some({
+          "staleTaskId": taskId,
+        "currentTaskId": NavigationSupervisorState.currentTaskIdString(
+          ~currentTaskOpt=currentTask.contents,
+          ~getId=t => t.token.id,
+        ),
       }),
       (),
     )

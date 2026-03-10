@@ -36,7 +36,7 @@ let make = React.memo(() => {
     let files = ReactEvent.Form.target(e)["files"]
     if Belt.Array.length(files) > 0 {
       let file = files[0]->unsafeCastToFile
-      ImageOptimizer.compressToWebPConstrained(
+      ImageOptimizer.compressLogoToWebPConstrained(
         file,
         ~quality=Constants.Media.logoWebpQuality,
         ~maxWidth=Constants.Media.logoMaxWidth,

@@ -8,15 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (4)
-- [ ] **../../tests/unit/LabelMenu_v.test.setup.jsx**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 117)
-- [ ] **../../tests/vitest-setup.js**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 80)
-- [ ] **../../tests/unit/Components_v.test.setup.jsx**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 73)
-- [ ] **../../tests/node-setup.js**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 185)
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../src/site/PageFrameworkBuilder.js**
+  - *Reason:* [Nesting: 9.00, Density: 0.21, Coupling: 0.01] | Drag: 10.21 | LOC: 341/300  ⚠️ Trigger: Drag above target (1.80) with file already at 341 LOC.
 
 ---
 

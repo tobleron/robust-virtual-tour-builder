@@ -76,7 +76,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v5.2.3"
+let cacheName = "vtb-cache-v5.2.4"
 let manualAssets = [
   "/",
   "/index.html",
@@ -88,6 +88,8 @@ let manualAssets = [
   "/images/logo.png",
   "/images/logo_on_leather.png",
   "/images/og-preview.png",
+  "/images/robust_logo_new.png",
+  "/images/robust_logo_new_rounded.webp",
   "/libs/FileSaver.min.js",
   "/libs/jszip.min.js",
   "/libs/pannellum.css",
@@ -101,31 +103,14 @@ let manualAssets = [
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
 
 let hasHashedAssetName = (_pathname: string): bool =>
-  %raw(`(function(pathname){
-    return /-[a-f0-9]{6,}\.(js|css|mjs|png|jpg|jpeg|webp|svg)$/.test(pathname);
-  })(_pathname)`)
+  ServiceWorkerMainSupport.hasHashedAssetName(_pathname)
 
 let shouldCacheResponse = (_response: Response.t): bool => {
-  let cc = %raw(`(function(response){
-    const headers = response && response.headers ? response.headers : null;
-    const value = headers && typeof headers.get === "function" ? headers.get("Cache-Control") : null;
-    return value == null ? "" : String(value);
-  })(_response)`)
-  !(cc->String.includes("no-store") || cc->String.includes("private"))
+  ServiceWorkerMainSupport.shouldCacheResponse(_response)
 }
 
 let isResponseOlderThan = (_response: Response.t, _maxAgeMs: float): bool =>
-  %raw(`(function(response, maxAgeMs){
-    try {
-      const dateVal = response && response.headers ? response.headers.get("Date") : null;
-      if (!dateVal) return false;
-      const ts = Date.parse(dateVal);
-      if (!Number.isFinite(ts)) return false;
-      return (Date.now() - ts) > maxAgeMs;
-    } catch (_) {
-      return false;
-    }
-  })(_response, _maxAgeMs)`)
+  ServiceWorkerMainSupport.isResponseOlderThan(_response, _maxAgeMs)
 
 let fetchWithTimeout = (request, timeoutMs) => {
   let timeoutPromise = Promise.make((_, reject) => {
@@ -141,40 +126,35 @@ let fetchWithAdaptiveTimeout = (request: Request.t): Promise.t<Response.t> =>
   fetchWithTimeout(request, 5000)->Promise.catch(_ => fetchWithTimeout(request, 15000))
 
 let dedupeAssets = (_assets: array<string>): array<string> =>
-  %raw(`(function(assets){ return Array.from(new Set(assets)); })(assets)`)
+  ServiceWorkerMainSupport.dedupeAssets(_assets)
 
 addEventListener("install", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="INSTALL_START", ())
 
   let installPromise =
-    caches
-    ->CacheStorage.open_(cacheName)
-    ->Promise.then(async cache => {
-      Logger.info(~module_="ServiceWorker", ~message="FETCH_MANIFEST_START", ())
-      let manifestUrls = try {
-        let response = await fetchUrl("/asset-manifest.json")
-        let manifest: {"allFiles": Nullable.t<array<string>>} = await response->Response.json
-
-        let allFiles = manifest["allFiles"]
-        if allFiles->Nullable.toOption->Belt.Option.isSome {
-          allFiles
-          ->Nullable.toOption
-          ->Option.getOr([])
-          ->Array.filter(file => !(file->String.endsWith(".map")))
-        } else {
-          []
+    ServiceWorkerMainSupport.installPromise(
+      ~cacheName,
+      ~manualAssets,
+      ~openCache=name => caches->CacheStorage.open_(name),
+      ~addAll=(cache, assets) => cache->Cache.addAll(assets),
+      ~skipWaiting,
+      ~fetchManifest=() => {
+        let load = async () => {
+          let response = await fetchUrl("/asset-manifest.json")
+          let manifest: {"allFiles": Nullable.t<array<string>>} = await response->Response.json
+          let allFiles = manifest["allFiles"]
+          if allFiles->Nullable.toOption->Belt.Option.isSome {
+            allFiles
+            ->Nullable.toOption
+            ->Option.getOr([])
+            ->Array.filter(file => !(file->String.endsWith(".map")))
+          } else {
+            []
+          }
         }
-      } catch {
-      | _ => []
-      }
-
-      let allAssets = manualAssets->Array.concat(manifestUrls)
-      let uniqueAssets = dedupeAssets(allAssets)
-
-      Logger.info(~module_="ServiceWorker", ~message="CACHING_ASSETS", ~data=uniqueAssets, ())
-      await cache->Cache.addAll(uniqueAssets)
-    })
-    ->Promise.then(_ => skipWaiting())
+        load()
+      },
+    )
 
   event->ExtendableEvent.waitUntil(installPromise)
 })
@@ -183,67 +163,29 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="ACTIVATE_START", ())
 
   let activatePromise =
-    caches
-    ->CacheStorage.keys()
-    ->Promise.then(cacheNames => {
-      cacheNames
-      ->Array.filter(name => name != cacheName)
-      ->Array.map(
-        name => {
-          Logger.info(~module_="ServiceWorker", ~message="DELETE_OLD_CACHE", ~data=name, ())
-          caches->CacheStorage.delete(name)
-        },
-      )
-      ->Promise.all
-    })
-    ->Promise.then(_ =>
-      caches
-      ->CacheStorage.open_(cacheName)
-      ->Promise.then(
-        cache =>
-          cache
-          ->Cache.keys()
-          ->Promise.then(
-            requests =>
-              requests
-              ->Array.map(
-                req =>
-                  cache
-                  ->Cache.match(req)
-                  ->Promise.then(
-                    found => {
-                      switch found->Nullable.toOption {
-                      | Some(response) =>
-                        let path = URL.pathname(URL.make(req->Request.url))
-                        if (
-                          !hasHashedAssetName(path) &&
-                          isResponseOlderThan(response, runtimeStaleMaxAgeMs)
-                        ) {
-                          cache->Cache.deleteReq(req)
-                        } else {
-                          Promise.resolve(false)
-                        }
-                      | None => Promise.resolve(false)
-                      }
-                    },
-                  ),
-              )
-              ->Promise.all
-              ->Promise.then(_ => Promise.resolve()),
-          ),
-      )
+    ServiceWorkerMainSupport.activatePromise(
+      ~cacheName,
+      ~runtimeStaleMaxAgeMs,
+      ~cacheKeys=() => caches->CacheStorage.keys(),
+      ~deleteCache=name => caches->CacheStorage.delete(name),
+      ~openCache=name => caches->CacheStorage.open_(name),
+      ~cacheRequests=cache => cache->Cache.keys(),
+      ~matchRequest=(cache, req) =>
+        cache->Cache.match(req)->Promise.then(found => Promise.resolve(found->Nullable.toOption)),
+      ~deleteRequest=(cache, req) => cache->Cache.deleteReq(req),
+      ~requestUrl=req => req->Request.url,
+      ~pathnameForUrl=url => URL.pathname(URL.make(url)),
+      ~enableNavigationPreload=() =>
+        %raw(`(function(reg){
+          try {
+            if (reg && reg.navigationPreload && typeof reg.navigationPreload.enable === 'function') {
+              return reg.navigationPreload.enable();
+            }
+          } catch (_) {}
+          return Promise.resolve();
+        })(registration)`),
+      ~claimClients=() => clients->Clients.claim(),
     )
-    ->Promise.then(_ =>
-      %raw(`(function(reg){
-        try {
-          if (reg && reg.navigationPreload && typeof reg.navigationPreload.enable === 'function') {
-            return reg.navigationPreload.enable();
-          }
-        } catch (_) {}
-        return Promise.resolve();
-      })(registration)`)
-    )
-    ->Promise.then(_ => clients->Clients.claim())
 
   event->ExtendableEvent.waitUntil(activatePromise)
 })

@@ -1,0 +1,352 @@
+/* --- Persistent Room Label --- */
+.viewer-persistent-label {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6005;
+    background-color: rgba(0, 61, 165, 0.85);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    color: white;
+    padding: 0 0.5rem 0 0;
+    height: 27px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.1em;
+    gap: 0;
+    overflow: hidden;
+}
+
+.viewer-persistent-label-seq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: 32px;
+    padding: 0 0.32rem;
+    margin-right: 0.38rem;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: #0a2a66;
+    color: #ffffff;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: none;
+}
+
+.viewer-persistent-label-name {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 0.1rem;
+    line-height: 1;
+    letter-spacing: 0.08em;
+}
+
+.viewer-persistent-label.state-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    visibility: visible;
+}
+
+#viewer-marketing-banner {
+    position: absolute;
+    bottom: 0;
+    width: fit-content;
+    max-width: min(84%, 920px);
+    min-height: 27px;
+    align-items: stretch;
+    color: #000;
+    overflow: visible;
+    z-index: 5003;
+}
+
+.viewer-marketing-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 9px 3px 9px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 600;
+    color: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.viewer-marketing-chip-rent {
+    background: #0e2d52;
+}
+
+.viewer-marketing-chip-sale {
+    background: var(--danger);
+}
+
+.viewer-marketing-chip-left {
+    border-top-left-radius: 8px;
+}
+
+.viewer-marketing-chip-left-only {
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.viewer-marketing-text-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    padding: 4px 15px 3px 15px;
+    border-top-right-radius: 8px;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.2);
+}
+
+.viewer-marketing-text-wrap-left {
+    border-top-left-radius: 8px;
+}
+
+.viewer-marketing-text-wrap::after {
+    content: "";
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    bottom: -3px;
+    height: 7px;
+    background: var(--accent);
+    border-bottom-left-radius: 999px;
+    border-bottom-right-radius: 999px;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.viewer-marketing-banner-text {
+    font-family: "Open Sans", var(--font-ui);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    word-break: break-word;
+}
+
+body.viewer-state-tablet #viewer-marketing-banner,
+body.viewer-state-2k #viewer-marketing-banner,
+body.viewer-force-fallback #viewer-marketing-banner {
+    min-height: 29px;
+}
+
+body.viewer-state-tablet .viewer-marketing-banner-text,
+body.viewer-state-2k .viewer-marketing-banner-text,
+body.viewer-force-fallback .viewer-marketing-banner-text {
+    font-size: 13px;
+}
+
+body.viewer-state-tablet .viewer-marketing-chip,
+body.viewer-state-2k .viewer-marketing-chip,
+body.viewer-force-fallback .viewer-marketing-chip {
+    font-size: 13px;
+    padding: 5px 9px 4px 9px;
+}
+
+body.viewer-state-tablet .viewer-marketing-text-wrap,
+body.viewer-state-2k .viewer-marketing-text-wrap,
+body.viewer-force-fallback .viewer-marketing-text-wrap {
+    padding: 5px 16px 4px 16px;
+}
+
+body.viewer-state-portrait #viewer-marketing-banner {
+    max-width: calc(100% - 118px);
+    left: 52%;
+    min-height: 27px;
+    z-index: 5001;
+}
+
+body.viewer-state-portrait .viewer-marketing-text-wrap {
+    padding: 3px 9px;
+}
+
+body.viewer-state-portrait .viewer-marketing-text-wrap::after {
+    left: 15%;
+    right: 15%;
+    bottom: -4px;
+    height: 8px;
+}
+
+body.viewer-state-portrait .viewer-marketing-banner-text {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+body.viewer-state-portrait .viewer-marketing-chip {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 8px;
+}
+
+.viewer-persistent-label.state-hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1rem) scale(0.9);
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Tablet + portrait controls */
+body.viewer-state-tablet #viewer-utility-bar,
+body.viewer-state-2k #viewer-utility-bar,
+body.viewer-state-portrait #viewer-utility-bar,
+body.viewer-force-fallback #viewer-utility-bar {
+    top: 10px !important;
+    left: 20px !important;
+    gap: 8px !important;
+}
+
+body.viewer-state-tablet #viewer-utility-bar button,
+body.viewer-state-2k #viewer-utility-bar button,
+body.viewer-state-portrait #viewer-utility-bar button,
+body.viewer-force-fallback #viewer-utility-bar button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+}
+
+body.viewer-state-tablet #viewer-utility-bar button svg,
+body.viewer-state-2k #viewer-utility-bar button svg,
+body.viewer-state-portrait #viewer-utility-bar button svg,
+body.viewer-force-fallback #viewer-utility-bar button svg {
+    width: 58% !important;
+    height: 58% !important;
+}
+
+body.viewer-state-tablet #viewer-floor-nav button,
+body.viewer-state-2k #viewer-floor-nav button,
+body.viewer-state-portrait #viewer-floor-nav button,
+body.viewer-force-fallback #viewer-floor-nav button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    font-size: 9.36px !important;
+}
+
+body.viewer-state-tablet #viewer-floor-nav button sup,
+body.viewer-state-2k #viewer-floor-nav button sup,
+body.viewer-state-portrait #viewer-floor-nav button sup,
+body.viewer-force-fallback #viewer-floor-nav button sup {
+    font-size: 5.8px !important;
+}
+
+body.viewer-state-tablet #viewer-floor-nav button .floor-combo .floor-suffix,
+body.viewer-state-2k #viewer-floor-nav button .floor-combo .floor-suffix,
+body.viewer-state-portrait #viewer-floor-nav button .floor-combo .floor-suffix,
+body.viewer-force-fallback #viewer-floor-nav button .floor-combo .floor-suffix {
+    top: -0.40em;
+    right: -0.46em;
+    font-size: 0.52em !important;
+}
+
+body.viewer-state-tablet .viewer-persistent-label,
+body.viewer-state-2k .viewer-persistent-label,
+body.viewer-state-portrait .viewer-persistent-label,
+body.viewer-force-fallback .viewer-persistent-label {
+    top: 10px !important;
+    height: 22px !important;
+    font-size: 9px !important;
+    padding: 0 0.35rem !important;
+    border-radius: 5px !important;
+    letter-spacing: 0.06em !important;
+}
+
+body.viewer-state-tablet #viewer-logo,
+body.viewer-state-2k #viewer-logo,
+body.viewer-state-portrait #viewer-logo,
+body.viewer-force-fallback #viewer-logo {
+    width: 98px !important;
+    height: 52px !important;
+    bottom: 10px !important;
+    right: 10px !important;
+    padding: 4px !important;
+    border-radius: 6px !important;
+}
+
+body.viewer-state-tablet #viewer-logo svg,
+body.viewer-state-2k #viewer-logo svg,
+body.viewer-state-portrait #viewer-logo svg,
+body.viewer-force-fallback #viewer-logo svg {
+    width: 15px !important;
+    height: 15px !important;
+}
+
+/* Safety fallback before state classes are attached */
+@media (max-width: 720px),
+(max-height: 620px) {
+    #viewer-utility-bar {
+        top: 10px !important;
+        left: 20px !important;
+        gap: 8px !important;
+    }
+
+    #viewer-utility-bar button {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+
+    #viewer-utility-bar button svg {
+        width: 58% !important;
+        height: 58% !important;
+    }
+
+    #viewer-floor-nav button {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        font-size: 9.36px !important;
+    }
+
+    #viewer-floor-nav button sup {
+        font-size: 5.8px !important;
+    }
+
+    #viewer-floor-nav button .floor-combo .floor-suffix {
+        top: -0.40em;
+        right: -0.46em;
+        font-size: 0.52em !important;
+    }
+
+    .viewer-persistent-label {
+        top: 10px !important;
+        height: 22px !important;
+        font-size: 9px !important;
+        padding: 0 0.35rem !important;
+        border-radius: 5px !important;
+        letter-spacing: 0.06em !important;
+    }
+
+    #viewer-logo {
+        width: 98px !important;
+        height: 52px !important;
+        bottom: 10px !important;
+        right: 10px !important;
+        padding: 4px !important;
+        border-radius: 6px !important;
+    }
+}

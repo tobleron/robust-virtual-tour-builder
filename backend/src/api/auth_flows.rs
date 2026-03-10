@@ -1,0 +1,67 @@
+#[path = "auth_flows_account.rs"]
+mod auth_flows_account;
+#[path = "auth_flows_password.rs"]
+mod auth_flows_password;
+#[path = "auth_flows_session.rs"]
+mod auth_flows_session;
+
+use actix_web::{web, HttpRequest, HttpResponse};
+use sqlx::SqlitePool;
+
+use crate::models::AppError;
+
+use super::{
+    ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload, SignInPayload,
+    SignUpPayload, VerifyEmailPayload,
+};
+
+pub(super) async fn signup(
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<SignUpPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_account::signup(pool, payload).await
+}
+
+pub(super) async fn resend_verification_email(
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ResendVerificationPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_account::resend_verification_email(pool, payload).await
+}
+
+pub(super) async fn verify_email(
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<VerifyEmailPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_account::verify_email(pool, payload).await
+}
+
+pub(super) async fn signin(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<SignInPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_session::signin(req, pool, payload).await
+}
+
+pub(super) fn signout() -> Result<HttpResponse, AppError> {
+    auth_flows_session::signout()
+}
+
+pub(super) fn me(req: HttpRequest) -> Result<HttpResponse, AppError> {
+    auth_flows_session::me(req)
+}
+
+pub(super) async fn forgot_password(
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ForgotPasswordPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_password::forgot_password(pool, payload).await
+}
+
+pub(super) async fn reset_password(
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ResetPasswordPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_password::reset_password(pool, payload).await
+}

@@ -4,6 +4,12 @@
 
 echo "🔍 Starting Pre-Push Sanitization..."
 
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$CURRENT_BRANCH" = "main" ]; then
+    ./scripts/guard-main-release.sh "$CURRENT_BRANCH"
+fi
+
 # 1. Check for Large Files (>1MB)
 echo "📦 Checking for large binaries..."
 MAX_SIZE_BYTES=$((1024 * 1024))

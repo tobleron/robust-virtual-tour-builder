@@ -7,6 +7,7 @@
 ├── [public/](public/) – Static assets and web app manifest files.
 ├── [css/](css/) – Tailwind and style assets.
 ├── [tests/](tests/) – Vitest and Playwright tests.
+├── [cypress/](cypress/) – Cypress test assets and specs.
 ├── [docs/](docs/) – Documentation and runbooks.
 ├── [scripts/](scripts/) – Build/test/dev automation.
 ├── [tasks/](tasks/) – Task workflow files.
@@ -47,9 +48,12 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/systems/Exporter.res](src/systems/Exporter.res): Export assembly and delivery orchestration. `#export` `#orchestrator`
 * [src/systems/Simulation.res](src/systems/Simulation.res): Autopilot simulation orchestration. `#simulation`
 * [src/systems/SimulationLogic.res](src/systems/SimulationLogic.res): Main simulation orchestration logic for generated movement paths. `#simulation` `#orchestrator`
+* [src/systems/SimulationDriverRuntimeSupport.res](src/systems/SimulationDriverRuntimeSupport.res): Simulation driver helper routines for transition planning and runtime advancement support. `#simulation` `#service`
 * [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Teaser session orchestration entry. `#teaser` `#orchestrator`
 * [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Teaser logic façade coordinating playback/render submodules. `#teaser`
+* [src/systems/TeaserHeadlessLogicSupport.res](src/systems/TeaserHeadlessLogicSupport.res): Headless teaser capture helper routines for viewer sizing, branding assets, and export runtime setup. `#teaser` `#service`
 * [src/systems/TourTemplates.res](src/systems/TourTemplates.res): Exported tour script/style orchestration. `#templates` `#orchestrator`
+* [src/site/PageFramework.js](src/site/PageFramework.js): Static site/dashboard page orchestration entry. `#site` `#orchestrator`
 * [src/systems/Api.res](src/systems/Api.res): API façade entrypoint for backend calls. `#api` `#facade`
 * [src/systems/ApiLogic.res](src/systems/ApiLogic.res): API orchestration logic and transport routing. `#api` `#orchestrator`
 * [src/systems/EventBus.res](src/systems/EventBus.res): Cross-system event orchestration channel. `#events`
@@ -71,9 +75,20 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/ReBindings.res](src/ReBindings.res): External bindings façade. `#bindings`
 * [src/core/JsonParsers.res](src/core/JsonParsers.res): JSON decode/encode façade boundary. `#json`
 * [src/utils/Logger.res](src/utils/Logger.res): Logging façade boundary. `#telemetry`
+* [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Logger entry construction and buffer management helpers. `#telemetry` `#service`
+* [src/utils/LoggerPerf.res](src/utils/LoggerPerf.res): Logger performance timing and threshold helpers. `#telemetry` `#service`
+* [src/utils/LoggerDiagnostics.res](src/utils/LoggerDiagnostics.res): Logger diagnostics and global observer helpers. `#telemetry` `#service`
+* [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): Adaptive/weighted async queue facade. `#concurrency` `#facade`
+* [src/utils/AsyncQueueRuntime.res](src/utils/AsyncQueueRuntime.res): Async queue runtime orchestration bridge. `#concurrency` `#service`
+* [src/utils/AsyncQueueAdaptiveRuntime.res](src/utils/AsyncQueueAdaptiveRuntime.res): Adaptive concurrency executor internals. `#concurrency` `#service`
+* [src/utils/AsyncQueueWeightedRuntime.res](src/utils/AsyncQueueWeightedRuntime.res): Weighted concurrency executor internals. `#concurrency` `#service`
 * [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Persistence orchestration boundary. `#persistence`
 * [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Durable operation journal boundary. `#recovery`
 * [src/utils/RecoveryManager.res](src/utils/RecoveryManager.res): Recovery orchestration boundary. `#recovery`
+* [src/ServiceWorkerMain.res](src/ServiceWorkerMain.res): Service worker install/activate/fetch runtime entry. `#service-worker` `#orchestrator`
+* [src/ServiceWorkerMainSupport.res](src/ServiceWorkerMainSupport.res): Service worker cache/install/activate helper routines. `#service-worker` `#service`
+* [src/systems/Scene/SceneLoaderSupport.res](src/systems/Scene/SceneLoaderSupport.res): Scene loader helper routines for reusable and fresh viewer setup. `#scene` `#service`
+* [src/systems/Scene/SceneTransitionSupport.res](src/systems/Scene/SceneTransitionSupport.res): Scene swap synchronization and DOM transition helpers. `#scene` `#service`
 
 ## ⚙️ Backend API Orchestrators
 * [backend/src/api/mod.rs](backend/src/api/mod.rs): API router composition root. `#api` `#orchestrator`
@@ -89,6 +104,11 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Telemetry ingest endpoint. `#api` `#telemetry`
 * [backend/src/api/health.rs](backend/src/api/health.rs): Healthcheck/diagnostics endpoints. `#api` `#health`
 
+## 🔐 Backend Auth Boundaries
+* [backend/src/auth.rs](backend/src/auth.rs): JWT and request-auth middleware façade. `#auth` `#orchestrator`
+* [backend/src/auth_handlers.rs](backend/src/auth_handlers.rs): OAuth/JWT handler helpers for login redirects and token issuance. `#auth` `#service`
+* [backend/src/auth_requests.rs](backend/src/auth_requests.rs): Request-authentication and user attachment helpers for middleware flows. `#auth` `#service`
+
 ## 🛡️ Backend Service Orchestrators
 * [backend/src/services/mod.rs](backend/src/services/mod.rs): Service layer composition root. `#services` `#orchestrator`
 * [backend/src/services/project/mod.rs](backend/src/services/project/mod.rs): Project service orchestration root. `#project` `#orchestrator`
@@ -96,7 +116,10 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/services/project/import_session.rs](backend/src/services/project/import_session.rs): Import session/chunk assembly orchestration utilities. `#project` `#upload`
 * [backend/src/services/project/load.rs](backend/src/services/project/load.rs): Project load orchestration. `#project`
 * [backend/src/services/project/package.rs](backend/src/services/project/package.rs): Export packaging orchestration. `#project` `#export`
+* [backend/src/services/project/package_assets.rs](backend/src/services/project/package_assets.rs): Export asset collection and resolution packaging helpers. `#project` `#export`
+* [backend/src/services/project/package_output.rs](backend/src/services/project/package_output.rs): Export ZIP output writer helpers. `#project` `#export`
 * [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Project validation orchestration. `#project` `#validation`
+* [backend/src/services/project/export_upload_runtime_session.rs](backend/src/services/project/export_upload_runtime_session.rs): Export upload session assembly and lifecycle helpers. `#project` `#upload`
 * [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Media services façade root. `#media` `#facade`
 * [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Geocoding service façade root. `#geocoding` `#facade`
 * [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Pathfinding orchestration entry. `#pathfinding` `#orchestrator`
@@ -107,4 +130,4 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [tests/e2e/](tests/e2e/): End-to-end Playwright suites. `#tests`
 
 ## 🆕 Unmapped Modules
-*(None currently - all tracked orchestrator modules are classified.)*
+* None currently.

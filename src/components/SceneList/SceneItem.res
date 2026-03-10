@@ -4,17 +4,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module Logic = {
   let getThumbUrl = (scene: Types.scene) => {
-    switch scene.tinyFile {
-    | Some(Blob(_) as tiny) | Some(File(_) as tiny) =>
-      let url = SceneCache.getThumbUrl(scene.id ++ "_tiny", tiny)
-      if url == "" {
-        SceneCache.getThumbUrl(scene.id, scene.file)
-      } else {
-        url
-      }
-    | None => SceneCache.getThumbUrl(scene.id, scene.file)
-    | Some(Url(_)) => SceneCache.getThumbUrl(scene.id, scene.file)
-    }
+    SceneItemDisplay.getThumbUrl(scene)
   }
 }
 
@@ -43,138 +33,24 @@ let make = React.memo((
     None
   })
 
-  let sceneItemRef = React.useRef(Nullable.null)
-
-  React.useEffect1(() => {
-    switch Nullable.toOption(sceneItemRef.current) {
-    | Some(el) => ReBindings.Dom.setAttribute(el, "data-scene-id", scene.id)
-    | None => ()
-    }
-    None
-  }, [scene.id])
-
-  let sceneItemRef = React.useRef(Nullable.null)
-
-  React.useEffect0(() => {
-    switch Nullable.toOption(sceneItemRef.current) {
-    | Some(el) => ReBindings.Dom.setAttribute(el, "data-scene-id", scene.id)
-    | None => ()
-    }
-    None
-  })
+  let sceneItemRef = SceneItemHooks.useSceneItemRef(scene.id)
 
   let thumbUrl = React.useMemo1(() => Logic.getThumbUrl(scene), [scene])
+  let displayInfo = React.useMemo1(() => SceneItemDisplay.describe(scene), [scene])
+  let (
+    isMenuOpen,
+    setMenuOpen,
+    flickerState,
+    handleClearClick,
+    handleDeleteClick,
+    throttleClasses,
+    isBusy,
+  ) = SceneItemHooks.useMenuFeedback(~wasThrottled, ~index, ~onItemClearLinks, ~onItemDelete)
 
-  let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
-  let (flickerState, setFlickerState) = React.useState(_ => #None)
-  React.useEffect1(() => {
-    if wasThrottled {
-      setFlickerState(_ => #Throttled)
-      let timeoutId = ReBindings.Window.setTimeout(
-        () => {
-          setFlickerState(_ => #None)
-        },
-        600,
-      )
-      Some(
-        () => {
-          ReBindings.Window.clearTimeout(timeoutId)
-        },
-      )
-    } else {
-      None
-    }
-  }, [wasThrottled])
-
-  let handleClearClick = e => {
-    JsxEvent.Mouse.preventDefault(e)
-    JsxEvent.Mouse.stopPropagation(e)
-    setFlickerState(_ => #Clear)
-    let _ = ReBindings.Window.setTimeout(() => {
-      setFlickerState(_ => #None)
-      setMenuOpen(_ => false)
-      onItemClearLinks(index)
-    }, 800)
-  }
-
-  let handleDeleteClick = e => {
-    JsxEvent.Mouse.preventDefault(e)
-    JsxEvent.Mouse.stopPropagation(e)
-    setFlickerState(_ => #Delete)
-    let _ = ReBindings.Window.setTimeout(() => {
-      setFlickerState(_ => #None)
-      setMenuOpen(_ => false)
-      onItemDelete(index)
-    }, 800)
-  }
-
-  let activeClasses = if isActive {
-    "active border-slate-200 ring-0 bg-slate-50/50"
-  } else {
-    "border-slate-100 hover:border-slate-200 bg-white"
-  }
-
-  let qualityScore = switch scene.quality {
-  | Some(q) =>
-    switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
-    | Ok(qObj) => qObj.score
-    | Error(_) => 10.0
-    }
-  | None => 10.0
-  }
-  let isLowQuality = qualityScore < 6.5
-  let qualityColor = if isLowQuality {
-    "bg-danger"
-  } else {
-    "bg-success"
-  }
-  let progressPercent = {
-    let raw = qualityScore *. 10.0
-    if raw < 0.0 {
-      0.0
-    } else if raw > 100.0 {
-      100.0
-    } else {
-      raw
-    }
-  }
-
-  let throttleClasses = switch flickerState {
-  | #Throttled => "ring-2 ring-primary/40 opacity-80 cursor-wait"
-  | _ => ""
-  }
-  let lockClasses = if interactionLocked {
-    "opacity-80 pointer-events-none"
-  } else {
-    ""
-  }
-  let isBusy = flickerState == #Throttled
-  let fallbackSceneFileName = switch scene.file {
-  | Url(url) => UrlUtils.getFileNameFromUrl(url)
-  | _ => ""
-  }
-
-  let tooltipNameCandidate = switch scene.originalFile {
-  | Some(File(f)) => BrowserBindings.File.name(f)
-  | Some(Url(url)) =>
-    let name = UrlUtils.getFileNameFromUrl(url)
-    if name != "" {
-      name
-    } else {
-      fallbackSceneFileName
-    }
-  | _ => fallbackSceneFileName
-  }
-
-  let tooltipName = if tooltipNameCandidate == "" {
-    if fallbackSceneFileName == "" {
-      scene.name
-    } else {
-      fallbackSceneFileName
-    }
-  } else {
-    tooltipNameCandidate
-  }
+  let activeClasses = isActive
+    ? "active border-slate-200 ring-0 bg-slate-50/50"
+    : "border-slate-100 hover:border-slate-200 bg-white"
+  let lockClasses = interactionLocked ? "opacity-80 pointer-events-none" : ""
 
   <div
     key={scene.id}
@@ -233,7 +109,7 @@ let make = React.memo((
       </div>
     </div>
 
-    <Tooltip content={tooltipName} delayDuration=Constants.tooltipDelayDuration>
+    <Tooltip content={displayInfo.tooltipName} delayDuration=Constants.tooltipDelayDuration>
       <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between gap-2 overflow-hidden">
           <h4
@@ -262,50 +138,15 @@ let make = React.memo((
         <div className="flex items-center gap-2 mt-1">
           /* Format & Technical Meta */
           {
-            let (format, size) = switch scene.file {
-            | Url(url) =>
-              let cleanUrl = UrlUtils.stripQueryAndFragment(url)
-              let pieces = cleanUrl->String.split(".")
-              let ext = pieces->Belt.Array.get(Belt.Array.length(pieces) - 1)->Option.getOr("JPG")
-              (ext->String.toUpperCase, 0.0)
-            | Blob(b) =>
-              let mime = BrowserBindings.Blob.type_(b)
-              let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
-              (ext->String.toUpperCase, BrowserBindings.Blob.size(b))
-            | File(f) =>
-              let mime = BrowserBindings.File.type_(f)
-              let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
-              (ext->String.toUpperCase, BrowserBindings.File.size(f))
-            }
-
-            let (badgeColor, formatLabel) = switch format {
-            | "WEBP" => ("text-orange-600 bg-orange-50", "WEBP")
-            | "PNG" => ("text-indigo-600 bg-indigo-50", "PNG")
-            | "JPEG" | "JPG" => ("text-blue-600 bg-blue-50", "JPG")
-            | f => ("text-slate-600 bg-slate-50", f)
-            }
-
-            let formattedSize = if size > 0.0 {
-              let mb = size /. (1024.0 *. 1024.0)
-              if mb >= 1.0 {
-                Float.toFixed(mb, ~digits=1) ++ "MB"
-              } else {
-                let kb = size /. 1024.0
-                Float.toFixed(kb, ~digits=0) ++ "KB"
-              }
-            } else {
-              ""
-            }
-
             <div className="flex items-center gap-1.5 shrink-0">
               <span
-                className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${badgeColor}`}
+                className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${displayInfo.fileMeta.badgeColor}`}
               >
-                {React.string(formatLabel)}
+                {React.string(displayInfo.fileMeta.formatLabel)}
               </span>
-              {if formattedSize != "" {
+              {if displayInfo.fileMeta.formattedSize != "" {
                 <span className="text-[9px] font-medium text-slate-400">
-                  {React.string(formattedSize)}
+                  {React.string(displayInfo.fileMeta.formattedSize)}
                 </span>
               } else {
                 React.null
@@ -317,24 +158,24 @@ let make = React.memo((
           <div className="flex-1 relative">
             <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
-                style={makeStyle({"width": Float.toString(progressPercent) ++ "%"})}
+                className={`h-full transition-all duration-1000 ease-out rounded-full ${displayInfo.quality.colorClass}`}
+                style={makeStyle({"width": Float.toString(displayInfo.quality.progressPercent) ++ "%"})}
               />
             </div>
             <span
               className={`absolute -top-4 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-none ${if (
-                  isLowQuality
+                  displayInfo.quality.isLowQuality
                 ) {
                   "text-danger"
                 } else {
                   "text-slate-400"
                 }}`}
               style={makeStyle({
-                "left": Float.toString(progressPercent) ++ "%",
+                "left": Float.toString(displayInfo.quality.progressPercent) ++ "%",
                 "transform": "translateX(-50%)",
               })}
             >
-              {React.string(Float.toFixed(qualityScore, ~digits=1))}
+              {React.string(Float.toFixed(displayInfo.quality.score, ~digits=1))}
             </span>
           </div>
         </div>

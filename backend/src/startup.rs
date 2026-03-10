@@ -298,6 +298,7 @@ pub fn validate_auth_config() -> io::Result<()> {
                 "JWT_SECRET must be set in production",
             ));
         }
+
     }
     Ok(())
 }

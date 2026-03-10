@@ -3,6 +3,7 @@ external exportTourLazy: (
   array<Types.scene>,
   string,
   option<Types.file>,
+  bool,
   option<JSON.t>,
   BrowserBindings.AbortSignal.t,
   option<(float, float, string) => unit>,
@@ -13,6 +14,7 @@ external exportTourLazy: (
 @module("./FeatureLoaders.js")
 external startTeaserLazy: (
   string,
+  option<string>,
   option<string>,
   unit => Types.state,
   Actions.action => unit,

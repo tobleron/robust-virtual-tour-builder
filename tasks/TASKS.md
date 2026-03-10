@@ -7,6 +7,7 @@
 - **Sequence Basis**: The sequence number must be the next available number based on the highest existing number across `completed/`, `pending/`, `postponed/`, `postponed/tests/`, and `active/` folders.
 - **Format**: Use three-digit padding where possible (or two if consistent with history) to ensure proper sorting.
 - **Test Tasks**: (⚠️ SUSPENDED) Automated test task generation is disabled during heavy refactoring.
+- **Deferred Test Review Rule**: For iterative code changes, create or reuse a single pending task for deferred unit-test review and keep appending affected modules/files there instead of generating repeated follow-up test tasks.
 - **Detail Requirement**: Every task MUST be self-documenting. Provide enough technical detail, context, and clear objective so that a rename (e.g., `_DONE`) is sufficient to signify completion without a separate report.
 
 ### Dev-System Tasks (Prefixed with D: D001, D002, etc.) ⚙️

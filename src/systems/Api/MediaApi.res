@@ -17,113 +17,46 @@ let sleepMs = (delayMs: int): Promise.t<unit> =>
   })
 
 let clamp = (~value: float, ~minValue: float, ~maxValue: float) =>
-  if value < minValue {
-    minValue
-  } else if value > maxValue {
-    maxValue
-  } else {
-    value
-  }
+  MediaApiProcessFull.clamp(~value, ~minValue, ~maxValue)
 
-let updateSpacing = (~nextSpacingMs: float, ~reason: string) => {
-  let bounded = clamp(
-    ~value=nextSpacingMs,
-    ~minValue=Constants.Media.processFullSpacingMinMs,
-    ~maxValue=Constants.Media.processFullSpacingMaxMs,
+let updateSpacing = (~nextSpacingMs: float, ~reason: string) =>
+  MediaApiProcessFull.updateSpacing(
+    ~nextSpacingMs,
+    ~reason,
+    ~spacingRef=processFullDynamicSpacingMs,
+    ~latencyRef=processFullLatencyEmaMs,
   )
-  let previous = processFullDynamicSpacingMs.contents
-  if bounded != previous {
-    processFullDynamicSpacingMs := bounded
-    Logger.info(
-      ~module_="MediaApi",
-      ~message="PROCESS_FULL_AUTOTUNE_SPACING_UPDATED",
-      ~data=Some({
-        "reason": reason,
-        "fromMs": Float.toFixed(previous, ~digits=0),
-        "toMs": Float.toFixed(bounded, ~digits=0),
-        "emaLatencyMs": Float.toFixed(processFullLatencyEmaMs.contents, ~digits=0),
-      }),
-      (),
-    )
-  }
-}
 
-let updateLatencyEma = (sampleMs: float) => {
-  if processFullLatencyEmaMs.contents <= 0.0 {
-    processFullLatencyEmaMs := sampleMs
-  } else {
-    let alpha = Constants.Media.processFullLatencyEmaAlpha
-    processFullLatencyEmaMs :=
-      (1.0 -. alpha) *. processFullLatencyEmaMs.contents +. alpha *. sampleMs
-  }
-}
+let updateLatencyEma = (sampleMs: float) =>
+  MediaApiProcessFull.updateLatencyEma(~sampleMs, ~latencyRef=processFullLatencyEmaMs)
 
-let noteProcessFullSuccess = (~durationMs: float, ~attempts: int) => {
-  updateLatencyEma(durationMs)
-
-  if attempts > 1 {
-    processFullStableSuccessStreak := 0
-    updateSpacing(
-      ~nextSpacingMs=processFullDynamicSpacingMs.contents +.
-      Constants.Media.processFullSpacingStepUpMs,
-      ~reason="retry-success",
-    )
-  } else {
-    processFullStableSuccessStreak := processFullStableSuccessStreak.contents + 1
-    let reachedWindow =
-      processFullStableSuccessStreak.contents >= Constants.Media.processFullAutotuneSuccessWindow
-    if reachedWindow {
-      processFullStableSuccessStreak := 0
-      updateSpacing(
-        ~nextSpacingMs=processFullDynamicSpacingMs.contents -.
-        Constants.Media.processFullSpacingStepDownMs,
-        ~reason="stable-success-window",
-      )
-    }
-  }
-}
-
-let reserveProcessFullSlot = async () => {
-  let now = Date.now()
-  let slotAt = if processFullNextAllowedAtMs.contents > now {
-    processFullNextAllowedAtMs.contents
-  } else {
-    now
-  }
-  processFullNextAllowedAtMs := slotAt +. processFullDynamicSpacingMs.contents
-  let waitMs = slotAt -. now
-  if waitMs > 1.0 {
-    let _ = await sleepMs(Belt.Float.toInt(waitMs))
-  } else {
-    ()
-  }
-}
-
-let parseRateLimitedSeconds = (msg: string): option<int> => {
-  if String.startsWith(msg, "RateLimited: ") {
-    let parts = String.split(msg, ": ")
-    if Array.length(parts) == 2 {
-      parts[1]->Option.flatMap(Belt.Int.fromString)
-    } else {
-      None
-    }
-  } else {
-    None
-  }
-}
-
-let applyProcessFullBackoff = (seconds: int) => {
-  let resumeAt = Date.now() +. Belt.Int.toFloat(seconds * 1000)
-  if resumeAt > processFullNextAllowedAtMs.contents {
-    processFullNextAllowedAtMs := resumeAt
-  }
-  processFullStableSuccessStreak := 0
-  updateSpacing(
-    ~nextSpacingMs=processFullDynamicSpacingMs.contents +.
-    Constants.Media.processFullSpacingStepUpMs,
-    ~reason="rate-limited",
+let noteProcessFullSuccess = (~durationMs: float, ~attempts: int) =>
+  MediaApiProcessFull.noteProcessFullSuccess(
+    ~durationMs,
+    ~attempts,
+    ~spacingRef=processFullDynamicSpacingMs,
+    ~latencyRef=processFullLatencyEmaMs,
+    ~stableSuccessRef=processFullStableSuccessStreak,
   )
-}
+
+let reserveProcessFullSlot = async () =>
+  await MediaApiProcessFull.reserveProcessFullSlot(
+    ~nextAllowedAtRef=processFullNextAllowedAtMs,
+    ~spacingRef=processFullDynamicSpacingMs,
+    ~sleepMs,
+  )
+
+let parseRateLimitedSeconds = (msg: string): option<int> =>
+  MediaApiProcessFull.parseRateLimitedSeconds(msg)
+
+let applyProcessFullBackoff = (seconds: int) =>
+  MediaApiProcessFull.applyProcessFullBackoff(
+    ~seconds,
+    ~nextAllowedAtRef=processFullNextAllowedAtMs,
+    ~spacingRef=processFullDynamicSpacingMs,
+    ~latencyRef=processFullLatencyEmaMs,
+    ~stableSuccessRef=processFullStableSuccessStreak,
+  )
 
 let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => {
   RequestQueue.schedule(() => {

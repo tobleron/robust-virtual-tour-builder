@@ -4,17 +4,21 @@ description: High-level quality standards for committing code. Technical verific
 
 # Commit Workflow (Standards & Quality)
 
-All technical verifications (Linting, Formatting, Build, Tests, Versioning, and Doc-Sync) are automated. **You must use the commit script for all commits.**
+All technical verifications (Linting, Formatting, Build, Tests, Versioning, and Doc-Sync) are automated. **You must use the branch-aware commit scripts for all commits.**
 
-## 1. The Golden Rule
 ## 1. The Golden Rule
 **Command (Standard)**: `./scripts/commit.sh "prefix: Description" [target-branch] [bump-level]`
 - **Impact**: Build verification only (Tests skipped during Refactor).
 - **Bump Level**: `major` | `minor` | `patch` | `none` (default).
 
-**Command (Fast)**: `./scripts/fast-commit.sh "prefix: Description" [bump-level]`
+**Command (Fast)**: `./scripts/fast-commit.sh "prefix: Description" [target-branch] [bump-level]`
 - **Impact**: Skips build/tests. Useful for quick snapshots or non-critical progress saves.
 - **Prefixes**: `feat:`, `fix:`, `perf:`, `refactor:`, `chore:`, `docs:`, `style:`, `security:`
+
+**Removed**: `triple-commit.sh`
+- Triple-branch syncing is forbidden.
+- Promote production-safe work to `main` selectively, one branch-aware commit flow at a time.
+- `main` is protected by `./scripts/guard-main-release.sh` locally and in CI.
 
 ---
 
@@ -37,6 +41,7 @@ You must explicitly decide the Semantic Versioning update level (`x.y.z`) based 
 - Strong refactoring? -> `./scripts/commit.sh "refactor: Core logic" development minor`
 - Breaking API change? -> `./scripts/commit.sh "feat: New API" development major`
 - Simple fix? -> `./scripts/commit.sh "fix: Typo" development patch`
+- Local snapshot on `development`? -> `./scripts/fast-commit.sh "chore: checkpoint current work" development none`
 
 ---
 
@@ -58,6 +63,11 @@ Before running the commit script, perform these checks that automation cannot ca
 - [ ] **Meaningful Logs**: Verify `Logger` output is descriptive and helpful for debugging, not just "Operation started/ended."
 - [ ] **No Trace Leaks**: Ensure `Logger.trace` is disabled for production-bound code.
 
+### Branch Safety
+- [ ] **Production Boundaries**: `main` must stay free of dev-only auth/bootstrap shortcuts.
+- [ ] **Selective Promotion**: Dev-only helpers must live in isolated commits so software improvements can be promoted without them.
+- [ ] **No Mixed Commits**: Do not combine local-dev bypass code and production features in the same commit if the work may later move to `main`.
+
 ---
 
 ## 4. Automation Safeguards
@@ -65,4 +75,5 @@ The `./scripts/commit.sh` will block your commit if:
 1. **Forbidden Patterns**: It detects `console.log`, `var`, `debugger`, or `alert(`.
 2. **Build Warnings**: ReScript compiler emits *any* warnings (Strict Mode).
 3. **Tests**: (Bypassed during Refactor phase).
+4. **Main Release Guard**: If `main` contains dev-only auth/bootstrap markers, the commit/push/deploy flow is blocked.
 If the script blocks you, resolve the issue and run it again. Do not bypass the script.

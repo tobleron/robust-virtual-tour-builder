@@ -2,35 +2,10 @@
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
-@val external parseIntJs: string => float = "parseInt"
-
 module ReorderDialog = {
   @react.component
-  let make = (~currentIndex: int, ~sceneCount: int, ~sceneName: string) => {
-    <div className="reorder-scene-panel">
-      <div className="reorder-scene-current">
-        <span className="reorder-scene-current-label"> {React.string("Selected")} </span>
-        <strong className="reorder-scene-current-name"> {React.string(sceneName)} </strong>
-      </div>
-      <label
-        className="reorder-scene-label"
-        htmlFor="scene-reorder-target-select"
-      >
-        {React.string("Move scene to")}
-      </label>
-      <select
-        id="scene-reorder-target-select"
-        defaultValue={Belt.Int.toString(currentIndex)}
-        className="reorder-scene-select"
-      >
-        {Belt.Array.makeBy(sceneCount, idx => {
-          <option key={Belt.Int.toString(idx)} value={Belt.Int.toString(idx)}>
-            {React.string("Position " ++ Belt.Int.toString(idx + 1))}
-          </option>
-        })->React.array}
-      </select>
-    </div>
-  }
+  let make = (~currentIndex: int, ~sceneCount: int, ~sceneName: string) =>
+    <SceneListSupport.ReorderDialog currentIndex sceneCount sceneName />
 }
 
 @react.component
@@ -131,160 +106,19 @@ let make = React.memo(() => {
   let endIndex = Math.Int.min(Array.length(sceneSlice.scenes) - 1, endIndex)
 
   let handleSceneClick = React.useMemo3(() =>
-    index => {
-      if index == sceneSlice.activeIndex {
-        ()
-      } else if !canNavigate {
-        // LockFeedback component handles timeout notification independently
-        // No notification dispatch here to avoid redundant "System is busy" message
-        Logger.debug(
-          ~module_="SceneList",
-          ~message="SCENE_CLICK_REJECTED_LOCK_HELD",
-          ~data=Some({
-            "index": index,
-            "supervisorStatus": NavigationSupervisor.statusToString(
-              NavigationSupervisor.getStatus(),
-            ),
-          }),
-          (),
-        )
-      } else {
-        Logger.debug(
-          ~module_="SceneList",
-          ~message="SCENE_SWITCH_CLICKED",
-          ~data=Some({"index": index}),
-          (),
-        )
-
-        if uiSlice.isLinking {
-          dispatch(Actions.StopLinking)
-        }
-
-        // Get target scene and call Supervisor - it handles FSM events and navigation coordination
-        switch Belt.Array.get(sceneSlice.scenes, index) {
-        | Some(targetScene) => NavigationSupervisor.requestNavigation(targetScene.id)
-        | None => ()
-        }
-      }
-    }
+    index => SceneListSupport.handleSceneClick(~sceneSlice, ~uiSlice, ~canNavigate, ~dispatch, index)
   , (sceneSlice.activeIndex, uiSlice.isLinking, canNavigate))
 
   let handleDelete = React.useMemo1(() =>
-    index => {
-      if canMutateProject {
-        Logger.info(
-          ~module_="SceneList",
-          ~message="SCENE_DELETE_REQUESTED_WITH_UNDO",
-          ~data=Some({"index": index}),
-          (),
-        )
-        SidebarLogic.handleDeleteSceneWithUndo(index, ~getState, ~dispatch)
-      } else {
-        Logger.warn(
-          ~module_="SceneList",
-          ~message="SCENE_DELETE_REJECTED_LOCK_HELD",
-          ~data=Some({"index": index}),
-          (),
-        )
-      }
-    }
+    index => SceneListSupport.handleDelete(~canMutateProject, ~getState, ~dispatch, index)
   , [canMutateProject])
 
   let openReorderDialog = React.useMemo3(() =>
-    index => {
-      if !canMutateProject {
-        Logger.warn(
-          ~module_="SceneList",
-          ~message="SCENE_REORDER_DIALOG_REJECTED_LOCK_HELD",
-          ~data=Some({"index": index}),
-          (),
-        )
-      } else {
-        let currentPosition = index + 1
-        let sceneName =
-          switch Belt.Array.get(sceneSlice.scenes, index) {
-          | Some(scene) => TourLogic.formatDisplayLabel(scene)
-          | None => "Selected Scene"
-          }
-        EventBus.dispatch(
-          ShowModal({
-            title: "Reorder Scene",
-            description: Some("Choose a new order position."),
-            content: Some(
-              <ReorderDialog
-                currentIndex=index
-                sceneCount={Array.length(sceneSlice.scenes)}
-                sceneName
-              />
-            ),
-            buttons: [
-              {
-                label: "Confirm",
-                class_: "bg-blue-500/20 text-white hover:bg-blue-500/35",
-                onClick: () => {
-                  let selectEl = ReBindings.Dom.getElementById("scene-reorder-target-select")
-                  switch Nullable.toOption(selectEl) {
-                  | Some(el) =>
-                    let rawValue = ReBindings.Dom.getValue(el)
-                    let parsed = parseIntJs(rawValue)
-                    if !Float.isNaN(parsed) {
-                      let targetIndex = parsed->Float.toInt
-                      if targetIndex != index {
-                        Logger.info(
-                          ~module_="SceneList",
-                          ~message="SCENE_REORDER_DIALOG_CONFIRMED",
-                          ~data=Some({
-                            "from": index,
-                            "to": targetIndex,
-                            "fromPosition": currentPosition,
-                            "toPosition": targetIndex + 1,
-                          }),
-                          (),
-                        )
-                        dispatch(Actions.ReorderScenes(index, targetIndex))
-                      }
-                    }
-                  | None => ()
-                  }
-                },
-                autoClose: Some(true),
-              },
-              {
-                label: "Cancel",
-                class_: "bg-slate-100/10 text-white hover:bg-white/20",
-                onClick: () => (),
-                autoClose: Some(true),
-              },
-            ],
-            icon: Some("reorder"),
-            allowClose: Some(true),
-            onClose: None,
-            className: Some("modal-blue modal-reorder-scene"),
-          }),
-        )
-      }
-    }
+    index => SceneListSupport.openReorderDialog(~canMutateProject, ~dispatch, ~scenes=sceneSlice.scenes, index)
   , (canMutateProject, dispatch, sceneSlice.scenes))
 
   let handleClearLinks = React.useMemo1(() =>
-    index => {
-      if canMutateProject {
-        Logger.info(
-          ~module_="SceneList",
-          ~message="SCENE_CLEAR_LINKS_REQUESTED_WITH_UNDO",
-          ~data=Some({"index": index}),
-          (),
-        )
-        SidebarLogic.handleClearLinksWithUndo(index, ~getState, ~dispatch)
-      } else {
-        Logger.warn(
-          ~module_="SceneList",
-          ~message="SCENE_CLEAR_LINKS_REJECTED_LOCK_HELD",
-          ~data=Some({"index": index}),
-          (),
-        )
-      }
-    }
+    index => SceneListSupport.handleClearLinks(~canMutateProject, ~getState, ~dispatch, index)
   , [canMutateProject])
 
   let onDragStart = React.useMemo0(() =>
@@ -300,27 +134,8 @@ let make = React.memo(() => {
   )
 
   let onDrop = React.useMemo2(() =>
-    (targetIndex, e) => {
-      JsxEvent.Mouse.preventDefault(e)
-      setDraggedIndex(
-        current => {
-          switch current {
-          | Some(fromIndex) =>
-            if canMutateProject && fromIndex != targetIndex {
-              Logger.info(
-                ~module_="SceneList",
-                ~message="SCENE_REORDER",
-                ~data=Some({"from": fromIndex, "to": targetIndex}),
-                (),
-              )
-              dispatch(Actions.ReorderScenes(fromIndex, targetIndex))
-            }
-            None
-          | None => None
-          }
-        },
-      )
-    }
+    (targetIndex, e) =>
+      SceneListSupport.handleDrop(~canMutateProject, ~dispatch, ~setDraggedIndex, targetIndex, e)
   , (dispatch, canMutateProject))
 
   <div

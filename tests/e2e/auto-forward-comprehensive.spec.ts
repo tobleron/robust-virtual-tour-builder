@@ -4,9 +4,11 @@ import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
 import {
   resetClientState,
-  uploadImageAndWaitForSceneCount,
+  waitForBuilderShellReady,
   waitForNavigationStabilization,
-  loadProjectZipAndWait,
+  sceneItem,
+  createHotspotAtViewerCenter,
+  uploadImageAndWaitForSceneCount,
 } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,45 +16,42 @@ const __dirname = path.dirname(__filename);
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
 const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
-const SIM_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
-
 test.describe('Auto-Forward Comprehensive', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
     await resetClientState(page);
 
-    await page.waitForSelector('#viewer-logo', { state: 'visible', timeout: 30000 });
+    await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);
   });
 
   test('should create auto-forward link via emerald double-chevron button', async ({ page }) => {
-    test.setTimeout(90000);
+    test.setTimeout(240000);
 
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
-    await waitForNavigationStabilization(page);
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
-    await waitForNavigationStabilization(page);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 120000);
+    await waitForNavigationStabilization(page, 10000);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2, 120000);
+    await waitForNavigationStabilization(page, 10000);
 
-    const firstScene = page.locator('.scene-item').first();
+    const firstScene = sceneItem(page, 0);
     await expect(firstScene).toBeVisible({ timeout: 10000 });
     await firstScene.click();
-    await waitForNavigationStabilization(page);
+    await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
+    await waitForNavigationStabilization(page, 10000);
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      const state = window.store.getState();
+      return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
+    });
 
-    const addLinkBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
-    if (await addLinkBtn.isVisible()) {
-      await addLinkBtn.click();
-      await page.waitForTimeout(500);
-    }
-
-    await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
-
-    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
+    await createHotspotAtViewerCenter(page);
+    await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
 
     await page.selectOption('#link-target', { index: 1 });
 
-    const saveBtn = page.locator('button:has-text("Save"), button:has-text("Save Link")');
+    const saveBtn = page.getByRole('button', { name: 'Save Link' });
     await saveBtn.click();
-    await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText('Link Destination')).toBeHidden({ timeout: 10000 });
 
     // Hotspots are now in React layer, use id selector
     const hotspot = page.locator('[id^="hs-react-"]').first();
@@ -89,69 +88,91 @@ test.describe('Auto-Forward Comprehensive', () => {
   });
 
   test('should navigate auto-forward chain during simulation with waypoint animation', async ({ page }) => {
-    test.setTimeout(120000);
+    test.setTimeout(300000);
 
-    await loadProjectZipAndWait(page, SIM_ZIP_PATH, 60000);
-    await expect(page.locator('.scene-item').first()).toBeVisible({ timeout: 20000 });
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 120000);
+    await waitForNavigationStabilization(page, 10000);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2, 120000);
+    await waitForNavigationStabilization(page, 10000);
 
-    const simBtn = page.locator('#viewer-utility-bar button:has([class*="lucide-play"])');
-    if (await simBtn.isVisible()) {
-      await simBtn.click();
-      
-      // Verify simulation started
-      const stopBtn = page.locator('#viewer-utility-bar button:has([class*="lucide-square"])');
-      await expect(stopBtn).toBeVisible({ timeout: 5000 });
+    const firstScene = sceneItem(page, 0);
+    await expect(firstScene).toBeVisible({ timeout: 10000 });
+    await firstScene.click();
+    await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
+    await waitForNavigationStabilization(page, 10000);
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      const state = window.store.getState();
+      return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
+    });
 
-      // First scene: camera should pan to waypoint start
-      // Arrow travels along waypoint, blinks red at end
-      // Then auto crossfade to next scene
-      
-      const initialScene = await page.evaluate(() => {
+    await createHotspotAtViewerCenter(page);
+    await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
+    await page.selectOption('#link-target', { index: 1 });
+    await page.getByRole('button', { name: 'Save Link' }).click();
+    await expect(page.getByText('Link Destination')).toBeHidden({ timeout: 10000 });
+
+    const hotspot = page.locator('[id^="hs-react-"]').first();
+    await expect(hotspot).toBeVisible({ timeout: 15000 });
+    await hotspot.hover();
+    await page.waitForTimeout(1000);
+
+    const autoForwardBtn = page.locator(
+      'button[title="Toggle Auto-Forward"], button[id$="-auto-forward-toggle"], button:has-text("Auto-Forward"), button[title*="Auto-Forward"]',
+    );
+    await expect(autoForwardBtn.first()).toBeVisible({ timeout: 10000 });
+    await autoForwardBtn.first().click();
+    await page.waitForTimeout(500);
+
+    const simBtn = page.locator('#viewer-utility-bar button[aria-label="Tour Preview"]');
+    await expect(simBtn).toBeVisible({ timeout: 10000 });
+    await simBtn.click();
+
+    const stopBtn = page.locator('#viewer-utility-bar button[aria-label="Stop Tour Preview"]');
+    await expect(stopBtn).toBeVisible({ timeout: 10000 });
+
+    const initialScene = await page.evaluate(() => {
+      // @ts-ignore
+      return window.store.getState()?.activeIndex || 0;
+    });
+
+    await expect(async () => {
+      const currentScene = await page.evaluate(() => {
         // @ts-ignore
         return window.store.getState()?.activeIndex || 0;
       });
+      expect(currentScene).not.toBe(initialScene);
+    }).toPass({ timeout: 30000 });
 
-      // Wait for scene change (auto-navigation)
-      await expect(async () => {
-        const currentScene = await page.evaluate(() => {
-          // @ts-ignore
-          return window.store.getState()?.activeIndex || 0;
-        });
-        expect(currentScene).not.toBe(initialScene);
-      }).toPass({ timeout: 30000 });
-
-      const newScene = await page.evaluate(() => {
-        // @ts-ignore
-        return window.store.getState()?.activeIndex || 0;
-      });
-
-      await stopBtn.click();
-      await expect(simBtn).toBeVisible({ timeout: 5000 });
-    } else {
-    }
+    await stopBtn.click();
+    await expect(simBtn).toBeVisible({ timeout: 10000 });
   });
 
   test('should enforce one auto-forward per scene with toast validation', async ({ page }) => {
-    test.setTimeout(90000);
+    test.setTimeout(240000);
 
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
-    await waitForNavigationStabilization(page);
-    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
-    await waitForNavigationStabilization(page);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 120000);
+    await waitForNavigationStabilization(page, 10000);
+    await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2, 120000);
+    await waitForNavigationStabilization(page, 10000);
 
-    const firstScene = page.locator('.scene-item').first();
+    const firstScene = sceneItem(page, 0);
     await firstScene.click();
-    await waitForNavigationStabilization(page);
+    await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
+    await waitForNavigationStabilization(page, 10000);
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      const state = window.store.getState();
+      return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
+    });
 
-    const addLinkBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
-    await addLinkBtn.click();
-    await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
+    await createHotspotAtViewerCenter(page);
     
-    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
     await page.selectOption('#link-target', { index: 1 });
     
     // Save as simple link first
-    const saveBtn = page.locator('button:has-text("Save")');
+    const saveBtn = page.getByRole('button', { name: 'Save Link' });
     await saveBtn.click();
     await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
 
@@ -167,10 +188,9 @@ test.describe('Auto-Forward Comprehensive', () => {
       }
     }
 
-    await addLinkBtn.click();
-    await page.locator('#viewer-stage').click({ position: { x: 600, y: 300 } });
+    await createHotspotAtViewerCenter(page);
     
-    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
     await page.selectOption('#link-target', { index: 2 });
     await saveBtn.click();
 
@@ -209,21 +229,19 @@ test.describe('Auto-Forward Comprehensive', () => {
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2);
     await waitForNavigationStabilization(page);
 
-    const addLinkBtn = page.locator('#viewer-utility-bar button[aria-label="Add Link"]');
-    await addLinkBtn.click();
-    await page.locator('#viewer-stage').click({ position: { x: 400, y: 300 } });
+    await createHotspotAtViewerCenter(page);
     
-    await expect(page.locator('[role="dialog"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
     await page.selectOption('#link-target', { index: 1 });
     
-    const saveBtn = page.locator('button:has-text("Save")');
+    const saveBtn = page.getByRole('button', { name: 'Save Link' });
     await saveBtn.click();
     await expect(page.locator('[role="dialog"]')).toBeHidden({ timeout: 10000 });
 
     // Hotspots are now in React layer
     const initialHotspotCount = await page.locator('[id^="hs-react-"]').count();
 
-    const scene2 = page.locator('.scene-item').nth(1);
+    const scene2 = sceneItem(page, 1);
     if (await scene2.isVisible()) {
       // Open scene context menu or use delete button
       const sceneMenu = scene2.locator('button[aria-label*="Menu"], button[aria-label*="Delete"], .scene-options');

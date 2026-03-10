@@ -1,15 +1,6 @@
 open ReBindings
 
-/* XHR Upload Logic via Raw JS (for progress events) with Abort Support */
-let uploadAndProcessRaw: (
-  FormData.t,
-  (float, float, string) => unit,
-  string,
-  int,
-  ~signal: BrowserBindings.AbortSignal.t,
-  ~token: option<string>,
-  ~operationId: option<string>,
-) => Promise.t<Blob.t> = %raw(`
+let uploadAndProcessRaw: (FormData.t, (float, float, string) => unit, string, int, ~signal: BrowserBindings.AbortSignal.t, ~token: option<string>, ~operationId: option<string>) => Promise.t<Blob.t> = %raw(`
   function(formData, onProgress, backendUrl, timeoutMs, signal, token, operationId) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -129,37 +120,8 @@ let uploadAndProcessRaw: (
     });
   }
 `)
-
-type apiResult<'a> = result<'a, string>
-
-type exportInitResponse = {
-  uploadId: string,
-  chunkSizeBytes: int,
-  totalChunks: int,
-  expiresAtEpochMs: float,
-}
-
-type exportChunkResponse = {
-  accepted: bool,
-  nextExpectedChunk: int,
-  receivedCount: int,
-}
-
-type exportStatusResponse = {
-  receivedChunks: array<int>,
-  nextExpectedChunk: int,
-  totalChunks: int,
-  expiresAtEpochMs: float,
-}
-
-type exportCompleteResponse = {
-  staged: bool,
-  stagedUploadId: string,
-  assembledSizeBytes: int,
-}
-
+include ExporterUploadRequests
 let defaultExportChunkSizeBytes = 50 * 1024 * 1024
-
 let decodeExportInitResponse = {
   open JsonCombinators.Json.Decode
   object(field => {
@@ -169,7 +131,6 @@ let decodeExportInitResponse = {
     expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
   })
 }
-
 let decodeExportChunkResponse = {
   open JsonCombinators.Json.Decode
   object(field => {
@@ -178,7 +139,6 @@ let decodeExportChunkResponse = {
     receivedCount: field.required("receivedCount", int),
   })
 }
-
 let decodeExportStatusResponse = {
   open JsonCombinators.Json.Decode
   object(field => {
@@ -188,7 +148,6 @@ let decodeExportStatusResponse = {
     expiresAtEpochMs: field.required("expiresAtEpochMs", JsonCombinators.Json.Decode.float),
   })
 }
-
 let decodeExportCompleteResponse = {
   open JsonCombinators.Json.Decode
   object(field => {
@@ -197,210 +156,19 @@ let decodeExportCompleteResponse = {
     assembledSizeBytes: field.required("assembledSizeBytes", int),
   })
 }
-
 let blobSlice: (Blob.t, int, int) => Blob.t = %raw(`(blob, start, end) => blob.slice(start, end)`)
-
-let sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`
-  async function(blob) {
-    const ab = await blob.arrayBuffer();
-    const digest = await crypto.subtle.digest("SHA-256", ab);
-    const bytes = new Uint8Array(digest);
-    return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
-  }
-`)
-
-let isAborted = (signal: BrowserBindings.AbortSignal.t): bool =>
-  BrowserBindings.AbortSignal.aborted(signal)
-
-let requestExportInit = (
-  payloadBlob: Blob.t,
-  ~filename: string,
-  ~chunkSizeBytes: int=defaultExportChunkSizeBytes,
-  ~signal: option<BrowserBindings.AbortSignal.t>=?,
-  ~operationId: option<string>=?,
-): Promise.t<apiResult<exportInitResponse>> => {
-  let body = JsonCombinators.Json.Encode.object([
-    ("filename", JsonCombinators.Json.Encode.string(filename)),
-    ("sizeBytes", JsonCombinators.Json.Encode.int(Float.toInt(Blob.size(payloadBlob)))),
-    ("chunkSizeBytes", JsonCombinators.Json.Encode.int(chunkSizeBytes)),
-  ])
-
-  AuthenticatedClient.requestWithRetry(
-    Constants.backendUrl ++ "/api/project/export/init",
-    ~method="POST",
-    ~body=AuthenticatedClient.castBody(body),
-    ~signal?,
-    ~operationId?,
-    ~dedupeKey="export-init:" ++ filename,
-    (),
-  )->Promise.then(resultResponse =>
-    switch resultResponse {
-    | Retry.Success(response, _) =>
-      response.json()->Promise.then(json =>
-        ApiHelpers.handleJsonDecode(
-          ~module_="ExporterUpload",
-          json,
-          json => JsonCombinators.Json.decode(json, decodeExportInitResponse),
-          "EXPORT_INIT",
-          "Export session initialization failed",
-        )
-      )
-    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-    }
-  )
-}
-
-let requestExportStatus = (
-  uploadId: string,
-  ~signal: option<BrowserBindings.AbortSignal.t>=?,
-  ~operationId: option<string>=?,
-): Promise.t<apiResult<exportStatusResponse>> => {
-  AuthenticatedClient.requestWithRetry(
-    Constants.backendUrl ++ "/api/project/export/status/" ++ uploadId,
-    ~method="GET",
-    ~signal?,
-    ~operationId?,
-    (),
-  )->Promise.then(resultResponse =>
-    switch resultResponse {
-    | Retry.Success(response, _) =>
-      response.json()->Promise.then(json =>
-        ApiHelpers.handleJsonDecode(
-          ~module_="ExporterUpload",
-          json,
-          json => JsonCombinators.Json.decode(json, decodeExportStatusResponse),
-          "EXPORT_STATUS",
-          "Export session status failed",
-        )
-      )
-    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-    }
-  )
-}
-
-let requestExportChunk = (
-  payloadBlob: Blob.t,
-  ~filename: string,
-  ~uploadId: string,
-  ~chunkIndex: int,
-  ~chunkSizeBytes: int,
-  ~signal: option<BrowserBindings.AbortSignal.t>=?,
-  ~operationId: option<string>=?,
-): Promise.t<apiResult<exportChunkResponse>> => {
-  let totalSize = Float.toInt(Blob.size(payloadBlob))
-  let start = chunkIndex * chunkSizeBytes
-  let candidateEnd = start + chunkSizeBytes
-  let end_ = if candidateEnd > totalSize {
-    totalSize
-  } else {
-    candidateEnd
-  }
-
-  if start >= totalSize || end_ <= start {
-    Promise.resolve(Error("Invalid chunk index " ++ Belt.Int.toString(chunkIndex)))
-  } else {
-    let chunkBlob = blobSlice(payloadBlob, start, end_)
-    let chunkByteLength = end_ - start
-    sha256HexForBlob(chunkBlob)->Promise.then(chunkSha256 => {
-      let formData = FormData.newFormData()
-      FormData.append(formData, "uploadId", uploadId)
-      FormData.append(formData, "chunkIndex", Belt.Int.toString(chunkIndex))
-      FormData.append(formData, "chunkByteLength", Belt.Int.toString(chunkByteLength))
-      FormData.append(formData, "chunkSha256", chunkSha256)
-      FormData.appendWithFilename(
-        formData,
-        "chunk",
-        chunkBlob,
-        filename ++ ".part-" ++ Belt.Int.toString(chunkIndex),
-      )
-
-      AuthenticatedClient.requestWithRetry(
-        Constants.backendUrl ++ "/api/project/export/chunk",
-        ~method="POST",
-        ~formData,
-        ~signal?,
-        ~operationId?,
-        (),
-      )->Promise.then(resultResponse =>
-        switch resultResponse {
-        | Retry.Success(response, _) =>
-          response.json()->Promise.then(
-            json =>
-              ApiHelpers.handleJsonDecode(
-                ~module_="ExporterUpload",
-                json,
-                json => JsonCombinators.Json.decode(json, decodeExportChunkResponse),
-                "EXPORT_CHUNK",
-                "Export chunk upload failed",
-              ),
-          )
-        | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-        }
-      )
-    })
-  }
-}
-
-let requestExportComplete = (
-  payloadBlob: Blob.t,
-  ~filename: string,
-  ~uploadId: string,
-  ~totalChunks: int,
-  ~signal: option<BrowserBindings.AbortSignal.t>=?,
-  ~operationId: option<string>=?,
-): Promise.t<apiResult<exportCompleteResponse>> => {
-  let body = JsonCombinators.Json.Encode.object([
-    ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
-    ("filename", JsonCombinators.Json.Encode.string(filename)),
-    ("sizeBytes", JsonCombinators.Json.Encode.int(Float.toInt(Blob.size(payloadBlob)))),
-    ("totalChunks", JsonCombinators.Json.Encode.int(totalChunks)),
-  ])
-
-  AuthenticatedClient.requestWithRetry(
-    Constants.backendUrl ++ "/api/project/export/complete",
-    ~method="POST",
-    ~body=AuthenticatedClient.castBody(body),
-    ~signal?,
-    ~operationId?,
-    ~dedupeKey="export-complete:" ++ uploadId,
-    (),
-  )->Promise.then(resultResponse =>
-    switch resultResponse {
-    | Retry.Success(response, _) =>
-      response.json()->Promise.then(json =>
-        ApiHelpers.handleJsonDecode(
-          ~module_="ExporterUpload",
-          json,
-          json => JsonCombinators.Json.decode(json, decodeExportCompleteResponse),
-          "EXPORT_COMPLETE",
-          "Export session completion failed",
-        )
-      )
-    | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-    }
-  )
-}
-
-let requestExportAbort = (
-  uploadId: string,
-  ~signal: option<BrowserBindings.AbortSignal.t>=?,
-  ~operationId: option<string>=?,
-): Promise.t<unit> => {
-  let body = JsonCombinators.Json.Encode.object([
-    ("uploadId", JsonCombinators.Json.Encode.string(uploadId)),
-  ])
-  AuthenticatedClient.requestWithRetry(
-    Constants.backendUrl ++ "/api/project/export/abort",
-    ~method="POST",
-    ~body=AuthenticatedClient.castBody(body),
-    ~signal?,
-    ~operationId?,
-    ~dedupeKey="export-abort:" ++ uploadId,
-    (),
-  )
-  ->Promise.then(_ => Promise.resolve())
-  ->Promise.catch(_ => Promise.resolve())
-}
+let sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`async function(blob){const ab=await blob.arrayBuffer();const digest=await crypto.subtle.digest("SHA-256",ab);const bytes=new Uint8Array(digest);return Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("")}`)
+let isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)
+let requestExportInit = (payloadBlob: Blob.t, ~filename: string, ~chunkSizeBytes: int=defaultExportChunkSizeBytes, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportInitResponse>> =>
+  ExporterUploadRequests.requestExportInit(payloadBlob, ~filename, ~chunkSizeBytes, ~signal?, ~operationId?)
+let requestExportStatus = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportStatusResponse>> =>
+  ExporterUploadRequests.requestExportStatus(uploadId, ~signal?, ~operationId?)
+let requestExportChunk = (payloadBlob: Blob.t, ~filename: string, ~uploadId: string, ~chunkIndex: int, ~chunkSizeBytes: int, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportChunkResponse>> =>
+  ExporterUploadRequests.requestExportChunk(payloadBlob, ~filename, ~uploadId, ~chunkIndex, ~chunkSizeBytes, ~signal?, ~operationId?)
+let requestExportComplete = (payloadBlob: Blob.t, ~filename: string, ~uploadId: string, ~totalChunks: int, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportCompleteResponse>> =>
+  ExporterUploadRequests.requestExportComplete(payloadBlob, ~filename, ~uploadId, ~totalChunks, ~signal?, ~operationId?)
+let requestExportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<unit> =>
+  ExporterUploadRequests.requestExportAbort(uploadId, ~signal?, ~operationId?)
 
 let uploadChunkedWithResume = async (
   payloadBlob: Blob.t,
@@ -409,91 +177,15 @@ let uploadChunkedWithResume = async (
   ~signal: BrowserBindings.AbortSignal.t,
   ~operationId: option<string>=?,
 ): apiResult<exportCompleteResponse> => {
-  if isAborted(signal) {
-    Error("AbortError: Export cancelled by user")
-  } else {
-    switch await requestExportInit(payloadBlob, ~filename, ~signal, ~operationId?) {
-    | Error(msg) => Error(msg)
-    | Ok(init) =>
-      switch await requestExportStatus(init.uploadId, ~signal, ~operationId?) {
-      | Error(msg) =>
-        ignore(await requestExportAbort(init.uploadId, ~signal, ~operationId?))
-        Error(msg)
-      | Ok(status) =>
-        let totalChunks = if init.totalChunks > 0 {
-          init.totalChunks
-        } else {
-          status.totalChunks
-        }
-        let uploadedCount = ref(Belt.Array.length(status.receivedChunks))
-
-        let rec uploadLoop = async chunkIndex => {
-          if chunkIndex >= totalChunks {
-            Ok()
-          } else if isAborted(signal) {
-            ignore(await requestExportAbort(init.uploadId, ~signal, ~operationId?))
-            Error("AbortError: Export cancelled by user")
-          } else if Belt.Array.some(status.receivedChunks, idx => idx == chunkIndex) {
-            await uploadLoop(chunkIndex + 1)
-          } else {
-            switch await requestExportChunk(
-              payloadBlob,
-              ~filename,
-              ~uploadId=init.uploadId,
-              ~chunkIndex,
-              ~chunkSizeBytes=init.chunkSizeBytes,
-              ~signal,
-              ~operationId?,
-            ) {
-            | Error(msg) => Error(msg)
-            | Ok(_) =>
-              uploadedCount := uploadedCount.contents + 1
-              let pct =
-                40.0 +. 35.0 *. Int.toFloat(uploadedCount.contents) /. Int.toFloat(totalChunks)
-              onProgress(
-                pct,
-                100.0,
-                "Uploading chunks: " ++
-                Belt.Int.toString(uploadedCount.contents) ++
-                "/" ++
-                Belt.Int.toString(totalChunks),
-              )
-              await uploadLoop(chunkIndex + 1)
-            }
-          }
-        }
-
-        switch await uploadLoop(0) {
-        | Error(msg) =>
-          ignore(await requestExportAbort(init.uploadId, ~signal, ~operationId?))
-          Error(msg)
-        | Ok() =>
-          if isAborted(signal) {
-            ignore(await requestExportAbort(init.uploadId, ~signal, ~operationId?))
-            Error("AbortError: Export cancelled by user")
-          } else {
-            await requestExportComplete(
-              payloadBlob,
-              ~filename,
-              ~uploadId=init.uploadId,
-              ~totalChunks,
-              ~signal,
-              ~operationId?,
-            )
-          }
-        }
-      }
-    }
-  }
+  await ExporterUploadChunked.uploadChunkedWithResume(
+    payloadBlob,
+    ~filename,
+    onProgress,
+    ~signal,
+    ~operationId?,
+  )
 }
-
-let formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`
-  async function(formData) {
-    const response = new Response(formData);
-    return await response.blob();
-  }
-`)
-
+let formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`async function(formData){const response=new Response(formData);return await response.blob()}`)
 let uploadChunkedThenLegacy = async (
   formData: FormData.t,
   onProgress: (float, float, string) => unit,
@@ -504,40 +196,11 @@ let uploadChunkedThenLegacy = async (
   ~operationId: option<string>,
 ): Blob.t => {
   let payloadBlob = await formDataToBlob(formData)
-  let chunkFilename = "tour_package.multipart"
-  switch await uploadChunkedWithResume(
-    payloadBlob,
-    ~filename=chunkFilename,
-    onProgress,
-    ~signal,
-    ~operationId?,
-  ) {
+  switch await uploadChunkedWithResume(payloadBlob, ~filename="tour_package.multipart", onProgress, ~signal, ~operationId?) {
   | Ok(_) =>
-    // Phase C compatibility path: keep legacy package generation output unchanged.
-    await uploadAndProcessRaw(
-      formData,
-      onProgress,
-      backendUrl,
-      timeoutMs,
-      ~signal,
-      ~token,
-      ~operationId,
-    )
+    await uploadAndProcessRaw(formData, onProgress, backendUrl, timeoutMs, ~signal, ~token, ~operationId)
   | Error(msg) =>
-    Logger.warn(
-      ~module_="ExporterUpload",
-      ~message="EXPORT_CHUNKED_FALLBACK_TO_LEGACY",
-      ~data=Logger.castToJson({"error": msg}),
-      (),
-    )
-    await uploadAndProcessRaw(
-      formData,
-      onProgress,
-      backendUrl,
-      timeoutMs,
-      ~signal,
-      ~token,
-      ~operationId,
-    )
+    Logger.warn(~module_="ExporterUpload", ~message="EXPORT_CHUNKED_FALLBACK_TO_LEGACY", ~data=Logger.castToJson({"error": msg}), ())
+    await uploadAndProcessRaw(formData, onProgress, backendUrl, timeoutMs, ~signal, ~token, ~operationId)
   }
 }

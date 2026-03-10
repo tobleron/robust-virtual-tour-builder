@@ -1,5 +1,5 @@
 let script = `
-    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, postArrivalAnimationId: null, sceneId: null, arrivedSceneId: null };
     const DEFAULT_HFOV = __DEFAULT_HFOV__;
     const MIN_HFOV = __MIN_HFOV__;
     const MAX_HFOV = __MAX_HFOV__;
@@ -12,6 +12,11 @@ let script = `
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;
     const PAN_MAX_DURATION = 20000.0;
+    const AUTO_TOUR_BASE_SPEED_MULTIPLIER = 1.2;
+    const AUTO_TOUR_SPEED_UP_MULTIPLIER = 1.7;
+    const AUTO_TOUR_FORWARD_DELAY_MS = 360;
+    const AUTO_TOUR_MIN_ANIMATION_MS = 180.0;
+    const AUTO_TOUR_MIN_FORWARD_DELAY_MS = 80;
     const TRAPEZOID_FACTOR = 0.12;
     const WAYPOINT_SMOOTHING_FACTOR = 0.3;
     const SPLINE_SEGMENTS = 100;
@@ -20,7 +25,8 @@ let script = `
       if (waypointRuntime.animationId !== null) cancelAnimationFrame(waypointRuntime.animationId);
       if (waypointRuntime.readyTimeoutId !== null) clearTimeout(waypointRuntime.readyTimeoutId);
       if (waypointRuntime.autoForwardTimeoutId !== null) clearTimeout(waypointRuntime.autoForwardTimeoutId);
-      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.arrivedSceneId = null;
+      if (waypointRuntime.postArrivalAnimationId !== null) cancelAnimationFrame(waypointRuntime.postArrivalAnimationId);
+      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.postArrivalAnimationId = null; waypointRuntime.arrivedSceneId = null;
     }
     function normalizeYawDelta(fromYaw, toYaw) {
       let delta = toYaw - fromYaw;

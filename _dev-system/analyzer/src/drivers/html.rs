@@ -1,4 +1,66 @@
 use super::CommonMetrics;
+use regex::Regex;
+
+fn push_dependency(metrics: &mut CommonMetrics, dep: &str) {
+    let clean = dep.trim();
+    if clean.is_empty() {
+        return;
+    }
+
+    if !metrics
+        .dependencies
+        .iter()
+        .any(|existing| existing == clean)
+    {
+        metrics.dependencies.push(clean.to_string());
+        metrics.external_calls += 1;
+    }
+}
+
+fn collect_import_statements(content: &str) -> Vec<String> {
+    let mut statements = Vec::new();
+    let mut current: Option<String> = None;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+
+        if let Some(buffer) = current.as_mut() {
+            if !trimmed.is_empty() {
+                if !buffer.is_empty() {
+                    buffer.push(' ');
+                }
+                buffer.push_str(trimmed);
+            }
+
+            let complete = trimmed.ends_with(';')
+                || (buffer.contains(" from ")
+                    && (buffer.contains('"') || buffer.contains('\''))
+                    && (buffer.matches('"').count() >= 2 || buffer.matches('\'').count() >= 2));
+            if complete {
+                statements.push(current.take().unwrap_or_default());
+            }
+            continue;
+        }
+
+        if trimmed.starts_with("import ") && !trimmed.starts_with("import(") {
+            let complete = trimmed.ends_with(';')
+                || trimmed.starts_with("import \"")
+                || trimmed.starts_with("import '")
+                || trimmed.contains(" from ");
+            if complete {
+                statements.push(trimmed.to_string());
+            } else {
+                current = Some(trimmed.to_string());
+            }
+        }
+    }
+
+    if let Some(buffer) = current {
+        statements.push(buffer);
+    }
+
+    statements
+}
 
 pub fn analyze_html(
     content: &str,
@@ -10,42 +72,29 @@ pub fn analyze_html(
         ..Default::default()
     };
 
-    // Dependencies extraction for JS/JSX
-    for line in content.lines() {
-        let t = line.trim();
-        if t.starts_with("import ") {
-            // import ... from "..."
-            if let Some(pos) = t.find("from") {
-                let remainder = &t[pos + 4..];
-                let dep = remainder
-                    .trim()
-                    .replace(";", "")
-                    .replace("'", "")
-                    .replace("\"", "");
-                metrics.dependencies.push(dep);
-                metrics.external_calls += 1;
-            } else {
-                // Side-effect import: import "..."
-                // Format: import "path"; or import 'path';
-                let remainder = t.trim_start_matches("import ").trim();
-                let dep = remainder
-                    .replace(";", "")
-                    .replace("'", "")
-                    .replace("\"", "");
-                if !dep.is_empty() {
-                    metrics.dependencies.push(dep);
-                    metrics.external_calls += 1;
-                }
+    let import_from_re = Regex::new(r#"from\s*["']([^"']+)["']"#)?;
+    let side_effect_import_re = Regex::new(r#"^\s*import\s*["']([^"']+)["']"#)?;
+    let require_re = Regex::new(r#"require\(\s*["']([^"']+)["']\s*\)"#)?;
+
+    // Dependencies extraction for JS/JSX/HTML templates used as "web" files.
+    for statement in collect_import_statements(content) {
+        if let Some(caps) = import_from_re.captures(&statement) {
+            if let Some(dep) = caps.get(1) {
+                push_dependency(&mut metrics, dep.as_str());
             }
-        } else if t.contains("require(") {
-            let parts: Vec<&str> = t.split("require(").collect();
-            if parts.len() > 1 {
-                if let Some(end) = parts[1].find(")") {
-                    let dep = parts[1][..end].replace("'", "").replace("\"", "");
-                    metrics.dependencies.push(dep);
-                    metrics.external_calls += 1;
-                }
+            continue;
+        }
+
+        if let Some(caps) = side_effect_import_re.captures(&statement) {
+            if let Some(dep) = caps.get(1) {
+                push_dependency(&mut metrics, dep.as_str());
             }
+        }
+    }
+
+    for caps in require_re.captures_iter(content) {
+        if let Some(dep) = caps.get(1) {
+            push_dependency(&mut metrics, dep.as_str());
         }
     }
 
@@ -62,4 +111,36 @@ pub fn analyze_html(
         }
     }
     Ok(metrics)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::analyze_html;
+    use std::collections::HashMap;
+
+    #[test]
+    fn analyze_html_extracts_multiline_import_dependencies() {
+        let content = r#"
+import '../css/style.css';
+import {
+  normalizeProjectDataForBuilder,
+  renderBuilderFramework,
+  renderPageFramework,
+} from './site/PageFramework.js';
+
+const mod = require("./FeatureLoaders.js");
+"#;
+
+        let metrics = analyze_html(content, &HashMap::new()).expect("html analysis should work");
+
+        assert!(metrics
+            .dependencies
+            .contains(&"../css/style.css".to_string()));
+        assert!(metrics
+            .dependencies
+            .contains(&"./site/PageFramework.js".to_string()));
+        assert!(metrics
+            .dependencies
+            .contains(&"./FeatureLoaders.js".to_string()));
+    }
 }

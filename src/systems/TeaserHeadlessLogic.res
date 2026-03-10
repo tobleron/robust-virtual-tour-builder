@@ -18,6 +18,7 @@ let startHeadlessTeaserWithStyle = async (
   ~finalizeTeaser,
   format: string,
   ~styleId: option<string>,
+  ~panSpeedId: option<string>,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
@@ -53,6 +54,10 @@ let startHeadlessTeaserWithStyle = async (
           styleId
           ->Option.map(raw => StyleCatalog.fromString(raw))
           ->Option.getOr(StyleCatalog.defaultStyle)
+        let selectedPanSpeed = switch selectedStyle {
+        | Cinematic => TeaserStyleConfig.resolvePanSpeedOption(panSpeedId)
+        | _ => TeaserStyleConfig.defaultPanSpeed
+        }
         if !StyleCatalog.isAvailable(selectedStyle) {
           NotificationManager.dispatch({
             id: "",
@@ -80,6 +85,8 @@ let startHeadlessTeaserWithStyle = async (
             ~meta=Logger.castToJson({
               "format": format,
               "style": StyleCatalog.toString(selectedStyle),
+              "panSpeedId": selectedPanSpeed.id,
+              "panSpeedDegPerSec": selectedPanSpeed.speedDegPerSec,
               "sceneCount": Belt.Array.length(activeScenes),
             }),
             (),
@@ -87,17 +94,20 @@ let startHeadlessTeaserWithStyle = async (
           onCancel->Option.forEach(cb => OperationLifecycle.registerCancel(opId, cb))
 
           let teaserStartedAtMs = Date.now()
-          let lastEtaToastAtMs = ref(0.0)
-          let lastPctSample = ref(0.0)
-          let lastSampleAtMs = ref(teaserStartedAtMs)
-          let emaProgressPerSecond = ref(0.0)
-          let knownTotalFrames = ref(0)
-          let lastRenderedFrameSample = ref(0)
-          let lastFrameSampleAtMs = ref(teaserStartedAtMs)
-          let emaSecondsPerFrame = ref(0.0)
-          let frameSampleCount = ref(0)
-          let stableEtaSeconds = ref(0.0)
-          let etaReady = ref(false)
+          let etaState: TeaserHeadlessLogicSupport.etaState = {
+            teaserStartedAtMs,
+            lastEtaToastAtMs: ref(0.0),
+            lastPctSample: ref(0.0),
+            lastSampleAtMs: ref(teaserStartedAtMs),
+            emaProgressPerSecond: ref(0.0),
+            knownTotalFrames: ref(0),
+            lastRenderedFrameSample: ref(0),
+            lastFrameSampleAtMs: ref(teaserStartedAtMs),
+            emaSecondsPerFrame: ref(0.0),
+            frameSampleCount: ref(0),
+            stableEtaSeconds: ref(0.0),
+            etaReady: ref(false),
+          }
 
           EtaSupport.dismissEtaToast(teaserEtaToastId)
           EtaSupport.dispatchCalculatingEtaToast(
@@ -149,8 +159,12 @@ let startHeadlessTeaserWithStyle = async (
               dispatch(Actions.SetIsTeasing(false))
               ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
             | Ok(manifest) =>
+              let calibratedManifest = switch selectedStyle {
+              | Cinematic => TeaserStyleConfig.applyPanSpeedOption(manifest, selectedPanSpeed)
+              | _ => manifest
+              }
               let success = await OfflineCfrRenderer.renderWebMDeterministic(
-                manifest,
+                calibratedManifest,
                 true,
                 ~getState,
                 ~dispatch,
@@ -158,141 +172,14 @@ let startHeadlessTeaserWithStyle = async (
                 ~onProgress=(pct, msg, phaseName) => {
                   OperationLifecycle.progress(opId, pct, ~message=msg, ~phase=phaseName, ())
                   ProgressBar.updateProgressBar(pct, msg, ~visible=true, ~title="Teaser", ())
-
-                  if pct > 0.0 && pct < 100.0 {
-                    let now = Date.now()
-                    let parsed = parseTeaserProgressMetrics(msg)
-
-                    switch (parsed.renderedFrame, parsed.totalFrames) {
-                    | (Some(done), Some(total)) =>
-                      knownTotalFrames := total
-                      if done > lastRenderedFrameSample.contents {
-                        let deltaFrames = done - lastRenderedFrameSample.contents
-                        let deltaSeconds = (now -. lastFrameSampleAtMs.contents) /. 1000.0
-                        if deltaFrames > 0 && deltaSeconds > 0.2 {
-                          let instSecondsPerFrame = deltaSeconds /. Belt.Int.toFloat(deltaFrames)
-                          if emaSecondsPerFrame.contents <= 0.0 {
-                            emaSecondsPerFrame := instSecondsPerFrame
-                          } else {
-                            emaSecondsPerFrame :=
-                              0.74 *. emaSecondsPerFrame.contents +. 0.26 *. instSecondsPerFrame
-                          }
-                          frameSampleCount := frameSampleCount.contents + 1
-                        }
-                        lastRenderedFrameSample := done
-                        lastFrameSampleAtMs := now
-                      }
-                    | _ => ()
-                    }
-
-                    let deltaPct = pct -. lastPctSample.contents
-                    let deltaSec = (now -. lastSampleAtMs.contents) /. 1000.0
-                    if deltaPct > 0.0 && deltaSec > 0.3 {
-                      let instRate = deltaPct /. deltaSec
-                      if emaProgressPerSecond.contents <= 0.0 {
-                        emaProgressPerSecond := instRate
-                      } else {
-                        emaProgressPerSecond :=
-                          0.8 *. emaProgressPerSecond.contents +. 0.2 *. instRate
-                      }
-                      lastPctSample := pct
-                      lastSampleAtMs := now
-                    }
-
-                    let elapsedSec = (now -. teaserStartedAtMs) /. 1000.0
-                    if (
-                      !etaReady.contents &&
-                      elapsedSec >= 8.0 &&
-                      (frameSampleCount.contents >= 3 ||
-                        (pct >= 15.0 && emaProgressPerSecond.contents > 0.0))
-                    ) {
-                      etaReady := true
-                    }
-
-                    let shouldUpdateToast = now -. lastEtaToastAtMs.contents >= 1200.0
-                    if shouldUpdateToast {
-                      let remainingFrames = if (
-                        knownTotalFrames.contents > lastRenderedFrameSample.contents
-                      ) {
-                        knownTotalFrames.contents - lastRenderedFrameSample.contents
-                      } else {
-                        0
-                      }
-                      let etaByFrameRate = if (
-                        emaSecondsPerFrame.contents > 0.0 && remainingFrames > 0
-                      ) {
-                        Some(emaSecondsPerFrame.contents *. Belt.Int.toFloat(remainingFrames))
-                      } else {
-                        None
-                      }
-                      let etaByProgressSlope = if emaProgressPerSecond.contents > 0.0 {
-                        Some((100.0 -. pct) /. emaProgressPerSecond.contents)
-                      } else {
-                        None
-                      }
-                      let etaByGlobalAverage = if pct >= 1.0 {
-                        Some(elapsedSec /. pct *. (100.0 -. pct))
-                      } else {
-                        None
-                      }
-
-                      let etaFromRenderer =
-                        parsed.etaSecondsFromMessage->Option.map(Belt.Int.toFloat)
-                      let blendedEta = EtaSupport.combineEtaCandidates(
-                        ~a=etaByFrameRate,
-                        ~b=etaByProgressSlope,
-                        ~c=etaByGlobalAverage,
-                        ~d=?etaFromRenderer,
-                      )->Option.map(raw =>
-                        if phaseName == "Encoding WebM" {
-                          raw *. 1.06
-                        } else {
-                          raw
-                        }
-                      )
-
-                      let etaSeconds = switch blendedEta {
-                      | Some(candidate) if etaReady.contents =>
-                        let smoothed = if stableEtaSeconds.contents <= 0.0 {
-                          candidate
-                        } else {
-                          let raw = 0.78 *. stableEtaSeconds.contents +. 0.22 *. candidate
-                          let maxRise = stableEtaSeconds.contents +. 20.0
-                          let maxDrop = stableEtaSeconds.contents -. 12.0
-                          EtaSupport.clampFloat(
-                            ~value=raw,
-                            ~minValue=Math.max(1.0, maxDrop),
-                            ~maxValue=maxRise,
-                          )
-                        }
-                        stableEtaSeconds := smoothed
-                        Belt.Float.toInt(smoothed)
-                      | _ => 0
-                      }
-
-                      lastEtaToastAtMs := now
-                      if etaReady.contents {
-                        EtaSupport.updateEtaToast(
-                          ~id=teaserEtaToastId,
-                          ~contextOperation="eta_teaser",
-                          ~prefix="Generating teaser",
-                          ~etaSeconds,
-                          ~details=Some(phaseName ++ " • " ++ msg),
-                          ~createdAt=now,
-                          (),
-                        )
-                      } else {
-                        EtaSupport.dispatchCalculatingEtaToast(
-                          ~id=teaserEtaToastId,
-                          ~contextOperation="eta_teaser",
-                          ~prefix="Generating teaser",
-                          ~details=Some(phaseName ++ " • " ++ msg),
-                          ~createdAt=now,
-                          (),
-                        )
-                      }
-                    }
-                  }
+                  TeaserHeadlessLogicSupport.handleProgress(
+                    ~teaserEtaToastId,
+                    ~phaseName,
+                    ~msg,
+                    ~pct,
+                    ~parsed=parseTeaserProgressMetrics(msg),
+                    ~etaState,
+                  )
                 },
               )
 
@@ -331,38 +218,7 @@ let startHeadlessTeaserWithStyle = async (
             }
           } catch {
           | exn =>
-            EtaSupport.dismissEtaToast(teaserEtaToastId)
-            dispatch(Actions.SetIsTeasing(false))
-            ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
-            TeaserRecorder.Recorder.stopRecording()
-
-            let (msg, _) = Logger.getErrorDetails(exn)
-            if String.includes(msg, "AbortError") || signalIsAborted(signal) {
-              if OperationLifecycle.isActive(opId) {
-                OperationLifecycle.cancel(opId)
-              }
-              NotificationManager.dispatch({
-                id: "",
-                importance: Info,
-                context: Operation("teaser"),
-                message: "Teaser generation cancelled",
-                details: None,
-                action: None,
-                duration: NotificationTypes.defaultTimeoutMs(Info),
-                dismissible: true,
-                createdAt: Date.now(),
-              })
-            } else {
-              Logger.error(
-                ~module_="TeaserLogic",
-                ~message="TEASER_FAILED",
-                ~data=Some(Logger.castToJson({"error": msg})),
-                (),
-              )
-              if OperationLifecycle.isActive(opId) {
-                OperationLifecycle.fail(opId, "Teaser generation failed: " ++ msg)
-              }
-            }
+            TeaserHeadlessLogicSupport.handleFailure(~teaserEtaToastId, ~dispatch, ~opId, ~signal, exn)
           }
         }
       }

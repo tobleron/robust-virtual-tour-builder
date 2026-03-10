@@ -565,24 +565,23 @@ describe("Sidebar", () => {
 
     await wait(100)
 
-    // Modal should be open, find the "Cinematic (WebM)" button
-    let modalButtons = Dom.querySelectorAll(container, ".modal-btn-premium")
-    let styleBtn = ref(None)
+    let modalButtons = Dom.querySelectorAll(Dom.documentBody, "button")
+    let generateBtn = ref(None)
     Belt.Array.forEach(
       JsHelpers.from(modalButtons),
       btn => {
-        if String.includes(Dom.getTextContent(btn), "Cinematic (WebM)") {
-          styleBtn := Some(btn)
+        if String.includes(Dom.getTextContent(btn), "Generate Teaser") {
+          generateBtn := Some(btn)
         }
       },
     )
 
-    switch styleBtn.contents {
+    switch generateBtn.contents {
     | Some(btn) => Dom.click(btn)
-    | None => ()
+    | None => t->expect(false)->Expect.toBe(true)
     }
 
-    await wait(50)
+    await wait(100)
 
     let called = %raw(`globalThis.teaserMock.startHeadlessTeaserWithStyle.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)

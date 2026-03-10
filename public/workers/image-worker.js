@@ -23,6 +23,7 @@ self.onmessage = async event => {
       const targetWidth = Number(data.width || 4096);
       const quality = Number(data.quality || 0.95);
       const format = data.format || "image/jpeg"; // Default to JPEG for speed
+      const preserveAlpha = data.preserveAlpha === true;
 
       if (!blob || typeof createImageBitmap !== "function" || typeof OffscreenCanvas !== "function") {
         self.postMessage({ id, ok: false, error: "Worker full processing unsupported" });
@@ -39,7 +40,7 @@ self.onmessage = async event => {
       const height = Math.floor(srcH * scale);
 
       const canvas = new OffscreenCanvas(width, height);
-      const ctx = canvas.getContext("2d", { alpha: false });
+      const ctx = canvas.getContext("2d", { alpha: preserveAlpha });
       
       // Use standard high-quality scaling (equivalent to native browser resize)
       ctx.imageSmoothingEnabled = true;

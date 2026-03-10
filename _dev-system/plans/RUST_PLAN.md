@@ -8,13 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.03, Coupling: 0.03] | Drag: 4.06 | LOC: 496/300
-- [ ] **../../backend/src/services/project/package.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.05, Coupling: 0.02] | Drag: 4.41 | LOC: 378/300
-- [ ] **../../backend/src/services/geocoding/cache.rs**
-  - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.02] | Drag: 3.87 | LOC: 380/300
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../backend/src/api/project_snapshot.rs**
+  - *Reason:* [Nesting: 2.40, Density: 0.01, Coupling: 0.02] | Drag: 3.45 | LOC: 403/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.
 
 ---
 

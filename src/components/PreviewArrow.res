@@ -25,29 +25,6 @@ let make = (
   let (flickerMove, setFlickerMove) = React.useState(_ => false)
   let toggleInFlightRef = React.useRef(false)
 
-  let canProceed = (~capability: Capability.capability, ~context: string): bool => {
-    let currentState = AppContext.getBridgeState()
-    let allowed = Capability.Policy.evaluate(
-      ~capability,
-      ~appMode=currentState.appMode,
-      OperationLifecycle.getOperations(),
-    )
-    if !allowed {
-      NotificationManager.dispatch({
-        id: "",
-        importance: Warning,
-        context: Operation(context),
-        message: "Please wait for current operation to finish",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Warning),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    }
-    allowed
-  }
-
   let isMovingThis = switch state.movingHotspot {
   | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
   | None => false
@@ -92,132 +69,6 @@ let make = (
     <LucideIcons.ChevronsRight.make className="text-white" size=18 strokeWidth={3.0} />
   }
 
-  // 3. Handlers
-  let handleMainClick = e => {
-    e->JsxEvent.Mouse.stopPropagation
-    if !canProceed(~capability=CanNavigate, ~context="preview_arrow_navigate") {
-      ()
-    } else if isMovingThis {
-      // Cancel move
-      dispatch(StopMovingHotspot)
-    } else {
-      let currentState = AppContext.getBridgeState()
-      let activeScenesForClick = SceneInventory.getActiveScenes(
-        currentState.inventory,
-        currentState.sceneOrder,
-      )
-      switch Belt.Array.get(activeScenesForClick, sceneIndex) {
-      | Some(currentScene) =>
-        switch Belt.Array.get(currentScene.hotspots, hotspotIndex) {
-        | Some(hotspot) =>
-          let targetIdx = HotspotTarget.resolveSceneIndex(activeScenesForClick, hotspot)
-          switch targetIdx {
-          | Some(tIdx) =>
-            let (ny, np, nh) = Logic.calculateNavParams(hotspot)
-
-            SceneSwitcher.navigateToScene(
-              dispatch,
-              currentState,
-              tIdx,
-              sceneIndex,
-              hotspotIndex,
-              ~targetYaw=ny,
-              ~targetPitch=np,
-              ~targetHfov=nh,
-              (),
-            )
-          | None => ()
-          }
-        | None => ()
-        }
-      | None => ()
-      }
-    }
-  }
-
-  let handleRightClick = e => {
-    e->JsxEvent.Mouse.stopPropagation
-    if !canProceed(~capability=CanEditHotspots, ~context="preview_arrow") {
-      ()
-    } else {
-      let currentState = AppContext.getBridgeState()
-      let isMovingAny = currentState.movingHotspot != None
-
-      if isMovingAny {
-        ()
-      } else if toggleInFlightRef.current {
-        ()
-      } else {
-        let activeScenesForGuard = SceneInventory.getActiveScenes(
-          currentState.inventory,
-          currentState.sceneOrder,
-        )
-        let canEnableAutoForward = HotspotHelpers.canEnableAutoForward(
-          activeScenesForGuard,
-          sceneIndex,
-          hotspotIndex,
-        )
-
-        let newVal = !localIsAF
-        if newVal && !canEnableAutoForward {
-          NotificationManager.dispatch({
-            id: "autoforward-validation-error",
-            importance: Error,
-            context: Operation("hotspot_action"),
-            message: "Only one auto-forward link per scene",
-            details: Some(
-              "Disable auto-forward on the existing link first, then enable it on this link.",
-            ),
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Error),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-          ()
-        } else {
-          toggleInFlightRef.current = true
-
-          // 1. Stylistic Feedback: Start blink on the CURRENT icon
-          setFlickerYellow(_ => true)
-
-          // 2. Immediate Data Update (Robustness)
-          dispatch(
-            Actions.UpdateHotspotMetadata(
-              sceneIndex,
-              hotspotIndex,
-              Logger.castToJson({"isAutoForward": newVal}),
-            ),
-          )
-
-          // 3. Notification (Instant)
-          NotificationManager.dispatch({
-            id: "",
-            importance: Info,
-            context: Operation("preview_arrow"),
-            message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-            details: None,
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Info),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-
-          // 4. Sequence: Wait for blinks to complete, THEN swap the icon
-          let _ = setTimeout(() => {
-            setFlickerYellow(_ => false)
-            setIsSwapping(_ => true)
-            setLocalIsAF(_ => newVal) // Swap icon now
-
-            let _ = setTimeout(() => {
-              setIsSwapping(_ => false)
-              toggleInFlightRef.current = false // Re-enable external syncs
-            }, 400)
-          }, 800)
-        }
-      }
-    }
-  }
-
   React.useEffect1(() => {
     // Only sync from external state if we are not actively toggling locally
     if !toggleInFlightRef.current {
@@ -242,107 +93,6 @@ let make = (
     }
     None
   }, [state.structuralRevision])
-
-  let handleDeleteClick = e => {
-    e->JsxEvent.Mouse.stopPropagation
-    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
-      ()
-    } else {
-      let currentState = AppContext.getBridgeState()
-      let isMovingAny = currentState.movingHotspot != None
-
-      if isMovingAny {
-        ()
-      } else {
-        // Start Red Flicker
-        setFlickerRed(_ => true)
-        let _ = setTimeout(() => {
-          setFlickerRed(_ => false)
-          dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-          NotificationManager.dispatch({
-            id: "",
-            importance: Info,
-            context: Operation("preview_arrow"),
-            message: "Hotspot Removed",
-            details: None,
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Info),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-        }, 800)
-      }
-    }
-  }
-
-  let handleMoveClick = e => {
-    e->JsxEvent.Mouse.stopPropagation
-    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
-      ()
-    } else {
-      let currentState = AppContext.getBridgeState()
-      let isMovingThisActual = switch currentState.movingHotspot {
-      | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
-      | None => false
-      }
-
-      if isMovingThisActual {
-        dispatch(StopMovingHotspot)
-      } else {
-        dispatch(StartMovingHotspot(sceneIndex, hotspotIndex))
-        NotificationManager.dispatch({
-          id: "hotspot-move-mode",
-          importance: Info,
-          context: Operation("preview_arrow"),
-          message: "Move Mode Active",
-          details: Some("Click anywhere on the panorama to place the link. ESC to cancel."),
-          action: None,
-          duration: 5000,
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }
-    }
-  }
-
-  let handleRetargetClick = e => {
-    e->JsxEvent.Mouse.stopPropagation
-    if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
-      ()
-    } else {
-      let getState = AppContext.getBridgeState
-      let currentState = getState()
-      let activeScenes = SceneInventory.getActiveScenes(
-        currentState.inventory,
-        currentState.sceneOrder,
-      )
-      switch Belt.Array.get(activeScenes, sceneIndex) {
-      | Some(scene) =>
-        switch Belt.Array.get(scene.hotspots, hotspotIndex) {
-        | Some(h) =>
-          // Open Modal directly without entering global isLinking mode
-          let draft: Types.linkDraft = {
-            pitch: h.pitch,
-            yaw: h.yaw,
-            camPitch: h.viewFrame->Option.map(vf => vf.pitch)->Option.getOr(h.pitch),
-            camYaw: h.viewFrame->Option.map(vf => vf.yaw)->Option.getOr(h.yaw),
-            camHfov: h.viewFrame->Option.map(vf => vf.hfov)->Option.getOr(90.0),
-            intermediatePoints: None,
-            retargetHotspot: Some({
-              sceneIndex,
-              hotspotIndex,
-              sceneId: Some(scene.id),
-              hotspotLinkId: Some(h.linkId),
-            }),
-          }
-
-          EventBus.dispatch(TriggerRetargetModal(draft))
-        | None => ()
-        }
-      | None => ()
-      }
-    }
-  }
 
   let centerBaseColor = if isMovingThis {
     "bg-yellow-600"
@@ -394,7 +144,14 @@ let make = (
         className={`absolute inset-0 ${centerBaseColor} ${centerHoverColor} rounded-md shadow-lg flex items-center justify-center z-20 transition-colors overflow-hidden ${swapClass} ${flickerMove
             ? "animate-flicker-yellow-flat"
             : ""} ${isMovingThis ? "pointer-events-none" : "cursor-pointer"}`}
-        onClick={handleMainClick}
+        onClick={e =>
+          PreviewArrowSupport.handleMainClick(
+            e,
+            ~sceneIndex,
+            ~hotspotIndex,
+            ~dispatch,
+            ~isMovingThis,
+          )}
       >
         {!isMovingThis
           ? <div
@@ -414,7 +171,18 @@ let make = (
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[110%]
                          ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
-              onClick={handleRightClick}
+              onClick={e =>
+                PreviewArrowSupport.handleRightClick(
+                  e,
+                  ~sceneIndex,
+                  ~hotspotIndex,
+                  ~localIsAF,
+                  ~toggleInFlightRef,
+                  ~setFlickerYellow,
+                  ~setIsSwapping,
+                  ~setLocalIsAF,
+                  ~dispatch,
+                )}
             >
               {rightIcon}
             </div>
@@ -427,7 +195,8 @@ let make = (
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
                          group-hover:opacity-100 group-hover:translate-y-[110%]`}
-              onClick={handleMoveClick}
+              onClick={e =>
+                PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}
               title={isMovingThis ? "Cancel Move" : "Move Hotspot"}
             >
               {isMovingThis
@@ -441,7 +210,7 @@ let make = (
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
                          group-hover:opacity-100 group-hover:translate-y-[220%]`}
-              onClick={handleRetargetClick}
+              onClick={e => PreviewArrowSupport.handleRetargetClick(e, ~sceneIndex, ~hotspotIndex)}
               title="Change Target Scene"
             >
               <span className="text-white font-black text-[16px] leading-none mb-0.5">
@@ -456,7 +225,14 @@ let make = (
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[-110%]
                          ${flickerRed ? "animate-flicker-red" : ""}`}
-              onClick={handleDeleteClick}
+              onClick={e =>
+                PreviewArrowSupport.handleDeleteClick(
+                  e,
+                  ~sceneIndex,
+                  ~hotspotIndex,
+                  ~dispatch,
+                  ~setFlickerRed,
+                )}
               title="Delete Hotspot"
             >
               <LucideIcons.Trash2.make className="text-white" size=14 strokeWidth=3.0 />

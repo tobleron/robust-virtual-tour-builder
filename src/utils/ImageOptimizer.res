@@ -22,6 +22,7 @@ let compressMainThread = (
   ~quality: float,
   ~maxWidth: float,
   ~maxHeight as _: float,
+  ~preserveAlpha: bool=false,
 ): Promise.t<result<Blob.t, string>> => {
   let startTime = Date.now()
   Promise.make((resolve, _reject) => {
@@ -45,7 +46,7 @@ let compressMainThread = (
           Dom.setWidth(canvas, Float.toInt(width))
           Dom.setHeight(canvas, Float.toInt(height))
 
-          let ctx = Canvas.getContext2d(canvas, "2d", {"alpha": false})
+          let ctx = Canvas.getContext2d(canvas, "2d", {"alpha": preserveAlpha})
           let _ = %raw("ctx.imageSmoothingQuality = 'high'")
           Canvas.drawImage(ctx, img, 0.0, 0.0, width, height)
 
@@ -96,11 +97,12 @@ let compressMainThread = (
  * Compresses a File/Blob to WebP/JPEG format using WorkerPool's OffscreenCanvas implementation.
  * Automatically falls back to main-thread Canvas if background processing is unsupported.
  */
-let compressToWebPConstrained = (
+let compressToWebPConstrainedInternal = (
   file: File.t,
   ~quality: float,
   ~maxWidth: float,
   ~maxHeight: float,
+  ~preserveAlpha: bool,
 ): Promise.t<result<Blob.t, string>> => {
   Logger.startOperation(~module_=moduleName, ~operation="COMPRESS_IMAGE_WORKER", ())
   let startTime = Date.now()
@@ -110,13 +112,14 @@ let compressToWebPConstrained = (
 
   if !isOffscreenSupported {
     Logger.warn(~module_=moduleName, ~message="OFFSCREEN_CANVAS_UNSUPPORTED_FALLBACK", ())
-    compressMainThread(file, ~quality, ~maxWidth, ~maxHeight)
+    compressMainThread(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha)
   } else {
     WorkerPool.processFullWithWorker(
       fileAsBlob(file),
       ~width=Float.toInt(maxWidth),
       ~quality,
       ~format=Constants.Media.uploadFormat,
+      ~preserveAlpha,
     )->Promise.then(res => {
       let duration = Date.now() -. startTime
       switch res {
@@ -147,7 +150,7 @@ let compressToWebPConstrained = (
             ~data=Some({"reason": msg}),
             (),
           )
-          compressMainThread(file, ~quality, ~maxWidth, ~maxHeight)
+          compressMainThread(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha)
         } else {
           Logger.error(
             ~module_=moduleName,
@@ -163,9 +166,26 @@ let compressToWebPConstrained = (
 }
 
 let compressToWebP = (file: File.t, quality: float): Promise.t<result<Blob.t, string>> =>
-  compressToWebPConstrained(
+  compressToWebPConstrainedInternal(
     file,
     ~quality,
     ~maxWidth=Float.fromInt(Constants.processedImageWidth),
     ~maxHeight=Float.fromInt(Constants.processedImageWidth),
+    ~preserveAlpha=false,
   )
+
+let compressToWebPConstrained = (
+  file: File.t,
+  ~quality: float,
+  ~maxWidth: float,
+  ~maxHeight: float,
+): Promise.t<result<Blob.t, string>> =>
+  compressToWebPConstrainedInternal(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha=false)
+
+let compressLogoToWebPConstrained = (
+  file: File.t,
+  ~quality: float,
+  ~maxWidth: float,
+  ~maxHeight: float,
+): Promise.t<result<Blob.t, string>> =>
+  compressToWebPConstrainedInternal(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha=true)

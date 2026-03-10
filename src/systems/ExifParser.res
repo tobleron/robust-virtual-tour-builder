@@ -35,140 +35,29 @@ let emptyPano: gPanoMetadata = {
 /* extractExifTags - Extracts full technical metadata and GPS using ExifReader */
 let extractExifTags = async (file: Types.file): result<(exifMetadata, gPanoMetadata), string> => {
   try {
-    let _tags = switch file {
-    | File(f) => await ExifReader.load(f)
-    | Blob(b) => await ExifReader.load(b)
-    | Url(url) =>
-      // For URLs, we need to fetch the blob first
-      let res = await Fetch.fetchSimple(url)
-      let blob = await Fetch.blob(res)
-      await ExifReader.load(blob)
-    }
+    let _tags = await ExifParserSupport.loadTags(
+      ~loadFile=f => ExifReader.load(f),
+      ~loadBlob=b => ExifReader.load(b),
+      file,
+    )
 
     let _ = _tags // Keep for getValue scope
+    let keys = Dict.toArray(_tags)->Belt.Array.map(((k, _)) => k)
+    let lookupDescription = key => Dict.get(_tags, key)->Option.map(t => String.make(t.description))
 
     let getValue = key => {
-      // 1. Try direct match
-      switch Dict.get(_tags, key) {
-      | Some(t) => String.make(t.description)
-      | None => {
-          // 2. Try case-insensitive and space-insensitive match
-          let normalizedSearch = String.toLowerCase(String.replaceRegExp(key, /\s/g, ""))
-          let keys = Dict.toArray(_tags)->Belt.Array.map(((k, _)) => k)
-          let foundKey = keys->Belt.Array.getBy(k => {
-            let normalizedK = String.toLowerCase(String.replaceRegExp(k, /\s/g, ""))
-            normalizedK == normalizedSearch || String.includes(normalizedK, normalizedSearch)
-          })
-
-          switch foundKey {
-          | Some(k) =>
-            switch Dict.get(_tags, k) {
-            | Some(t) => String.make(t.description)
-            | None => ""
-            }
-          | None => ""
-          }
-        }
-      }
+      ExifParserSupport.getValue(~keys, ~lookupDescription, key)
     }
 
-    let getFloat = key => {
-      let v = getValue(key)
-      // Robust float parsing: replace commas with dots, remove non-numeric chars (except . and -)
-      let step1 = v->String.replaceRegExp(/,/g, ".")
-      let cleaned = step1->String.replaceRegExp(/[^0-9.\-]/g, "")
+    let getFloat = key => ExifParserSupport.getFloat(~getValue, key)
 
-      switch Belt.Float.fromString(cleaned) {
-      | Some(f) => Some(f)
-      | None => None
-      }
-    }
-
-    let getInt = key => {
-      let v = getValue(key)
-      let cleaned = v->String.replaceRegExp(/[^0-9-]/g, "")
-      switch Belt.Int.fromString(cleaned) {
-      | Some(i) => i
-      | None => 0
-      }
-    }
+    let getInt = key => ExifParserSupport.getInt(~getValue, key)
 
     // GPano Extraction
-    let usePano = getValue("UsePanoramaViewer") == "True"
-    let pano: gPanoMetadata = {
-      usePanoramaViewer: usePano,
-      projectionType: getValue("ProjectionType"),
-      poseHeadingDegrees: getFloat("PoseHeadingDegrees")->Option.getOr(0.0),
-      posePitchDegrees: getFloat("PosePitchDegrees")->Option.getOr(0.0),
-      poseRollDegrees: getFloat("PoseRollDegrees")->Option.getOr(0.0),
-      croppedAreaImageWidthPixels: getInt("CroppedAreaImageWidthPixels"),
-      croppedAreaImageHeightPixels: getInt("CroppedAreaImageHeightPixels"),
-      fullPanoWidthPixels: getInt("FullPanoWidthPixels"),
-      fullPanoHeightPixels: getInt("FullPanoHeightPixels"),
-      croppedAreaLeftPixels: getInt("CroppedAreaLeftPixels"),
-      croppedAreaTopPixels: getInt("CroppedAreaTopPixels"),
-      initialViewHeadingDegrees: getInt("InitialViewHeadingDegrees"),
-    }
+    let pano: gPanoMetadata = ExifParserSupport.buildPano(~getValue, ~getFloat, ~getInt)
 
     let parseGpsCoordinate = (valKey, refKey, xmpKey) => {
-      // Try both camelCase, spaced versions, and simple lowercase/short versions
-      let rawValues = [
-        getValue(valKey),
-        getValue(valKey->String.replaceRegExp(/([a-z])([A-Z])/g, "$1 $2")),
-        getValue(xmpKey),
-        getValue(String.toLowerCase(valKey)),
-        getValue(String.replaceRegExp(valKey, /GPS/, "")),
-      ]
-      let rawVal = rawValues->Belt.Array.getBy(v => v != "")->Option.getOr("")
-
-      let refValues = [
-        getValue(refKey),
-        getValue(refKey->String.replaceRegExp(/([a-z])([A-Z])/g, "$1 $2")),
-      ]
-      let ref = refValues->Belt.Array.getBy(v => v != "")->Option.getOr("")->String.toUpperCase
-
-      if rawVal == "" {
-        None
-      } else {
-        // Handle DMS format: "34, 12, 45.6" or "34 deg 12' 45.6\""
-        let parts =
-          rawVal
-          ->String.replaceRegExp(/[deg°'"\s]/g, " ")
-          ->String.replaceRegExp(/,/g, " ")
-          ->String.split(" ")
-          ->Belt.Array.keep(s => String.length(String.trim(s)) > 0)
-
-        let decimalDegrees = if Array.length(parts) >= 3 {
-          let d = Belt.Float.fromString(parts[0]->Option.getOr("0"))->Option.getOr(0.0)
-          let m = Belt.Float.fromString(parts[1]->Option.getOr("0"))->Option.getOr(0.0)
-          let s = Belt.Float.fromString(parts[2]->Option.getOr("0"))->Option.getOr(0.0)
-          Some(d +. m /. 60.0 +. s /. 3600.0)
-        } else {
-          // Fallback to simple float
-          let cleaned = rawVal->String.replaceRegExp(/[^0-9.\-]/g, "")
-          Belt.Float.fromString(cleaned)
-        }
-
-        switch decimalDegrees {
-        | Some(deg) =>
-          let factor = if (
-            ref == "S" || ref == "W" || String.includes(rawVal, "S") || String.includes(rawVal, "W")
-          ) {
-            -1.0
-          } else {
-            1.0
-          }
-          let finalVal = deg *. factor
-
-          // Sanity check: must be +/- 180 (actually +/- 90 for lat, but lon is 180)
-          if finalVal >= -180.0 && finalVal <= 180.0 {
-            Some(finalVal)
-          } else {
-            None
-          }
-        | None => None
-        }
-      }
+      ExifParserSupport.parseGpsCoordinate(~getValue, valKey, refKey, xmpKey)
     }
 
     // GPS Extraction with robust fallbacks
@@ -226,17 +115,7 @@ let extractExifTags = async (file: Types.file): result<(exifMetadata, gPanoMetad
       }
     }
 
-    let exif: exifMetadata = {
-      make: Nullable.fromOption(Some(getValue("Make"))),
-      model: Nullable.fromOption(Some(getValue("Model"))),
-      dateTime: Nullable.fromOption(Some(getValue("DateTime"))),
-      gps,
-      width: getInt("ImageWidth"),
-      height: getInt("ImageHeight"),
-      focalLength: Nullable.fromOption(getFloat("FocalLength")),
-      aperture: Nullable.fromOption(getFloat("FNumber")),
-      iso: Nullable.fromOption(Some(getInt("ISOSpeedRatings"))),
-    }
+    let exif: exifMetadata = ExifParserSupport.buildExif(~getValue, ~getFloat, ~getInt, ~gps)
 
     Ok((exif, pano))
   } catch {

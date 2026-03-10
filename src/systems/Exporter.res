@@ -8,6 +8,7 @@ let exportTour = async (
   scenes: array<scene>,
   ~tourName: string,
   ~logo: option<file>,
+  ~includeLogo: bool=true,
   ~projectData: option<JSON.t>=?,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
@@ -16,38 +17,17 @@ let exportTour = async (
 ): result<unit, string> => {
   let exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != "")
 
-  let opId = switch opId {
-  | Some(id) => id
-  | None =>
-    OperationLifecycle.start(
-      ~type_=Export,
-      ~scope=Blocking,
-      ~phase="Preparing",
-      ~meta=Logger.castToJson({
-        "sceneCount": Belt.Array.length(scenes),
-        "tourName": tourName,
-      }),
-      (),
-    )
-  }
+  let opId =
+    ExporterRuntime.resolveOpId(~opId, ~sceneCount=Belt.Array.length(scenes), ~tourName)
 
   let currentPhase = ref("INITIAL")
 
   let progress = (p, t, m) => {
-    let pct = if t > 0.0 {
-      p /. t *. 100.0
-    } else {
-      0.0
-    }
-    OperationLifecycle.progress(opId, pct, ~message=m, ~phase=currentPhase.contents, ())
-    switch onProgress {
-    | Some(cb) => cb(p, t, m)
-    | None => ()
-    }
+    ExporterRuntime.reportProgress(~opId, ~currentPhase, ~onProgress, p, t, m)
   }
 
   let tourName = if tourName == "" {
-    "Virtual_Tour"
+    ExporterRuntime.normalizeTourName(tourName)
   } else {
     tourName
   }
@@ -127,6 +107,7 @@ let exportTour = async (
     let logoFilename = await ExporterPackaging.appendLogo(
       ~formData,
       ~logo,
+      ~allowDefaultLogoFallback=includeLogo,
       ~authToken=finalToken,
       ~signal=Some(signal),
     )
@@ -177,106 +158,16 @@ let exportTour = async (
     progress(40.0, 100.0, "Starting upload...")
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
-
-    let rec uploadWithRetry = async (retryCount, token) => {
-      try {
-        let result = await (
-          if totalScenes < 10 {
-            ExporterUpload.uploadAndProcessRaw(
-              formData,
-              progress,
-              backendUrl,
-              Constants.Exporter.uploadTimeoutMs,
-              ~signal,
-              ~token,
-              ~operationId=Some(opId),
-            )
-          } else {
-            ExporterUpload.uploadChunkedThenLegacy(
-              formData,
-              progress,
-              backendUrl,
-              Constants.Exporter.uploadTimeoutMs,
-              ~signal,
-              ~token,
-              ~operationId=Some(opId),
-            )
-          }
-        )
-        CircuitBreaker.recordSuccess(AuthenticatedClient.circuitBreaker)
-        result
-      } catch {
-      | exn =>
-        let msg = ExporterUtils.normalizeThrowableMessage(exn)
-        let isLegacyNetworkOffline = String.includes(msg, "NetworkOffline")
-        let isAbort = String.includes(msg, "AbortError")
-        let isUnauthorized = ExporterUtils.isUnauthorizedHttpError(msg)
-        let isTimeout = String.includes(msg, "TimeoutError")
-        let isTransportNetworkError = String.includes(msg, "NetworkError") || isLegacyNetworkOffline
-        let backendStillReachable = if isTransportNetworkError {
-          await Resizer.checkBackendHealth()
-        } else {
-          true
-        }
-
-        let usingDevToken = switch token {
-        | Some(t) => t == "dev-token"
-        | None => false
-        }
-        let shouldRetryWithDevToken = Constants.isDebugBuild() && !usingDevToken && isUnauthorized
-
-        if shouldRetryWithDevToken {
-          Logger.warn(
-            ~module_="Exporter",
-            ~message="EXPORT_RETRY_WITH_DEV_TOKEN",
-            ~data=Some({"reason": "401 Unauthorized", "hadAuthToken": token != None}),
-            (),
-          )
-          await uploadWithRetry(0, Some("dev-token"))
-        } else if isTransportNetworkError && !backendStillReachable {
-          let message = ExporterUtils.backendOfflineExportMessage()
-          Logger.warn(
-            ~module_="Exporter",
-            ~message="EXPORT_BACKEND_UNREACHABLE_DURING_UPLOAD",
-            ~data=Some({"backendUrl": Constants.backendUrl, "error": msg}),
-            (),
-          )
-          CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
-          JsError.throwWithMessage(message)
-        } else if retryCount < 2 && !isAbort && !isUnauthorized && !isTimeout {
-          Logger.warn(
-            ~module_="Exporter",
-            ~message="EXPORT_RETRY",
-            ~data=Some(Logger.castToJson({"attempt": retryCount + 1, "error": msg})),
-            (),
-          )
-          progress(40.0, 100.0, "Retrying upload...")
-          let _ = await Promise.make((resolve, _) => {
-            let _ = ReBindings.Window.setTimeout(() => resolve(), Constants.Exporter.retryDelayMs)
-          })
-          await uploadWithRetry(retryCount + 1, token)
-        } else if isTimeout {
-          Logger.warn(
-            ~module_="Exporter",
-            ~message="EXPORT_TIMEOUT_NO_RETRY",
-            ~data=Some({"timeoutMs": Constants.Exporter.uploadTimeoutMs, "error": msg}),
-            (),
-          )
-          JsError.throwWithMessage(msg)
-        } else {
-          CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
-          if isLegacyNetworkOffline {
-            JsError.throwWithMessage(
-              "NetworkError: Export upload was interrupted. Please retry export.",
-            )
-          } else {
-            JsError.throwWithMessage(msg)
-          }
-        }
-      }
-    }
-
-    let zipBlob = await uploadWithRetry(0, finalToken)
+    let zipBlob = await ExporterRuntime.uploadWithRetry(
+      ~formData,
+      ~progress,
+      ~backendUrl,
+      ~totalScenes,
+      ~signal,
+      ~opId,
+      ~token=finalToken,
+      ~retryCount=0,
+    )
 
     progress(100.0, 100.0, "Export complete")
     let filename = `Export_RMX_${safeName}_v${version}.zip`

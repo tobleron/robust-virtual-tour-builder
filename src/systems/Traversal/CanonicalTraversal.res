@@ -1,101 +1,27 @@
 open Types
 
-type badgeKind =
+type badgeKind = CanonicalTraversalTypes.badgeKind =
   | Sequence(int)
   | Return
-
-type forwardRef = {
-  sceneId: string,
-  sceneIndex: int,
-  hotspotIndex: int,
-  linkId: string,
-  sceneLabel: string,
-  targetSceneId: string,
-  targetLabel: string,
-  fallbackOrder: int,
-  baseOrder: int,
-  sequenceOrder: option<int>,
-  isAutoForward: bool,
-}
-
-type model = {
-  badgeByLinkId: Belt.Map.String.t<badgeKind>,
-  displayOrderByLinkId: Belt.Map.String.t<int>,
-  orderedForwardRefs: array<forwardRef>,
-  admissibleOrdersByLinkId: Belt.Map.String.t<array<int>>,
-}
-
-type traversalSnapshot = {orderByLinkId: Belt.Map.String.t<int>}
+type forwardRef = CanonicalTraversalTypes.forwardRef
+type model = CanonicalTraversalTypes.model
+type traversalSnapshot = CanonicalTraversalTypes.traversalSnapshot
 
 let stripSceneTag = (raw: string): string => {
-  let trimmed = raw->String.trim
-  if trimmed == "" {
-    ""
-  } else if String.startsWith(trimmed, "#") {
-    trimmed
-    ->String.substring(~start=1, ~end=String.length(trimmed))
-    ->String.trim
-  } else {
-    trimmed
-  }
+  CanonicalTraversalSupport.stripSceneTag(raw)
 }
-
 let displaySceneLabel = (scene: scene): string => {
-  let source = if scene.label->String.trim != "" {
-    scene.label
-  } else {
-    scene.name
-  }
-  let cleaned = stripSceneTag(source)
-  if cleaned == "" {
-    scene.name
-  } else {
-    cleaned
-  }
+  CanonicalTraversalSupport.displaySceneLabel(scene)
 }
-
-let clampOrder = (value: int, maxValue: int): int => {
-  if maxValue <= 0 {
-    Constants.Scene.Sequence.startSceneNumber
-  } else if value < Constants.Scene.Sequence.startSceneNumber {
-    Constants.Scene.Sequence.startSceneNumber
-  } else if value > maxValue {
-    maxValue
-  } else {
-    value
-  }
-}
-
+let clampOrder = (value: int, maxValue: int): int =>
+  CanonicalTraversalSupport.clampOrder(value, maxValue)
 let addVisitedLink = (visited: array<string>, linkId: string): array<string> =>
-  if visited->Belt.Array.some(existing => existing == linkId) {
-    visited
-  } else {
-    Belt.Array.concat(visited, [linkId])
-  }
-
+  CanonicalTraversalSupport.addVisitedLink(visited, linkId)
 let applyVisitedActions = (~visited: array<string>, ~actions: array<Actions.action>): array<
   string,
-> =>
-  actions->Belt.Array.reduce(visited, (acc, action) =>
-    switch action {
-    | AddVisitedLink(linkId) => addVisitedLink(acc, linkId)
-    | _ => acc
-    }
-  )
-
+> => CanonicalTraversalSupport.applyVisitedActions(~visited, ~actions)
 let firstNewLinkId = (~visited: array<string>, ~actions: array<Actions.action>): option<string> =>
-  actions->Belt.Array.reduce(None, (acc, action) =>
-    switch (acc, action) {
-    | (Some(_), _) => acc
-    | (None, AddVisitedLink(linkId)) =>
-      if visited->Belt.Array.some(existing => existing == linkId) {
-        None
-      } else {
-        Some(linkId)
-      }
-    | _ => None
-    }
-  )
+  CanonicalTraversalSupport.firstNewLinkId(~visited, ~actions)
 
 let deriveTraversalSnapshot = (
   ~state: state,
@@ -175,225 +101,23 @@ let deriveTraversalSnapshot = (
   }
 }
 
-let deriveReturnLinkIdSet = (
-  ~activeScenes: array<scene>,
-  ~parentBySceneId: Belt.Map.String.t<string>,
-): Belt.Set.String.t => {
-  let returnIds = Belt.MutableSet.String.make()
+let deriveReturnLinkIdSet = (~activeScenes: array<scene>, ~parentBySceneId: Belt.Map.String.t<string>) =>
+  CanonicalTraversalSupport.deriveReturnLinkIdSet(~activeScenes, ~parentBySceneId)
 
-  activeScenes->Belt.Array.forEach(sourceScene => {
-    sourceScene.hotspots->Belt.Array.forEach(hotspot =>
-      switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
-      | Some(targetSceneId) =>
-        if (
-          TraversalParentMap.isReturnTarget(
-            ~parentBySceneId,
-            ~sourceSceneId=sourceScene.id,
-            ~targetSceneId,
-          )
-        ) {
-          returnIds->Belt.MutableSet.String.add(hotspot.linkId)
-        }
-      | None => ()
-      }
-    )
-  })
-
-  returnIds
-  ->Belt.MutableSet.String.toArray
-  ->Belt.Set.String.fromArray
-}
-
-let collectForwardRefs = (
-  ~activeScenes: array<scene>,
-  ~traversalOrderByLinkId: Belt.Map.String.t<int>,
-  ~returnLinkIdSet: Belt.Set.String.t,
-): array<forwardRef> => {
-  let sceneById =
-    activeScenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, scene) =>
-      acc->Belt.Map.String.set(scene.id, scene)
-    )
-
-  let fallbackCounter = ref(0)
-  let refs: array<forwardRef> = []
-
-  activeScenes->Belt.Array.forEachWithIndex((sceneIndex, sourceScene) => {
-    sourceScene.hotspots->Belt.Array.forEachWithIndex((hotspotIndex, hotspot) => {
-      let isReturn = returnLinkIdSet->Belt.Set.String.has(hotspot.linkId)
-      if !isReturn {
-        switch HotspotTarget.resolveSceneId(activeScenes, hotspot) {
-        | Some(targetSceneId) =>
-          let fallbackOrder = fallbackCounter.contents
-          fallbackCounter := fallbackCounter.contents + 1
-          let targetLabel = switch sceneById->Belt.Map.String.get(targetSceneId) {
-          | Some(targetScene) => displaySceneLabel(targetScene)
-          | None => hotspot.target
-          }
-
-          let baseOrder = switch traversalOrderByLinkId->Belt.Map.String.get(hotspot.linkId) {
-          | Some(order) => order
-          | None => 100000 + fallbackOrder
-          }
-
-          Array.push(
-            refs,
-            {
-              sceneId: sourceScene.id,
-              sceneIndex,
-              hotspotIndex,
-              linkId: hotspot.linkId,
-              sceneLabel: displaySceneLabel(sourceScene),
-              targetSceneId,
-              targetLabel,
-              fallbackOrder,
-              baseOrder,
-              sequenceOrder: hotspot.sequenceOrder,
-              isAutoForward: hotspot.isAutoForward->Option.getOr(false),
-            },
-          )->ignore
-        | None => ()
-        }
-      }
-    })
-  })
-
-  refs
-}
-
+let collectForwardRefs = (~activeScenes: array<scene>, ~traversalOrderByLinkId: Belt.Map.String.t<int>, ~returnLinkIdSet: Belt.Set.String.t) =>
+  CanonicalTraversalSupport.collectForwardRefs(~activeScenes, ~traversalOrderByLinkId, ~returnLinkIdSet)
 let sortDefaultForwardRefs = (refs: array<forwardRef>): array<forwardRef> =>
-  refs->Belt.SortArray.stableSortBy((a, b) => {
-    if a.baseOrder != b.baseOrder {
-      a.baseOrder - b.baseOrder
-    } else if a.sceneIndex != b.sceneIndex {
-      a.sceneIndex - b.sceneIndex
-    } else if a.isAutoForward != b.isAutoForward {
-      a.isAutoForward ? 1 : -1
-    } else if a.hotspotIndex != b.hotspotIndex {
-      a.hotspotIndex - b.hotspotIndex
-    } else {
-      a.fallbackOrder - b.fallbackOrder
-    }
-  })
-
-let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> => {
-  let manual =
-    baseOrdered
-    ->Belt.Array.keep(item =>
-      switch item.sequenceOrder {
-      | Some(order) => order > 0
-      | None => false
-      }
-    )
-    ->Belt.SortArray.stableSortBy((a, b) => {
-      let seqA = a.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      let seqB = b.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      if seqA == seqB {
-        b.fallbackOrder - a.fallbackOrder
-      } else {
-        seqA - seqB
-      }
-    })
-
-  let ordered = ref(baseOrdered)
-  manual->Belt.Array.forEach(item => {
-    switch ordered.contents->Belt.Array.getIndexBy(existing => existing.linkId == item.linkId) {
-    | Some(currentIndex) =>
-      let withoutCurrent =
-        ordered.contents->Belt.Array.keepWithIndex((_, idx) => idx != currentIndex)
-      let desiredOrder = item.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      let desiredIndex = clampOrder(desiredOrder, withoutCurrent->Belt.Array.length + 1) - 1
-      ordered := UiHelpers.insertAt(withoutCurrent, desiredIndex, item)
-    | None => ()
-    }
-  })
-
-  ordered.contents
-}
-
-let isValidForwardOrder = (~ordered: array<forwardRef>): bool => {
-  if ordered->Belt.Array.length == 0 {
-    true
-  } else {
-    let remainingNonAutoByScene = Belt.MutableMap.String.make()
-    ordered->Belt.Array.forEach(item => {
-      if !item.isAutoForward {
-        let count =
-          remainingNonAutoByScene->Belt.MutableMap.String.get(item.sceneId)->Option.getOr(0)
-        remainingNonAutoByScene->Belt.MutableMap.String.set(item.sceneId, count + 1)
-      }
-    })
-
-    let total = ordered->Belt.Array.length
-    let idx = ref(0)
-    let isValid = ref(true)
-
-    while isValid.contents && idx.contents < total {
-      let currentIndex = idx.contents
-      switch ordered->Belt.Array.get(currentIndex) {
-      | Some(item) =>
-        let remainingNonAuto =
-          remainingNonAutoByScene->Belt.MutableMap.String.get(item.sceneId)->Option.getOr(0)
-
-        if item.isAutoForward && remainingNonAuto > 0 {
-          isValid := false
-        } else if !item.isAutoForward && remainingNonAuto > 0 {
-          remainingNonAutoByScene->Belt.MutableMap.String.set(item.sceneId, remainingNonAuto - 1)
-        }
-      | None => ()
-      }
-
-      idx := idx.contents + 1
-    }
-
-    isValid.contents
-  }
-}
-
+  CanonicalTraversalSupport.sortDefaultForwardRefs(refs)
+let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> =>
+  CanonicalTraversalSupport.applyManualOverrides(baseOrdered)
+let isValidForwardOrder = (~ordered: array<forwardRef>): bool =>
+  CanonicalTraversalSupport.isValidForwardOrder(~ordered)
 let moveRefToIndex = (~ordered: array<forwardRef>, ~currentIndex: int, ~nextIndex: int): array<
   forwardRef,
-> => {
-  switch ordered->Belt.Array.get(currentIndex) {
-  | None => ordered
-  | Some(item) =>
-    let withoutCurrent = ordered->Belt.Array.keepWithIndex((_, idx) => idx != currentIndex)
-    UiHelpers.insertAt(withoutCurrent, nextIndex, item)
-  }
-}
-
+> => CanonicalTraversalSupport.moveRefToIndex(~ordered, ~currentIndex, ~nextIndex)
 let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<
   array<int>,
-> => {
-  let total = ordered->Belt.Array.length
-  if total == 0 {
-    Belt.Map.String.empty
-  } else {
-    ordered
-    ->Belt.Array.mapWithIndex((currentIndex, item) => {
-      let options = ref([])
-      for desiredOrder in 1 to total {
-        let targetIndex = desiredOrder - 1
-        let candidate = if targetIndex == currentIndex {
-          ordered
-        } else {
-          moveRefToIndex(~ordered, ~currentIndex, ~nextIndex=targetIndex)
-        }
-
-        if isValidForwardOrder(~ordered=candidate) {
-          options := Belt.Array.concat(options.contents, [desiredOrder])
-        }
-      }
-
-      let safeOptions = if options.contents->Belt.Array.length == 0 {
-        [currentIndex + 1]
-      } else {
-        options.contents
-      }
-
-      (item.linkId, safeOptions)
-    })
-    ->Belt.Map.String.fromArray
-  }
-}
+> => CanonicalTraversalSupport.deriveAdmissibleOrdersByLinkId(~ordered)
 
 let derive = (~state: state, ~maxSteps: int=400): model => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)

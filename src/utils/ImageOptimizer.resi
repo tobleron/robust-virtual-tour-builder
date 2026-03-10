@@ -19,3 +19,13 @@ let compressToWebPConstrained: (
   ~maxWidth: float,
   ~maxHeight: float,
 ) => Promise.t<result<Blob.t, string>>
+
+/**
+ * Compresses a logo File/Blob to WebP with explicit geometry constraints while preserving alpha.
+ */
+let compressLogoToWebPConstrained: (
+  File.t,
+  ~quality: float,
+  ~maxWidth: float,
+  ~maxHeight: float,
+) => Promise.t<result<Blob.t, string>>

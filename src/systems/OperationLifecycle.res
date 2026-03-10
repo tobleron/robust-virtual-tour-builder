@@ -19,94 +19,43 @@ let sweepIntervalId: ref<option<int>> = ref(None)
 let ttlSweepMs = 30000
 let timeoutTtlExceeded = "OPERATION_TIMEOUT_TTL_EXCEEDED"
 
-let ttlMsForType = (type_: operationType): int =>
-  switch type_ {
-  | Upload => 7200000 // 2 hours
-  | Export => 3600000 // 1 hour
-  | ProjectLoad => 300000 // 5 mins
-  | ProjectSave => 120000 // 2 mins
-  | Navigation => 60000 // 1 min
-  | SceneLoad => 60000 // 1 min
-  | _ => 300000 // 5 mins
-  }
+let ttlMsForType = (type_: operationType): int => OperationLifecycleRuntime.ttlMsForType(type_)
 
 // --- INTERNAL HELPERS ---
 
 let notifyListeners = () => {
-  let ops = operations.contents->Belt.Map.String.valuesToArray
-  listeners.contents->Belt.Array.forEach(cb => cb(ops))
+  OperationLifecycleRuntime.notifyListeners(~operations, ~listeners)
 }
 
 let updateLoggerContext = () => {
-  let contextOp =
-    operations.contents
-    ->Belt.Map.String.valuesToArray
-    ->OperationLifecycleContext.selectContextOperation
-
-  switch contextOp {
-  | Some(op) => Logger.setOperationId(Some(op.id))
-  | None => Logger.setOperationId(None)
-  }
+  OperationLifecycleRuntime.updateLoggerContext(~operations)
 }
 
-let activeCount = (): int =>
-  operations.contents
-  ->Belt.Map.String.valuesToArray
-  ->Belt.Array.keep(task => OperationLifecycleContext.isActiveStatus(task.status))
-  ->Belt.Array.length
+let activeCount = (): int => OperationLifecycleRuntime.activeCount(~operations)
 
 let cleanupTerminalOperation = (id: operationId): unit => {
-  operations := operations.contents->Belt.Map.String.remove(id)
-  cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-  updateLoggerContext()
-  notifyListeners()
+  OperationLifecycleRuntime.cleanupTerminalOperation(
+    ~operations,
+    ~cancelCallbacks,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    id,
+  )
 }
 
 let sweepExpiredOperations = (): unit => {
-  let now = Date.now()
-  operations.contents
-  ->Belt.Map.String.valuesToArray
-  ->Belt.Array.forEach(task => {
-    if OperationLifecycleContext.isActiveStatus(task.status) {
-      let ttl = ttlMsForType(task.type_)
-      // Use updatedAt for liveness check instead of startedAt to support very slow but active operations.
-      let elapsedSinceUpdate = now -. task.updatedAt
-      if elapsedSinceUpdate > Int.toFloat(ttl) {
-        leakedTotal := leakedTotal.contents + 1
-        let updatedTask = {
-          ...task,
-          status: Failed({error: timeoutTtlExceeded}),
-          updatedAt: now,
-        }
-        operations := operations.contents->Belt.Map.String.set(task.id, updatedTask)
-        cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(task.id)
-        updateLoggerContext()
-        notifyListeners()
-        Logger.error(
-          ~module_="OperationLifecycle",
-          ~message="OPERATION_TTL_EXPIRED",
-          ~data=Some({
-            "id": task.id,
-            "type": task.type_,
-            "ttlMs": ttl,
-            "elapsedMs": elapsedSinceUpdate,
-            "phase": task.phase,
-          }),
-          (),
-        )
-        let _ = setTimeout(() => cleanupTerminalOperation(task.id), 10000)
-      }
-    }
-  })
+  OperationLifecycleRuntime.sweepExpiredOperations(
+    ~operations,
+    ~cancelCallbacks,
+    ~leakedTotal,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    ~cleanupTerminalOperation,
+  )
 }
 
 let ensureSweepInterval = (): unit => {
-  switch sweepIntervalId.contents {
-  | Some(_) => ()
-  | None =>
-    let intervalId = setInterval(() => sweepExpiredOperations(), ttlSweepMs)
-    sweepIntervalId := Some(intervalId)
-  }
+  OperationLifecycleRuntime.ensureSweepInterval(~sweepIntervalId, ~sweepExpiredOperations)
 }
 
 // --- PUBLIC API ---
@@ -163,21 +112,7 @@ let isActive = (id: operationId): bool => {
 }
 
 let isBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?, ()): bool => {
-  operations.contents->Belt.Map.String.some((_, task) => {
-    let isActive = OperationLifecycleContext.isActiveStatus(task.status)
-
-    let typeMatch = switch type_ {
-    | Some(t) => task.type_ == t
-    | None => true
-    }
-
-    let scopeMatch = switch scope {
-    | Some(s) => task.scope == s
-    | None => true
-    }
-
-    isActive && typeMatch && scopeMatch
-  })
+  OperationLifecycleRuntime.isBusy(~operations, ~type_, ~scope, ())
 }
 
 let start = (
@@ -190,56 +125,20 @@ let start = (
   ~visibleAfterMs: option<int>=?,
   (),
 ): operationId => {
-  let id = `op_${Date.now()->Float.toString}_${Math.random()->Float.toString}`
-
-  let defaultThreshold = OperationLifecycleContext.defaultVisibleAfterMs(type_)
-
-  let threshold = visibleAfterMs->Option.getOr(defaultThreshold)
-
-  let task = {
-    id,
-    type_,
-    scope,
-    phase,
-    cancellable,
-    correlationId,
-    status: Active({progress: 0.0, message: None}),
-    startedAt: Date.now(),
-    updatedAt: Date.now(),
-    meta,
-    visibleAfterMs: threshold,
-  }
-
-  operations := operations.contents->Belt.Map.String.set(id, task)
-  ensureSweepInterval()
-  updateLoggerContext()
-  notifyListeners()
-
-  let activeNow = activeCount()
-  if activeNow >= 10 {
-    Logger.warn(
-      ~module_="OperationLifecycle",
-      ~message="OPERATION_WATERMARK_HIGH_ACTIVE",
-      ~data=Some({"activeCount": activeNow}),
-      (),
-    )
-  }
-
-  Logger.debug(
-    ~module_="OperationLifecycle",
-    ~message="OPERATION_STARTED",
-    ~data=Some({
-      "id": id,
-      "type": type_,
-      "scope": scope,
-      "phase": phase,
-      "cancellable": cancellable,
-      "visibleAfterMs": threshold,
-    }),
+  OperationLifecycleRuntime.start(
+    ~operations,
+    ~ensureSweepInterval,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    ~type_,
+    ~scope,
+    ~phase,
+    ~cancellable,
+    ~correlationId?,
+    ~meta?,
+    ~visibleAfterMs?,
     (),
   )
-
-  id
 }
 
 let progress = (
@@ -249,181 +148,52 @@ let progress = (
   ~phase: option<string>=?,
   (),
 ): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    switch task.status {
-    | Active(_)
-    | Paused =>
-      let updatedTask = {
-        ...task,
-        status: Active({progress, message}),
-        phase: phase->Option.getOr(task.phase),
-        updatedAt: Date.now(),
-      }
-      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-      notifyListeners()
-    | Idle
-    | Completed(_)
-    | Failed(_)
-    | Cancelled =>
-      Logger.debug(
-        ~module_="OperationLifecycle",
-        ~message="PROGRESS_IGNORED_TERMINAL_OR_IDLE",
-        ~data=Some({"id": id}),
-        (),
-      )
-    }
-  | None => ()
-  }
+  OperationLifecycleRuntime.progress(
+    ~operations,
+    ~notifyListeners,
+    id,
+    progress,
+    ~message?,
+    ~phase?,
+    (),
+  )
 }
 
 let complete = (id: operationId, ~result: option<string>=?, ()): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    switch task.status {
-    | Active(_)
-    | Paused =>
-      let updatedTask = {
-        ...task,
-        status: Completed({result: result}),
-        updatedAt: Date.now(),
-      }
-      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-      completedTotal := completedTotal.contents + 1
-      updateLoggerContext()
-      notifyListeners()
-      cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-
-      Logger.debug(
-        ~module_="OperationLifecycle",
-        ~message="OPERATION_COMPLETED",
-        ~data=Some({"id": id}),
-        (),
-      )
-
-      // Auto-cleanup after 5 seconds
-      let _ = setTimeout(() => {
-        cleanupTerminalOperation(id)
-      }, 5000)
-    | Idle
-    | Completed(_)
-    | Failed(_)
-    | Cancelled =>
-      Logger.debug(
-        ~module_="OperationLifecycle",
-        ~message="COMPLETE_IGNORED_TERMINAL_OR_IDLE",
-        ~data=Some({"id": id}),
-        (),
-      )
-    }
-  | None => ()
-  }
+  OperationLifecycleRuntime.complete(
+    ~operations,
+    ~cancelCallbacks,
+    ~completedTotal,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    ~cleanupTerminalOperation,
+    id,
+    ~result?,
+    (),
+  )
 }
 
 let fail = (id: operationId, error: string): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    switch task.status {
-    | Active(_)
-    | Paused =>
-      let updatedTask = {
-        ...task,
-        status: Failed({error: error}),
-        updatedAt: Date.now(),
-      }
-      operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-      updateLoggerContext()
-      notifyListeners()
-      cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-
-      Logger.error(
-        ~module_="OperationLifecycle",
-        ~message="OPERATION_FAILED",
-        ~data=Some({"id": id, "error": error}),
-        (),
-      )
-
-      // Auto-cleanup after 10 seconds for errors
-      let _ = setTimeout(() => {
-        cleanupTerminalOperation(id)
-      }, 10000)
-    | Idle
-    | Completed(_)
-    | Failed(_)
-    | Cancelled =>
-      Logger.debug(
-        ~module_="OperationLifecycle",
-        ~message="FAIL_IGNORED_TERMINAL_OR_IDLE",
-        ~data=Some({"id": id}),
-        (),
-      )
-    }
-  | None => ()
-  }
+  OperationLifecycleRuntime.fail(
+    ~operations,
+    ~cancelCallbacks,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    ~cleanupTerminalOperation,
+    id,
+    error,
+  )
 }
 
 let cancel = (id: operationId): unit => {
-  switch operations.contents->Belt.Map.String.get(id) {
-  | Some(task) =>
-    switch task.status {
-    | Active(_)
-    | Paused =>
-      if task.cancellable {
-        // Invoke callback first
-        switch cancelCallbacks.contents->Belt.Map.String.get(id) {
-        | Some(cb) =>
-          Logger.debug(
-            ~module_="OperationLifecycle",
-            ~message="INVOKING_CANCEL_CALLBACK",
-            ~data=Some({"id": id}),
-            (),
-          )
-          cb()
-        | None => ()
-        }
-
-        let updatedTask = {
-          ...task,
-          status: Cancelled,
-          updatedAt: Date.now(),
-        }
-        operations := operations.contents->Belt.Map.String.set(id, updatedTask)
-        updateLoggerContext()
-        notifyListeners()
-        cancelCallbacks := cancelCallbacks.contents->Belt.Map.String.remove(id)
-
-        Logger.debug(
-          ~module_="OperationLifecycle",
-          ~message="OPERATION_CANCELLED",
-          ~data=Some({"id": id}),
-          (),
-        )
-
-        // Auto-cleanup
-        let _ = setTimeout(() => {
-          cleanupTerminalOperation(id)
-        }, 5000)
-      } else {
-        Logger.warn(
-          ~module_="OperationLifecycle",
-          ~message="OPERATION_CANCEL_ATTEMPT_IGNORED",
-          ~data=Some({"id": id, "reason": "Not Cancellable"}),
-          (),
-        )
-      }
-    | Idle
-    | Completed(_)
-    | Failed(_)
-    | Cancelled =>
-      Logger.debug(
-        ~module_="OperationLifecycle",
-        ~message="CANCEL_IGNORED_TERMINAL_OR_IDLE",
-        ~data=Some({"id": id}),
-        (),
-      )
-    }
-  | None => ()
-  }
+  OperationLifecycleRuntime.cancel(
+    ~operations,
+    ~cancelCallbacks,
+    ~updateLoggerContext,
+    ~notifyListeners,
+    ~cleanupTerminalOperation,
+    id,
+  )
 }
 
 let getStats = (): lifecycleStats => {
@@ -453,20 +223,6 @@ let useIsBusy = (~type_: option<operationType>=?, ~scope: option<scope>=?) => {
   let ops = useOperations()
 
   React.useMemo3(() => {
-    ops->Belt.Array.some(task => {
-      let isActive = OperationLifecycleContext.isActiveStatus(task.status)
-
-      let typeMatch = switch type_ {
-      | Some(t) => task.type_ == t
-      | None => true
-      }
-
-      let scopeMatch = switch scope {
-      | Some(s) => task.scope == s
-      | None => true
-      }
-
-      isActive && typeMatch && scopeMatch
-    })
+    OperationLifecycleRuntime.arrayIsBusy(~ops, ~type_, ~scope)
   }, (ops, type_, scope))
 }

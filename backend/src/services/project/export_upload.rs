@@ -1,3 +1,4 @@
+// @efficiency-role: domain-logic
 #[path = "export_upload_runtime.rs"]
 mod export_upload_runtime;
 
