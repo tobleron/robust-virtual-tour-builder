@@ -16,6 +16,8 @@ These rules enforce a high standard of quality through unit testing across both 
 2. **Bug Fixes**: (Optional) Regression tests are deferred.
 3. **Refactoring**: (Optional) Testing after refactors is currently manual.
 4. **Commits**: `npm test` is BYPASSED in all commit scripts.
+5. **Iterative Code Changes**: During ongoing source calibration of any module, default to build verification first and defer unit-test rewrites until the implementation stabilizes.
+6. **Single Deferred Review Task**: When tests are deferred, create or reuse one shared pending task that lists every changed source file/module needing later unit-test review. Do not create a new test-review task for every small code change.
 
 ---
 
@@ -41,6 +43,7 @@ test("MyModule: divide by zero", t => {
 - Use `npm run test:watch` for developer feedback.
 - Use `npm run test:frontend` for CI/manual runs.
 - **Note**: New Vitest tests do NOT need to be registered in `tests/TestRunner.res`. Vitest automatically discovers files matching `*.test.res`.
+- **Process note**: If the source behavior is still in flux, prefer build verification first and postpone test edits to the shared deferred-review task.
 
 ---
 

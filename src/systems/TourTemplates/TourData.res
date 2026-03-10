@@ -22,6 +22,15 @@ type hotspotData = {
   "targetPitch": Nullable.t<float>,
 }
 
+type sequenceEdgeData = {
+  "linkId": string,
+  "target": string,
+  "targetSceneId": string,
+  "targetIsAutoForward": bool,
+  "sequenceNumber": int,
+  "visibleHotspotIndex": int,
+}
+
 type sceneData = {
   "name": string,
   "panorama": string,
@@ -33,6 +42,7 @@ type sceneData = {
   "autoForwardHotspotIndex": int,
   "autoForwardTargetSceneId": string,
   "hotSpots": array<hotspotData>,
+  "sequenceEdges": array<sequenceEdgeData>,
   "isHubScene": bool, // Hub scene = 2+ exit links (animates once, shows auto-forward as button)
 }
 
@@ -102,6 +112,19 @@ let encodeSceneData = (s: sceneData) => {
     ("autoForwardHotspotIndex", JsonCombinators.Json.Encode.int(s["autoForwardHotspotIndex"])),
     ("autoForwardTargetSceneId", JsonCombinators.Json.Encode.string(s["autoForwardTargetSceneId"])),
     ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"])),
+    (
+      "sequenceEdges",
+      JsonCombinators.Json.Encode.array(edge =>
+        JsonCombinators.Json.Encode.object([
+          ("linkId", JsonCombinators.Json.Encode.string(edge["linkId"])),
+          ("target", JsonCombinators.Json.Encode.string(edge["target"])),
+          ("targetSceneId", JsonCombinators.Json.Encode.string(edge["targetSceneId"])),
+          ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(edge["targetIsAutoForward"])),
+          ("sequenceNumber", JsonCombinators.Json.Encode.int(edge["sequenceNumber"])),
+          ("visibleHotspotIndex", JsonCombinators.Json.Encode.int(edge["visibleHotspotIndex"])),
+        ])
+      )(s["sequenceEdges"]),
+    ),
     ("isHubScene", JsonCombinators.Json.Encode.bool(s["isHubScene"])),
   ])
 }

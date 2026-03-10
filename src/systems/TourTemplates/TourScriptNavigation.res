@@ -110,6 +110,11 @@ let script = `
     const AUTO_FORWARD_MAX_HOPS = 24;
     let autoForwardChainVisited = [];
     let autoForwardChainActive = false;
+    const defaultSceneSequenceCursorByScene = new Map();
+    const sceneIdBySequencePosition = new Map();
+    const firstSequencePositionBySceneId = new Map();
+    const currentSceneSequenceContext = { sceneId: null, sequenceCursor: null, sourceSceneId: null };
+    let pendingArrivalContext = null;
     function resetAutoForwardLoopGuard() {
       autoForwardChainVisited = [];
       autoForwardChainActive = false;
@@ -131,6 +136,122 @@ let script = `
       if (sourceSceneId === targetSceneId) return true;
       if (autoForwardChainVisited.length >= AUTO_FORWARD_MAX_HOPS) return true;
       return autoForwardChainVisited.includes(targetSceneId);
+    }
+    function pushDefaultSceneSequenceCursor(sceneId, sequenceNumber) {
+      if (!sceneId || !Number.isInteger(sequenceNumber) || sequenceNumber < 0) return;
+      const existing = defaultSceneSequenceCursorByScene.get(sceneId);
+      if (!Number.isInteger(existing) || sequenceNumber < existing) {
+        defaultSceneSequenceCursorByScene.set(sceneId, sequenceNumber);
+      }
+    }
+    function pushSceneSequencePosition(sceneId, sequencePosition) {
+      if (!sceneId || !Number.isInteger(sequencePosition) || sequencePosition < 1) return;
+      if (!sceneIdBySequencePosition.has(sequencePosition)) {
+        sceneIdBySequencePosition.set(sequencePosition, sceneId);
+      }
+      const existing = firstSequencePositionBySceneId.get(sceneId);
+      if (!Number.isInteger(existing) || sequencePosition < existing) {
+        firstSequencePositionBySceneId.set(sceneId, sequencePosition);
+      }
+    }
+    function buildDefaultSceneSequenceCursorMap() {
+      if (defaultSceneSequenceCursorByScene.size > 0) return;
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (homeSceneId) pushDefaultSceneSequenceCursor(homeSceneId, 0);
+      Object.entries(scenesData || {}).forEach(([sceneId, sceneData]) => {
+        const sequenceEdges = Array.isArray(sceneData?.sequenceEdges) ? sceneData.sequenceEdges : [];
+        sequenceEdges.forEach(edge => {
+          const targetSceneId = resolveExistingSceneId(edge?.targetSceneId);
+          if (!targetSceneId) return;
+          const sequenceNumber = Number.isFinite(edge?.sequenceNumber)
+            ? Math.trunc(edge.sequenceNumber)
+            : null;
+          if (!Number.isInteger(sequenceNumber) || sequenceNumber < 1) return;
+          pushDefaultSceneSequenceCursor(targetSceneId, sequenceNumber);
+        });
+      });
+    }
+    function buildSceneSequencePositionMaps() {
+      if (sceneIdBySequencePosition.size > 0) return;
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (homeSceneId) {
+        pushSceneSequencePosition(homeSceneId, 1);
+      }
+      Object.entries(scenesData || {}).forEach(([sourceSceneId, sourceSceneData]) => {
+        const sequenceEdges = Array.isArray(sourceSceneData?.sequenceEdges) ? sourceSceneData.sequenceEdges : [];
+        sequenceEdges.forEach(edge => {
+          const seqRaw = Number.isFinite(edge?.sequenceNumber) ? Math.trunc(edge.sequenceNumber) : null;
+          if (!Number.isInteger(seqRaw) || seqRaw < 1) return;
+          const targetSceneId = resolveExistingSceneId(edge?.targetSceneId);
+          if (targetSceneId) {
+            pushSceneSequencePosition(targetSceneId, seqRaw + 1);
+          }
+        });
+      });
+    }
+    function resolveSceneIdForSequencePosition(sequencePosition) {
+      if (!Number.isInteger(sequencePosition) || sequencePosition < 1) return null;
+      buildSceneSequencePositionMaps();
+      return resolveExistingSceneId(sceneIdBySequencePosition.get(sequencePosition)) ?? null;
+    }
+    function resolveFirstSequencePositionForScene(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      buildSceneSequencePositionMaps();
+      const existing = firstSequencePositionBySceneId.get(resolvedSceneId);
+      return Number.isInteger(existing) && existing >= 1 ? existing : null;
+    }
+    function applyManualSequencePosition(sceneId, sequencePosition) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return false;
+      if (!Number.isInteger(sequencePosition) || sequencePosition < 1) return false;
+      currentSceneSequenceContext.sceneId = resolvedSceneId;
+      currentSceneSequenceContext.sequenceCursor = Math.max(0, sequencePosition - 1);
+      currentSceneSequenceContext.sourceSceneId =
+        resolveSceneIdForSequencePosition(sequencePosition - 1);
+      pendingArrivalContext = null;
+      return true;
+    }
+    function resolveDefaultSceneSequenceCursor(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return 1;
+      buildDefaultSceneSequenceCursorMap();
+      const defaultCursor = defaultSceneSequenceCursorByScene.get(resolvedSceneId);
+      return Number.isInteger(defaultCursor) ? defaultCursor : 1;
+    }
+    function getCurrentSceneSequenceCursor(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return 1;
+      if (
+        currentSceneSequenceContext.sceneId === resolvedSceneId &&
+        Number.isInteger(currentSceneSequenceContext.sequenceCursor)
+      ) {
+        return currentSceneSequenceContext.sequenceCursor;
+      }
+      return resolveDefaultSceneSequenceCursor(resolvedSceneId);
+    }
+    function getCurrentSceneSourceSceneId(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      if (currentSceneSequenceContext.sceneId !== resolvedSceneId) return null;
+      return resolveExistingSceneId(currentSceneSequenceContext.sourceSceneId)
+        ?? normalizeSceneId(currentSceneSequenceContext.sourceSceneId);
+    }
+    function applyPendingSequenceContext(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return;
+      if (
+        pendingArrivalContext?.targetSceneId === resolvedSceneId &&
+        Number.isInteger(pendingArrivalContext?.sequenceCursor)
+      ) {
+        currentSceneSequenceContext.sceneId = resolvedSceneId;
+        currentSceneSequenceContext.sequenceCursor = pendingArrivalContext.sequenceCursor;
+        currentSceneSequenceContext.sourceSceneId = pendingArrivalContext.sourceSceneId ?? null;
+        return;
+      }
+      currentSceneSequenceContext.sceneId = resolvedSceneId;
+      currentSceneSequenceContext.sequenceCursor = resolveDefaultSceneSequenceCursor(resolvedSceneId);
+      currentSceneSequenceContext.sourceSceneId = null;
     }
     function resolveTargetSceneId(args, forceTargetSceneId) {
       const ownerSceneId = resolveExistingSceneId(args?.sourceSceneId) ?? normalizeSceneId(args?.sourceSceneId);
@@ -154,6 +275,148 @@ let script = `
         if (resolved) return resolved;
       }
       return null;
+    }
+    function buildResolvedHotspots(sceneId, sceneData) {
+      const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
+      return hotspots.map((hotspot, hotspotIndex) => {
+        const directTarget = resolveExistingSceneId(hotspot?.targetSceneId);
+        const resolvedTarget = resolveTargetSceneId({
+          sourceSceneId: sceneId,
+          i: hotspotIndex,
+          targetSceneId: hotspot?.targetSceneId,
+          target: hotspot?.target,
+          targetName: hotspot?.target,
+        }, null) ?? directTarget;
+        const isAutoForward = hotspotIndex === sceneData?.autoForwardHotspotIndex;
+        const isReturn = hotspot?.isReturnLink === true;
+        return { hotspot, hotspotIndex, resolvedTarget, isAutoForward, isReturn };
+      });
+    }
+    function sortCanonicalHotspots(resolvedHotspots) {
+      return resolvedHotspots.slice().sort((a, b) => {
+        const seqA = Number.isFinite(a?.hotspot?.sequenceNumber) ? Math.trunc(a.hotspot.sequenceNumber) : null;
+        const seqB = Number.isFinite(b?.hotspot?.sequenceNumber) ? Math.trunc(b.hotspot.sequenceNumber) : null;
+        const rankA = a.isReturn ? 900000 + a.hotspotIndex : (seqA !== null ? seqA : 100000 + a.hotspotIndex);
+        const rankB = b.isReturn ? 900000 + b.hotspotIndex : (seqB !== null ? seqB : 100000 + b.hotspotIndex);
+        if (rankA !== rankB) return rankA - rankB;
+        if (a.isAutoForward !== b.isAutoForward) return a.isAutoForward ? 1 : -1;
+        return a.hotspotIndex - b.hotspotIndex;
+      });
+    }
+    function getSceneSequenceEdges(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return [];
+      const edges = Array.isArray(sceneData?.sequenceEdges) ? sceneData.sequenceEdges.slice() : [];
+      return edges
+        .filter(edge => {
+          const targetSceneId = resolveExistingSceneId(edge?.targetSceneId);
+          const sequenceNumber = Number.isFinite(edge?.sequenceNumber)
+            ? Math.trunc(edge.sequenceNumber)
+            : null;
+          return !!targetSceneId && Number.isInteger(sequenceNumber) && sequenceNumber >= 1;
+        })
+        .map(edge => ({
+          ...edge,
+          targetSceneId: resolveExistingSceneId(edge.targetSceneId) ?? edge.targetSceneId,
+          sequenceNumber: Math.trunc(edge.sequenceNumber),
+          visibleHotspotIndex: Number.isFinite(edge?.visibleHotspotIndex)
+            ? Math.trunc(edge.visibleHotspotIndex)
+            : -1,
+        }))
+        .sort((a, b) => {
+          if (a.sequenceNumber !== b.sequenceNumber) return a.sequenceNumber - b.sequenceNumber;
+          return a.visibleHotspotIndex - b.visibleHotspotIndex;
+        });
+    }
+    function resolveVisibleHotspotByIndex(sceneData, hotspotIndex) {
+      const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
+      if (!Number.isInteger(hotspotIndex) || hotspotIndex < 0) return null;
+      return hotspots[hotspotIndex] ?? null;
+    }
+    function resolveVisibleHotspotForSequenceEdge(sceneData, edge) {
+      if (!edge) return null;
+      return resolveVisibleHotspotByIndex(sceneData, edge.visibleHotspotIndex);
+    }
+    function resolveNextForwardSequenceEdge(sceneId, sceneData) {
+      const currentCursor = getCurrentSceneSequenceCursor(sceneId, sceneData);
+      const sequenceEdges = getSceneSequenceEdges(sceneId, sceneData);
+      return sequenceEdges.find(edge => edge.sequenceNumber > currentCursor) ?? null;
+    }
+    function resolveSequenceEdgeForVisibleHotspot(sceneId, sceneData, visibleHotspotIndex) {
+      const currentCursor = getCurrentSceneSequenceCursor(sceneId, sceneData);
+      const matchingEdges = getSceneSequenceEdges(sceneId, sceneData).filter(
+        edge => edge.visibleHotspotIndex === visibleHotspotIndex,
+      );
+      if (matchingEdges.length === 0) return null;
+      const nextEdge = matchingEdges.find(edge => edge.sequenceNumber > currentCursor);
+      return nextEdge ?? matchingEdges[matchingEdges.length - 1];
+    }
+    function resolveForwardHotspotByTargetScene(sceneId, sceneData, targetSceneId) {
+      const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
+      if (!resolvedTargetSceneId) return null;
+      const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
+      return (
+        sortCanonicalHotspots(resolvedHotspots).find(
+          h => !h.isReturn && h.resolvedTarget === resolvedTargetSceneId,
+        ) ?? null
+      );
+    }
+    function resolveSceneForwardHotspots(sceneId, sceneData) {
+      const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
+      return sortCanonicalHotspots(resolvedHotspots).filter(h => !h.isReturn && !!h.resolvedTarget);
+    }
+    function resolveDeadEndExitHotspot(sceneId, sceneData) {
+      const forwardHotspots = resolveSceneForwardHotspots(sceneId, sceneData);
+      if (forwardHotspots.length > 0) return null;
+      return resolveSceneReturnHotspot(sceneId);
+    }
+    function resolvePreviousSequenceTarget(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const deadEndExit = resolveDeadEndExitHotspot(resolvedSceneId, sceneData);
+      if (deadEndExit) {
+        return {
+          hotspot: deadEndExit.hotspot,
+          hotspotIndex: deadEndExit.hotspotIndex,
+          targetSceneId: deadEndExit.targetSceneId,
+          sourceSceneId: resolvedSceneId,
+          usesReturnLink: true,
+        };
+      }
+      const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);
+      const previousSequencePosition = Number.isInteger(currentCursor) ? currentCursor : null;
+      const previousSceneId = resolveSceneIdForSequencePosition(previousSequencePosition);
+      if (!previousSceneId || previousSceneId === resolvedSceneId) return null;
+      const backwardHotspot = resolveForwardHotspotByTargetScene(
+        resolvedSceneId,
+        sceneData,
+        previousSceneId,
+      );
+      if (backwardHotspot) {
+        return {
+          hotspot: backwardHotspot.hotspot,
+          hotspotIndex: backwardHotspot.hotspotIndex,
+          targetSceneId: previousSceneId,
+          sourceSceneId: resolvedSceneId,
+          usesReturnLink: false,
+        };
+      }
+      return {
+        hotspot: null,
+        hotspotIndex: null,
+        targetSceneId: previousSceneId,
+        sourceSceneId: resolvedSceneId,
+        usesReturnLink: false,
+      };
+    }
+    function resolvePostArrivalFocusHotspot(sceneId, sceneData) {
+      const nextForwardEdge = resolveNextForwardSequenceEdge(sceneId, sceneData);
+      const nextForwardHotspot = resolveVisibleHotspotForSequenceEdge(sceneData, nextForwardEdge);
+      if (nextForwardHotspot) return nextForwardHotspot;
+      const returnHotspot = resolveSceneReturnHotspot(sceneId);
+      if (returnHotspot?.hotspot) return returnHotspot.hotspot;
+      const previousTarget = resolvePreviousSequenceTarget(sceneId, sceneData);
+      return previousTarget?.hotspot ?? null;
     }
     function resolveAutoForwardArrivalView(sceneId) {
       const resolvedSceneId = resolveExistingSceneId(sceneId);
@@ -203,6 +466,21 @@ let script = `
       } else {
         resetAutoForwardLoopGuard();
       }
+      const fallbackSequenceCursor = args?.isReturnLink === true
+        ? getCurrentSceneSequenceCursor(sourceSceneId, scenesData?.[sourceSceneId])
+        : (Number.isFinite(args?.sequenceNumber) ? Math.trunc(args.sequenceNumber) : null);
+      const sequenceCursor = Number.isInteger(options?.sequenceCursorOverride)
+        ? options.sequenceCursorOverride
+        : fallbackSequenceCursor;
+      const shouldTrackArrivalOrientation =
+        !!sourceSceneId &&
+        !!targetSceneId &&
+        Number.isInteger(sequenceCursor);
+      if (shouldTrackArrivalOrientation) {
+        pendingArrivalContext = {sourceSceneId, targetSceneId, sequenceCursor}
+      } else {
+        pendingArrivalContext = null
+      }
       transitionFrom = window.viewer.getScene(); persistentFrom = transitionFrom;
       setTimeout(() => {
         const verifiedTarget = resolveExistingSceneId(targetSceneId);
@@ -221,45 +499,36 @@ let script = `
       const hotspots = Array.isArray(sceneData?.hotSpots) ? sceneData.hotSpots : [];
       if (!hotspots.length) return null;
       
-      // Reset __visited flags for this scene's hotspots to ensure auto-forward exits work on re-entry
+      // Legacy export playback still drives first-arrival animation selection.
+      // Reset transient hotspot visit flags here so rooms with return links do not
+      // inherit stale playback state across revisits.
       hotspots.forEach(h => { if (h) h.__visited = false; });
-      
-      const resolvedHotspots = hotspots.map((hotspot, hotspotIndex) => {
-        const directTarget = resolveExistingSceneId(hotspot?.targetSceneId);
-        const resolvedTarget = resolveTargetSceneId({
-          sourceSceneId: sceneId,
-          i: hotspotIndex,
-          targetSceneId: hotspot?.targetSceneId,
-          target: hotspot?.target,
-          targetName: hotspot?.target,
-        }, null) ?? directTarget;
-        const isAutoForward = hotspotIndex === sceneData?.autoForwardHotspotIndex;
-        const isReturn = hotspot?.isReturnLink === true;
-        return { hotspot, hotspotIndex, resolvedTarget, isAutoForward, isReturn };
-      });
+
+      const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
 
       if (EXPORT_TRAVERSAL_MODE === "canonical") {
-        const canonicalSorted = resolvedHotspots.slice().sort((a, b) => {
-          const seqA = Number.isFinite(a?.hotspot?.sequenceNumber) ? Math.trunc(a.hotspot.sequenceNumber) : null;
-          const seqB = Number.isFinite(b?.hotspot?.sequenceNumber) ? Math.trunc(b.hotspot.sequenceNumber) : null;
-          const rankA = a.isReturn ? 900000 + a.hotspotIndex : (seqA !== null ? seqA : 100000 + a.hotspotIndex);
-          const rankB = b.isReturn ? 900000 + b.hotspotIndex : (seqB !== null ? seqB : 100000 + b.hotspotIndex);
-          if (rankA !== rankB) return rankA - rankB;
-          if (a.isAutoForward !== b.isAutoForward) return a.isAutoForward ? 1 : -1;
-          return a.hotspotIndex - b.hotspotIndex;
-        });
-
-        const canonicalNext = canonicalSorted.find(h => !h.hotspot.__visited);
-        if (canonicalNext) {
-          canonicalNext.hotspot.__visited = true;
+        const nextForwardEdge = resolveNextForwardSequenceEdge(sceneId, sceneData);
+        const nextForwardHotspot = resolveVisibleHotspotForSequenceEdge(sceneData, nextForwardEdge);
+        if (nextForwardEdge && nextForwardHotspot) {
           return {
-            hotspot: canonicalNext.hotspot,
-            hotspotIndex: canonicalNext.hotspotIndex,
-            autoForward: canonicalNext.isAutoForward,
-            targetSceneId: canonicalNext.resolvedTarget,
+            hotspot: nextForwardHotspot,
+            hotspotIndex: nextForwardEdge.visibleHotspotIndex,
+            autoForward: nextForwardEdge.visibleHotspotIndex === sceneData?.autoForwardHotspotIndex,
+            targetSceneId: nextForwardEdge.targetSceneId,
           };
         }
 
+        const canonicalReturn = resolveDeadEndExitHotspot(sceneId, sceneData);
+        if (canonicalReturn) {
+          return {
+            hotspot: canonicalReturn.hotspot,
+            hotspotIndex: canonicalReturn.hotspotIndex,
+            autoForward: canonicalReturn.hotspotIndex === sceneData?.autoForwardHotspotIndex,
+            targetSceneId: canonicalReturn.targetSceneId,
+          };
+        }
+
+        const canonicalSorted = sortCanonicalHotspots(resolvedHotspots);
         const canonicalFallback = canonicalSorted.find(h => h.hotspotIndex === 0) ?? canonicalSorted[0];
         if (canonicalFallback) {
           return {

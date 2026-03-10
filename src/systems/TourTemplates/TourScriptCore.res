@@ -1,5 +1,5 @@
 let script = `
-    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, sceneId: null, arrivedSceneId: null };
+    const waypointRuntime = { animationId: null, readyTimeoutId: null, autoForwardTimeoutId: null, postArrivalAnimationId: null, sceneId: null, arrivedSceneId: null };
     const DEFAULT_HFOV = __DEFAULT_HFOV__;
     const MIN_HFOV = __MIN_HFOV__;
     const MAX_HFOV = __MAX_HFOV__;
@@ -20,7 +20,8 @@ let script = `
       if (waypointRuntime.animationId !== null) cancelAnimationFrame(waypointRuntime.animationId);
       if (waypointRuntime.readyTimeoutId !== null) clearTimeout(waypointRuntime.readyTimeoutId);
       if (waypointRuntime.autoForwardTimeoutId !== null) clearTimeout(waypointRuntime.autoForwardTimeoutId);
-      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.arrivedSceneId = null;
+      if (waypointRuntime.postArrivalAnimationId !== null) cancelAnimationFrame(waypointRuntime.postArrivalAnimationId);
+      waypointRuntime.animationId = null; waypointRuntime.readyTimeoutId = null; waypointRuntime.autoForwardTimeoutId = null; waypointRuntime.postArrivalAnimationId = null; waypointRuntime.arrivedSceneId = null;
     }
     function normalizeYawDelta(fromYaw, toYaw) {
       let delta = toYaw - fromYaw;

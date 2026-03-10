@@ -157,21 +157,21 @@ let script = `
       if (key === "ArrowUp") {
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
-        const sid = floorTagShortcutState.nextSceneId;
-        if (!sid) return;
+        if (typeof navigateToNextSequenceShortcut !== "function") return;
+        const didNavigateNext = navigateToNextSequenceShortcut();
+        if (!didNavigateNext) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        navigateToFloorTagShortcut(sid);
         return;
       }
       if (key === "ArrowDown") {
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
-        const sid = floorTagShortcutState.prevSceneId;
-        if (!sid) return;
+        if (typeof navigateToPreviousSequenceShortcut !== "function") return;
+        const didNavigatePrev = navigateToPreviousSequenceShortcut();
+        if (!didNavigatePrev) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        navigateToFloorTagShortcut(sid);
         return;
       }
     }

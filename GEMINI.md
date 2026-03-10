@@ -5,7 +5,8 @@
 2. **MAP.md Integrity**: When updating `MAP.md`, ALWAYS use **root-relative paths** (e.g., `[src/Main.res](src/Main.res)`). NEVER use absolute paths or `file:///` URIs.
 3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
 4. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.
-5. **Conditional Context Loading**:
+5. **Iterative Code Change Verification Policy**: For ongoing code calibration/refinement of any source files, verify the build after each change and defer unit-test rewrites until behavior stabilizes. Create or reuse a single pending task that tracks all deferred unit-test review work for the affected modules instead of editing tests on every iteration.
+6. **Conditional Context Loading**:
    - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`.
    - **IF** writing `.rs` files: Read `.agent/workflows/rust-standards.md`.
    - **IF** writing Tests: Read `.agent/workflows/testing-standards.md`.
@@ -32,6 +33,8 @@
   - [ ] **Context Handoff**: 3-sentence summary for the next session if the window fills up.
 
 ### PHASE 1: EXECUTION
+- **Default verification for iterative code changes**: Prefer `npm run build` or the narrowest relevant build-equivalent check first. Do not spend tokens repeatedly updating unit tests while the source behavior is still being tuned.
+- **Deferred test maintenance**: If source code changes outpace test updates, create or reuse one shared pending task for deferred unit-test review and list the affected modules there for later alignment once the implementation is stable.
 
 ### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.

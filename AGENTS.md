@@ -16,6 +16,8 @@ This file provides universal guidelines for agents working with code in this rep
 **Task Protocol:**
 - Before handling any task-related concerns, read `tasks/TASKS.md`
 - Follow the exact procedures: Read `TASKS.md` → Move to `active/` → Implement → Verify build → Archive
+- For iterative code changes, default to build verification first and defer unit-test rewrites until the source behavior stabilizes
+- When tests are deferred, create or reuse a single pending task that tracks all affected modules/source files for later unit-test alignment instead of editing tests on every iteration
 
 **Conditional Context Loading:**
 - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`
@@ -38,6 +40,9 @@ This file provides universal guidelines for agents working with code in this rep
 
 ### PHASE 1: Execution
 - Follow the task protocol and conditional context loading steps above.
+- For ongoing calibration/refinement work, prefer `npm run build` or the narrowest relevant build-equivalent check after each change.
+- Only update unit tests immediately when the user explicitly asks, the implementation is stabilizing/finalized, or the code change cannot be responsibly verified without them.
+- Otherwise, append the affected modules/files to one shared pending deferred-test-review task and continue preserving tokens for source calibration.
 
 ### PHASE 2: Commit & Push
 - **Explicit Permission**: Only commit when the user provides a message or instruction.

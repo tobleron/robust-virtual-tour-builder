@@ -30,7 +30,19 @@ let script = `
     let suppressShortcutPanelUntilNextLoad = false;
     const mapRuntime = { isOpen: false };
     const mapSequenceInputState = { isOpen: false, value: "", error: "" };
-    const floorTagShortcutState = { sceneId: null, floorId: null, pageStart: 0, totalEntries: 0, hasMap: false, visibleEntries: [], isAutoTourActive: false };
+    const floorTagShortcutState = {
+      sceneId: null,
+      floorId: null,
+      pageStart: 0,
+      totalEntries: 0,
+      hasMap: false,
+      visibleEntries: [],
+      isAutoTourActive: false,
+      nextHotspotIndex: null,
+      nextSequenceNumber: null,
+      prevHotspotIndex: null,
+      prevUsesReturnLink: false,
+    };
     function clearAutoTourCompletionCountdown() {
       if (autoTourCountdownIntervalId !== null) {
         clearInterval(autoTourCountdownIntervalId);

@@ -40,44 +40,16 @@ let script = `
         labelEl.classList.remove("state-visible");
         labelEl.classList.add("state-hidden");
       };
-      const sceneSequenceMap = new Map();
-      const pushSceneSequence = (sceneId, sequence) => {
-        if (!sceneId || !Number.isInteger(sequence) || sequence < 1) return;
-        const existing = sceneSequenceMap.get(sceneId);
-        if (!Number.isInteger(existing) || sequence < existing) {
-          sceneSequenceMap.set(sceneId, sequence);
-        }
-      };
-      const buildSceneSequenceMap = () => {
-        if (sceneSequenceMap.size > 0) return;
-        const homeSceneId = resolveExistingSceneId(firstSceneId);
-        if (homeSceneId) {
-          pushSceneSequence(homeSceneId, 1);
-        }
-        Object.entries(scenesData || {}).forEach(([sourceSceneId, sourceSceneData]) => {
-          const sourceHotspots = Array.isArray(sourceSceneData?.hotSpots) ? sourceSceneData.hotSpots : [];
-          sourceHotspots.forEach((hotspot, hotspotIndex) => {
-            if (!hotspot || hotspot.isReturnLink === true) return;
-            const seqRaw = Number.isFinite(hotspot.sequenceNumber) ? Math.trunc(hotspot.sequenceNumber) : null;
-            if (!Number.isInteger(seqRaw) || seqRaw < 1) return;
-            pushSceneSequence(sourceSceneId, seqRaw);
-            const targetSceneId = resolveTargetSceneId({
-              sourceSceneId,
-              i: hotspotIndex,
-              targetSceneId: hotspot?.targetSceneId,
-              target: hotspot?.target,
-              targetName: hotspot?.target
-            }, null);
-            if (targetSceneId) {
-              pushSceneSequence(targetSceneId, seqRaw + 1);
-            }
-          });
-        });
-      };
       const getSceneSequenceNumber = sid => {
-        buildSceneSequenceMap();
-        const seq = sceneSequenceMap.get(sid);
-        return Number.isInteger(seq) && seq >= 1 ? seq : null;
+        if (typeof getCurrentSceneSequenceCursor === "function" && sid === window.viewer?.getScene?.()) {
+          const currentSeq = getCurrentSceneSequenceCursor(sid, scenesData?.[sid]);
+          if (Number.isInteger(currentSeq) && currentSeq >= 0) return currentSeq + 1;
+        }
+        if (typeof resolveFirstSequencePositionForScene === "function") {
+          const seq = resolveFirstSequencePositionForScene(sid);
+          return Number.isInteger(seq) && seq >= 1 ? seq : null;
+        }
+        return null;
       };
       const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
       if (rawLabel !== "") {
@@ -103,40 +75,14 @@ let script = `
     }
     function buildSceneSequenceRows() {
       const sceneSequenceRows = [];
-      const sequenceBySceneId = new Map();
-      const pushSequence = (sceneId, sequence) => {
-        if (!sceneId || !Number.isInteger(sequence) || sequence < 1) return;
-        const existing = sequenceBySceneId.get(sceneId);
-        if (!Number.isInteger(existing) || sequence < existing) {
-          sequenceBySceneId.set(sceneId, sequence);
-        }
-      };
-      const homeSceneId = resolveExistingSceneId(firstSceneId);
-      if (homeSceneId) {
-        pushSequence(homeSceneId, 1);
+      if (typeof buildSceneSequencePositionMaps === "function") {
+        buildSceneSequencePositionMaps();
       }
-      Object.entries(scenesData || {}).forEach(([sourceSceneId, sourceSceneData]) => {
-        const sourceHotspots = Array.isArray(sourceSceneData?.hotSpots) ? sourceSceneData.hotSpots : [];
-        sourceHotspots.forEach((hotspot, hotspotIndex) => {
-          if (!hotspot || hotspot.isReturnLink === true) return;
-          const seqRaw = Number.isFinite(hotspot.sequenceNumber) ? Math.trunc(hotspot.sequenceNumber) : null;
-          if (!Number.isInteger(seqRaw) || seqRaw < 1) return;
-          pushSequence(sourceSceneId, seqRaw);
-          const targetSceneId = resolveTargetSceneId({
-            sourceSceneId,
-            i: hotspotIndex,
-            targetSceneId: hotspot?.targetSceneId,
-            target: hotspot?.target,
-            targetName: hotspot?.target
-          }, null);
-          if (targetSceneId) {
-            pushSequence(targetSceneId, seqRaw + 1);
-          }
+      if (typeof sceneIdBySequencePosition?.forEach === "function") {
+        sceneIdBySequencePosition.forEach((sceneId, sequence) => {
+          sceneSequenceRows.push({ sequence, sceneId });
         });
-      });
-      sequenceBySceneId.forEach((sequence, sceneId) => {
-        sceneSequenceRows.push({ sequence, sceneId });
-      });
+      }
       sceneSequenceRows.sort((a, b) => a.sequence - b.sequence);
       return sceneSequenceRows;
     }
@@ -146,7 +92,10 @@ let script = `
       if (sceneSequenceRows.length === 0) return false;
       const targetEntry = sceneSequenceRows.find(item => item.sequence === chosen);
       if (!targetEntry || !targetEntry.sceneId) return false;
-      navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });
+      navigateToFloorTagShortcut(
+        targetEntry.sceneId,
+        { fromMap: true, sequencePosition: targetEntry.sequence },
+      );
       return true;
     }
     function isSceneSequencePromptOpen() {
@@ -276,6 +225,10 @@ let script = `
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;
       const fromMap = options?.fromMap === true;
       const mapSelectedRow = options?.mapSelectedRow ?? null;
+      const sequencePosition =
+        Number.isInteger(options?.sequencePosition) && options.sequencePosition >= 1
+          ? options.sequencePosition
+          : null;
       const selectedDurationMs = 500;
       const runNavigation = () => {
         if (fromMap && typeof enableLookingModeAfterMapNavigation === "function") {
@@ -292,6 +245,9 @@ let script = `
         const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
         if (!resolvedTargetSceneId) return;
         if (window.viewer.getScene() === resolvedTargetSceneId) {
+          if (Number.isInteger(sequencePosition) && typeof applyManualSequencePosition === "function") {
+            applyManualSequencePosition(resolvedTargetSceneId, sequencePosition);
+          }
           pendingShortcutLabelSceneId = resolvedTargetSceneId;
           updateExportRoomLabel(resolvedTargetSceneId, true);
           pendingShortcutLabelSceneId = null;
@@ -299,9 +255,22 @@ let script = `
           return;
         }
         pendingShortcutLabelSceneId = resolvedTargetSceneId;
-        navigateToNextScene({ targetSceneId: resolvedTargetSceneId }, resolvedTargetSceneId);
+        navigateToNextScene(
+          { targetSceneId: resolvedTargetSceneId },
+          resolvedTargetSceneId,
+          Number.isInteger(sequencePosition)
+            ? {
+                targetSceneId: resolvedTargetSceneId,
+                sequenceCursorOverride: sequencePosition - 1,
+              }
+            : undefined,
+        );
       };
-      if (fromMap && window.viewer.getScene() === targetSceneId) {
+      if (
+        fromMap &&
+        window.viewer.getScene() === targetSceneId &&
+        !Number.isInteger(sequencePosition)
+      ) {
         return;
       }
       if (fromMap && mapSelectedRow) {
@@ -313,6 +282,87 @@ let script = `
         return;
       }
       runNavigation();
+    }
+    function navigateToNextSequenceShortcut() {
+      const sceneId = floorTagShortcutState.sceneId;
+      const nextSceneId = floorTagShortcutState.nextSceneId;
+      const nextHotspotIndex = floorTagShortcutState.nextHotspotIndex;
+      const nextSequenceNumber = floorTagShortcutState.nextSequenceNumber;
+      if (!sceneId || !nextSceneId) return false;
+      if (!Number.isInteger(nextHotspotIndex) || nextHotspotIndex < 0) {
+        navigateToNextScene(
+          { sourceSceneId: sceneId, targetSceneId: nextSceneId },
+          nextSceneId,
+          { sourceSceneId: sceneId, targetSceneId: nextSceneId, sequenceCursorOverride: nextSequenceNumber },
+        );
+        return true;
+      }
+      const hotspot = scenesData?.[sceneId]?.hotSpots?.[nextHotspotIndex];
+      if (!hotspot) {
+        navigateToNextScene(
+          { sourceSceneId: sceneId, targetSceneId: nextSceneId },
+          nextSceneId,
+          { sourceSceneId: sceneId, targetSceneId: nextSceneId, sequenceCursorOverride: nextSequenceNumber },
+        );
+        return true;
+      }
+      pendingShortcutLabelSceneId = nextSceneId;
+      navigateToNextScene(
+        {
+          sourceSceneId: sceneId,
+          i: nextHotspotIndex,
+          targetSceneId: hotspot?.targetSceneId ?? nextSceneId,
+          target: hotspot?.target,
+          targetName: hotspot?.target,
+          isReturnLink: hotspot?.isReturnLink === true,
+        },
+        nextSceneId,
+        { sourceSceneId: sceneId, targetSceneId: nextSceneId, sequenceCursorOverride: nextSequenceNumber },
+      );
+      return true;
+    }
+    function navigateToPreviousSequenceShortcut() {
+      const sceneId = floorTagShortcutState.sceneId;
+      const prevSceneId = floorTagShortcutState.prevSceneId;
+      const prevHotspotIndex = floorTagShortcutState.prevHotspotIndex;
+      const prevUsesReturnLink = floorTagShortcutState.prevUsesReturnLink === true;
+      if (!sceneId || !prevSceneId) return false;
+      if (prevUsesReturnLink && typeof navigateReturnHotspotFromCurrentScene === "function") {
+        return navigateReturnHotspotFromCurrentScene();
+      }
+      if (Number.isInteger(prevHotspotIndex) && prevHotspotIndex >= 0) {
+        const hotspot = scenesData?.[sceneId]?.hotSpots?.[prevHotspotIndex];
+        if (hotspot) {
+          pendingShortcutLabelSceneId = prevSceneId;
+          navigateToNextScene(
+            {
+              sourceSceneId: sceneId,
+              i: prevHotspotIndex,
+              targetSceneId: hotspot?.targetSceneId ?? prevSceneId,
+              target: hotspot?.target,
+              targetName: hotspot?.target,
+              isReturnLink: hotspot?.isReturnLink === true,
+            },
+            prevSceneId,
+            {
+              sourceSceneId: sceneId,
+              targetSceneId: prevSceneId,
+              sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+            },
+          );
+          return true;
+        }
+      }
+      navigateToNextScene(
+        { sourceSceneId: sceneId, targetSceneId: prevSceneId },
+        prevSceneId,
+        {
+          sourceSceneId: sceneId,
+          targetSceneId: prevSceneId,
+          sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+        },
+      );
+      return true;
     }
     function navigateToExportHome() {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;
@@ -364,6 +414,10 @@ let script = `
     function clearExportFloorTagShortcuts(panel) {
       floorTagShortcutState.nextSceneId = null;
       floorTagShortcutState.prevSceneId = null;
+      floorTagShortcutState.nextHotspotIndex = null;
+      floorTagShortcutState.nextSequenceNumber = null;
+      floorTagShortcutState.prevHotspotIndex = null;
+      floorTagShortcutState.prevUsesReturnLink = false;
       if (!panel) return;
       while (panel.firstChild) panel.removeChild(panel.firstChild);
       panel.classList.add("state-hidden");
@@ -432,14 +486,20 @@ let script = `
       if (!currentSceneData) return;
 
       // Navigation Logic: Next (Up) and Previous (Down)
-      const nextTarget = resolveScenePlaybackHotspot(sceneId, currentSceneData);
-      const nextSceneId = nextTarget ? nextTarget.targetSceneId : null;
-      const prevSceneId = persistentFrom;
+      const nextForwardEdge = resolveNextForwardSequenceEdge(sceneId, currentSceneData);
+      const nextForwardHotspot = resolveVisibleHotspotForSequenceEdge(currentSceneData, nextForwardEdge);
+      const previousTarget = resolvePreviousSequenceTarget(sceneId, currentSceneData);
+      const nextSceneId = nextForwardEdge ? nextForwardEdge.targetSceneId : null;
+      const prevSceneId = previousTarget ? previousTarget.targetSceneId : null;
 
       // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.nextSceneId = nextSceneId;
       floorTagShortcutState.prevSceneId = prevSceneId;
+      floorTagShortcutState.nextHotspotIndex = nextForwardEdge ? nextForwardEdge.visibleHotspotIndex : null;
+      floorTagShortcutState.nextSequenceNumber = nextForwardEdge ? nextForwardEdge.sequenceNumber : null;
+      floorTagShortcutState.prevHotspotIndex = previousTarget ? previousTarget.hotspotIndex : null;
+      floorTagShortcutState.prevUsesReturnLink = previousTarget?.usesReturnLink === true;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
@@ -467,15 +527,15 @@ let script = `
       };
 
       // 1. Next Scene (Up Arrow)
-      if (nextSceneId) {
+      if (nextSceneId && nextForwardHotspot) {
         const nextLabel = scenesData[nextSceneId]?.label || scenesData[nextSceneId]?.name || "Next";
-        panel.appendChild(createRow(nextSceneId, "↑", nextLabel, () => navigateToFloorTagShortcut(nextSceneId)));
+        panel.appendChild(createRow(nextSceneId, "↑", nextLabel, () => navigateToNextSequenceShortcut()));
       }
 
       // 2. Previous Scene (Down Arrow)
       if (prevSceneId && prevSceneId !== sceneId) {
         const prevLabel = scenesData[prevSceneId]?.label || scenesData[prevSceneId]?.name || "Back";
-        panel.appendChild(createRow(prevSceneId, "↓", prevLabel, () => navigateToFloorTagShortcut(prevSceneId)));
+        panel.appendChild(createRow(prevSceneId, "↓", prevLabel, () => navigateToPreviousSequenceShortcut()));
       }
 
       // 3. Home (h)

@@ -34,11 +34,32 @@ let script = `
     function snapToPlaybackTerminalView(terminalView) {
       window.viewer.lookAt(terminalView.pitch, terminalView.yaw, getCurrentHfov(), false);
     }
+    function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs) {
+      if (window.viewer.getScene() !== sceneId) return;
+      const yawDelta = normalizeYawDelta(startYaw, targetYaw);
+      const startAt = performance.now();
+      const tick = now => {
+        if (window.viewer.getScene() !== sceneId) {
+          waypointRuntime.postArrivalAnimationId = null;
+          return;
+        }
+        const linear = Math.min(1, (now - startAt) / durationMs);
+        const eased = trapezoidal(linear, TRAPEZOID_FACTOR);
+        const currentYaw = normalizeYaw(startYaw + yawDelta * eased);
+        window.viewer.lookAt(pitch, currentYaw, getCurrentHfov(), false);
+        if (linear < 1) {
+          waypointRuntime.postArrivalAnimationId = requestAnimationFrame(tick);
+          return;
+        }
+        waypointRuntime.postArrivalAnimationId = null;
+      };
+      if (waypointRuntime.postArrivalAnimationId !== null) cancelAnimationFrame(waypointRuntime.postArrivalAnimationId);
+      waypointRuntime.postArrivalAnimationId = requestAnimationFrame(tick);
+    }
     function finalizeSceneArrival(sceneId, retries, playbackTarget, isAutoForward, autoForwardAlreadyVisited, forceAutoForward, terminalView) {
       waypointRuntime.animationId = null;
       waypointRuntime.arrivedSceneId = sceneId;
       setSceneHotspotsReadyWithRetry(sceneId, retries);
-      animatedScenes.add(sceneId);
 
       const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
       if (shouldAutoForward) {
@@ -83,6 +104,9 @@ let script = `
       const afKey = sceneId + ":" + primaryIndex;
       const autoForwardAlreadyVisited = isAutoForward && visitedAutoForwards.has(afKey);
       const fallbackTerminalView = getPlaybackTerminalView(primary);
+      const arrivalContext =
+        pendingArrivalContext?.targetSceneId === sceneId ? pendingArrivalContext : null;
+      pendingArrivalContext = null;
 
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);
@@ -99,6 +123,24 @@ let script = `
           forceAnimation,
           fallbackTerminalView,
         );
+        if (arrivalContext) {
+          const entryHotspot = resolveForwardHotspotByTargetScene(sceneId, sd, arrivalContext.sourceSceneId);
+          if (entryHotspot) {
+            const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
+            const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);
+            window.viewer.lookAt(currentPitch, oppositeYaw, getCurrentHfov(), false);
+            const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);
+            if (postArrivalHotspot) {
+              animateHorizontalPan(
+                sceneId,
+                oppositeYaw,
+                postArrivalHotspot.yaw,
+                currentPitch,
+                700,
+              );
+            }
+          }
+        }
         return;
       }
       
@@ -110,6 +152,7 @@ let script = `
       const terminalView = path.length > 0
         ? path[path.length - 1]
         : fallbackTerminalView;
+      animatedScenes.add(sceneId);
       if (!pathInfo.segments.length || pathInfo.total <= 0) {
         finalizeSceneArrival(
           sceneId,
@@ -161,15 +204,22 @@ let script = `
       
       const hotspotIndex = args.i ?? 0;
       const ownerHotspot = scenesData?.[ownerScene]?.hotSpots?.[hotspotIndex];
+      const ownerSceneData = scenesData?.[ownerScene];
       const isAutoForwardConfig = args.targetIsAutoForward === true;
       const isReturnLink = args.isReturnLink === true || ownerHotspot?.isReturnLink === true;
+      const dynamicSequenceEdge = !isReturnLink
+        ? resolveSequenceEdgeForVisibleHotspot(ownerScene, ownerSceneData, hotspotIndex)
+        : null;
+      const dynamicSequenceFromEdge = Number.isFinite(dynamicSequenceEdge?.sequenceNumber)
+        ? Math.trunc(dynamicSequenceEdge.sequenceNumber)
+        : null;
       const sequenceFromArgs = Number.isFinite(args.sequenceNumber) && args.sequenceNumber > 0
         ? Math.trunc(args.sequenceNumber)
         : null;
       const sequenceFromOwner = Number.isFinite(ownerHotspot?.sequenceNumber) && ownerHotspot.sequenceNumber > 0
         ? Math.trunc(ownerHotspot.sequenceNumber)
         : null;
-      const resolvedSequenceNumber = sequenceFromArgs ?? sequenceFromOwner;
+      const resolvedSequenceNumber = dynamicSequenceFromEdge ?? sequenceFromArgs ?? sequenceFromOwner;
       const displaySequenceNumber = resolvedSequenceNumber !== null ? (resolvedSequenceNumber + 1) : null;
       const faceText = isReturnLink ? "R" : (displaySequenceNumber !== null ? String(displaySequenceNumber) : "");
       const afKey = ownerScene + ":" + hotspotIndex;
@@ -266,6 +316,34 @@ let script = `
       hotSpotDiv.__navigateNext = function(options) { 
         if (isAutoForwardConfig) {
           visitedAutoForwards.add(afKey);
+        }
+        const sceneData = ownerSceneData;
+        if (isReturnLink) {
+          navigateToNextScene(
+            args,
+            null,
+            {
+              ...options,
+              sourceSceneId: ownerScene,
+              targetSceneId: resolvedTargetSceneId ?? null,
+              sequenceCursorOverride: getCurrentSceneSequenceCursor(ownerScene, sceneData),
+            },
+          );
+          return;
+        }
+        const sequenceEdge = resolveSequenceEdgeForVisibleHotspot(ownerScene, sceneData, hotspotIndex);
+        if (sequenceEdge) {
+          navigateToNextScene(
+            {...args, sequenceNumber: sequenceEdge.sequenceNumber},
+            sequenceEdge.targetSceneId,
+            {
+              ...options,
+              sourceSceneId: ownerScene,
+              targetSceneId: sequenceEdge.targetSceneId,
+              sequenceCursorOverride: sequenceEdge.sequenceNumber,
+            },
+          );
+          return;
         }
         navigateToNextScene(args, null, options); 
       };

@@ -42,6 +42,41 @@ export function buildProjectAssetUrl(sessionId, filename) {
   return `/api/project/${encodeURIComponent(sessionId)}/file/${encodeURIComponent(filename)}`;
 }
 
+function normalizeSceneFileForBuilder(sessionId, fileRef) {
+  if (typeof fileRef !== 'string') return fileRef;
+  if (fileRef === '') return fileRef;
+  if (fileRef.startsWith('/api/project/') || fileRef.startsWith('http') || fileRef.startsWith('blob:')) {
+    const fileMarker = '/file/';
+    const markerIndex = fileRef.indexOf(fileMarker);
+    if (markerIndex >= 0) {
+      const filename = fileRef.slice(markerIndex + fileMarker.length).split('?')[0].split('#')[0];
+      return buildProjectAssetUrl(sessionId, filename);
+    }
+    return fileRef;
+  }
+  return buildProjectAssetUrl(sessionId, fileRef.split('/').pop() || fileRef);
+}
+
+function normalizeInventoryForBuilder(sessionId, inventory) {
+  if (!Array.isArray(inventory)) return inventory;
+  return inventory.map(item => {
+    const scene = item?.entry?.scene;
+    if (!scene || typeof scene !== 'object') return item;
+    return {
+      ...item,
+      entry: {
+        ...item.entry,
+        scene: {
+          ...scene,
+          file: normalizeSceneFileForBuilder(sessionId, scene.file),
+          originalFile: normalizeSceneFileForBuilder(sessionId, scene.originalFile),
+          tinyFile: normalizeSceneFileForBuilder(sessionId, scene.tinyFile),
+        },
+      },
+    };
+  });
+}
+
 export function normalizeLogoForBuilder(sessionId, logo) {
   if (!logo) return logo;
   if (typeof logo !== 'string') return logo;
@@ -62,6 +97,17 @@ export function normalizeLogoForBuilder(sessionId, logo) {
 export function normalizeProjectDataForBuilder(sessionId, projectData) {
   if (!projectData || typeof projectData !== 'object') return projectData;
   const normalized = { ...projectData };
+  if (Object.prototype.hasOwnProperty.call(normalized, 'inventory')) {
+    normalized.inventory = normalizeInventoryForBuilder(sessionId, normalized.inventory);
+  }
+  if (Array.isArray(normalized.scenes)) {
+    normalized.scenes = normalized.scenes.map(scene => ({
+      ...scene,
+      file: normalizeSceneFileForBuilder(sessionId, scene.file),
+      originalFile: normalizeSceneFileForBuilder(sessionId, scene.originalFile),
+      tinyFile: normalizeSceneFileForBuilder(sessionId, scene.tinyFile),
+    }));
+  }
   if (Object.prototype.hasOwnProperty.call(normalized, 'logo')) {
     normalized.logo = normalizeLogoForBuilder(sessionId, normalized.logo);
   }

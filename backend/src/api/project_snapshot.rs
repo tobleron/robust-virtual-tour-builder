@@ -124,35 +124,22 @@ pub(super) fn write_current_snapshot(
 pub(super) fn load_snapshot_history(
     project_dir: &Path,
 ) -> Result<Vec<SnapshotHistoryEnvelope>, AppError> {
+    let entries = load_snapshot_history_files(project_dir)?
+        .into_iter()
+        .map(|(_, envelope)| envelope)
+        .collect();
+    Ok(entries)
+}
+
+fn load_snapshot_history_files(
+    project_dir: &Path,
+) -> Result<Vec<(PathBuf, SnapshotHistoryEnvelope)>, AppError> {
     let history_dir = snapshot_history_dir(project_dir);
     if !history_dir.exists() {
         return Ok(Vec::new());
     }
 
-    let mut entries: Vec<SnapshotHistoryEnvelope> = Vec::new();
-    for entry in std::fs::read_dir(&history_dir).map_err(AppError::IoError)? {
-        let entry = entry.map_err(AppError::IoError)?;
-        if !entry.file_type().map_err(AppError::IoError)?.is_file() {
-            continue;
-        }
-        let raw = std::fs::read_to_string(entry.path()).map_err(AppError::IoError)?;
-        let envelope = serde_json::from_str::<SnapshotHistoryEnvelope>(&raw).map_err(|error| {
-            AppError::ValidationError(format!("Invalid snapshot history JSON: {}", error))
-        })?;
-        entries.push(envelope);
-    }
-
-    entries.sort_by(|a, b| b.created_at.cmp(&a.created_at));
-    Ok(entries)
-}
-
-pub(super) fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError> {
-    let history_dir = snapshot_history_dir(project_dir);
-    if !history_dir.exists() {
-        return Ok(());
-    }
-
-    let mut file_entries: Vec<(PathBuf, SnapshotHistoryEnvelope)> = Vec::new();
+    let mut entries: Vec<(PathBuf, SnapshotHistoryEnvelope)> = Vec::new();
     for entry in std::fs::read_dir(&history_dir).map_err(AppError::IoError)? {
         let entry = entry.map_err(AppError::IoError)?;
         if !entry.file_type().map_err(AppError::IoError)?.is_file() {
@@ -163,10 +150,15 @@ pub(super) fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError>
         let envelope = serde_json::from_str::<SnapshotHistoryEnvelope>(&raw).map_err(|error| {
             AppError::ValidationError(format!("Invalid snapshot history JSON: {}", error))
         })?;
-        file_entries.push((path, envelope));
+        entries.push((path, envelope));
     }
 
-    file_entries.sort_by(|a, b| b.1.created_at.cmp(&a.1.created_at));
+    entries.sort_by(|a, b| b.1.created_at.cmp(&a.1.created_at));
+    Ok(entries)
+}
+
+pub(super) fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError> {
+    let file_entries = load_snapshot_history_files(project_dir)?;
     for (path, _) in file_entries.into_iter().skip(MAX_PROJECT_SNAPSHOTS) {
         std::fs::remove_file(path).map_err(AppError::IoError)?;
     }
@@ -183,10 +175,19 @@ pub(super) fn persist_snapshot_history(
     std::fs::create_dir_all(&history_dir).map_err(AppError::IoError)?;
 
     let content_hash = snapshot_content_hash(project_data)?;
-    let existing_history = load_snapshot_history(project_dir)?;
-    if let Some(existing_latest) = existing_history.first()
+    let existing_history = load_snapshot_history_files(project_dir)?;
+    if let Some((latest_path, existing_latest)) = existing_history.first()
         && existing_latest.content_hash == content_hash
     {
+        if existing_latest.origin == "auto" && origin == "manual" {
+            let mut upgraded = existing_latest.clone();
+            upgraded.origin = "manual".to_string();
+            let serialized = serde_json::to_string_pretty(&upgraded).map_err(|error| {
+                AppError::InternalError(format!("Serialize snapshot history failed: {}", error))
+            })?;
+            std::fs::write(latest_path, serialized).map_err(AppError::IoError)?;
+            return Ok(upgraded);
+        }
         return Ok(existing_latest.clone());
     }
 
@@ -214,6 +215,36 @@ pub(super) fn persist_snapshot_history(
     std::fs::write(history_dir.join(filename), serialized).map_err(AppError::IoError)?;
     prune_snapshot_history(project_dir)?;
     Ok(envelope)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save(
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let temp = tempfile::tempdir()?;
+        let project_dir = temp.path();
+        let project_data = serde_json::json!({
+            "tourName": "Origin Test",
+            "inventory": {},
+            "sceneOrder": [],
+            "scenes": [],
+        });
+
+        let initial = persist_snapshot_history(project_dir, &project_data, "auto")?;
+        let upgraded = persist_snapshot_history(project_dir, &project_data, "manual")?;
+
+        assert_eq!(initial.snapshot_id, upgraded.snapshot_id);
+        assert_eq!(upgraded.origin, "manual");
+
+        let history = load_snapshot_history(project_dir)?;
+        assert_eq!(history.len(), 1);
+        assert_eq!(history[0].origin, "manual");
+
+        Ok(())
+    }
 }
 
 pub(super) fn snapshot_item_from_envelope(

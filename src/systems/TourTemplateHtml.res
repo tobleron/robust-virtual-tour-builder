@@ -8,6 +8,102 @@ let escapeHtml = (raw: string): string =>
   ->String.replaceRegExp(/"/g, "&quot;")
   ->String.replaceRegExp(/'/g, "&#39;")
 
+let floatKey = (value: float): string => Belt.Float.toString(value)
+
+let nullableFloatKey = (value: Nullable.t<float>): string =>
+  switch Nullable.toOption(value) {
+  | Some(v) => floatKey(v)
+  | None => ""
+  }
+
+let nullableViewFrameKey = (value: Nullable.t<viewFrame>): string =>
+  switch Nullable.toOption(value) {
+  | Some(v) =>
+    [
+      floatKey(v.yaw),
+      floatKey(v.pitch),
+      floatKey(v.hfov),
+    ]->Array.join("|")
+  | None => ""
+  }
+
+let nullableWaypointsKey = (value: Nullable.t<array<viewFrame>>): string =>
+  switch Nullable.toOption(value) {
+  | Some(waypoints) =>
+    waypoints
+    ->Belt.Array.map(v =>
+      [
+        floatKey(v.yaw),
+        floatKey(v.pitch),
+        floatKey(v.hfov),
+      ]->Array.join("|")
+    )
+    ->Array.join(";")
+  | None => ""
+  }
+
+let exportHotspotDestinationKey = (hotspot: TourData.hotspotData): string =>
+  [
+    hotspot["targetSceneId"],
+    if hotspot["targetIsAutoForward"] { "1" } else { "0" },
+    hotspot["target"],
+  ]->Array.join("::")
+
+let waypointCount = (hotspot: TourData.hotspotData): int =>
+  switch Nullable.toOption(hotspot["waypoints"]) {
+  | Some(waypoints) => Belt.Array.length(waypoints)
+  | None => 0
+  }
+
+let sequenceValue = (hotspot: TourData.hotspotData): int =>
+  switch Nullable.toOption(hotspot["sequenceNumber"]) {
+  | Some(v) => v
+  | None => 1_000_000
+  }
+
+let prefersExportHotspot = (
+  current: TourData.hotspotData,
+  candidate: TourData.hotspotData,
+): bool => {
+  let currentWaypointCount = waypointCount(current)
+  let candidateWaypointCount = waypointCount(candidate)
+  if candidate["isReturnLink"] != current["isReturnLink"] {
+    candidate["isReturnLink"]
+  } else if candidateWaypointCount != currentWaypointCount {
+    candidateWaypointCount < currentWaypointCount
+  } else {
+    sequenceValue(candidate) < sequenceValue(current)
+  }
+}
+
+let dedupeExportHotspots = (hotspots: array<TourData.hotspotData>): array<TourData.hotspotData> => {
+  let selectedByKey = Dict.make()
+  let order: array<string> = []
+
+  hotspots->Belt.Array.forEach(hotspot => {
+    let key = exportHotspotDestinationKey(hotspot)
+    switch Dict.get(selectedByKey, key) {
+    | Some(current) =>
+      if prefersExportHotspot(current, hotspot) {
+        Dict.set(selectedByKey, key, hotspot)
+      }
+    | None =>
+      order->Array.push(key)
+      Dict.set(selectedByKey, key, hotspot)
+    }
+  })
+
+  order->Belt.Array.keepMap(key => Dict.get(selectedByKey, key))
+}
+
+type exportHotspotEntry = {
+  linkId: string,
+  destinationKey: string,
+  isReturnLink: bool,
+  sequenceNumber: option<int>,
+  hotspotData: TourData.hotspotData,
+}
+
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
@@ -82,9 +178,9 @@ let generateTourHTML = (
     }
 
   scenes->Belt.Array.forEach(s => {
-    let rawHotspots =
+    let rawHotspotEntries: array<exportHotspotEntry> =
       s.hotspots
-      ->Belt.Array.mapWithIndex((_, h) => {
+      ->Belt.Array.keepMap(h => {
         let resolvedTargetId = switch h.targetSceneId {
         | Some(targetSceneId) =>
           if hasSceneId(targetSceneId) {
@@ -104,31 +200,61 @@ let generateTourHTML = (
         let hasValidTarget = hasSceneId(resolvedTargetId)
         let (isReturnLink, sequenceNumber) = resolveExportBadge(~linkId=h.linkId, ~hasValidTarget)
         if hasValidTarget {
-          Some(
-            (
-              {
-                "pitch": h.displayPitch->Option.getOr(h.pitch),
-                "yaw": h.yaw,
-                "target": h.target,
-                "targetSceneId": resolvedTargetId,
-                "targetIsAutoForward": targetIsAutoForward,
-                "isReturnLink": isReturnLink,
-                "sequenceNumber": sequenceNumber->Nullable.fromOption,
-                "startYaw": h.startYaw->Nullable.fromOption,
-                "startPitch": h.startPitch->Nullable.fromOption,
-                "waypoints": h.waypoints->Nullable.fromOption,
-                "truePitch": h.pitch,
-                "viewFrame": h.viewFrame->Nullable.fromOption,
-                "targetYaw": h.targetYaw->Nullable.fromOption,
-                "targetPitch": h.targetPitch->Nullable.fromOption,
-              }: TourData.hotspotData
-            ),
-          )
+          let hotspotData: TourData.hotspotData = {
+            "pitch": h.displayPitch->Option.getOr(h.pitch),
+            "yaw": h.yaw,
+            "target": h.target,
+            "targetSceneId": resolvedTargetId,
+            "targetIsAutoForward": targetIsAutoForward,
+            "isReturnLink": isReturnLink,
+            "sequenceNumber": sequenceNumber->Nullable.fromOption,
+            "startYaw": h.startYaw->Nullable.fromOption,
+            "startPitch": h.startPitch->Nullable.fromOption,
+            "waypoints": h.waypoints->Nullable.fromOption,
+            "truePitch": h.pitch,
+            "viewFrame": h.viewFrame->Nullable.fromOption,
+            "targetYaw": h.targetYaw->Nullable.fromOption,
+            "targetPitch": h.targetPitch->Nullable.fromOption,
+          }
+          Some({
+            linkId: h.linkId,
+            destinationKey: exportHotspotDestinationKey(hotspotData),
+            isReturnLink,
+            sequenceNumber,
+            hotspotData,
+          })
         } else {
           None
         }
       })
-      ->Belt.Array.keepMap(x => x)
+    let rawHotspots =
+      rawHotspotEntries
+      ->Belt.Array.map(entry => entry.hotspotData)
+      ->dedupeExportHotspots
+    let visibleHotspotIndexByDestinationKey = Dict.make()
+    rawHotspots->Belt.Array.forEachWithIndex((idx, hotspot) => {
+      Dict.set(visibleHotspotIndexByDestinationKey, exportHotspotDestinationKey(hotspot), idx)
+    })
+    let sequenceEdges: array<TourData.sequenceEdgeData> =
+      rawHotspotEntries
+      ->Belt.Array.keepMap(entry =>
+        switch (entry.isReturnLink, entry.sequenceNumber) {
+        | (false, Some(sequenceNo)) =>
+          switch Dict.get(visibleHotspotIndexByDestinationKey, entry.destinationKey) {
+          | Some(visibleHotspotIndex) =>
+            Some({
+              "linkId": entry.linkId,
+              "target": entry.hotspotData["target"],
+              "targetSceneId": entry.hotspotData["targetSceneId"],
+              "targetIsAutoForward": entry.hotspotData["targetIsAutoForward"],
+              "sequenceNumber": sequenceNo,
+              "visibleHotspotIndex": visibleHotspotIndex,
+            }: TourData.sequenceEdgeData)
+          | None => None
+          }
+        | _ => None
+        }
+      )
     let autoForwardHotspotIndex = {
       let routeFromDoubleChevron =
         rawHotspots->Belt.Array.getIndexBy(h =>
@@ -170,6 +296,7 @@ let generateTourHTML = (
           "autoForwardHotspotIndex": autoForwardHotspotIndex,
           "autoForwardTargetSceneId": autoForwardTargetSceneId,
           "hotSpots": rawHotspots,
+          "sequenceEdges": sequenceEdges,
           "isHubScene": Array.length(s.hotspots) >= 2,
         }: TourData.sceneData
       ),
@@ -189,7 +316,7 @@ let generateTourHTML = (
   | "hd" => (90.0, 65.0, 90.0, 375, 640, true)
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
-  let exportTraversalMode = "legacy"
+  let exportTraversalMode = "canonical"
   let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
