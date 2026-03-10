@@ -486,20 +486,22 @@ let script = `
       if (!currentSceneData) return;
 
       // Navigation Logic: Next (Up) and Previous (Down)
-      const nextForwardEdge = resolveNextForwardSequenceEdge(sceneId, currentSceneData);
-      const nextForwardHotspot = resolveVisibleHotspotForSequenceEdge(currentSceneData, nextForwardEdge);
-      const previousTarget = resolvePreviousSequenceTarget(sceneId, currentSceneData);
-      const nextSceneId = nextForwardEdge ? nextForwardEdge.targetSceneId : null;
-      const prevSceneId = previousTarget ? previousTarget.targetSceneId : null;
+      const preferredTarget = resolvePreferredNavigationTarget(sceneId, currentSceneData);
+      const backtrackTarget = resolveBacktrackTarget(sceneId, currentSceneData);
+      const nextSceneId =
+        preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)
+          ? preferredTarget.targetSceneId
+          : null;
+      const prevSceneId = backtrackTarget ? backtrackTarget.targetSceneId : null;
 
       // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.nextSceneId = nextSceneId;
       floorTagShortcutState.prevSceneId = prevSceneId;
-      floorTagShortcutState.nextHotspotIndex = nextForwardEdge ? nextForwardEdge.visibleHotspotIndex : null;
-      floorTagShortcutState.nextSequenceNumber = nextForwardEdge ? nextForwardEdge.sequenceNumber : null;
-      floorTagShortcutState.prevHotspotIndex = previousTarget ? previousTarget.hotspotIndex : null;
-      floorTagShortcutState.prevUsesReturnLink = previousTarget?.usesReturnLink === true;
+      floorTagShortcutState.nextHotspotIndex = nextSceneId ? preferredTarget.hotspotIndex : null;
+      floorTagShortcutState.nextSequenceNumber = nextSceneId ? preferredTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevHotspotIndex = backtrackTarget ? backtrackTarget.hotspotIndex : null;
+      floorTagShortcutState.prevUsesReturnLink = backtrackTarget?.usesReturnLink === true;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
@@ -527,7 +529,7 @@ let script = `
       };
 
       // 1. Next Scene (Up Arrow)
-      if (nextSceneId && nextForwardHotspot) {
+      if (nextSceneId) {
         const nextLabel = scenesData[nextSceneId]?.label || scenesData[nextSceneId]?.name || "Next";
         panel.appendChild(createRow(nextSceneId, "↑", nextLabel, () => navigateToNextSequenceShortcut()));
       }
