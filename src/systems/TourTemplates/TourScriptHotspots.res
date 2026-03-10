@@ -123,22 +123,30 @@ let script = `
           forceAnimation,
           fallbackTerminalView,
         );
-        if (arrivalContext) {
-          const entryHotspot = resolveForwardHotspotByTargetScene(sceneId, sd, arrivalContext.sourceSceneId);
-          if (entryHotspot) {
-            const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
-            const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);
-            window.viewer.lookAt(currentPitch, oppositeYaw, getCurrentHfov(), false);
-            const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);
-            if (postArrivalHotspot) {
-              animateHorizontalPan(
-                sceneId,
-                oppositeYaw,
-                postArrivalHotspot.yaw,
-                currentPitch,
-                700,
-              );
-            }
+        const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);
+        if (postArrivalHotspot) {
+          const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
+          const currentYaw = typeof window.viewer.getYaw === "function" ? window.viewer.getYaw() : postArrivalHotspot.yaw;
+          const arrivalReferenceHotspot = arrivalContext
+            ? resolveArrivalReferenceHotspot(sceneId, sd, arrivalContext.sourceSceneId)
+            : null;
+          const startYaw = arrivalReferenceHotspot
+            ? normalizeYaw(arrivalReferenceHotspot.hotspot.yaw + 180)
+            : currentYaw;
+          if (arrivalReferenceHotspot) {
+            window.viewer.lookAt(currentPitch, startYaw, getCurrentHfov(), false);
+          }
+          const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalHotspot.yaw));
+          if (yawDelta <= 0.5) {
+            window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);
+          } else {
+            animateHorizontalPan(
+              sceneId,
+              startYaw,
+              postArrivalHotspot.yaw,
+              currentPitch,
+              700,
+            );
           }
         }
         return;

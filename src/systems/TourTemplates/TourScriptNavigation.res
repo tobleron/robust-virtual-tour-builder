@@ -361,6 +361,28 @@ let script = `
         ) ?? null
       );
     }
+    function resolveHotspotByTargetScene(sceneId, sceneData, targetSceneId, options) {
+      const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId);
+      if (!resolvedTargetSceneId) return null;
+      const includeReturn = options?.includeReturn === true;
+      const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
+      return (
+        sortCanonicalHotspots(resolvedHotspots).find(
+          h => h.resolvedTarget === resolvedTargetSceneId && (includeReturn || !h.isReturn),
+        ) ?? null
+      );
+    }
+    function resolveArrivalReferenceHotspot(sceneId, sceneData, sourceSceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      const resolvedSourceSceneId = resolveExistingSceneId(sourceSceneId) ?? normalizeSceneId(sourceSceneId);
+      if (!resolvedSceneId || !resolvedSourceSceneId || resolvedSceneId === resolvedSourceSceneId) return null;
+      return resolveHotspotByTargetScene(
+        resolvedSceneId,
+        sceneData,
+        resolvedSourceSceneId,
+        { includeReturn: true },
+      );
+    }
     function resolveSceneForwardHotspots(sceneId, sceneData) {
       const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
       return sortCanonicalHotspots(resolvedHotspots).filter(h => !h.isReturn && !!h.resolvedTarget);
@@ -442,48 +464,66 @@ let script = `
       }
       return resolveCanonicalPreviousSequenceTarget(resolvedSceneId, sceneData);
     }
+    function resolveSourceBacktrackTarget(sceneId, sceneData, sourceSceneId, sequenceCursorOverride) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      const resolvedSourceSceneId = resolveExistingSceneId(sourceSceneId) ?? normalizeSceneId(sourceSceneId);
+      if (!resolvedSceneId || !resolvedSourceSceneId || resolvedSourceSceneId === resolvedSceneId) return null;
+      const sourceHotspot = resolveForwardHotspotByTargetScene(
+        resolvedSceneId,
+        sceneData,
+        resolvedSourceSceneId,
+      );
+      if (sourceHotspot) {
+        return buildNavigationTarget(
+          resolvedSceneId,
+          sourceHotspot.hotspot,
+          sourceHotspot.hotspotIndex,
+          resolvedSourceSceneId,
+          sequenceCursorOverride,
+          sourceHotspot.isReturn === true,
+        );
+      }
+      const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
+      if (returnHotspot?.targetSceneId === resolvedSourceSceneId) {
+        return buildNavigationTarget(
+          resolvedSceneId,
+          returnHotspot.hotspot,
+          returnHotspot.hotspotIndex,
+          resolvedSourceSceneId,
+          sequenceCursorOverride,
+          true,
+        );
+      }
+      return buildNavigationTarget(
+        resolvedSceneId,
+        null,
+        null,
+        resolvedSourceSceneId,
+        sequenceCursorOverride,
+        false,
+      );
+    }
     function resolveBacktrackTarget(sceneId, sceneData) {
       const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
       if (!resolvedSceneId) return null;
       const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);
+      const canonicalPrevious = resolveCanonicalPreviousSequenceTarget(resolvedSceneId, sceneData);
       const sourceSceneId = getCurrentSceneSourceSceneId(resolvedSceneId);
       if (sourceSceneId && sourceSceneId !== resolvedSceneId) {
-        const sourceHotspot = resolveForwardHotspotByTargetScene(
+        if (canonicalPrevious?.targetSceneId === sourceSceneId) {
+          return canonicalPrevious;
+        }
+        const sourceFallback = resolveSourceBacktrackTarget(
           resolvedSceneId,
           sceneData,
           sourceSceneId,
-        );
-        if (sourceHotspot) {
-          return buildNavigationTarget(
-            resolvedSceneId,
-            sourceHotspot.hotspot,
-            sourceHotspot.hotspotIndex,
-            sourceSceneId,
-            currentCursor,
-            sourceHotspot.isReturn === true,
-          );
-        }
-        const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
-        if (returnHotspot?.targetSceneId === sourceSceneId) {
-          return buildNavigationTarget(
-            resolvedSceneId,
-            returnHotspot.hotspot,
-            returnHotspot.hotspotIndex,
-            sourceSceneId,
-            currentCursor,
-            true,
-          );
-        }
-        return buildNavigationTarget(
-          resolvedSceneId,
-          null,
-          null,
-          sourceSceneId,
           currentCursor,
-          false,
         );
+        if (sourceFallback) {
+          return sourceFallback;
+        }
       }
-      return resolveCanonicalPreviousSequenceTarget(resolvedSceneId, sceneData);
+      return canonicalPrevious;
     }
     function resolvePreviousSequenceTarget(sceneId, sceneData) {
       return resolveCanonicalPreviousSequenceTarget(sceneId, sceneData);

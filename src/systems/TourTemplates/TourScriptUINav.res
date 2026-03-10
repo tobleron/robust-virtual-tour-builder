@@ -492,7 +492,8 @@ let script = `
         preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)
           ? preferredTarget.targetSceneId
           : null;
-      const prevSceneId = backtrackTarget ? backtrackTarget.targetSceneId : null;
+      const shouldHideBacktrack = !!nextSceneId && backtrackTarget?.targetSceneId === nextSceneId;
+      const prevSceneId = !shouldHideBacktrack && backtrackTarget ? backtrackTarget.targetSceneId : null;
 
       // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
@@ -500,8 +501,8 @@ let script = `
       floorTagShortcutState.prevSceneId = prevSceneId;
       floorTagShortcutState.nextHotspotIndex = nextSceneId ? preferredTarget.hotspotIndex : null;
       floorTagShortcutState.nextSequenceNumber = nextSceneId ? preferredTarget.sequenceCursorOverride : null;
-      floorTagShortcutState.prevHotspotIndex = backtrackTarget ? backtrackTarget.hotspotIndex : null;
-      floorTagShortcutState.prevUsesReturnLink = backtrackTarget?.usesReturnLink === true;
+      floorTagShortcutState.prevHotspotIndex = prevSceneId ? backtrackTarget.hotspotIndex : null;
+      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? backtrackTarget?.usesReturnLink === true : false;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
