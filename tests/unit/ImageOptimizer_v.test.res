@@ -6,6 +6,7 @@ open ReBindings
 
 // Global mocks for DOM and Canvas
 %%raw(`
+  globalThis.imageOptimizerWorkerCalls = [];
   globalThis.createImageBitmap = vi.fn().mockResolvedValue({
     width: 1000,
     height: 500,
@@ -13,11 +14,11 @@ open ReBindings
   });
 
   vi.mock('../../src/utils/WorkerPool.bs.js', () => ({
-    processFullWithWorker: vi.fn((blob, options) => {
+    processFullWithWorker: vi.fn((blob, width, quality, format, preserveAlpha) => {
+      globalThis.imageOptimizerWorkerCalls.push({ width, quality, format, preserveAlpha });
       // Mocked virtual processing
-      const width = options.width || 4096;
-      const targetW = Math.min(width, 1000);
-      const targetH = Math.min(width, 1000) / 2;
+      const targetW = Math.min(width || 4096, 1000);
+      const targetH = Math.min(width || 4096, 1000) / 2;
       return Promise.resolve({
         TAG: 'Ok',
         _0: [{ size: 1024, type: 'image/webp' }, targetW, targetH]
@@ -43,7 +44,10 @@ open ReBindings
 
 describe("ImageOptimizer - Browser-side Compression", () => {
   beforeEach(() => {
-    let _ = %raw(`vi.clearAllMocks()`)
+    let _ = %raw(`(() => {
+      vi.clearAllMocks();
+      globalThis.imageOptimizerWorkerCalls = [];
+    })()`)
   })
 
   testAsync("compressToWebP successfully resizes and compresses image", async t => {
@@ -69,7 +73,30 @@ describe("ImageOptimizer - Browser-side Compression", () => {
     )
 
     switch result {
-    | Ok(blob) => t->expect(Blob.size(blob))->Expect.toBe(1024.0)
+    | Ok(blob) => {
+        t->expect(Blob.size(blob))->Expect.toBe(1024.0)
+        let preserveAlpha = %raw(`globalThis.imageOptimizerWorkerCalls[0]?.preserveAlpha ?? null`)
+        t->expect(preserveAlpha)->Expect.toBe(false)
+      }
+    | Error(msg) => t->expect(msg)->Expect.toBe("Success")
+    }
+  })
+
+  testAsync("compressLogoToWebPConstrained preserves alpha in worker processing", async t => {
+    let mockFile: File.t = Obj.magic({"size": 1000000})
+    let result = await compressLogoToWebPConstrained(
+      mockFile,
+      ~quality=0.8,
+      ~maxWidth=500.0,
+      ~maxHeight=250.0,
+    )
+
+    switch result {
+    | Ok(blob) => {
+        t->expect(Blob.size(blob))->Expect.toBe(1024.0)
+        let preserveAlpha = %raw(`globalThis.imageOptimizerWorkerCalls[0]?.preserveAlpha ?? null`)
+        t->expect(preserveAlpha)->Expect.toBe(true)
+      }
     | Error(msg) => t->expect(msg)->Expect.toBe("Success")
     }
   })

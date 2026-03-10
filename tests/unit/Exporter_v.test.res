@@ -72,6 +72,10 @@ vi.mock('../../src/utils/ImageOptimizer.bs.js', () => ({
     TAG: "Ok",
     _0: new Blob(["mock"], {type: "image/webp"})
   }),
+  compressLogoToWebPConstrained: vi.fn().mockResolvedValue({
+    TAG: "Ok",
+    _0: new Blob(["mock"], {type: "image/webp"})
+  }),
   compressToWebP: vi.fn().mockResolvedValue({
     TAG: "Ok",
     _0: new Blob(["mock"], {type: "image/webp"})

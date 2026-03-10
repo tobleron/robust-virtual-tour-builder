@@ -32,7 +32,7 @@ let optimizeBlobAsWebp = async (
       },
     },
   )
-  switch await ImageOptimizer.compressToWebPConstrained(
+  switch await ImageOptimizer.compressLogoToWebPConstrained(
     sourceFile,
     ~quality,
     ~maxWidth,

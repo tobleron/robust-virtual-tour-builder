@@ -81,6 +81,7 @@ let processFullWithWorker = (
   ~width: int=4096,
   ~quality: float=0.92,
   ~format: string="image/webp",
+  ~preserveAlpha: bool=false,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<result<(BrowserBindings.Blob.t, int, int), string>> => {
   switch ensurePool() {
@@ -102,6 +103,7 @@ let processFullWithWorker = (
             "width": width,
             "quality": quality,
             "format": format,
+            "preserveAlpha": preserveAlpha,
           },
         ),
     )

@@ -111,6 +111,10 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "assets/images/scene1")
     t->expectToContain(html, "assets/images/scene2")
     t->expectToContain(html, "assets/logo/logo.png")
+    t->expectToContain(html, "id=\"export-watermark-image\"")
+    t->expectToContain(html, "const LOGO_AREA_RATIO = 0.008;")
+    t->expectToContain(html, "function syncExportLogoSize()")
+    t->expectToContain(html, "stage.style.setProperty('--export-logo-height'")
 
     // Check hotspot data
     t->expectToContain(html, "\"yaw\":10")

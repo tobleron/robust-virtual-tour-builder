@@ -330,7 +330,8 @@ let generateTourHTML = (
     ~exportTraversalMode,
   )
   let logoDiv = switch logoFilename {
-  | Some(filename) => `<div class="watermark"><img src="../../assets/logo/${filename}"></div>`
+  | Some(filename) =>
+    `<div class="watermark" id="export-watermark"><img id="export-watermark-image" src="../../assets/logo/${filename}"></div>`
   | None => ""
   }
   let marketingBody = marketingBody->String.trim
@@ -392,6 +393,47 @@ let generateTourHTML = (
       document.body.appendChild(host);
     };
 
+    const LOGO_AREA_RATIO = 0.008;
+    const LOGO_WIDTH_CAP_RATIO = 0.13;
+    const LOGO_HEIGHT_CAP_RATIO = 0.075;
+    const LOGO_PORTRAIT_SCALE = 0.88;
+    function syncExportLogoSize() {
+      const stage = document.getElementById('stage');
+      const logo = document.getElementById('export-watermark-image');
+      if (!stage || !logo) return;
+      const stageRect = stage.getBoundingClientRect();
+      const stageWidth = stageRect.width || stage.clientWidth || 0;
+      const stageHeight = stageRect.height || stage.clientHeight || 0;
+      const naturalWidth = logo.naturalWidth || 0;
+      const naturalHeight = logo.naturalHeight || 0;
+      if (stageWidth <= 0 || stageHeight <= 0 || naturalWidth <= 0 || naturalHeight <= 0) return;
+      const aspect = naturalWidth / naturalHeight;
+      const targetArea = stageWidth * stageHeight * LOGO_AREA_RATIO;
+      const rawHeight = Math.sqrt(targetArea / aspect);
+      const rawWidth = rawHeight * aspect;
+      const finalWidth = Math.min(rawWidth, stageWidth * LOGO_WIDTH_CAP_RATIO);
+      const finalHeight = Math.min(rawHeight, stageHeight * LOGO_HEIGHT_CAP_RATIO, finalWidth / aspect);
+      stage.style.setProperty('--export-logo-width', finalWidth.toFixed(2) + 'px');
+      stage.style.setProperty('--export-logo-height', finalHeight.toFixed(2) + 'px');
+      stage.style.setProperty(
+        '--export-logo-portrait-width',
+        (finalWidth * LOGO_PORTRAIT_SCALE).toFixed(2) + 'px',
+      );
+      stage.style.setProperty(
+        '--export-logo-portrait-height',
+        (finalHeight * LOGO_PORTRAIT_SCALE).toFixed(2) + 'px',
+      );
+    }
+    const setupExportLogoSizing = () => {
+      const logo = document.getElementById('export-watermark-image');
+      if (!logo) return;
+      if (!logo.dataset.logoSizingBound) {
+        logo.dataset.logoSizingBound = 'true';
+        logo.addEventListener('load', syncExportLogoSize);
+      }
+      syncExportLogoSize();
+    };
+
     const allowFileProtocol = ${if allowFileProtocol {
       "true"
     } else {
@@ -399,13 +441,15 @@ let generateTourHTML = (
     }};
     if (window.location.protocol === 'file:' && !allowFileProtocol) {
       updateExportStateClasses();
+      setupExportLogoSizing();
       updateLookingModeUI();
       mountFileProtocolWarning();
     } else {
       updateExportStateClasses();
       updateLookingModeUI();
       window.viewer = pannellum.viewer('panorama', config); window.viewer.resize(); applyCurrentHfov();
-      window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); });
+      setupExportLogoSizing();
+      window.addEventListener('resize', () => { updateExportStateClasses(); window.viewer?.resize(); applyCurrentHfov(); setupExportLogoSizing(); });
       ${TourScripts.loadEventScript}
     }
   </script></body></html>`

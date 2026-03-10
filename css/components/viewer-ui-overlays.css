@@ -65,7 +65,7 @@
     bottom: 0;
     width: fit-content;
     max-width: min(84%, 920px);
-    min-height: 31px;
+    min-height: 27px;
     align-items: stretch;
     color: #000;
     overflow: visible;
@@ -76,9 +76,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 11px 5px 11px;
+    padding: 4px 9px 3px 9px;
     font-family: var(--font-ui);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.2;
     font-weight: 600;
     color: #fff;
@@ -109,7 +109,7 @@
     align-items: center;
     justify-content: center;
     background: var(--accent);
-    padding: 6px 20px 5px 20px;
+    padding: 4px 15px 3px 15px;
     border-top-right-radius: 8px;
     border-left: 1px solid rgba(0, 0, 0, 0.12);
     border-top: 1px solid rgba(0, 0, 0, 0.12);
@@ -124,10 +124,10 @@
 .viewer-marketing-text-wrap::after {
     content: "";
     position: absolute;
-    left: 10%;
-    right: 10%;
-    bottom: -6px;
-    height: 12px;
+    left: 15%;
+    right: 15%;
+    bottom: -3px;
+    height: 7px;
     background: var(--accent);
     border-bottom-left-radius: 999px;
     border-bottom-right-radius: 999px;
@@ -138,7 +138,7 @@
 
 .viewer-marketing-banner-text {
     font-family: "Open Sans", var(--font-ui);
-    font-size: 15px;
+    font-size: 13px;
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: 0.01em;
