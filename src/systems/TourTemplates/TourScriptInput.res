@@ -114,9 +114,12 @@ let script = `
 
       if (key === "a" || key === "A") {
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
-        if (window.isAutoTourActive) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (window.isAutoTourActive) {
+          if (typeof speedUpAutoTour === "function") speedUpAutoTour();
+          return;
+        }
         if (typeof startAutoTour === "function") startAutoTour();
         return;
       }

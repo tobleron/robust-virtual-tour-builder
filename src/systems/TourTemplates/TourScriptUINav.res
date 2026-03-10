@@ -384,6 +384,9 @@ let script = `
       clearAutoTourCompletionCountdown();
       floorTagShortcutState.isAutoTourActive = true;
       window.isAutoTourActive = true;
+      if (typeof applyAutoTourBaseSpeed === "function") {
+        applyAutoTourBaseSpeed();
+      }
       window.autoTourVisitedScenes = new Set();
       document.body.classList.add('is-auto-tour-active');
       // Start from Home
@@ -402,6 +405,9 @@ let script = `
       if (!floorTagShortcutState.isAutoTourActive) return;
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
+      if (typeof resetAutoTourSpeedMultiplier === "function") {
+        resetAutoTourSpeedMultiplier();
+      }
       document.body.classList.remove('is-auto-tour-active');
       clearAutoTourCompletionCountdown();
       if (waypointRuntime.autoForwardTimeoutId) {
@@ -440,6 +446,34 @@ let script = `
       }
 
       if (floorTagShortcutState.isAutoTourActive) {
+        const isSpeedBoosted =
+          typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted();
+
+        const speedRow = document.createElement("button");
+        speedRow.type = "button";
+        speedRow.className = "floor-tag-shortcut-row";
+        speedRow.setAttribute(
+          "aria-label",
+          isSpeedBoosted ? "Slow down auto tour 1x" : "Speed up auto tour 1.7x",
+        );
+        speedRow.addEventListener("click", () => {
+          if (typeof speedUpAutoTour === "function") speedUpAutoTour();
+        });
+
+        const speedSpacer = document.createElement("span");
+        speedSpacer.className = "shortcut-indicator-spacer";
+        const speedIndex = document.createElement("span");
+        speedIndex.className = "floor-tag-shortcut-index";
+        speedIndex.textContent = "a";
+        const speedLabel = document.createElement("span");
+        speedLabel.className = "floor-tag-shortcut-label";
+        speedLabel.textContent = isSpeedBoosted ? "slow down 1x" : "speed up 1.7x";
+
+        speedRow.appendChild(speedSpacer);
+        speedRow.appendChild(speedIndex);
+        speedRow.appendChild(speedLabel);
+        panel.appendChild(speedRow);
+
         const stopRow = document.createElement("button");
         stopRow.type = "button";
         stopRow.className = "floor-tag-shortcut-row";

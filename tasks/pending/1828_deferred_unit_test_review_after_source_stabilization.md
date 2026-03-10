@@ -12,7 +12,7 @@ This is the single shared pending task for deferred unit-test review after itera
 - [ ] [src/site/PageFrameworkBuilder.js](src/site/PageFrameworkBuilder.js): review/add frontend coverage for builder data normalization changes.
 - [ ] [src/systems/TourTemplateHtml.res](src/systems/TourTemplateHtml.res): review export-generation unit coverage against current authored behavior.
 - [ ] [src/systems/TourTemplates/TourData.res](src/systems/TourTemplates/TourData.res): review sequence-edge/data-shape test coverage.
-- [ ] [src/systems/TourTemplates/TourScriptCore.res](src/systems/TourTemplates/TourScriptCore.res): review export runtime helper coverage if behavior changed materially.
+- [ ] [src/systems/TourTemplates/TourScriptCore.res](src/systems/TourTemplates/TourScriptCore.res): review export runtime helper and auto-tour timing constant coverage after speed multiplier changes.
 - [ ] [src/systems/TourTemplates/TourScriptHotspots.res](src/systems/TourTemplates/TourScriptHotspots.res): review export hotspot navigation/arrival behavior tests.
 - [ ] [src/systems/TourTemplates/TourScriptInput.res](src/systems/TourTemplates/TourScriptInput.res): review export keyboard navigation coverage.
 - [ ] [src/systems/TourTemplates/TourScriptNavigation.res](src/systems/TourTemplates/TourScriptNavigation.res): review export traversal/sequence engine coverage.

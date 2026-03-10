@@ -88,6 +88,8 @@ let manualAssets = [
   "/images/logo.png",
   "/images/logo_on_leather.png",
   "/images/og-preview.png",
+  "/images/robust_logo_new.png",
+  "/images/robust_logo_new_rounded.webp",
   "/libs/FileSaver.min.js",
   "/libs/jszip.min.js",
   "/libs/pannellum.css",

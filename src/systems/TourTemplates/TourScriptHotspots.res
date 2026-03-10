@@ -5,6 +5,34 @@ let script = `
     let visitedAutoForwards = new Set();
     window.isAutoTourActive = false;
     window.autoTourVisitedScenes = new Set();
+    function isAutoTourSpeedActive() {
+      return window.isAutoTourActive === true;
+    }
+    function getActiveAutoTourSpeedMultiplier() {
+      if (!isAutoTourSpeedActive()) return 1.0;
+      const rawMultiplier =
+        typeof getAutoTourSpeedMultiplier === "function"
+          ? getAutoTourSpeedMultiplier()
+          : window.autoTourSpeedMultiplier;
+      return Number.isFinite(rawMultiplier) && rawMultiplier > 0
+        ? rawMultiplier
+        : AUTO_TOUR_BASE_SPEED_MULTIPLIER;
+    }
+    function getAnimationProgressStep(deltaMs, baseDurationMs) {
+      if (!(baseDurationMs > 0)) return 1.0;
+      if (!isAutoTourSpeedActive()) return deltaMs / baseDurationMs;
+      return deltaMs * Math.min(
+        getActiveAutoTourSpeedMultiplier() / baseDurationMs,
+        1.0 / AUTO_TOUR_MIN_ANIMATION_MS,
+      );
+    }
+    function getAutoTourForwardDelayMs() {
+      if (!isAutoTourSpeedActive()) return AUTO_TOUR_FORWARD_DELAY_MS;
+      return Math.max(
+        AUTO_TOUR_MIN_FORWARD_DELAY_MS,
+        Math.round(AUTO_TOUR_FORWARD_DELAY_MS / getActiveAutoTourSpeedMultiplier()),
+      );
+    }
     function stripSceneTag(raw) {
       const trimmed = typeof raw === "string" ? raw.trim() : "";
       if (!trimmed) return "";
@@ -31,22 +59,46 @@ let script = `
             : (Number.isFinite(primary.truePitch) ? primary.truePitch : primary.pitch));
       return { yaw: endYaw, pitch: endPitch };
     }
+    function getHotspotFocusView(hotspot) {
+      if (!hotspot) return null;
+      const yaw = Number.isFinite(hotspot?.yaw)
+        ? hotspot.yaw
+        : (Number.isFinite(hotspot?.viewFrame?.yaw)
+            ? hotspot.viewFrame.yaw
+            : (Number.isFinite(hotspot?.targetYaw) ? hotspot.targetYaw : null));
+      const pitch = Number.isFinite(hotspot?.pitch)
+        ? hotspot.pitch
+        : (Number.isFinite(hotspot?.truePitch)
+            ? hotspot.truePitch
+            : (Number.isFinite(hotspot?.viewFrame?.pitch)
+                ? hotspot.viewFrame.pitch
+                : (Number.isFinite(hotspot?.targetPitch) ? hotspot.targetPitch : null)));
+      if (!Number.isFinite(yaw) || !Number.isFinite(pitch)) return null;
+      return { yaw, pitch };
+    }
     function snapToPlaybackTerminalView(terminalView) {
       window.viewer.lookAt(terminalView.pitch, terminalView.yaw, getCurrentHfov(), false);
     }
-    function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs) {
+    function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs) {
       if (window.viewer.getScene() !== sceneId) return;
       const yawDelta = normalizeYawDelta(startYaw, targetYaw);
-      const startAt = performance.now();
+      const pitchDelta = targetPitch - startPitch;
+      const baseDurationMs = Math.max(1.0, durationMs);
+      let progress = 0.0;
+      let lastAt = performance.now();
       const tick = now => {
         if (window.viewer.getScene() !== sceneId) {
           waypointRuntime.postArrivalAnimationId = null;
           return;
         }
-        const linear = Math.min(1, (now - startAt) / durationMs);
+        const deltaMs = Math.max(0, now - lastAt);
+        lastAt = now;
+        progress = Math.min(1, progress + getAnimationProgressStep(deltaMs, baseDurationMs));
+        const linear = progress;
         const eased = trapezoidal(linear, TRAPEZOID_FACTOR);
         const currentYaw = normalizeYaw(startYaw + yawDelta * eased);
-        window.viewer.lookAt(pitch, currentYaw, getCurrentHfov(), false);
+        const currentPitch = startPitch + pitchDelta * eased;
+        window.viewer.lookAt(currentPitch, currentYaw, getCurrentHfov(), false);
         if (linear < 1) {
           waypointRuntime.postArrivalAnimationId = requestAnimationFrame(tick);
           return;
@@ -78,7 +130,7 @@ let script = `
           snapToPlaybackTerminalView(terminalView);
           visitedAutoForwards.add(afKey);
           attemptAutoForwardNavigation(sceneId, playbackTarget, 16, terminalView);
-        }, 360);
+        }, getAutoTourForwardDelayMs());
       } else {
         resetAutoForwardLoopGuard();
       }
@@ -125,26 +177,34 @@ let script = `
         );
         const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);
         if (postArrivalHotspot) {
+          const postArrivalFocusView = getHotspotFocusView(postArrivalHotspot);
           const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
-          const currentYaw = typeof window.viewer.getYaw === "function" ? window.viewer.getYaw() : postArrivalHotspot.yaw;
+          const currentYaw = typeof window.viewer.getYaw === "function"
+            ? window.viewer.getYaw()
+            : (postArrivalFocusView?.yaw ?? postArrivalHotspot.yaw);
           const arrivalReferenceHotspot = arrivalContext
             ? resolveArrivalReferenceHotspot(sceneId, sd, arrivalContext.sourceSceneId)
             : null;
           const startYaw = arrivalReferenceHotspot
             ? normalizeYaw(arrivalReferenceHotspot.hotspot.yaw + 180)
             : currentYaw;
+          if (!postArrivalFocusView) {
+            return;
+          }
           if (arrivalReferenceHotspot) {
             window.viewer.lookAt(currentPitch, startYaw, getCurrentHfov(), false);
           }
-          const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalHotspot.yaw));
-          if (yawDelta <= 0.5) {
-            window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);
+          const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalFocusView.yaw));
+          const pitchDelta = Math.abs(postArrivalFocusView.pitch - currentPitch);
+          if (yawDelta <= 0.5 && pitchDelta <= 0.5) {
+            window.viewer.lookAt(postArrivalFocusView.pitch, postArrivalFocusView.yaw, getCurrentHfov(), false);
           } else {
-            animateHorizontalPan(
+            animateFocusPan(
               sceneId,
               startYaw,
-              postArrivalHotspot.yaw,
+              postArrivalFocusView.yaw,
               currentPitch,
+              postArrivalFocusView.pitch,
               700,
             );
           }
@@ -179,12 +239,16 @@ let script = `
       lookingMode = false;
       updateLookingModeUI();
       window.viewer.lookAt(path[0].pitch, path[0].yaw, getCurrentHfov(), false);
-      const startAt = performance.now();
+      let progress = 0.0;
+      let lastAt = performance.now();
       const tick = now => {
         if (window.viewer.getScene() !== sceneId) return;
-        const linear = Math.min(1, (now - startAt) / durationMs);
-        const progress = trapezoidal(linear, TRAPEZOID_FACTOR);
-        const current = samplePath(pathInfo.segments, pathInfo.total, progress);
+        const deltaMs = Math.max(0, now - lastAt);
+        lastAt = now;
+        progress = Math.min(1, progress + getAnimationProgressStep(deltaMs, durationMs));
+        const linear = progress;
+        const easedProgress = trapezoidal(linear, TRAPEZOID_FACTOR);
+        const current = samplePath(pathInfo.segments, pathInfo.total, easedProgress);
         window.viewer.lookAt(current.pitch, current.yaw, getCurrentHfov(), false);
         if (linear < 1) {
           waypointRuntime.animationId = requestAnimationFrame(tick);

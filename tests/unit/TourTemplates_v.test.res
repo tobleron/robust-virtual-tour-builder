@@ -270,14 +270,23 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(html, "function getPlaybackTerminalView(primary)")
     t->expectToContain(html, "function snapToPlaybackTerminalView(terminalView)")
-    t->expectToContain(html, "function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs)")
+    t->expectToContain(html, "function getHotspotFocusView(hotspot)")
+    t->expectToContain(
+      html,
+      "function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs)",
+    )
     t->expectToContain(html, "const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);")
+    t->expectToContain(html, "const postArrivalFocusView = getHotspotFocusView(postArrivalHotspot);")
     t->expectToContain(html, "const arrivalReferenceHotspot = arrivalContext")
     t->expectToContain(html, "const startYaw = arrivalReferenceHotspot")
     t->expectToContain(html, "? normalizeYaw(arrivalReferenceHotspot.hotspot.yaw + 180)")
-    t->expectToContain(html, "const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalHotspot.yaw));")
-    t->expectToContain(html, "if (yawDelta <= 0.5) {")
-    t->expectToContain(html, "window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);")
+    t->expectToContain(html, "const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalFocusView.yaw));")
+    t->expectToContain(html, "const pitchDelta = Math.abs(postArrivalFocusView.pitch - currentPitch);")
+    t->expectToContain(html, "if (yawDelta <= 0.5 && pitchDelta <= 0.5) {")
+    t->expectToContain(
+      html,
+      "window.viewer.lookAt(postArrivalFocusView.pitch, postArrivalFocusView.yaw, getCurrentHfov(), false);",
+    )
     t->expectToContain(html, "const terminalView = path.length > 0")
     t->expectToContain(html, "snapToPlaybackTerminalView(terminalView);")
     t
@@ -321,6 +330,9 @@ let _ = describe("TourTemplates", () => {
       "floorTagShortcutState.prevUsesReturnLink = prevSceneId ? backtrackTarget?.usesReturnLink === true : false;",
     )
     t
+    ->expect(String.includes(html, "function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs)"))
+    ->Expect.toBe(false)
+    t
     ->expect(String.includes(html, "const nextSceneId = nextForwardEdge ? nextForwardEdge.targetSceneId : null;"))
     ->Expect.toBe(false)
     t
@@ -333,6 +345,9 @@ let _ = describe("TourTemplates", () => {
     ->Expect.toBe(false)
     t
     ->expect(String.includes(html, "const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);"))
+    ->Expect.toBe(false)
+    t
+    ->expect(String.includes(html, "window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);"))
     ->Expect.toBe(false)
     t
     ->expect(String.includes(html, "const autoForward = primary.targetIsAutoForward === true;"))
