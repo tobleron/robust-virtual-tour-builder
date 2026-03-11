@@ -97,11 +97,140 @@ let dedupeExportHotspots = (hotspots: array<TourData.hotspotData>): array<TourDa
 }
 
 type exportHotspotEntry = {
+  sourceSceneId: string,
+  hotspotIndex: int,
   linkId: string,
   destinationKey: string,
   isReturnLink: bool,
   sequenceNumber: option<int>,
   hotspotData: TourData.hotspotData,
+}
+
+let exportSceneHotspotKey = (~sceneId: string, ~hotspotIndex: int): string =>
+  sceneId ++ "::" ++ Belt.Int.toString(hotspotIndex)
+
+let deriveAutoTourManifest = (
+  ~state: state,
+  ~firstSceneId: string,
+  ~derivedBadgeByLinkId: Belt.Map.String.t<HotspotSequence.badgeKind>,
+  ~entryByLinkId,
+  ~entryBySceneHotspotKey,
+  ~visibleHotspotIndexByLinkId,
+): TourData.autoTourManifestData => {
+  let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
+  switch Belt.Array.get(activeScenes, 0) {
+  | None =>
+    {
+      "steps": [],
+      "finalSceneId": firstSceneId,
+    }
+  | Some(_) =>
+    let steps: array<TourData.autoTourStepData> = []
+    let currentSequenceCursor = ref(0)
+    let stepCount = ref(0)
+    let continueLoop = ref(true)
+    let finalSceneIdRef = ref(firstSceneId)
+    let currentStateRef = ref({
+      ...state,
+      activeIndex: Constants.Scene.Sequence.startSceneIndex,
+      simulation: {
+        ...state.simulation,
+        status: Running,
+        visitedLinkIds: [],
+      },
+    })
+
+    while continueLoop.contents && stepCount.contents < 400 {
+      let currentState = currentStateRef.contents
+      switch Belt.Array.get(activeScenes, currentState.activeIndex) {
+      | Some(currentScene) =>
+        finalSceneIdRef := currentScene.id
+        switch SimulationMainLogic.getNextMove(currentState) {
+        | SimulationMainLogic.Move({
+            targetIndex,
+            hotspotIndex,
+            triggerActions,
+            yaw: _,
+            pitch: _,
+            hfov: _,
+          }) =>
+          switch (
+            Belt.Array.get(activeScenes, targetIndex),
+            Belt.Array.get(currentScene.hotspots, hotspotIndex),
+          ) {
+          | (Some(targetScene), Some(hotspot)) =>
+            finalSceneIdRef := targetScene.id
+            let linkId = hotspot.linkId
+            let exportEntry =
+              switch Dict.get(entryByLinkId, linkId) {
+              | Some(entry) => Some(entry)
+              | None =>
+                Dict.get(
+                  entryBySceneHotspotKey,
+                  exportSceneHotspotKey(~sceneId=currentScene.id, ~hotspotIndex),
+                )
+              }
+
+            switch exportEntry {
+            | Some(entry) =>
+              let arrivalSequenceCursor =
+                switch derivedBadgeByLinkId->Belt.Map.String.get(linkId) {
+                | Some(HotspotSequence.Sequence(sequenceNo)) => sequenceNo
+                | Some(HotspotSequence.Return) | None => currentSequenceCursor.contents
+                }
+              let visibleHotspotIndex =
+                Dict.get(visibleHotspotIndexByLinkId, linkId)->Option.getOr(hotspotIndex)
+              let step: TourData.autoTourStepData = {
+                "sourceSceneId": currentScene.id,
+                "targetSceneId": targetScene.id,
+                "linkId": linkId,
+                "hotspotIndex": hotspotIndex,
+                "visibleHotspotIndex": visibleHotspotIndex,
+                "sequenceCursor": arrivalSequenceCursor,
+                "isReturnLink": entry.isReturnLink,
+                "targetIsAutoForward": entry.hotspotData["targetIsAutoForward"],
+                "hotspot": entry.hotspotData,
+              }
+              let _ = Array.push(steps, step)
+              currentSequenceCursor := arrivalSequenceCursor
+            | None => ()
+            }
+
+            let visitedAfterMove = TraversalSequence.applyVisitedActions(
+              currentState.simulation.visitedLinkIds,
+              triggerActions,
+            )
+            currentStateRef := {
+              ...currentState,
+              activeIndex: targetIndex,
+              simulation: {
+                ...currentState.simulation,
+                visitedLinkIds: visitedAfterMove,
+              },
+            }
+            stepCount := stepCount.contents + 1
+          | _ => continueLoop := false
+          }
+        | SimulationMainLogic.Complete(_) | SimulationMainLogic.None => continueLoop := false
+        }
+      | None => continueLoop := false
+      }
+    }
+
+    if stepCount.contents >= 400 {
+      Logger.warn(
+        ~module_="TourTemplateHtml",
+        ~message="AUTO_TOUR_MANIFEST_MAX_STEPS_REACHED",
+        ~data=Some({"maxSteps": 400}),
+        (),
+      )
+    }
+
+    {
+      "steps": steps,
+      "finalSceneId": finalSceneIdRef.contents,
+    }
+  }
 }
 
 let generateTourHTML = (
@@ -127,6 +256,9 @@ let generateTourHTML = (
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
   let rawScenesData = Dict.make()
+  let entryByLinkId = Dict.make()
+  let entryBySceneHotspotKey = Dict.make()
+  let visibleHotspotIndexByLinkId = Dict.make()
   let hasSceneId = (sceneId: string) => scenes->Belt.Array.some(ts => ts.id == sceneId)
   let sequencingState: state = {
     ...State.initialState,
@@ -180,7 +312,7 @@ let generateTourHTML = (
   scenes->Belt.Array.forEach(s => {
     let rawHotspotEntries: array<exportHotspotEntry> =
       s.hotspots
-      ->Belt.Array.keepMap(h => {
+      ->Belt.Array.mapWithIndex((hotspotIndex, h) => {
         let resolvedTargetId = switch h.targetSceneId {
         | Some(targetSceneId) =>
           if hasSceneId(targetSceneId) {
@@ -217,6 +349,8 @@ let generateTourHTML = (
             "targetPitch": h.targetPitch->Nullable.fromOption,
           }
           Some({
+            sourceSceneId: s.id,
+            hotspotIndex,
             linkId: h.linkId,
             destinationKey: exportHotspotDestinationKey(hotspotData),
             isReturnLink,
@@ -227,6 +361,7 @@ let generateTourHTML = (
           None
         }
       })
+      ->Belt.Array.keepMap(item => item)
     let rawHotspots =
       rawHotspotEntries
       ->Belt.Array.map(entry => entry.hotspotData)
@@ -234,6 +369,19 @@ let generateTourHTML = (
     let visibleHotspotIndexByDestinationKey = Dict.make()
     rawHotspots->Belt.Array.forEachWithIndex((idx, hotspot) => {
       Dict.set(visibleHotspotIndexByDestinationKey, exportHotspotDestinationKey(hotspot), idx)
+    })
+    rawHotspotEntries->Belt.Array.forEach(entry => {
+      Dict.set(entryByLinkId, entry.linkId, entry)
+      Dict.set(
+        entryBySceneHotspotKey,
+        exportSceneHotspotKey(~sceneId=entry.sourceSceneId, ~hotspotIndex=entry.hotspotIndex),
+        entry,
+      )
+      switch Dict.get(visibleHotspotIndexByDestinationKey, entry.destinationKey) {
+      | Some(visibleHotspotIndex) =>
+        Dict.set(visibleHotspotIndexByLinkId, entry.linkId, visibleHotspotIndex)
+      | None => ()
+      }
     })
     let sequenceEdges: array<TourData.sequenceEdgeData> =
       rawHotspotEntries
@@ -302,6 +450,14 @@ let generateTourHTML = (
       ),
     )
   })
+  let autoTourManifest = deriveAutoTourManifest(
+    ~state=sequencingState,
+    ~firstSceneId,
+    ~derivedBadgeByLinkId,
+    ~entryByLinkId,
+    ~entryBySceneHotspotKey,
+    ~visibleHotspotIndexByLinkId,
+  )
 
   let (
     defaultHfov,
@@ -359,10 +515,16 @@ let generateTourHTML = (
   let scenesDataJson = JsonCombinators.Json.stringify(
     JsonCombinators.Json.Encode.dict(TourData.encodeSceneData)(rawScenesData),
   )
+  let autoTourManifestJson = JsonCombinators.Json.stringify(
+    TourData.encodeAutoTourManifest(autoTourManifest),
+  )
 
   let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export" aria-hidden="true"></div>${marketingBannerHtml}${portraitMarketingHtml}${logoDiv}</div><script>
 
-    const firstSceneId = "${firstSceneId}"; ${renderScript}
+    const firstSceneId = "${firstSceneId}";
+    const scenesData = ${scenesDataJson};
+    const autoTourManifest = ${autoTourManifestJson};
+    ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
       defPitch,
@@ -373,7 +535,6 @@ let generateTourHTML = (
     )}, "maxHfov": ${Belt.Float.toString(
       maxHfov,
     )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
-    const scenesData = ${scenesDataJson};
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, sequenceNumber: h.sequenceNumber, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }

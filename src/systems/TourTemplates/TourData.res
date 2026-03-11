@@ -31,6 +31,23 @@ type sequenceEdgeData = {
   "visibleHotspotIndex": int,
 }
 
+type autoTourStepData = {
+  "sourceSceneId": string,
+  "targetSceneId": string,
+  "linkId": string,
+  "hotspotIndex": int,
+  "visibleHotspotIndex": int,
+  "sequenceCursor": int,
+  "isReturnLink": bool,
+  "targetIsAutoForward": bool,
+  "hotspot": hotspotData,
+}
+
+type autoTourManifestData = {
+  "steps": array<autoTourStepData>,
+  "finalSceneId": string,
+}
+
 type sceneData = {
   "name": string,
   "panorama": string,
@@ -128,6 +145,25 @@ let encodeSceneData = (s: sceneData) => {
     ("isHubScene", JsonCombinators.Json.Encode.bool(s["isHubScene"])),
   ])
 }
+
+let encodeAutoTourStep = (step: autoTourStepData) =>
+  JsonCombinators.Json.Encode.object([
+    ("sourceSceneId", JsonCombinators.Json.Encode.string(step["sourceSceneId"])),
+    ("targetSceneId", JsonCombinators.Json.Encode.string(step["targetSceneId"])),
+    ("linkId", JsonCombinators.Json.Encode.string(step["linkId"])),
+    ("hotspotIndex", JsonCombinators.Json.Encode.int(step["hotspotIndex"])),
+    ("visibleHotspotIndex", JsonCombinators.Json.Encode.int(step["visibleHotspotIndex"])),
+    ("sequenceCursor", JsonCombinators.Json.Encode.int(step["sequenceCursor"])),
+    ("isReturnLink", JsonCombinators.Json.Encode.bool(step["isReturnLink"])),
+    ("targetIsAutoForward", JsonCombinators.Json.Encode.bool(step["targetIsAutoForward"])),
+    ("hotspot", encodeHotspot(step["hotspot"])),
+  ])
+
+let encodeAutoTourManifest = (manifest: autoTourManifestData) =>
+  JsonCombinators.Json.Encode.object([
+    ("steps", JsonCombinators.Json.Encode.array(encodeAutoTourStep)(manifest["steps"])),
+    ("finalSceneId", JsonCombinators.Json.Encode.string(manifest["finalSceneId"])),
+  ])
 
 let normalizeSceneRefForExport = (value: string): string =>
   value

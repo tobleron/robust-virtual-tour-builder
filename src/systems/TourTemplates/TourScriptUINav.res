@@ -384,6 +384,9 @@ let script = `
       clearAutoTourCompletionCountdown();
       floorTagShortcutState.isAutoTourActive = true;
       window.isAutoTourActive = true;
+      if (typeof resetAutoTourManifestCursor === "function") {
+        resetAutoTourManifestCursor();
+      }
       if (typeof applyAutoTourBaseSpeed === "function") {
         applyAutoTourBaseSpeed();
       }
@@ -405,6 +408,9 @@ let script = `
       if (!floorTagShortcutState.isAutoTourActive) return;
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
+      if (typeof resetAutoTourManifestCursor === "function") {
+        resetAutoTourManifestCursor();
+      }
       if (typeof resetAutoTourSpeedMultiplier === "function") {
         resetAutoTourSpeedMultiplier();
       }

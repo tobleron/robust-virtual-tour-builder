@@ -162,11 +162,12 @@ pub fn build_desktop_blob_html(
 
     let mut replacements: Vec<(String, String)> = assets_2k
         .iter()
-        .map(|(file_name, bytes)| {
-            (
-                format!("assets/images/{}", file_name),
-                data_uri_for_bytes("image/webp", bytes),
-            )
+        .flat_map(|(file_name, bytes)| {
+            let data_uri = data_uri_for_bytes("image/webp", bytes);
+            [
+                (format!("../../assets/images/{}", file_name), data_uri.clone()),
+                (format!("assets/images/{}", file_name), data_uri),
+            ]
         })
         .collect();
 
@@ -177,4 +178,32 @@ pub fn build_desktop_blob_html(
     }
 
     html
+}
+
+#[cfg(test)]
+mod tests {
+    use super::build_desktop_blob_html;
+
+    #[test]
+    fn build_desktop_blob_html_rewrites_scene_asset_paths_in_css_and_runtime() {
+        let html = r#"
+            <style>
+              #panorama { background-image: url("../../assets/images/scene-a.webp"); }
+            </style>
+            <script>
+              const scene = { panorama: "assets/images/scene-a.webp" };
+            </script>
+        "#;
+        let result = build_desktop_blob_html(
+            html,
+            &[("scene-a.webp".to_string(), vec![0x52, 0x49, 0x46, 0x46])],
+            None,
+        );
+
+        assert!(result.contains("background-image: url(\"data:image/webp;base64,"));
+        assert!(result.contains("panorama: \"data:image/webp;base64,"));
+        assert!(!result.contains("../../data:image"));
+        assert!(!result.contains("../../assets/images/scene-a.webp"));
+        assert!(!result.contains("assets/images/scene-a.webp"));
+    }
 }

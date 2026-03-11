@@ -115,13 +115,16 @@ let script = `
 
       const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
       if (shouldAutoForward) {
-        if (forceAutoForward) {
+        if (forceAutoForward && playbackTarget.fromManifest !== true) {
           const tid = playbackTarget.targetSceneId;
           if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
             if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
             return;
           }
           autoTourVisitedScenes.add(sceneId + ":" + tid);
+        } else if (forceAutoForward && !playbackTarget.targetSceneId) {
+          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+          return;
         }
 
         const afKey = sceneId + ":" + playbackTarget.hotspotIndex;

@@ -115,6 +115,12 @@ let script = `
         clearAutoTourCompletionCountdown();
         const homeSceneId = resolveExistingSceneId(firstSceneId);
         const currentSceneId = window.viewer?.getScene?.() ?? null;
+        if (homeSceneId && currentSceneId && currentSceneId === homeSceneId) {
+          if (typeof animateSceneToPrimaryHotspot === "function") {
+            animateSceneToPrimaryHotspot(homeSceneId, 20);
+          }
+          return;
+        }
         if (homeSceneId && currentSceneId && currentSceneId !== homeSceneId) {
           suppressNextRoomLabelOnLoad = true;
           suppressShortcutPanelUntilNextLoad = true;
@@ -128,6 +134,8 @@ let script = `
       window.isAutoTourActive = false;
       resetAutoTourSpeedMultiplier();
       document.body.classList.remove('is-auto-tour-active');
+      if (typeof lookingMode !== "undefined") lookingMode = false;
+      if (typeof updateLookingModeUI === "function") updateLookingModeUI();
       if (waypointRuntime.autoForwardTimeoutId) {
         clearTimeout(waypointRuntime.autoForwardTimeoutId);
         waypointRuntime.autoForwardTimeoutId = null;

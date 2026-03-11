@@ -1,11 +1,36 @@
 // @efficiency-role: service-orchestrator
 use std::collections::HashMap;
 
-use zip::ZipWriter;
+use minify_html::{minify, Cfg};
 use zip::write::FileOptions;
+use zip::ZipWriter;
 
-use super::TARGETS;
 use super::package_assets::{PreparedPackageAssets, SelectedProfiles};
+use super::TARGETS;
+
+fn export_html_minifier_cfg() -> Cfg {
+    Cfg {
+        allow_noncompliant_unquoted_attribute_values: false,
+        allow_optimal_entities: false,
+        allow_removing_spaces_between_attributes: false,
+        keep_closing_tags: true,
+        keep_comments: false,
+        keep_html_and_head_opening_tags: true,
+        keep_input_type_text_attr: false,
+        keep_ssi_comments: false,
+        minify_css: true,
+        minify_doctype: true,
+        minify_js: true,
+        preserve_brace_template_syntax: false,
+        preserve_chevron_percent_template_syntax: false,
+        remove_bangs: false,
+        remove_processing_instructions: false,
+    }
+}
+
+fn minify_export_html(html: &str) -> Vec<u8> {
+    minify(html.as_bytes(), &export_html_minifier_cfg())
+}
 
 pub(super) fn write_root_launcher(
     zip: &mut ZipWriter<std::fs::File>,
@@ -98,11 +123,12 @@ pub(super) fn write_tour_htmls(
 
         if let Some(web_html) = fields.get(field_name) {
             let web_only_html = super::rewrite_tour_html_for_subfolder(web_html, resolution_key);
+            let minified_web_only_html = minify_export_html(&web_only_html);
             super::write_zip_file(
                 zip,
                 options,
                 &format!("web_only/{}/index.html", folder),
-                web_only_html.as_bytes(),
+                &minified_web_only_html,
             )?;
         }
     }
@@ -162,7 +188,8 @@ fn write_desktop_bundle(
         assets_2k,
         package_assets.logo_asset.as_ref(),
     );
-    super::write_zip_file(zip, options, "desktop/index.html", desktop_html.as_bytes())
+    let minified_desktop_html = minify_export_html(&desktop_html);
+    super::write_zip_file(zip, options, "desktop/index.html", &minified_desktop_html)
 }
 
 fn write_web_only_support(
@@ -175,11 +202,12 @@ fn write_web_only_support(
     {
         if let Some(index_html) = fields.get("html_index") {
             let web_only_index = super::rewrite_web_only_index_html(index_html);
+            let minified_web_only_index = minify_export_html(&web_only_index);
             super::write_zip_file(
                 zip,
                 options,
                 "web_only/index.html",
-                web_only_index.as_bytes(),
+                &minified_web_only_index,
             )?;
         }
 
@@ -224,4 +252,40 @@ fn write_desktop_support(
         "desktop/embed_codes.txt",
         b"DESKTOP PACKAGE\n\nOpen:\ndesktop/index.html\n",
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::minify_export_html;
+
+    #[test]
+    fn minify_export_html_reduces_markup_and_keeps_inline_runtime() {
+        let html = r#"<!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body {
+                color: red;
+              }
+            </style>
+          </head>
+          <body>
+            <script>
+              const value = 1 + 2;
+              window.__test = value;
+            </script>
+            <div class="hero"> Hello Tour </div>
+          </body>
+        </html>"#;
+
+        let minified = minify_export_html(html);
+        let minified_str = String::from_utf8(minified).expect("minified html should remain utf-8");
+
+        assert!(minified_str.len() < html.len());
+        assert!(minified_str.contains("<script>"));
+        assert!(minified_str.contains("window.__test"));
+        assert!(minified_str.contains("Hello Tour"));
+        assert!(!minified_str.contains("const value = 1 + 2;"));
+        assert!(!minified_str.contains('\n'));
+    }
 }

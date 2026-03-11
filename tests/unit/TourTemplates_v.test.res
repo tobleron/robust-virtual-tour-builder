@@ -218,6 +218,30 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function resolveSceneIdForSequencePosition(sequencePosition)")
     t->expectToContain(html, "function resolveFirstSequencePositionForScene(sceneId)")
     t->expectToContain(html, "function applyManualSequencePosition(sceneId, sequencePosition)")
+    t->expectToContain(html, "const autoTourManifest = {\"steps\":")
+    t->expectToContain(html, "let autoTourManifestCursor = 0;")
+    t->expectToContain(html, "function resetAutoTourManifestCursor()")
+    t->expectToContain(html, "function resolveAutoTourManifestStep(sceneId)")
+    t->expectToContain(html, "function buildPlaybackTargetFromAutoTourStep(sceneId)")
+    t->expectToContain(html, "if (resolvedSceneId && homeSceneId && autoTourManifestCursor > 0 && resolvedSceneId === homeSceneId) {")
+    t->expectToContain(html, "fromManifest: true,")
+    t->expectToContain(html, "const manifestPlaybackTarget =")
+    t->expectToContain(html, "window.isAutoTourActive === true ? buildPlaybackTargetFromAutoTourStep(sceneId) : null;")
+    t->expectToContain(html, "if (window.isAutoTourActive === true) {")
+    t->expectToContain(html, "return null;")
+    t->expectToContain(html, "const homeSceneId = resolveExistingSceneId(firstSceneId);")
+    t->expectToContain(html, "const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)")
+    t->expectToContain(html, "const sequenceCursor = homeSceneId && targetSceneId === homeSceneId")
+    t->expectToContain(html, "? 0")
+    t->expectToContain(html, "if (playbackTarget.fromManifest === true) {")
+    t->expectToContain(html, "const didAdvance = advanceAutoTourManifestCursor(sceneId, playbackTarget.targetSceneId);")
+    let manifestDeclIndex = String.indexOf(html, "const autoTourManifest = {\"steps\":")
+    let manifestUsageIndex = String.indexOf(
+      html,
+      "const autoTourSteps = Array.isArray(autoTourManifest?.steps) ? autoTourManifest.steps : [];",
+    )
+    t->expect(manifestDeclIndex >= 0)->Expect.toBe(true)
+    t->expect(manifestUsageIndex > manifestDeclIndex)->Expect.toBe(true)
     t->expectToContain(html, "function resolveNextForwardSequenceEdge(sceneId, sceneData)")
     t->expectToContain(html, "function resolveSequenceEdgeForVisibleHotspot(sceneId, sceneData, visibleHotspotIndex)")
     t->expectToContain(html, "function resolveForwardHotspotByTargetScene(sceneId, sceneData, targetSceneId)")
@@ -311,7 +335,11 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(
       html,
-      "const sequenceCursor = Number.isInteger(options?.sequenceCursorOverride)",
+      "const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)",
+    )
+    t->expectToContain(
+      html,
+      "const sequenceCursor = homeSceneId && targetSceneId === homeSceneId",
     )
     t->expectToContain(
       html,
@@ -397,7 +425,9 @@ let _ = describe("TourTemplates", () => {
     let targetSignature =
       "\"target\":\"scene2\",\"targetSceneId\":\"sc2\",\"targetIsAutoForward\":false,\"isReturnLink\":false"
 
-    t->expect(countOccurrences(html, targetSignature))->Expect.toBe(1)
+    t->expect(countOccurrences(html, targetSignature))->Expect.toBe(2)
+    t->expectToContain(html, "\"hotSpots\":[{\"pitch\":7.5,\"yaw\":22.5")
+    t->expectToContain(html, "\"linkId\":\"revisit-link-2\"")
     t->expectToContain(html, "\"yaw\":22.5")
     t->expect(String.includes(html, "\"yaw\":18.25"))->Expect.toBe(false)
   })
@@ -500,10 +530,15 @@ let _ = describe("TourTemplates", () => {
       t->expectToContain(html, "function shouldBlockAutoForward(sourceSceneId, targetSceneId)")
       t->expectToContain(html, "if (sourceSceneId === targetSceneId) return true;")
       t->expectToContain(html, "return autoForwardChainVisited.includes(targetSceneId);")
+      t->expectToContain(html, "const isAutoTourBacktrack =")
+      t->expectToContain(html, "if (isAutoTourBacktrack) {")
+      t->expectToContain(html, "resetAutoForwardLoopGuard();")
       t->expectToContain(html, "if (shouldBlockAutoForward(sourceSceneId, targetSceneId))")
       t->expectToContain(html, "trackAutoForwardSource(sourceSceneId);")
       t->expectToContain(html, "const autoForwardOptions = {")
       t->expectToContain(html, "destinationOverride: destinationOverride ?? null,")
+      t->expectToContain(html, "usesReturnLink: playbackTarget.usesReturnLink === true,")
+      t->expectToContain(html, "isBacktrack: playbackTarget.backtrack === true,")
       t->expectToContain(html, "anyReady.__navigateNext(autoForwardOptions);")
       t->expectToContain(html, "hotSpotDiv.__navigateNext = function(options)")
     },
@@ -633,6 +668,9 @@ let _ = describe("TourTemplates", () => {
 
     t->expectToContain(html, "let suppressShortcutPanelUntilNextLoad = false;")
     t->expectToContain(html, "autoTourHomeReturnCountdownRemaining = 1;")
+    t->expectToContain(html, "if (typeof lookingMode !== \"undefined\") lookingMode = false;")
+    t->expectToContain(html, "if (homeSceneId && currentSceneId && currentSceneId === homeSceneId) {")
+    t->expectToContain(html, "animateSceneToPrimaryHotspot(homeSceneId, 20);")
     t->expectToContain(html, "suppressShortcutPanelUntilNextLoad = true;")
     t->expectToContain(html, "if (suppressShortcutPanelUntilNextLoad) {")
     t->expectToContain(html, "clearExportFloorTagShortcuts(panel);")

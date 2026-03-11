@@ -12,7 +12,7 @@ fn find_timeline_hotspot<'a>(scene: &'a Scene, item: &TimelineItem) -> Option<&'
         scene
             .hotspots
             .iter()
-            .find(|h| h.link_id.as_deref() == Some(&item.link_id))
+            .find(|h| h.link_id.as_deref() == Some(item.link_id.as_str()))
     } else {
         scene
             .hotspots
