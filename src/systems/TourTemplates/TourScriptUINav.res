@@ -315,11 +315,8 @@ let script = `
       const sceneId = floorTagShortcutState.sceneId;
       const prevSceneId = floorTagShortcutState.prevSceneId;
       const prevHotspotIndex = floorTagShortcutState.prevHotspotIndex;
-      const prevUsesReturnLink = floorTagShortcutState.prevUsesReturnLink === true;
+      const prevSequenceNumber = floorTagShortcutState.prevSequenceNumber;
       if (!sceneId || !prevSceneId) return false;
-      if (prevUsesReturnLink && typeof navigateReturnHotspotFromCurrentScene === "function") {
-        return navigateReturnHotspotFromCurrentScene();
-      }
       if (Number.isInteger(prevHotspotIndex) && prevHotspotIndex >= 0) {
         const hotspot = scenesData?.[sceneId]?.hotSpots?.[prevHotspotIndex];
         if (hotspot) {
@@ -337,7 +334,7 @@ let script = `
             {
               sourceSceneId: sceneId,
               targetSceneId: prevSceneId,
-              sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+              sequenceCursorOverride: prevSequenceNumber,
             },
           );
           return true;
@@ -349,7 +346,7 @@ let script = `
         {
           sourceSceneId: sceneId,
           targetSceneId: prevSceneId,
-          sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+          sequenceCursorOverride: prevSequenceNumber,
         },
       );
       return true;
@@ -419,6 +416,7 @@ let script = `
       floorTagShortcutState.nextHotspotIndex = null;
       floorTagShortcutState.nextSequenceNumber = null;
       floorTagShortcutState.prevHotspotIndex = null;
+      floorTagShortcutState.prevSequenceNumber = null;
       floorTagShortcutState.prevUsesReturnLink = false;
       if (!panel) return;
       while (panel.firstChild) panel.removeChild(panel.firstChild);
@@ -516,23 +514,21 @@ let script = `
       if (!currentSceneData) return;
 
       // Navigation Logic: Next (Up) and Previous (Down)
-      const preferredTarget = resolvePreferredNavigationTarget(sceneId, currentSceneData);
-      const backtrackTarget = resolveBacktrackTarget(sceneId, currentSceneData);
-      const nextSceneId =
-        preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)
-          ? preferredTarget.targetSceneId
-          : null;
-      const shouldHideBacktrack = !!nextSceneId && backtrackTarget?.targetSceneId === nextSceneId;
-      const prevSceneId = !shouldHideBacktrack && backtrackTarget ? backtrackTarget.targetSceneId : null;
+      const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);
+      const nextTarget = shortcutTargets?.nextTarget ?? null;
+      const prevTarget = shortcutTargets?.prevTarget ?? null;
+      const nextSceneId = nextTarget?.targetSceneId ?? null;
+      const prevSceneId = prevTarget?.targetSceneId ?? null;
 
       // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.nextSceneId = nextSceneId;
       floorTagShortcutState.prevSceneId = prevSceneId;
-      floorTagShortcutState.nextHotspotIndex = nextSceneId ? preferredTarget.hotspotIndex : null;
-      floorTagShortcutState.nextSequenceNumber = nextSceneId ? preferredTarget.sequenceCursorOverride : null;
-      floorTagShortcutState.prevHotspotIndex = prevSceneId ? backtrackTarget.hotspotIndex : null;
-      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? backtrackTarget?.usesReturnLink === true : false;
+      floorTagShortcutState.nextHotspotIndex = nextSceneId ? nextTarget.hotspotIndex : null;
+      floorTagShortcutState.nextSequenceNumber = nextSceneId ? nextTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevHotspotIndex = prevSceneId ? prevTarget.hotspotIndex : null;
+      floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");

@@ -41,6 +41,7 @@ let script = `
       nextHotspotIndex: null,
       nextSequenceNumber: null,
       prevHotspotIndex: null,
+      prevSequenceNumber: null,
       prevUsesReturnLink: false,
       autoTourSpeedMultiplier: 1.0,
     };

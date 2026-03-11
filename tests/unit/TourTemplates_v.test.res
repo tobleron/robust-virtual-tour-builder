@@ -113,8 +113,15 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "assets/logo/logo.png")
     t->expectToContain(html, "id=\"export-watermark-image\"")
     t->expectToContain(html, "const LOGO_AREA_RATIO = 0.008;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;")
     t->expectToContain(html, "function syncExportLogoSize()")
+    t->expectToContain(html, "const portraitTargetArea =")
+    t->expectToContain(html, "const portraitFinalWidth = Math.min(")
+    t->expectToContain(html, "const portraitFinalHeight = Math.min(")
     t->expectToContain(html, "stage.style.setProperty('--export-logo-height'")
+    t->expectToContain(html, "'--export-logo-portrait-height'")
 
     // Check hotspot data
     t->expectToContain(html, "\"yaw\":10")
@@ -290,21 +297,34 @@ let _ = describe("TourTemplates", () => {
       html,
       "function resolveSourceBacktrackTarget(sceneId, sceneData, sourceSceneId, sequenceCursorOverride)",
     )
+    t->expectToContain(html, "function resolveStableSceneNumber(sceneId)")
+    t->expectToContain(
+      html,
+      "function buildCurrentCursorBacktrackTarget(",
+    )
+    t->expectToContain(html, "function resolveSceneNumberForwardShortcutTarget(sceneId, sceneData)")
+    t->expectToContain(html, "function resolveSceneNumberBacktrackShortcutTarget(sceneId, sceneData)")
+    t->expectToContain(html, "function resolveProgressAwareForwardShortcutTarget(sceneId, sceneData)")
+    t->expectToContain(html, "function resolveShortcutNavigationTargets(sceneId, sceneData)")
+    t->expectToContain(html, "const rawSceneNumber = scenesData?.[resolvedSceneId]?.sceneNumber;")
+    t->expectToContain(html, "const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);")
+    t->expectToContain(html, "if (resolvedSceneId === homeSceneId) {")
+    t->expectToContain(html, "return resolveSceneNumberForwardShortcutTarget(resolvedSceneId, sceneData);")
+    t->expectToContain(html, "const preferredTarget = resolvePreferredNavigationTarget(resolvedSceneId, sceneData);")
+    t->expectToContain(html, "preferredTarget.usesReturnLink !== true")
+    t->expectToContain(html, "return buildCurrentCursorBacktrackTarget(")
+    t->expectToContain(html, "const nextTarget = resolveProgressAwareForwardShortcutTarget(resolvedSceneId, sceneData);")
+    t->expectToContain(html, "resolvedSceneId === homeSceneId || stableSceneNumber <= 1")
     t->expectToContain(html, "const previousSceneId = resolveSceneIdForSequencePosition(previousSequencePosition);")
     t->expectToContain(html, "function navigateToNextSequenceShortcut()")
     t->expectToContain(html, "function navigateToPreviousSequenceShortcut()")
     t->expectToContain(html, "navigateToFloorTagShortcut(")
     t->expectToContain(html, "navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });")
-    t->expectToContain(
-      html,
-      "const preferredTarget = resolvePreferredNavigationTarget(sceneId, currentSceneData);",
-    )
-    t->expectToContain(
-      html,
-      "const backtrackTarget = resolveBacktrackTarget(sceneId, currentSceneData);",
-    )
-    t->expectToContain(html, "preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)")
-    t->expectToContain(html, "? preferredTarget.targetSceneId")
+    t->expectToContain(html, "const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);")
+    t->expectToContain(html, "const nextTarget = shortcutTargets?.nextTarget ?? null;")
+    t->expectToContain(html, "const prevTarget = shortcutTargets?.prevTarget ?? null;")
+    t->expectToContain(html, "const nextSceneId = nextTarget?.targetSceneId ?? null;")
+    t->expectToContain(html, "const prevSceneId = prevTarget?.targetSceneId ?? null;")
     t->expectToContain(
       html,
       "function attemptAutoForwardNavigation(sceneId, playbackTarget, retriesLeft, destinationOverride)",
@@ -391,19 +411,23 @@ let _ = describe("TourTemplates", () => {
     )
     t->expectToContain(
       html,
-      "const shouldHideBacktrack = !!nextSceneId && backtrackTarget?.targetSceneId === nextSceneId;",
+      "const prevSequenceNumber = floorTagShortcutState.prevSequenceNumber;",
     )
     t->expectToContain(
       html,
-      "const prevSceneId = !shouldHideBacktrack && backtrackTarget ? backtrackTarget.targetSceneId : null;",
+      "sequenceCursorOverride: prevSequenceNumber,",
     )
     t->expectToContain(
       html,
-      "floorTagShortcutState.prevHotspotIndex = prevSceneId ? backtrackTarget.hotspotIndex : null;",
+      "floorTagShortcutState.prevSequenceNumber = null;",
     )
     t->expectToContain(
       html,
-      "floorTagShortcutState.prevUsesReturnLink = prevSceneId ? backtrackTarget?.usesReturnLink === true : false;",
+      "floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;",
+    )
+    t->expectToContain(
+      html,
+      "floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;",
     )
     t
     ->expect(String.includes(html, "function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs)"))

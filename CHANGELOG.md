@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Checkpoint before separating user-facing scene numbers from traversal sequence
 - Checkpoint scene numbering and auto-tour completion fixes before shortcut refactor
+- Checkpoint export shortcut parity and portrait logo tuning before default animation gating
 
 ## [5.2.4] - 2026-03-10
 

@@ -565,7 +565,9 @@ let generateTourHTML = (
     const LOGO_AREA_RATIO = 0.008;
     const LOGO_WIDTH_CAP_RATIO = 0.13;
     const LOGO_HEIGHT_CAP_RATIO = 0.075;
-    const LOGO_PORTRAIT_SCALE = 0.88;
+    const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;
+    const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;
+    const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;
     function syncExportLogoSize() {
       const stage = document.getElementById('stage');
       const logo = document.getElementById('export-watermark-image');
@@ -582,15 +584,28 @@ let generateTourHTML = (
       const rawWidth = rawHeight * aspect;
       const finalWidth = Math.min(rawWidth, stageWidth * LOGO_WIDTH_CAP_RATIO);
       const finalHeight = Math.min(rawHeight, stageHeight * LOGO_HEIGHT_CAP_RATIO, finalWidth / aspect);
+      const portraitTargetArea =
+        stageWidth * stageHeight * LOGO_AREA_RATIO * LOGO_PORTRAIT_AREA_MULTIPLIER;
+      const portraitRawHeight = Math.sqrt(portraitTargetArea / aspect);
+      const portraitRawWidth = portraitRawHeight * aspect;
+      const portraitFinalWidth = Math.min(
+        portraitRawWidth,
+        stageWidth * LOGO_PORTRAIT_WIDTH_CAP_RATIO,
+      );
+      const portraitFinalHeight = Math.min(
+        portraitRawHeight,
+        stageHeight * LOGO_PORTRAIT_HEIGHT_CAP_RATIO,
+        portraitFinalWidth / aspect,
+      );
       stage.style.setProperty('--export-logo-width', finalWidth.toFixed(2) + 'px');
       stage.style.setProperty('--export-logo-height', finalHeight.toFixed(2) + 'px');
       stage.style.setProperty(
         '--export-logo-portrait-width',
-        (finalWidth * LOGO_PORTRAIT_SCALE).toFixed(2) + 'px',
+        portraitFinalWidth.toFixed(2) + 'px',
       );
       stage.style.setProperty(
         '--export-logo-portrait-height',
-        (finalHeight * LOGO_PORTRAIT_SCALE).toFixed(2) + 'px',
+        portraitFinalHeight.toFixed(2) + 'px',
       );
     }
     const setupExportLogoSizing = () => {
