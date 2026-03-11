@@ -74,7 +74,9 @@ let handleProgress = (
 
     let shouldUpdateToast = now -. etaState.lastEtaToastAtMs.contents >= 1200.0
     if shouldUpdateToast {
-      let remainingFrames = if etaState.knownTotalFrames.contents > etaState.lastRenderedFrameSample.contents {
+      let remainingFrames = if (
+        etaState.knownTotalFrames.contents > etaState.lastRenderedFrameSample.contents
+      ) {
         etaState.knownTotalFrames.contents - etaState.lastRenderedFrameSample.contents
       } else {
         0
@@ -96,11 +98,18 @@ let handleProgress = (
       }
 
       let etaFromRenderer = parsed.etaSecondsFromMessage->Option.map(Belt.Int.toFloat)
-      let blendedEta =
-        EtaSupport.combineEtaCandidates(~a=etaByFrameRate, ~b=etaByProgressSlope, ~c=etaByGlobalAverage, ~d=?etaFromRenderer)
-        ->Option.map(raw =>
-          if phaseName == "Encoding WebM" { raw *. 1.06 } else { raw }
-        )
+      let blendedEta = EtaSupport.combineEtaCandidates(
+        ~a=etaByFrameRate,
+        ~b=etaByProgressSlope,
+        ~c=etaByGlobalAverage,
+        ~d=?etaFromRenderer,
+      )->Option.map(raw =>
+        if phaseName == "Encoding WebM" {
+          raw *. 1.06
+        } else {
+          raw
+        }
+      )
 
       let etaSeconds = switch blendedEta {
       | Some(candidate) if etaState.etaReady.contents =>

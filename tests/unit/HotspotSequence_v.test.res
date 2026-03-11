@@ -239,15 +239,18 @@ describe("HotspotSequence", () => {
     t->expect(linkIds)->Expect.toEqual(["hAB", "hBC"])
   })
 
-  test("deriveSceneNumberBySceneId assigns unique stable scene numbers across disconnected components", t => {
-    let state = makeDisconnectedState()
-    let sceneNumbers = HotspotSequence.deriveSceneNumberBySceneId(~state)
+  test(
+    "deriveSceneNumberBySceneId assigns unique stable scene numbers across disconnected components",
+    t => {
+      let state = makeDisconnectedState()
+      let sceneNumbers = HotspotSequence.deriveSceneNumberBySceneId(~state)
 
-    t->expect(sceneNumbers->Belt.Map.String.get("A"))->Expect.toEqual(Some(1))
-    t->expect(sceneNumbers->Belt.Map.String.get("B"))->Expect.toEqual(Some(2))
-    t->expect(sceneNumbers->Belt.Map.String.get("C"))->Expect.toEqual(Some(3))
-    t->expect(sceneNumbers->Belt.Map.String.get("D"))->Expect.toEqual(Some(4))
-  })
+      t->expect(sceneNumbers->Belt.Map.String.get("A"))->Expect.toEqual(Some(1))
+      t->expect(sceneNumbers->Belt.Map.String.get("B"))->Expect.toEqual(Some(2))
+      t->expect(sceneNumbers->Belt.Map.String.get("C"))->Expect.toEqual(Some(3))
+      t->expect(sceneNumbers->Belt.Map.String.get("D"))->Expect.toEqual(Some(4))
+    },
+  )
 
   test("deriveSceneNumberBySceneId keeps wrap-back home scene visible as scene one", t => {
     let state = makeWrapBackSceneNumberState()

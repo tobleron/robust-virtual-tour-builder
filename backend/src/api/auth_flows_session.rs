@@ -3,7 +3,7 @@ mod auth_flows_session_dev;
 #[path = "auth_flows_session_signin.rs"]
 mod auth_flows_session_signin;
 
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use sqlx::SqlitePool;
 
 use crate::models::{AppError, User};

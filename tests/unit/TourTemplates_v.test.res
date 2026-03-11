@@ -208,38 +208,54 @@ let _ = describe("TourTemplates", () => {
     t->expect(String.includes(html, "M6 17 L11 12 L6 7"))->Expect.toBe(false)
   })
 
-  test("generateTourHTML keeps wrap-back hotspots pointed at scene one for user-facing numbering", t => {
-    let hotspotAB = {
-      ...mockHotspot,
-      linkId: "wrap-ab",
-      target: "scene2",
-      targetSceneId: Some("sc2"),
-      sequenceOrder: None,
-    }
-    let hotspotBC = {
-      ...mockHotspot,
-      linkId: "wrap-bc",
-      target: "scene3",
-      targetSceneId: Some("sc3"),
-      sequenceOrder: None,
-    }
-    let hotspotCA = {
-      ...mockHotspot,
-      linkId: "wrap-ca",
-      target: "scene1",
-      targetSceneId: Some("sc1"),
-      sequenceOrder: None,
-    }
-    let sceneA = {...mockScene1, hotspots: [hotspotAB], label: "Entry"}
-    let sceneB = {...mockScene2, hotspots: [hotspotBC], label: "Hall"}
-    let sceneC = {...mockScene3Auto, hotspots: [hotspotCA], isAutoForward: false, label: "Bedroom"}
-    let html = generateTourHTML([sceneA, sceneB, sceneC], "Wrap Scene Numbers", None, "hd", 32, 40, "1.0")
+  test(
+    "generateTourHTML keeps wrap-back hotspots pointed at scene one for user-facing numbering",
+    t => {
+      let hotspotAB = {
+        ...mockHotspot,
+        linkId: "wrap-ab",
+        target: "scene2",
+        targetSceneId: Some("sc2"),
+        sequenceOrder: None,
+      }
+      let hotspotBC = {
+        ...mockHotspot,
+        linkId: "wrap-bc",
+        target: "scene3",
+        targetSceneId: Some("sc3"),
+        sequenceOrder: None,
+      }
+      let hotspotCA = {
+        ...mockHotspot,
+        linkId: "wrap-ca",
+        target: "scene1",
+        targetSceneId: Some("sc1"),
+        sequenceOrder: None,
+      }
+      let sceneA = {...mockScene1, hotspots: [hotspotAB], label: "Entry"}
+      let sceneB = {...mockScene2, hotspots: [hotspotBC], label: "Hall"}
+      let sceneC = {
+        ...mockScene3Auto,
+        hotspots: [hotspotCA],
+        isAutoForward: false,
+        label: "Bedroom",
+      }
+      let html = generateTourHTML(
+        [sceneA, sceneB, sceneC],
+        "Wrap Scene Numbers",
+        None,
+        "hd",
+        32,
+        40,
+        "1.0",
+      )
 
-    t->expectToContain(html, "\"sceneNumber\":1")
-    t->expectToContain(html, "\"sceneNumber\":2")
-    t->expectToContain(html, "\"sceneNumber\":3")
-    t->expectToContain(html, "\"targetSceneNumber\":1")
-  })
+      t->expectToContain(html, "\"sceneNumber\":1")
+      t->expectToContain(html, "\"sceneNumber\":2")
+      t->expectToContain(html, "\"sceneNumber\":3")
+      t->expectToContain(html, "\"targetSceneNumber\":1")
+    },
+  )
 
   test("generateTourHTML auto-advance uses explicit route metadata only", t => {
     let html = generateTourHTML([mockScene1, mockScene2], "Runtime Tour", None, "4k", 32, 40, "1.0")
@@ -251,7 +267,10 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "const defaultSceneSequenceCursorByScene = new Map();")
     t->expectToContain(html, "const sceneIdBySequencePosition = new Map();")
     t->expectToContain(html, "const firstSequencePositionBySceneId = new Map();")
-    t->expectToContain(html, "const currentSceneSequenceContext = { sceneId: null, sequenceCursor: null, sourceSceneId: null };")
+    t->expectToContain(
+      html,
+      "const currentSceneSequenceContext = { sceneId: null, sequenceCursor: null, sourceSceneId: null };",
+    )
     t->expectToContain(html, "let pendingArrivalContext = null;")
     t->expectToContain(html, "function getCurrentSceneSequenceCursor(sceneId, sceneData)")
     t->expectToContain(html, "\"sceneNumber\":1")
@@ -268,16 +287,28 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function resetAutoTourManifestCursor()")
     t->expectToContain(html, "function resolveAutoTourManifestStep(sceneId)")
     t->expectToContain(html, "function buildPlaybackTargetFromAutoTourStep(sceneId)")
-    t->expectToContain(html, "if (resolvedSceneId && homeSceneId && autoTourManifestCursor > 0 && resolvedSceneId === homeSceneId) {")
+    t->expectToContain(
+      html,
+      "if (resolvedSceneId && homeSceneId && autoTourManifestCursor > 0 && resolvedSceneId === homeSceneId) {",
+    )
     t->expectToContain(html, "fromManifest: true,")
     t->expectToContain(html, "const manifestPlaybackTarget =")
-    t->expectToContain(html, "window.isAutoTourActive === true ? buildPlaybackTargetFromAutoTourStep(sceneId) : null;")
+    t->expectToContain(
+      html,
+      "window.isAutoTourActive === true ? buildPlaybackTargetFromAutoTourStep(sceneId) : null;",
+    )
     t->expectToContain(html, "if (window.isAutoTourActive === true) {")
     t->expectToContain(html, "return null;")
-    t->expectToContain(html, "const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)")
+    t->expectToContain(
+      html,
+      "const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)",
+    )
     t->expectToContain(html, "const sequenceCursor = requestedSequenceCursor;")
     t->expectToContain(html, "if (playbackTarget.fromManifest === true) {")
-    t->expectToContain(html, "const didAdvance = advanceAutoTourManifestCursor(sceneId, playbackTarget.targetSceneId);")
+    t->expectToContain(
+      html,
+      "const didAdvance = advanceAutoTourManifestCursor(sceneId, playbackTarget.targetSceneId);",
+    )
     let manifestDeclIndex = String.indexOf(html, "const autoTourManifest = {\"steps\":")
     let manifestUsageIndex = String.indexOf(
       html,
@@ -286,44 +317,80 @@ let _ = describe("TourTemplates", () => {
     t->expect(manifestDeclIndex >= 0)->Expect.toBe(true)
     t->expect(manifestUsageIndex > manifestDeclIndex)->Expect.toBe(true)
     t->expectToContain(html, "function resolveNextForwardSequenceEdge(sceneId, sceneData)")
-    t->expectToContain(html, "function resolveSequenceEdgeForVisibleHotspot(sceneId, sceneData, visibleHotspotIndex)")
-    t->expectToContain(html, "function resolveForwardHotspotByTargetScene(sceneId, sceneData, targetSceneId)")
+    t->expectToContain(
+      html,
+      "function resolveSequenceEdgeForVisibleHotspot(sceneId, sceneData, visibleHotspotIndex)",
+    )
+    t->expectToContain(
+      html,
+      "function resolveForwardHotspotByTargetScene(sceneId, sceneData, targetSceneId)",
+    )
     t->expectToContain(html, "function resolvePreviousSequenceTarget(sceneId, sceneData)")
     t->expectToContain(html, "function resolveDeadEndExitHotspot(sceneId, sceneData)")
     t->expectToContain(html, "function resolvePostArrivalFocusHotspot(sceneId, sceneData)")
-    t->expectToContain(html, "function resolveHotspotByTargetScene(sceneId, sceneData, targetSceneId, options)")
-    t->expectToContain(html, "function resolveArrivalReferenceHotspot(sceneId, sceneData, sourceSceneId)")
+    t->expectToContain(
+      html,
+      "function resolveHotspotByTargetScene(sceneId, sceneData, targetSceneId, options)",
+    )
+    t->expectToContain(
+      html,
+      "function resolveArrivalReferenceHotspot(sceneId, sceneData, sourceSceneId)",
+    )
     t->expectToContain(
       html,
       "function resolveSourceBacktrackTarget(sceneId, sceneData, sourceSceneId, sequenceCursorOverride)",
     )
     t->expectToContain(html, "function resolveStableSceneNumber(sceneId)")
+    t->expectToContain(html, "function buildCurrentCursorBacktrackTarget(")
+    t->expectToContain(html, "function resolveSceneNumberForwardShortcutTarget(sceneId, sceneData)")
     t->expectToContain(
       html,
-      "function buildCurrentCursorBacktrackTarget(",
+      "function resolveSceneNumberBacktrackShortcutTarget(sceneId, sceneData)",
     )
-    t->expectToContain(html, "function resolveSceneNumberForwardShortcutTarget(sceneId, sceneData)")
-    t->expectToContain(html, "function resolveSceneNumberBacktrackShortcutTarget(sceneId, sceneData)")
-    t->expectToContain(html, "function resolveProgressAwareForwardShortcutTarget(sceneId, sceneData)")
+    t->expectToContain(
+      html,
+      "function resolveProgressAwareForwardShortcutTarget(sceneId, sceneData)",
+    )
     t->expectToContain(html, "function resolveShortcutNavigationTargets(sceneId, sceneData)")
     t->expectToContain(html, "const rawSceneNumber = scenesData?.[resolvedSceneId]?.sceneNumber;")
-    t->expectToContain(html, "const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);")
+    t->expectToContain(
+      html,
+      "const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);",
+    )
     t->expectToContain(html, "if (resolvedSceneId === homeSceneId) {")
-    t->expectToContain(html, "return resolveSceneNumberForwardShortcutTarget(resolvedSceneId, sceneData);")
-    t->expectToContain(html, "const nextForwardEdge = resolveNextForwardSequenceEdge(resolvedSceneId, sceneData);")
-    t->expectToContain(html, "const preferredTarget = resolvePreferredNavigationTarget(resolvedSceneId, sceneData);")
+    t->expectToContain(
+      html,
+      "return resolveSceneNumberForwardShortcutTarget(resolvedSceneId, sceneData);",
+    )
+    t->expectToContain(
+      html,
+      "const nextForwardEdge = resolveNextForwardSequenceEdge(resolvedSceneId, sceneData);",
+    )
+    t->expectToContain(
+      html,
+      "const preferredTarget = resolvePreferredNavigationTarget(resolvedSceneId, sceneData);",
+    )
     t->expectToContain(html, "preferredTarget.usesReturnLink !== true")
     t->expectToContain(html, "if (!nextForwardEdge) {")
     t->expectToContain(html, "return preferredTarget;")
     t->expectToContain(html, "return buildCurrentCursorBacktrackTarget(")
-    t->expectToContain(html, "const nextTarget = resolveProgressAwareForwardShortcutTarget(resolvedSceneId, sceneData);")
+    t->expectToContain(
+      html,
+      "const nextTarget = resolveProgressAwareForwardShortcutTarget(resolvedSceneId, sceneData);",
+    )
     t->expectToContain(html, "resolvedSceneId === homeSceneId || stableSceneNumber <= 1")
-    t->expectToContain(html, "const previousSceneId = resolveSceneIdForSequencePosition(previousSequencePosition);")
+    t->expectToContain(
+      html,
+      "const previousSceneId = resolveSceneIdForSequencePosition(previousSequencePosition);",
+    )
     t->expectToContain(html, "function navigateToNextSequenceShortcut()")
     t->expectToContain(html, "function navigateToPreviousSequenceShortcut()")
     t->expectToContain(html, "navigateToFloorTagShortcut(")
     t->expectToContain(html, "navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });")
-    t->expectToContain(html, "const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);")
+    t->expectToContain(
+      html,
+      "const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);",
+    )
     t->expectToContain(html, "const nextTarget = shortcutTargets?.nextTarget ?? null;")
     t->expectToContain(html, "const prevTarget = shortcutTargets?.prevTarget ?? null;")
     t->expectToContain(html, "const nextSceneId = nextTarget?.targetSceneId ?? null;")
@@ -362,22 +429,43 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function getHotspotFocusView(hotspot)")
     t->expectToContain(html, "function shouldAnimateExportArrivalPlayback()")
     t->expectToContain(html, "return EXPORT_WAYPOINT_ANIMATION_POLICY === \"always\";")
-    t->expectToContain(html, "const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0")
+    t->expectToContain(
+      html,
+      "const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0",
+    )
     t->expectToContain(
       html,
       "function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs, onComplete)",
     )
-    t->expectToContain(html, "const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);")
-    t->expectToContain(html, "const postArrivalFocusView = getHotspotFocusView(postArrivalHotspot);")
-    t->expectToContain(html, "const shouldAnimateArrivalPlayback = shouldAnimateExportArrivalPlayback();")
-    t->expectToContain(html, "const shouldAutoForwardWithoutPlayback = isAutoForward && !autoForwardAlreadyVisited;")
+    t->expectToContain(
+      html,
+      "const postArrivalHotspot = resolvePostArrivalFocusHotspot(sceneId, sd);",
+    )
+    t->expectToContain(
+      html,
+      "const postArrivalFocusView = getHotspotFocusView(postArrivalHotspot);",
+    )
+    t->expectToContain(
+      html,
+      "const shouldAnimateArrivalPlayback = shouldAnimateExportArrivalPlayback();",
+    )
+    t->expectToContain(
+      html,
+      "const shouldAutoForwardWithoutPlayback = isAutoForward && !autoForwardAlreadyVisited;",
+    )
     t->expectToContain(html, "if (!shouldAnimateArrivalPlayback) {")
     t->expectToContain(html, "durationMs: MANUAL_POST_ARRIVAL_FOCUS_MS,")
     t->expectToContain(html, "const arrivalReferenceHotspot = arrivalContext")
     t->expectToContain(html, "const startYaw = arrivalReferenceHotspot")
     t->expectToContain(html, "? normalizeYaw(arrivalReferenceHotspot.hotspot.yaw + 180)")
-    t->expectToContain(html, "const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalFocusView.yaw));")
-    t->expectToContain(html, "const pitchDelta = Math.abs(postArrivalFocusView.pitch - currentPitch);")
+    t->expectToContain(
+      html,
+      "const yawDelta = Math.abs(normalizeYawDelta(startYaw, postArrivalFocusView.yaw));",
+    )
+    t->expectToContain(
+      html,
+      "const pitchDelta = Math.abs(postArrivalFocusView.pitch - currentPitch);",
+    )
     t->expectToContain(html, "if (yawDelta <= 0.5 && pitchDelta <= 0.5) {")
     t->expectToContain(
       html,
@@ -405,34 +493,16 @@ let _ = describe("TourTemplates", () => {
       html,
       "const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)",
     )
-    t->expectToContain(
-      html,
-      "const sequenceCursor = requestedSequenceCursor;",
-    )
+    t->expectToContain(html, "const sequenceCursor = requestedSequenceCursor;")
     t->expectToContain(
       html,
       "pendingArrivalContext = {sourceSceneId, targetSceneId, sequenceCursor}",
     )
-    t->expectToContain(
-      html,
-      "function focusSceneOnPreferredHotspot(sceneId, options)",
-    )
-    t->expectToContain(
-      html,
-      "if (typeof onComplete === \"function\") onComplete();",
-    )
-    t->expectToContain(
-      html,
-      "const prevSequenceNumber = floorTagShortcutState.prevSequenceNumber;",
-    )
-    t->expectToContain(
-      html,
-      "sequenceCursorOverride: prevSequenceNumber,",
-    )
-    t->expectToContain(
-      html,
-      "floorTagShortcutState.prevSequenceNumber = null;",
-    )
+    t->expectToContain(html, "function focusSceneOnPreferredHotspot(sceneId, options)")
+    t->expectToContain(html, "if (typeof onComplete === \"function\") onComplete();")
+    t->expectToContain(html, "const prevSequenceNumber = floorTagShortcutState.prevSequenceNumber;")
+    t->expectToContain(html, "sequenceCursorOverride: prevSequenceNumber,")
+    t->expectToContain(html, "floorTagShortcutState.prevSequenceNumber = null;")
     t->expectToContain(
       html,
       "floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;",
@@ -442,10 +512,20 @@ let _ = describe("TourTemplates", () => {
       "floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;",
     )
     t
-    ->expect(String.includes(html, "function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs)"))
+    ->expect(
+      String.includes(
+        html,
+        "function animateHorizontalPan(sceneId, startYaw, targetYaw, pitch, durationMs)",
+      ),
+    )
     ->Expect.toBe(false)
     t
-    ->expect(String.includes(html, "const nextSceneId = nextForwardEdge ? nextForwardEdge.targetSceneId : null;"))
+    ->expect(
+      String.includes(
+        html,
+        "const nextSceneId = nextForwardEdge ? nextForwardEdge.targetSceneId : null;",
+      ),
+    )
     ->Expect.toBe(false)
     t
     ->expect(
@@ -456,10 +536,17 @@ let _ = describe("TourTemplates", () => {
     )
     ->Expect.toBe(false)
     t
-    ->expect(String.includes(html, "const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);"))
+    ->expect(
+      String.includes(html, "const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);"),
+    )
     ->Expect.toBe(false)
     t
-    ->expect(String.includes(html, "window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);"))
+    ->expect(
+      String.includes(
+        html,
+        "window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);",
+      ),
+    )
     ->Expect.toBe(false)
     t
     ->expect(String.includes(html, "const autoForward = primary.targetIsAutoForward === true;"))
@@ -502,8 +589,7 @@ let _ = describe("TourTemplates", () => {
       100,
       "1.0",
     )
-    let targetSignature =
-      "\"target\":\"scene2\",\"targetSceneId\":\"sc2\",\"targetSceneNumber\":2,\"targetIsAutoForward\":false,\"isReturnLink\":false"
+    let targetSignature = "\"target\":\"scene2\",\"targetSceneId\":\"sc2\",\"targetSceneNumber\":2,\"targetIsAutoForward\":false,\"isReturnLink\":false"
 
     t->expect(countOccurrences(html, targetSignature))->Expect.toBe(2)
     t->expectToContain(html, "\"hotSpots\":[{\"pitch\":7.5,\"yaw\":22.5")
@@ -761,7 +847,10 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "focusSceneOnPreferredHotspot(activeSceneId, {")
     t->expectToContain(html, "pauseLookingMode: true,")
     t->expectToContain(html, "onComplete: finalizeCompletion,")
-    t->expectToContain(html, "if (homeSceneId && currentSceneId && currentSceneId === homeSceneId) {")
+    t->expectToContain(
+      html,
+      "if (homeSceneId && currentSceneId && currentSceneId === homeSceneId) {",
+    )
     t->expectToContain(html, "resetHomeSceneCompletionSequence(homeSceneId);")
     t->expectToContain(html, "finishAutoTourAtScene(currentSceneId);")
     t->expectToContain(html, "animateSceneToPrimaryHotspot(homeSceneId, 20);")

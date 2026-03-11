@@ -43,13 +43,9 @@ module ControllerHooks = {
           ~sourceSceneId?,
           ~targetSceneId,
           ~isAnticipatory,
-          ~taskId=?NavigationControllerRuntime.taskIdOpt(
-            ~taskInfo,
-            ~getId=t => t.token.id,
-          ),
-          ~signal=?NavigationControllerRuntime.taskSignalOpt(
-            ~taskInfo,
-            ~getSignal=t => t.token.signal,
+          ~taskId=?NavigationControllerRuntime.taskIdOpt(~taskInfo, ~getId=t => t.token.id),
+          ~signal=?NavigationControllerRuntime.taskSignalOpt(~taskInfo, ~getSignal=t =>
+            t.token.signal
           ),
         )
 

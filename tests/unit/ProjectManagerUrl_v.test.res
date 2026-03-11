@@ -29,7 +29,10 @@ describe("ProjectManagerUrl.rebuildUrl", () => {
   })
 
   test("invalid blob URLs are blanked so callers can fall back safely", t => {
-    let rebuilt = ProjectManagerUrl.rebuildUrl(Types.Url("blob:http://localhost:3000/dead"), ~sessionId="session-4")
+    let rebuilt = ProjectManagerUrl.rebuildUrl(
+      Types.Url("blob:http://localhost:3000/dead"),
+      ~sessionId="session-4",
+    )
     t->expect(rebuilt)->Expect.toEqual(Types.Url(""))
   })
 })

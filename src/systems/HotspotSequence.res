@@ -89,7 +89,10 @@ let deriveSceneNumberBySceneIdFromTraversal = (
 let deriveSceneNumberBySceneId = (~state: state): Belt.Map.String.t<int> => {
   let model = CanonicalTraversal.derive(~state)
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-  deriveSceneNumberBySceneIdFromTraversal(~activeScenes, ~orderedForwardRefs=model.orderedForwardRefs)
+  deriveSceneNumberBySceneIdFromTraversal(
+    ~activeScenes,
+    ~orderedForwardRefs=model.orderedForwardRefs,
+  )
 }
 
 let deriveOrderedHotspots = (~state: state): array<orderedHotspot> => {

@@ -46,11 +46,24 @@ let runtimeContext = (): LoggerLogic.runtimeContext => {
   currentOperationId: currentOperationId.contents,
   currentSessionId: sessionId.contents,
   sendTelemetryFn: sendTelemetry,
-  logToConsoleFn: (module_, level, message, data) => logToConsole(~module_, ~level, ~message, ~data),
+  logToConsoleFn: (module_, level, message, data) =>
+    logToConsole(~module_, ~level, ~message, ~data),
 }
 
-let createLogEntry = (~module_: string, ~level: level, ~message: string, ~data: option<JSON.t>): logEntry =>
-  LoggerLogic.createLogEntry(~currentOperationId=currentOperationId.contents, ~currentSessionId=sessionId.contents, ~module_, ~level, ~message, ~data)
+let createLogEntry = (
+  ~module_: string,
+  ~level: level,
+  ~message: string,
+  ~data: option<JSON.t>,
+): logEntry =>
+  LoggerLogic.createLogEntry(
+    ~currentOperationId=currentOperationId.contents,
+    ~currentSessionId=sessionId.contents,
+    ~module_,
+    ~level,
+    ~message,
+    ~data,
+  )
 
 let updateLogBuffers = (entry: logEntry, level: level, module_: string, message: string) => {
   LoggerLogic.updateLogBuffers(
@@ -77,8 +90,25 @@ let warn = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Warn, ~
 let error = (~module_, ~message, ~data: 'a=?, ()) =>
   log(~module_, ~level=Error, ~message, ~data?, ())
 
-let logWithAppError = (~module_: string, ~level: level, ~message: string, ~appError: SharedTypes.appError, ~operationContext: option<string>=?, ~data: option<JSON.t>=?, ()) =>
-  LoggerLogic.logWithAppError(~emitLog=(module_, level, message, data) => log(~module_=module_, ~level, ~message, ~data?, ()), ~module_, ~level, ~message, ~appError, ~operationContext?, ~data?, ())
+let logWithAppError = (
+  ~module_: string,
+  ~level: level,
+  ~message: string,
+  ~appError: SharedTypes.appError,
+  ~operationContext: option<string>=?,
+  ~data: option<JSON.t>=?,
+  (),
+) =>
+  LoggerLogic.logWithAppError(
+    ~emitLog=(module_, level, message, data) => log(~module_, ~level, ~message, ~data?, ()),
+    ~module_,
+    ~level,
+    ~message,
+    ~appError,
+    ~operationContext?,
+    ~data?,
+    (),
+  )
 
 let warnWithAppError = (
   ~module_,
@@ -99,33 +129,54 @@ let errorWithAppError = (
 ) => logWithAppError(~module_, ~level=Error, ~message, ~appError, ~operationContext?, ~data?, ())
 
 let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) =>
-  LoggerLogic.perf(~emitLog=(module_, level, message, data) => log(~module_=module_, ~level, ~message, ~data?, ()), ~module_, ~message, ~durationMs, ~data?, ())
+  LoggerLogic.perf(
+    ~emitLog=(module_, level, message, data) => log(~module_, ~level, ~message, ~data?, ()),
+    ~module_,
+    ~message,
+    ~durationMs,
+    ~data?,
+    (),
+  )
 
 let timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<'a> => {
   LoggerLogic.timed(
-    ~perfFn=(module_, operation, durationMs) =>
-      perf(~module_=module_, ~message=operation, ~durationMs, ()),
+    ~perfFn=(module_, operation, durationMs) => perf(~module_, ~message=operation, ~durationMs, ()),
     ~module_,
     ~operation,
     fn,
   )
 }
 
-let timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<'a> =>
-  await LoggerLogic.timedAsync(~perfFn=(module_, operation, durationMs) => perf(~module_=module_, ~message=operation, ~durationMs, ()), ~module_, ~operation, fn)
+let timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<
+  'a,
+> =>
+  await LoggerLogic.timedAsync(
+    ~perfFn=(module_, operation, durationMs) => perf(~module_, ~message=operation, ~durationMs, ()),
+    ~module_,
+    ~operation,
+    fn,
+  )
 
 let attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationResult<'a> => {
   LoggerLogic.attempt(
-    ~emitError=(module_, message, payload) =>
-      error(~module_=module_, ~message, ~data=Some(payload), ()),
+    ~emitError=(module_, message, payload) => error(~module_, ~message, ~data=Some(payload), ()),
     ~module_,
     ~operation,
     fn,
   )
 }
 
-let attemptAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): operationResult<'a> =>
-  await LoggerLogic.attemptAsync(~emitError=(module_, message, payload) => error(~module_=module_, ~message, ~data=Some(payload), ()), ~module_, ~operation, fn)
+let attemptAsync = async (
+  ~module_: string,
+  ~operation: string,
+  fn: unit => promise<'a>,
+): operationResult<'a> =>
+  await LoggerLogic.attemptAsync(
+    ~emitError=(module_, message, payload) => error(~module_, ~message, ~data=Some(payload), ()),
+    ~module_,
+    ~operation,
+    fn,
+  )
 
 let startOperation = (~module_, ~operation, ~data=?, ()) =>
   debug(~module_, ~message=`${operation}_START`, ~data?, ())
@@ -140,8 +191,8 @@ let logResult = (
   ~verbose=false,
 ) =>
   LoggerLogic.logResult(
-    ~emitDebug=(module_, message) => debug(~module_=module_, ~message, ()),
-    ~emitError=(module_, message, payload) => error(~module_=module_, ~message, ~data=Some(payload), ()),
+    ~emitDebug=(module_, message) => debug(~module_, ~message, ()),
+    ~emitError=(module_, message, payload) => error(~module_, ~message, ~data=Some(payload), ()),
     ~module_,
     ~message,
     result,
@@ -155,31 +206,28 @@ let isDiagnosticMode = () => Constants.Telemetry.diagnosticMode.contents
 let setLevel = lvl =>
   LoggerLogic.setLevel(
     ~minLevel,
-    ~emitInfo=(module_, message, data) => info(~module_=module_, ~message, ~data?, ()),
+    ~emitInfo=(module_, message, data) => info(~module_, ~message, ~data?, ()),
     lvl,
   )
 
 let enable = () =>
-  LoggerLogic.enable(
-    ~enabled,
-    ~enabledModules,
-    ~emitInfo=(module_, message, data) => info(~module_=module_, ~message, ~data?, ()),
+  LoggerLogic.enable(~enabled, ~enabledModules, ~emitInfo=(module_, message, data) =>
+    info(~module_, ~message, ~data?, ())
   )
 
 let enableDiagnostics = () =>
-  LoggerLogic.enableDiagnostics(
-    ~emitInfo=(module_, message, data) => info(~module_=module_, ~message, ~data?, ()),
+  LoggerLogic.enableDiagnostics(~emitInfo=(module_, message, data) =>
+    info(~module_, ~message, ~data?, ())
   )
 
 let disableDiagnostics = () =>
-  LoggerLogic.disableDiagnostics(
-    ~emitInfo=(module_, message, data) => info(~module_=module_, ~message, ~data?, ()),
+  LoggerLogic.disableDiagnostics(~emitInfo=(module_, message, data) =>
+    info(~module_, ~message, ~data?, ())
   )
 
 let disable = () =>
-  LoggerLogic.disable(
-    ~enabled,
-    ~emitInfo=(module_, message, data) => info(~module_=module_, ~message, ~data?, ()),
+  LoggerLogic.disable(~enabled, ~emitInfo=(module_, message, data) =>
+    info(~module_, ~message, ~data?, ())
   )
 
 let toggle = () => {
@@ -234,7 +282,7 @@ let init = () => {
       | Some(e) => e["stack"]
       | None => ""
       },
-    ~emitError=(module_, message, data) => error(~module_=module_, ~message, ~data?, ()),
+    ~emitError=(module_, message, data) => error(~module_, ~message, ~data?, ()),
   )
 
   LoggerLogic.bindUnhandledRejectionHandler(
@@ -257,17 +305,17 @@ let init = () => {
         UnhandledRejectionEvent.preventDefault(evt)
       }
     },
-    ~emitError=(module_, message, data) => error(~module_=module_, ~message, ~data?, ()),
+    ~emitError=(module_, message, data) => error(~module_, ~message, ~data?, ()),
   )
 
   LoggerLogic.installLongTaskObserver()
-  LoggerLogic.installLongTaskListener(
-    ~debugFn=(module_, message, data) => debug(~module_=module_, ~message, ~data?, ()),
+  LoggerLogic.installLongTaskListener(~debugFn=(module_, message, data) =>
+    debug(~module_, ~message, ~data?, ())
   )
   LoggerLogic.subscribeEventBusLogging(
-    ~debugFn=(module_, message, data) => debug(~module_=module_, ~message, ~data?, ()),
-    ~warnFn=(module_, message, data) => warn(~module_=module_, ~message, ~data?, ()),
-    ~errorFn=(module_, message, data) => error(~module_=module_, ~message, ~data?, ()),
+    ~debugFn=(module_, message, data) => debug(~module_, ~message, ~data?, ()),
+    ~warnFn=(module_, message, data) => warn(~module_, ~message, ~data?, ()),
+    ~errorFn=(module_, message, data) => error(~module_, ~message, ~data?, ()),
   )
 
   initialized(~module_="Logger")

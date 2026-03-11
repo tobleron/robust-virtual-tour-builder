@@ -115,10 +115,16 @@ let validationBrief = (~report: SharedTypes.validationReport, ~sceneCount: int):
   " | Blockers: " ++
   Int.toString(Array.length(report.errors))
 
-let validationSummaryContent = (~renderGroup, ~report: SharedTypes.validationReport, ~sceneCount) => {
+let validationSummaryContent = (
+  ~renderGroup,
+  ~report: SharedTypes.validationReport,
+  ~sceneCount,
+) => {
   let healthScore = validationHealthScore(report)
   <div className="upload-report-container">
-    <div className="upload-report-brief"> {React.string(validationBrief(~report, ~sceneCount))} </div>
+    <div className="upload-report-brief">
+      {React.string(validationBrief(~report, ~sceneCount))}
+    </div>
 
     <div className="upload-report-grid">
       {renderGroup(

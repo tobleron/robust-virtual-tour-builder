@@ -288,7 +288,11 @@ describe("SceneList", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let scenes = [createScene("1", "Scene 1"), createScene("2", "Scene 2"), createScene("3", "Scene 3")]
+    let scenes = [
+      createScene("1", "Scene 1"),
+      createScene("2", "Scene 2"),
+      createScene("3", "Scene 3"),
+    ]
     let mockState = TestUtils.createMockState(
       ~scenes,
       ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),

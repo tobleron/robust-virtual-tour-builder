@@ -18,7 +18,7 @@ let sampleRateInfo = 0.5
 let sampleRateDebugProd = 0.1
 let samplingBandwidthBudgetBytesPerSec = 10000
 
-let setBypassTestEnvCheck = (v: bool) => { bypassTestEnvCheck := v }
+let setBypassTestEnvCheck = (v: bool) => {bypassTestEnvCheck := v}
 let nowMs = () => Date.now()
 let clearSuspensionIfExpired = () => {
   LoggerTelemetryTransport.clearSuspensionIfExpired(~nowMs, ~telemetrySuspendedUntil)
@@ -75,8 +75,8 @@ let scheduleTransport = (task: unit => Promise.t<unit>): Promise.t<unit> =>
     task,
   )
 
-let queueFillRatio = () => { LoggerTelemetryPolicy.queueFillRatio(~telemetryQueue) }
-let shouldSendLowPriority = () => { LoggerTelemetryPolicy.shouldSendLowPriority(~telemetryQueue) }
+let queueFillRatio = () => {LoggerTelemetryPolicy.queueFillRatio(~telemetryQueue)}
+let shouldSendLowPriority = () => {LoggerTelemetryPolicy.shouldSendLowPriority(~telemetryQueue)}
 let shouldQueueForPriority = p => {
   LoggerTelemetryPolicy.shouldQueueForPriority(~telemetryQueue, p)
 }
@@ -86,7 +86,7 @@ let sanitizeJson = (_entry: JSON.t, _fields: array<string>): JSON.t => {
 let sanitizePayload = (data: option<JSON.t>): option<JSON.t> => {
   LoggerTelemetryPayload.sanitizePayload(data)
 }
-let encodeLogEntry = (entry: logEntry) => { LoggerTelemetryPayload.encodeLogEntry(entry) }
+let encodeLogEntry = (entry: logEntry) => {LoggerTelemetryPayload.encodeLogEntry(entry)}
 let encodeTelemetryBatch = (batch: telemetryBatch) => {
   LoggerTelemetryPayload.encodeTelemetryBatch(batch)
 }
@@ -94,7 +94,7 @@ let deduplicateBatchEntries = (_entries: array<logEntry>): array<logEntry> => {
   LoggerTelemetryPayload.deduplicateBatchEntries(_entries)
 }
 let isTransportQueueOverflow = err => getErrorMessage(err) == transportQueueOverflowReason
-let runIdle = (_task: unit => unit) => { LoggerTelemetryPolicy.runIdle(_task) }
+let runIdle = (_task: unit => unit) => {LoggerTelemetryPolicy.runIdle(_task)}
 
 let attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   await LoggerTelemetryTransport.attemptSendBatch(
@@ -257,7 +257,7 @@ let initializeBeforeUnloadListener = () => {
   let _ = Window.addEventListener("beforeunload", (_: Dom.event) => flushWithBeaconOnUnload())
 }
 
-let isBrowserRuntime = (): bool => { LoggerTelemetryTransport.isBrowserRuntime() }
+let isBrowserRuntime = (): bool => {LoggerTelemetryTransport.isBrowserRuntime()}
 
 let flushTimer = ref(None)
 let startPeriodicFlush = () => {

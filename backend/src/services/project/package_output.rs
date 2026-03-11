@@ -1,12 +1,12 @@
 // @efficiency-role: service-orchestrator
 use std::collections::HashMap;
 
-use minify_html::{minify, Cfg};
-use zip::write::FileOptions;
+use minify_html::{Cfg, minify};
 use zip::ZipWriter;
+use zip::write::FileOptions;
 
-use super::package_assets::{PreparedPackageAssets, SelectedProfiles};
 use super::TARGETS;
+use super::package_assets::{PreparedPackageAssets, SelectedProfiles};
 
 fn export_html_minifier_cfg() -> Cfg {
     Cfg {

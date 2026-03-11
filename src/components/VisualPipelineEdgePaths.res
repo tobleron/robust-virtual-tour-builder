@@ -109,8 +109,16 @@ let edgePathForPair = (
             ~xA=fromPoint.x,
             ~xB=toPoint.x,
           )
-          let chosenY = if !upCollision {detourUp} else {detourDown}
-          let exitX = if toPoint.x >= fromPoint.x {fromPoint.x +. 8.0} else {fromPoint.x -. 8.0}
+          let chosenY = if !upCollision {
+            detourUp
+          } else {
+            detourDown
+          }
+          let exitX = if toPoint.x >= fromPoint.x {
+            fromPoint.x +. 8.0
+          } else {
+            fromPoint.x -. 8.0
+          }
           "M " ++
           fromPoint.x->Float.toString ++
           " " ++
@@ -133,7 +141,11 @@ let edgePathForPair = (
           toPoint.y->Float.toString
         }
       } else {
-        let elbowX = if toPoint.x >= fromPoint.x {fromPoint.x +. 10.0} else {fromPoint.x -. 10.0}
+        let elbowX = if toPoint.x >= fromPoint.x {
+          fromPoint.x +. 10.0
+        } else {
+          fromPoint.x -. 10.0
+        }
         "M " ++
         fromPoint.x->Float.toString ++
         " " ++
@@ -174,7 +186,7 @@ let buildContinuityPaths = (
       let fromIdx = rowCount - 2
       let toIdx = rowCount - 1
       switch (Belt.Array.get(rowItems, fromIdx), Belt.Array.get(rowItems, toIdx)) {
-      | (Some((node: VisualPipelineGraph.node)), Some((nextNode: VisualPipelineGraph.node))) =>
+      | (Some(node: VisualPipelineGraph.node), Some(nextNode: VisualPipelineGraph.node)) =>
         let fromIsBranch =
           stableHubTargetClusters
           ->Belt.MutableMap.String.get(node.representedSceneId)
@@ -184,11 +196,10 @@ let buildContinuityPaths = (
           ->Belt.MutableMap.String.get(nextNode.representedSceneId)
           ->Option.isSome
         if !(fromIsBranch || toIsBranch) {
-          let pairKey =
-            VisualPipelineEdgeSelection.floorPairKey(
-              node.representedSceneId,
-              nextNode.representedSceneId,
-            )
+          let pairKey = VisualPipelineEdgeSelection.floorPairKey(
+            node.representedSceneId,
+            nextNode.representedSceneId,
+          )
           if !(sameFloorPairKeys->Belt.MutableSet.String.has(pairKey)) {
             switch (
               centers->Belt.MutableMap.String.get(node.id),
@@ -224,12 +235,16 @@ let buildContinuityPaths = (
                 " " ++
                 toPoint.y->Float.toString
               }
-              continuityPathsQueue->Belt.MutableQueue.add(({
-                id: "row-link-" ++ fid ++ "-" ++ node.id ++ "-" ++ nextNode.id,
-                d,
-                className: "pipeline-edge-line",
-                clipId,
-              }: sceneEdgePath))
+              continuityPathsQueue->Belt.MutableQueue.add(
+                (
+                  {
+                    id: "row-link-" ++ fid ++ "-" ++ node.id ++ "-" ++ nextNode.id,
+                    d,
+                    className: "pipeline-edge-line",
+                    clipId,
+                  }: sceneEdgePath
+                ),
+              )
             | _ => ()
             }
           }

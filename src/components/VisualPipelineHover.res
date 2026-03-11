@@ -11,7 +11,7 @@ let clearHoverTimer = (hoverTimerRef: React.ref<option<int>>) => {
 let hideHoverPreview = (
   ~hoverTimerRef: React.ref<option<int>>,
   ~activePreviewUrlRef: React.ref<string>,
-  ~setHoverPreview: ((option<hoverPreview> => option<hoverPreview>)) => unit,
+  ~setHoverPreview: (option<hoverPreview> => option<hoverPreview>) => unit,
 ) => {
   clearHoverTimer(hoverTimerRef)
   let prevUrl = activePreviewUrlRef.current
@@ -26,7 +26,7 @@ let showHoverPreview = (
   ~isSystemLocked: bool,
   ~hoverTimerRef: React.ref<option<int>>,
   ~activePreviewUrlRef: React.ref<string>,
-  ~setHoverPreview: ((option<hoverPreview> => option<hoverPreview>)) => unit,
+  ~setHoverPreview: (option<hoverPreview> => option<hoverPreview>) => unit,
   ~sceneOpt: option<Types.scene>,
 ) => {
   if isSystemLocked {

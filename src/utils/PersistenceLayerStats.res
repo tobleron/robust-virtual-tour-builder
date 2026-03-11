@@ -16,10 +16,7 @@ let trimSamples = (~samples: array<float>, ~windowSize: int): array<float> => {
   }
 }
 
-let buildAutosaveCostStats = (
-  ~samples: array<float>,
-  ~targetMs: float,
-): autosaveCostStats => {
+let buildAutosaveCostStats = (~samples: array<float>, ~targetMs: float): autosaveCostStats => {
   let sampleCount = Belt.Array.length(samples)
   let lastMs = switch Belt.Array.get(samples, sampleCount - 1) {
   | Some(value) => value

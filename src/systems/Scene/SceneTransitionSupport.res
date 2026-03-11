@@ -84,7 +84,11 @@ let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
 
 let updateDomTransitions = (~transition: transition, ~isSimulationActive: bool, av, iv) => {
   let isCut = transition.type_ == Cut && !isSimulationActive
-  let transitionValue = if isSimulationActive { "opacity 1s ease-in-out" } else { "" }
+  let transitionValue = if isSimulationActive {
+    "opacity 1s ease-in-out"
+  } else {
+    ""
+  }
   switch (av, iv) {
   | (Some(act: viewport), Some(inact: viewport)) =>
     let (actEl, inactEl) = (

@@ -7,9 +7,7 @@ type candidateLink = {
   isReturn: bool,
 }
 
-let pickByPriority = (
-  candidates: array<candidateLink>,
-): option<SimulationTypes.enrichedLink> => {
+let pickByPriority = (candidates: array<candidateLink>): option<SimulationTypes.enrichedLink> => {
   let pick = predicate =>
     Array.find(candidates, candidate => predicate(candidate))->Option.map(candidate =>
       candidate.link

@@ -44,10 +44,7 @@ let decodeHotspotMetadata = (metadata: JSON.t): JsonParsersDecoders.updateHotspo
   }
 }
 
-let applyHotspotMetadata = (
-  hotspot: hotspot,
-  meta: JsonParsersDecoders.updateHotspotMetadata,
-) => {
+let applyHotspotMetadata = (hotspot: hotspot, meta: JsonParsersDecoders.updateHotspotMetadata) => {
   {
     ...hotspot,
     isAutoForward: withOptionalFallback(meta.isAutoForward, hotspot.isAutoForward),

@@ -218,7 +218,13 @@ let startHeadlessTeaserWithStyle = async (
             }
           } catch {
           | exn =>
-            TeaserHeadlessLogicSupport.handleFailure(~teaserEtaToastId, ~dispatch, ~opId, ~signal, exn)
+            TeaserHeadlessLogicSupport.handleFailure(
+              ~teaserEtaToastId,
+              ~dispatch,
+              ~opId,
+              ~signal,
+              exn,
+            )
           }
         }
       }

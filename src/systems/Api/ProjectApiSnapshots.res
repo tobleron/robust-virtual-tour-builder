@@ -66,13 +66,16 @@ let snapshotAssetSyncDecoder = JsonCombinators.Json.Decode.object(field => {
 let decodeSnapshotSyncResponse = json => JsonCombinators.Json.decode(json, snapshotSyncDecoder)
 let decodeSnapshotHistory = json =>
   JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.array(snapshotHistoryItemDecoder))
-let decodeSnapshotRestoreResponse = json => JsonCombinators.Json.decode(json, snapshotRestoreDecoder)
+let decodeSnapshotRestoreResponse = json =>
+  JsonCombinators.Json.decode(json, snapshotRestoreDecoder)
 let decodeSnapshotAssetSyncResponse = json =>
   JsonCombinators.Json.decode(json, snapshotAssetSyncDecoder)
 
-let syncSnapshot = (~sessionId: option<string>=?, ~projectData: JSON.t, ~origin: snapshotOrigin=Auto): Promise.t<
-  apiResult<snapshotSyncResponse>,
-> => {
+let syncSnapshot = (
+  ~sessionId: option<string>=?,
+  ~projectData: JSON.t,
+  ~origin: snapshotOrigin=Auto,
+): Promise.t<apiResult<snapshotSyncResponse>> => {
   RequestQueue.schedule(() => {
     let body = JsonCombinators.Json.Encode.object([
       (
@@ -122,13 +125,14 @@ let syncSnapshot = (~sessionId: option<string>=?, ~projectData: JSON.t, ~origin:
   })
 }
 
-let listProjectSnapshots = (sessionId: string): Promise.t<apiResult<array<snapshotHistoryItem>>> => {
+let listProjectSnapshots = (sessionId: string): Promise.t<
+  apiResult<array<snapshotHistoryItem>>,
+> => {
   RequestQueue.schedule(() => {
     AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++
       "/api/project/dashboard/projects/" ++
-      encodeURIComponent(sessionId) ++
-      "/snapshots",
+      encodeURIComponent(sessionId) ++ "/snapshots",
       ~method="GET",
       (),
     )
@@ -154,18 +158,16 @@ let listProjectSnapshots = (sessionId: string): Promise.t<apiResult<array<snapsh
   })
 }
 
-let restoreProjectSnapshot = (
-  ~sessionId: string,
-  ~snapshotId: string,
-): Promise.t<apiResult<snapshotRestoreResponse>> => {
+let restoreProjectSnapshot = (~sessionId: string, ~snapshotId: string): Promise.t<
+  apiResult<snapshotRestoreResponse>,
+> => {
   RequestQueue.schedule(() => {
     AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++
       "/api/project/dashboard/projects/" ++
       encodeURIComponent(sessionId) ++
       "/snapshots/" ++
-      encodeURIComponent(snapshotId) ++
-      "/restore",
+      encodeURIComponent(snapshotId) ++ "/restore",
       ~method="POST",
       (),
     )

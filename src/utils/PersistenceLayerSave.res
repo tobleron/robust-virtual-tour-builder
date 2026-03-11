@@ -19,18 +19,18 @@ let prepareIncrementalSave = (
   let projectData = PersistenceLayerPayload.buildProjectData(state)
   let slices = PersistenceLayerPayload.buildSlices(state)
   let signatures = PersistenceLayerPayload.buildSignatures(slices)
-  let changedSliceNames = PersistenceLayerPayload.collectChangedSlices(
-    ~slices,
-    ~previousSignatures,
-  )
+  let changedSliceNames = PersistenceLayerPayload.collectChangedSlices(~slices, ~previousSignatures)
   let timestamp = Date.now()
   let legacyPayload = JsonParsers.Encoders.persistedSession(
     ~version=currentSchemaVersion,
     ~timestamp,
     ~projectData,
   )
-  let manifest =
-    PersistenceLayerPayload.buildManifest(~version=currentSchemaVersion, ~timestamp, ~slices)
+  let manifest = PersistenceLayerPayload.buildManifest(
+    ~version=currentSchemaVersion,
+    ~timestamp,
+    ~slices,
+  )
   let manifestJson = PersistenceLayerPayload.buildManifestJson(manifest)
   {changedSliceNames, signatures, timestamp, legacyPayload, manifestJson}
 }

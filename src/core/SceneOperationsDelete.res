@@ -28,10 +28,14 @@ let handleDeleteScene = (state: state, index: int): state => {
         let inventoryWithCleanHotspots = updatedInventory->Belt.Map.String.map(sceneEntry => {
           let scene = sceneEntry.scene
           let newHotspots =
-            scene.hotspots->Belt.Array.keep(hotspot => !HotspotTarget.pointsToScene(hotspot, sceneToDelete))
+            scene.hotspots->Belt.Array.keep(hotspot =>
+              !HotspotTarget.pointsToScene(hotspot, sceneToDelete)
+            )
           {...sceneEntry, scene: {...scene, hotspots: newHotspots}}
         })
-        let filteredTimeline = Belt.Array.keep(state.timeline, timelineItem => timelineItem.sceneId != idToDelete)
+        let filteredTimeline = Belt.Array.keep(state.timeline, timelineItem =>
+          timelineItem.sceneId != idToDelete
+        )
         let activeTimelineStepId = retainActiveTimelineStepId(
           state.activeTimelineStepId,
           filteredTimeline,
@@ -66,7 +70,9 @@ let handleDeleteScene = (state: state, index: int): state => {
               | Some(sceneEntry) =>
                 switch movingHotspot.hotspotLinkId {
                 | Some(linkId) =>
-                  switch sceneEntry.scene.hotspots->Belt.Array.getIndexBy(hotspot => hotspot.linkId == linkId) {
+                  switch sceneEntry.scene.hotspots->Belt.Array.getIndexBy(hotspot =>
+                    hotspot.linkId == linkId
+                  ) {
                   | Some(nextHotspotIndex) =>
                     Some({
                       ...movingHotspot,

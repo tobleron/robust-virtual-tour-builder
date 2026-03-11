@@ -38,11 +38,9 @@ let removeTinyWaiter = (pool: state, id: string): option<waiter<option<BrowserBi
 let removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> =>
   WorkerPoolCore.removeExifWaiter(pool, id)
 
-let removeFullWaiter = (
-  pool: state,
-  id: string,
-): option<waiter<result<(BrowserBindings.Blob.t, int, int), string>>> =>
-  WorkerPoolCore.removeFullWaiter(pool, id)
+let removeFullWaiter = (pool: state, id: string): option<
+  waiter<result<(BrowserBindings.Blob.t, int, int), string>>,
+> => WorkerPoolCore.removeFullWaiter(pool, id)
 
 let bindWorkerHandlers = (pool: state, worker: worker) => {
   WorkerPoolCore.bindWorkerHandlers(pool, worker)
@@ -54,7 +52,9 @@ let ensurePool = (): option<state> => {
   | _ =>
     try {
       let size = createPoolSize()
-      let workers = Belt.Array.makeBy(size, _ => WorkerPoolCore.makeWorker("/workers/image-worker.js"))
+      let workers = Belt.Array.makeBy(size, _ =>
+        WorkerPoolCore.makeWorker("/workers/image-worker.js")
+      )
       let pool = {
         workers,
         readyRef: ref(true),
@@ -123,7 +123,8 @@ let fingerprintWithWorker = (
       ~waitersRef=pool.fingerprintWaitersRef,
       ~removeWaiter=removeFingerprintWaiter,
       ~abortValue=None,
-      ~send=(worker, id) => WorkerPoolCore.postMessage(worker, {"id": id, "type": "fingerprint", "file": file}),
+      ~send=(worker, id) =>
+        WorkerPoolCore.postMessage(worker, {"id": id, "type": "fingerprint", "file": file}),
     )
   }
 }
@@ -193,7 +194,8 @@ let extractExifWithWorker = (
       ~waitersRef=pool.exifWaitersRef,
       ~removeWaiter=removeExifWaiter,
       ~abortValue=None,
-      ~send=(worker, id) => WorkerPoolCore.postMessage(worker, {"id": id, "type": "extractExif", "file": file}),
+      ~send=(worker, id) =>
+        WorkerPoolCore.postMessage(worker, {"id": id, "type": "extractExif", "file": file}),
     )
   }
 }

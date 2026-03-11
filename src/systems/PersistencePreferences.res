@@ -156,8 +156,7 @@ let update = (fn: t => t): t => {
   next
 }
 
-let setPreferredSaveTarget = preferredSaveTarget =>
-  update(prev => {...prev, preferredSaveTarget})
+let setPreferredSaveTarget = preferredSaveTarget => update(prev => {...prev, preferredSaveTarget})
 
 let setAutosave = (~autosaveMode, ~snapshotCadence) =>
   update(prev => {...prev, autosaveMode, snapshotCadence})

@@ -76,7 +76,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v5.2.4"
+let cacheName = "vtb-cache-v5.2.5"
 let manualAssets = [
   "/",
   "/index.html",
@@ -97,7 +97,7 @@ let manualAssets = [
   "/manifest.json",
   "/robots.txt",
   "/sounds/click.wav",
-  "/workers/image-worker.js"
+  "/workers/image-worker.js",
 ]
 
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
@@ -131,30 +131,29 @@ let dedupeAssets = (_assets: array<string>): array<string> =>
 addEventListener("install", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="INSTALL_START", ())
 
-  let installPromise =
-    ServiceWorkerMainSupport.installPromise(
-      ~cacheName,
-      ~manualAssets,
-      ~openCache=name => caches->CacheStorage.open_(name),
-      ~addAll=(cache, assets) => cache->Cache.addAll(assets),
-      ~skipWaiting,
-      ~fetchManifest=() => {
-        let load = async () => {
-          let response = await fetchUrl("/asset-manifest.json")
-          let manifest: {"allFiles": Nullable.t<array<string>>} = await response->Response.json
-          let allFiles = manifest["allFiles"]
-          if allFiles->Nullable.toOption->Belt.Option.isSome {
-            allFiles
-            ->Nullable.toOption
-            ->Option.getOr([])
-            ->Array.filter(file => !(file->String.endsWith(".map")))
-          } else {
-            []
-          }
+  let installPromise = ServiceWorkerMainSupport.installPromise(
+    ~cacheName,
+    ~manualAssets,
+    ~openCache=name => caches->CacheStorage.open_(name),
+    ~addAll=(cache, assets) => cache->Cache.addAll(assets),
+    ~skipWaiting,
+    ~fetchManifest=() => {
+      let load = async () => {
+        let response = await fetchUrl("/asset-manifest.json")
+        let manifest: {"allFiles": Nullable.t<array<string>>} = await response->Response.json
+        let allFiles = manifest["allFiles"]
+        if allFiles->Nullable.toOption->Belt.Option.isSome {
+          allFiles
+          ->Nullable.toOption
+          ->Option.getOr([])
+          ->Array.filter(file => !(file->String.endsWith(".map")))
+        } else {
+          []
         }
-        load()
-      },
-    )
+      }
+      load()
+    },
+  )
 
   event->ExtendableEvent.waitUntil(installPromise)
 })
@@ -162,21 +161,20 @@ addEventListener("install", (event: ExtendableEvent.t) => {
 addEventListener("activate", (event: ExtendableEvent.t) => {
   Logger.info(~module_="ServiceWorker", ~message="ACTIVATE_START", ())
 
-  let activatePromise =
-    ServiceWorkerMainSupport.activatePromise(
-      ~cacheName,
-      ~runtimeStaleMaxAgeMs,
-      ~cacheKeys=() => caches->CacheStorage.keys(),
-      ~deleteCache=name => caches->CacheStorage.delete(name),
-      ~openCache=name => caches->CacheStorage.open_(name),
-      ~cacheRequests=cache => cache->Cache.keys(),
-      ~matchRequest=(cache, req) =>
-        cache->Cache.match(req)->Promise.then(found => Promise.resolve(found->Nullable.toOption)),
-      ~deleteRequest=(cache, req) => cache->Cache.deleteReq(req),
-      ~requestUrl=req => req->Request.url,
-      ~pathnameForUrl=url => URL.pathname(URL.make(url)),
-      ~enableNavigationPreload=() =>
-        %raw(`(function(reg){
+  let activatePromise = ServiceWorkerMainSupport.activatePromise(
+    ~cacheName,
+    ~runtimeStaleMaxAgeMs,
+    ~cacheKeys=() => caches->CacheStorage.keys(),
+    ~deleteCache=name => caches->CacheStorage.delete(name),
+    ~openCache=name => caches->CacheStorage.open_(name),
+    ~cacheRequests=cache => cache->Cache.keys(),
+    ~matchRequest=(cache, req) =>
+      cache->Cache.match(req)->Promise.then(found => Promise.resolve(found->Nullable.toOption)),
+    ~deleteRequest=(cache, req) => cache->Cache.deleteReq(req),
+    ~requestUrl=req => req->Request.url,
+    ~pathnameForUrl=url => URL.pathname(URL.make(url)),
+    ~enableNavigationPreload=() =>
+      %raw(`(function(reg){
           try {
             if (reg && reg.navigationPreload && typeof reg.navigationPreload.enable === 'function') {
               return reg.navigationPreload.enable();
@@ -184,8 +182,8 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
           } catch (_) {}
           return Promise.resolve();
         })(registration)`),
-      ~claimClients=() => clients->Clients.claim(),
-    )
+    ~claimClients=() => clients->Clients.claim(),
+  )
 
   event->ExtendableEvent.waitUntil(activatePromise)
 })

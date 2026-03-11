@@ -69,27 +69,22 @@ let useSceneEdgeGeometry = (
       switch wrapperRef.current->Nullable.toOption {
       | None => None
       | Some(wrapper) =>
-        let {sceneEdgePaths: nextPaths, sceneEdgeClips: nextClips} =
-          VisualPipelineEdges.buildEdgeGeometry(
-            ~graph,
-            ~displayNodes,
-            ~groupedItems,
-            ~activeFloors,
-            ~sceneOrderIndex,
-            ~stableHubTargetClusters,
-            ~wrapper,
-          )
+        let {
+          sceneEdgePaths: nextPaths,
+          sceneEdgeClips: nextClips,
+        } = VisualPipelineEdges.buildEdgeGeometry(
+          ~graph,
+          ~displayNodes,
+          ~groupedItems,
+          ~activeFloors,
+          ~sceneOrderIndex,
+          ~stableHubTargetClusters,
+          ~wrapper,
+        )
         setSceneEdgeClips(_ => nextClips)
         setSceneEdgePaths(_ => nextPaths)
         None
       }
     }
-  }, (
-    graph,
-    displayNodes,
-    groupedItems,
-    activeFloors,
-    sceneOrderIndex,
-    stableHubTargetClusters,
-  ))
+  }, (graph, displayNodes, groupedItems, activeFloors, sceneOrderIndex, stableHubTargetClusters))
 }

@@ -74,10 +74,8 @@ let loadReusableScene = (
     }
   }, 10000)
 
-  attachReusableLoadListeners(
-    ~inst,
-    ~safetyTimeoutId,
-    ~onReady=() => SceneLoaderLogic.onSceneLoad(~dispatch, inst, targetScene, ~taskId?, ~signal?),
+  attachReusableLoadListeners(~inst, ~safetyTimeoutId, ~onReady=() =>
+    SceneLoaderLogic.onSceneLoad(~dispatch, inst, targetScene, ~taskId?, ~signal?)
   )
 
   ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
@@ -156,7 +154,10 @@ let loadFreshScene = (
         }),
         (),
       )
-      let newInstance = ViewerSystem.Adapter.initialize(viewport.containerId, initialConfig->asDynamic)
+      let newInstance = ViewerSystem.Adapter.initialize(
+        viewport.containerId,
+        initialConfig->asDynamic,
+      )
       ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
       ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 

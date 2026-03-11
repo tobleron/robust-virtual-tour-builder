@@ -31,13 +31,13 @@ let handleJourneyAnimation = (~journey: journeyData, ~dispatch, ~getState, ~req)
         currentState.isLinking ||
         currentState.movingHotspot != None
       let hasAnimated = if isBuilder {
-          false
-        } else {
-          switch targetSceneId {
-          | Some(id) => HubScene.hasSceneAnimated(id, currentState)
-          | None => false
-          }
+        false
+      } else {
+        switch targetSceneId {
+        | Some(id) => HubScene.hasSceneAnimated(id, currentState)
+        | None => false
         }
+      }
 
       if hasAnimated {
         Logger.info(

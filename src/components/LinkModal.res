@@ -39,7 +39,9 @@ let formatSequenceOptionLabel = (
   ~targetSceneNumber: option<int>,
   ~targetLabel: string,
 ): string =>
-  Belt.Int.toString(sequence) ++ " -> " ++ formatSceneNumberLabel(~sceneNumber=targetSceneNumber, ~label=targetLabel)
+  Belt.Int.toString(sequence) ++
+  " -> " ++
+  formatSceneNumberLabel(~sceneNumber=targetSceneNumber, ~label=targetLabel)
 
 let showLinkModal = (
   ~pitch: float,
@@ -209,16 +211,15 @@ let showLinkModal = (
               >
                 {admissibleSequenceOrders
                 ->Belt.Array.map(order => {
-                  let optionLabel =
-                    switch orderedHotspotBySequence->Belt.Map.Int.get(order) {
-                    | Some(row) =>
-                      formatSequenceOptionLabel(
-                        ~sequence=order,
-                        ~targetSceneNumber=row.targetSceneNumber,
-                        ~targetLabel=row.targetLabel,
-                      )
-                    | None => Belt.Int.toString(order)
-                    }
+                  let optionLabel = switch orderedHotspotBySequence->Belt.Map.Int.get(order) {
+                  | Some(row) =>
+                    formatSequenceOptionLabel(
+                      ~sequence=order,
+                      ~targetSceneNumber=row.targetSceneNumber,
+                      ~targetLabel=row.targetLabel,
+                    )
+                  | None => Belt.Int.toString(order)
+                  }
                   <option
                     key={order->Belt.Int.toString}
                     value={order->Belt.Int.toString}

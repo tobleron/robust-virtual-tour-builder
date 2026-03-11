@@ -30,8 +30,9 @@ let isResponseOlderThan = (_response, _maxAgeMs: float): bool =>
 let dedupeAssets = (_assets: array<string>): array<string> =>
   %raw(`(function(assets){ return Array.from(new Set(assets)); })(assets)`)
 
-let loadManifestUrls = (~fetchManifest: unit => Promise.t<array<string>>): Promise.t<array<string>> =>
-  fetchManifest()->Promise.catch(_ => Promise.resolve([]))
+let loadManifestUrls = (~fetchManifest: unit => Promise.t<array<string>>): Promise.t<
+  array<string>,
+> => fetchManifest()->Promise.catch(_ => Promise.resolve([]))
 
 let installPromise = (
   ~cacheName: string,
@@ -62,20 +63,19 @@ let pruneCacheEntries = (
   ~runtimeStaleMaxAgeMs: float,
 ) =>
   requests
-  ->Array.map(
-    req =>
-      matchRequest(req)->Promise.then(found => {
-        switch found {
-        | Some(response) =>
-          let path = pathnameForUrl(requestUrl(req))
-          if (!hasHashedAssetName(path) && isResponseOlderThan(response, runtimeStaleMaxAgeMs)) {
-            deleteRequest(req)
-          } else {
-            Promise.resolve(false)
-          }
-        | None => Promise.resolve(false)
+  ->Array.map(req =>
+    matchRequest(req)->Promise.then(found => {
+      switch found {
+      | Some(response) =>
+        let path = pathnameForUrl(requestUrl(req))
+        if !hasHashedAssetName(path) && isResponseOlderThan(response, runtimeStaleMaxAgeMs) {
+          deleteRequest(req)
+        } else {
+          Promise.resolve(false)
         }
-      }),
+      | None => Promise.resolve(false)
+      }
+    })
   )
   ->Promise.all
   ->Promise.then(_ => Promise.resolve())
@@ -106,15 +106,16 @@ let activatePromise = (
   })
   ->Promise.then(_ =>
     openCache(cacheName)->Promise.then(cache =>
-      cacheRequests(cache)->Promise.then(requests =>
-        pruneCacheEntries(
-          ~requests,
-          ~matchRequest=req => matchRequest(cache, req),
-          ~deleteRequest=req => deleteRequest(cache, req),
-          ~requestUrl,
-          ~pathnameForUrl,
-          ~runtimeStaleMaxAgeMs,
-        )
+      cacheRequests(cache)->Promise.then(
+        requests =>
+          pruneCacheEntries(
+            ~requests,
+            ~matchRequest=req => matchRequest(cache, req),
+            ~deleteRequest=req => deleteRequest(cache, req),
+            ~requestUrl,
+            ~pathnameForUrl,
+            ~runtimeStaleMaxAgeMs,
+          ),
       )
     )
   )

@@ -165,7 +165,10 @@ describe("PersistentLabel", () => {
     }
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <PersistentLabel activeIndex=0 scenes={[sceneA, sceneB, sceneC]} />)
+    ReactDOMClient.Root.render(
+      root,
+      <PersistentLabel activeIndex=0 scenes={[sceneA, sceneB, sceneC]} />,
+    )
 
     await wait(50)
 

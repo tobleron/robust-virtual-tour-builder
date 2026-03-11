@@ -7,7 +7,11 @@ let nodePitchPx = 18.0
 let branchRisePx = 14.0
 let branchYOffsetForRank = (rank: int): float => {
   let level = rank / 2 + 1
-  let dir = if rank % 2 == 0 {1.0} else {-1.0}
+  let dir = if rank % 2 == 0 {
+    1.0
+  } else {
+    -1.0
+  }
   dir *. (level->Int.toFloat *. branchRisePx)
 }
 let injectStyles = () => VisualPipelineStyles.inject()
@@ -121,7 +125,10 @@ let make = () => {
     (graph, pipelineSlice.scenes, sceneOrderIndex, parentByScene),
   )
 
-  let activeFloors = React.useMemo1(() => VisualPipelineData.sortActiveFloors(groupedItems), [groupedItems])
+  let activeFloors = React.useMemo1(
+    () => VisualPipelineData.sortActiveFloors(groupedItems),
+    [groupedItems],
+  )
 
   let effectiveActiveNodeId = React.useMemo2(() => {
     let currentSceneId =
@@ -142,7 +149,8 @@ let make = () => {
   let hoverTimerRef = React.useRef((None: option<int>))
   let activePreviewUrlRef = React.useRef("")
 
-  let hideHoverPreview = () => VisualPipelineHover.hideHoverPreview(~hoverTimerRef, ~activePreviewUrlRef, ~setHoverPreview)
+  let hideHoverPreview = () =>
+    VisualPipelineHover.hideHoverPreview(~hoverTimerRef, ~activePreviewUrlRef, ~setHoverPreview)
 
   let showHoverPreview = (sceneOpt: option<Types.scene>, _linkId: string) =>
     VisualPipelineHover.showHoverPreview(
@@ -183,19 +191,18 @@ let make = () => {
   if uiSlice.isLinking || uiSlice.isTeasing || activeFloors->Belt.Array.length == 0 {
     React.null
   } else {
-    let tracks =
-      renderTracks(
-        ~activeFloors,
-        ~groupedItems,
-        ~stableHubTargetClusters,
-        ~effectiveActiveNodeId,
-        ~pipelineScenes=pipelineSlice.scenes,
-        ~isSystemLocked,
-        ~handleNodeActivate,
-        ~handleNodeRemove,
-        ~showHoverPreview,
-        ~hideHoverPreview,
-      )
+    let tracks = renderTracks(
+      ~activeFloors,
+      ~groupedItems,
+      ~stableHubTargetClusters,
+      ~effectiveActiveNodeId,
+      ~pipelineScenes=pipelineSlice.scenes,
+      ~isSystemLocked,
+      ~handleNodeActivate,
+      ~handleNodeRemove,
+      ~showHoverPreview,
+      ~hideHoverPreview,
+    )
     <div
       id="visual-pipeline-container"
       className={"visual-pipeline-container" ++ if isSystemLocked {

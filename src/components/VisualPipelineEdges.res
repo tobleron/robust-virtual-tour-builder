@@ -17,8 +17,12 @@ let buildFloorMaps = (
   ~wrapperRect: Dom.rect,
   ~displayNodes: array<VisualPipelineGraph.node>,
   ~activeFloors: array<string>,
-): (Belt.MutableMap.String.t<scenePoint>, Belt.MutableMap.String.t<string>, array<sceneEdgeClip>, Belt.MutableMap.String.t<string>) =>
-  VisualPipelineEdgeMaps.buildFloorMaps(~wrapperRect, ~displayNodes, ~activeFloors)
+): (
+  Belt.MutableMap.String.t<scenePoint>,
+  Belt.MutableMap.String.t<string>,
+  array<sceneEdgeClip>,
+  Belt.MutableMap.String.t<string>,
+) => VisualPipelineEdgeMaps.buildFloorMaps(~wrapperRect, ~displayNodes, ~activeFloors)
 
 let buildSameFloorOutgoing = (
   ~graph: VisualPipelineGraph.graph,
@@ -51,13 +55,22 @@ let chooseDirectedEdge = (
   ~stableHubTargetClusters: Belt.MutableMap.String.t<clusterInfo>,
   candidates: array<VisualPipelineGraph.edge>,
 ): option<VisualPipelineGraph.edge> =>
-  VisualPipelineEdgeSelection.chooseDirectedEdge(~sceneOrderIndex, ~stableHubTargetClusters, candidates)
+  VisualPipelineEdgeSelection.chooseDirectedEdge(
+    ~sceneOrderIndex,
+    ~stableHubTargetClusters,
+    candidates,
+  )
 
 let buildUniqueForwardEdges = (
   ~graph: VisualPipelineGraph.graph,
   ~sceneOrderIndex: Belt.Map.String.t<int>,
   ~stableHubTargetClusters: Belt.MutableMap.String.t<clusterInfo>,
-) => VisualPipelineEdgeSelection.buildUniqueForwardEdges(~graph, ~sceneOrderIndex, ~stableHubTargetClusters)
+) =>
+  VisualPipelineEdgeSelection.buildUniqueForwardEdges(
+    ~graph,
+    ~sceneOrderIndex,
+    ~stableHubTargetClusters,
+  )
 
 let edgePathForPair = (
   ~displayNodes: array<VisualPipelineGraph.node>,
@@ -105,39 +118,42 @@ let buildEdgeGeometry = (
   ~wrapper: Dom.element,
 ): edgeGeometry => {
   let wrapperRect = wrapper->Dom.getBoundingClientRect
-  let (centers, floorByScene, sceneEdgeClips, floorClipIds) =
-    buildFloorMaps(~wrapperRect, ~displayNodes, ~activeFloors)
-  let sameFloorOutgoing = buildSameFloorOutgoing(~graph, ~floorByScene)
-  let uniqueEdges =
-    buildUniqueForwardEdges(~graph, ~sceneOrderIndex, ~stableHubTargetClusters)
-  let nextPaths = uniqueEdges->Belt.Array.keepMap(edge =>
-    edgePathForPair(
-      ~displayNodes,
-      ~centers,
-      ~floorClipIds,
-      ~floorByScene,
-      ~sameFloorOutgoing,
-      ~stableHubTargetClusters,
-      edge,
-    )
+  let (centers, floorByScene, sceneEdgeClips, floorClipIds) = buildFloorMaps(
+    ~wrapperRect,
+    ~displayNodes,
+    ~activeFloors,
   )
+  let sameFloorOutgoing = buildSameFloorOutgoing(~graph, ~floorByScene)
+  let uniqueEdges = buildUniqueForwardEdges(~graph, ~sceneOrderIndex, ~stableHubTargetClusters)
+  let nextPaths =
+    uniqueEdges->Belt.Array.keepMap(edge =>
+      edgePathForPair(
+        ~displayNodes,
+        ~centers,
+        ~floorClipIds,
+        ~floorByScene,
+        ~sameFloorOutgoing,
+        ~stableHubTargetClusters,
+        edge,
+      )
+    )
   let sameFloorPairKeys = Belt.MutableSet.String.make()
   nextPaths->Belt.Array.forEach(path => {
     let edgeOpt = uniqueEdges->Belt.Array.getBy(edge => edge.id == path.id)
     switch edgeOpt {
-    | Some(edge) => sameFloorPairKeys->Belt.MutableSet.String.add(floorPairKey(edge.fromSceneId, edge.toSceneId))
+    | Some(edge) =>
+      sameFloorPairKeys->Belt.MutableSet.String.add(floorPairKey(edge.fromSceneId, edge.toSceneId))
     | None => ()
     }
   })
-  let continuityPaths =
-    buildContinuityPaths(
-      ~activeFloors,
-      ~groupedItems,
-      ~centers,
-      ~floorClipIds,
-      ~stableHubTargetClusters,
-      ~sameFloorPairKeys,
-    )
+  let continuityPaths = buildContinuityPaths(
+    ~activeFloors,
+    ~groupedItems,
+    ~centers,
+    ~floorClipIds,
+    ~stableHubTargetClusters,
+    ~sameFloorPairKeys,
+  )
 
   {sceneEdgePaths: Belt.Array.concat(nextPaths, continuityPaths), sceneEdgeClips}
 }

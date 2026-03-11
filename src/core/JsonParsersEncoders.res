@@ -57,14 +57,8 @@ let scene = (s: Types.scene) => {
     ("id", Encode.string(s.id)),
     ("name", Encode.string(s.name)),
     ("file", fileWithFallback(s.file, ~fallbackName=s.name)),
-    (
-      "tinyFile",
-      Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.tinyFile),
-    ),
-    (
-      "originalFile",
-      Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.originalFile),
-    ),
+    ("tinyFile", Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.tinyFile)),
+    ("originalFile", Encode.option(f => fileWithFallback(f, ~fallbackName=s.name))(s.originalFile)),
     ("hotspots", Encode.array(hotspot)(s.hotspots)),
     ("category", Encode.string(s.category)),
     ("floor", Encode.string(s.floor)),

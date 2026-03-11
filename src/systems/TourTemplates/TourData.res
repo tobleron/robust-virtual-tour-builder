@@ -44,10 +44,7 @@ type autoTourStepData = {
   "hotspot": hotspotData,
 }
 
-type autoTourManifestData = {
-  "steps": array<autoTourStepData>,
-  "finalSceneId": string,
-}
+type autoTourManifestData = {"steps": array<autoTourStepData>, "finalSceneId": string}
 
 type sceneData = {
   "name": string,

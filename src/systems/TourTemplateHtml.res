@@ -18,12 +18,7 @@ let nullableFloatKey = (value: Nullable.t<float>): string =>
 
 let nullableViewFrameKey = (value: Nullable.t<viewFrame>): string =>
   switch Nullable.toOption(value) {
-  | Some(v) =>
-    [
-      floatKey(v.yaw),
-      floatKey(v.pitch),
-      floatKey(v.hfov),
-    ]->Array.join("|")
+  | Some(v) => [floatKey(v.yaw), floatKey(v.pitch), floatKey(v.hfov)]->Array.join("|")
   | None => ""
   }
 
@@ -31,13 +26,7 @@ let nullableWaypointsKey = (value: Nullable.t<array<viewFrame>>): string =>
   switch Nullable.toOption(value) {
   | Some(waypoints) =>
     waypoints
-    ->Belt.Array.map(v =>
-      [
-        floatKey(v.yaw),
-        floatKey(v.pitch),
-        floatKey(v.hfov),
-      ]->Array.join("|")
-    )
+    ->Belt.Array.map(v => [floatKey(v.yaw), floatKey(v.pitch), floatKey(v.hfov)]->Array.join("|"))
     ->Array.join(";")
   | None => ""
   }
@@ -45,7 +34,11 @@ let nullableWaypointsKey = (value: Nullable.t<array<viewFrame>>): string =>
 let exportHotspotDestinationKey = (hotspot: TourData.hotspotData): string =>
   [
     hotspot["targetSceneId"],
-    if hotspot["targetIsAutoForward"] { "1" } else { "0" },
+    if hotspot["targetIsAutoForward"] {
+      "1"
+    } else {
+      "0"
+    },
     hotspot["target"],
   ]->Array.join("::")
 
@@ -119,8 +112,7 @@ let deriveAutoTourManifest = (
 ): TourData.autoTourManifestData => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   switch Belt.Array.get(activeScenes, 0) {
-  | None =>
-    {
+  | None => {
       "steps": [],
       "finalSceneId": firstSceneId,
     }
@@ -161,23 +153,21 @@ let deriveAutoTourManifest = (
           | (Some(targetScene), Some(hotspot)) =>
             finalSceneIdRef := targetScene.id
             let linkId = hotspot.linkId
-            let exportEntry =
-              switch Dict.get(entryByLinkId, linkId) {
-              | Some(entry) => Some(entry)
-              | None =>
-                Dict.get(
-                  entryBySceneHotspotKey,
-                  exportSceneHotspotKey(~sceneId=currentScene.id, ~hotspotIndex),
-                )
-              }
+            let exportEntry = switch Dict.get(entryByLinkId, linkId) {
+            | Some(entry) => Some(entry)
+            | None =>
+              Dict.get(
+                entryBySceneHotspotKey,
+                exportSceneHotspotKey(~sceneId=currentScene.id, ~hotspotIndex),
+              )
+            }
 
             switch exportEntry {
             | Some(entry) =>
-              let arrivalSequenceCursor =
-                switch derivedBadgeByLinkId->Belt.Map.String.get(linkId) {
-                | Some(HotspotSequence.Sequence(sequenceNo)) => sequenceNo
-                | Some(HotspotSequence.Return) | None => currentSequenceCursor.contents
-                }
+              let arrivalSequenceCursor = switch derivedBadgeByLinkId->Belt.Map.String.get(linkId) {
+              | Some(HotspotSequence.Sequence(sequenceNo)) => sequenceNo
+              | Some(HotspotSequence.Return) | None => currentSequenceCursor.contents
+              }
               let visibleHotspotIndex =
                 Dict.get(visibleHotspotIndexByLinkId, linkId)->Option.getOr(hotspotIndex)
               let step: TourData.autoTourStepData = {
@@ -201,13 +191,13 @@ let deriveAutoTourManifest = (
               triggerActions,
             )
             currentStateRef := {
-              ...currentState,
-              activeIndex: targetIndex,
-              simulation: {
-                ...currentState.simulation,
-                visitedLinkIds: visitedAfterMove,
-              },
-            }
+                ...currentState,
+                activeIndex: targetIndex,
+                simulation: {
+                  ...currentState.simulation,
+                  visitedLinkIds: visitedAfterMove,
+                },
+              }
             stepCount := stepCount.contents + 1
           | _ => continueLoop := false
           }
@@ -390,26 +380,30 @@ let generateTourHTML = (
       | None => ()
       }
     })
-    let sequenceEdges: array<TourData.sequenceEdgeData> =
-      rawHotspotEntries
-      ->Belt.Array.keepMap(entry =>
-        switch (entry.isReturnLink, entry.sequenceNumber) {
-        | (false, Some(sequenceNo)) =>
-          switch Dict.get(visibleHotspotIndexByDestinationKey, entry.destinationKey) {
-          | Some(visibleHotspotIndex) =>
-            Some({
-              "linkId": entry.linkId,
-              "target": entry.hotspotData["target"],
-              "targetSceneId": entry.hotspotData["targetSceneId"],
-              "targetIsAutoForward": entry.hotspotData["targetIsAutoForward"],
-              "sequenceNumber": sequenceNo,
-              "visibleHotspotIndex": visibleHotspotIndex,
-            }: TourData.sequenceEdgeData)
-          | None => None
-          }
-        | _ => None
+    let sequenceEdges: array<
+      TourData.sequenceEdgeData,
+    > = rawHotspotEntries->Belt.Array.keepMap(entry =>
+      switch (entry.isReturnLink, entry.sequenceNumber) {
+      | (false, Some(sequenceNo)) =>
+        switch Dict.get(visibleHotspotIndexByDestinationKey, entry.destinationKey) {
+        | Some(visibleHotspotIndex) =>
+          Some(
+            (
+              {
+                "linkId": entry.linkId,
+                "target": entry.hotspotData["target"],
+                "targetSceneId": entry.hotspotData["targetSceneId"],
+                "targetIsAutoForward": entry.hotspotData["targetIsAutoForward"],
+                "sequenceNumber": sequenceNo,
+                "visibleHotspotIndex": visibleHotspotIndex,
+              }: TourData.sequenceEdgeData
+            ),
+          )
+        | None => None
         }
-      )
+      | _ => None
+      }
+    )
     let autoForwardHotspotIndex = {
       let routeFromDoubleChevron =
         rawHotspots->Belt.Array.getIndexBy(h =>

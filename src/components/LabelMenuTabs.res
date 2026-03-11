@@ -137,86 +137,91 @@ module SequenceTab = {
   let make = (
     ~orderedHotspots: array<HotspotSequence.orderedHotspot>,
     ~sequenceDrafts: Belt.Map.String.t<string>,
-    ~setSequenceDrafts: ((Belt.Map.String.t<string>) => Belt.Map.String.t<string>) => unit,
+    ~setSequenceDrafts: (Belt.Map.String.t<string> => Belt.Map.String.t<string>) => unit,
     ~commitSequenceDraft: (~linkId: string, ~currentSequence: int) => unit,
   ) =>
     <div className="flex flex-col h-full max-h-[300px]">
-    <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/50">
-      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-        {React.string("Hotspot Sequence")}
-      </h4>
-      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-        {React.string("Scene numbers stay fixed. Editing a step changes internal traversal order only.")}
-      </p>
-    </div>
-    <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2 space-y-1">
-      {if orderedHotspots->Belt.Array.length == 0 {
-        <div className="px-2 py-4 text-[11px] text-slate-400 text-center">
-          {React.string("No navigable hotspots found.")}
-        </div>
-      } else {
-        orderedHotspots
-        ->Belt.Array.map(row => {
-          let draftValue =
-            sequenceDrafts
-            ->Belt.Map.String.get(row.linkId)
-            ->Option.getOr(Belt.Int.toString(row.sequence))
-          let isDirty = draftValue != Belt.Int.toString(row.sequence)
-          <div
-            key={row.linkId}
-            className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-100 hover:border-slate-200 bg-white"
-          >
-            <input
-              type_="number"
-              min="1"
-              step=1.0
-              value={draftValue}
-              onChange={e => {
-                let value = JsxEvent.Form.target(e)["value"]
-                setSequenceDrafts(prev => prev->Belt.Map.String.set(row.linkId, value))
-              }}
-              onBlur={_ => commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
-              onKeyDown={e => {
-                JsxEvent.Keyboard.stopPropagation(e)
-                if JsxEvent.Keyboard.key(e) == "Enter" {
-                  commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)
-                }
-              }}
-              className="w-12 bg-[#0e2d52] text-white font-mono text-[11px] text-center rounded border border-[#0e2d52] px-1 py-1 outline-none"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-semibold text-slate-700 truncate">
-                {React.string(
-                  formatSceneNumber(row.sceneNumber) ++
-                  " " ++
-                  row.sceneLabel ++
-                  " -> " ++
-                  formatSceneNumber(row.targetSceneNumber) ++
-                  " " ++
-                  row.targetLabel,
-                )}
-              </div>
-              <div className="text-[9px] font-mono text-slate-400 truncate">
-                {React.string("step " ++ Belt.Int.toString(row.sequence) ++ " • " ++ row.linkId)}
-              </div>
-            </div>
-            <button
-              onClick={_ => commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
-              disabled={!isDirty}
-              className={`px-2 py-1 rounded text-[9px] font-semibold uppercase tracking-wider transition-all ${if (
-                  isDirty
-                ) {
-                  "bg-primary text-white hover:bg-primary-light active:scale-95"
-                } else {
-                  "bg-slate-200 text-slate-400 cursor-not-allowed"
-                }}`}
-            >
-              {React.string("Set")}
-            </button>
+      <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/50">
+        <h4 className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+          {React.string("Hotspot Sequence")}
+        </h4>
+        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+          {React.string(
+            "Scene numbers stay fixed. Editing a step changes internal traversal order only.",
+          )}
+        </p>
+      </div>
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2 space-y-1">
+        {if orderedHotspots->Belt.Array.length == 0 {
+          <div className="px-2 py-4 text-[11px] text-slate-400 text-center">
+            {React.string("No navigable hotspots found.")}
           </div>
-        })
-        ->React.array
-      }}
-    </div>
+        } else {
+          orderedHotspots
+          ->Belt.Array.map(row => {
+            let draftValue =
+              sequenceDrafts
+              ->Belt.Map.String.get(row.linkId)
+              ->Option.getOr(Belt.Int.toString(row.sequence))
+            let isDirty = draftValue != Belt.Int.toString(row.sequence)
+            <div
+              key={row.linkId}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-100 hover:border-slate-200 bg-white"
+            >
+              <input
+                type_="number"
+                min="1"
+                step=1.0
+                value={draftValue}
+                onChange={e => {
+                  let value = JsxEvent.Form.target(e)["value"]
+                  setSequenceDrafts(prev => prev->Belt.Map.String.set(row.linkId, value))
+                }}
+                onBlur={_ => commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
+                onKeyDown={e => {
+                  JsxEvent.Keyboard.stopPropagation(e)
+                  if JsxEvent.Keyboard.key(e) == "Enter" {
+                    commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)
+                  }
+                }}
+                className="w-12 bg-[#0e2d52] text-white font-mono text-[11px] text-center rounded border border-[#0e2d52] px-1 py-1 outline-none"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] font-semibold text-slate-700 truncate">
+                  {React.string(
+                    formatSceneNumber(row.sceneNumber) ++
+                    " " ++
+                    row.sceneLabel ++
+                    " -> " ++
+                    formatSceneNumber(row.targetSceneNumber) ++
+                    " " ++
+                    row.targetLabel,
+                  )}
+                </div>
+                <div className="text-[9px] font-mono text-slate-400 truncate">
+                  {React.string(
+                    "step " ++ Belt.Int.toString(row.sequence) ++ " • " ++ row.linkId,
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={_ =>
+                  commitSequenceDraft(~linkId=row.linkId, ~currentSequence=row.sequence)}
+                disabled={!isDirty}
+                className={`px-2 py-1 rounded text-[9px] font-semibold uppercase tracking-wider transition-all ${if (
+                    isDirty
+                  ) {
+                    "bg-primary text-white hover:bg-primary-light active:scale-95"
+                  } else {
+                    "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  }}`}
+              >
+                {React.string("Set")}
+              </button>
+            </div>
+          })
+          ->React.array
+        }}
+      </div>
     </div>
 }

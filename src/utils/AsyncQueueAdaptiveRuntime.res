@@ -73,7 +73,12 @@ let executeAdaptive = (
     let p95 = percentile(latencies, 0.95)
     let heapPressure = getHeapUsageRatio()->Option.getOr(0.0)
 
-    if isError || p95 > latencyThresholdMs || heapPressure > 0.8 || currentErrorRate > errorRateThreshold {
+    if (
+      isError ||
+      p95 > latencyThresholdMs ||
+      heapPressure > 0.8 ||
+      currentErrorRate > errorRateThreshold
+    ) {
       let halved = Math.Int.max(minConcurrency, currentConcurrency.contents / 2)
       let forced = if currentErrorRate > errorRateThreshold {
         minConcurrency

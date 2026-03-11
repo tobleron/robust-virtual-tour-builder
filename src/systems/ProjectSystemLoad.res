@@ -43,16 +43,15 @@ let notifyProjectValidationWarnings = (report: SharedTypes.validationReport) => 
   )
 }
 
-let verifyProjectLoadPolicy = (
-  projectData: JSON.t,
-  ~validationReportWrapperDecoder,
-): result<option<SharedTypes.validationReport>, apiError> => {
+let verifyProjectLoadPolicy = (projectData: JSON.t, ~validationReportWrapperDecoder): result<
+  option<SharedTypes.validationReport>,
+  apiError,
+> => {
   switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
   | Ok(decodedReport) =>
     let report: SharedTypes.validationReport = decodedReport
     if Array.length(report.errors) > 0 {
-      let firstError =
-        Belt.Array.get(report.errors, 0)->Option.getOr("Unknown validation error")
+      let firstError = Belt.Array.get(report.errors, 0)->Option.getOr("Unknown validation error")
       Error(
         "Project verification failed: " ++
         firstError ++

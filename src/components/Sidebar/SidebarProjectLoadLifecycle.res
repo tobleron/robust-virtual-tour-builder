@@ -94,18 +94,9 @@ let handleCancel = (
   }
 }
 
-let completeReady = (
-  ~dispatch: Actions.action => unit,
-  ~opId: OperationLifecycle.operationId,
-) => {
+let completeReady = (~dispatch: Actions.action => unit, ~opId: OperationLifecycle.operationId) => {
   if OperationLifecycle.isActive(opId) {
-    OperationLifecycle.progress(
-      opId,
-      100.0,
-      ~message="Project ready",
-      ~phase="Project Load",
-      (),
-    )
+    OperationLifecycle.progress(opId, 100.0, ~message="Project ready", ~phase="Project Load", ())
     OperationLifecycle.complete(opId, ~result="Project ready", ())
   }
   updateProgress(~dispatch, 100.0, "Done", false, "")

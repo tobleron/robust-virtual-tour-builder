@@ -44,8 +44,16 @@ module Toast = {
         ""
       } ++
       contextClass}
-      role={if isAssertive {"alert"} else {"status"}}
-      ariaLive={if isAssertive {#assertive} else {#polite}}
+      role={if isAssertive {
+        "alert"
+      } else {
+        "status"
+      }}
+      ariaLive={if isAssertive {
+        #assertive
+      } else {
+        #polite
+      }}
       ariaAtomic=true
     >
       <div className="viewer-toast-icon"> icon </div>

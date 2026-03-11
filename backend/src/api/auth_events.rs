@@ -102,9 +102,7 @@ pub(super) async fn find_trusted_device(
     .bind(token_hash)
     .fetch_optional(pool)
     .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Trusted device lookup failed: {}", error))
-    })?;
+    .map_err(|error| AppError::InternalError(format!("Trusted device lookup failed: {}", error)))?;
 
     Ok(row.map(
         |(last_seen_at, trust_expires_at, user_agent_family, last_timezone, last_language)| {
@@ -245,7 +243,10 @@ pub(super) async fn count_recent_failed_logins(
         .map_err(|error| {
             AppError::InternalError(format!("Recent failed login(user) query failed: {}", error))
         })?;
-        Ok((account_failed.max(user_failed).max(device_failed), ip_failed))
+        Ok((
+            account_failed.max(user_failed).max(device_failed),
+            ip_failed,
+        ))
     } else {
         Ok((account_failed.max(device_failed), ip_failed))
     }

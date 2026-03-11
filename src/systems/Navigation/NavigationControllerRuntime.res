@@ -5,7 +5,7 @@ let buildMockState = (
   ~sceneOrder: array<string>,
   ~activeIndex: int,
   ~navigationState,
-) : state => {
+): state => {
   {
     ...State.initialState,
     inventory,

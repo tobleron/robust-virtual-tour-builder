@@ -12,7 +12,9 @@ let sceneRank = (
   ~fallback: int=10000,
 ): int => sceneOrderIndex->Belt.Map.String.get(sceneId)->Option.getOr(fallback)
 
-let buildSceneOrderIndex = (displayNodes: array<VisualPipelineGraph.node>): Belt.Map.String.t<int> =>
+let buildSceneOrderIndex = (displayNodes: array<VisualPipelineGraph.node>): Belt.Map.String.t<
+  int,
+> =>
   displayNodes->Belt.Array.reduce(Belt.Map.String.empty, (acc, node) => {
     if acc->Belt.Map.String.get(node.representedSceneId)->Option.isSome {
       acc
@@ -29,11 +31,10 @@ let reduceBestParent = (
   sources
   ->Belt.Array.reduce((None: option<(string, int)>), (acc, src) => {
     let rank = sceneRank(sceneOrderIndex, src)
-    let keepExisting =
-      switch acc {
-      | Some((_bestSceneId, bestRank)) => preferHigherRank ? rank >= bestRank : rank <= bestRank
-      | None => false
-      }
+    let keepExisting = switch acc {
+    | Some((_bestSceneId, bestRank)) => preferHigherRank ? rank >= bestRank : rank <= bestRank
+    | None => false
+    }
     switch acc {
     | Some(_) if keepExisting => acc
     | _ => Some((src, rank))
@@ -94,9 +95,11 @@ let groupItemsByFloor = (
   ->Belt.MutableMap.String.keysToArray
   ->Belt.Array.forEach(floorId => {
     let items = groups->Belt.MutableMap.String.get(floorId)->Option.getOr([])
-    let sorted = items->Belt.SortArray.stableSortBy((a, b) =>
-      sceneRank(sceneOrderIndex, a.representedSceneId) - sceneRank(sceneOrderIndex, b.representedSceneId)
-    )
+    let sorted =
+      items->Belt.SortArray.stableSortBy((a, b) =>
+        sceneRank(sceneOrderIndex, a.representedSceneId) -
+        sceneRank(sceneOrderIndex, b.representedSceneId)
+      )
     groups->Belt.MutableMap.String.set(floorId, sorted)
   })
 
@@ -137,14 +140,20 @@ let buildStableHubTargetClusters = (
     }
     let hubFloor = floorIdForScene(scenes, hubSceneId)
     let sameFloorTargets =
-      branchTargets->Belt.Array.keep(targetSceneId => floorIdForScene(scenes, targetSceneId) == hubFloor)
+      branchTargets->Belt.Array.keep(targetSceneId =>
+        floorIdForScene(scenes, targetSceneId) == hubFloor
+      )
 
     if Belt.Array.length(sameFloorTargets) >= 2 {
       let sortedTargets = sameFloorTargets->Belt.SortArray.stableSortBy((a, b) => {
         let edgeRankA =
-          hubTargetEdgeRank->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ a)->Option.getOr(100000)
+          hubTargetEdgeRank
+          ->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ a)
+          ->Option.getOr(100000)
         let edgeRankB =
-          hubTargetEdgeRank->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ b)->Option.getOr(100000)
+          hubTargetEdgeRank
+          ->Belt.MutableMap.String.get(hubSceneId ++ "->" ++ b)
+          ->Option.getOr(100000)
         if edgeRankA != edgeRankB {
           edgeRankA - edgeRankB
         } else {

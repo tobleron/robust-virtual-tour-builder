@@ -44,13 +44,7 @@ let drawSingleHotspotLine = (
   currentFrameIds,
   _simulationStatus: Types.simulationStatus,
 ) => {
-  HotspotLineDrawingSupport.drawSingleHotspotLine(
-    h,
-    cam,
-    rect,
-    currentFrameIds,
-    _simulationStatus,
-  )
+  HotspotLineDrawingSupport.drawSingleHotspotLine(h, cam, rect, currentFrameIds, _simulationStatus)
 }
 
 let drawPersistentLines = (
@@ -76,12 +70,5 @@ let drawLinkingDraft = (
   mouseEvent,
   currentFrameIds,
 ) => {
-  HotspotLineDrawingSupport.drawLinkingDraft(
-    viewer,
-    cam,
-    rect,
-    draft,
-    mouseEvent,
-    currentFrameIds,
-  )
+  HotspotLineDrawingSupport.drawLinkingDraft(viewer, cam, rect, draft, mouseEvent, currentFrameIds)
 }

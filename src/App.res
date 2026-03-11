@@ -16,14 +16,15 @@ module InnerApp = {
   @val @scope("document") external documentVisibilityState: string = "visibilityState"
 
   let localAssetSyncSignature = (state: state): string => {
-    let sceneMarkers =
-      SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
-      ->Belt.Array.keepMap(scene =>
-        switch scene.file {
-        | File(_) | Blob(_) => Some(scene.id ++ ":" ++ scene.name)
-        | Url(_) => None
-        }
-      )
+    let sceneMarkers = SceneInventory.getActiveScenes(
+      state.inventory,
+      state.sceneOrder,
+    )->Belt.Array.keepMap(scene =>
+      switch scene.file {
+      | File(_) | Blob(_) => Some(scene.id ++ ":" ++ scene.name)
+      | Url(_) => None
+      }
+    )
     let logoMarker = switch state.logo {
     | Some(File(_)) | Some(Blob(_)) => "logo_upload"
     | _ => ""
@@ -71,8 +72,18 @@ module InnerApp = {
     | None => Constants.isDebugBuild()
     }
 
-  let intMax = (a: int, b: int) => if a > b { a } else { b }
-  let intMin = (a: int, b: int) => if a < b { a } else { b }
+  let intMax = (a: int, b: int) =>
+    if a > b {
+      a
+    } else {
+      b
+    }
+  let intMin = (a: int, b: int) =>
+    if a < b {
+      a
+    } else {
+      b
+    }
 
   @react.component
   let make = () => {
@@ -120,7 +131,7 @@ module InnerApp = {
       ~isProjectLoading,
       ~dispatch,
       ~refs=syncRefs,
-      ~cadencePolicy=(cadence => (cadencePolicy(cadence) :> AppAutosave.cadencePolicy)),
+      ~cadencePolicy=cadence => (cadencePolicy(cadence) :> AppAutosave.cadencePolicy),
       ~canSyncToServer,
       ~localAssetSyncSignature,
     )

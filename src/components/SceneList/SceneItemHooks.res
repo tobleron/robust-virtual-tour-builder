@@ -23,12 +23,9 @@ let useMenuFeedback = (~wasThrottled, ~index, ~onItemClearLinks, ~onItemDelete) 
   React.useEffect1(() => {
     if wasThrottled {
       setFlickerState(_ => #Throttled)
-      let timeoutId = ReBindings.Window.setTimeout(
-        () => {
-          setFlickerState(_ => #None)
-        },
-        600,
-      )
+      let timeoutId = ReBindings.Window.setTimeout(() => {
+        setFlickerState(_ => #None)
+      }, 600)
       Some(() => ReBindings.Window.clearTimeout(timeoutId))
     } else {
       None
@@ -46,10 +43,8 @@ let useMenuFeedback = (~wasThrottled, ~index, ~onItemClearLinks, ~onItemDelete) 
     }, 800)
   }
 
-  let handleClearClick = event =>
-    scheduleMenuAction(event, #Clear, () => onItemClearLinks(index))
-  let handleDeleteClick = event =>
-    scheduleMenuAction(event, #Delete, () => onItemDelete(index))
+  let handleClearClick = event => scheduleMenuAction(event, #Clear, () => onItemClearLinks(index))
+  let handleDeleteClick = event => scheduleMenuAction(event, #Delete, () => onItemDelete(index))
   let throttleClasses = switch flickerState {
   | #Throttled => "ring-2 ring-primary/40 opacity-80 cursor-wait"
   | _ => ""

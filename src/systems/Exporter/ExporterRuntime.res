@@ -162,7 +162,9 @@ let rec uploadWithRetry = async (
     } else {
       CircuitBreaker.recordFailure(AuthenticatedClient.circuitBreaker)
       if isLegacyNetworkOffline {
-        JsError.throwWithMessage("NetworkError: Export upload was interrupted. Please retry export.")
+        JsError.throwWithMessage(
+          "NetworkError: Export upload was interrupted. Please retry export.",
+        )
       } else {
         JsError.throwWithMessage(msg)
       }

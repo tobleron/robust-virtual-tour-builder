@@ -5,7 +5,7 @@ mod auth_flows_password;
 #[path = "auth_flows_session.rs"]
 mod auth_flows_session;
 
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use sqlx::SqlitePool;
 
 use crate::models::{AppError, User};

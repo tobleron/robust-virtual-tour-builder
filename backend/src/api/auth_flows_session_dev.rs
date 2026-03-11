@@ -1,4 +1,4 @@
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
@@ -17,7 +17,9 @@ pub(super) async fn ensure_dev_bootstrap_user(pool: &SqlitePool) -> Result<User,
         .bind(&email)
         .fetch_optional(pool)
         .await
-        .map_err(|error| AppError::InternalError(format!("Dev auth user lookup failed: {}", error)))?
+        .map_err(|error| {
+            AppError::InternalError(format!("Dev auth user lookup failed: {}", error))
+        })?
     {
         if existing.email_verified_at.is_none() || existing.status.as_deref() != Some("active") {
             let now = Utc::now();
@@ -43,12 +45,15 @@ pub(super) async fn ensure_dev_bootstrap_user(pool: &SqlitePool) -> Result<User,
             .bind(&existing.id)
             .fetch_one(pool)
             .await
-            .map_err(|error| AppError::InternalError(format!("Dev auth user reload failed: {}", error)));
+            .map_err(|error| {
+                AppError::InternalError(format!("Dev auth user reload failed: {}", error))
+            });
     }
 
     super::super::super::validate_username(&username)?;
     super::super::super::validate_password(&super::super::super::dev_auth_password())?;
-    let password_hash = super::super::super::hash_password(&super::super::super::dev_auth_password())?;
+    let password_hash =
+        super::super::super::hash_password(&super::super::super::dev_auth_password())?;
     let now = Utc::now();
     let user_id = Uuid::new_v4().to_string();
 
@@ -102,10 +107,8 @@ pub(super) async fn dev_signin(
     )
     .await?;
 
-    let step_up_hours = super::super::super::config_i64(
-        "STEP_UP_SESSION_HOURS",
-        STEP_UP_SESSION_HOURS_DEFAULT,
-    );
+    let step_up_hours =
+        super::super::super::config_i64("STEP_UP_SESSION_HOURS", STEP_UP_SESSION_HOURS_DEFAULT);
     let step_up_until = Some((Utc::now() + Duration::hours(step_up_hours)).timestamp() as usize);
     let token = encode_token(&user.id, step_up_until)?;
     let auth_cookie = super::super::super::create_auth_cookie(&token);

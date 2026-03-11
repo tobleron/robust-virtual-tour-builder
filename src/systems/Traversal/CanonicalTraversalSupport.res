@@ -172,6 +172,5 @@ let moveRefToIndex = (~ordered: array<forwardRef>, ~currentIndex: int, ~nextInde
   forwardRef,
 > => CanonicalTraversalOrdering.moveRefToIndex(~ordered, ~currentIndex, ~nextIndex)
 
-let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<
-  array<int>,
-> => CanonicalTraversalOrdering.deriveAdmissibleOrdersByLinkId(~ordered)
+let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<array<int>> =>
+  CanonicalTraversalOrdering.deriveAdmissibleOrdersByLinkId(~ordered)

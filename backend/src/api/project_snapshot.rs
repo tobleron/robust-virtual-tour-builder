@@ -1,4 +1,4 @@
-use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
 
-use super::{project_assets, MAX_PROJECT_SNAPSHOTS, SNAPSHOT_FILENAME, SNAPSHOT_HISTORY_DIR};
+use super::{MAX_PROJECT_SNAPSHOTS, SNAPSHOT_FILENAME, SNAPSHOT_HISTORY_DIR, project_assets};
 
 pub(super) fn default_snapshot_origin() -> String {
     "auto".to_string()
@@ -104,8 +104,9 @@ pub(super) fn snapshot_history_dir(project_dir: &Path) -> PathBuf {
 }
 
 pub(super) fn snapshot_content_hash(project_data: &serde_json::Value) -> Result<String, AppError> {
-    let serialized = serde_json::to_vec(project_data)
-        .map_err(|error| AppError::InternalError(format!("Serialize snapshot hash failed: {}", error)))?;
+    let serialized = serde_json::to_vec(project_data).map_err(|error| {
+        AppError::InternalError(format!("Serialize snapshot hash failed: {}", error))
+    })?;
     let mut hasher = Sha256::new();
     hasher.update(serialized);
     Ok(format!("{:x}", hasher.finalize()))
@@ -116,8 +117,9 @@ pub(super) fn write_current_snapshot(
     project_data: &serde_json::Value,
 ) -> Result<(), AppError> {
     let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
-    let serialized = serde_json::to_string_pretty(project_data)
-        .map_err(|error| AppError::InternalError(format!("Serialize snapshot failed: {}", error)))?;
+    let serialized = serde_json::to_string_pretty(project_data).map_err(|error| {
+        AppError::InternalError(format!("Serialize snapshot failed: {}", error))
+    })?;
     std::fs::write(snapshot_path, serialized).map_err(AppError::IoError)
 }
 
@@ -222,8 +224,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save(
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save()
+    -> Result<(), Box<dyn std::error::Error>> {
         let temp = tempfile::tempdir()?;
         let project_dir = temp.path();
         let project_data = serde_json::json!({
@@ -364,7 +366,11 @@ pub(super) async fn load_project_snapshot(
         .find(|entry| entry.snapshot_id == snapshot_id)
         .ok_or_else(|| AppError::ValidationError("Snapshot not found".into()))?;
 
-    project_assets::repair_missing_project_assets(&user_root, &project_dir, &snapshot.project_data)?;
+    project_assets::repair_missing_project_assets(
+        &user_root,
+        &project_dir,
+        &snapshot.project_data,
+    )?;
 
     Ok(HttpResponse::Ok().json(SnapshotRestoreResponse {
         session_id,

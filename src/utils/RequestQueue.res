@@ -56,7 +56,8 @@ let pushByPriority = (item: queuedItem) => {
 let promoteStarved = () => {
   let now = nowMs.contents()
   let promoteQueue = (~queue, ~thresholdMs: float, ~priority) => {
-    let (keep, promote) = queue->Belt.Array.partition(item => now -. item.enqueuedAtMs < thresholdMs)
+    let (keep, promote) =
+      queue->Belt.Array.partition(item => now -. item.enqueuedAtMs < thresholdMs)
     let _ = Array.splice(queue, ~start=0, ~remove=Array.length(queue), ~insert=keep)
     promote->Belt.Array.forEach(item => {
       pushByPriority({...item, priority})
@@ -64,7 +65,11 @@ let promoteStarved = () => {
     Array.length(promote)
   }
 
-  let backgroundPromotions = promoteQueue(~queue=backgroundQueue, ~thresholdMs=30000.0, ~priority=Normal)
+  let backgroundPromotions = promoteQueue(
+    ~queue=backgroundQueue,
+    ~thresholdMs=30000.0,
+    ~priority=Normal,
+  )
   let normalPromotions = promoteQueue(~queue=normalQueue, ~thresholdMs=60000.0, ~priority=Critical)
 
   if backgroundPromotions > 0 || normalPromotions > 0 {

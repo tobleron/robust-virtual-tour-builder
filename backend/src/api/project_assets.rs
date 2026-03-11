@@ -10,7 +10,7 @@ use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
 use crate::services::project;
 
-use super::{project_snapshot, SNAPSHOT_FILENAME};
+use super::{SNAPSHOT_FILENAME, project_snapshot};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -134,9 +134,10 @@ pub(super) async fn load_project(
     temp_upload
         .seek(SeekFrom::Start(0))
         .map_err(AppError::IoError)?;
-    let result_zip_file = actix_web::web::block(move || project::process_uploaded_project_zip(temp_upload))
-        .await
-        .map_err(|error| AppError::InternalError(error.to_string()))??;
+    let result_zip_file =
+        actix_web::web::block(move || project::process_uploaded_project_zip(temp_upload))
+            .await
+            .map_err(|error| AppError::InternalError(error.to_string()))??;
     let file = result_zip_file.reopen().map_err(AppError::IoError)?;
     let named_file = actix_files::NamedFile::from_file(file, "project.zip")?;
 

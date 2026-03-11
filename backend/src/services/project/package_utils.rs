@@ -165,7 +165,10 @@ pub fn build_desktop_blob_html(
         .flat_map(|(file_name, bytes)| {
             let data_uri = data_uri_for_bytes("image/webp", bytes);
             [
-                (format!("../../assets/images/{}", file_name), data_uri.clone()),
+                (
+                    format!("../../assets/images/{}", file_name),
+                    data_uri.clone(),
+                ),
                 (format!("assets/images/{}", file_name), data_uri),
             ]
         })

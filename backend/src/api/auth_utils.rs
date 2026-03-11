@@ -68,8 +68,9 @@ pub(super) fn validate_username(username: &str) -> Result<(), AppError> {
             "Username must be between 3 and 30 characters.".into(),
         ));
     }
-    let regex = Regex::new(r"^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$")
-        .map_err(|error| AppError::InternalError(format!("Username regex build failed: {}", error)))?;
+    let regex = Regex::new(r"^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$").map_err(|error| {
+        AppError::InternalError(format!("Username regex build failed: {}", error))
+    })?;
     if !regex.is_match(username) {
         return Err(AppError::ValidationError(
             "Username may only contain lowercase letters, numbers, and hyphens.".into(),
@@ -97,8 +98,9 @@ pub(super) fn hash_password(password: &str) -> Result<String, AppError> {
 }
 
 pub(super) fn verify_password(password: &str, password_hash: &str) -> Result<bool, AppError> {
-    let parsed_hash = PasswordHash::new(password_hash)
-        .map_err(|error| AppError::InternalError(format!("Password hash parse failed: {}", error)))?;
+    let parsed_hash = PasswordHash::new(password_hash).map_err(|error| {
+        AppError::InternalError(format!("Password hash parse failed: {}", error))
+    })?;
     let argon2 = Argon2::default();
     Ok(argon2
         .verify_password(password.as_bytes(), &parsed_hash)
@@ -150,10 +152,8 @@ pub(super) fn clear_auth_cookie() -> Cookie<'static> {
 }
 
 pub(super) fn create_device_cookie(token: &str) -> Cookie<'static> {
-    let trust_ttl_days = super::config_i64(
-        "TRUSTED_DEVICE_TTL_DAYS",
-        DEVICE_TRUST_TTL_DAYS_DEFAULT,
-    );
+    let trust_ttl_days =
+        super::config_i64("TRUSTED_DEVICE_TTL_DAYS", DEVICE_TRUST_TTL_DAYS_DEFAULT);
     Cookie::build(DEVICE_COOKIE_NAME, token.to_string())
         .path("/")
         .http_only(true)
@@ -171,6 +171,8 @@ pub(super) fn public_user(user: &User) -> AuthPublicUser {
         name: user.name.clone(),
         role: user.role.clone(),
         status: user.status.clone(),
-        email_verified_at: user.email_verified_at.map(|timestamp| timestamp.to_rfc3339()),
+        email_verified_at: user
+            .email_verified_at
+            .map(|timestamp| timestamp.to_rfc3339()),
     }
 }

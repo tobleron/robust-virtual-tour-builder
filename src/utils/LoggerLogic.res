@@ -276,19 +276,12 @@ let disableDiagnostics = (~emitInfo: (string, string, option<JSON.t>) => unit) =
   emitInfo("Logger", "Diagnostic Mode DISABLED", None)
 }
 
-let disable = (
-  ~enabled: ref<bool>,
-  ~emitInfo: (string, string, option<JSON.t>) => unit,
-) => {
+let disable = (~enabled: ref<bool>, ~emitInfo: (string, string, option<JSON.t>) => unit) => {
   enabled := false
   emitInfo("Logger", "Debug mode DISABLED", None)
 }
 
-let toggle = (
-  ~enabled: ref<bool>,
-  ~enableFn: unit => unit,
-  ~disableFn: unit => unit,
-): bool => {
+let toggle = (~enabled: ref<bool>, ~enableFn: unit => unit, ~disableFn: unit => unit): bool => {
   if enabled.contents {
     disableFn()
   } else {
@@ -351,7 +344,5 @@ let subscribeEventBusLogging = (
   ~errorFn: (string, string, option<JSON.t>) => unit,
 ) => LoggerDiagnostics.subscribeEventBusLogging(~debugFn, ~warnFn, ~errorFn)
 
-let startBatchTimer = (
-  ~batchTimer: ref<option<int>>,
-  ~flushTelemetry: unit => Promise.t<unit>,
-) => LoggerDiagnostics.startBatchTimer(~batchTimer, ~flushTelemetry)
+let startBatchTimer = (~batchTimer: ref<option<int>>, ~flushTelemetry: unit => Promise.t<unit>) =>
+  LoggerDiagnostics.startBatchTimer(~batchTimer, ~flushTelemetry)

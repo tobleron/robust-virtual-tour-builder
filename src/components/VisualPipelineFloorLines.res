@@ -62,7 +62,9 @@ let measureFloorConnectorPaths = (~activeFloors, ~groupedItems, ~containerEl): m
       groupedItems
       ->Belt.MutableMap.String.get(floorId)
       ->Option.flatMap(items => Belt.Array.get(items, 0))
-      ->Option.map((item: VisualPipelineGraph.node) => Dom.getElementById("pipeline-node-wrap-" ++ item.id))
+      ->Option.map((item: VisualPipelineGraph.node) =>
+        Dom.getElementById("pipeline-node-wrap-" ++ item.id)
+      )
       ->Option.flatMap(Nullable.toOption)
 
     switch (buttonOpt, anchorOpt) {

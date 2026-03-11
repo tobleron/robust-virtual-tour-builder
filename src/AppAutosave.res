@@ -26,8 +26,18 @@ type syncRefs = {
   syncInFlightRef: React.ref<bool>,
 }
 
-let intMax = (a: int, b: int) => if a > b {a} else {b}
-let intMin = (a: int, b: int) => if a < b {a} else {b}
+let intMax = (a: int, b: int) =>
+  if a > b {
+    a
+  } else {
+    b
+  }
+let intMin = (a: int, b: int) =>
+  if a < b {
+    a
+  } else {
+    b
+  }
 
 let useScheduledServerAutosave = (
   ~state: state,
@@ -46,7 +56,10 @@ let useScheduledServerAutosave = (
     | PersistencePreferences.Off | PersistencePreferences.LocalOnly => false
     }
     let shouldSync =
-      canUseServerAutosave && canSyncToServer() && Array.length(activeScenes) > 0 && !isProjectLoading
+      canUseServerAutosave &&
+      canSyncToServer() &&
+      Array.length(activeScenes) > 0 &&
+      !isProjectLoading
 
     let scheduleSync = (delayMs: int) => {
       switch refs.snapshotTimeoutRef.current {
@@ -66,38 +79,49 @@ let useScheduledServerAutosave = (
           | None => Api.ProjectApi.syncSnapshot(~projectData, ~origin=Auto)
           }
           syncPromise
-          ->Promise.then(result => {
-            switch result {
-            | Ok(syncResult) =>
-              refs.lastSnapshotRevisionRef.current = syncState.structuralRevision
-              refs.lastServerSyncAtMsRef.current = Date.now()
-              refs.dirtySinceMsRef.current = 0.0
-              refs.burstChangeCountRef.current = 0
-              let assetSignature = localAssetSyncSignature(syncState)
-              if assetSignature != "" && assetSignature != refs.lastAssetSyncSignatureRef.current {
-                Api.ProjectApi.syncSnapshotAssets(~sessionId=syncResult.sessionId, ~state=syncState)
-                ->Promise.then(assetResult => {
-                  switch assetResult {
-                  | Ok(_) => refs.lastAssetSyncSignatureRef.current = assetSignature
-                  | Error(_) => ()
-                  }
-                  Promise.resolve()
-                })
-                ->ignore
+          ->Promise.then(
+            result => {
+              switch result {
+              | Ok(syncResult) =>
+                refs.lastSnapshotRevisionRef.current = syncState.structuralRevision
+                refs.lastServerSyncAtMsRef.current = Date.now()
+                refs.dirtySinceMsRef.current = 0.0
+                refs.burstChangeCountRef.current = 0
+                let assetSignature = localAssetSyncSignature(syncState)
+                if (
+                  assetSignature != "" && assetSignature != refs.lastAssetSyncSignatureRef.current
+                ) {
+                  Api.ProjectApi.syncSnapshotAssets(
+                    ~sessionId=syncResult.sessionId,
+                    ~state=syncState,
+                  )
+                  ->Promise.then(
+                    assetResult => {
+                      switch assetResult {
+                      | Ok(_) => refs.lastAssetSyncSignatureRef.current = assetSignature
+                      | Error(_) => ()
+                      }
+                      Promise.resolve()
+                    },
+                  )
+                  ->ignore
+                }
+                switch syncState.sessionId {
+                | Some(_) => ()
+                | None => dispatch(SetSessionId(syncResult.sessionId))
+                }
+              | Error(_) => ()
               }
-              switch syncState.sessionId {
-              | Some(_) => ()
-              | None => dispatch(SetSessionId(syncResult.sessionId))
-              }
-            | Error(_) => ()
-            }
-            refs.syncInFlightRef.current = false
-            Promise.resolve()
-          })
-          ->Promise.catch(_ => {
-            refs.syncInFlightRef.current = false
-            Promise.resolve()
-          })
+              refs.syncInFlightRef.current = false
+              Promise.resolve()
+            },
+          )
+          ->Promise.catch(
+            _ => {
+              refs.syncInFlightRef.current = false
+              Promise.resolve()
+            },
+          )
           ->ignore
         }
       }, delayMs)
@@ -125,20 +149,23 @@ let useScheduledServerAutosave = (
       refs.lastChangeAtMsRef.current = now
 
       let policy = cadencePolicy(prefs.snapshotCadence)
-      let burstDelay =
-        if refs.burstChangeCountRef.current >= policy.burstThreshold {
-          policy.burstDelayMs
-        } else {
-          policy.idleDelayMs
-        }
+      let burstDelay = if refs.burstChangeCountRef.current >= policy.burstThreshold {
+        policy.burstDelayMs
+      } else {
+        policy.idleDelayMs
+      }
       let sinceLastSync = now -. refs.lastServerSyncAtMsRef.current
-      let cooldownRemaining = intMax(0, 800 - (sinceLastSync->Belt.Int.fromFloat))
+      let cooldownRemaining = intMax(0, 800 - sinceLastSync->Belt.Int.fromFloat)
       let maxStalenessRemaining = intMax(
         0,
         policy.maxStalenessMs - (now -. refs.dirtySinceMsRef.current)->Belt.Int.fromFloat,
       )
       let baseDelay = intMax(cooldownRemaining, burstDelay)
-      let finalDelay = if maxStalenessRemaining == 0 {250} else {intMin(baseDelay, maxStalenessRemaining)}
+      let finalDelay = if maxStalenessRemaining == 0 {
+        250
+      } else {
+        intMin(baseDelay, maxStalenessRemaining)
+      }
       scheduleSync(finalDelay)
       Some(() => ())
     }
@@ -161,14 +188,14 @@ let useFlushServerAutosave = (
       }
       let flushState = refs.latestStateRef.current
       let activeScenes = SceneInventory.getActiveScenes(flushState.inventory, flushState.sceneOrder)
-      if
+      if (
         canUseServerAutosave &&
         canSyncToServer() &&
         !refs.syncInFlightRef.current &&
         !isProjectLoading &&
         Array.length(activeScenes) > 0 &&
         flushState.structuralRevision > refs.lastSnapshotRevisionRef.current
-      {
+      ) {
         let projectData = ProjectSystem.encodeProjectFromState(flushState)
         let syncPromise = switch flushState.sessionId {
         | Some(id) => Api.ProjectApi.syncSnapshot(~sessionId=id, ~projectData, ~origin=Auto)
@@ -184,13 +211,15 @@ let useFlushServerAutosave = (
             let assetSignature = localAssetSyncSignature(flushState)
             if assetSignature != "" && assetSignature != refs.lastAssetSyncSignatureRef.current {
               Api.ProjectApi.syncSnapshotAssets(~sessionId=syncResult.sessionId, ~state=flushState)
-              ->Promise.then(assetResult => {
-                switch assetResult {
-                | Ok(_) => refs.lastAssetSyncSignatureRef.current = assetSignature
-                | Error(_) => ()
-                }
-                Promise.resolve()
-              })
+              ->Promise.then(
+                assetResult => {
+                  switch assetResult {
+                  | Ok(_) => refs.lastAssetSyncSignatureRef.current = assetSignature
+                  | Error(_) => ()
+                  }
+                  Promise.resolve()
+                },
+              )
               ->ignore
             }
             switch flushState.sessionId {
@@ -219,9 +248,11 @@ let useFlushServerAutosave = (
     DomBindings.Window.addEventListener("pagehide", flushServerAutosave)
     DomBindings.Window.addEventListener("visibilitychange", onVisibilityChange)
 
-    Some(() => {
-      DomBindings.Window.removeEventListener("pagehide", flushServerAutosave)
-      DomBindings.Window.removeEventListener("visibilitychange", onVisibilityChange)
-    })
+    Some(
+      () => {
+        DomBindings.Window.removeEventListener("pagehide", flushServerAutosave)
+        DomBindings.Window.removeEventListener("visibilitychange", onVisibilityChange)
+      },
+    )
   }, (isProjectLoading, dispatch))
 }

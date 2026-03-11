@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
 
-use super::{project_assets, project_snapshot, SNAPSHOT_FILENAME};
+use super::{SNAPSHOT_FILENAME, project_assets, project_snapshot};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

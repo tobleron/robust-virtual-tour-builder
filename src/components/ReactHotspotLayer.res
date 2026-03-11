@@ -188,8 +188,8 @@ let make = React.memo(() => {
               }
               let badge = hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId)
               let targetSceneNumber =
-                HotspotTarget.resolveSceneId(activeScenes, h)->Option.flatMap(targetSceneId =>
-                  sceneNumberBySceneId->Belt.Map.String.get(targetSceneId)
+                HotspotTarget.resolveSceneId(activeScenes, h)->Option.flatMap(
+                  targetSceneId => sceneNumberBySceneId->Belt.Map.String.get(targetSceneId),
                 )
               let (sequenceLabel, isReturnNode) = switch badge {
               | Some(HotspotSequence.Sequence(_)) => (targetSceneNumber, false)
