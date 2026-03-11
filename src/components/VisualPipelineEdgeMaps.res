@@ -8,7 +8,12 @@ let buildFloorMaps = (
   ~wrapperRect: Dom.rect,
   ~displayNodes: array<VisualPipelineGraph.node>,
   ~activeFloors: array<string>,
-): (Belt.MutableMap.String.t<scenePoint>, Belt.MutableMap.String.t<string>, array<sceneEdgeClip>, Belt.MutableMap.String.t<string>) => {
+): (
+  Belt.MutableMap.String.t<scenePoint>,
+  Belt.MutableMap.String.t<string>,
+  array<sceneEdgeClip>,
+  Belt.MutableMap.String.t<string>,
+) => {
   let centers = Belt.MutableMap.String.make()
   let floorByScene = Belt.MutableMap.String.make()
   displayNodes->Belt.Array.forEach(node =>
@@ -35,10 +40,12 @@ let buildFloorMaps = (
       let rect = el->Dom.getBoundingClientRect
       centers->Belt.MutableMap.String.set(
         node.id,
-        ({
-          x: rect.left -. wrapperRect.left +. rect.width /. 2.0,
-          y: rect.top -. wrapperRect.top +. rect.height /. 2.0,
-        }: scenePoint),
+        (
+          {
+            x: rect.left -. wrapperRect.left +. rect.width /. 2.0,
+            y: rect.top -. wrapperRect.top +. rect.height /. 2.0,
+          }: scenePoint
+        ),
       )
     | None => ()
     }
@@ -50,13 +57,17 @@ let buildFloorMaps = (
       floorBands->Belt.MutableMap.String.get(floorId),
     ) {
     | (Some(clipId), Some(band)) =>
-      Some(({
-        id: clipId,
-        x: 0.0,
-        y: band.yTop,
-        width: wrapperRect.width,
-        height: band.yBottom -. band.yTop,
-      }: sceneEdgeClip))
+      Some(
+        (
+          {
+            id: clipId,
+            x: 0.0,
+            y: band.yTop,
+            width: wrapperRect.width,
+            height: band.yBottom -. band.yTop,
+          }: sceneEdgeClip
+        ),
+      )
     | _ => None
     }
   )

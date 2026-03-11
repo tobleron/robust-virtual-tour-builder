@@ -36,12 +36,7 @@ let handleUpdateHotspotMetadata = (
   hotspotIndex: int,
   metadata: JSON.t,
 ): state => {
-  HotspotHelpersLogic.handleUpdateHotspotMetadataState(
-    state,
-    sceneIndex,
-    hotspotIndex,
-    metadata,
-  )
+  HotspotHelpersLogic.handleUpdateHotspotMetadataState(state, sceneIndex, hotspotIndex, metadata)
 }
 
 let handleStartMovingHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {

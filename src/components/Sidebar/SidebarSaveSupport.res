@@ -33,7 +33,10 @@ let saveToServer = async (~state, ~dispatch, ~onPhase: option<string => unit>=?)
       | Some(notify) => notify("Uploading " ++ Belt.Int.toString(assetsToSync) ++ " assets...")
       | None => ()
       }
-      let assetResult = await Api.ProjectApi.syncSnapshotAssets(~sessionId=syncResult.sessionId, ~state)
+      let assetResult = await Api.ProjectApi.syncSnapshotAssets(
+        ~sessionId=syncResult.sessionId,
+        ~state,
+      )
       switch assetResult {
       | Ok(_) => true
       | Error(msg) =>
@@ -102,20 +105,16 @@ let handleSave = async (~mode, ~getState, ~signal, ~onCancel, ~dispatch) => {
       SidebarLogic.updateProgress(~dispatch, ~onCancel, 10.0, "Saving metadata...", true, "Save")
       OperationLifecycle.progress(opId, 15.0, ~message="Saving metadata...", ~phase="Save", ())
       let assets = localAssetCount(state)
-      let success = await saveToServer(
-        ~state,
-        ~dispatch,
-        ~onPhase=message => {
-          SidebarLogic.updateProgress(~dispatch, ~onCancel, 70.0, message, true, "Save")
-          OperationLifecycle.progress(opId, 70.0, ~message, ~phase="Uploading", ())
-        },
-      )
+      let success = await saveToServer(~state, ~dispatch, ~onPhase=message => {
+        SidebarLogic.updateProgress(~dispatch, ~onCancel, 70.0, message, true, "Save")
+        OperationLifecycle.progress(opId, 70.0, ~message, ~phase="Uploading", ())
+      })
       if success {
         let finalMessage = if assets > 0 {
-            "Server snapshot saved with assets"
-          } else {
-            "Server snapshot saved"
-          }
+          "Server snapshot saved with assets"
+        } else {
+          "Server snapshot saved"
+        }
         OperationLifecycle.complete(opId, ~result=finalMessage, ())
       } else {
         OperationLifecycle.fail(opId, "Server save failed")
@@ -124,21 +123,24 @@ let handleSave = async (~mode, ~getState, ~signal, ~onCancel, ~dispatch) => {
     | PersistencePreferences.Both =>
       SidebarLogic.updateProgress(~dispatch, ~onCancel, 10.0, "Saving metadata...", true, "Save")
       OperationLifecycle.progress(opId, 15.0, ~message="Saving metadata...", ~phase="Save", ())
-      let serverSuccess = await saveToServer(
-        ~state,
-        ~dispatch,
-        ~onPhase=message => {
-          SidebarLogic.updateProgress(~dispatch, ~onCancel, 45.0, message, true, "Save")
-          OperationLifecycle.progress(opId, 45.0, ~message, ~phase="Uploading", ())
-        },
-      )
+      let serverSuccess = await saveToServer(~state, ~dispatch, ~onPhase=message => {
+        SidebarLogic.updateProgress(~dispatch, ~onCancel, 45.0, message, true, "Save")
+        OperationLifecycle.progress(opId, 45.0, ~message, ~phase="Uploading", ())
+      })
       if serverSuccess {
-        SidebarLogic.updateProgress(~dispatch, ~onCancel, 55.0, "Creating offline package...", true, "Save")
+        SidebarLogic.updateProgress(
+          ~dispatch,
+          ~onCancel,
+          55.0,
+          "Creating offline package...",
+          true,
+          "Save",
+        )
         await ProjectManager.saveProject(
           state,
           ~signal,
           ~onProgress=(pct, _t, msg) => {
-            let adjusted = 55.0 +. (pct->Int.toFloat *. 0.45)
+            let adjusted = 55.0 +. pct->Int.toFloat *. 0.45
             SidebarLogic.updateProgress(~dispatch, ~onCancel, adjusted, msg, true, "Save")
           },
           ~opId,

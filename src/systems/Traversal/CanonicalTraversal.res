@@ -101,11 +101,21 @@ let deriveTraversalSnapshot = (
   }
 }
 
-let deriveReturnLinkIdSet = (~activeScenes: array<scene>, ~parentBySceneId: Belt.Map.String.t<string>) =>
-  CanonicalTraversalSupport.deriveReturnLinkIdSet(~activeScenes, ~parentBySceneId)
+let deriveReturnLinkIdSet = (
+  ~activeScenes: array<scene>,
+  ~parentBySceneId: Belt.Map.String.t<string>,
+) => CanonicalTraversalSupport.deriveReturnLinkIdSet(~activeScenes, ~parentBySceneId)
 
-let collectForwardRefs = (~activeScenes: array<scene>, ~traversalOrderByLinkId: Belt.Map.String.t<int>, ~returnLinkIdSet: Belt.Set.String.t) =>
-  CanonicalTraversalSupport.collectForwardRefs(~activeScenes, ~traversalOrderByLinkId, ~returnLinkIdSet)
+let collectForwardRefs = (
+  ~activeScenes: array<scene>,
+  ~traversalOrderByLinkId: Belt.Map.String.t<int>,
+  ~returnLinkIdSet: Belt.Set.String.t,
+) =>
+  CanonicalTraversalSupport.collectForwardRefs(
+    ~activeScenes,
+    ~traversalOrderByLinkId,
+    ~returnLinkIdSet,
+  )
 let sortDefaultForwardRefs = (refs: array<forwardRef>): array<forwardRef> =>
   CanonicalTraversalSupport.sortDefaultForwardRefs(refs)
 let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> =>
@@ -115,9 +125,8 @@ let isValidForwardOrder = (~ordered: array<forwardRef>): bool =>
 let moveRefToIndex = (~ordered: array<forwardRef>, ~currentIndex: int, ~nextIndex: int): array<
   forwardRef,
 > => CanonicalTraversalSupport.moveRefToIndex(~ordered, ~currentIndex, ~nextIndex)
-let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<
-  array<int>,
-> => CanonicalTraversalSupport.deriveAdmissibleOrdersByLinkId(~ordered)
+let deriveAdmissibleOrdersByLinkId = (~ordered: array<forwardRef>): Belt.Map.String.t<array<int>> =>
+  CanonicalTraversalSupport.deriveAdmissibleOrdersByLinkId(~ordered)
 
 let derive = (~state: state, ~maxSteps: int=400): model => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)

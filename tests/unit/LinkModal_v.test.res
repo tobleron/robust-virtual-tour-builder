@@ -26,6 +26,31 @@ describe("LinkModal", () => {
     }
   }
 
+  test("destination option labels include stable scene number when available", t => {
+    let scene = {...createScene("Zoom Out View"), id: "scene-1", label: "Zoom Out View"}
+    let withNumber = LinkModal.formatDestinationOptionLabel(~sceneNumber=Some(1), ~scene)
+    let withoutNumber = LinkModal.formatDestinationOptionLabel(~sceneNumber=None, ~scene)
+
+    t->expect(withNumber)->Expect.toBe("#1 Zoom Out View")
+    t->expect(withoutNumber)->Expect.toBe("Zoom Out View")
+  })
+
+  test("sequence option labels show sequence to scene pairing", t => {
+    let label = LinkModal.formatSequenceOptionLabel(
+      ~sequence=52,
+      ~targetSceneNumber=Some(1),
+      ~targetLabel="Zoom Out View",
+    )
+    let fallbackLabel = LinkModal.formatSequenceOptionLabel(
+      ~sequence=7,
+      ~targetSceneNumber=None,
+      ~targetLabel="Kitchen",
+    )
+
+    t->expect(label)->Expect.toBe("52 -> #1 Zoom Out View")
+    t->expect(fallbackLabel)->Expect.toBe("7 -> Kitchen")
+  })
+
   test("showLinkModal should dispatch ShowModal with correct content", t => {
     // Setup State
     let scene1 = createScene("Scene1")

@@ -56,13 +56,7 @@ let makeTaskSeed = (~targetSceneId: string, ~taskCounterRef, ~runIdRef) => {
   }
 }
 
-let updateLifecyclePhase = (
-  ~currentTaskOpt,
-  ~newStatus,
-  ~getOpId,
-  ~isSwapping,
-  ~isStabilizing,
-) => {
+let updateLifecyclePhase = (~currentTaskOpt, ~newStatus, ~getOpId, ~isSwapping, ~isStabilizing) => {
   let update = (progressValue, phase) =>
     currentTaskOpt->Option.forEach(task =>
       getOpId(task)->Option.forEach(id =>

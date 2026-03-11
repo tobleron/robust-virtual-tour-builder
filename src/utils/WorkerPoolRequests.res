@@ -37,13 +37,10 @@ let runRequest = (
         resolve(value)
       }
     }
-    let removeOnAbort = installAbortHandler(
-      ~signal?,
-      ~onAbort=(() => {
-        let _ = removeWaiter(pool, id)
-        finish(abortValue)
-      }),
-    )
+    let removeOnAbort = installAbortHandler(~signal?, ~onAbort=() => {
+      let _ = removeWaiter(pool, id)
+      finish(abortValue)
+    })
     waitersRef := Belt.Array.concat(waitersRef.contents, [{id, resolve}])
     waitersRef :=
       waitersRef.contents->Belt.Array.map(waiter =>

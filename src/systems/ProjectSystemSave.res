@@ -4,10 +4,10 @@ open Types
 type onProgress = (int, int, string) => unit
 type apiError = string
 
-let resolveOperationId = (
-  state: state,
-  ~opId: option<OperationLifecycle.operationId>=?,
-): (bool, OperationLifecycle.operationId) => {
+let resolveOperationId = (state: state, ~opId: option<OperationLifecycle.operationId>=?): (
+  bool,
+  OperationLifecycle.operationId,
+) => {
   switch opId {
   | Some(id) => (false, id)
   | None =>
@@ -104,11 +104,9 @@ let appendLogoToSavePackage = (formData, state: state): Promise.t<unit> => {
   }
 }
 
-let finishLifecycle = (
-  ~ownsLifecycle,
-  ~opId,
-  result: result<Blob.t, apiError>,
-): Promise.t<result<Blob.t, apiError>> => {
+let finishLifecycle = (~ownsLifecycle, ~opId, result: result<Blob.t, apiError>): Promise.t<
+  result<Blob.t, apiError>,
+> => {
   switch result {
   | Ok(blob) =>
     if ownsLifecycle {
@@ -160,13 +158,15 @@ let createSavePackage = (
         ~operationId=opId,
         ~dedupeKey="project-save-op:" ++ opId,
         (),
-      )->Promise.then(retryResult => {
-        switch retryResult {
-        | Retry.Success(response, _att) =>
-          AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
-        | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
-        }
-      })
+      )->Promise.then(
+        retryResult => {
+          switch retryResult {
+          | Retry.Success(response, _att) =>
+            AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
+          | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
+          }
+        },
+      )
     })
   })
   ->Promise.then(blobResult => {

@@ -18,8 +18,7 @@ pub(super) async fn enforce_failed_login_rate_limit(
     device_token_hash: Option<&str>,
 ) -> Result<(), AppError> {
     let (account_failed, ip_failed) =
-        super::count_recent_failed_logins(pool, user_id, email, context, device_token_hash)
-            .await?;
+        super::count_recent_failed_logins(pool, user_id, email, context, device_token_hash).await?;
     let account_limit = super::config_i64(
         "MAX_FAILED_LOGIN_BY_ACCOUNT_WINDOW",
         MAX_FAILED_LOGIN_BY_ACCOUNT_WINDOW_DEFAULT,
@@ -186,10 +185,8 @@ pub(super) async fn enforce_otp_issue_rate_limit(
     user_id: &str,
     context: &LoginContext,
 ) -> Result<(), AppError> {
-    let max_per_hour = super::config_i64(
-        "MAX_OTP_ISSUES_PER_HOUR",
-        MAX_OTP_ISSUES_PER_HOUR_DEFAULT,
-    );
+    let max_per_hour =
+        super::config_i64("MAX_OTP_ISSUES_PER_HOUR", MAX_OTP_ISSUES_PER_HOUR_DEFAULT);
     let window_start = Utc::now() - Duration::hours(1);
     let issued_by_user = sqlx::query_scalar::<_, i64>(
         "SELECT COUNT(*) FROM otp_challenges WHERE user_id = ? AND issued_at >= ?",

@@ -354,8 +354,8 @@ describe("Exporter", () => {
 
     let fetchCalls = %raw(`() => globalThis.fetch.mock.calls.map(call => call[0])`)()
     let requestedDefaultLogo =
-      fetchCalls->Belt.Array.some(url =>
-        String.includes(url, "/images/logo.") || String.includes(url, "/images/logo")
+      fetchCalls->Belt.Array.some(
+        url => String.includes(url, "/images/logo.") || String.includes(url, "/images/logo"),
       )
     t->expect(requestedDefaultLogo)->Expect.toBe(false)
   })

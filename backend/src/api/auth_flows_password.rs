@@ -1,11 +1,11 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use crate::models::{AppError, User};
 
-use super::super::{ForgotPasswordPayload, ResetPasswordPayload, PASSWORD_RESET_TOKEN_TTL_HOURS};
+use super::super::{ForgotPasswordPayload, PASSWORD_RESET_TOKEN_TTL_HOURS, ResetPasswordPayload};
 
 pub(super) async fn forgot_password(
     pool: web::Data<SqlitePool>,
@@ -77,9 +77,8 @@ pub(super) async fn reset_password(
     .await
     .map_err(|error| AppError::InternalError(format!("Reset token lookup failed: {}", error)))?;
 
-    let (user_id, expires_at, consumed_at) = row.ok_or_else(|| {
-        AppError::ValidationError("Reset token is invalid or expired.".into())
-    })?;
+    let (user_id, expires_at, consumed_at) =
+        row.ok_or_else(|| AppError::ValidationError("Reset token is invalid or expired.".into()))?;
     if consumed_at.is_some() || Utc::now() > expires_at {
         return Err(AppError::ValidationError(
             "Reset token is invalid or expired.".into(),
@@ -134,7 +133,9 @@ pub(super) async fn reset_password(
         .bind(hashed_lookup)
         .execute(pool.get_ref())
         .await
-        .map_err(|error| AppError::InternalError(format!("Reset token consume failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Reset token consume failed: {}", error))
+        })?;
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "ok": true,

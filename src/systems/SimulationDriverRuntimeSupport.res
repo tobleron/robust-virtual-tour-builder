@@ -14,16 +14,15 @@ let evaluateAdvanceDecision = (
   ~completedSceneIdRef: React.ref<option<string>>,
   ~retryCountRef: React.ref<int>,
 ) => {
-  let decision =
-    SimulationAdvancement.evaluate({
-      isFirstScene: state.simulation.visitedLinkIds->Belt.Array.length == 0,
-      currentSceneId: Some(sceneId),
-      completedSceneId: completedSceneIdRef.current,
-      navigationStateIsIdle: state.navigationState.navigationFsm == IdleFsm,
-      operationLifecycleIsBusy: OperationLifecycle.isBusy(~type_=Navigation, ()),
-      retryCount: retryCountRef.current,
-      maxRetries: 3,
-    })
+  let decision = SimulationAdvancement.evaluate({
+    isFirstScene: state.simulation.visitedLinkIds->Belt.Array.length == 0,
+    currentSceneId: Some(sceneId),
+    completedSceneId: completedSceneIdRef.current,
+    navigationStateIsIdle: state.navigationState.navigationFsm == IdleFsm,
+    operationLifecycleIsBusy: OperationLifecycle.isBusy(~type_=Navigation, ()),
+    retryCount: retryCountRef.current,
+    maxRetries: 3,
+  })
 
   Logger.info(
     ~module_="Simulation",
@@ -84,14 +83,7 @@ let handleAdvance = async (
   logNextMoveResult(move)
 
   switch move {
-  | SimulationMainLogic.Move({
-      targetIndex,
-      hotspotIndex,
-      yaw,
-      pitch,
-      hfov,
-      triggerActions,
-    }) =>
+  | SimulationMainLogic.Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
     navigationCompleteRef.current = false
     completedSceneIdRef.current = None
     triggerActions->Belt.Array.forEach(a => dispatch(a))

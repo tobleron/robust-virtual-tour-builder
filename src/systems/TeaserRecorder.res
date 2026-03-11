@@ -188,7 +188,7 @@ let renderFrame = (
       ~canvasHeight,
       ~fadeOpacity=internalState.contents.fadeOpacity,
       ~snapshotCanvas=internalState.contents.snapshotCanvas,
-      ~renderOverlay=(() =>
+      ~renderOverlay=() =>
         overlay->Option.forEach(data => {
           data.roomLabel->Option.forEach(roomLabel => {
             if roomLabel->String.trim != "" {
@@ -199,16 +199,14 @@ let renderFrame = (
           data.marketing->Option.forEach(marketing =>
             renderMarketingBanner(ctx, marketing, hudScale)
           )
-        })
-      ),
-      ~renderLogo=(() =>
+        }),
+      ~renderLogo=() =>
         if includeLogo && logoState.loaded {
           switch logoState.img {
           | Some(img) => renderWatermark(ctx, img, hudScale)
           | None => ()
           }
-        }
-      ),
+        },
     )
   | None => ()
   }

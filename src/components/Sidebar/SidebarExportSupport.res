@@ -80,7 +80,8 @@ let updateProgressEta = (~tracker, ~pct: float, ~msg: string) => {
           if tracker.emaSecondsPerMb.contents <= 0.0 {
             tracker.emaSecondsPerMb := instSecondsPerMb
           } else {
-            tracker.emaSecondsPerMb := 0.7 *. tracker.emaSecondsPerMb.contents +. 0.3 *. instSecondsPerMb
+            tracker.emaSecondsPerMb :=
+              0.7 *. tracker.emaSecondsPerMb.contents +. 0.3 *. instSecondsPerMb
           }
           tracker.uploadSampleCount := tracker.uploadSampleCount.contents + 1
         }
@@ -96,7 +97,8 @@ let updateProgressEta = (~tracker, ~pct: float, ~msg: string) => {
       if tracker.emaProgressPerSecond.contents <= 0.0 {
         tracker.emaProgressPerSecond := instRate
       } else {
-        tracker.emaProgressPerSecond := 0.82 *. tracker.emaProgressPerSecond.contents +. 0.18 *. instRate
+        tracker.emaProgressPerSecond :=
+          0.82 *. tracker.emaProgressPerSecond.contents +. 0.18 *. instRate
       }
       tracker.lastPctSample := pct
       tracker.lastSampleAtMs := now
@@ -105,21 +107,25 @@ let updateProgressEta = (~tracker, ~pct: float, ~msg: string) => {
     let elapsedSec = (now -. tracker.startedAtMs) /. 1000.0
     if (
       !tracker.etaReady.contents &&
-        elapsedSec >= 10.0 &&
-        (tracker.packagingSampleCount.contents >= 2 ||
-        tracker.uploadSampleCount.contents >= 2 ||
-        (pct >= 20.0 && tracker.emaProgressPerSecond.contents > 0.0))
+      elapsedSec >= 10.0 &&
+      (tracker.packagingSampleCount.contents >= 2 ||
+      tracker.uploadSampleCount.contents >= 2 ||
+      (pct >= 20.0 && tracker.emaProgressPerSecond.contents > 0.0))
     ) {
       tracker.etaReady := true
     }
 
     if now -. tracker.lastEtaToastAtMs.contents >= 1500.0 {
-      let remainingScenes = if tracker.knownTotalScenes.contents > tracker.lastPackagedSceneSample.contents {
+      let remainingScenes = if (
+        tracker.knownTotalScenes.contents > tracker.lastPackagedSceneSample.contents
+      ) {
         tracker.knownTotalScenes.contents - tracker.lastPackagedSceneSample.contents
       } else {
         0
       }
-      let remainingMb = if tracker.knownTotalUploadMb.contents > tracker.lastUploadedMbSample.contents {
+      let remainingMb = if (
+        tracker.knownTotalUploadMb.contents > tracker.lastUploadedMbSample.contents
+      ) {
         tracker.knownTotalUploadMb.contents -. tracker.lastUploadedMbSample.contents
       } else {
         0.0

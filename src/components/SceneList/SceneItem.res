@@ -137,29 +137,29 @@ let make = React.memo((
 
         <div className="flex items-center gap-2 mt-1">
           /* Format & Technical Meta */
-          {
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span
-                className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${displayInfo.fileMeta.badgeColor}`}
-              >
-                {React.string(displayInfo.fileMeta.formatLabel)}
+          {<div className="flex items-center gap-1.5 shrink-0">
+            <span
+              className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${displayInfo.fileMeta.badgeColor}`}
+            >
+              {React.string(displayInfo.fileMeta.formatLabel)}
+            </span>
+            {if displayInfo.fileMeta.formattedSize != "" {
+              <span className="text-[9px] font-medium text-slate-400">
+                {React.string(displayInfo.fileMeta.formattedSize)}
               </span>
-              {if displayInfo.fileMeta.formattedSize != "" {
-                <span className="text-[9px] font-medium text-slate-400">
-                  {React.string(displayInfo.fileMeta.formattedSize)}
-                </span>
-              } else {
-                React.null
-              }}
-            </div>
-          }
+            } else {
+              React.null
+            }}
+          </div>}
         </div>
         <div className="flex items-center mt-2">
           <div className="flex-1 relative">
             <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-1000 ease-out rounded-full ${displayInfo.quality.colorClass}`}
-                style={makeStyle({"width": Float.toString(displayInfo.quality.progressPercent) ++ "%"})}
+                style={makeStyle({
+                  "width": Float.toString(displayInfo.quality.progressPercent) ++ "%",
+                })}
               />
             </div>
             <span

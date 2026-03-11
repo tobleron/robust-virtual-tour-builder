@@ -40,21 +40,14 @@ let script = `
         labelEl.classList.remove("state-visible");
         labelEl.classList.add("state-hidden");
       };
-      const getSceneSequenceNumber = sid => {
-        if (typeof getCurrentSceneSequenceCursor === "function" && sid === window.viewer?.getScene?.()) {
-          const currentSeq = getCurrentSceneSequenceCursor(sid, scenesData?.[sid]);
-          if (Number.isInteger(currentSeq) && currentSeq >= 0) return currentSeq + 1;
-        }
-        if (typeof resolveFirstSequencePositionForScene === "function") {
-          const seq = resolveFirstSequencePositionForScene(sid);
-          return Number.isInteger(seq) && seq >= 1 ? seq : null;
-        }
-        return null;
+      const getSceneNumber = sid => {
+        const rawSceneNumber = scenesData?.[sid]?.sceneNumber;
+        return Number.isInteger(rawSceneNumber) && rawSceneNumber >= 1 ? rawSceneNumber : null;
       };
       const rawLabel = typeof scenesData[sceneId]?.label === "string" ? scenesData[sceneId].label.trim() : "";
       if (rawLabel !== "") {
         while (labelEl.firstChild) labelEl.removeChild(labelEl.firstChild);
-        const seqNo = getSceneSequenceNumber(sceneId);
+        const seqNo = getSceneNumber(sceneId);
         const seqEl = document.createElement("span");
         seqEl.className = "viewer-persistent-label-export-seq";
         seqEl.textContent = "# " + (Number.isInteger(seqNo) ? String(seqNo) : "-");
@@ -73,29 +66,26 @@ let script = `
       }
       clearLabel();
     }
-    function buildSceneSequenceRows() {
-      const sceneSequenceRows = [];
-      if (typeof buildSceneSequencePositionMaps === "function") {
-        buildSceneSequencePositionMaps();
-      }
-      if (typeof sceneIdBySequencePosition?.forEach === "function") {
-        sceneIdBySequencePosition.forEach((sceneId, sequence) => {
-          sceneSequenceRows.push({ sequence, sceneId });
+    function buildSceneNumberRows() {
+      const sceneNumberRows = [];
+      if (scenesData && typeof scenesData === "object") {
+        Object.entries(scenesData).forEach(([sceneId, sceneData]) => {
+          const sceneNumber = Number.isInteger(sceneData?.sceneNumber) ? sceneData.sceneNumber : null;
+          if (Number.isInteger(sceneNumber) && sceneNumber >= 1) {
+            sceneNumberRows.push({ sceneNumber, sceneId });
+          }
         });
       }
-      sceneSequenceRows.sort((a, b) => a.sequence - b.sequence);
-      return sceneSequenceRows;
+      sceneNumberRows.sort((a, b) => a.sceneNumber - b.sceneNumber);
+      return sceneNumberRows;
     }
-    function navigateToSceneBySequenceValue(chosen) {
+    function navigateToSceneByNumberValue(chosen) {
       if (!Number.isInteger(chosen) || chosen < 1) return false;
-      const sceneSequenceRows = buildSceneSequenceRows();
-      if (sceneSequenceRows.length === 0) return false;
-      const targetEntry = sceneSequenceRows.find(item => item.sequence === chosen);
+      const sceneNumberRows = buildSceneNumberRows();
+      if (sceneNumberRows.length === 0) return false;
+      const targetEntry = sceneNumberRows.find(item => item.sceneNumber === chosen);
       if (!targetEntry || !targetEntry.sceneId) return false;
-      navigateToFloorTagShortcut(
-        targetEntry.sceneId,
-        { fromMap: true, sequencePosition: targetEntry.sequence },
-      );
+      navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });
       return true;
     }
     function isSceneSequencePromptOpen() {
@@ -114,7 +104,7 @@ let script = `
     function submitSceneSequencePrompt() {
       const normalized = String(mapSequenceInputState.value || "").trim().toLowerCase();
       if (normalized === "") {
-        mapSequenceInputState.error = "enter a sequence number";
+        mapSequenceInputState.error = "enter a scene number";
         return false;
       }
       if (normalized === "e") {
@@ -122,9 +112,9 @@ let script = `
         return true;
       }
       const chosen = Number.parseInt(normalized, 10);
-      const didNavigate = navigateToSceneBySequenceValue(chosen);
+      const didNavigate = navigateToSceneByNumberValue(chosen);
       if (!didNavigate) {
-        mapSequenceInputState.error = "invalid sequence";
+        mapSequenceInputState.error = "invalid scene";
         return false;
       }
       mapSequenceInputState.error = "";
@@ -132,7 +122,7 @@ let script = `
       return true;
     }
     function openSceneSequencePrompt() {
-      const rows = buildSceneSequenceRows();
+      const rows = buildSceneNumberRows();
       if (rows.length === 0) return false;
       mapSequenceInputState.isOpen = true;
       mapSequenceInputState.error = "";
@@ -155,8 +145,8 @@ let script = `
     function renderMapSequencePromptPanel(panel) {
       removeMapSequencePromptPanel();
       if (!panel || mapSequenceInputState.isOpen !== true) return;
-      const rows = buildSceneSequenceRows();
-      const maxSeq = rows.length > 0 ? rows[rows.length - 1].sequence : 0;
+      const rows = buildSceneNumberRows();
+      const maxSceneNumber = rows.length > 0 ? rows[rows.length - 1].sceneNumber : 0;
       const prompt = document.createElement("div");
       prompt.id = "viewer-map-sequence-prompt-export";
       prompt.className = "map-sequence-prompt-export";
@@ -174,8 +164,8 @@ let script = `
       input.setAttribute("inputmode", "numeric");
       input.setAttribute("autocomplete", "off");
       input.setAttribute("spellcheck", "false");
-      input.setAttribute("aria-label", "Scene sequence input");
-      input.placeholder = maxSeq > 0 ? "1-" + String(maxSeq) : "";
+      input.setAttribute("aria-label", "Scene number input");
+      input.placeholder = maxSceneNumber > 0 ? "1-" + String(maxSceneNumber) : "";
       input.value = String(mapSequenceInputState.value || "");
       input.addEventListener("input", event => {
         mapSequenceInputState.value = event?.target?.value ?? "";
@@ -325,11 +315,8 @@ let script = `
       const sceneId = floorTagShortcutState.sceneId;
       const prevSceneId = floorTagShortcutState.prevSceneId;
       const prevHotspotIndex = floorTagShortcutState.prevHotspotIndex;
-      const prevUsesReturnLink = floorTagShortcutState.prevUsesReturnLink === true;
+      const prevSequenceNumber = floorTagShortcutState.prevSequenceNumber;
       if (!sceneId || !prevSceneId) return false;
-      if (prevUsesReturnLink && typeof navigateReturnHotspotFromCurrentScene === "function") {
-        return navigateReturnHotspotFromCurrentScene();
-      }
       if (Number.isInteger(prevHotspotIndex) && prevHotspotIndex >= 0) {
         const hotspot = scenesData?.[sceneId]?.hotSpots?.[prevHotspotIndex];
         if (hotspot) {
@@ -347,7 +334,7 @@ let script = `
             {
               sourceSceneId: sceneId,
               targetSceneId: prevSceneId,
-              sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+              sequenceCursorOverride: prevSequenceNumber,
             },
           );
           return true;
@@ -359,7 +346,7 @@ let script = `
         {
           sourceSceneId: sceneId,
           targetSceneId: prevSceneId,
-          sequenceCursorOverride: getCurrentSceneSequenceCursor(sceneId, scenesData?.[sceneId]),
+          sequenceCursorOverride: prevSequenceNumber,
         },
       );
       return true;
@@ -384,6 +371,9 @@ let script = `
       clearAutoTourCompletionCountdown();
       floorTagShortcutState.isAutoTourActive = true;
       window.isAutoTourActive = true;
+      if (typeof resetAutoTourManifestCursor === "function") {
+        resetAutoTourManifestCursor();
+      }
       if (typeof applyAutoTourBaseSpeed === "function") {
         applyAutoTourBaseSpeed();
       }
@@ -405,6 +395,9 @@ let script = `
       if (!floorTagShortcutState.isAutoTourActive) return;
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
+      if (typeof resetAutoTourManifestCursor === "function") {
+        resetAutoTourManifestCursor();
+      }
       if (typeof resetAutoTourSpeedMultiplier === "function") {
         resetAutoTourSpeedMultiplier();
       }
@@ -423,6 +416,7 @@ let script = `
       floorTagShortcutState.nextHotspotIndex = null;
       floorTagShortcutState.nextSequenceNumber = null;
       floorTagShortcutState.prevHotspotIndex = null;
+      floorTagShortcutState.prevSequenceNumber = null;
       floorTagShortcutState.prevUsesReturnLink = false;
       if (!panel) return;
       while (panel.firstChild) panel.removeChild(panel.firstChild);
@@ -520,23 +514,21 @@ let script = `
       if (!currentSceneData) return;
 
       // Navigation Logic: Next (Up) and Previous (Down)
-      const preferredTarget = resolvePreferredNavigationTarget(sceneId, currentSceneData);
-      const backtrackTarget = resolveBacktrackTarget(sceneId, currentSceneData);
-      const nextSceneId =
-        preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)
-          ? preferredTarget.targetSceneId
-          : null;
-      const shouldHideBacktrack = !!nextSceneId && backtrackTarget?.targetSceneId === nextSceneId;
-      const prevSceneId = !shouldHideBacktrack && backtrackTarget ? backtrackTarget.targetSceneId : null;
+      const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);
+      const nextTarget = shortcutTargets?.nextTarget ?? null;
+      const prevTarget = shortcutTargets?.prevTarget ?? null;
+      const nextSceneId = nextTarget?.targetSceneId ?? null;
+      const prevSceneId = prevTarget?.targetSceneId ?? null;
 
       // Update state for keyboard/input logic
       floorTagShortcutState.sceneId = sceneId;
       floorTagShortcutState.nextSceneId = nextSceneId;
       floorTagShortcutState.prevSceneId = prevSceneId;
-      floorTagShortcutState.nextHotspotIndex = nextSceneId ? preferredTarget.hotspotIndex : null;
-      floorTagShortcutState.nextSequenceNumber = nextSceneId ? preferredTarget.sequenceCursorOverride : null;
-      floorTagShortcutState.prevHotspotIndex = prevSceneId ? backtrackTarget.hotspotIndex : null;
-      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? backtrackTarget?.usesReturnLink === true : false;
+      floorTagShortcutState.nextHotspotIndex = nextSceneId ? nextTarget.hotspotIndex : null;
+      floorTagShortcutState.nextSequenceNumber = nextSceneId ? nextTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevHotspotIndex = prevSceneId ? prevTarget.hotspotIndex : null;
+      floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");

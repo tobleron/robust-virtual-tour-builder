@@ -7,7 +7,13 @@ let cancelTask = (~taskOpt, ~abortTask, ~cancelOp) => {
   }
 }
 
-let resetSupervisorState = (~currentTaskRef, ~statusRef, ~taskCounterRef, ~runIdRef, ~idleStatus) => {
+let resetSupervisorState = (
+  ~currentTaskRef,
+  ~statusRef,
+  ~taskCounterRef,
+  ~runIdRef,
+  ~idleStatus,
+) => {
   currentTaskRef := None
   statusRef := idleStatus
   taskCounterRef := 0

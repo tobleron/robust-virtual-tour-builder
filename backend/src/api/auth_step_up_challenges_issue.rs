@@ -1,4 +1,4 @@
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
@@ -128,7 +128,9 @@ pub(super) async fn resend_step_up_otp(
         ));
     }
     if now > otp_expires_at {
-        return Err(AppError::ValidationError("Verification code expired.".into()));
+        return Err(AppError::ValidationError(
+            "Verification code expired.".into(),
+        ));
     }
     if now < resend_available_at {
         return Err(AppError::ValidationError(
@@ -167,7 +169,9 @@ pub(super) async fn resend_step_up_otp(
         .bind(user_id.clone())
         .fetch_optional(pool.get_ref())
         .await
-        .map_err(|error| AppError::InternalError(format!("Resend OTP user lookup failed: {}", error)))?
+        .map_err(|error| {
+            AppError::InternalError(format!("Resend OTP user lookup failed: {}", error))
+        })?
         .ok_or_else(|| AppError::Unauthorized("User not found.".into()))?;
 
     let subject = "Your updated Robust verification code";

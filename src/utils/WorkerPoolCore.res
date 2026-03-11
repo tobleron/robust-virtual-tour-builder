@@ -100,11 +100,9 @@ let removeTinyWaiter = (pool: state, id: string): option<waiter<option<BrowserBi
 let removeExifWaiter = (pool: state, id: string): option<waiter<option<(int, int)>>> =>
   removeWaiter(pool.exifWaitersRef, id)
 
-let removeFullWaiter = (
-  pool: state,
-  id: string,
-): option<waiter<result<(BrowserBindings.Blob.t, int, int), string>>> =>
-  removeWaiter(pool.fullWaitersRef, id)
+let removeFullWaiter = (pool: state, id: string): option<
+  waiter<result<(BrowserBindings.Blob.t, int, int), string>>,
+> => removeWaiter(pool.fullWaitersRef, id)
 
 let resolveOptionalWaiter = (
   waiterOpt: option<waiter<option<'a>>>,
@@ -112,7 +110,14 @@ let resolveOptionalWaiter = (
   value: option<'a>,
 ) => {
   switch waiterOpt {
-  | Some(waiter) => waiter.resolve(if isOk { value } else { None })
+  | Some(waiter) =>
+    waiter.resolve(
+      if isOk {
+        value
+      } else {
+        None
+      },
+    )
   | None => ()
   }
 }
@@ -130,7 +135,11 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
       )
     | Some("generateTiny") =>
       let tinyPayload: generateTinyResponse = getEventData(evt)
-      resolveOptionalWaiter(removeTinyWaiter(pool, tinyPayload.id), tinyPayload.ok, tinyPayload.tiny)
+      resolveOptionalWaiter(
+        removeTinyWaiter(pool, tinyPayload.id),
+        tinyPayload.ok,
+        tinyPayload.tiny,
+      )
     | Some("extractExif") =>
       let exifPayload: exifResponse = getEventData(evt)
       switch removeExifWaiter(pool, exifPayload.id) {

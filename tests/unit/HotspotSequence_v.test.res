@@ -188,6 +188,16 @@ let makeAutoForwardOrderingState = () => {
   TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
 }
 
+let makeWrapBackSceneNumberState = () => {
+  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
+  let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ())
+  let hCA = makeHotspot(~linkId="hCA", ~targetSceneId="A", ())
+  let sceneA = makeScene(~id="A", ~hotspots=[hAB], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[hBC], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[hCA], ())
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
+}
+
 let readSeq = (badges: Belt.Map.String.t<HotspotSequence.badgeKind>, linkId: string): option<int> =>
   switch badges->Belt.Map.String.get(linkId) {
   | Some(HotspotSequence.Sequence(n)) => Some(n)
@@ -227,6 +237,28 @@ describe("HotspotSequence", () => {
     let linkIds = ordered->Belt.Array.map(x => x.linkId)
 
     t->expect(linkIds)->Expect.toEqual(["hAB", "hBC"])
+  })
+
+  test(
+    "deriveSceneNumberBySceneId assigns unique stable scene numbers across disconnected components",
+    t => {
+      let state = makeDisconnectedState()
+      let sceneNumbers = HotspotSequence.deriveSceneNumberBySceneId(~state)
+
+      t->expect(sceneNumbers->Belt.Map.String.get("A"))->Expect.toEqual(Some(1))
+      t->expect(sceneNumbers->Belt.Map.String.get("B"))->Expect.toEqual(Some(2))
+      t->expect(sceneNumbers->Belt.Map.String.get("C"))->Expect.toEqual(Some(3))
+      t->expect(sceneNumbers->Belt.Map.String.get("D"))->Expect.toEqual(Some(4))
+    },
+  )
+
+  test("deriveSceneNumberBySceneId keeps wrap-back home scene visible as scene one", t => {
+    let state = makeWrapBackSceneNumberState()
+    let sceneNumbers = HotspotSequence.deriveSceneNumberBySceneId(~state)
+
+    t->expect(sceneNumbers->Belt.Map.String.get("A"))->Expect.toEqual(Some(1))
+    t->expect(sceneNumbers->Belt.Map.String.get("B"))->Expect.toEqual(Some(2))
+    t->expect(sceneNumbers->Belt.Map.String.get("C"))->Expect.toEqual(Some(3))
   })
 
   test("buildReorderUpdates ignores return links", t => {

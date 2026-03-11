@@ -90,12 +90,7 @@ let sceneOverlayFor = (
   visibleFloorIds: array<string>,
   ~marketing: option<TeaserRecorder.teaserMarketingOverlay>,
 ): TeaserRecorder.teaserHudOverlay =>
-  TeaserOfflineCfrRendererSupport.sceneOverlayFor(
-    scenes,
-    sceneId,
-    visibleFloorIds,
-    ~marketing,
-  )
+  TeaserOfflineCfrRendererSupport.sceneOverlayFor(scenes, sceneId, visibleFloorIds, ~marketing)
 
 let marketingOverlayFromState = (state: state): option<TeaserRecorder.teaserMarketingOverlay> =>
   TeaserOfflineCfrRendererSupport.marketingOverlayFromState(state)

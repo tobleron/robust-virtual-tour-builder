@@ -74,4 +74,113 @@ describe("PersistentLabel", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("keeps the home scene label on scene one after a wrap-back hotspot", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let sceneA = {
+      ...defaultScene,
+      id: "s1",
+      name: "Scene 1",
+      label: "Entry",
+      hotspots: [
+        {
+          linkId: "hAB",
+          yaw: 0.0,
+          pitch: 0.0,
+          target: "s2",
+          targetSceneId: Some("s2"),
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          viewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+          sequenceOrder: None,
+        },
+      ],
+    }
+    let sceneB = {
+      ...defaultScene,
+      id: "s2",
+      name: "Scene 2",
+      label: "Hall",
+      hotspots: [
+        {
+          linkId: "hBC",
+          yaw: 0.0,
+          pitch: 0.0,
+          target: "s3",
+          targetSceneId: Some("s3"),
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          viewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+          sequenceOrder: None,
+        },
+      ],
+    }
+    let sceneC = {
+      ...defaultScene,
+      id: "s3",
+      name: "Scene 3",
+      label: "Bedroom",
+      hotspots: [
+        {
+          linkId: "hCA",
+          yaw: 0.0,
+          pitch: 0.0,
+          target: "s1",
+          targetSceneId: Some("s1"),
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          viewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+          isAutoForward: None,
+          sequenceOrder: None,
+        },
+      ],
+    }
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <PersistentLabel activeIndex=0 scenes={[sceneA, sceneB, sceneC]} />,
+    )
+
+    await wait(50)
+
+    let labelEl = Dom.getElementById("v-scene-persistent-label")
+    switch Nullable.toOption(labelEl) {
+    | Some(el) =>
+      let labelText = Dom.getTextContent(el)
+      t->expect(labelText->String.includes("# 1"))->Expect.toBe(true)
+      t->expect(labelText->String.includes("Entry"))->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    Dom.removeElement(container)
+  })
 })

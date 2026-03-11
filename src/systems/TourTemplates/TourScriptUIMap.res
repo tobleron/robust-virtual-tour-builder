@@ -41,6 +41,7 @@ let script = `
       nextHotspotIndex: null,
       nextSequenceNumber: null,
       prevHotspotIndex: null,
+      prevSequenceNumber: null,
       prevUsesReturnLink: false,
       autoTourSpeedMultiplier: 1.0,
     };
@@ -90,6 +91,18 @@ let script = `
       }
       autoTourHomeReturnCountdownRemaining = 0;
     }
+    function finishAutoTourAtScene(sceneId) {
+      clearAutoTourCompletionCountdown();
+      if (sceneId && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sceneId, true);
+      }
+    }
+    function resetHomeSceneCompletionSequence(sceneId) {
+      if (!sceneId) return;
+      if (typeof applyManualSequencePosition === "function") {
+        applyManualSequencePosition(sceneId, 1);
+      }
+    }
     function beginAutoTourCompletionCountdown() {
       const sid = window.viewer?.getScene?.();
       clearAutoTourCompletionCountdown();
@@ -115,6 +128,14 @@ let script = `
         clearAutoTourCompletionCountdown();
         const homeSceneId = resolveExistingSceneId(firstSceneId);
         const currentSceneId = window.viewer?.getScene?.() ?? null;
+        if (homeSceneId && currentSceneId && currentSceneId === homeSceneId) {
+          resetHomeSceneCompletionSequence(homeSceneId);
+          finishAutoTourAtScene(currentSceneId);
+          if (typeof animateSceneToPrimaryHotspot === "function") {
+            animateSceneToPrimaryHotspot(homeSceneId, 20);
+          }
+          return;
+        }
         if (homeSceneId && currentSceneId && currentSceneId !== homeSceneId) {
           suppressNextRoomLabelOnLoad = true;
           suppressShortcutPanelUntilNextLoad = true;
@@ -132,7 +153,37 @@ let script = `
         clearTimeout(waypointRuntime.autoForwardTimeoutId);
         waypointRuntime.autoForwardTimeoutId = null;
       }
-      beginAutoTourCompletionCountdown();
+      const activeSceneId = window.viewer?.getScene?.() ?? null;
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      const isAlreadyHome =
+        activeSceneId && homeSceneId && activeSceneId === homeSceneId;
+      if (isAlreadyHome) {
+        resetHomeSceneCompletionSequence(activeSceneId);
+      }
+      const restoreLookingMode = () => {
+        if (typeof lookingMode !== "undefined") lookingMode = manualLookingMode;
+        if (typeof updateLookingModeUI === "function") updateLookingModeUI();
+      };
+      const finalizeCompletion = () => {
+        if (isAlreadyHome) {
+          finishAutoTourAtScene(activeSceneId);
+          return;
+        }
+        beginAutoTourCompletionCountdown();
+      };
+      if (
+        activeSceneId &&
+        typeof focusSceneOnPreferredHotspot === "function"
+      ) {
+        focusSceneOnPreferredHotspot(activeSceneId, {
+          pauseLookingMode: true,
+          restoreLookingMode,
+          onComplete: finalizeCompletion,
+        });
+        return;
+      }
+      restoreLookingMode();
+      finalizeCompletion();
     }
     function completeAutoTour() {
       completeTourAndReturnHome();

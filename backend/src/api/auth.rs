@@ -101,14 +101,7 @@ async fn log_auth_event(
     extra_json: Option<&str>,
 ) -> Result<(), AppError> {
     auth_events::log_auth_event(
-        pool,
-        user_id,
-        event_type,
-        decision,
-        risk_score,
-        reason,
-        context,
-        extra_json,
+        pool, user_id, event_type, decision, risk_score, reason, context, extra_json,
     )
     .await
 }
@@ -201,11 +194,7 @@ fn evaluate_context_mismatch(
     context: &LoginContext,
     risk_reasons_count_before: usize,
 ) -> bool {
-    auth_risk::evaluate_context_mismatch(
-        trusted_device,
-        context,
-        risk_reasons_count_before,
-    )
+    auth_risk::evaluate_context_mismatch(trusted_device, context, risk_reasons_count_before)
 }
 
 async fn compute_risk_decision(
@@ -236,14 +225,8 @@ async fn issue_or_refresh_step_up_challenge(
     risk: &RiskDecision,
     device_token_hash: Option<&str>,
 ) -> Result<(String, String, chrono::DateTime<Utc>, chrono::DateTime<Utc>), AppError> {
-    auth_step_up::issue_or_refresh_step_up_challenge(
-        pool,
-        user,
-        context,
-        risk,
-        device_token_hash,
-    )
-    .await
+    auth_step_up::issue_or_refresh_step_up_challenge(pool, user, context, risk, device_token_hash)
+        .await
 }
 
 async fn enforce_otp_issue_rate_limit(
@@ -320,8 +303,13 @@ pub async fn verify_step_up_otp(
     payload: web::Json<VerifyOtpPayload>,
 ) -> Result<HttpResponse, AppError> {
     let payload = payload.into_inner();
-    auth_step_up::verify_step_up_otp(req, pool, payload.challenge_id.trim(), payload.otp_code.trim())
-        .await
+    auth_step_up::verify_step_up_otp(
+        req,
+        pool,
+        payload.challenge_id.trim(),
+        payload.otp_code.trim(),
+    )
+    .await
 }
 
 pub async fn resend_step_up_otp(
@@ -348,10 +336,28 @@ mod tests;
 mod tests_surface {
     use super::tests;
 
-    #[test] fn username_validation_accepts_expected_slug() { tests::username_validation_accepts_expected_slug(); }
-    #[test] fn username_validation_rejects_reserved() { tests::username_validation_rejects_reserved(); }
-    #[test] fn password_min_length_enforced() { tests::password_min_length_enforced(); }
-    #[test] fn token_hash_is_deterministic() { tests::token_hash_is_deterministic(); }
-    #[test] fn otp_is_six_digits() { tests::otp_is_six_digits(); }
-    #[test] fn user_agent_family_parse_works() { tests::user_agent_family_parse_works(); }
+    #[test]
+    fn username_validation_accepts_expected_slug() {
+        tests::username_validation_accepts_expected_slug();
+    }
+    #[test]
+    fn username_validation_rejects_reserved() {
+        tests::username_validation_rejects_reserved();
+    }
+    #[test]
+    fn password_min_length_enforced() {
+        tests::password_min_length_enforced();
+    }
+    #[test]
+    fn token_hash_is_deterministic() {
+        tests::token_hash_is_deterministic();
+    }
+    #[test]
+    fn otp_is_six_digits() {
+        tests::otp_is_six_digits();
+    }
+    #[test]
+    fn user_agent_family_parse_works() {
+        tests::user_agent_family_parse_works();
+    }
 }

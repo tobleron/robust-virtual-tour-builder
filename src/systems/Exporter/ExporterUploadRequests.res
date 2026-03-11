@@ -191,8 +191,12 @@ let requestExportComplete = (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ~operationId: option<string>=?,
 ): Promise.t<apiResult<exportCompleteResponse>> => {
-  let body =
-    ExporterUploadRequestsRuntime.encodeCompleteBody(payloadBlob, ~filename, ~uploadId, ~totalChunks)
+  let body = ExporterUploadRequestsRuntime.encodeCompleteBody(
+    payloadBlob,
+    ~filename,
+    ~uploadId,
+    ~totalChunks,
+  )
 
   AuthenticatedClient.requestWithRetry(
     Constants.backendUrl ++ "/api/project/export/complete",

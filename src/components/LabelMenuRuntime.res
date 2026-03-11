@@ -43,7 +43,7 @@ let handleSelect = (
   ~currentScene: option<scene>,
   ~targetIndex: int,
   ~dispatch,
-  ~setFlickeringLabel: ((option<string> => option<string>)) => unit,
+  ~setFlickeringLabel: (option<string> => option<string>) => unit,
   ~label: string,
   ~onClose: unit => unit,
   e,
@@ -78,26 +78,17 @@ let handleClear = (
   ~targetIndex: int,
   ~dispatch,
   ~onClose: unit => unit,
-) =>
-  LabelMenuRuntimeLabels.handleClear(~currentScene, ~targetIndex, ~dispatch, ~onClose)
+) => LabelMenuRuntimeLabels.handleClear(~currentScene, ~targetIndex, ~dispatch, ~onClose)
 
-let handleSetCategory = (
-  ~currentCategory: string,
-  ~targetIndex: int,
-  ~dispatch,
-  cat: string,
-  e,
-) => LabelMenuRuntimeLabels.handleSetCategory(~currentCategory, ~targetIndex, ~dispatch, cat, e)
+let handleSetCategory = (~currentCategory: string, ~targetIndex: int, ~dispatch, cat: string, e) =>
+  LabelMenuRuntimeLabels.handleSetCategory(~currentCategory, ~targetIndex, ~dispatch, cat, e)
 
-let applySequenceReorder = (
-  ~dispatch,
-  ~linkId: string,
-  ~desiredOrder: int,
-) => LabelMenuRuntimeSequence.applySequenceReorder(~dispatch, ~linkId, ~desiredOrder)
+let applySequenceReorder = (~dispatch, ~linkId: string, ~desiredOrder: int) =>
+  LabelMenuRuntimeSequence.applySequenceReorder(~dispatch, ~linkId, ~desiredOrder)
 
 let commitSequenceDraft = (
   ~sequenceDrafts: Belt.Map.String.t<string>,
-  ~setSequenceDrafts: ((Belt.Map.String.t<string> => Belt.Map.String.t<string>)) => unit,
+  ~setSequenceDrafts: (Belt.Map.String.t<string> => Belt.Map.String.t<string>) => unit,
   ~dispatch,
   ~linkId: string,
   ~currentSequence: int,
@@ -113,8 +104,5 @@ let commitSequenceDraft = (
 let executeRemoveAllUntagged = (~dispatch: action => unit, ~onClose: unit => unit) =>
   LabelMenuRuntimeUntagged.executeRemoveAllUntagged(~dispatch, ~onClose)
 
-let handleRemoveAllUntagged = (
-  ~canMutateProject: bool,
-  ~dispatch,
-  ~onClose: unit => unit,
-) => LabelMenuRuntimeUntagged.handleRemoveAllUntagged(~canMutateProject, ~dispatch, ~onClose)
+let handleRemoveAllUntagged = (~canMutateProject: bool, ~dispatch, ~onClose: unit => unit) =>
+  LabelMenuRuntimeUntagged.handleRemoveAllUntagged(~canMutateProject, ~dispatch, ~onClose)

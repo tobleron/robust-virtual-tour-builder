@@ -7,8 +7,7 @@ module Scripts = TourScripts
 
 /* --- Main Logic --- */
 
-let escapeHtml = (raw: string): string =>
-  TourTemplateHtml.escapeHtml(raw)
+let escapeHtml = (raw: string): string => TourTemplateHtml.escapeHtml(raw)
 
 let generateTourHTML = (
   scenes: array<scene>,

@@ -128,11 +128,7 @@ let runEffect = (
               let stillOk =
                 isCurrentRun() &&
                 sAfterWait.simulation.status == Running &&
-                SimulationDriverRuntimeSupport.isStillInScene(
-                  ~scenes,
-                  ~state=sAfterWait,
-                  ~sceneId,
-                )
+                SimulationDriverRuntimeSupport.isStillInScene(~scenes, ~state=sAfterWait, ~sceneId)
 
               if stillOk {
                 let isFirstLink = sAfterWait.simulation.visitedLinkIds->Belt.Array.length <= 1
@@ -179,7 +175,8 @@ let runEffect = (
                   advancingForSceneId.current = None
                   retryCountRef.current = count
                   scheduleAdvanceRetryReset(~advancingForSceneId, backoffMs)
-                | Wait({reason: _}) => handleIncrementalRetry(~advancingForSceneId, ~retryCountRef, ~dispatch)
+                | Wait({reason: _}) =>
+                  handleIncrementalRetry(~advancingForSceneId, ~retryCountRef, ~dispatch)
                 | Stop({reason: _}) => stopSimulation(dispatch)
                 }
               | Ok() => handleIncrementalRetry(~advancingForSceneId, ~retryCountRef, ~dispatch)
@@ -219,7 +216,9 @@ let runEffect = (
     completedSceneIdRef.current = None
   }
 
-  Some(() => {
-    cancel := true
-  })
+  Some(
+    () => {
+      cancel := true
+    },
+  )
 }

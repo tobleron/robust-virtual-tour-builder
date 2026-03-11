@@ -111,9 +111,9 @@ let waitForViewerScene = async (
   }
 }
 
-let pickByPriority = (
-  candidates: array<SimulationNavigationSupport.candidateLink>,
-): option<enrichedLink> => {
+let pickByPriority = (candidates: array<SimulationNavigationSupport.candidateLink>): option<
+  enrichedLink,
+> => {
   SimulationNavigationSupport.pickByPriority(candidates)
 }
 

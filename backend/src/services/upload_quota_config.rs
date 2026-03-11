@@ -48,10 +48,7 @@ pub(super) fn from_env_config() -> QuotaConfig {
     let defaults = default_config();
     QuotaConfig {
         max_payload_size: env_usize("MAX_PAYLOAD_SIZE", defaults.max_payload_size),
-        max_concurrent_per_ip: env_usize(
-            "MAX_CONCURRENT_PER_IP",
-            defaults.max_concurrent_per_ip,
-        ),
+        max_concurrent_per_ip: env_usize("MAX_CONCURRENT_PER_IP", defaults.max_concurrent_per_ip),
         max_total_concurrent_size: env_usize(
             "MAX_TOTAL_CONCURRENT_SIZE",
             defaults.max_total_concurrent_size,

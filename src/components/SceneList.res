@@ -105,21 +105,35 @@ let make = React.memo(() => {
   let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
   let endIndex = Math.Int.min(Array.length(sceneSlice.scenes) - 1, endIndex)
 
-  let handleSceneClick = React.useMemo3(() =>
-    index => SceneListSupport.handleSceneClick(~sceneSlice, ~uiSlice, ~canNavigate, ~dispatch, index)
-  , (sceneSlice.activeIndex, uiSlice.isLinking, canNavigate))
+  let handleSceneClick = React.useMemo3(
+    () =>
+      index =>
+        SceneListSupport.handleSceneClick(~sceneSlice, ~uiSlice, ~canNavigate, ~dispatch, index),
+    (sceneSlice.activeIndex, uiSlice.isLinking, canNavigate),
+  )
 
-  let handleDelete = React.useMemo1(() =>
-    index => SceneListSupport.handleDelete(~canMutateProject, ~getState, ~dispatch, index)
-  , [canMutateProject])
+  let handleDelete = React.useMemo1(
+    () => index => SceneListSupport.handleDelete(~canMutateProject, ~getState, ~dispatch, index),
+    [canMutateProject],
+  )
 
-  let openReorderDialog = React.useMemo3(() =>
-    index => SceneListSupport.openReorderDialog(~canMutateProject, ~dispatch, ~scenes=sceneSlice.scenes, index)
-  , (canMutateProject, dispatch, sceneSlice.scenes))
+  let openReorderDialog = React.useMemo3(
+    () =>
+      index =>
+        SceneListSupport.openReorderDialog(
+          ~canMutateProject,
+          ~dispatch,
+          ~scenes=sceneSlice.scenes,
+          index,
+        ),
+    (canMutateProject, dispatch, sceneSlice.scenes),
+  )
 
-  let handleClearLinks = React.useMemo1(() =>
-    index => SceneListSupport.handleClearLinks(~canMutateProject, ~getState, ~dispatch, index)
-  , [canMutateProject])
+  let handleClearLinks = React.useMemo1(
+    () =>
+      index => SceneListSupport.handleClearLinks(~canMutateProject, ~getState, ~dispatch, index),
+    [canMutateProject],
+  )
 
   let onDragStart = React.useMemo0(() =>
     (index, _e) => {
@@ -133,10 +147,12 @@ let make = React.memo(() => {
     }
   )
 
-  let onDrop = React.useMemo2(() =>
-    (targetIndex, e) =>
-      SceneListSupport.handleDrop(~canMutateProject, ~dispatch, ~setDraggedIndex, targetIndex, e)
-  , (dispatch, canMutateProject))
+  let onDrop = React.useMemo2(
+    () =>
+      (targetIndex, e) =>
+        SceneListSupport.handleDrop(~canMutateProject, ~dispatch, ~setDraggedIndex, targetIndex, e),
+    (dispatch, canMutateProject),
+  )
 
   <div
     className="flex-1 flex flex-col pt-2 pb-12 relative"

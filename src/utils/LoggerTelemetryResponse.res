@@ -61,4 +61,7 @@ let validateTelemetryResponse = (
   ~suspendTelemetryForMs: float => unit,
   res: Fetch.response,
 ): Promise.t<unit> =>
-  validationToPromise(~suspendTelemetryForMs, classifyTelemetryResponse(~parseRetryAfterHeaderMs, res))
+  validationToPromise(
+    ~suspendTelemetryForMs,
+    classifyTelemetryResponse(~parseRetryAfterHeaderMs, res),
+  )

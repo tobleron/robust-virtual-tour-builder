@@ -121,7 +121,15 @@ let start = (
   id
 }
 
-let progress = (~operations, ~notifyListeners, id, progress, ~message: option<string>=?, ~phase: option<string>=?, ()): unit => {
+let progress = (
+  ~operations,
+  ~notifyListeners,
+  id,
+  progress,
+  ~message: option<string>=?,
+  ~phase: option<string>=?,
+  (),
+): unit => {
   switch operations.contents->Belt.Map.String.get(id) {
   | Some(task) =>
     switch task.status {

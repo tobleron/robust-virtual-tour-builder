@@ -84,11 +84,8 @@ let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<boo
 let hasDeadline = (config: config): bool => config.totalDeadlineMs > 0
 
 let computeDelay = (error, attempt, config, getDelay) => {
-  RetryTiming.computeDelay(
-    ~error,
-    ~attempt,
-    ~getDelay,
-    ~calculateDelay=attempt => calculateDelay(attempt, config),
+  RetryTiming.computeDelay(~error, ~attempt, ~getDelay, ~calculateDelay=attempt =>
+    calculateDelay(attempt, config)
   )
 }
 

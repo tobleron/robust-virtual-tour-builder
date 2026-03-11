@@ -24,7 +24,8 @@ let chooseDirectedEdge = (
     let chronological = fromRank <= toRank
     let score =
       (edge.kind == Forward ? 400 : 0) +
-      (hubForward ? 250 : 0) + (chronological ? 80 : 0) + (edge.isCrossFloor ? 0 : 20)
+      (hubForward ? 250 : 0) +
+      (chronological ? 80 : 0) + (edge.isCrossFloor ? 0 : 20)
     switch best {
     | Some((_bestEdge, bestScore)) if bestScore >= score => best
     | _ => Some((edge, score))

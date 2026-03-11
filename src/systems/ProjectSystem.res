@@ -40,10 +40,10 @@ let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> =>
 let notifyProjectValidationWarnings = (report: SharedTypes.validationReport) =>
   ProjectSystemLoad.notifyProjectValidationWarnings(report)
 
-let verifyProjectLoadPolicy = (
-  projectData: JSON.t,
-): result<option<SharedTypes.validationReport>, apiError> =>
-  ProjectSystemLoad.verifyProjectLoadPolicy(projectData, ~validationReportWrapperDecoder)
+let verifyProjectLoadPolicy = (projectData: JSON.t): result<
+  option<SharedTypes.validationReport>,
+  apiError,
+> => ProjectSystemLoad.verifyProjectLoadPolicy(projectData, ~validationReportWrapperDecoder)
 
 let mergeValidationReport: (
   JSON.t,

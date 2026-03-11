@@ -49,8 +49,8 @@ let startCountdown = tracker => {
   tracker.countdownTimerId := Some(ReBindings.Window.setInterval(() => {
         if (
           tracker.stableEtaSeconds.contents > 1.0 &&
-            tracker.etaReady.contents &&
-            !tracker.wasCancelled.contents
+          tracker.etaReady.contents &&
+          !tracker.wasCancelled.contents
         ) {
           tracker.stableEtaSeconds := tracker.stableEtaSeconds.contents -. 1.0
           let seconds = Belt.Float.toInt(tracker.stableEtaSeconds.contents)
@@ -125,7 +125,8 @@ let ingestProcessingSample = (~tracker, ~pct: float, ~msg: string) => {
     if tracker.emaProgressPerSecond.contents <= 0.0 {
       tracker.emaProgressPerSecond := instRate
     } else {
-      tracker.emaProgressPerSecond := 0.7 *. tracker.emaProgressPerSecond.contents +. 0.3 *. instRate
+      tracker.emaProgressPerSecond :=
+        0.7 *. tracker.emaProgressPerSecond.contents +. 0.3 *. instRate
     }
     tracker.lastPctSample := pct
     tracker.lastSampleAtMs := now
@@ -134,10 +135,10 @@ let ingestProcessingSample = (~tracker, ~pct: float, ~msg: string) => {
   let elapsedSec = (now -. tracker.startedAtMs) /. 1000.0
   if (
     !tracker.etaReady.contents &&
-      tracker.completionSampleCount.contents >= 2 &&
-      elapsedSec >= 15.0 &&
-      pct >= 10.0 &&
-      tracker.emaProgressPerSecond.contents > 0.0
+    tracker.completionSampleCount.contents >= 2 &&
+    elapsedSec >= 15.0 &&
+    pct >= 10.0 &&
+    tracker.emaProgressPerSecond.contents > 0.0
   ) {
     tracker.etaReady := true
     let seconds = Belt.Float.toInt(tracker.stableEtaSeconds.contents)
@@ -186,8 +187,8 @@ let ingestProcessingSample = (~tracker, ~pct: float, ~msg: string) => {
     let utilizationFactor = switch parsedMetrics {
     | Some(m) =>
       m.inFlightUtilization
-      ->Option.map(
-        u => 0.92 +. 0.08 *. EtaSupport.clampFloat(~value=u, ~minValue=0.0, ~maxValue=1.0),
+      ->Option.map(u =>
+        0.92 +. 0.08 *. EtaSupport.clampFloat(~value=u, ~minValue=0.0, ~maxValue=1.0)
       )
       ->Option.getOr(1.0)
     | None => 1.0

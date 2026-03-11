@@ -52,8 +52,7 @@ let make = () => {
         {React.string("Marketing")}
       </button>
       <button
-        className={tabClass(activeTab == Persistence)}
-        onClick={_ => setActiveTab(_ => Persistence)}
+        className={tabClass(activeTab == Persistence)} onClick={_ => setActiveTab(_ => Persistence)}
       >
         {React.string("Persistence")}
       </button>
@@ -181,20 +180,15 @@ let make = () => {
 
           <div className="settings-preview-wrap">
             <div className="settings-preview-header">
-              <span className="settings-field-label">
-                {React.string("Behavior")}
-              </span>
+              <span className="settings-field-label"> {React.string("Behavior")} </span>
             </div>
             <div className="settings-preview-banner">
               <span className="settings-preview-text">
                 {React.string(
                   switch autosaveMode {
-                  | PersistencePreferences.Off =>
-                    "Autosave disabled. Use the Save menu to persist your work."
-                  | PersistencePreferences.LocalOnly =>
-                    "Autosave writes only to this browser for recovery. Server history is manual."
-                  | PersistencePreferences.Hybrid =>
-                    "Autosave writes locally and creates server snapshots when online and signed in."
+                  | PersistencePreferences.Off => "Autosave disabled. Use the Save menu to persist your work."
+                  | PersistencePreferences.LocalOnly => "Autosave writes only to this browser for recovery. Server history is manual."
+                  | PersistencePreferences.Hybrid => "Autosave writes locally and creates server snapshots when online and signed in."
                   },
                 )}
               </span>
@@ -219,10 +213,7 @@ let make = () => {
             <span> {React.string("Save")} </span>
           </button>
         | Persistence =>
-          <button
-            className="modal-btn-premium modal-btn-full bg-white/20"
-            onClick={_ => onSave()}
-          >
+          <button className="modal-btn-premium modal-btn-full bg-white/20" onClick={_ => onSave()}>
             <span> {React.string("Save")} </span>
           </button>
         | About | SystemHealth => React.null

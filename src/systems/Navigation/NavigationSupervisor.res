@@ -229,8 +229,7 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       ~newStatus,
       ~notify=notifyListeners,
       ~onProgress=updateLifecyclePhase,
-    )
-    ->Option.forEach(prevStatus =>
+    )->Option.forEach(prevStatus =>
       Logger.debug(
         ~module_="NavigationSupervisor",
         ~message="STATUS_TRANSITION",
@@ -244,10 +243,10 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
     )
   } else {
     Logger.debug(
-        ~module_="NavigationSupervisor",
-        ~message="STALE_TASK_IGNORED",
-        ~data=Some({
-          "staleTaskId": taskId,
+      ~module_="NavigationSupervisor",
+      ~message="STALE_TASK_IGNORED",
+      ~data=Some({
+        "staleTaskId": taskId,
         "currentTaskId": NavigationSupervisorState.currentTaskIdString(
           ~currentTaskOpt=currentTask.contents,
           ~getId=t => t.token.id,

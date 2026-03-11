@@ -2,7 +2,9 @@ open Vitest
 
 describe("PersistencePreferences", () => {
   test("autosave mode round-trips to stable storage values", t => {
-    t->expect(PersistencePreferences.autosaveModeToString(PersistencePreferences.Off))->Expect.toBe("off")
+    t
+    ->expect(PersistencePreferences.autosaveModeToString(PersistencePreferences.Off))
+    ->Expect.toBe("off")
     t
     ->expect(PersistencePreferences.autosaveModeToString(PersistencePreferences.LocalOnly))
     ->Expect.toBe("local-only")
@@ -57,8 +59,12 @@ describe("PersistencePreferences", () => {
     t
     ->expect(PersistencePreferences.saveTargetToString(PersistencePreferences.Offline))
     ->Expect.toBe("offline")
-    t->expect(PersistencePreferences.saveTargetToString(PersistencePreferences.Server))->Expect.toBe("server")
-    t->expect(PersistencePreferences.saveTargetToString(PersistencePreferences.Both))->Expect.toBe("both")
+    t
+    ->expect(PersistencePreferences.saveTargetToString(PersistencePreferences.Server))
+    ->Expect.toBe("server")
+    t
+    ->expect(PersistencePreferences.saveTargetToString(PersistencePreferences.Both))
+    ->Expect.toBe("both")
     t
     ->expect(PersistencePreferences.saveTargetFromString("offline"))
     ->Expect.toEqual(PersistencePreferences.Offline)

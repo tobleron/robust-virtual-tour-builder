@@ -101,7 +101,14 @@ let loadNewScene = (
     } {
     | Some(inst) =>
       if !isAnticipatory {
-        SceneLoaderSupport.loadReusableScene(~inst, ~targetScene, ~state, ~dispatch, ~taskId, ~signal)
+        SceneLoaderSupport.loadReusableScene(
+          ~inst,
+          ~targetScene,
+          ~state,
+          ~dispatch,
+          ~taskId,
+          ~signal,
+        )
       }
     | None =>
       let activeVp = ViewerSystem.Pool.getActive()

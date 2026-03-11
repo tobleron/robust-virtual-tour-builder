@@ -21,11 +21,13 @@ let request = async (
   let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
   let domainKey = domain->CircuitBreakerRegistry.domainToKey
   let domainBreaker = getDomainCircuitBreaker(domain)
-  let effectiveOperationId =
-    AuthenticatedClientRequestSupport.resolveEffectiveOperationId(~operationId?)
+  let effectiveOperationId = AuthenticatedClientRequestSupport.resolveEffectiveOperationId(
+    ~operationId?,
+  )
   AuthenticatedClientRequestSupport.applyTraceHeaders(~headers, ~effectiveOperationId)
-  let isOpCancelled =
-    AuthenticatedClientRequestSupport.isLifecycleOperationCancelled(effectiveOperationId)
+  let isOpCancelled = AuthenticatedClientRequestSupport.isLifecycleOperationCancelled(
+    effectiveOperationId,
+  )
 
   if isOpCancelled {
     Error("OperationCancelled")
@@ -67,7 +69,11 @@ let request = async (
 
         let timeoutMs = getTimeoutMs(~method, ~url)
         let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
-        let bodyVal = AuthenticatedClientRequestSupport.buildRequestBody(~body?, ~formData?, ~headers)
+        let bodyVal = AuthenticatedClientRequestSupport.buildRequestBody(
+          ~body?,
+          ~formData?,
+          ~headers,
+        )
 
         let options = {
           "method": method,

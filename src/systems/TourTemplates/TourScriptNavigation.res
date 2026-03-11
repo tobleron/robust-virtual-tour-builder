@@ -115,6 +115,78 @@ let script = `
     const firstSequencePositionBySceneId = new Map();
     const currentSceneSequenceContext = { sceneId: null, sequenceCursor: null, sourceSceneId: null };
     let pendingArrivalContext = null;
+    const autoTourSteps = Array.isArray(autoTourManifest?.steps) ? autoTourManifest.steps : [];
+    let autoTourManifestCursor = 0;
+    function resetAutoTourManifestCursor() {
+      autoTourManifestCursor = 0;
+    }
+    function getAutoTourFinalSceneId() {
+      const configuredFinalSceneId = resolveExistingSceneId(autoTourManifest?.finalSceneId);
+      if (configuredFinalSceneId) return configuredFinalSceneId;
+      const lastStep = autoTourSteps.length > 0 ? autoTourSteps[autoTourSteps.length - 1] : null;
+      return resolveExistingSceneId(lastStep?.targetSceneId)
+        ?? resolveExistingSceneId(firstSceneId)
+        ?? normalizeSceneId(firstSceneId);
+    }
+    function findAutoTourManifestStepIndex(sceneId, startIndex) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId || autoTourSteps.length === 0) return -1;
+      const normalizedStartIndex = Number.isInteger(startIndex) && startIndex >= 0
+        ? Math.min(startIndex, autoTourSteps.length - 1)
+        : 0;
+      return autoTourSteps.findIndex((step, idx) => {
+        if (idx < normalizedStartIndex) return false;
+        const sourceSceneId = resolveExistingSceneId(step?.sourceSceneId) ?? normalizeSceneId(step?.sourceSceneId);
+        return sourceSceneId === resolvedSceneId;
+      });
+    }
+    function resolveAutoTourManifestStep(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId || autoTourSteps.length === 0) return null;
+      const currentStep = autoTourSteps[autoTourManifestCursor];
+      const currentSourceSceneId =
+        resolveExistingSceneId(currentStep?.sourceSceneId) ?? normalizeSceneId(currentStep?.sourceSceneId);
+      if (currentSourceSceneId === resolvedSceneId) {
+        return currentStep;
+      }
+      const nextIndex = findAutoTourManifestStepIndex(resolvedSceneId, autoTourManifestCursor);
+      if (nextIndex < 0) return null;
+      autoTourManifestCursor = nextIndex;
+      return autoTourSteps[nextIndex] ?? null;
+    }
+    function advanceAutoTourManifestCursor(sceneId, targetSceneId) {
+      const step = resolveAutoTourManifestStep(sceneId);
+      if (!step) return false;
+      const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId) ?? normalizeSceneId(targetSceneId);
+      const stepTargetSceneId =
+        resolveExistingSceneId(step?.targetSceneId) ?? normalizeSceneId(step?.targetSceneId);
+      if (resolvedTargetSceneId && stepTargetSceneId && resolvedTargetSceneId !== stepTargetSceneId) {
+        return false;
+      }
+      autoTourManifestCursor = Math.min(autoTourManifestCursor + 1, autoTourSteps.length);
+      return true;
+    }
+    function buildPlaybackTargetFromAutoTourStep(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (resolvedSceneId && homeSceneId && autoTourManifestCursor > 0 && resolvedSceneId === homeSceneId) {
+        return null;
+      }
+      const step = resolveAutoTourManifestStep(sceneId);
+      if (!step || !step.hotspot) return null;
+      const targetSceneId = resolveExistingSceneId(step?.targetSceneId) ?? normalizeSceneId(step?.targetSceneId);
+      if (!targetSceneId) return null;
+      return {
+        hotspot: step.hotspot,
+        hotspotIndex: Number.isInteger(step?.hotspotIndex) ? step.hotspotIndex : null,
+        autoForward: step.targetIsAutoForward === true,
+        targetSceneId,
+        usesReturnLink: step.isReturnLink === true,
+        backtrack: step.isReturnLink === true,
+        sequenceCursorOverride: Number.isInteger(step?.sequenceCursor) ? step.sequenceCursor : null,
+        fromManifest: true,
+      };
+    }
     function resetAutoForwardLoopGuard() {
       autoForwardChainVisited = [];
       autoForwardChainActive = false;
@@ -392,7 +464,15 @@ let script = `
       if (forwardHotspots.length > 0) return null;
       return resolveSceneReturnHotspot(sceneId);
     }
-    function buildNavigationTarget(sceneId, hotspot, hotspotIndex, targetSceneId, sequenceCursorOverride, usesReturnLink) {
+    function buildNavigationTarget(
+      sceneId,
+      hotspot,
+      hotspotIndex,
+      targetSceneId,
+      sequenceCursorOverride,
+      usesReturnLink,
+      isBacktrack,
+    ) {
       const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
       const resolvedTargetSceneId = resolveExistingSceneId(targetSceneId) ?? normalizeSceneId(targetSceneId);
       if (!resolvedSceneId || !resolvedTargetSceneId) return null;
@@ -403,6 +483,7 @@ let script = `
         sourceSceneId: resolvedSceneId,
         sequenceCursorOverride: Number.isInteger(sequenceCursorOverride) ? sequenceCursorOverride : null,
         usesReturnLink: usesReturnLink === true,
+        isBacktrack: isBacktrack === true,
       };
     }
     function resolveCanonicalPreviousSequenceTarget(sceneId, sceneData) {
@@ -425,6 +506,7 @@ let script = `
           previousSceneId,
           currentCursor,
           false,
+          true,
         );
       }
       return buildNavigationTarget(
@@ -434,7 +516,202 @@ let script = `
         previousSceneId,
         currentCursor,
         false,
+        true,
       );
+    }
+    function resolveStableSceneNumber(sceneId) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const rawSceneNumber = scenesData?.[resolvedSceneId]?.sceneNumber;
+      if (Number.isInteger(rawSceneNumber) && rawSceneNumber >= 1) return rawSceneNumber;
+      const fallbackSceneNumber = resolveFirstSequencePositionForScene(resolvedSceneId);
+      return Number.isInteger(fallbackSceneNumber) && fallbackSceneNumber >= 1
+        ? fallbackSceneNumber
+        : null;
+    }
+    function buildStableShortcutNavigationTarget(
+      sceneId,
+      hotspotDescriptor,
+      targetSceneId,
+      usesReturnLink,
+      isBacktrack,
+    ) {
+      const targetSceneNumber = resolveStableSceneNumber(targetSceneId);
+      return buildNavigationTarget(
+        sceneId,
+        hotspotDescriptor?.hotspot ?? null,
+        hotspotDescriptor?.hotspotIndex ?? null,
+        targetSceneId,
+        Number.isInteger(targetSceneNumber) ? Math.max(0, targetSceneNumber - 1) : null,
+        usesReturnLink,
+        isBacktrack,
+      );
+    }
+    function buildCurrentCursorBacktrackTarget(
+      sceneId,
+      sceneData,
+      hotspotDescriptor,
+      targetSceneId,
+      usesReturnLink,
+    ) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const currentCursor = getCurrentSceneSequenceCursor(resolvedSceneId, sceneData);
+      return buildNavigationTarget(
+        resolvedSceneId,
+        hotspotDescriptor?.hotspot ?? null,
+        hotspotDescriptor?.hotspotIndex ?? null,
+        targetSceneId,
+        currentCursor,
+        usesReturnLink,
+        true,
+      );
+    }
+    function resolveSceneNumberForwardShortcutTarget(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const stableSceneNumber = resolveStableSceneNumber(resolvedSceneId);
+      if (!Number.isInteger(stableSceneNumber) || stableSceneNumber < 1) return null;
+      const forwardHotspots = resolveSceneForwardHotspots(resolvedSceneId, sceneData);
+      let bestForward = null;
+      forwardHotspots.forEach(entry => {
+        const targetSceneNumber = resolveStableSceneNumber(entry.resolvedTarget);
+        if (!Number.isInteger(targetSceneNumber) || targetSceneNumber <= stableSceneNumber) return;
+        if (
+          bestForward === null ||
+          targetSceneNumber < bestForward.targetSceneNumber ||
+          (
+            targetSceneNumber === bestForward.targetSceneNumber &&
+            entry.hotspotIndex < bestForward.entry.hotspotIndex
+          )
+        ) {
+          bestForward = { entry, targetSceneNumber };
+        }
+      });
+      if (bestForward !== null) {
+        return buildStableShortcutNavigationTarget(
+          resolvedSceneId,
+          bestForward.entry,
+          bestForward.entry.resolvedTarget,
+          false,
+          false,
+        );
+      }
+      const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
+      const returnTargetSceneNumber = resolveStableSceneNumber(returnHotspot?.targetSceneId);
+      if (
+        forwardHotspots.length === 0 &&
+        returnHotspot &&
+        Number.isInteger(returnTargetSceneNumber) &&
+        returnTargetSceneNumber < stableSceneNumber
+      ) {
+        return buildCurrentCursorBacktrackTarget(
+          resolvedSceneId,
+          sceneData,
+          returnHotspot,
+          returnHotspot.targetSceneId,
+          true,
+        );
+      }
+      return null;
+    }
+    function resolveProgressAwareForwardShortcutTarget(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      if (resolvedSceneId === homeSceneId) {
+        return resolveSceneNumberForwardShortcutTarget(resolvedSceneId, sceneData);
+      }
+      const nextForwardEdge = resolveNextForwardSequenceEdge(resolvedSceneId, sceneData);
+      const preferredTarget = resolvePreferredNavigationTarget(resolvedSceneId, sceneData);
+      if (
+        preferredTarget &&
+        preferredTarget.usesReturnLink !== true &&
+        preferredTarget.isBacktrack !== true
+      ) {
+        return preferredTarget;
+      }
+      if (!nextForwardEdge) {
+        return preferredTarget;
+      }
+      return null;
+    }
+    function resolveSceneNumberBacktrackShortcutTarget(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return null;
+      const stableSceneNumber = resolveStableSceneNumber(resolvedSceneId);
+      if (!Number.isInteger(stableSceneNumber) || stableSceneNumber <= 1) return null;
+      const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
+      const returnTargetSceneNumber = resolveStableSceneNumber(returnHotspot?.targetSceneId);
+      if (
+        returnHotspot &&
+        Number.isInteger(returnTargetSceneNumber) &&
+        returnTargetSceneNumber < stableSceneNumber
+      ) {
+        return buildCurrentCursorBacktrackTarget(
+          resolvedSceneId,
+          sceneData,
+          returnHotspot,
+          returnHotspot.targetSceneId,
+          true,
+        );
+      }
+      const forwardHotspots = resolveSceneForwardHotspots(resolvedSceneId, sceneData);
+      let bestBacktrack = null;
+      forwardHotspots.forEach(entry => {
+        const targetSceneNumber = resolveStableSceneNumber(entry.resolvedTarget);
+        if (!Number.isInteger(targetSceneNumber) || targetSceneNumber >= stableSceneNumber) return;
+        if (
+          bestBacktrack === null ||
+          targetSceneNumber > bestBacktrack.targetSceneNumber ||
+          (
+            targetSceneNumber === bestBacktrack.targetSceneNumber &&
+            entry.hotspotIndex < bestBacktrack.entry.hotspotIndex
+          )
+        ) {
+          bestBacktrack = { entry, targetSceneNumber };
+        }
+      });
+      if (bestBacktrack !== null) {
+        return buildStableShortcutNavigationTarget(
+          resolvedSceneId,
+          bestBacktrack.entry,
+          bestBacktrack.entry.resolvedTarget,
+          false,
+          true,
+        );
+      }
+      return null;
+    }
+    function resolveShortcutNavigationTargets(sceneId, sceneData) {
+      const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
+      if (!resolvedSceneId) return { nextTarget: null, prevTarget: null };
+      const homeSceneId = resolveExistingSceneId(firstSceneId);
+      const stableSceneNumber = resolveStableSceneNumber(resolvedSceneId);
+      if (!Number.isInteger(stableSceneNumber) || stableSceneNumber < 1) {
+        const nextTarget = resolveProgressAwareForwardShortcutTarget(resolvedSceneId, sceneData);
+        const prevCandidate =
+          resolvedSceneId === homeSceneId ? null : resolveBacktrackTarget(resolvedSceneId, sceneData);
+        return {
+          nextTarget,
+          prevTarget:
+            prevCandidate?.targetSceneId && prevCandidate.targetSceneId === nextTarget?.targetSceneId
+              ? null
+              : prevCandidate,
+        };
+      }
+      const nextTarget = resolveProgressAwareForwardShortcutTarget(resolvedSceneId, sceneData);
+      const prevCandidate =
+        resolvedSceneId === homeSceneId || stableSceneNumber <= 1
+          ? null
+          : resolveBacktrackTarget(resolvedSceneId, sceneData);
+      return {
+        nextTarget,
+        prevTarget:
+          prevCandidate?.targetSceneId && prevCandidate.targetSceneId === nextTarget?.targetSceneId
+            ? null
+            : prevCandidate,
+      };
     }
     function resolvePreferredNavigationTarget(sceneId, sceneData) {
       const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId);
@@ -449,6 +726,7 @@ let script = `
           nextForwardEdge.targetSceneId,
           nextForwardEdge.sequenceNumber,
           false,
+          false,
         );
       }
       const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
@@ -459,6 +737,7 @@ let script = `
           returnHotspot.hotspotIndex,
           returnHotspot.targetSceneId,
           getCurrentSceneSequenceCursor(resolvedSceneId, sceneData),
+          true,
           true,
         );
       }
@@ -481,6 +760,7 @@ let script = `
           resolvedSourceSceneId,
           sequenceCursorOverride,
           sourceHotspot.isReturn === true,
+          true,
         );
       }
       const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
@@ -492,6 +772,7 @@ let script = `
           resolvedSourceSceneId,
           sequenceCursorOverride,
           true,
+          true,
         );
       }
       return buildNavigationTarget(
@@ -501,6 +782,7 @@ let script = `
         resolvedSourceSceneId,
         sequenceCursorOverride,
         false,
+        true,
       );
     }
     function resolveBacktrackTarget(sceneId, sceneData) {
@@ -556,6 +838,11 @@ let script = `
       const requestedTargetSceneId = options?.targetSceneId ?? forceTargetSceneId;
       const targetSceneId = resolveTargetSceneId(args, requestedTargetSceneId);
       const fromAutoForward = options?.fromAutoForward === true;
+      const fromManifest = options?.fromManifest === true;
+      const isAutoTourBacktrack =
+        options?.isBacktrack === true ||
+        options?.usesReturnLink === true ||
+        args?.isReturnLink === true;
       if (!targetSceneId) {
         if (fromAutoForward && typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
         return;
@@ -568,24 +855,31 @@ let script = `
         ?? resolveExistingSceneId(window.viewer.getScene())
         ?? normalizeSceneId(window.viewer.getScene());
       if (fromAutoForward) {
-        beginAutoForwardChain();
-        if (shouldBlockAutoForward(sourceSceneId, targetSceneId)) {
+        if (fromManifest) {
           resetAutoForwardLoopGuard();
-          lookingMode = manualLookingMode;
-          updateLookingModeUI();
-          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
-          return;
+        } else if (isAutoTourBacktrack) {
+          resetAutoForwardLoopGuard();
+        } else {
+          beginAutoForwardChain();
+          if (shouldBlockAutoForward(sourceSceneId, targetSceneId)) {
+            resetAutoForwardLoopGuard();
+            lookingMode = manualLookingMode;
+            updateLookingModeUI();
+            if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+            return;
+          }
+          trackAutoForwardSource(sourceSceneId);
         }
-        trackAutoForwardSource(sourceSceneId);
       } else {
         resetAutoForwardLoopGuard();
       }
       const fallbackSequenceCursor = args?.isReturnLink === true
         ? getCurrentSceneSequenceCursor(sourceSceneId, scenesData?.[sourceSceneId])
         : (Number.isFinite(args?.sequenceNumber) ? Math.trunc(args.sequenceNumber) : null);
-      const sequenceCursor = Number.isInteger(options?.sequenceCursorOverride)
+      const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)
         ? options.sequenceCursorOverride
         : fallbackSequenceCursor;
+      const sequenceCursor = requestedSequenceCursor;
       const shouldTrackArrivalOrientation =
         !!sourceSceneId &&
         !!targetSceneId &&
@@ -619,51 +913,70 @@ let script = `
       hotspots.forEach(h => { if (h) h.__visited = false; });
 
       const resolvedHotspots = buildResolvedHotspots(sceneId, sceneData);
-
-      if (EXPORT_TRAVERSAL_MODE === "canonical") {
-        const preferredTarget = resolvePreferredNavigationTarget(sceneId, sceneData);
-        if (preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)) {
-          return {
-            hotspot: preferredTarget.hotspot,
-            hotspotIndex: preferredTarget.hotspotIndex,
-            autoForward: preferredTarget.hotspotIndex === sceneData?.autoForwardHotspotIndex,
-            targetSceneId: preferredTarget.targetSceneId,
-          };
-        }
-
-        const canonicalSorted = sortCanonicalHotspots(resolvedHotspots);
-        const canonicalFallback = canonicalSorted.find(h => h.hotspotIndex === 0) ?? canonicalSorted[0];
-        if (canonicalFallback) {
-          return {
-            hotspot: canonicalFallback.hotspot,
-            hotspotIndex: canonicalFallback.hotspotIndex,
-            autoForward: canonicalFallback.isAutoForward,
-            targetSceneId: canonicalFallback.resolvedTarget,
-          };
-        }
+      const manifestPlaybackTarget =
+        window.isAutoTourActive === true ? buildPlaybackTargetFromAutoTourStep(sceneId) : null;
+      if (manifestPlaybackTarget) {
+        return manifestPlaybackTarget;
       }
+      if (window.isAutoTourActive === true) {
+        return null;
+      }
+
+        if (EXPORT_TRAVERSAL_MODE === "canonical") {
+          const preferredTarget = resolvePreferredNavigationTarget(sceneId, sceneData);
+          if (preferredTarget?.hotspot && Number.isInteger(preferredTarget?.hotspotIndex)) {
+            return {
+              hotspot: preferredTarget.hotspot,
+              hotspotIndex: preferredTarget.hotspotIndex,
+              autoForward: preferredTarget.hotspotIndex === sceneData?.autoForwardHotspotIndex,
+              targetSceneId: preferredTarget.targetSceneId,
+              usesReturnLink: preferredTarget.usesReturnLink === true,
+              backtrack: preferredTarget.isBacktrack === true,
+            };
+          }
+
+          const canonicalSorted = sortCanonicalHotspots(resolvedHotspots);
+          const canonicalFallback = canonicalSorted.find(h => h.hotspotIndex === 0) ?? canonicalSorted[0];
+        if (canonicalFallback) {
+            return {
+              hotspot: canonicalFallback.hotspot,
+              hotspotIndex: canonicalFallback.hotspotIndex,
+              autoForward: canonicalFallback.isAutoForward,
+              targetSceneId: canonicalFallback.resolvedTarget,
+              usesReturnLink: canonicalFallback.isReturn === true,
+              backtrack: canonicalFallback.isReturn === true,
+            };
+          }
+        }
       
       // PRIORITY 1: Unvisited, non-return, non-auto-forward (explore)
       const p1 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && !h.isAutoForward);
-      if (p1) { p1.hotspot.__visited = true; return { hotspot: p1.hotspot, hotspotIndex: p1.hotspotIndex, autoForward: false, targetSceneId: p1.resolvedTarget }; }
+      if (p1) { p1.hotspot.__visited = true; return { hotspot: p1.hotspot, hotspotIndex: p1.hotspotIndex, autoForward: false, targetSceneId: p1.resolvedTarget, usesReturnLink: false, backtrack: false }; }
       
       // PRIORITY 2: Unvisited, non-return, IS auto-forward (exit - taken LAST)
       const p2 = resolvedHotspots.find(h => !h.hotspot.__visited && !h.isReturn && h.isAutoForward);
-      if (p2) { p2.hotspot.__visited = true; return { hotspot: p2.hotspot, hotspotIndex: p2.hotspotIndex, autoForward: true, targetSceneId: p2.resolvedTarget }; }
+      if (p2) { p2.hotspot.__visited = true; return { hotspot: p2.hotspot, hotspotIndex: p2.hotspotIndex, autoForward: true, targetSceneId: p2.resolvedTarget, usesReturnLink: false, backtrack: false }; }
       
       // PRIORITY 3: Unvisited, return, non-auto-forward
       const p3 = resolvedHotspots.find(h => !h.hotspot.__visited && h.isReturn && !h.isAutoForward);
-      if (p3) { p3.hotspot.__visited = true; return { hotspot: p3.hotspot, hotspotIndex: p3.hotspotIndex, autoForward: false, targetSceneId: p3.resolvedTarget }; }
+      if (p3) { p3.hotspot.__visited = true; return { hotspot: p3.hotspot, hotspotIndex: p3.hotspotIndex, autoForward: false, targetSceneId: p3.resolvedTarget, usesReturnLink: true, backtrack: true }; }
       
       // PRIORITY 4: Unvisited, return, auto-forward
       const p4 = resolvedHotspots.find(h => !h.hotspot.__visited && h.isReturn && h.isAutoForward);
-      if (p4) { p4.hotspot.__visited = true; return { hotspot: p4.hotspot, hotspotIndex: p4.hotspotIndex, autoForward: true, targetSceneId: p4.resolvedTarget }; }
+      if (p4) { p4.hotspot.__visited = true; return { hotspot: p4.hotspot, hotspotIndex: p4.hotspotIndex, autoForward: true, targetSceneId: p4.resolvedTarget, usesReturnLink: true, backtrack: true }; }
       
       // All visited - return to start
       const startLink = resolvedHotspots.find(h => h.hotspotIndex === 0);
-      if (startLink) return { hotspot: startLink.hotspot, hotspotIndex: 0, autoForward: false, targetSceneId: startLink.resolvedTarget };
+      if (startLink) return { hotspot: startLink.hotspot, hotspotIndex: 0, autoForward: false, targetSceneId: startLink.resolvedTarget, usesReturnLink: startLink.isReturn === true, backtrack: startLink.isReturn === true };
       
-      return { hotspot: hotspots[0], hotspotIndex: 0, autoForward: false, targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null };
+      return {
+        hotspot: hotspots[0],
+        hotspotIndex: 0,
+        autoForward: false,
+        targetSceneId: resolvedHotspots[0]?.resolvedTarget ?? null,
+        usesReturnLink: resolvedHotspots[0]?.isReturn === true,
+        backtrack: resolvedHotspots[0]?.isReturn === true,
+      };
     }
     function resolveSceneReturnHotspot(sceneId) {
       const resolvedSceneId = resolveExistingSceneId(sceneId);
@@ -713,7 +1026,26 @@ let script = `
         sourceSceneId: sceneId,
         targetSceneId: playbackTarget.targetSceneId ?? null,
         destinationOverride: destinationOverride ?? null,
+        usesReturnLink: playbackTarget.usesReturnLink === true,
+        isBacktrack: playbackTarget.backtrack === true,
+        sequenceCursorOverride: Number.isInteger(playbackTarget.sequenceCursorOverride)
+          ? playbackTarget.sequenceCursorOverride
+          : null,
+        fromManifest: playbackTarget.fromManifest === true,
       };
+      if (playbackTarget.fromManifest === true) {
+        if (!playbackTarget.targetSceneId) {
+          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+          return;
+        }
+        const didAdvance = advanceAutoTourManifestCursor(sceneId, playbackTarget.targetSceneId);
+        if (!didAdvance) {
+          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+          return;
+        }
+        navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);
+        return;
+      }
       if (playbackTarget.targetSceneId) {
         navigateToNextScene(playbackTarget.hotspot, playbackTarget.targetSceneId, autoForwardOptions);
         return;

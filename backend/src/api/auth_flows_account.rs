@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use chrono::Utc;
 use sqlx::SqlitePool;
 use uuid::Uuid;
@@ -28,9 +28,13 @@ pub(super) async fn signup(
         .bind(&email)
         .fetch_optional(pool.get_ref())
         .await
-        .map_err(|error| AppError::InternalError(format!("Signup email lookup failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Signup email lookup failed: {}", error))
+        })?;
     if existing_email.is_some() {
-        return Err(AppError::ValidationError("Email already registered.".into()));
+        return Err(AppError::ValidationError(
+            "Email already registered.".into(),
+        ));
     }
 
     let existing_username =
@@ -87,10 +91,7 @@ pub(super) async fn resend_verification_email(
     .fetch_optional(pool.get_ref())
     .await
     .map_err(|error| {
-        AppError::InternalError(format!(
-            "Resend verification user lookup failed: {}",
-            error
-        ))
+        AppError::InternalError(format!("Resend verification user lookup failed: {}", error))
     })?;
 
     if let Some((user_id, email_verified_at)) = row

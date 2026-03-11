@@ -44,4 +44,48 @@ describe('PageFramework builder restore normalization', () => {
     });
     expect(projectData.logo).toBe('logo_upload');
   });
+
+  test('normalizes scene and inventory file references to the current session asset URLs', () => {
+    const projectData = {
+      tourName: 'Tour',
+      inventory: [
+        {
+          entry: {
+            scene: {
+              id: 'scene-a',
+              file: 'assets/images/2k/001_Zoom_Out_View.webp',
+              originalFile: '/api/project/old-session/file/001_Zoom_Out_View.jpg?cache=1',
+              tinyFile: 'tiny/001_Zoom_Out_View.webp',
+            },
+          },
+        },
+      ],
+      scenes: [
+        {
+          id: 'scene-a',
+          file: 'images/001_Zoom_Out_View.webp',
+          originalFile: 'https://cdn.example.com/001_Zoom_Out_View.jpg',
+          tinyFile: 'tiny/001_Zoom_Out_View.webp',
+        },
+      ],
+    };
+
+    const normalized = normalizeProjectDataForBuilder('session-5', projectData);
+
+    expect(normalized.inventory[0].entry.scene).toEqual({
+      id: 'scene-a',
+      file: '/api/project/session-5/file/001_Zoom_Out_View.webp',
+      originalFile: '/api/project/session-5/file/001_Zoom_Out_View.jpg',
+      tinyFile: '/api/project/session-5/file/001_Zoom_Out_View.webp',
+    });
+    expect(normalized.scenes[0]).toEqual({
+      id: 'scene-a',
+      file: '/api/project/session-5/file/001_Zoom_Out_View.webp',
+      originalFile: 'https://cdn.example.com/001_Zoom_Out_View.jpg',
+      tinyFile: '/api/project/session-5/file/001_Zoom_Out_View.webp',
+    });
+
+    expect(projectData.inventory[0].entry.scene.file).toBe('assets/images/2k/001_Zoom_Out_View.webp');
+    expect(projectData.scenes[0].file).toBe('images/001_Zoom_Out_View.webp');
+  });
 });

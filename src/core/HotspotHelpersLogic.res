@@ -38,10 +38,7 @@ let decodeHotspotMetadata = (metadata: JSON.t): JsonParsersDecoders.updateHotspo
   HotspotHelpersMetadata.decodeHotspotMetadata(metadata)
 }
 
-let applyHotspotMetadata = (
-  hotspot: hotspot,
-  meta: JsonParsersDecoders.updateHotspotMetadata,
-) => {
+let applyHotspotMetadata = (hotspot: hotspot, meta: JsonParsersDecoders.updateHotspotMetadata) => {
   HotspotHelpersMetadata.applyHotspotMetadata(hotspot, meta)
 }
 
@@ -179,10 +176,8 @@ let handleUpdateHotspotMetadataState = (
       switch state.inventory->Belt.Map.String.get(id) {
       | Some(entry) =>
         let meta = decodeHotspotMetadata(metadata)
-        let updatedHotspots = updateHotspotAtIndex(
-          entry.scene.hotspots,
-          hotspotIndex,
-          hotspot => applyHotspotMetadata(hotspot, meta),
+        let updatedHotspots = updateHotspotAtIndex(entry.scene.hotspots, hotspotIndex, hotspot =>
+          applyHotspotMetadata(hotspot, meta)
         )
         {
           ...state,
@@ -199,11 +194,9 @@ let handleUpdateHotspotMetadataState = (
   }
 }
 
-let lookupHotspotLinkId = (
-  state: state,
-  sceneId: option<string>,
-  hotspotIndex: int,
-): option<string> => {
+let lookupHotspotLinkId = (state: state, sceneId: option<string>, hotspotIndex: int): option<
+  string,
+> => {
   switch sceneId {
   | Some(sid) =>
     state.inventory
@@ -254,7 +247,11 @@ let handleCommitHotspotMoveState = (
   }
 }
 
-let canEnableAutoForwardState = (scenes: array<scene>, sceneIndex: int, hotspotIndex: int): bool => {
+let canEnableAutoForwardState = (
+  scenes: array<scene>,
+  sceneIndex: int,
+  hotspotIndex: int,
+): bool => {
   switch Belt.Array.get(scenes, sceneIndex) {
   | None => true
   | Some(scene) =>

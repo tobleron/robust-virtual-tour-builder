@@ -7,11 +7,7 @@ let buildSequenceDrafts = (
     acc->Belt.Map.String.set(row.linkId, Belt.Int.toString(row.sequence))
   )
 
-let applySequenceReorder = (
-  ~dispatch: action => unit,
-  ~linkId: string,
-  ~desiredOrder: int,
-) => {
+let applySequenceReorder = (~dispatch: action => unit, ~linkId: string, ~desiredOrder: int) => {
   let liveState = AppContext.getBridgeState()
   let updates = HotspotSequence.buildReorderUpdates(~state=liveState, ~linkId, ~desiredOrder)
 
@@ -40,7 +36,7 @@ let applySequenceReorder = (
 
 let commitSequenceDraft = (
   ~sequenceDrafts: Belt.Map.String.t<string>,
-  ~setSequenceDrafts: ((Belt.Map.String.t<string> => Belt.Map.String.t<string>)) => unit,
+  ~setSequenceDrafts: (Belt.Map.String.t<string> => Belt.Map.String.t<string>) => unit,
   ~dispatch: action => unit,
   ~linkId: string,
   ~currentSequence: int,

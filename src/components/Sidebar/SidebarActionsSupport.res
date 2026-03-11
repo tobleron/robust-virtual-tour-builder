@@ -68,11 +68,7 @@ let saveModalConfig = (
         autoClose: Some(true),
       },
       {
-        label: preferredLabel(
-          PersistencePreferences.Both,
-          "Save Both (Default)",
-          "Save Both",
-        ),
+        label: preferredLabel(PersistencePreferences.Both, "Save Both (Default)", "Save Both"),
         class_: "bg-emerald-500/20 text-white hover:bg-emerald-500/35",
         onClick: () => runSaveForTarget(PersistencePreferences.Both),
         autoClose: Some(true),
@@ -138,63 +134,54 @@ module TeaserOptionsContent = {
     <div className="teaser-settings-panel">
       <div className="teaser-settings-section">
         <div className="teaser-settings-section-header">
-          <div className="teaser-settings-heading">
-            {React.string("Style")}
-          </div>
+          <div className="teaser-settings-heading"> {React.string("Style")} </div>
           <div className="teaser-settings-section-note">
             {React.string("Pick the teaser look")}
           </div>
         </div>
         {TeaserStyleCatalog.options
-         ->Belt.Array.map(opt => {
-              let isSelected = selectedStyleId == opt.id
-              let cardClasses =
-                if opt.available {
-                  if isSelected {
-                    "teaser-settings-option--selected"
-                  } else {
-                    ""
-                  }
-                } else {
-                  "teaser-settings-option--unavailable"
-                }
+        ->Belt.Array.map(opt => {
+          let isSelected = selectedStyleId == opt.id
+          let cardClasses = if opt.available {
+            if isSelected {
+              "teaser-settings-option--selected"
+            } else {
+              ""
+            }
+          } else {
+            "teaser-settings-option--unavailable"
+          }
 
-              <label
-                key={opt.id}
-                className={"teaser-settings-option " ++ cardClasses}
-              >
-                <input
-                  type_="radio"
-                  name="teaser-style"
-                  checked={isSelected}
-                  disabled={!opt.available}
-                  onChange={_ => if opt.available { selectStyle(opt.id) }}
-                  className="teaser-settings-radio"
-                />
-                <span className="teaser-settings-option-copy">
-                  <span className="teaser-settings-option-topline">
-                    <span className="teaser-settings-option-label">
-                      {React.string(opt.label)}
-                    </span>
-                    {if isSelected {
-                      <span className="teaser-settings-status">
-                        {React.string("Selected")}
-                      </span>
-                    } else if opt.available {
-                      React.null
-                    } else {
-                      <span className="teaser-settings-badge">
-                        {React.string("Soon")}
-                      </span>
-                    }}
-                  </span>
-                  <span className="teaser-settings-option-description">
-                    {React.string(opt.description)}
-                  </span>
-                </span>
-              </label>
-            })
-         ->React.array}
+          <label key={opt.id} className={"teaser-settings-option " ++ cardClasses}>
+            <input
+              type_="radio"
+              name="teaser-style"
+              checked={isSelected}
+              disabled={!opt.available}
+              onChange={_ =>
+                if opt.available {
+                  selectStyle(opt.id)
+                }}
+              className="teaser-settings-radio"
+            />
+            <span className="teaser-settings-option-copy">
+              <span className="teaser-settings-option-topline">
+                <span className="teaser-settings-option-label"> {React.string(opt.label)} </span>
+                {if isSelected {
+                  <span className="teaser-settings-status"> {React.string("Selected")} </span>
+                } else if opt.available {
+                  React.null
+                } else {
+                  <span className="teaser-settings-badge"> {React.string("Soon")} </span>
+                }}
+              </span>
+              <span className="teaser-settings-option-description">
+                {React.string(opt.description)}
+              </span>
+            </span>
+          </label>
+        })
+        ->React.array}
       </div>
 
       {if isCinematicSelected {
@@ -203,47 +190,35 @@ module TeaserOptionsContent = {
 
           <div className="teaser-settings-section">
             <div className="teaser-settings-section-header">
-              <div className="teaser-settings-heading">
-                {React.string("Cinematic Pan Speed")}
-              </div>
-              <div className="teaser-settings-section-note">
-                {React.string(defaultSpeedMeta)}
-              </div>
+              <div className="teaser-settings-heading"> {React.string("Cinematic Pan Speed")} </div>
+              <div className="teaser-settings-section-note"> {React.string(defaultSpeedMeta)} </div>
             </div>
             <div className="teaser-speed-grid">
               {TeaserStyleConfig.panSpeedOptions
-               ->Belt.Array.map(opt => {
-                    let isSelected = selectedPanSpeedId == opt.id
-                    let cardClasses = if isSelected {
-                      "teaser-speed-option--selected"
-                    } else {
-                      ""
-                    }
-                    let speedMeta =
-                      Belt.Int.toString(Belt.Float.toInt(opt.speedDegPerSec)) ++ " deg/s"
+              ->Belt.Array.map(opt => {
+                let isSelected = selectedPanSpeedId == opt.id
+                let cardClasses = if isSelected {
+                  "teaser-speed-option--selected"
+                } else {
+                  ""
+                }
+                let speedMeta = Belt.Int.toString(Belt.Float.toInt(opt.speedDegPerSec)) ++ " deg/s"
 
-                    <label
-                      key={opt.id}
-                      className={"teaser-speed-option " ++ cardClasses}
-                    >
-                      <input
-                        type_="radio"
-                        name="teaser-pan-speed"
-                        checked={isSelected}
-                        onChange={_ => selectPanSpeed(opt.id)}
-                        className="teaser-settings-radio"
-                      />
-                      <span className="teaser-speed-option-copy">
-                        <span className="teaser-speed-option-label">
-                          {React.string(opt.label)}
-                        </span>
-                        <span className="teaser-speed-option-meta">
-                          {React.string(speedMeta)}
-                        </span>
-                      </span>
-                    </label>
-                  })
-               ->React.array}
+                <label key={opt.id} className={"teaser-speed-option " ++ cardClasses}>
+                  <input
+                    type_="radio"
+                    name="teaser-pan-speed"
+                    checked={isSelected}
+                    onChange={_ => selectPanSpeed(opt.id)}
+                    className="teaser-settings-radio"
+                  />
+                  <span className="teaser-speed-option-copy">
+                    <span className="teaser-speed-option-label"> {React.string(opt.label)} </span>
+                    <span className="teaser-speed-option-meta"> {React.string(speedMeta)} </span>
+                  </span>
+                </label>
+              })
+              ->React.array}
             </div>
             <div className="teaser-settings-note">
               {React.string(

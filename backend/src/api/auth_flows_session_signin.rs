@@ -1,4 +1,4 @@
-use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 
@@ -6,8 +6,8 @@ use crate::auth::encode_token;
 use crate::models::{AppError, User};
 
 use super::super::super::{
-    AuthChallengeResponse, AuthSuccessResponse, DEVICE_COOKIE_NAME, MeResponse, SignInPayload,
-    STEP_UP_SESSION_HOURS_DEFAULT,
+    AuthChallengeResponse, AuthSuccessResponse, DEVICE_COOKIE_NAME, MeResponse,
+    STEP_UP_SESSION_HOURS_DEFAULT, SignInPayload,
 };
 
 pub(super) async fn signin(
@@ -38,7 +38,9 @@ pub(super) async fn signin(
         .bind(email.clone())
         .fetch_optional(pool.get_ref())
         .await
-        .map_err(|error| AppError::InternalError(format!("Signin user lookup failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Signin user lookup failed: {}", error))
+        })?;
     let user = if let Some(user) = user_opt {
         user
     } else {
@@ -188,10 +190,8 @@ pub(super) async fn signin(
     )
     .await?;
     let device_cookie = super::super::super::create_device_cookie(&current_device_token);
-    let step_up_hours = super::super::super::config_i64(
-        "STEP_UP_SESSION_HOURS",
-        STEP_UP_SESSION_HOURS_DEFAULT,
-    );
+    let step_up_hours =
+        super::super::super::config_i64("STEP_UP_SESSION_HOURS", STEP_UP_SESSION_HOURS_DEFAULT);
     let step_up_until = Some((Utc::now() + Duration::hours(step_up_hours)).timestamp() as usize);
     let token = encode_token(&user.id, step_up_until)?;
     let auth_cookie = super::super::super::create_auth_cookie(&token);

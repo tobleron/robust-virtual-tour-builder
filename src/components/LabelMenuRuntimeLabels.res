@@ -36,8 +36,7 @@ let normalizeWord = (word: string): string => {
 
 let normalizeCustomLabel = (rawValue: string): string => {
   let trimmed = rawValue->String.trim
-  let isAllCaps =
-    String.toUpperCase(trimmed) == trimmed && String.toLowerCase(trimmed) != trimmed
+  let isAllCaps = String.toUpperCase(trimmed) == trimmed && String.toLowerCase(trimmed) != trimmed
 
   if isAllCaps {
     trimmed->String.split(" ")->Belt.Array.map(normalizeWord)->Array.joinUnsafe(" ")
@@ -50,7 +49,7 @@ let handleSelect = (
   ~currentScene: option<scene>,
   ~targetIndex: int,
   ~dispatch: action => unit,
-  ~setFlickeringLabel: ((option<string> => option<string>)) => unit,
+  ~setFlickeringLabel: (option<string> => option<string>) => unit,
   ~label: string,
   ~onClose: unit => unit,
   e: JsxEvent.Mouse.t,

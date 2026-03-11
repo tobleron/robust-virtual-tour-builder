@@ -68,9 +68,7 @@ let useManagedDispatch = dispatchRaw => {
       switch rafIdRef.current {
       | Some(_) => ()
       | None =>
-        rafIdRef.current = Some(
-          ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()),
-        )
+        rafIdRef.current = Some(ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()))
       }
     } else {
       let currentState = AppStateBridge.getState()
@@ -145,8 +143,10 @@ let usePersistSessionSlice = (sessionSlice: Types.sessionState) => {
       SessionStore.save(sessionSlice)
     }, 500)
 
-    Some(() => {
-      clearTimeout(timerId)
-    })
+    Some(
+      () => {
+        clearTimeout(timerId)
+      },
+    )
   }, [sessionSlice])
 }

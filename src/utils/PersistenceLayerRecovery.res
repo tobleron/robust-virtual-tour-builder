@@ -24,8 +24,7 @@ let checkIncrementalRecovery = (
   ~sliceKey: string => string,
   ~currentSchemaVersion: int,
 ): Promise.t<option<serializedSession>> =>
-  get(manifestKey)
-  ->Promise.then(manifestItem => {
+  get(manifestKey)->Promise.then(manifestItem => {
     let manifestOpt =
       manifestItem
       ->Nullable.toOption
@@ -56,7 +55,9 @@ let checkIncrementalRecovery = (
             json => PersistenceLayerPayload.extractFromSlice(json, "timeline"),
           )
         let metadata =
-          Belt.Array.getExn(sliceResults, 3)->Option.flatMap(PersistenceLayerPayload.decodeMetadataSlice)
+          Belt.Array.getExn(sliceResults, 3)->Option.flatMap(
+            PersistenceLayerPayload.decodeMetadataSlice,
+          )
 
         switch (inventoryJson, sceneOrderJson, timelineJson, metadata) {
         | (Some(inventory), Some(sceneOrder), Some(timeline), Some(meta)) =>
@@ -85,10 +86,9 @@ let checkIncrementalRecovery = (
     }
   })
 
-let checkLegacyRecovery = (
-  ~legacyKey: string,
-  ~currentSchemaVersion: int,
-): Promise.t<option<serializedSession>> =>
+let checkLegacyRecovery = (~legacyKey: string, ~currentSchemaVersion: int): Promise.t<
+  option<serializedSession>,
+> =>
   get(legacyKey)->Promise.then(item => {
     Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_GOT_ITEM", ())
     switch Nullable.toOption(item) {
@@ -140,8 +140,11 @@ let checkRecovery = (
   ~currentSchemaVersion: int,
 ) => {
   Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_START", ())
-  checkIncrementalRecovery(~manifestKey, ~sliceKey, ~currentSchemaVersion)
-  ->Promise.then(incremental => {
+  checkIncrementalRecovery(
+    ~manifestKey,
+    ~sliceKey,
+    ~currentSchemaVersion,
+  )->Promise.then(incremental => {
     switch incremental {
     | Some(v) => Promise.resolve(Some(v))
     | None => checkLegacyRecovery(~legacyKey, ~currentSchemaVersion)

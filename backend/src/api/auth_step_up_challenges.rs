@@ -3,7 +3,7 @@ mod auth_step_up_challenges_issue;
 #[path = "auth_step_up_challenges_verify.rs"]
 mod auth_step_up_challenges_verify;
 
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use chrono::Utc;
 use sqlx::SqlitePool;
 

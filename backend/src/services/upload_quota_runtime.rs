@@ -30,12 +30,15 @@ pub(super) async fn try_register_upload(
         ));
     }
 
-    let total_size: usize = active.values().flat_map(|uploads| uploads.iter()).map(|tracker| tracker.size).sum();
+    let total_size: usize = active
+        .values()
+        .flat_map(|uploads| uploads.iter())
+        .map(|tracker| tracker.size)
+        .sum();
 
     if total_size + size > manager.config.max_total_concurrent_size {
         return Err(
-            "Server is currently processing too many uploads. Please try again later."
-                .to_string(),
+            "Server is currently processing too many uploads. Please try again later.".to_string(),
         );
     }
 

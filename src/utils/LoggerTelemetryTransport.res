@@ -21,10 +21,7 @@ type flushPayload = LoggerTelemetryFlush.flushPayload = {
 
 let nowMs = () => Date.now()
 
-let clearSuspensionIfExpired = (
-  ~nowMs: unit => float,
-  ~telemetrySuspendedUntil: ref<float>,
-) => {
+let clearSuspensionIfExpired = (~nowMs: unit => float, ~telemetrySuspendedUntil: ref<float>) => {
   if telemetrySuspendedUntil.contents != 0.0 && nowMs() >= telemetrySuspendedUntil.contents {
     telemetrySuspendedUntil := 0.0
   }
@@ -161,15 +158,18 @@ let isTransportQueueOverflow = (~transportQueueOverflowReason: string, err: exn)
 let buildFlushPayload = (
   ~telemetryQueue: array<logEntry>,
   ~deduplicateBatchEntries: array<logEntry> => array<logEntry>,
-): flushPayload =>
-  LoggerTelemetryFlush.buildFlushPayload(~telemetryQueue, ~deduplicateBatchEntries)
+): flushPayload => LoggerTelemetryFlush.buildFlushPayload(~telemetryQueue, ~deduplicateBatchEntries)
 
 let tryFlushWithBeacon = (
   ~encodeTelemetryBatch: telemetryBatch => JSON.t,
   ~noteTelemetryPayloadBytes: int => unit,
   payload: telemetryBatch,
 ): bool =>
-  LoggerTelemetryFlush.tryFlushWithBeacon(~encodeTelemetryBatch, ~noteTelemetryPayloadBytes, payload)
+  LoggerTelemetryFlush.tryFlushWithBeacon(
+    ~encodeTelemetryBatch,
+    ~noteTelemetryPayloadBytes,
+    payload,
+  )
 
 let completeFlush = (
   ~_telemetryQueue: array<logEntry>,
@@ -177,7 +177,12 @@ let completeFlush = (
   ~networkSuccess: bool,
   ~suspendTelemetry: unit => unit,
 ) =>
-  LoggerTelemetryFlush.completeFlush(~_telemetryQueue, ~_takeCount, ~networkSuccess, ~suspendTelemetry)
+  LoggerTelemetryFlush.completeFlush(
+    ~_telemetryQueue,
+    ~_takeCount,
+    ~networkSuccess,
+    ~suspendTelemetry,
+  )
 
 let rec attemptSendBatch = async (
   ~canUseTelemetryNetwork: unit => bool,

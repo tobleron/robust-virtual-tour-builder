@@ -8,6 +8,8 @@ let script = `
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
     const IS_HD_EXPORT = __IS_HD_EXPORT__;
     const EXPORT_TRAVERSAL_MODE = "__EXPORT_TRAVERSAL_MODE__";
+    // Set to "always" to restore manual exported-tour waypoint playback.
+    const EXPORT_WAYPOINT_ANIMATION_POLICY = "auto-tour-only";
     const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;
@@ -17,6 +19,7 @@ let script = `
     const AUTO_TOUR_FORWARD_DELAY_MS = 360;
     const AUTO_TOUR_MIN_ANIMATION_MS = 180.0;
     const AUTO_TOUR_MIN_FORWARD_DELAY_MS = 80;
+    const MANUAL_POST_ARRIVAL_FOCUS_MS = 320.0;
     const TRAPEZOID_FACTOR = 0.12;
     const WAYPOINT_SMOOTHING_FACTOR = 0.3;
     const SPLINE_SEGMENTS = 100;

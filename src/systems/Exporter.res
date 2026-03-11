@@ -17,8 +17,7 @@ let exportTour = async (
 ): result<unit, string> => {
   let exportScenes = scenes->Belt.Array.keep(s => s.floor->String.trim != "")
 
-  let opId =
-    ExporterRuntime.resolveOpId(~opId, ~sceneCount=Belt.Array.length(scenes), ~tourName)
+  let opId = ExporterRuntime.resolveOpId(~opId, ~sceneCount=Belt.Array.length(scenes), ~tourName)
 
   let currentPhase = ref("INITIAL")
 

@@ -162,7 +162,9 @@ let make = React.memo((
         className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={_ => {
           EventBus.dispatch(
-            ShowModal(SidebarActionsSupport.saveModalConfig(~preferredSaveTarget, ~runSaveForTarget)),
+            ShowModal(
+              SidebarActionsSupport.saveModalConfig(~preferredSaveTarget, ~runSaveForTarget),
+            ),
           )
         }}
         disabled={!isPermitted || savePending}
@@ -211,9 +213,11 @@ let make = React.memo((
             ShowModal(
               SidebarActionsSupport.publishModalConfig(
                 ~onOptionsChanged={opts => publishOptionsRef.current = opts},
-                ~onPublish={(() => {
-                  let _ = exportExecute()
-                })},
+                ~onPublish={
+                  () => {
+                    let _ = exportExecute()
+                  }
+                },
               ),
             ),
           )
@@ -235,12 +239,9 @@ let make = React.memo((
         onClick={_ => {
           EventBus.dispatch(
             ShowModal(
-              SidebarActionsSupport.teaserModalConfig(
-                ~teaserStyleRequestRef,
-                ~onSelect={(() => {
-                  let _ = teaserExecute()
-                })},
-              ),
+              SidebarActionsSupport.teaserModalConfig(~teaserStyleRequestRef, ~onSelect=() => {
+                let _ = teaserExecute()
+              }),
             ),
           )
         }}

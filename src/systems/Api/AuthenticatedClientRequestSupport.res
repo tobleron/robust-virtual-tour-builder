@@ -29,10 +29,7 @@ let resolveEffectiveOperationId = (~operationId: option<string>=?): option<strin
   | None => Logger.getOperationId()
   }
 
-let applyTraceHeaders = (
-  ~headers: Dict.t<string>,
-  ~effectiveOperationId: option<string>,
-) => {
+let applyTraceHeaders = (~headers: Dict.t<string>, ~effectiveOperationId: option<string>) => {
   let sessionId = switch Logger.getSessionId() {
   | Some(id) => id
   | None => "anonymous"

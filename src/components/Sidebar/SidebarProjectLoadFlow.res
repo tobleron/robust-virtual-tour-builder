@@ -16,10 +16,12 @@ let handleLoadProject = async (
     Logger.info(
       ~module_="SidebarLogic",
       ~message="PROJECT_LOAD_HANDLER_INVOKED",
-      ~data=Some(Logger.castToJson({
-        "fileCount": FileList.length(files),
-        "sceneCount": sceneCount,
-      })),
+      ~data=Some(
+        Logger.castToJson({
+          "fileCount": FileList.length(files),
+          "sceneCount": sceneCount,
+        }),
+      ),
       (),
     )
     SessionStore.clearState()

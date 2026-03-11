@@ -15,7 +15,7 @@ mod project_snapshot;
 mod project_validation;
 
 use actix_multipart::Multipart;
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use std::path::{Path, PathBuf};
 
 use crate::models::AppError;
@@ -25,13 +25,13 @@ use crate::pathfinder::PathRequest;
 pub use project_assets::SnapshotAssetSyncResponse;
 #[allow(unused_imports)]
 pub use project_dashboard::DashboardProjectSummary;
+use project_snapshot::SnapshotHistoryEnvelope;
 #[allow(unused_imports)]
 pub use project_snapshot::{
     SnapshotHistoryItem, SnapshotRestoreResponse, SnapshotSyncPayload, SnapshotSyncResponse,
 };
 #[allow(unused_imports)]
 pub use project_validation::ValidatePayload;
-use project_snapshot::SnapshotHistoryEnvelope;
 
 const SNAPSHOT_FILENAME: &str = "project_snapshot.json";
 const SNAPSHOT_HISTORY_DIR: &str = "snapshots";

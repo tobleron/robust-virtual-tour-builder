@@ -1,13 +1,11 @@
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 
 use crate::auth::encode_token;
 use crate::models::{AppError, User};
 
-use super::super::super::{
-    AuthSuccessResponse, DEVICE_COOKIE_NAME, STEP_UP_SESSION_HOURS_DEFAULT,
-};
+use super::super::super::{AuthSuccessResponse, DEVICE_COOKIE_NAME, STEP_UP_SESSION_HOURS_DEFAULT};
 
 pub(super) async fn verify_step_up_otp(
     req: HttpRequest,
@@ -86,7 +84,9 @@ pub(super) async fn verify_step_up_otp(
             None,
         )
         .await?;
-        return Err(AppError::ValidationError("Verification code expired.".into()));
+        return Err(AppError::ValidationError(
+            "Verification code expired.".into(),
+        ));
     }
 
     if attempts_used >= max_attempts {
@@ -194,10 +194,8 @@ pub(super) async fn verify_step_up_otp(
         })?;
     }
 
-    let step_up_hours = super::super::super::config_i64(
-        "STEP_UP_SESSION_HOURS",
-        STEP_UP_SESSION_HOURS_DEFAULT,
-    );
+    let step_up_hours =
+        super::super::super::config_i64("STEP_UP_SESSION_HOURS", STEP_UP_SESSION_HOURS_DEFAULT);
     let step_up_until = Some((Utc::now() + Duration::hours(step_up_hours)).timestamp() as usize);
     let token = encode_token(&user.id, step_up_until)?;
     let auth_cookie = super::super::super::create_auth_cookie(&token);

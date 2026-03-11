@@ -20,10 +20,22 @@ let drawRoundedRectCorners = (
 ) => {
   let halfW = width /. 2.0
   let halfH = height /. 2.0
-  let maxRadius = if halfW < halfH { halfW } else { halfH }
+  let maxRadius = if halfW < halfH {
+    halfW
+  } else {
+    halfH
+  }
   let clampCorner = (corner: float): float => {
-    let nonNegative = if corner < 0.0 { 0.0 } else { corner }
-    if nonNegative > maxRadius { maxRadius } else { nonNegative }
+    let nonNegative = if corner < 0.0 {
+      0.0
+    } else {
+      corner
+    }
+    if nonNegative > maxRadius {
+      maxRadius
+    } else {
+      nonNegative
+    }
   }
   let tl = clampCorner(topLeft)
   let tr = clampCorner(topRight)
@@ -108,7 +120,11 @@ let renderMarketingBanner = (
     let bodyPadX = 10.0 *. scale.sx
     let segmentHeight = 19.0 *. scale.sy
     let radius = 5.0 *. scale.uniform
-    let lineWidth = if scale.uniform > 1.0 { scale.uniform } else { 1.0 }
+    let lineWidth = if scale.uniform > 1.0 {
+      scale.uniform
+    } else {
+      1.0
+    }
 
     let segmentItems: array<bannerSegment> = Belt.Array.concatMany([
       if data.showRent {
@@ -147,7 +163,11 @@ let renderMarketingBanner = (
     let maxTotalWidth = {
       let byCanvasRatio = Belt.Int.toFloat(canvasWidth) *. (525.0 /. hdReferenceWidth)
       let byHdAbsolute = 525.0 *. scale.sx
-      if byCanvasRatio < byHdAbsolute { byCanvasRatio } else { byHdAbsolute }
+      if byCanvasRatio < byHdAbsolute {
+        byCanvasRatio
+      } else {
+        byHdAbsolute
+      }
     }
     let totalWidth = segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
     if totalWidth > maxTotalWidth {
@@ -161,13 +181,18 @@ let renderMarketingBanner = (
       segmentItems->Belt.Array.forEach(segment =>
         switch segment.kind {
         | TeaserRecorderHudTypes.Body =>
-          segment.width = if maxBodyWidth > 40.0 *. scale.sx { maxBodyWidth } else { 40.0 *. scale.sx }
+          segment.width = if maxBodyWidth > 40.0 *. scale.sx {
+            maxBodyWidth
+          } else {
+            40.0 *. scale.sx
+          }
         | _ => ()
         }
       )
     }
 
-    let adjustedTotalWidth = segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
+    let adjustedTotalWidth =
+      segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
     let startX = (Belt.Int.toFloat(canvasWidth) -. adjustedTotalWidth) /. 2.0
     let startY = Belt.Int.toFloat(canvasHeight) -. segmentHeight -. lineWidth *. 0.5
     let cursorX = ref(startX)
@@ -190,8 +215,16 @@ let renderMarketingBanner = (
         | TeaserRecorderHudTypes.Body => "#000000"
         | _ => "#ffffff"
         }
-        let topLeftRadius = if isFirst { radius } else { 0.0 }
-        let topRightRadius = if isLast { radius } else { 0.0 }
+        let topLeftRadius = if isFirst {
+          radius
+        } else {
+          0.0
+        }
+        let topRightRadius = if isLast {
+          radius
+        } else {
+          0.0
+        }
 
         drawRoundedRectCorners(
           ctx,

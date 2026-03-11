@@ -33,6 +33,10 @@ let script = `
         Math.round(AUTO_TOUR_FORWARD_DELAY_MS / getActiveAutoTourSpeedMultiplier()),
       );
     }
+    function shouldAnimateExportArrivalPlayback() {
+      if (window.isAutoTourActive === true) return true;
+      return EXPORT_WAYPOINT_ANIMATION_POLICY === "always";
+    }
     function stripSceneTag(raw) {
       const trimmed = typeof raw === "string" ? raw.trim() : "";
       if (!trimmed) return "";
@@ -79,7 +83,7 @@ let script = `
     function snapToPlaybackTerminalView(terminalView) {
       window.viewer.lookAt(terminalView.pitch, terminalView.yaw, getCurrentHfov(), false);
     }
-    function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs) {
+    function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs, onComplete) {
       if (window.viewer.getScene() !== sceneId) return;
       const yawDelta = normalizeYawDelta(startYaw, targetYaw);
       const pitchDelta = targetPitch - startPitch;
@@ -104,9 +108,69 @@ let script = `
           return;
         }
         waypointRuntime.postArrivalAnimationId = null;
+        if (typeof onComplete === "function") onComplete();
       };
       if (waypointRuntime.postArrivalAnimationId !== null) cancelAnimationFrame(waypointRuntime.postArrivalAnimationId);
       waypointRuntime.postArrivalAnimationId = requestAnimationFrame(tick);
+    }
+    function focusSceneOnPreferredHotspot(sceneId, options) {
+      if (!sceneId || window.viewer.getScene() !== sceneId) {
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      const sceneData = scenesData?.[sceneId];
+      if (!sceneData) {
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      const preferredTarget = resolvePreferredNavigationTarget(sceneId, sceneData);
+      const focusHotspot = preferredTarget?.hotspot ?? null;
+      const focusView = getHotspotFocusView(focusHotspot);
+      if (!focusView) {
+        if (typeof options?.restoreLookingMode === "function") {
+          options.restoreLookingMode();
+        } else if (options?.restoreLookingMode === true) {
+          lookingMode = manualLookingMode;
+          updateLookingModeUI();
+        }
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      if (options?.pauseLookingMode === true) {
+        lookingMode = false;
+        updateLookingModeUI();
+      }
+      const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
+      const currentYaw = typeof window.viewer.getYaw === "function" ? window.viewer.getYaw() : focusView.yaw;
+      const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0
+        ? options.durationMs
+        : 700;
+      const completeFocus = () => {
+        if (typeof options?.restoreLookingMode === "function") {
+          options.restoreLookingMode();
+        } else if (options?.restoreLookingMode === true) {
+          lookingMode = manualLookingMode;
+          updateLookingModeUI();
+        }
+        if (typeof options?.onComplete === "function") options.onComplete();
+      };
+      const yawDelta = Math.abs(normalizeYawDelta(currentYaw, focusView.yaw));
+      const pitchDelta = Math.abs(focusView.pitch - currentPitch);
+      if (yawDelta <= 0.5 && pitchDelta <= 0.5) {
+        window.viewer.lookAt(focusView.pitch, focusView.yaw, getCurrentHfov(), false);
+        completeFocus();
+        return true;
+      }
+      animateFocusPan(
+        sceneId,
+        currentYaw,
+        focusView.yaw,
+        currentPitch,
+        focusView.pitch,
+        focusDurationMs,
+        completeFocus,
+      );
+      return true;
     }
     function finalizeSceneArrival(sceneId, retries, playbackTarget, isAutoForward, autoForwardAlreadyVisited, forceAutoForward, terminalView) {
       waypointRuntime.animationId = null;
@@ -115,13 +179,16 @@ let script = `
 
       const shouldAutoForward = (isAutoForward && !autoForwardAlreadyVisited) || forceAutoForward;
       if (shouldAutoForward) {
-        if (forceAutoForward) {
+        if (forceAutoForward && playbackTarget.fromManifest !== true) {
           const tid = playbackTarget.targetSceneId;
           if (!tid || autoTourVisitedScenes.has(sceneId + ":" + tid)) {
             if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
             return;
           }
           autoTourVisitedScenes.add(sceneId + ":" + tid);
+        } else if (forceAutoForward && !playbackTarget.targetSceneId) {
+          if (typeof completeTourAndReturnHome === "function") completeTourAndReturnHome();
+          return;
         }
 
         const afKey = sceneId + ":" + playbackTarget.hotspotIndex;
@@ -159,6 +226,28 @@ let script = `
       const arrivalContext =
         pendingArrivalContext?.targetSceneId === sceneId ? pendingArrivalContext : null;
       pendingArrivalContext = null;
+      const shouldAnimateArrivalPlayback = shouldAnimateExportArrivalPlayback();
+      const shouldAutoForwardWithoutPlayback = isAutoForward && !autoForwardAlreadyVisited;
+
+      if (!shouldAnimateArrivalPlayback) {
+        finalizeSceneArrival(
+          sceneId,
+          retries,
+          playbackTarget,
+          isAutoForward,
+          autoForwardAlreadyVisited,
+          false,
+          fallbackTerminalView,
+        );
+        if (!shouldAutoForwardWithoutPlayback) {
+          focusSceneOnPreferredHotspot(sceneId, {
+            pauseLookingMode: true,
+            restoreLookingMode: true,
+            durationMs: MANUAL_POST_ARRIVAL_FOCUS_MS,
+          });
+        }
+        return;
+      }
 
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);
@@ -206,6 +295,7 @@ let script = `
               currentPitch,
               postArrivalFocusView.pitch,
               700,
+              null,
             );
           }
         }
@@ -285,6 +375,13 @@ let script = `
       const dynamicSequenceFromEdge = Number.isFinite(dynamicSequenceEdge?.sequenceNumber)
         ? Math.trunc(dynamicSequenceEdge.sequenceNumber)
         : null;
+      const targetSceneNumberFromArgs = Number.isFinite(args.targetSceneNumber) && args.targetSceneNumber > 0
+        ? Math.trunc(args.targetSceneNumber)
+        : null;
+      const targetSceneNumberFromOwner = Number.isFinite(ownerHotspot?.targetSceneNumber) && ownerHotspot.targetSceneNumber > 0
+        ? Math.trunc(ownerHotspot.targetSceneNumber)
+        : null;
+      const targetSceneNumber = targetSceneNumberFromArgs ?? targetSceneNumberFromOwner;
       const sequenceFromArgs = Number.isFinite(args.sequenceNumber) && args.sequenceNumber > 0
         ? Math.trunc(args.sequenceNumber)
         : null;
@@ -292,8 +389,7 @@ let script = `
         ? Math.trunc(ownerHotspot.sequenceNumber)
         : null;
       const resolvedSequenceNumber = dynamicSequenceFromEdge ?? sequenceFromArgs ?? sequenceFromOwner;
-      const displaySequenceNumber = resolvedSequenceNumber !== null ? (resolvedSequenceNumber + 1) : null;
-      const faceText = isReturnLink ? "R" : (displaySequenceNumber !== null ? String(displaySequenceNumber) : "");
+      const faceText = isReturnLink ? "R" : (targetSceneNumber !== null ? String(targetSceneNumber) : "");
       const afKey = ownerScene + ":" + hotspotIndex;
       const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
 

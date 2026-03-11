@@ -2,11 +2,7 @@
 
 include AuthenticatedClientBase
 
-let probeHealth = async (
-  ~lastState,
-  ~domainBreaker,
-  ~signalScope: requestSignalScope,
-): bool => {
+let probeHealth = async (~lastState, ~domainBreaker, ~signalScope: requestSignalScope): bool => {
   if lastState === CircuitBreaker.Open || lastState === CircuitBreaker.HalfOpen {
     let probeRes = await fetch(
       Constants.backendUrl ++ "/health",

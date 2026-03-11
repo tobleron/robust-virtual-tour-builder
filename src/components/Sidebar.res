@@ -1,15 +1,18 @@
 // @efficiency-role: ui-component
 
 @scope(("window", "location")) @val external assignLocation: string => unit = "assign"
-@val @scope("window") external openSavedToursMaybe: option<unit => unit> = "__VTB_OPEN_TOUR_PICKER__"
+@val @scope("window")
+external openSavedToursMaybe: option<unit => unit> = "__VTB_OPEN_TOUR_PICKER__"
 
 let resetAndStartNewProject = () => {
   SessionStore.clearState()
   PersistenceLayer.clearSession()
-  ignore(%raw(`(() => {
+  ignore(
+    %raw(`(() => {
     window.__VTB_BOOT_PROJECT_DATA__ = undefined
     window.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined
-  })()`))
+  })()`),
+  )
   assignLocation("/builder")
 }
 

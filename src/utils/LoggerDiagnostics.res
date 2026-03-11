@@ -49,7 +49,6 @@ let installLongTaskObserver = () => {
       }
     })()
   `)
-  ()
 }
 
 let bindGlobalErrorHandler = (
@@ -60,13 +59,15 @@ let bindGlobalErrorHandler = (
     emitError(
       "Global",
       "UNCAUGHT_ERROR",
-      Some(castToJson({
-        "message": msg,
-        "source": source,
-        "line": line,
-        "col": col,
-        "stack": extractStack(errObj),
-      })),
+      Some(
+        castToJson({
+          "message": msg,
+          "source": source,
+          "line": line,
+          "col": col,
+          "stack": extractStack(errObj),
+        }),
+      ),
     )
     false
   })
@@ -85,10 +86,12 @@ let bindUnhandledRejectionHandler = (
     emitError(
       "Global",
       "UNHANDLED_REJECTION",
-      Some(castToJson({
-        "reason": reasonStr,
-        "stack": stack,
-      })),
+      Some(
+        castToJson({
+          "reason": reasonStr,
+          "stack": stack,
+        }),
+      ),
     )
 
     preventDefaultIfNeeded(evt)
@@ -100,7 +103,6 @@ let installLongTaskListener = (~debugFn: (string, string, option<JSON.t>) => uni
     let detail = %raw(`_e.detail`)
     debugFn("Performance", "LONG_TASK_DETECTED", Some(castToJson(detail)))
   })
-  ()
 }
 
 let subscribeEventBusLogging = (
@@ -117,11 +119,7 @@ let subscribeEventBusLogging = (
         errorFn("Processing", `Processing Error: ${status["message"]}`, Some(castToJson(status)))
       }
     | EventBus.NavStart(payload) =>
-      debugFn(
-        "Navigation",
-        `Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`,
-        None,
-      )
+      debugFn("Navigation", `Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`, None)
     | EventBus.NetworkStatusChanged(online) =>
       if online {
         debugFn("NetworkStatus", "NETWORK_ONLINE", None)
@@ -131,13 +129,9 @@ let subscribeEventBusLogging = (
     | _ => ()
     }
   })
-  ()
 }
 
-let startBatchTimer = (
-  ~batchTimer: ref<option<int>>,
-  ~flushTelemetry: unit => Promise.t<unit>,
-) => {
+let startBatchTimer = (~batchTimer: ref<option<int>>, ~flushTelemetry: unit => Promise.t<unit>) => {
   batchTimer := Some(Window.setInterval(() => {
         let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
       }, Constants.Telemetry.batchInterval))

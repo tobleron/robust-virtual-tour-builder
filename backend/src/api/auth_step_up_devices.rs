@@ -1,4 +1,4 @@
-use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
@@ -13,10 +13,8 @@ pub(super) async fn upsert_trusted_device(
     raw_device_token: &str,
     context: &LoginContext,
 ) -> Result<(), AppError> {
-    let trust_ttl_days = super::super::config_i64(
-        "TRUSTED_DEVICE_TTL_DAYS",
-        DEVICE_TRUST_TTL_DAYS_DEFAULT,
-    );
+    let trust_ttl_days =
+        super::super::config_i64("TRUSTED_DEVICE_TTL_DAYS", DEVICE_TRUST_TTL_DAYS_DEFAULT);
     let token_hash = super::super::hash_token(raw_device_token);
     let now = Utc::now();
     let trust_expires_at = now + Duration::days(trust_ttl_days);
@@ -111,7 +109,9 @@ pub(super) async fn revoke_all_trusted_devices(
         .bind(user.id.clone())
         .execute(pool.get_ref())
         .await
-        .map_err(|error| AppError::InternalError(format!("Trusted devices revoke failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Trusted devices revoke failed: {}", error))
+        })?;
     super::super::log_auth_event(
         pool.get_ref(),
         Some(&user.id),

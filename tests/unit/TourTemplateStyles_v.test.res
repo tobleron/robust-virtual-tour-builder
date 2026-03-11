@@ -22,7 +22,7 @@ let _ = describe("TourTemplateStyles", () => {
     ->expect(
       String.includes(
         css,
-        "bottom: calc(12px + var(--export-logo-portrait-height, calc(40px * 0.88)) + 8px)",
+        "bottom: calc(12px + var(--export-logo-portrait-height, calc(40px)) + 8px)",
       ),
     )
     ->Expect.toBe(true)
@@ -45,7 +45,7 @@ let _ = describe("TourTemplateStyles", () => {
     ->expect(String.includes(css, "width: var(--export-logo-width, auto)"))
     ->Expect.toBe(true)
     t
-    ->expect(String.includes(css, "height: var(--export-logo-portrait-height, calc(30px * 0.88))"))
+    ->expect(String.includes(css, "height: var(--export-logo-portrait-height, calc(30px))"))
     ->Expect.toBe(true)
     t->expect(String.includes(css, "margin-left: -12px"))->Expect.toBe(true)
   })

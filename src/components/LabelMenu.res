@@ -37,8 +37,10 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   let (sequenceDrafts, setSequenceDrafts) = React.useState(_ => Belt.Map.String.empty)
 
   let targetIndex = sceneIndex->Option.getOr(state.activeIndex)
-  let {currentScene, currentCategory, currentLabel} =
-    LabelMenuRuntime.deriveSceneContext(~state, ~targetIndex)
+  let {currentScene, currentCategory, currentLabel} = LabelMenuRuntime.deriveSceneContext(
+    ~state,
+    ~targetIndex,
+  )
 
   let orderedHotspots = React.useMemo1(
     () => HotspotSequence.deriveOrderedHotspots(~state),
@@ -69,7 +71,13 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     )
 
   let handleApplyCustom = () =>
-    LabelMenuRuntime.handleApplyCustom(~customLabel, ~currentScene, ~targetIndex, ~dispatch, ~onClose)
+    LabelMenuRuntime.handleApplyCustom(
+      ~customLabel,
+      ~currentScene,
+      ~targetIndex,
+      ~dispatch,
+      ~onClose,
+    )
 
   let handleClear = () =>
     LabelMenuRuntime.handleClear(~currentScene, ~targetIndex, ~dispatch, ~onClose)
@@ -106,10 +114,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
       />
     | Sequence =>
       <LabelMenuTabs.SequenceTab
-        orderedHotspots
-        sequenceDrafts
-        setSequenceDrafts
-        commitSequenceDraft
+        orderedHotspots sequenceDrafts setSequenceDrafts commitSequenceDraft
       />
     }}
   </div>

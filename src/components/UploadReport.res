@@ -43,7 +43,12 @@ let show = (
     EventBus.dispatch(ShowModal(options))
   } else {
     let (avgScore, groups) = UploadReportSupport.summarizeQualityResults(qualityResults)
-    let content = UploadReportSupport.uploadSummaryContent(~renderGroup, ~report, ~groups, ~avgScore)
+    let content = UploadReportSupport.uploadSummaryContent(
+      ~renderGroup,
+      ~report,
+      ~groups,
+      ~avgScore,
+    )
 
     let btnDownload: EventBus.button = {
       label: "Download Data Report",

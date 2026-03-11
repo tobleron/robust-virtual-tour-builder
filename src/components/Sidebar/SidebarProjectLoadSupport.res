@@ -20,4 +20,11 @@ let handleLoadProject = async (
   ~dispatch: Actions.action => unit,
   ~sceneCount: int,
   target,
-) => await SidebarProjectLoadRuntime.handleLoadProject(filesOpt, ~getState, ~dispatch, ~sceneCount, target)
+) =>
+  await SidebarProjectLoadRuntime.handleLoadProject(
+    filesOpt,
+    ~getState,
+    ~dispatch,
+    ~sceneCount,
+    target,
+  )

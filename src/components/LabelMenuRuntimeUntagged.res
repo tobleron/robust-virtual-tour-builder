@@ -4,10 +4,7 @@ let executeRemoveAllUntagged = (~dispatch: action => unit, ~onClose: unit => uni
   let liveState = AppContext.getBridgeState()
   switch LabelMenuSupport.bulkDeleteBlockReason(liveState) {
   | Some(reason) =>
-    LabelMenuSupport.notifyWarning(
-      ~message="Cannot remove untagged scenes now",
-      ~details=reason,
-    )
+    LabelMenuSupport.notifyWarning(~message="Cannot remove untagged scenes now", ~details=reason)
   | None =>
     let activeScenes = SceneInventory.getActiveScenes(liveState.inventory, liveState.sceneOrder)
     let untaggedIds =

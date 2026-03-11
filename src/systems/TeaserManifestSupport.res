@@ -57,7 +57,9 @@ let addVisited = (visited: array<string>, linkId: string): array<string> => {
   }
 }
 
-let applyVisitedActions = (visited: array<string>, actions: array<Actions.action>): array<string> => {
+let applyVisitedActions = (visited: array<string>, actions: array<Actions.action>): array<
+  string,
+> => {
   actions->Belt.Array.reduce(visited, (acc, a) =>
     switch a {
     | Actions.AddVisitedLink(linkId) => addVisited(acc, linkId)
@@ -83,7 +85,11 @@ let calculateSimulationWaitDuration = (
 
   let baseWait = if skipAutoForward {
     if isAutoForward {
-      if isFirstScene { 3000 } else { 0 }
+      if isFirstScene {
+        3000
+      } else {
+        0
+      }
     } else {
       Constants.Simulation.stepDelay
     }
@@ -121,29 +127,8 @@ let buildLegacyShot = (
   let startPose = {yaw: iy, pitch: ip, hfov: Constants.globalHfov}
 
   let animationSegments = if style == "punchy" || style == "cinematic" {
-    [{
-      startYaw: iy,
-      endYaw: iy,
-      startPitch: ip,
-      endPitch: ip,
-      startHfov: Constants.globalHfov,
-      endHfov: Constants.globalHfov,
-      easing: "linear",
-      durationMs: Belt.Float.toInt(config.clipDuration),
-    }]
-  } else {
-    switch step.transitionTarget {
-    | Some(t) => [{
-        startYaw: iy,
-        endYaw: t.yaw,
-        startPitch: ip,
-        endPitch: t.pitch,
-        startHfov: Constants.globalHfov,
-        endHfov: Constants.globalHfov,
-        easing: "linear",
-        durationMs: Belt.Float.toInt(config.clipDuration),
-      }]
-    | None => [{
+    [
+      {
         startYaw: iy,
         endYaw: iy,
         startPitch: ip,
@@ -152,7 +137,34 @@ let buildLegacyShot = (
         endHfov: Constants.globalHfov,
         easing: "linear",
         durationMs: Belt.Float.toInt(config.clipDuration),
-      }]
+      },
+    ]
+  } else {
+    switch step.transitionTarget {
+    | Some(t) => [
+        {
+          startYaw: iy,
+          endYaw: t.yaw,
+          startPitch: ip,
+          endPitch: t.pitch,
+          startHfov: Constants.globalHfov,
+          endHfov: Constants.globalHfov,
+          easing: "linear",
+          durationMs: Belt.Float.toInt(config.clipDuration),
+        },
+      ]
+    | None => [
+        {
+          startYaw: iy,
+          endYaw: iy,
+          startPitch: ip,
+          endPitch: ip,
+          startHfov: Constants.globalHfov,
+          endHfov: Constants.globalHfov,
+          easing: "linear",
+          durationMs: Belt.Float.toInt(config.clipDuration),
+        },
+      ]
     }
   }
 

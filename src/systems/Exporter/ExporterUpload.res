@@ -1,6 +1,14 @@
 open ReBindings
 
-let uploadAndProcessRaw: (FormData.t, (float, float, string) => unit, string, int, ~signal: BrowserBindings.AbortSignal.t, ~token: option<string>, ~operationId: option<string>) => Promise.t<Blob.t> = %raw(`
+let uploadAndProcessRaw: (
+  FormData.t,
+  (float, float, string) => unit,
+  string,
+  int,
+  ~signal: BrowserBindings.AbortSignal.t,
+  ~token: option<string>,
+  ~operationId: option<string>,
+) => Promise.t<Blob.t> = %raw(`
   function(formData, onProgress, backendUrl, timeoutMs, signal, token, operationId) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -157,18 +165,70 @@ let decodeExportCompleteResponse = {
   })
 }
 let blobSlice: (Blob.t, int, int) => Blob.t = %raw(`(blob, start, end) => blob.slice(start, end)`)
-let sha256HexForBlob: Blob.t => Promise.t<string> = %raw(`async function(blob){const ab=await blob.arrayBuffer();const digest=await crypto.subtle.digest("SHA-256",ab);const bytes=new Uint8Array(digest);return Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("")}`)
-let isAborted = (signal: BrowserBindings.AbortSignal.t): bool => BrowserBindings.AbortSignal.aborted(signal)
-let requestExportInit = (payloadBlob: Blob.t, ~filename: string, ~chunkSizeBytes: int=defaultExportChunkSizeBytes, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportInitResponse>> =>
-  ExporterUploadRequests.requestExportInit(payloadBlob, ~filename, ~chunkSizeBytes, ~signal?, ~operationId?)
-let requestExportStatus = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportStatusResponse>> =>
+let sha256HexForBlob: Blob.t => Promise.t<
+  string,
+> = %raw(`async function(blob){const ab=await blob.arrayBuffer();const digest=await crypto.subtle.digest("SHA-256",ab);const bytes=new Uint8Array(digest);return Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("")}`)
+let isAborted = (signal: BrowserBindings.AbortSignal.t): bool =>
+  BrowserBindings.AbortSignal.aborted(signal)
+let requestExportInit = (
+  payloadBlob: Blob.t,
+  ~filename: string,
+  ~chunkSizeBytes: int=defaultExportChunkSizeBytes,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<apiResult<exportInitResponse>> =>
+  ExporterUploadRequests.requestExportInit(
+    payloadBlob,
+    ~filename,
+    ~chunkSizeBytes,
+    ~signal?,
+    ~operationId?,
+  )
+let requestExportStatus = (
+  uploadId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<apiResult<exportStatusResponse>> =>
   ExporterUploadRequests.requestExportStatus(uploadId, ~signal?, ~operationId?)
-let requestExportChunk = (payloadBlob: Blob.t, ~filename: string, ~uploadId: string, ~chunkIndex: int, ~chunkSizeBytes: int, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportChunkResponse>> =>
-  ExporterUploadRequests.requestExportChunk(payloadBlob, ~filename, ~uploadId, ~chunkIndex, ~chunkSizeBytes, ~signal?, ~operationId?)
-let requestExportComplete = (payloadBlob: Blob.t, ~filename: string, ~uploadId: string, ~totalChunks: int, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<apiResult<exportCompleteResponse>> =>
-  ExporterUploadRequests.requestExportComplete(payloadBlob, ~filename, ~uploadId, ~totalChunks, ~signal?, ~operationId?)
-let requestExportAbort = (uploadId: string, ~signal: option<BrowserBindings.AbortSignal.t>=?, ~operationId: option<string>=?): Promise.t<unit> =>
-  ExporterUploadRequests.requestExportAbort(uploadId, ~signal?, ~operationId?)
+let requestExportChunk = (
+  payloadBlob: Blob.t,
+  ~filename: string,
+  ~uploadId: string,
+  ~chunkIndex: int,
+  ~chunkSizeBytes: int,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<apiResult<exportChunkResponse>> =>
+  ExporterUploadRequests.requestExportChunk(
+    payloadBlob,
+    ~filename,
+    ~uploadId,
+    ~chunkIndex,
+    ~chunkSizeBytes,
+    ~signal?,
+    ~operationId?,
+  )
+let requestExportComplete = (
+  payloadBlob: Blob.t,
+  ~filename: string,
+  ~uploadId: string,
+  ~totalChunks: int,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<apiResult<exportCompleteResponse>> =>
+  ExporterUploadRequests.requestExportComplete(
+    payloadBlob,
+    ~filename,
+    ~uploadId,
+    ~totalChunks,
+    ~signal?,
+    ~operationId?,
+  )
+let requestExportAbort = (
+  uploadId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ~operationId: option<string>=?,
+): Promise.t<unit> => ExporterUploadRequests.requestExportAbort(uploadId, ~signal?, ~operationId?)
 
 let uploadChunkedWithResume = async (
   payloadBlob: Blob.t,
@@ -185,7 +245,9 @@ let uploadChunkedWithResume = async (
     ~operationId?,
   )
 }
-let formDataToBlob: FormData.t => Promise.t<Blob.t> = %raw(`async function(formData){const response=new Response(formData);return await response.blob()}`)
+let formDataToBlob: FormData.t => Promise.t<
+  Blob.t,
+> = %raw(`async function(formData){const response=new Response(formData);return await response.blob()}`)
 let uploadChunkedThenLegacy = async (
   formData: FormData.t,
   onProgress: (float, float, string) => unit,
@@ -196,11 +258,38 @@ let uploadChunkedThenLegacy = async (
   ~operationId: option<string>,
 ): Blob.t => {
   let payloadBlob = await formDataToBlob(formData)
-  switch await uploadChunkedWithResume(payloadBlob, ~filename="tour_package.multipart", onProgress, ~signal, ~operationId?) {
+  switch await uploadChunkedWithResume(
+    payloadBlob,
+    ~filename="tour_package.multipart",
+    onProgress,
+    ~signal,
+    ~operationId?,
+  ) {
   | Ok(_) =>
-    await uploadAndProcessRaw(formData, onProgress, backendUrl, timeoutMs, ~signal, ~token, ~operationId)
+    await uploadAndProcessRaw(
+      formData,
+      onProgress,
+      backendUrl,
+      timeoutMs,
+      ~signal,
+      ~token,
+      ~operationId,
+    )
   | Error(msg) =>
-    Logger.warn(~module_="ExporterUpload", ~message="EXPORT_CHUNKED_FALLBACK_TO_LEGACY", ~data=Logger.castToJson({"error": msg}), ())
-    await uploadAndProcessRaw(formData, onProgress, backendUrl, timeoutMs, ~signal, ~token, ~operationId)
+    Logger.warn(
+      ~module_="ExporterUpload",
+      ~message="EXPORT_CHUNKED_FALLBACK_TO_LEGACY",
+      ~data=Logger.castToJson({"error": msg}),
+      (),
+    )
+    await uploadAndProcessRaw(
+      formData,
+      onProgress,
+      backendUrl,
+      timeoutMs,
+      ~signal,
+      ~token,
+      ~operationId,
+    )
   }
 }

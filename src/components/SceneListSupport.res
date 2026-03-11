@@ -46,7 +46,12 @@ let handleSceneClick = (
       (),
     )
   } else {
-    Logger.debug(~module_="SceneList", ~message="SCENE_SWITCH_CLICKED", ~data=Some({"index": index}), ())
+    Logger.debug(
+      ~module_="SceneList",
+      ~message="SCENE_SWITCH_CLICKED",
+      ~data=Some({"index": index}),
+      (),
+    )
 
     if uiSlice.isLinking {
       dispatch(Actions.StopLinking)
@@ -97,7 +102,7 @@ let openReorderDialog = (~canMutateProject: bool, ~dispatch, ~scenes, index) => 
         title: "Reorder Scene",
         description: Some("Choose a new order position."),
         content: Some(
-          <ReorderDialog currentIndex=index sceneCount={Array.length(scenes)} sceneName />
+          <ReorderDialog currentIndex=index sceneCount={Array.length(scenes)} sceneName />,
         ),
         buttons: [
           {

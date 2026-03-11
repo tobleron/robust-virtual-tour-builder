@@ -97,7 +97,8 @@ let decodeDashboardProjects = json =>
 let decodeDashboardLoadResponse = json => JsonCombinators.Json.decode(json, dashboardLoadDecoder)
 let decodeSnapshotSyncResponse = json => JsonCombinators.Json.decode(json, snapshotSyncDecoder)
 let decodeSnapshotHistory = json => ProjectApiSnapshots.decodeSnapshotHistory(json)
-let decodeSnapshotRestoreResponse = json => JsonCombinators.Json.decode(json, snapshotRestoreDecoder)
+let decodeSnapshotRestoreResponse = json =>
+  JsonCombinators.Json.decode(json, snapshotRestoreDecoder)
 let decodeSnapshotAssetSyncResponse = json =>
   ProjectApiSnapshots.decodeSnapshotAssetSyncResponse(json)
 
@@ -217,9 +218,12 @@ let listDashboardProjects = (): Promise.t<apiResult<array<dashboardProject>>> =>
 let loadDashboardProject = (sessionId: string): Promise.t<apiResult<dashboardLoadResponse>> =>
   ProjectApiDashboard.loadDashboardProject(sessionId)
 
-let syncSnapshot = (~sessionId: option<string>=?, ~projectData: JSON.t, ~origin: snapshotOrigin=Auto): Promise.t<
-  apiResult<snapshotSyncResponse>,
-> => ProjectApiSnapshots.syncSnapshot(~sessionId?, ~projectData, ~origin)
+let syncSnapshot = (
+  ~sessionId: option<string>=?,
+  ~projectData: JSON.t,
+  ~origin: snapshotOrigin=Auto,
+): Promise.t<apiResult<snapshotSyncResponse>> =>
+  ProjectApiSnapshots.syncSnapshot(~sessionId?, ~projectData, ~origin)
 
 let cleanupBackendCache = (): Promise.t<apiResult<JSON.t>> => {
   RequestQueue.schedule(() => {
@@ -244,11 +248,9 @@ let cleanupBackendCache = (): Promise.t<apiResult<JSON.t>> => {
 let listProjectSnapshots = (sessionId: string): Promise.t<apiResult<array<snapshotHistoryItem>>> =>
   ProjectApiSnapshots.listProjectSnapshots(sessionId)
 
-let restoreProjectSnapshot = (
-  ~sessionId: string,
-  ~snapshotId: string,
-): Promise.t<apiResult<snapshotRestoreResponse>> =>
-  ProjectApiSnapshots.restoreProjectSnapshot(~sessionId, ~snapshotId)
+let restoreProjectSnapshot = (~sessionId: string, ~snapshotId: string): Promise.t<
+  apiResult<snapshotRestoreResponse>,
+> => ProjectApiSnapshots.restoreProjectSnapshot(~sessionId, ~snapshotId)
 
 let syncSnapshotAssets = (~sessionId: string, ~state: Types.state): Promise.t<
   apiResult<snapshotAssetSyncResponse>,
