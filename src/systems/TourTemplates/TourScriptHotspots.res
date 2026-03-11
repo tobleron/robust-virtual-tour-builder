@@ -79,7 +79,7 @@ let script = `
     function snapToPlaybackTerminalView(terminalView) {
       window.viewer.lookAt(terminalView.pitch, terminalView.yaw, getCurrentHfov(), false);
     }
-    function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs) {
+    function animateFocusPan(sceneId, startYaw, targetYaw, startPitch, targetPitch, durationMs, onComplete) {
       if (window.viewer.getScene() !== sceneId) return;
       const yawDelta = normalizeYawDelta(startYaw, targetYaw);
       const pitchDelta = targetPitch - startPitch;
@@ -104,9 +104,66 @@ let script = `
           return;
         }
         waypointRuntime.postArrivalAnimationId = null;
+        if (typeof onComplete === "function") onComplete();
       };
       if (waypointRuntime.postArrivalAnimationId !== null) cancelAnimationFrame(waypointRuntime.postArrivalAnimationId);
       waypointRuntime.postArrivalAnimationId = requestAnimationFrame(tick);
+    }
+    function focusSceneOnPreferredHotspot(sceneId, options) {
+      if (!sceneId || window.viewer.getScene() !== sceneId) {
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      const sceneData = scenesData?.[sceneId];
+      if (!sceneData) {
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      const preferredTarget = resolvePreferredNavigationTarget(sceneId, sceneData);
+      const focusHotspot = preferredTarget?.hotspot ?? null;
+      const focusView = getHotspotFocusView(focusHotspot);
+      if (!focusView) {
+        if (typeof options?.restoreLookingMode === "function") {
+          options.restoreLookingMode();
+        } else if (options?.restoreLookingMode === true) {
+          lookingMode = manualLookingMode;
+          updateLookingModeUI();
+        }
+        if (typeof options?.onComplete === "function") options.onComplete();
+        return false;
+      }
+      if (options?.pauseLookingMode === true) {
+        lookingMode = false;
+        updateLookingModeUI();
+      }
+      const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
+      const currentYaw = typeof window.viewer.getYaw === "function" ? window.viewer.getYaw() : focusView.yaw;
+      const completeFocus = () => {
+        if (typeof options?.restoreLookingMode === "function") {
+          options.restoreLookingMode();
+        } else if (options?.restoreLookingMode === true) {
+          lookingMode = manualLookingMode;
+          updateLookingModeUI();
+        }
+        if (typeof options?.onComplete === "function") options.onComplete();
+      };
+      const yawDelta = Math.abs(normalizeYawDelta(currentYaw, focusView.yaw));
+      const pitchDelta = Math.abs(focusView.pitch - currentPitch);
+      if (yawDelta <= 0.5 && pitchDelta <= 0.5) {
+        window.viewer.lookAt(focusView.pitch, focusView.yaw, getCurrentHfov(), false);
+        completeFocus();
+        return true;
+      }
+      animateFocusPan(
+        sceneId,
+        currentYaw,
+        focusView.yaw,
+        currentPitch,
+        focusView.pitch,
+        700,
+        completeFocus,
+      );
+      return true;
     }
     function finalizeSceneArrival(sceneId, retries, playbackTarget, isAutoForward, autoForwardAlreadyVisited, forceAutoForward, terminalView) {
       waypointRuntime.animationId = null;
@@ -209,6 +266,7 @@ let script = `
               currentPitch,
               postArrivalFocusView.pitch,
               700,
+              null,
             );
           }
         }
@@ -288,6 +346,13 @@ let script = `
       const dynamicSequenceFromEdge = Number.isFinite(dynamicSequenceEdge?.sequenceNumber)
         ? Math.trunc(dynamicSequenceEdge.sequenceNumber)
         : null;
+      const targetSceneNumberFromArgs = Number.isFinite(args.targetSceneNumber) && args.targetSceneNumber > 0
+        ? Math.trunc(args.targetSceneNumber)
+        : null;
+      const targetSceneNumberFromOwner = Number.isFinite(ownerHotspot?.targetSceneNumber) && ownerHotspot.targetSceneNumber > 0
+        ? Math.trunc(ownerHotspot.targetSceneNumber)
+        : null;
+      const targetSceneNumber = targetSceneNumberFromArgs ?? targetSceneNumberFromOwner;
       const sequenceFromArgs = Number.isFinite(args.sequenceNumber) && args.sequenceNumber > 0
         ? Math.trunc(args.sequenceNumber)
         : null;
@@ -295,8 +360,7 @@ let script = `
         ? Math.trunc(ownerHotspot.sequenceNumber)
         : null;
       const resolvedSequenceNumber = dynamicSequenceFromEdge ?? sequenceFromArgs ?? sequenceFromOwner;
-      const displaySequenceNumber = resolvedSequenceNumber !== null ? (resolvedSequenceNumber + 1) : null;
-      const faceText = isReturnLink ? "R" : (displaySequenceNumber !== null ? String(displaySequenceNumber) : "");
+      const faceText = isReturnLink ? "R" : (targetSceneNumber !== null ? String(targetSceneNumber) : "");
       const afKey = ownerScene + ":" + hotspotIndex;
       const isAutoForwardExpired = isAutoForwardConfig && visitedAutoForwards.has(afKey);
 

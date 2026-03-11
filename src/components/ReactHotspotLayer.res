@@ -61,6 +61,10 @@ let make = React.memo(() => {
     () => HotspotSequence.deriveBadgeByLinkId(~state),
     [state.structuralRevision],
   )
+  let sceneNumberBySceneId = React.useMemo1(
+    () => HotspotSequence.deriveSceneNumberBySceneId(~state),
+    [state.structuralRevision],
+  )
 
   let (cam, setCam) = React.useState(_ => None)
   let (containerRect, setContainerRect) = React.useState(_ => None)
@@ -183,17 +187,14 @@ let make = React.memo(() => {
               | None => None
               }
               let badge = hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId)
-              let (sequenceLabel, isReturnNode) = switch badge {
-              | Some(HotspotSequence.Sequence(sequenceNo)) => (
-                  Some(
-                    sequenceNo +
-                    (Constants.Scene.Sequence.startHotspotNumber -
-                    Constants.Scene.Sequence.startSceneNumber),
-                  ),
-                  false,
+              let targetSceneNumber =
+                HotspotTarget.resolveSceneId(activeScenes, h)->Option.flatMap(targetSceneId =>
+                  sceneNumberBySceneId->Belt.Map.String.get(targetSceneId)
                 )
+              let (sequenceLabel, isReturnNode) = switch badge {
+              | Some(HotspotSequence.Sequence(_)) => (targetSceneNumber, false)
               | Some(HotspotSequence.Return) => (None, true)
-              | None => (None, false)
+              | None => (targetSceneNumber, false)
               }
 
               <div

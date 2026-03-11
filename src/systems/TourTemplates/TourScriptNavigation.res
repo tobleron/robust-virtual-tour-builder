@@ -682,13 +682,10 @@ let script = `
       const fallbackSequenceCursor = args?.isReturnLink === true
         ? getCurrentSceneSequenceCursor(sourceSceneId, scenesData?.[sourceSceneId])
         : (Number.isFinite(args?.sequenceNumber) ? Math.trunc(args.sequenceNumber) : null);
-      const homeSceneId = resolveExistingSceneId(firstSceneId);
       const requestedSequenceCursor = Number.isInteger(options?.sequenceCursorOverride)
         ? options.sequenceCursorOverride
         : fallbackSequenceCursor;
-      const sequenceCursor = homeSceneId && targetSceneId === homeSceneId
-        ? 0
-        : requestedSequenceCursor;
+      const sequenceCursor = requestedSequenceCursor;
       const shouldTrackArrivalOrientation =
         !!sourceSceneId &&
         !!targetSceneId &&

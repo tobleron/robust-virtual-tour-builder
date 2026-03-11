@@ -16,6 +16,31 @@ let escapeHtml = unsafe => {
   ->String.replaceRegExp(/'/g, "&#039;")
 }
 
+let resolveDisplaySceneLabel = (scene: scene): string => {
+  let trimmedLabel = scene.label->String.trim
+  if trimmedLabel != "" {
+    trimmedLabel
+  } else {
+    scene.name
+  }
+}
+
+let formatSceneNumberLabel = (~sceneNumber: option<int>, ~label: string): string =>
+  switch sceneNumber {
+  | Some(value) => "#" ++ Belt.Int.toString(value) ++ " " ++ label
+  | None => label
+  }
+
+let formatDestinationOptionLabel = (~sceneNumber: option<int>, ~scene: scene): string =>
+  formatSceneNumberLabel(~sceneNumber, ~label=resolveDisplaySceneLabel(scene))
+
+let formatSequenceOptionLabel = (
+  ~sequence: int,
+  ~targetSceneNumber: option<int>,
+  ~targetLabel: string,
+): string =>
+  Belt.Int.toString(sequence) ++ " -> " ++ formatSceneNumberLabel(~sceneNumber=targetSceneNumber, ~label=targetLabel)
+
 let showLinkModal = (
   ~pitch: float,
   ~yaw: float,
@@ -96,6 +121,16 @@ let showLinkModal = (
   } else {
     Belt.Map.String.empty
   }
+  let sceneNumberBySceneId = HotspotSequence.deriveSceneNumberBySceneId(~state)
+  let orderedHotspots = if isRetargeting {
+    HotspotSequence.deriveOrderedHotspots(~state)
+  } else {
+    []
+  }
+  let orderedHotspotBySequence =
+    orderedHotspots->Belt.Array.reduce(Belt.Map.Int.empty, (acc, row) =>
+      acc->Belt.Map.Int.set(row.sequence, row)
+    )
 
   let retargetSequence =
     retargetLinkId->Option.flatMap(linkId => sequenceByLinkId->Belt.Map.String.get(linkId))
@@ -147,11 +182,10 @@ let showLinkModal = (
             } else {
               <option key={s.id} value={s.id} className="bg-slate-800">
                 {React.string(
-                  if s.label != "" {
-                    s.label
-                  } else {
-                    s.name
-                  },
+                  formatDestinationOptionLabel(
+                    ~sceneNumber=sceneNumberBySceneId->Belt.Map.String.get(s.id),
+                    ~scene=s,
+                  ),
                 )}
               </option>
             }
@@ -174,15 +208,25 @@ let showLinkModal = (
                 ariaLabel="Select hotspot sequence order"
               >
                 {admissibleSequenceOrders
-                ->Belt.Array.map(order =>
+                ->Belt.Array.map(order => {
+                  let optionLabel =
+                    switch orderedHotspotBySequence->Belt.Map.Int.get(order) {
+                    | Some(row) =>
+                      formatSequenceOptionLabel(
+                        ~sequence=order,
+                        ~targetSceneNumber=row.targetSceneNumber,
+                        ~targetLabel=row.targetLabel,
+                      )
+                    | None => Belt.Int.toString(order)
+                    }
                   <option
                     key={order->Belt.Int.toString}
                     value={order->Belt.Int.toString}
                     className="bg-slate-800"
                   >
-                    {React.string(order->Belt.Int.toString)}
+                    {React.string(optionLabel)}
                   </option>
-                )
+                })
                 ->React.array}
               </select>
             } else {

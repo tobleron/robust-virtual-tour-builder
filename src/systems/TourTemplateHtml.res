@@ -273,6 +273,11 @@ let generateTourHTML = (
   } else {
     Belt.Map.String.empty
   }
+  let sceneNumberBySceneId = if scenes->Belt.Array.length > 0 {
+    HotspotSequence.deriveSceneNumberBySceneId(~state=sequencingState)
+  } else {
+    Belt.Map.String.empty
+  }
   let maxDerivedSequence =
     derivedBadgeByLinkId
     ->Belt.Map.String.toArray
@@ -330,6 +335,7 @@ let generateTourHTML = (
         | _ => false
         }
         let hasValidTarget = hasSceneId(resolvedTargetId)
+        let targetSceneNumber = sceneNumberBySceneId->Belt.Map.String.get(resolvedTargetId)
         let (isReturnLink, sequenceNumber) = resolveExportBadge(~linkId=h.linkId, ~hasValidTarget)
         if hasValidTarget {
           let hotspotData: TourData.hotspotData = {
@@ -337,6 +343,7 @@ let generateTourHTML = (
             "yaw": h.yaw,
             "target": h.target,
             "targetSceneId": resolvedTargetId,
+            "targetSceneNumber": targetSceneNumber->Nullable.fromOption,
             "targetIsAutoForward": targetIsAutoForward,
             "isReturnLink": isReturnLink,
             "sequenceNumber": sequenceNumber->Nullable.fromOption,
@@ -437,6 +444,7 @@ let generateTourHTML = (
           "name": s.name,
           "panorama": `assets/images/${s.name}`,
           "autoLoad": true,
+          "sceneNumber": sceneNumberBySceneId->Belt.Map.String.get(s.id)->Option.getOr(1),
           "floor": s.floor,
           "category": s.category,
           "label": s.label,
@@ -536,7 +544,7 @@ let generateTourHTML = (
       maxHfov,
     )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false }, "scenes":{} };
     for (const [sceneId, data] of Object.entries(scenesData)) {
-      config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetIsAutoForward: h.targetIsAutoForward, sequenceNumber: h.sequenceNumber, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+      config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetSceneNumber: h.targetSceneNumber, targetIsAutoForward: h.targetIsAutoForward, sequenceNumber: h.sequenceNumber, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     const mountFileProtocolWarning = () => {
       const existing = document.getElementById('file-protocol-warning');

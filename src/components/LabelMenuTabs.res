@@ -127,6 +127,12 @@ module SceneTagTab = {
 }
 
 module SequenceTab = {
+  let formatSceneNumber = (value: option<int>): string =>
+    switch value {
+    | Some(sceneNumber) => "#" ++ Belt.Int.toString(sceneNumber)
+    | None => "#?"
+    }
+
   @react.component
   let make = (
     ~orderedHotspots: array<HotspotSequence.orderedHotspot>,
@@ -140,7 +146,7 @@ module SequenceTab = {
         {React.string("Hotspot Sequence")}
       </h4>
       <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-        {React.string("Numbers follow simulation order. Editing a number auto-shifts others.")}
+        {React.string("Scene numbers stay fixed. Editing a step changes internal traversal order only.")}
       </p>
     </div>
     <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2 space-y-1">
@@ -180,10 +186,18 @@ module SequenceTab = {
             />
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-semibold text-slate-700 truncate">
-                {React.string(row.sceneLabel ++ " -> " ++ row.targetLabel)}
+                {React.string(
+                  formatSceneNumber(row.sceneNumber) ++
+                  " " ++
+                  row.sceneLabel ++
+                  " -> " ++
+                  formatSceneNumber(row.targetSceneNumber) ++
+                  " " ++
+                  row.targetLabel,
+                )}
               </div>
               <div className="text-[9px] font-mono text-slate-400 truncate">
-                {React.string(row.linkId)}
+                {React.string("step " ++ Belt.Int.toString(row.sequence) ++ " • " ++ row.linkId)}
               </div>
             </div>
             <button
