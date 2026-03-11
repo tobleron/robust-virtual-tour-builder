@@ -33,6 +33,10 @@ let script = `
         Math.round(AUTO_TOUR_FORWARD_DELAY_MS / getActiveAutoTourSpeedMultiplier()),
       );
     }
+    function shouldAnimateExportArrivalPlayback() {
+      if (window.isAutoTourActive === true) return true;
+      return EXPORT_WAYPOINT_ANIMATION_POLICY === "always";
+    }
     function stripSceneTag(raw) {
       const trimmed = typeof raw === "string" ? raw.trim() : "";
       if (!trimmed) return "";
@@ -138,6 +142,9 @@ let script = `
       }
       const currentPitch = typeof window.viewer.getPitch === "function" ? window.viewer.getPitch() : 0;
       const currentYaw = typeof window.viewer.getYaw === "function" ? window.viewer.getYaw() : focusView.yaw;
+      const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0
+        ? options.durationMs
+        : 700;
       const completeFocus = () => {
         if (typeof options?.restoreLookingMode === "function") {
           options.restoreLookingMode();
@@ -160,7 +167,7 @@ let script = `
         focusView.yaw,
         currentPitch,
         focusView.pitch,
-        700,
+        focusDurationMs,
         completeFocus,
       );
       return true;
@@ -219,6 +226,28 @@ let script = `
       const arrivalContext =
         pendingArrivalContext?.targetSceneId === sceneId ? pendingArrivalContext : null;
       pendingArrivalContext = null;
+      const shouldAnimateArrivalPlayback = shouldAnimateExportArrivalPlayback();
+      const shouldAutoForwardWithoutPlayback = isAutoForward && !autoForwardAlreadyVisited;
+
+      if (!shouldAnimateArrivalPlayback) {
+        finalizeSceneArrival(
+          sceneId,
+          retries,
+          playbackTarget,
+          isAutoForward,
+          autoForwardAlreadyVisited,
+          false,
+          fallbackTerminalView,
+        );
+        if (!shouldAutoForwardWithoutPlayback) {
+          focusSceneOnPreferredHotspot(sceneId, {
+            pauseLookingMode: true,
+            restoreLookingMode: true,
+            durationMs: MANUAL_POST_ARRIVAL_FOCUS_MS,
+          });
+        }
+        return;
+      }
 
       // ANIMATION POLICY: Skip animation if this scene has already animated in this session
       const hasAnimated = animatedScenes.has(sceneId);

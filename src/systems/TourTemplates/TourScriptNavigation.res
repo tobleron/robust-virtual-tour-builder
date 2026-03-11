@@ -622,6 +622,7 @@ let script = `
       if (resolvedSceneId === homeSceneId) {
         return resolveSceneNumberForwardShortcutTarget(resolvedSceneId, sceneData);
       }
+      const nextForwardEdge = resolveNextForwardSequenceEdge(resolvedSceneId, sceneData);
       const preferredTarget = resolvePreferredNavigationTarget(resolvedSceneId, sceneData);
       if (
         preferredTarget &&
@@ -630,19 +631,8 @@ let script = `
       ) {
         return preferredTarget;
       }
-      const forwardHotspots = resolveSceneForwardHotspots(resolvedSceneId, sceneData);
-      if (forwardHotspots.length > 0) {
-        return null;
-      }
-      const returnHotspot = resolveSceneReturnHotspot(resolvedSceneId);
-      if (returnHotspot) {
-        return buildCurrentCursorBacktrackTarget(
-          resolvedSceneId,
-          sceneData,
-          returnHotspot,
-          returnHotspot.targetSceneId,
-          true,
-        );
+      if (!nextForwardEdge) {
+        return preferredTarget;
       }
       return null;
     }
