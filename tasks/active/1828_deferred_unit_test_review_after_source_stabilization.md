@@ -28,6 +28,7 @@ This is the single shared pending task for deferred unit-test review after itera
 - [x] [src/systems/TeaserHeadlessLogic.res](src/systems/TeaserHeadlessLogic.res): covered by [tests/unit/TeaserHeadlessLogic.test.js](tests/unit/TeaserHeadlessLogic.test.js) for cinematic-only pan-speed application.
 - [x] [src/systems/TeaserManagerLogic.res](src/systems/TeaserManagerLogic.res): covered by [tests/unit/TeaserWiring.test.js](tests/unit/TeaserWiring.test.js).
 - [x] [src/systems/TeaserStyleConfig.res](src/systems/TeaserStyleConfig.res): covered by [tests/unit/TeaserStyleConfig_v.test.res](tests/unit/TeaserStyleConfig_v.test.res).
+- [x] [src/components/ReactHotspotLayer.res](src/components/ReactHotspotLayer.res): covered by [tests/unit/ReactHotspotLayer_v.test.res](tests/unit/ReactHotspotLayer_v.test.res) for builder same-destination hotspot stack placement, anchor resolution, stacked coordinates, duplicate label suppression, and hover restore delay.
 
 ## Execution Notes
 - Prefer updating existing relevant test files before creating new ones.
