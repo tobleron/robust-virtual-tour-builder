@@ -44,6 +44,7 @@ let generateRenderScript = (
   dynamicHfovEnabled,
   isHdExport,
   ~exportTraversalMode: string="legacy",
+  ~allowTabletLandscapeStage: bool=true,
 ) =>
   renderScriptTemplate
   ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
@@ -54,4 +55,8 @@ let generateRenderScript = (
   ->String.replaceRegExp(/__STAGE_MAX_WIDTH__/g, Belt.Int.toString(stageMaxWidth))
   ->String.replaceRegExp(/__DYNAMIC_HFOV_ENABLED__/g, dynamicHfovEnabled ? "true" : "false")
   ->String.replaceRegExp(/__IS_HD_EXPORT__/g, isHdExport ? "true" : "false")
+  ->String.replaceRegExp(
+    /__EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE__/g,
+    allowTabletLandscapeStage ? "true" : "false",
+  )
   ->String.replaceRegExp(/__EXPORT_TRAVERSAL_MODE__/g, exportTraversalMode)
