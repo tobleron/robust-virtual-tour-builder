@@ -15,7 +15,7 @@ Investigate and fix the backend upload quota test instability uncovered during t
 - [x] Identified `backend/src/services/upload_quota_runtime.rs` using `../tmp` as the fallback disk-space probe path.
 - [x] Patched the runtime to probe the correct existing temp-root filesystem.
 - [x] Re-ran the targeted quota tests with `TEMP_DIR` forced to a nonexistent path and confirmed they pass.
-- [ ] Re-run the promotion verification suite after replaying the fix onto the clean `main` promotion branch.
+- [x] Re-ran the promotion verification suite after replaying the fix onto the clean `main` promotion branch.
 
 ## Code Change Ledger
 

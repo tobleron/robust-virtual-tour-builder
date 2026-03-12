@@ -36,36 +36,33 @@ describe("TourTemplateScripts", () => {
       t->expectToContain(script, "function getAnimatedPlaybackSpeedMultiplier()")
       t->expectToContain(script, "function getAnimationProgressStep(deltaMs, baseDurationMs)")
       t->expectToContain(script, "function getAutoTourForwardDelayMs()")
-      t->expectToContain(script, "if (typeof stopAutoTour === \"function\") {")
+      t->expectToContain(script, "function triggerAutoNavigationMode()")
       t->expectToContain(script, "setAutoTourSpeedMultiplier(AUTO_TOUR_BOOSTED_SPEED_MULTIPLIER);")
       t->expectToContain(
         script,
         "progress = Math.min(1, progress + getAnimationProgressStep(deltaMs, durationMs));",
       )
       t->expectToContain(script, "}, getAutoTourForwardDelayMs());")
-      t->expectToContain(
-        script,
-        "speedLabel.textContent = isSpeedBoosted ? \"2x\" : \"1x\";",
-      )
+      t->expectToContain(script, "const autoModeLabel = !floorTagShortcutState.isAutoTourActive")
       t->expectToContain(script, "return typeof isAutoTourSpeedBoosted === \"function\" && isAutoTourSpeedBoosted()")
-      t->expectToContain(script, "? \"2x\"")
-      t->expectToContain(script, ": \"1x\";")
-      t->expectToContain(script, "if (window.isAutoTourActive) {")
-      t->expectToContain(script, "if (typeof speedUpAutoTour === \"function\") speedUpAutoTour();")
+      t->expectToContain(script, "? \"auto 2x\"")
+      t->expectToContain(script, "\"auto 1x\"")
+      t->expectToContain(script, "if (typeof speedUpAutoTour === \"function\") {")
+      t->expectToContain(script, "return speedUpAutoTour();")
     },
   )
 
-  test("generateRenderScript should render auto-tour speed toggle above stop action", t => {
+  test("generateRenderScript should render desktop navigation mode rows in manual semi-auto auto order", t => {
     let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
-    let speedIndex = String.indexOf(
-      script,
-      "speedLabel.textContent = isSpeedBoosted ? \"2x\" : \"1x\";",
-    )
-    let stopIndex = String.indexOf(script, "stopLabel.textContent = \"stop auto tour\";")
+    let manualIndex = String.indexOf(script, "label: \"manual\"")
+    let semiAutoIndex = String.indexOf(script, "label: \"semi-auto\"")
+    let autoIndex = String.indexOf(script, "label: autoModeLabel")
 
-    t->expect(speedIndex >= 0)->Expect.toBe(true)
-    t->expect(stopIndex >= 0)->Expect.toBe(true)
-    t->expect(speedIndex < stopIndex)->Expect.toBe(true)
+    t->expect(manualIndex >= 0)->Expect.toBe(true)
+    t->expect(semiAutoIndex >= 0)->Expect.toBe(true)
+    t->expect(autoIndex >= 0)->Expect.toBe(true)
+    t->expect(manualIndex < semiAutoIndex)->Expect.toBe(true)
+    t->expect(semiAutoIndex < autoIndex)->Expect.toBe(true)
   })
 
   test("generateRenderScript should include portrait export controls", t => {
@@ -75,14 +72,19 @@ describe("TourTemplateScripts", () => {
     t->expectToContain(script, "function resolveExportInteractionShell()")
     t->expectToContain(script, "function isTouchFriendlyExportUi()")
     t->expectToContain(script, "function syncExportAdaptiveUiForCurrentScene()")
+    t->expectToContain(script, "if (detectTouchPrimaryInput()) return \"landscape-touch\";")
     t->expectToContain(script, "function resolveFirstSceneForFloor(floorId)")
     t->expectToContain(script, "function navigateToFirstSceneInFloor(floorId)")
     t->expectToContain(script, "const EXPORT_DEFAULT_NAVIGATION_MODE = EXPORT_NAVIGATION_MODE_SEMI_AUTO;")
     t->expectToContain(script, "function setPortraitBaseNavigationMode(nextMode)")
+    t->expectToContain(script, "function activateExportNavigationMode(mode)")
     t->expectToContain(script, "function isSemiAutoExportNavigationMode()")
-    t->expectToContain(script, "function ensurePortraitModeSelectorForViewport(previousPortraitAdaptiveUi, nextPortraitAdaptiveUi)")
+    t->expectToContain(script, "function ensurePortraitModeSelectorForViewport(")
+    t->expectToContain(script, "function updateTouchFriendlyOrbMetrics()")
     t->expectToContain(script, "function shouldIgnorePortraitAutoOrbTap()")
     t->expectToContain(script, "function getPortraitModeSelectorPanel()")
+    t->expectToContain(script, "function getSceneSequencePromptHost()")
+    t->expectToContain(script, "title.textContent = \"Choose tour mode:\";")
     t->expectToContain(script, "function clearPortraitJoystick()")
     t->expectToContain(script, "function updatePortraitJoystick()")
     t->expectToContain(script, "function renderPortraitAdaptiveShortcutPanel(panel)")
@@ -92,13 +94,52 @@ describe("TourTemplateScripts", () => {
     t->expectToContain(script, "return { primary: \"Manual\", secondary: \"\" };")
     t->expectToContain(script, "return { primary: resolvePortraitAutoOrbLabel(), secondary: \"\" };")
     t->expectToContain(script, "function handlePortraitModeSelectorClick(mode, event)")
-    t->expectToContain(script, "setPortraitBaseNavigationMode(normalizedMode);")
     t->expectToContain(script, "collapsePortraitModeSelectorIntro();")
     t->expectToContain(script, "navigateToFirstSceneInFloor(level.id);")
     t->expectToContain(script, "panel.classList.add(\"is-portrait-mode-selector\");")
     t->expectToContain(script, "cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_SEMI_AUTO));")
     t->expectToContain(script, "cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_MANUAL));")
     t->expectToContain(script, "cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_AUTO));")
+    t->expectToContain(script, "countdown.className = \"portrait-mode-selector-countdown\";")
+    t->expectToContain(script, "countdownLabel.textContent = \"Returning home\";")
+    t->expectToContain(script, "countdownNumber.textContent = String(autoTourHomeReturnCountdownRemaining);")
+    t->expectToContain(script, "root.setProperty(\"--export-touch-floor-btn-size\", floorButtonSizePx + \"px\");")
+    t->expectToContain(
+      script,
+      "root.setProperty(\"--export-touch-floor-btn-font-size\", floorButtonFontPx + \"px\");",
+    )
+    t->expectToContain(script, "root.setProperty(\"--export-touch-floor-btn-sup-size\", floorButtonSupPx + \"px\");")
+  })
+
+  test("generateRenderScript should suspend looking mode around classic desktop scene-number prompt", t => {
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+
+    t->expectToContain(script, "const sceneSequencePromptRuntime = { restoreLookingModeOnSuccess: false };")
+    t->expectToContain(script, "function suspendLookingModeForSceneSequencePrompt()")
+    t->expectToContain(script, "function restoreLookingModeAfterSceneSequencePromptSuccess()")
+    t->expectToContain(script, "if (interactionShell !== \"classic\") return false;")
+    t->expectToContain(script, "suspendLookingModeForSceneSequencePrompt();")
+    t->expectToContain(script, "fromSceneSequencePrompt: true,")
+    t->expectToContain(script, "restoreLookingModeAfterSceneSequencePromptSuccess();")
+    t->expectToContain(script, "key === \"Escape\" || key === \"Esc\" || key === \"n\" || key === \"N\"")
+    t->expectToContain(script, "exitHint.textContent = \"n to return\";")
+  })
+
+  test("generateRenderScript should render selector intro while blocking UI even on classic shell", t => {
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+
+    t->expectToContain(script, "if (portraitModeSelectorState.hasResolvedIntro !== true) {")
+    t->expectToContain(script, "const selectorBlockingUi =")
+    t->expectToContain(script, "if (isTouchFriendlyUi || selectorBlockingUi) {")
+  })
+
+  test("generateRenderScript should hide classic navigation-mode section while auto-tour is active", t => {
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+
+    t->expectToContain(
+      script,
+      "if (!floorTagShortcutState.isAutoTourActive && autoTourHomeReturnCountdownRemaining <= 0) {",
+    )
   })
 
   test("generateRenderScript should not stop auto-tour when portrait controls are pressed", t => {
@@ -107,7 +148,7 @@ describe("TourTemplateScripts", () => {
     t->expectToContain(script, "function shouldStopAutoTourOnPointerDown(event)")
     t->expectToContain(
       script,
-      "\"#viewer-floor-tags-export, #viewer-portrait-mode-selector-export, #viewer-floor-nav-export, #viewer-portrait-joystick-export, .looking-mode-indicator\"",
+      "\"#viewer-floor-tags-export, #viewer-portrait-mode-selector-export, #viewer-floor-nav-export, #viewer-portrait-joystick-export, #viewer-sequence-prompt-export, .looking-mode-indicator\"",
     )
     t->expectToContain(script, "document.addEventListener(\"mousedown\", event => {")
     t->expectToContain(script, "shouldStopAutoTourOnPointerDown(event)")

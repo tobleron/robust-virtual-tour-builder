@@ -18,4 +18,4 @@ Add production-safe minification for generated exported-tour HTML payloads durin
 - [x] Added Rust-side HTML minification for packaged `web_only` and `desktop` HTML outputs using `minify-html` so inline JS/CSS are reduced without shipping a minifier in the browser bundle.
 - [x] Added a narrow backend unit test for the HTML minifier helper.
 - [x] Ran `npm run build`.
-- [ ] `cargo check` remains blocked by a pre-existing unrelated compile error in `backend/src/pathfinder/timeline.rs`.
+- [x] `cargo check` passed after the later unrelated backend compile issue was fixed elsewhere in the codebase.

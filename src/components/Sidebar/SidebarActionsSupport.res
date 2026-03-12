@@ -88,7 +88,7 @@ let publishModalConfig = (
   ~onPublish: unit => unit,
 ): EventBus.modalConfig => {
   title: "Publish Tour",
-  description: Some("Choose what will be included in the published package."),
+  description: Some("Choose the package outputs."),
   icon: Some("info"),
   content: Some(<SidebarPublishOptionsContent onOptionsChanged />),
   onClose: None,

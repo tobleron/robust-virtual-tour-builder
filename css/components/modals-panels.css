@@ -65,50 +65,57 @@
 .publish-options-panel {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 16px;
+    border-radius: 14px;
     background: rgba(255, 255, 255, 0.035);
-    padding: 14px;
-}
-
-.publish-options-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.96);
-}
-
-.publish-options-subtitle {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.68);
-    margin-top: 2px;
-    margin-bottom: 10px;
+    padding: 12px;
 }
 
 .publish-options-section {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 6px;
 }
 
 .publish-options-section-label {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.86);
-    margin-bottom: 2px;
+    color: rgba(255, 255, 255, 0.74);
+    margin-bottom: 1px;
 }
 
 .publish-options-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.15;
     color: rgba(255, 255, 255, 0.92);
 }
 
 .publish-options-divider {
-    margin: 10px 0;
+    margin: 8px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.publish-options-row-copy {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+}
+
+.publish-options-row-title {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.publish-options-row-meta {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(147, 197, 253, 0.8);
 }
 
 .settings-modal-layout {

@@ -7,176 +7,124 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
   let (includeLogo, setIncludeLogo) = React.useState(_ => true)
   let (includeMarketing, setIncludeMarketing) = React.useState(_ => true)
 
-  let selectedProfiles = () => {
+  let buildSelectedProfiles = (
+    ~include4kValue,
+    ~include2kValue,
+    ~includeHdValue,
+    ~includeStandalone2kValue,
+  ) => {
     let acc = ref([])
-    if include4k {
+    if include4kValue {
       acc := Belt.Array.concat(acc.contents, [#k4])
     }
-    if include2k {
+    if include2kValue {
       acc := Belt.Array.concat(acc.contents, [#k2])
     }
-    if includeHd {
+    if includeHdValue {
       acc := Belt.Array.concat(acc.contents, [#hd])
     }
-    if includeStandalone2k {
+    if includeStandalone2kValue {
       acc := Belt.Array.concat(acc.contents, [#standalone2k])
     }
     acc.contents
   }
 
-  let toggle4k = () =>
-    setInclude4k(prev => {
-      let next = !prev
-      onOptionsChanged({
-        selectedProfiles: {
-          let acc = ref([])
-          if next {
-            acc := Belt.Array.concat(acc.contents, [#k4])
-          }
-          if include2k {
-            acc := Belt.Array.concat(acc.contents, [#k2])
-          }
-          if includeHd {
-            acc := Belt.Array.concat(acc.contents, [#hd])
-          }
-          if includeStandalone2k {
-            acc := Belt.Array.concat(acc.contents, [#standalone2k])
-          }
-          acc.contents
-        },
-        includeLogo,
-        includeMarketing,
-      })
-      next
+  let emitOptions = (
+    ~include4kValue=include4k,
+    ~include2kValue=include2k,
+    ~includeHdValue=includeHd,
+    ~includeStandalone2kValue=includeStandalone2k,
+    ~includeLogoValue=includeLogo,
+    ~includeMarketingValue=includeMarketing,
+    (),
+  ) => {
+    onOptionsChanged({
+      selectedProfiles: buildSelectedProfiles(
+        ~include4kValue,
+        ~include2kValue,
+        ~includeHdValue,
+        ~includeStandalone2kValue,
+      ),
+      includeLogo: includeLogoValue,
+      includeMarketing: includeMarketingValue,
     })
+  }
 
-  let toggle2k = () =>
-    setInclude2k(prev => {
-      let next = !prev
-      onOptionsChanged({
-        selectedProfiles: {
-          let acc = ref([])
-          if include4k {
-            acc := Belt.Array.concat(acc.contents, [#k4])
-          }
-          if next {
-            acc := Belt.Array.concat(acc.contents, [#k2])
-          }
-          if includeHd {
-            acc := Belt.Array.concat(acc.contents, [#hd])
-          }
-          if includeStandalone2k {
-            acc := Belt.Array.concat(acc.contents, [#standalone2k])
-          }
-          acc.contents
-        },
-        includeLogo,
-        includeMarketing,
-      })
-      next
-    })
-
-  let toggleHd = () =>
-    setIncludeHd(prev => {
-      let next = !prev
-      onOptionsChanged({
-        selectedProfiles: {
-          let acc = ref([])
-          if include4k {
-            acc := Belt.Array.concat(acc.contents, [#k4])
-          }
-          if include2k {
-            acc := Belt.Array.concat(acc.contents, [#k2])
-          }
-          if next {
-            acc := Belt.Array.concat(acc.contents, [#hd])
-          }
-          if includeStandalone2k {
-            acc := Belt.Array.concat(acc.contents, [#standalone2k])
-          }
-          acc.contents
-        },
-        includeLogo,
-        includeMarketing,
-      })
-      next
-    })
-
-  let toggleStandalone2k = () =>
-    setIncludeStandalone2k(prev => {
-      let next = !prev
-      onOptionsChanged({
-        selectedProfiles: {
-          let acc = ref([])
-          if include4k {
-            acc := Belt.Array.concat(acc.contents, [#k4])
-          }
-          if include2k {
-            acc := Belt.Array.concat(acc.contents, [#k2])
-          }
-          if includeHd {
-            acc := Belt.Array.concat(acc.contents, [#hd])
-          }
-          if next {
-            acc := Belt.Array.concat(acc.contents, [#standalone2k])
-          }
-          acc.contents
-        },
-        includeLogo,
-        includeMarketing,
-      })
-      next
-    })
+  let optionLabel = (~label, ~meta="", ()) =>
+    <span className="publish-options-row-copy">
+      <span className="publish-options-row-title"> {React.string(label)} </span>
+      {if meta != "" {
+        <span className="publish-options-row-meta"> {React.string(meta)} </span>
+      } else {
+        React.null
+      }}
+    </span>
 
   <div className="publish-options-panel text-white">
-    <div className="publish-options-title"> {React.string("Choose output package")} </div>
-    <div className="publish-options-subtitle">
-      {React.string("Select the resolutions you want to publish.")}
-    </div>
-
     <div className="publish-options-section">
-      <div className="publish-options-section-label"> {React.string("Output formats")} </div>
+      <div className="publish-options-section-label"> {React.string("Package")} </div>
       <label className="publish-options-row">
         <input
           type_="checkbox"
           checked={includeHd}
-          onChange={_ => toggleHd()}
+          onChange={_ =>
+            setIncludeHd(prev => {
+              let next = !prev
+              emitOptions(~includeHdValue=next, ())
+              next
+            })}
           className="accent-orange-500"
         />
-        <span> {React.string("HD")} </span>
+        {optionLabel(~label="HD", ())}
       </label>
       <label className="publish-options-row">
         <input
           type_="checkbox"
           checked={include2k}
-          onChange={_ => toggle2k()}
+          onChange={_ =>
+            setInclude2k(prev => {
+              let next = !prev
+              emitOptions(~include2kValue=next, ())
+              next
+            })}
           className="accent-orange-500"
         />
-        <span> {React.string("2K")} </span>
+        {optionLabel(~label="2K", ())}
       </label>
       <label className="publish-options-row">
         <input
           type_="checkbox"
           checked={include4k}
-          onChange={_ => toggle4k()}
+          onChange={_ =>
+            setInclude4k(prev => {
+              let next = !prev
+              emitOptions(~include4kValue=next, ())
+              next
+            })}
           className="accent-orange-500"
         />
-        <span> {React.string("4K")} </span>
+        {optionLabel(~label="4K", ())}
       </label>
       <label className="publish-options-row">
         <input
           type_="checkbox"
           checked={includeStandalone2k}
-          onChange={_ => toggleStandalone2k()}
+          onChange={_ =>
+            setIncludeStandalone2k(prev => {
+              let next = !prev
+              emitOptions(~includeStandalone2kValue=next, ())
+              next
+            })}
           className="accent-orange-500"
         />
-        <span> {React.string("2K standalone single-file HTML")} </span>
+        {optionLabel(~label="Standalone HTML", ~meta="2K default", ())}
       </label>
     </div>
 
     <div className="publish-options-divider" />
 
     <div className="publish-options-section">
+      <div className="publish-options-section-label"> {React.string("Extras")} </div>
       <label className="publish-options-row">
         <input
           type_="checkbox"
@@ -184,16 +132,12 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
           onChange={_ =>
             setIncludeLogo(prev => {
               let next = !prev
-              onOptionsChanged({
-                selectedProfiles: selectedProfiles(),
-                includeLogo: next,
-                includeMarketing,
-              })
+              emitOptions(~includeLogoValue=next, ())
               next
             })}
           className="accent-orange-500"
         />
-        <span> {React.string("Include logo branding")} </span>
+        {optionLabel(~label="Logo branding", ())}
       </label>
       <label className="publish-options-row">
         <input
@@ -202,16 +146,12 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
           onChange={_ =>
             setIncludeMarketing(prev => {
               let next = !prev
-              onOptionsChanged({
-                selectedProfiles: selectedProfiles(),
-                includeLogo,
-                includeMarketing: next,
-              })
+              emitOptions(~includeMarketingValue=next, ())
               next
             })}
           className="accent-orange-500"
         />
-        <span> {React.string("Include marketing strip/contact info")} </span>
+        {optionLabel(~label="Marketing strip", ~meta="contact info", ())}
       </label>
     </div>
   </div>

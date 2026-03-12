@@ -1,7 +1,15 @@
 /* src/components/Sidebar/SidebarBase.res */
 
 module SidebarTypes = {
-  type publishProfile = [#hd | #k2 | #k4 | #standalone2k]
+  type publishProfile = [
+    #hd
+    | #k2
+    | #k4
+    | #standalone2k
+    | #standaloneHdLandscapeTouch
+    | #standalone2kLandscapeTouch
+    | #standalone4kLandscapeTouch
+  ]
 
   type procState = {
     active: bool,

@@ -144,6 +144,13 @@ body.project-load-mode .interaction-lock-overlay .spinner {
     z-index: 7000;
     pointer-events: none;
     background: rgba(8, 15, 29, 0.18);
-    backdrop-filter: grayscale(1) saturate(0.38) brightness(0.78);
     transition: opacity 0.2s ease;
+}
+
+body.network-degraded #sidebar,
+body.network-degraded #viewer-stage > :not(#viewer-notifications-container),
+body.network-degraded #placeholder-text,
+body.network-degraded #modal-container {
+    filter: grayscale(1) saturate(0.55) brightness(0.85);
+    transition: filter 0.2s ease;
 }

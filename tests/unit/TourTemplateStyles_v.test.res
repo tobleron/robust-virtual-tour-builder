@@ -54,6 +54,10 @@ let _ = describe("TourTemplateStyles", () => {
     let css = generateCSS("touch.jpg", "2k", 32, 40)
 
     t->expect(String.includes(css, "#viewer-portrait-joystick-export"))->Expect.toBe(true)
+    t->expect(String.includes(css, "#viewer-sequence-prompt-export"))->Expect.toBe(true)
+    t->expect(String.includes(css, "--export-touch-mode-title-size: 22px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "background: rgba(3, 12, 30, 0.82);"))->Expect.toBe(true)
+    t->expect(String.includes(css, "color: rgba(251, 146, 60, 0.94);"))->Expect.toBe(true)
     t
     ->expect(String.includes(css, "body.export-ui-portrait-adaptive #viewer-floor-nav-export"))
     ->Expect.toBe(true)
@@ -62,6 +66,22 @@ let _ = describe("TourTemplateStyles", () => {
       String.includes(
         css,
         "body.export-ui-portrait-adaptive:not(.is-map-open) .looking-mode-indicator",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "#viewer-portrait-mode-selector-export.is-portrait-mode-selector .portrait-mode-selector-title",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-shell-classic #viewer-portrait-mode-selector-export.is-portrait-mode-selector",
       ),
     )
     ->Expect.toBe(true)
@@ -113,11 +133,70 @@ let _ = describe("TourTemplateStyles", () => {
       ),
     )
     ->Expect.toBe(true)
-    t->expect(String.includes(css, "body.is-touch-device .mode-status-line { display: none !important; }"))->Expect.toBe(true)
     t
     ->expect(String.includes(css, "body.export-portrait-mode-intro #viewer-room-label-export"))
     ->Expect.toBe(true)
-    t->expect(String.includes(css, "width: 48px; height: 48px"))->Expect.toBe(true)
-    t->expect(String.includes(css, "portrait-joystick-icon { width: 13px; height: 13px"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "body.export-portrait-mode-intro .looking-mode-indicator"))
+    ->Expect.toBe(true)
+    t->expect(String.includes(css, "--export-touch-orb-size: 48px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "--export-touch-floor-btn-size: 34px"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "width: var(--export-touch-orb-size); height: var(--export-touch-orb-size);"))
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-floor-nav-export .floor-nav-btn { cursor: pointer; color: #fff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: var(--export-touch-floor-btn-size); height: var(--export-touch-floor-btn-size); min-width: var(--export-touch-floor-btn-size); min-height: var(--export-touch-floor-btn-size); font-size: var(--export-touch-floor-btn-font-size);",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-landscape-touch #viewer-floor-nav-export .floor-nav-btn { cursor: pointer; color: #fff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: var(--export-touch-floor-btn-size); height: var(--export-touch-floor-btn-size); min-width: var(--export-touch-floor-btn-size); min-height: var(--export-touch-floor-btn-size); font-size: var(--export-touch-floor-btn-font-size);",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-floor-nav-export .floor-nav-btn sup { font-size: var(--export-touch-floor-btn-sup-size); margin-left: 0; }",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-shell-classic.is-auto-tour-active .mode-status-line { display: none !important; }",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "#viewer-portrait-mode-selector-export.is-portrait-mode-selector .portrait-mode-selector-countdown { display: inline-flex;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "#viewer-portrait-mode-selector-export.is-portrait-mode-selector .portrait-mode-selector-countdown-number { color: rgba(251, 146, 60, 0.98); font-weight: 800; }",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "portrait-joystick-icon { width: var(--export-touch-orb-icon-size); height: var(--export-touch-orb-icon-size)"))
+    ->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "filter: grayscale(1) blur(6px) brightness(0.82);"))
+    ->Expect.toBe(true)
   })
 })

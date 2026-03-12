@@ -2,6 +2,9 @@ let script = `
     function getPortraitModeSelectorPanel() {
       return document.getElementById("viewer-portrait-mode-selector-export");
     }
+    function getSceneSequencePromptHost() {
+      return document.getElementById("viewer-sequence-prompt-export");
+    }
     function clearPortraitModeSelectorPanel(panel) {
       if (!panel) return;
       while (panel.firstChild) panel.removeChild(panel.firstChild);
@@ -26,9 +29,7 @@ let script = `
     function updateExportFloorNav(sceneId) {
       const nav = document.getElementById("viewer-floor-nav-export");
       if (!nav) return;
-      const isPortraitAdaptiveUi =
-        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
-      const shouldShowPortraitUiChrome =
+      const shouldShowFloorNav =
         !(
           typeof isPortraitModeSelectorBlockingUi === "function" &&
           isPortraitModeSelectorBlockingUi()
@@ -36,25 +37,21 @@ let script = `
       const sceneData = scenesData[sceneId];
       const currentFloor = normalizeSceneFloor(sceneData);
       const visibleFloorLevels = getExportFloorLevelsInUse();
-      nav.setAttribute(
-        "aria-hidden",
-        isPortraitAdaptiveUi && shouldShowPortraitUiChrome ? "false" : "true",
-      );
+      nav.classList.toggle("state-interactive", shouldShowFloorNav && visibleFloorLevels.length > 0);
+      nav.setAttribute("aria-hidden", shouldShowFloorNav && visibleFloorLevels.length > 0 ? "false" : "true");
       while (nav.firstChild) nav.removeChild(nav.firstChild);
       for (const level of visibleFloorLevels) {
-        const btn = document.createElement(isPortraitAdaptiveUi ? "button" : "div");
-        if (isPortraitAdaptiveUi) btn.type = "button";
+        const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "floor-nav-btn " + (level.id === currentFloor ? "state-active" : "state-idle");
         btn.setAttribute("title", level.label);
         btn.setAttribute("aria-label", level.label);
         btn.textContent = level.short;
-        if (isPortraitAdaptiveUi) {
-          btn.addEventListener("click", () => {
-            if (typeof navigateToFirstSceneInFloor === "function") {
-              navigateToFirstSceneInFloor(level.id);
-            }
-          });
-        }
+        btn.addEventListener("click", () => {
+          if (typeof navigateToFirstSceneInFloor === "function") {
+            navigateToFirstSceneInFloor(level.id);
+          }
+        });
         if (level.suffix) {
           const suffix = document.createElement("sup");
           suffix.textContent = level.suffix;
@@ -101,6 +98,50 @@ let script = `
       }
       return { primary: "Semi", secondary: "Auto" };
     }
+    function refreshExportNavigationUi() {
+      if (typeof syncPortraitModeSelectorClasses === "function") {
+        syncPortraitModeSelectorClasses();
+      }
+      if (typeof renderMapSequencePromptPanel === "function") {
+        renderMapSequencePromptPanel();
+      }
+      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+      if (sid && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sid, true);
+      }
+    }
+    function activateExportNavigationMode(mode) {
+      const normalizedMode =
+        typeof normalizePortraitNavigationMode === "function"
+          ? normalizePortraitNavigationMode(mode)
+          : mode;
+      if (
+        normalizedMode !== EXPORT_NAVIGATION_MODE_MANUAL &&
+        normalizedMode !== EXPORT_NAVIGATION_MODE_SEMI_AUTO
+      ) {
+        return false;
+      }
+      if (typeof setPortraitBaseNavigationMode === "function") {
+        setPortraitBaseNavigationMode(normalizedMode);
+      }
+      if (floorTagShortcutState.isAutoTourActive && typeof stopAutoTour === "function") {
+        stopAutoTour();
+        return true;
+      }
+      refreshExportNavigationUi();
+      return true;
+    }
+    function triggerAutoNavigationMode() {
+      if (autoTourHomeReturnCountdownRemaining > 0) return false;
+      if (!floorTagShortcutState.isAutoTourActive) {
+        if (typeof startAutoTour === "function") startAutoTour();
+        return true;
+      }
+      if (typeof speedUpAutoTour === "function") {
+        return speedUpAutoTour();
+      }
+      return false;
+    }
     function handlePortraitModeSelectorClick(mode, event) {
       if (typeof event?.preventDefault === "function") event.preventDefault();
       if (typeof event?.stopPropagation === "function") event.stopPropagation();
@@ -124,40 +165,17 @@ let script = `
           if (shouldCollapseIntro && typeof collapsePortraitModeSelectorIntro === "function") {
             collapsePortraitModeSelectorIntro();
           }
-          if (typeof startAutoTour === "function") startAutoTour();
-          return;
+          return triggerAutoNavigationMode();
         }
-        if (typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted()) {
-          if (typeof stopAutoTour === "function") stopAutoTour();
-          return;
-        }
-        if (typeof setAutoTourSpeedMultiplier === "function") {
-          setAutoTourSpeedMultiplier(AUTO_TOUR_BOOSTED_SPEED_MULTIPLIER);
-        }
-        const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
-        if (sid && typeof updateNavShortcutsV2 === "function") {
-          updateNavShortcutsV2(sid, true);
-        }
-        return;
+        return triggerAutoNavigationMode();
       }
 
-      if (typeof setPortraitBaseNavigationMode === "function") {
-        setPortraitBaseNavigationMode(normalizedMode);
-      }
-      if (floorTagShortcutState.isAutoTourActive && typeof stopAutoTour === "function") {
-        stopAutoTour();
-      }
+      activateExportNavigationMode(normalizedMode);
       if (shouldCollapseIntro && typeof collapsePortraitModeSelectorIntro === "function") {
         collapsePortraitModeSelectorIntro();
         return;
       }
-      if (typeof syncPortraitModeSelectorClasses === "function") {
-        syncPortraitModeSelectorClasses();
-      }
-      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
-      if (sid && typeof updateNavShortcutsV2 === "function") {
-        updateNavShortcutsV2(sid, true);
-      }
+      refreshExportNavigationUi();
     }
     function updatePortraitJoystick() {
       const joystick = document.getElementById("viewer-portrait-joystick-export");
@@ -165,7 +183,7 @@ let script = `
       while (joystick.firstChild) joystick.removeChild(joystick.firstChild);
       if (
         !(
-          typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi()
+          typeof isTouchFriendlyExportUi === "function" && isTouchFriendlyExportUi()
         ) ||
         isExportMapOpen() ||
         (
@@ -245,6 +263,11 @@ let script = `
       panel.classList.toggle("state-docked", !isIntroVisible && !isTransitioning);
       panel.setAttribute("aria-hidden", "false");
 
+      const title = document.createElement("div");
+      title.className = "portrait-mode-selector-title";
+      title.textContent = "Choose tour mode:";
+      panel.appendChild(title);
+
       const cluster = document.createElement("div");
       cluster.className = "portrait-mode-selector-cluster";
       const createModeOrb = mode => {
@@ -301,6 +324,27 @@ let script = `
       cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_MANUAL));
       cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_AUTO));
       panel.appendChild(cluster);
+      if (
+        typeof isTouchFriendlyExportUi === "function" &&
+        isTouchFriendlyExportUi() &&
+        autoTourHomeReturnCountdownRemaining > 0
+      ) {
+        const countdown = document.createElement("div");
+        countdown.className = "portrait-mode-selector-countdown";
+        countdown.setAttribute("aria-live", "polite");
+
+        const countdownLabel = document.createElement("span");
+        countdownLabel.className = "portrait-mode-selector-countdown-label";
+        countdownLabel.textContent = "Returning home";
+
+        const countdownNumber = document.createElement("span");
+        countdownNumber.className = "portrait-mode-selector-countdown-number";
+        countdownNumber.textContent = String(autoTourHomeReturnCountdownRemaining);
+
+        countdown.appendChild(countdownLabel);
+        countdown.appendChild(countdownNumber);
+        panel.appendChild(countdown);
+      }
       if (typeof syncPortraitModeSelectorClasses === "function") {
         syncPortraitModeSelectorClasses();
       }
@@ -355,23 +399,32 @@ let script = `
       sceneNumberRows.sort((a, b) => a.sceneNumber - b.sceneNumber);
       return sceneNumberRows;
     }
-    function navigateToSceneByNumberValue(chosen) {
+    function navigateToSceneByNumberValue(chosen, options) {
       if (!Number.isInteger(chosen) || chosen < 1) return false;
       const sceneNumberRows = buildSceneNumberRows();
       if (sceneNumberRows.length === 0) return false;
       const targetEntry = sceneNumberRows.find(item => item.sceneNumber === chosen);
       if (!targetEntry || !targetEntry.sceneId) return false;
-      navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });
+      navigateToFloorTagShortcut(targetEntry.sceneId, options);
       return true;
     }
     function isSceneSequencePromptOpen() {
       return mapSequenceInputState.isOpen === true;
+    }
+    function syncSceneSequencePromptHostState() {
+      if (!document || !document.body) return;
+      document.body.classList.toggle("is-sequence-prompt-open", mapSequenceInputState.isOpen === true);
+      const host = getSceneSequencePromptHost();
+      if (!host) return;
+      host.classList.toggle("state-hidden", mapSequenceInputState.isOpen !== true);
+      host.setAttribute("aria-hidden", mapSequenceInputState.isOpen === true ? "false" : "true");
     }
     function closeSceneSequencePrompt() {
       mapSequenceInputState.isOpen = false;
       mapSequenceInputState.error = "";
       mapSequenceInputState.value = "";
       removeMapSequencePromptPanel();
+      syncSceneSequencePromptHostState();
       if (typeof updateNavShortcutsV2 === "function") {
         const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
         if (sid) updateNavShortcutsV2(sid, true);
@@ -388,7 +441,9 @@ let script = `
         return true;
       }
       const chosen = Number.parseInt(normalized, 10);
-      const didNavigate = navigateToSceneByNumberValue(chosen);
+      const didNavigate = navigateToSceneByNumberValue(chosen, {
+        fromSceneSequencePrompt: true,
+      });
       if (!didNavigate) {
         mapSequenceInputState.error = "invalid scene";
         return false;
@@ -398,11 +453,23 @@ let script = `
       return true;
     }
     function openSceneSequencePrompt() {
+      const interactionShell =
+        typeof resolveExportInteractionShell === "function"
+          ? resolveExportInteractionShell()
+          : "classic";
+      if (interactionShell !== "classic") return false;
       const rows = buildSceneNumberRows();
       if (rows.length === 0) return false;
+      if (typeof suspendLookingModeForSceneSequencePrompt === "function") {
+        suspendLookingModeForSceneSequencePrompt();
+      }
       mapSequenceInputState.isOpen = true;
       mapSequenceInputState.error = "";
       mapSequenceInputState.value = "";
+      syncSceneSequencePromptHostState();
+      if (typeof renderMapSequencePromptPanel === "function") {
+        renderMapSequencePromptPanel();
+      }
       if (typeof updateNavShortcutsV2 === "function") {
         const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
         if (sid) updateNavShortcutsV2(sid, true);
@@ -413,14 +480,20 @@ let script = `
       return openSceneSequencePrompt();
     }
     function removeMapSequencePromptPanel() {
+      const host = getSceneSequencePromptHost();
+      if (host) {
+        while (host.firstChild) host.removeChild(host.firstChild);
+      }
       const existing = document.getElementById("viewer-map-sequence-prompt-export");
       if (existing && existing.parentNode) {
         existing.parentNode.removeChild(existing);
       }
     }
-    function renderMapSequencePromptPanel(panel) {
+    function renderMapSequencePromptPanel() {
       removeMapSequencePromptPanel();
-      if (!panel || mapSequenceInputState.isOpen !== true) return;
+      syncSceneSequencePromptHostState();
+      const host = getSceneSequencePromptHost();
+      if (!host || mapSequenceInputState.isOpen !== true) return;
       const rows = buildSceneNumberRows();
       const maxSceneNumber = rows.length > 0 ? rows[rows.length - 1].sceneNumber : 0;
       const prompt = document.createElement("div");
@@ -462,7 +535,7 @@ let script = `
 
       const exitHint = document.createElement("div");
       exitHint.className = "map-sequence-prompt-exit-hint";
-      exitHint.textContent = "e to exit";
+      exitHint.textContent = "n to return";
 
       controls.appendChild(input);
       controls.appendChild(goBtn);
@@ -477,7 +550,7 @@ let script = `
         prompt.appendChild(errorEl);
       }
 
-      panel.appendChild(prompt);
+      host.appendChild(prompt);
       setTimeout(() => {
         try {
           input.focus({ preventScroll: true });
@@ -490,6 +563,7 @@ let script = `
     function navigateToFloorTagShortcut(targetSceneId, options) {
       if (!window.viewer || typeof window.viewer.getScene !== "function") return;
       const fromMap = options?.fromMap === true;
+      const fromSceneSequencePrompt = options?.fromSceneSequencePrompt === true;
       const mapSelectedRow = options?.mapSelectedRow ?? null;
       const sequencePosition =
         Number.isInteger(options?.sequencePosition) && options.sequencePosition >= 1
@@ -499,6 +573,12 @@ let script = `
       const runNavigation = () => {
         if (fromMap && typeof enableLookingModeAfterMapNavigation === "function") {
           enableLookingModeAfterMapNavigation();
+        }
+        if (
+          fromSceneSequencePrompt &&
+          typeof restoreLookingModeAfterSceneSequencePromptSuccess === "function"
+        ) {
+          restoreLookingModeAfterSceneSequencePromptSuccess();
         }
         if (isExportMapOpen()) closeExportMap();
         const row = document.querySelector('.floor-tag-shortcut-row[data-scene-id="' + String(targetSceneId) + '"]');
@@ -716,8 +796,11 @@ let script = `
       const panel = document.getElementById("viewer-floor-tags-export");
       const portraitSelectorPanel = getPortraitModeSelectorPanel();
       if (!panel) return;
-      const isPortraitAdaptiveUi =
-        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
+      const isTouchFriendlyUi =
+        typeof isTouchFriendlyExportUi === "function" && isTouchFriendlyExportUi();
+      const selectorBlockingUi =
+        typeof isPortraitModeSelectorBlockingUi === "function" &&
+        isPortraitModeSelectorBlockingUi();
       if (suppressShortcutPanelUntilNextLoad) {
         clearExportFloorTagShortcuts(panel);
         return;
@@ -752,96 +835,33 @@ let script = `
       const prevTarget = shortcutTargets?.prevTarget ?? null;
       syncFloorTagShortcutState(sceneId, nextTarget, prevTarget);
 
-      if (isPortraitAdaptiveUi) {
+      if (isTouchFriendlyUi || selectorBlockingUi) {
         panel.classList.add("state-hidden");
         panel.setAttribute("aria-hidden", "true");
         renderPortraitAdaptiveShortcutPanel(portraitSelectorPanel);
+        renderMapSequencePromptPanel();
         return;
       }
 
       clearPortraitModeSelectorPanel(portraitSelectorPanel);
       clearPortraitJoystick();
-
-      if (floorTagShortcutState.isAutoTourActive) {
-        const isSpeedBoosted =
-          typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted();
-
-        const speedRow = document.createElement("button");
-        speedRow.type = "button";
-        speedRow.className = "floor-tag-shortcut-row";
-        speedRow.setAttribute(
-          "aria-label",
-          isSpeedBoosted ? "Auto tour 2x" : "Auto tour 1x",
-        );
-        speedRow.addEventListener("click", () => {
-          if (typeof speedUpAutoTour === "function") speedUpAutoTour();
-        });
-
-        const speedSpacer = document.createElement("span");
-        speedSpacer.className = "shortcut-indicator-spacer";
-        const speedIndex = document.createElement("span");
-        speedIndex.className = "floor-tag-shortcut-index";
-        speedIndex.textContent = "a";
-        const speedLabel = document.createElement("span");
-        speedLabel.className = "floor-tag-shortcut-label";
-        speedLabel.textContent = isSpeedBoosted ? "2x" : "1x";
-
-        speedRow.appendChild(speedSpacer);
-        speedRow.appendChild(speedIndex);
-        speedRow.appendChild(speedLabel);
-        panel.appendChild(speedRow);
-
-        const stopRow = document.createElement("button");
-        stopRow.type = "button";
-        stopRow.className = "floor-tag-shortcut-row";
-        stopRow.setAttribute("aria-label", "Stop auto tour");
-        stopRow.addEventListener("click", stopAutoTour);
-
-        const stopSpacer = document.createElement("span");
-        stopSpacer.className = "shortcut-indicator-spacer";
-        const stopIndex = document.createElement("span");
-        stopIndex.className = "floor-tag-shortcut-index";
-        stopIndex.textContent = "s";
-        const stopLabel = document.createElement("span");
-        stopLabel.className = "floor-tag-shortcut-label";
-        stopLabel.textContent = "stop auto tour";
-
-        stopRow.appendChild(stopSpacer);
-        stopRow.appendChild(stopIndex);
-        stopRow.appendChild(stopLabel);
-        panel.appendChild(stopRow);
-        return;
-      }
-      if (autoTourHomeReturnCountdownRemaining > 0) {
-        const countdownRow = document.createElement("div");
-        countdownRow.className = "floor-tag-shortcut-row";
-        countdownRow.setAttribute("aria-live", "polite");
-
-        const countdownSpacer = document.createElement("span");
-        countdownSpacer.className = "shortcut-indicator-spacer";
-        const countdownIndex = document.createElement("span");
-        countdownIndex.className = "floor-tag-shortcut-index";
-        countdownIndex.textContent = String(autoTourHomeReturnCountdownRemaining);
-        const countdownLabel = document.createElement("span");
-        countdownLabel.className = "floor-tag-shortcut-label";
-        countdownLabel.textContent = "returning home";
-
-        countdownRow.appendChild(countdownSpacer);
-        countdownRow.appendChild(countdownIndex);
-        countdownRow.appendChild(countdownLabel);
-        panel.appendChild(countdownRow);
-        return;
-      }
-
-      // Navigation Logic: Next (Up) and Previous (Down)
-      const nextSceneId = nextTarget?.targetSceneId ?? null;
-      const prevSceneId = prevTarget?.targetSceneId ?? null;
-
-      const createRow = (id, iconChar, label, onClick) => {
+      const appendSectionTitle = text => {
+        const title = document.createElement("div");
+        title.className = "floor-tag-shortcut-section-title";
+        title.textContent = text;
+        panel.appendChild(title);
+      };
+      const appendDivider = () => {
+        const divider = document.createElement("div");
+        divider.className = "floor-tag-shortcut-divider";
+        panel.appendChild(divider);
+      };
+      const createClassicShortcutRow = ({id, iconChar, label, onClick, isActive, ariaLabel}) => {
         const row = document.createElement("button");
         row.type = "button";
-        row.className = "floor-tag-shortcut-row";
+        row.className = "floor-tag-shortcut-row" + (isActive ? " state-active" : "");
         if (id) row.setAttribute("data-scene-id", id);
+        if (ariaLabel) row.setAttribute("aria-label", ariaLabel);
         row.addEventListener("click", onClick);
 
         const arrowEl = document.createElement("span");
@@ -862,64 +882,133 @@ let script = `
         return row;
       };
 
-      // 1. Next Scene (Up Arrow)
-      if (nextSceneId) {
-        const nextLabel = scenesData[nextSceneId]?.label || scenesData[nextSceneId]?.name || "Next";
-        panel.appendChild(createRow(nextSceneId, "↑", nextLabel, () => navigateToNextSequenceShortcut()));
+      const activeMode =
+        typeof resolveActivePortraitNavigationMode === "function"
+          ? resolveActivePortraitNavigationMode()
+          : EXPORT_DEFAULT_NAVIGATION_MODE;
+      const isSpeedBoosted =
+        typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted();
+      const autoModeLabel = !floorTagShortcutState.isAutoTourActive
+        ? "auto"
+        : (isSpeedBoosted ? "auto 2x" : "auto 1x");
+
+      if (!floorTagShortcutState.isAutoTourActive && autoTourHomeReturnCountdownRemaining <= 0) {
+        appendSectionTitle("Navigation Mode");
+        panel.appendChild(
+          createClassicShortcutRow({
+            iconChar: "m",
+            label: "manual",
+            onClick: () => {
+              activateExportNavigationMode(EXPORT_NAVIGATION_MODE_MANUAL);
+            },
+            isActive: activeMode === EXPORT_NAVIGATION_MODE_MANUAL,
+            ariaLabel: "Manual navigation mode",
+          }),
+        );
+        panel.appendChild(
+          createClassicShortcutRow({
+            iconChar: "s",
+            label: "semi-auto",
+            onClick: () => {
+              activateExportNavigationMode(EXPORT_NAVIGATION_MODE_SEMI_AUTO);
+            },
+            isActive: activeMode === EXPORT_NAVIGATION_MODE_SEMI_AUTO,
+            ariaLabel: "Semi-auto navigation mode",
+          }),
+        );
+      }
+      panel.appendChild(
+        createClassicShortcutRow({
+          iconChar: "a",
+          label: autoModeLabel,
+          onClick: () => {
+            triggerAutoNavigationMode();
+          },
+          isActive: activeMode === EXPORT_NAVIGATION_MODE_AUTO,
+          ariaLabel: floorTagShortcutState.isAutoTourActive
+            ? "Auto tour " + (isSpeedBoosted ? "2x" : "1x")
+            : "Auto tour",
+        }),
+      );
+
+      if (autoTourHomeReturnCountdownRemaining > 0) {
+        appendDivider();
+        const countdownRow = document.createElement("div");
+        countdownRow.className = "floor-tag-shortcut-row";
+        countdownRow.setAttribute("aria-live", "polite");
+        const countdownSpacer = document.createElement("span");
+        countdownSpacer.className = "shortcut-indicator-spacer";
+        const countdownIndex = document.createElement("span");
+        countdownIndex.className = "floor-tag-shortcut-index";
+        countdownIndex.textContent = String(autoTourHomeReturnCountdownRemaining);
+        const countdownLabel = document.createElement("span");
+        countdownLabel.className = "floor-tag-shortcut-label";
+        countdownLabel.textContent = "returning home";
+        countdownRow.appendChild(countdownSpacer);
+        countdownRow.appendChild(countdownIndex);
+        countdownRow.appendChild(countdownLabel);
+        panel.appendChild(countdownRow);
+        renderMapSequencePromptPanel();
+        return;
       }
 
-      // 2. Previous Scene (Down Arrow)
-      if (prevSceneId && prevSceneId !== sceneId) {
-        const prevLabel = scenesData[prevSceneId]?.label || scenesData[prevSceneId]?.name || "Back";
-        panel.appendChild(createRow(prevSceneId, "↓", prevLabel, () => navigateToPreviousSequenceShortcut()));
+      if (floorTagShortcutState.isAutoTourActive) {
+        renderMapSequencePromptPanel();
+        return;
       }
 
-      // 3. Home (h)
+      const nextSceneId = nextTarget?.targetSceneId ?? null;
+      const prevSceneId = prevTarget?.targetSceneId ?? null;
       const homeSceneId = resolveExistingSceneId(firstSceneId);
+
+      appendDivider();
+      if (nextSceneId) {
+        const nextLabel = scenesData[nextSceneId]?.label || scenesData[nextSceneId]?.name || "next";
+        panel.appendChild(
+          createClassicShortcutRow({
+            id: nextSceneId,
+            iconChar: "↑",
+            label: nextLabel,
+            onClick: () => navigateToNextSequenceShortcut(),
+            isActive: false,
+            ariaLabel: "Go forward to " + nextLabel,
+          }),
+        );
+      }
+      if (prevSceneId && prevSceneId !== sceneId) {
+        const prevLabel = scenesData[prevSceneId]?.label || scenesData[prevSceneId]?.name || "back";
+        panel.appendChild(
+          createClassicShortcutRow({
+            id: prevSceneId,
+            iconChar: "↓",
+            label: prevLabel,
+            onClick: () => navigateToPreviousSequenceShortcut(),
+            isActive: false,
+            ariaLabel: "Go back to " + prevLabel,
+          }),
+        );
+      }
       if (homeSceneId && homeSceneId !== sceneId) {
-        panel.appendChild(createRow(homeSceneId, "h", "home", () => navigateToFloorTagShortcut(homeSceneId)));
+        panel.appendChild(
+          createClassicShortcutRow({
+            id: homeSceneId,
+            iconChar: "h",
+            label: "home",
+            onClick: () => navigateToFloorTagShortcut(homeSceneId),
+            isActive: false,
+            ariaLabel: "Go home",
+          }),
+        );
       }
-
-      // 4. Map Placeholder (m)
-      const mapRow = document.createElement("button");
-      mapRow.type = "button";
-      mapRow.className = "floor-tag-shortcut-row";
-      mapRow.setAttribute("aria-label", "Map");
-      mapRow.addEventListener("click", () => {
-        toggleExportMap();
-      });
-      const mapSpacer = document.createElement("span");
-      mapSpacer.className = "shortcut-indicator-spacer";
-      const mapIndex = document.createElement("span");
-      mapIndex.className = "floor-tag-shortcut-index";
-      mapIndex.textContent = "m";
-      const mapLabel = document.createElement("span");
-      mapLabel.className = "floor-tag-shortcut-label";
-      mapLabel.textContent = "map";
-      mapRow.appendChild(mapSpacer);
-      mapRow.appendChild(mapIndex);
-      mapRow.appendChild(mapLabel);
-      if (floorTagShortcutState.hasMap) {
-        panel.appendChild(mapRow);
-      }
-
-      const autoRow = document.createElement("button");
-      autoRow.type = "button";
-      autoRow.className = "floor-tag-shortcut-row";
-      autoRow.setAttribute("aria-label", "Start auto tour");
-      autoRow.addEventListener("click", startAutoTour);
-      const autoSpacer = document.createElement("span");
-      autoSpacer.className = "shortcut-indicator-spacer";
-      const autoIndex = document.createElement("span");
-      autoIndex.className = "floor-tag-shortcut-index";
-      autoIndex.textContent = "a";
-      const autoLabel = document.createElement("span");
-      autoLabel.className = "floor-tag-shortcut-label";
-      autoLabel.textContent = "auto tour";
-
-      autoRow.appendChild(autoSpacer);
-      autoRow.appendChild(autoIndex);
-      autoRow.appendChild(autoLabel);
-      panel.appendChild(autoRow);
+      panel.appendChild(
+        createClassicShortcutRow({
+          iconChar: "n",
+          label: "scene number",
+          onClick: () => navigateToSceneBySequenceInput(),
+          isActive: mapSequenceInputState.isOpen === true,
+          ariaLabel: "Jump to scene number",
+        }),
+      );
+      renderMapSequencePromptPanel();
     }
 `

@@ -109,9 +109,6 @@ let script = `
       body.classList.remove("export-portrait-mode-manual");
       body.classList.remove("export-portrait-mode-semi-auto");
       body.classList.remove("export-portrait-mode-auto");
-      const isPortraitAdaptiveUi =
-        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
-      if (!isPortraitAdaptiveUi) return;
       const activeMode = resolveActivePortraitNavigationMode();
       body.classList.add(
         "export-portrait-mode-" + String(activeMode).replace(/[^a-z0-9]+/gi, "-"),
@@ -156,15 +153,8 @@ let script = `
         updateNavShortcutsV2(sid, true);
       }
     }
-    function ensurePortraitModeSelectorForViewport(previousPortraitAdaptiveUi, nextPortraitAdaptiveUi) {
-      if (nextPortraitAdaptiveUi !== true) {
-        clearPortraitModeSelectorCollapseTimeout();
-        portraitModeSelectorState.introVisible = false;
-        portraitModeSelectorState.isCollapsing = false;
-        syncPortraitModeSelectorClasses();
-        return;
-      }
-      if (previousPortraitAdaptiveUi !== true && portraitModeSelectorState.hasResolvedIntro !== true) {
+    function ensurePortraitModeSelectorForViewport(previousTouchFriendlyUi, nextTouchFriendlyUi) {
+      if (portraitModeSelectorState.hasResolvedIntro !== true) {
         openPortraitModeSelectorIntro();
         return;
       }
@@ -483,6 +473,9 @@ let script = `
       if (typeof removeMapSequencePromptPanel === "function") {
         removeMapSequencePromptPanel();
       }
+      if (typeof syncSceneSequencePromptHostState === "function") {
+        syncSceneSequencePromptHostState();
+      }
       if (typeof manualLookingMode !== "undefined" && typeof lookingMode !== "undefined") {
         lookingMode = manualLookingMode;
       }
@@ -556,7 +549,7 @@ let script = `
       };
       if (!mapEntries || mapEntries.length === 0) {
         if (typeof renderMapSequencePromptPanel === "function") {
-          renderMapSequencePromptPanel(panel);
+          renderMapSequencePromptPanel();
         }
         const emptyRow = document.createElement("div");
         emptyRow.className = "floor-map-shortcut-empty";
@@ -567,7 +560,7 @@ let script = `
         return;
       }
       if (typeof renderMapSequencePromptPanel === "function") {
-        renderMapSequencePromptPanel(panel);
+        renderMapSequencePromptPanel();
       }
       mapEntries.forEach(entry => {
         const row = document.createElement("button");
