@@ -1,5 +1,6 @@
 // @efficiency-role: domain-logic
 use crate::metrics::{QUOTA_CURRENT_SIZE_BYTES, QUOTA_CURRENT_UPLOADS};
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use super::{QuotaStats, UploadHistory, UploadQuotaManager, UploadTracker};
@@ -113,8 +114,6 @@ pub(super) async fn unregister_upload(manager: &UploadQuotaManager, ip: &str, si
 }
 
 pub(super) async fn check_disk_space(manager: &UploadQuotaManager) -> Result<(), String> {
-    use std::path::Path;
-
     let fail_open = std::env::var("ALLOW_DISK_CHECK_BYPASS")
         .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
         .unwrap_or(false);
@@ -123,9 +122,9 @@ pub(super) async fn check_disk_space(manager: &UploadQuotaManager) -> Result<(),
         return Ok(());
     }
 
-    let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../tmp".to_string());
+    let temp_path = resolve_disk_space_probe_path();
 
-    match fs2::available_space(Path::new(&temp_path)) {
+    match fs2::available_space(&temp_path) {
         Ok(available) => {
             if available < manager.config.min_free_disk_space {
                 Err(format!(
@@ -142,6 +141,27 @@ pub(super) async fn check_disk_space(manager: &UploadQuotaManager) -> Result<(),
             Err("Failed to verify available disk space".to_string())
         }
     }
+}
+
+fn resolve_disk_space_probe_path() -> PathBuf {
+    let configured_path = std::env::var("TEMP_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from(crate::api::utils::TEMP_DIR));
+
+    nearest_existing_path(configured_path).unwrap_or_else(std::env::temp_dir)
+}
+
+fn nearest_existing_path(path: PathBuf) -> Option<PathBuf> {
+    let mut current: Option<&Path> = Some(path.as_path());
+
+    while let Some(candidate) = current {
+        if candidate.exists() {
+            return Some(candidate.to_path_buf());
+        }
+        current = candidate.parent();
+    }
+
+    None
 }
 
 pub(super) async fn get_stats(manager: &UploadQuotaManager) -> QuotaStats {
