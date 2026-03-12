@@ -9,6 +9,8 @@ Finalize the exported adaptive tour shells so the normal `hd`, `2k`, and `4k` we
 - Preserve the existing desktop/laptop classic UI for non-touch `hd`, `2k`, and `4k`.
 - Make the normal web exports select `portrait-adaptive` or `landscape-touch` automatically on touch-primary devices.
 - Keep a single 2K standalone HTML option in the export dialog.
+- Remove the standalone HTML's intermediate small-landscape/tablet stage so it only uses the main landscape stage plus the portrait shell.
+- Keep portrait profile caps quality-preserving for standalone so portrait max size is clamped by export-resolution budget rather than viewport percentage.
 - Remove the calibration-only landscape-touch standalone choices from the export dialog while leaving the calibrated touch-shell runtime intact.
 - Use the 2K touch-shell orb sizing as the calibration baseline, then scale HD and 4K touch-shell orbs proportionally to stage size.
 - Strengthen the touch-shell intro treatment so the panorama sits in grayscale plus blur while the 3 mode orbs are centered.

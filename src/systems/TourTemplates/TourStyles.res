@@ -120,7 +120,7 @@ let cssTemplate = `
     .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg { animation: none; transform: scale(1.08); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.35)); }
     .pnlm-load-box, .pnlm-lbox, .pnlm-lmsg, .pnlm-lbar, .pnlm-ltext, .pnlm-loading-container, [class^="pnlm-l"], [class*="loading"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     body.export-state-portrait { padding: var(--export-fallback-padding); box-sizing: border-box; }
-    body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc((100vw - (var(--export-fallback-padding) * 2)) * __PORTRAIT_VIEWPORT_SCALE__)) !important; min-width: 0 !important; max-width: calc((100vw - (var(--export-fallback-padding) * 2)) * __PORTRAIT_VIEWPORT_SCALE__) !important; aspect-ratio: 9 / 16 !important; border-radius: 12px !important; border: 1px solid #b44409 !important; box-shadow: none !important; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)) !important; }
+    body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), __PORTRAIT_PROFILE_MAX_WIDTH__) !important; min-width: 0 !important; max-width: min(calc(100vw - (var(--export-fallback-padding) * 2)), __PORTRAIT_PROFILE_MAX_WIDTH__) !important; aspect-ratio: 9 / 16 !important; border-radius: 12px !important; border: 1px solid #b44409 !important; box-shadow: none !important; max-height: min(calc(100dvh - (var(--export-fallback-padding) * 2)), __PORTRAIT_PROFILE_MAX_HEIGHT__) !important; }
     body.is-hd-export #viewer-floor-nav-export, body.export-state-tablet #viewer-floor-nav-export { bottom: 12px; left: 13px; gap: 6px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn { width: 22px; height: 22px; min-width: 22px; min-height: 22px; font-size: 8.5px; }
     body.is-hd-export #viewer-floor-nav-export .floor-nav-btn sup, body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn sup { font-size: 5.5px; margin-left: 0; }
@@ -316,28 +316,36 @@ let cssTemplate = `
     body.is-hd-export .mode-shortcut-key-inline, body.export-state-tablet .mode-shortcut-key-inline, body.export-state-portrait .mode-shortcut-key-inline { font-size: 12px; }
   `
 
-let generateCSS = (firstSceneName, exportType, baseSize, logoSize) => {
+let generateCSS = (firstSceneName, exportType, baseSize, logoSize, ~allowTabletLandscapeStage=true) => {
   let firstSceneBackgroundUrl = if String.startsWith(firstSceneName, "data:image") {
     firstSceneName
   } else {
     "../../assets/images/" ++ firstSceneName
   }
-  let portraitViewportScale = switch exportType {
-  | "4k" => "1"
-  | "2k" => "0.901"
-  | _ => "0.791"
+  let (portraitProfileMaxWidth, portraitProfileMaxHeight) = switch exportType {
+  | "4k" => ("607px", "1080px")
+  | "2k" => ("493px", "877px")
+  | _ => ("379px", "675px")
   }
 
+  let tabletLandscapeStageRule =
+    if allowTabletLandscapeStage {
+      ` body.export-state-tablet #stage { width: 640px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); } `
+    } else {
+      ""
+    }
+
   let mediaQuery = switch exportType {
-  | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); height: auto; aspect-ratio: 16/10; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)); background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); } `
-  | "2k" => ` #stage { position: relative; margin: 0 auto; width: 832px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); height: auto; aspect-ratio: 16/10; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)); background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } body.export-state-tablet #stage { width: 640px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); } `
+  | "4k" => ` #stage { position: relative; margin: 0 auto; width: 1024px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); height: auto; aspect-ratio: 16/10; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)); background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } ${tabletLandscapeStageRule} `
+  | "2k" => ` #stage { position: relative; margin: 0 auto; width: 832px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); height: auto; aspect-ratio: 16/10; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)); background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } ${tabletLandscapeStageRule} `
   | _ => ` #stage { position: relative; margin: 0 auto; width: 640px; max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2))); height: auto; aspect-ratio: 16/10; max-height: calc(100dvh - (var(--export-fallback-padding) * 2)); background: #1a202c; border-radius: 8px; border: 1px solid #b44409; box-shadow: none; overflow: hidden; } `
   }
   let baseCss =
     cssTemplate
     ->String.replaceRegExp(/__FIRST_SCENE_BACKGROUND_URL__/g, firstSceneBackgroundUrl)
     ->String.replaceRegExp(/__MEDIA_QUERY_CSS__/g, mediaQuery)
-    ->String.replaceRegExp(/__PORTRAIT_VIEWPORT_SCALE__/g, portraitViewportScale)
+    ->String.replaceRegExp(/__PORTRAIT_PROFILE_MAX_WIDTH__/g, portraitProfileMaxWidth)
+    ->String.replaceRegExp(/__PORTRAIT_PROFILE_MAX_HEIGHT__/g, portraitProfileMaxHeight)
     ->String.replaceRegExp(/__LOGO_SIZE__/g, Belt.Int.toString(logoSize))
     ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
     ->String.replaceRegExp(

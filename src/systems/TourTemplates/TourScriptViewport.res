@@ -109,6 +109,7 @@ let script = `
     function resolveExportViewportState() {
       const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
       if (portraitViewport) return "portrait";
+      if (!EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE) return "desktop";
       // Allow desktop mode if viewport is at least 60px wider than the stage max width
       if (window.innerWidth >= (STAGE_MAX_WIDTH + 60)) return "desktop";
       return "tablet";

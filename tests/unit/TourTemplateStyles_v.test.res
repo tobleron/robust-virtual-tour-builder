@@ -50,7 +50,15 @@ let _ = describe("TourTemplateStyles", () => {
     ->expect(
       String.includes(
         css,
-        "body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc((100vw - (var(--export-fallback-padding) * 2)) * 0.791)) !important;",
+        "body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 379px) !important;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "max-height: min(calc(100dvh - (var(--export-fallback-padding) * 2)), 675px) !important;",
       ),
     )
     ->Expect.toBe(true)
@@ -179,6 +187,22 @@ let _ = describe("TourTemplateStyles", () => {
     t->expect(String.includes(css, "--export-touch-rail-left: 13px"))->Expect.toBe(true)
     t->expect(String.includes(css, "--export-touch-docked-orb-left: 6px"))->Expect.toBe(true)
     t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 493px) !important;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "max-height: min(calc(100dvh - (var(--export-fallback-padding) * 2)), 877px) !important;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
     ->expect(String.includes(css, "width: var(--export-touch-orb-size); height: var(--export-touch-orb-size);"))
     ->Expect.toBe(true)
     t
@@ -250,6 +274,31 @@ let _ = describe("TourTemplateStyles", () => {
     ->Expect.toBe(true)
     t
     ->expect(String.includes(css, "filter: grayscale(1) blur(6px) brightness(0.82);"))
+    ->Expect.toBe(true)
+  })
+
+  test("generateCSS can omit the intermediate tablet landscape stage for standalone", t => {
+    let css = generateCSS("standalone.jpg", "2k", 32, 40, ~allowTabletLandscapeStage=false)
+
+    t->expect(String.includes(css, "width: 832px"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "body.export-state-tablet #stage { width: 640px"))
+    ->Expect.toBe(false)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc(100vw - (var(--export-fallback-padding) * 2)), 493px) !important;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "max-height: min(calc(100dvh - (var(--export-fallback-padding) * 2)), 877px) !important;",
+      ),
+    )
     ->Expect.toBe(true)
   })
 })

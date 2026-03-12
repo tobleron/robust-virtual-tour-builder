@@ -488,7 +488,15 @@ let generateTourHTML = (
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
   let exportTraversalMode = "canonical"
-  let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
+  let allowTabletLandscapeStage = !allowFileProtocol
+  let css =
+    TourStyles.generateCSS(
+      firstSceneName,
+      normalizedExportType,
+      baseSize,
+      logoSize,
+      ~allowTabletLandscapeStage,
+    )
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
     defaultHfov,
@@ -499,6 +507,7 @@ let generateTourHTML = (
     dynamicHfovEnabled,
     normalizedExportType == "hd",
     ~exportTraversalMode,
+    ~allowTabletLandscapeStage,
   )
   let logoDiv = switch logoFilename {
   | Some(filename) =>

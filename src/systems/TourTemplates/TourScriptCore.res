@@ -7,6 +7,7 @@ let script = `
     const STAGE_MAX_WIDTH = __STAGE_MAX_WIDTH__;
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
     const IS_HD_EXPORT = __IS_HD_EXPORT__;
+    const EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE = __EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE__;
     const EXPORT_TRAVERSAL_MODE = "__EXPORT_TRAVERSAL_MODE__";
     // Set to "always" to force full manual exported-tour waypoint playback regardless of mode.
     const EXPORT_WAYPOINT_ANIMATION_POLICY = "auto-tour-only";
