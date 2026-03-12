@@ -1,6 +1,7 @@
 // @efficiency-role: ui-component
 import {
   deleteDashboardProject,
+  duplicateDashboardProject,
   fetchDashboardProjects,
   fetchProjectSnapshots,
 } from './PageFrameworkBuilder.js';
@@ -107,6 +108,20 @@ export async function handleDashboardProjectDelete(sessionId, label) {
   }
 }
 
+export async function handleDashboardProjectDuplicate(sessionId, label) {
+  const confirmed = window.confirm(
+    `Duplicate "${label}"? Only the latest restorable project state will be copied.`
+  );
+  if (!confirmed) return;
+
+  try {
+    await duplicateDashboardProject(sessionId);
+    await loadDashboardProjects();
+  } catch (_error) {
+    window.alert('Failed to duplicate the project.');
+  }
+}
+
 export async function loadDashboardProjects() {
   const tbody = document.getElementById('site-dashboard-projects');
   if (!tbody) return;
@@ -134,6 +149,9 @@ export async function loadDashboardProjects() {
             <td>
               <div class="site-table-actions">
                 <a class="site-link" href="/builder?projectId=${sessionId}">Open Builder</a>
+                <button class="site-link site-link-button" type="button" data-dashboard-duplicate="${sessionId}" data-project-name="${escapeHtml(projectName)}">
+                  Duplicate
+                </button>
                 <button class="site-link site-link-button" type="button" data-dashboard-history-toggle="${sessionId}">
                   ${isHistoryOpen ? 'Hide History' : 'History'}
                 </button>

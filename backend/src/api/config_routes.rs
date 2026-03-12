@@ -232,6 +232,13 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
+                        "/dashboard/projects/{session_id}/duplicate",
+                        web::post()
+                            .to(project::duplicate_dashboard_project)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/dashboard/projects/{session_id}/snapshots",
                         web::get()
                             .to(project::list_project_snapshots)

@@ -49,4 +49,75 @@ let _ = describe("TourTemplateStyles", () => {
     ->Expect.toBe(true)
     t->expect(String.includes(css, "margin-left: -12px"))->Expect.toBe(true)
   })
+
+  test("generateCSS includes portrait export control styling", t => {
+    let css = generateCSS("touch.jpg", "2k", 32, 40)
+
+    t->expect(String.includes(css, "#viewer-portrait-joystick-export"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "body.export-ui-portrait-adaptive #viewer-floor-nav-export"))
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive:not(.is-map-open) .looking-mode-indicator",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector .portrait-mode-orb",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector { position: absolute;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector.state-intro",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "state-intro .portrait-mode-orb.state-idle { background: linear-gradient(180deg, #0e2d52, #002147);",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "state-docked .portrait-mode-selector-cluster { flex-direction: column;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-joystick-export .portrait-joystick-btn",
+      ),
+    )
+    ->Expect.toBe(true)
+    t->expect(String.includes(css, "body.is-touch-device .mode-status-line { display: none !important; }"))->Expect.toBe(true)
+    t
+    ->expect(String.includes(css, "body.export-portrait-mode-intro #viewer-room-label-export"))
+    ->Expect.toBe(true)
+    t->expect(String.includes(css, "width: 48px; height: 48px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "portrait-joystick-icon { width: 13px; height: 13px"))->Expect.toBe(true)
+  })
 })

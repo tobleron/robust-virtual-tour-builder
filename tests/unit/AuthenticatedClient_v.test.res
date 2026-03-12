@@ -21,6 +21,9 @@ describe("AuthenticatedClient", () => {
     NotificationManager.clear()
     Logger.setOperationId(None)
     OperationLifecycle.reset()
+    NetworkStatus.cleanup()
+    NetworkStatus.skipProbe := true
+    NetworkStatus.forceStatus(true)
     ignore(Promise.resolve())
   })
 
@@ -143,6 +146,49 @@ describe("AuthenticatedClient", () => {
     t->expect(Belt.Array.length(incidentIds) <= 1)->Expect.toBe(true)
 
     unsubscribe()
+  })
+
+  testAsync("502 recovery uses shared connectivity state instead of api incident toasts", async t => {
+    Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
+
+    let fetchMock = %raw("global.fetch")
+    let _ = %raw(`function(m){
+      m.mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        statusText: 'Bad Gateway',
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('Bad Gateway')
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('')
+      })
+    }`)(fetchMock)
+
+    let retryConfig: Retry.config = {
+      maxRetries: 2,
+      initialDelayMs: 1,
+      maxDelayMs: 10,
+      backoffMultiplier: 1.0,
+      jitter: false,
+      totalDeadlineMs: 500,
+    }
+
+    let result = await AuthenticatedClient.requestWithRetry("/test-502", ~retryConfig, ())
+    switch result {
+    | Retry.Success(_, attempts) => t->expect(attempts)->Expect.toBe(2)
+    | Retry.Exhausted(_) => t->expect(true)->Expect.toBe(false)
+    }
+
+    let notifications = NotificationManager.getState()
+    let visible = Belt.Array.concat(notifications.active, notifications.pending)
+    let hasApiIncident =
+      visible->Belt.Array.some(n => String.includes(n.id, "api-incident-"))
+    t->expect(hasApiIncident)->Expect.toBe(false)
+    t->expect(NetworkStatus.getSnapshot().phase)->Expect.toBe(NetworkStatus.HealthyPhase)
   })
 
   testAsync("retries on 429 and succeeds", async t => {

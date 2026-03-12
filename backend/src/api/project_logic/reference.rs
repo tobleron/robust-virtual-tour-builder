@@ -66,6 +66,12 @@ fn collect_scene_file_references(scene: &Value, acc: &mut HashSet<String>) {
 pub fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> {
     let mut referenced = HashSet::new();
 
+    if let Some(raw_logo) = project_val.get("logo").and_then(|v| v.as_str())
+        && let Some(file) = extract_sanitized_filename(raw_logo)
+    {
+        referenced.insert(file);
+    }
+
     if let Some(scenes) = project_val.get("scenes").and_then(|v| v.as_array()) {
         for scene in scenes {
             collect_scene_file_references(scene, &mut referenced);
@@ -86,4 +92,32 @@ pub fn collect_referenced_project_files(project_val: &Value) -> HashSet<String> 
     }
 
     referenced
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn collect_referenced_project_files_includes_logo_and_scene_assets() {
+        let project = serde_json::json!({
+            "logo": "/api/project/old-session/file/logo_upload",
+            "scenes": [
+                {
+                    "name": "Living Room",
+                    "file": "assets/images/living-room.webp",
+                    "tinyFile": "assets/images/living-room_tiny.webp",
+                    "originalFile": "assets/images/living-room.jpg",
+                }
+            ],
+            "inventory": [],
+        });
+
+        let referenced = collect_referenced_project_files(&project);
+
+        assert!(referenced.contains("logo_upload"));
+        assert!(referenced.contains("living-room.webp"));
+        assert!(referenced.contains("living-room_tiny.webp"));
+        assert!(referenced.contains("living-room.jpg"));
+    }
 }

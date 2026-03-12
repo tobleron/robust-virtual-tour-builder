@@ -18,11 +18,24 @@ let script = `
         ? rawMultiplier
         : AUTO_TOUR_BASE_SPEED_MULTIPLIER;
     }
+    function getAnimatedPlaybackSpeedMultiplier() {
+      if (isAutoTourSpeedActive()) {
+        return getActiveAutoTourSpeedMultiplier();
+      }
+      if (
+        typeof isSemiAutoExportNavigationMode === "function" &&
+        isSemiAutoExportNavigationMode()
+      ) {
+        return ANIMATED_NAVIGATION_BASE_SPEED_MULTIPLIER;
+      }
+      return 1.0;
+    }
     function getAnimationProgressStep(deltaMs, baseDurationMs) {
       if (!(baseDurationMs > 0)) return 1.0;
-      if (!isAutoTourSpeedActive()) return deltaMs / baseDurationMs;
+      const speedMultiplier = getAnimatedPlaybackSpeedMultiplier();
+      if (!(speedMultiplier > 1.0)) return deltaMs / baseDurationMs;
       return deltaMs * Math.min(
-        getActiveAutoTourSpeedMultiplier() / baseDurationMs,
+        speedMultiplier / baseDurationMs,
         1.0 / AUTO_TOUR_MIN_ANIMATION_MS,
       );
     }
@@ -35,6 +48,12 @@ let script = `
     }
     function shouldAnimateExportArrivalPlayback() {
       if (window.isAutoTourActive === true) return true;
+      if (
+        typeof isSemiAutoExportNavigationMode === "function" &&
+        isSemiAutoExportNavigationMode()
+      ) {
+        return true;
+      }
       return EXPORT_WAYPOINT_ANIMATION_POLICY === "always";
     }
     function stripSceneTag(raw) {

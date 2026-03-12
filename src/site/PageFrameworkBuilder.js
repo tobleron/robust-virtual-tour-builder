@@ -34,7 +34,7 @@ function confirmBuilderProjectReplace(label) {
 }
 
 function builderCanLoadSavedProject() {
-  return typeof window.__VTB_SET_SESSION_ID__ === 'function' && typeof window.__VTB_LOAD_PROJECT__ === 'function';
+  return typeof window.__VTB_LOAD_SAVED_PROJECT__ === 'function';
 }
 
 export function buildProjectAssetUrl(sessionId, filename) {
@@ -97,6 +97,7 @@ export function normalizeLogoForBuilder(sessionId, logo) {
 export function normalizeProjectDataForBuilder(sessionId, projectData) {
   if (!projectData || typeof projectData !== 'object') return projectData;
   const normalized = { ...projectData };
+  normalized.sessionId = sessionId;
   if (Object.prototype.hasOwnProperty.call(normalized, 'inventory')) {
     normalized.inventory = normalizeInventoryForBuilder(sessionId, normalized.inventory);
   }
@@ -114,12 +115,15 @@ export function normalizeProjectDataForBuilder(sessionId, projectData) {
   return normalized;
 }
 
-function applySavedProjectToBuilder(sessionId, projectData) {
+async function applySavedProjectToBuilder(sessionId, projectData, label) {
   if (!builderCanLoadSavedProject()) {
     throw new Error('Builder is still starting. Try again in a moment.');
   }
-  window.__VTB_SET_SESSION_ID__(sessionId);
-  window.__VTB_LOAD_PROJECT__(normalizeProjectDataForBuilder(sessionId, projectData));
+  await window.__VTB_LOAD_SAVED_PROJECT__(
+    sessionId,
+    normalizeProjectDataForBuilder(sessionId, projectData),
+    label
+  );
   window.history.replaceState({}, '', `/builder?projectId=${encodeURIComponent(sessionId)}`);
 }
 
@@ -180,6 +184,10 @@ async function fetchSnapshotProject(sessionId, snapshotId) {
 
 export async function deleteDashboardProject(sessionId) {
   return authJson(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}`, null, 'DELETE');
+}
+
+export async function duplicateDashboardProject(sessionId) {
+  return authJson(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}/duplicate`, null, 'POST');
 }
 
 function builderProjectRow(project) {
@@ -351,7 +359,7 @@ export async function handleBuilderLatestOpen(sessionId, label) {
   if (!confirmBuilderProjectReplace(label)) return;
   try {
     const payload = await fetchLatestProject(sessionId);
-    applySavedProjectToBuilder(payload.sessionId || sessionId, payload.projectData);
+    await applySavedProjectToBuilder(payload.sessionId || sessionId, payload.projectData, label);
     closeBuilderProjectPicker();
   } catch (error) {
     builderPickerState.error = error?.message || 'Failed to open saved tour.';
@@ -363,7 +371,11 @@ export async function handleBuilderSnapshotOpen(sessionId, snapshotId, label) {
   if (!confirmBuilderProjectReplace(`${label} snapshot`)) return;
   try {
     const payload = await fetchSnapshotProject(sessionId, snapshotId);
-    applySavedProjectToBuilder(payload.sessionId || sessionId, payload.projectData);
+    await applySavedProjectToBuilder(
+      payload.sessionId || sessionId,
+      payload.projectData,
+      `${label} snapshot`
+    );
     closeBuilderProjectPicker();
   } catch (error) {
     builderPickerState.error = error?.message || 'Failed to open snapshot.';

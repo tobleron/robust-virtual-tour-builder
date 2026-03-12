@@ -179,6 +179,13 @@ pub async fn load_dashboard_project(
     project_dashboard::load_dashboard_project(req, path).await
 }
 
+pub async fn duplicate_dashboard_project(
+    req: HttpRequest,
+    path: web::Path<String>,
+) -> Result<HttpResponse, AppError> {
+    project_dashboard::duplicate_dashboard_project(req, path).await
+}
+
 pub async fn list_project_snapshots(
     req: HttpRequest,
     path: web::Path<String>,

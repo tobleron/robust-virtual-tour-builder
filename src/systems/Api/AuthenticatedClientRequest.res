@@ -16,6 +16,7 @@ let request = async (
   ~signal: option<ReBindings.AbortSignal.t>=?,
   ~requestId: option<string>=?,
   ~operationId: option<string>=?,
+  ~bypassOfflineGate=false,
   (),
 ) => {
   let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
@@ -34,7 +35,11 @@ let request = async (
   } else {
     AuthenticatedClientRequestSupport.injectAuthorizationHeader(headers)
 
-    if !NetworkStatus.isOnline() {
+    let snapshot = NetworkStatus.getSnapshot()
+    let shouldBypassOfflineGate =
+      bypassOfflineGate && snapshot.phase === NetworkStatus.RecoveringPhase
+
+    if !NetworkStatus.isOnline() && !shouldBypassOfflineGate {
       Logger.warn(
         ~module_="AuthenticatedClient",
         ~message="REQUEST_SKIPPED_OFFLINE",
@@ -46,17 +51,7 @@ let request = async (
       let lastState = CircuitBreaker.getState(domainBreaker)
       let canRun = CircuitBreaker.canExecute(domainBreaker)
       if !canRun {
-        NotificationManager.dispatch({
-          id: "cb-open-notification-" ++ domainKey,
-          importance: Warning,
-          context: Operation("api"),
-          message: "Connection issues. Please wait before retrying.",
-          details: None,
-          action: None,
-          duration: 10000,
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        NetworkStatus.reportTransportFailure(~message="Circuit breaker is open")
         Error("Circuit breaker is open")
       } else {
         let finalRequestId = AuthenticatedClientRequestSupport.buildRequestId(requestId)

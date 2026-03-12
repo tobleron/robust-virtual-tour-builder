@@ -38,13 +38,145 @@ let script = `
       hasMap: false,
       visibleEntries: [],
       isAutoTourActive: false,
+      nextSceneId: null,
       nextHotspotIndex: null,
       nextSequenceNumber: null,
+      prevSceneId: null,
       prevHotspotIndex: null,
       prevSequenceNumber: null,
       prevUsesReturnLink: false,
       autoTourSpeedMultiplier: 1.0,
     };
+    const portraitModeSelectorState = {
+      baseMode: EXPORT_DEFAULT_NAVIGATION_MODE,
+      hasResolvedIntro: false,
+      introVisible: false,
+      isCollapsing: false,
+      collapseTimeoutId: null,
+      autoOrbLastTapAt: 0,
+    };
+    function normalizePortraitNavigationMode(candidate) {
+      switch (candidate) {
+        case EXPORT_NAVIGATION_MODE_MANUAL:
+          return EXPORT_NAVIGATION_MODE_MANUAL;
+        case EXPORT_NAVIGATION_MODE_AUTO:
+          return EXPORT_NAVIGATION_MODE_AUTO;
+        case EXPORT_NAVIGATION_MODE_SEMI_AUTO:
+        default:
+          return EXPORT_NAVIGATION_MODE_SEMI_AUTO;
+      }
+    }
+    function getPortraitBaseNavigationMode() {
+      return normalizePortraitNavigationMode(portraitModeSelectorState.baseMode);
+    }
+    function setPortraitBaseNavigationMode(nextMode) {
+      const normalized = normalizePortraitNavigationMode(nextMode);
+      if (normalized === EXPORT_NAVIGATION_MODE_AUTO) {
+        return getPortraitBaseNavigationMode();
+      }
+      portraitModeSelectorState.baseMode = normalized;
+      syncPortraitModeSelectorClasses();
+      return normalized;
+    }
+    function resolveActivePortraitNavigationMode() {
+      return floorTagShortcutState.isAutoTourActive
+        ? EXPORT_NAVIGATION_MODE_AUTO
+        : getPortraitBaseNavigationMode();
+    }
+    function isSemiAutoExportNavigationMode() {
+      return getPortraitBaseNavigationMode() === EXPORT_NAVIGATION_MODE_SEMI_AUTO;
+    }
+    function isPortraitModeSelectorIntroVisible() {
+      return portraitModeSelectorState.introVisible === true;
+    }
+    function isPortraitModeSelectorTransitioning() {
+      return portraitModeSelectorState.isCollapsing === true;
+    }
+    function isPortraitModeSelectorBlockingUi() {
+      return isPortraitModeSelectorIntroVisible() || isPortraitModeSelectorTransitioning();
+    }
+    function clearPortraitModeSelectorCollapseTimeout() {
+      if (portraitModeSelectorState.collapseTimeoutId !== null) {
+        clearTimeout(portraitModeSelectorState.collapseTimeoutId);
+        portraitModeSelectorState.collapseTimeoutId = null;
+      }
+    }
+    function syncPortraitModeSelectorClasses() {
+      if (!document || !document.body) return;
+      const body = document.body;
+      body.classList.remove("export-portrait-mode-intro");
+      body.classList.remove("export-portrait-mode-collapsing");
+      body.classList.remove("export-portrait-mode-manual");
+      body.classList.remove("export-portrait-mode-semi-auto");
+      body.classList.remove("export-portrait-mode-auto");
+      const isPortraitAdaptiveUi =
+        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
+      if (!isPortraitAdaptiveUi) return;
+      const activeMode = resolveActivePortraitNavigationMode();
+      body.classList.add(
+        "export-portrait-mode-" + String(activeMode).replace(/[^a-z0-9]+/gi, "-"),
+      );
+      if (isPortraitModeSelectorIntroVisible()) {
+        body.classList.add("export-portrait-mode-intro");
+      }
+      if (isPortraitModeSelectorTransitioning()) {
+        body.classList.add("export-portrait-mode-collapsing");
+      }
+    }
+    function finishPortraitModeSelectorCollapse() {
+      clearPortraitModeSelectorCollapseTimeout();
+      portraitModeSelectorState.isCollapsing = false;
+      syncPortraitModeSelectorClasses();
+      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+      if (sid && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sid, true);
+      }
+    }
+    function collapsePortraitModeSelectorIntro() {
+      clearPortraitModeSelectorCollapseTimeout();
+      if (!portraitModeSelectorState.introVisible && !portraitModeSelectorState.isCollapsing) {
+        syncPortraitModeSelectorClasses();
+        return;
+      }
+      portraitModeSelectorState.introVisible = false;
+      portraitModeSelectorState.isCollapsing = true;
+      portraitModeSelectorState.hasResolvedIntro = true;
+      syncPortraitModeSelectorClasses();
+      portraitModeSelectorState.collapseTimeoutId = setTimeout(() => {
+        finishPortraitModeSelectorCollapse();
+      }, PORTRAIT_MODE_SELECTOR_COLLAPSE_MS);
+    }
+    function openPortraitModeSelectorIntro() {
+      clearPortraitModeSelectorCollapseTimeout();
+      portraitModeSelectorState.introVisible = true;
+      portraitModeSelectorState.isCollapsing = false;
+      syncPortraitModeSelectorClasses();
+      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+      if (sid && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sid, true);
+      }
+    }
+    function ensurePortraitModeSelectorForViewport(previousPortraitAdaptiveUi, nextPortraitAdaptiveUi) {
+      if (nextPortraitAdaptiveUi !== true) {
+        clearPortraitModeSelectorCollapseTimeout();
+        portraitModeSelectorState.introVisible = false;
+        portraitModeSelectorState.isCollapsing = false;
+        syncPortraitModeSelectorClasses();
+        return;
+      }
+      if (previousPortraitAdaptiveUi !== true && portraitModeSelectorState.hasResolvedIntro !== true) {
+        openPortraitModeSelectorIntro();
+        return;
+      }
+      syncPortraitModeSelectorClasses();
+    }
+    function shouldIgnorePortraitAutoOrbTap() {
+      const now =
+        typeof Date !== "undefined" && typeof Date.now === "function" ? Date.now() : 0;
+      const lastTapAt = portraitModeSelectorState.autoOrbLastTapAt;
+      portraitModeSelectorState.autoOrbLastTapAt = now;
+      return lastTapAt > 0 && now - lastTapAt < 220;
+    }
     function setAutoTourSpeedMultiplier(nextMultiplier) {
       const normalized =
         Number.isFinite(nextMultiplier) && nextMultiplier > 0
@@ -69,9 +201,12 @@ let script = `
     function speedUpAutoTour() {
       if (!floorTagShortcutState.isAutoTourActive) return false;
       if (isAutoTourSpeedBoosted()) {
-        applyAutoTourBaseSpeed();
+        if (typeof stopAutoTour === "function") {
+          stopAutoTour();
+        }
+        return true;
       } else {
-        setAutoTourSpeedMultiplier(AUTO_TOUR_BASE_SPEED_MULTIPLIER * AUTO_TOUR_SPEED_UP_MULTIPLIER);
+        setAutoTourSpeedMultiplier(AUTO_TOUR_BOOSTED_SPEED_MULTIPLIER);
       }
       const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
       if (sid && typeof updateNavShortcutsV2 === "function") {
@@ -93,6 +228,7 @@ let script = `
     }
     function finishAutoTourAtScene(sceneId) {
       clearAutoTourCompletionCountdown();
+      syncPortraitModeSelectorClasses();
       if (sceneId && typeof updateNavShortcutsV2 === "function") {
         updateNavShortcutsV2(sceneId, true);
       }
@@ -149,6 +285,7 @@ let script = `
       window.isAutoTourActive = false;
       resetAutoTourSpeedMultiplier();
       document.body.classList.remove('is-auto-tour-active');
+      syncPortraitModeSelectorClasses();
       if (waypointRuntime.autoForwardTimeoutId) {
         clearTimeout(waypointRuntime.autoForwardTimeoutId);
         waypointRuntime.autoForwardTimeoutId = null;
@@ -252,6 +389,45 @@ let script = `
       });
       return entries;
     }
+    function resolveFirstSceneForFloor(floorId) {
+      if (typeof floorId !== "string" || floorId === "" || !scenesData || typeof scenesData !== "object") {
+        return null;
+      }
+      let best = null;
+      let bestSceneNumber = Number.POSITIVE_INFINITY;
+      let bestOrder = Number.POSITIVE_INFINITY;
+      let order = 0;
+      for (const [sceneId, sceneData] of Object.entries(scenesData)) {
+        if (normalizeSceneFloor(sceneData) !== floorId) {
+          order = order + 1;
+          continue;
+        }
+        const resolvedSceneId = resolveExistingSceneId(sceneId) ?? normalizeSceneId(sceneId) ?? sceneId;
+        const stableSceneNumber = resolveStableSceneNumber(resolvedSceneId);
+        const normalizedSceneNumber =
+          Number.isInteger(stableSceneNumber) && stableSceneNumber >= 1
+            ? stableSceneNumber
+            : Number.POSITIVE_INFINITY;
+        if (
+          best === null ||
+          normalizedSceneNumber < bestSceneNumber ||
+          (normalizedSceneNumber === bestSceneNumber && order < bestOrder)
+        ) {
+          best = resolvedSceneId;
+          bestSceneNumber = normalizedSceneNumber;
+          bestOrder = order;
+        }
+        order = order + 1;
+      }
+      return best;
+    }
+    function navigateToFirstSceneInFloor(floorId) {
+      const targetSceneId = resolveFirstSceneForFloor(floorId);
+      if (!targetSceneId) return false;
+      if (typeof stopAutoTour === "function") stopAutoTour();
+      navigateToFloorTagShortcut(targetSceneId);
+      return true;
+    }
     function navigateExportMapShortcut(shortcutKey) {
       if (typeof shortcutKey !== "string" || shortcutKey === "") return false;
       const normalizedShortcut = shortcutKey.toLowerCase();
@@ -283,6 +459,12 @@ let script = `
     function openExportMap() {
       if (isExportMapOpen()) return;
       if (!floorTagShortcutState.hasMap) return;
+      if (
+        typeof isPortraitModeSelectorBlockingUi === "function" &&
+        isPortraitModeSelectorBlockingUi()
+      ) {
+        return;
+      }
       if (floorTagShortcutState.isAutoTourActive && typeof stopAutoTour === "function") {
         stopAutoTour();
       }

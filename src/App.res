@@ -7,10 +7,15 @@ module InnerApp = {
     @val external window: t = "window"
     @set external setLoadProject: (t, JSON.t => unit) => unit = "__VTB_LOAD_PROJECT__"
     @set external setSessionId: (t, string => unit) => unit = "__VTB_SET_SESSION_ID__"
+    @set external setLoadSavedProject: (
+      t,
+      (string, JSON.t, string) => Promise.t<unit>,
+    ) => unit = "__VTB_LOAD_SAVED_PROJECT__"
   }
 
   @val external bootProjectData: option<JSON.t> = "window.__VTB_BOOT_PROJECT_DATA__"
   @val external bootProjectSessionId: option<string> = "window.__VTB_BOOT_PROJECT_SESSION_ID__"
+  @val external bootProjectLabel: option<string> = "window.__VTB_BOOT_PROJECT_LABEL__"
   @val external setTimeoutMs: (unit => unit, int) => int = "setTimeout"
   @val external clearTimeoutMs: int => unit = "clearTimeout"
   @val @scope("document") external documentVisibilityState: string = "visibilityState"
@@ -121,11 +126,25 @@ module InnerApp = {
     }
 
     latestStateRef.current = state
+    let getState = () => latestStateRef.current
+    let loadSavedProject = (~sessionId, ~projectData, ~label) =>
+      SidebarProjectLoadFlow.handleSavedProjectLoad(
+        ~sessionId,
+        ~projectData,
+        ~label,
+        ~getState,
+        ~dispatch,
+      )
 
     AppEffects.useSystemLockLogging(~isSystemLocked)
     AppEffects.useBodyModeClasses(~isExporting, ~isProjectLoading)
     AppEffects.useInitComplete(~dispatch)
-    AppEffects.useBootProject(~bootProjectData, ~bootProjectSessionId, ~dispatch)
+    AppEffects.useBootProject(
+      ~bootProjectData,
+      ~bootProjectSessionId,
+      ~bootProjectLabel,
+      ~loadSavedProject,
+    )
     AppAutosave.useScheduledServerAutosave(
       ~state,
       ~isProjectLoading,
@@ -154,6 +173,13 @@ module InnerApp = {
     React.useEffect1(() => {
       let setSessionIdFn = id => dispatch(Actions.SetSessionId(id))
       HeadlessWindow.setSessionId(HeadlessWindow.window, setSessionIdFn)
+      None
+    }, [dispatch])
+
+    React.useEffect1(() => {
+      let loadSavedProjectFn = (sessionId, projectData, label) =>
+        loadSavedProject(~sessionId, ~projectData, ~label)
+      HeadlessWindow.setLoadSavedProject(HeadlessWindow.window, loadSavedProjectFn)
       None
     }, [dispatch])
 

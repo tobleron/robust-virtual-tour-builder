@@ -38,10 +38,12 @@ describe('PageFramework builder restore normalization', () => {
     const normalized = normalizeProjectDataForBuilder('session-4', projectData);
 
     expect(normalized).toEqual({
+      sessionId: 'session-4',
       tourName: 'Tour',
       logo: '/api/project/session-4/file/logo_upload',
       scenes: [{ id: 'scene-1' }],
     });
+    expect(projectData.sessionId).toBeUndefined();
     expect(projectData.logo).toBe('logo_upload');
   });
 

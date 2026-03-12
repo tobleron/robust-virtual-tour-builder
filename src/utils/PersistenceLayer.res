@@ -187,6 +187,31 @@ let handleStateChange = (state: state) => {
 
 let notifyStateChange = (state: state) => handleStateChange(state)
 
+let flushNow = (~state: state, ~reason: string) => {
+  let prefs = PersistencePreferences.get()
+  let localAutosaveEnabled = switch prefs.autosaveMode {
+  | Off => false
+  | LocalOnly | Hybrid => true
+  }
+
+  if localAutosaveEnabled {
+    switch lastSaveTimeout.contents {
+    | Some(id) =>
+      clearTimeout(id)
+      lastSaveTimeout := None
+    | None => ()
+    }
+    pendingStateRef := None
+    Logger.info(
+      ~module_="Persistence",
+      ~message="FORCED_LOCAL_FLUSH",
+      ~data=Some(Logger.castToJson({"reason": reason})),
+      (),
+    )
+    performSave(state)
+  }
+}
+
 let initSubscriber = (
   ~getState: unit => state,
   ~onChange: state => unit,

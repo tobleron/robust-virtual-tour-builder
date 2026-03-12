@@ -1,6 +1,5 @@
 /* src/utils/NetworkStatus.res */
 
-// --- Bindings ---
 @val @scope("navigator") external navigatorOnLine: bool = "onLine"
 
 @val @scope("window")
@@ -9,87 +8,260 @@ external addEventListener: (string, unit => unit) => unit = "addEventListener"
 @val @scope("window")
 external removeEventListener: (string, unit => unit) => unit = "removeEventListener"
 
-// --- State ---
-let currentStatus: ref<bool> = ref(navigatorOnLine)
-let subscribers: ref<array<bool => unit>> = ref([])
+type statusPhase =
+  | HealthyPhase
+  | BrowserOfflinePhase
+  | RecoveringPhase
+  | RateLimitedPhase
 
 type statusReason =
   | BrowserOffline
   | ProbeNetworkFailure
   | BackendRateLimited(option<int>)
   | BackendUnavailable(int, string)
+  | TransportFailure(string)
   | Healthy
-
-let currentReason: ref<statusReason> = ref(navigatorOnLine ? Healthy : BrowserOffline)
-
-let reasonToMessage = (reason: statusReason): string =>
-  switch reason {
-  | Healthy => "Connected."
-  | BrowserOffline => "Browser reports no network connection."
-  | ProbeNetworkFailure => "Cannot reach backend health endpoint."
-  | BackendRateLimited(Some(secs)) =>
-    "Backend is rate-limiting requests. Retry in " ++ Belt.Int.toString(secs) ++ "s."
-  | BackendRateLimited(None) => "Backend is rate-limiting requests."
-  | BackendUnavailable(status, statusText) =>
-    "Backend health check failed (" ++ Belt.Int.toString(status) ++ " " ++ statusText ++ ")."
-  }
 
 type statusSnapshot = {
   online: bool,
+  phase: statusPhase,
   reason: statusReason,
   message: string,
+  attempt: int,
+  retryDelayMs: option<int>,
+  nextRetryAtMs: option<float>,
+  lastHealthyAtMs: option<float>,
 }
 
-// --- Public API ---
-let isOnline = (): bool => currentStatus.contents
+let boolSubscribers: ref<array<bool => unit>> = ref([])
+let snapshotSubscribers: ref<array<statusSnapshot => unit>> = ref([])
+
+let retryDelaysMs = [2000, 5000, 10000, 15000, 30000]
+
+let phaseAllowsRequests = (phase: statusPhase): bool =>
+  switch phase {
+  | HealthyPhase
+  | RateLimitedPhase => true
+  | BrowserOfflinePhase
+  | RecoveringPhase => false
+  }
+
+let currentPhase: ref<statusPhase> = ref(
+  if navigatorOnLine {
+    HealthyPhase
+  } else {
+    BrowserOfflinePhase
+  },
+)
+let currentReason: ref<statusReason> = ref(
+  if navigatorOnLine {
+    Healthy
+  } else {
+    BrowserOffline
+  },
+)
+let currentOnline: ref<bool> = ref(phaseAllowsRequests(currentPhase.contents))
+let currentAttempt: ref<int> = ref(0)
+let currentRetryDelayMs: ref<option<int>> = ref(None)
+let currentNextRetryAtMs: ref<option<float>> = ref(None)
+let lastHealthyAtMs: ref<option<float>> = ref(
+  if navigatorOnLine {
+    Some(Date.now())
+  } else {
+    None
+  },
+)
+let retryTimeoutId: ref<option<int>> = ref(None)
+let probeInFlight = ref(false)
+let initialized = ref(false)
+let skipProbe = ref(false)
+
+let phaseMessage = (phase: statusPhase): string =>
+  switch phase {
+  | HealthyPhase => "Connected."
+  | BrowserOfflinePhase => "Connection lost. Working locally until the network returns."
+  | RecoveringPhase => "Connection lost. Retrying automatically."
+  | RateLimitedPhase => "Server busy. Pausing backend requests before retrying."
+  }
+
+let reasonSignature = (reason: statusReason): string =>
+  switch reason {
+  | Healthy => "healthy"
+  | BrowserOffline => "browser-offline"
+  | ProbeNetworkFailure => "probe-network-failure"
+  | BackendRateLimited(Some(secs)) => "backend-rate-limited:" ++ Belt.Int.toString(secs)
+  | BackendRateLimited(None) => "backend-rate-limited"
+  | BackendUnavailable(status, statusText) =>
+    "backend-unavailable:" ++ Belt.Int.toString(status) ++ ":" ++ statusText
+  | TransportFailure(message) => "transport-failure:" ++ message
+  }
+
+let optionIntEquals = (left: option<int>, right: option<int>): bool =>
+  switch (left, right) {
+  | (Some(a), Some(b)) => a == b
+  | (None, None) => true
+  | _ => false
+  }
+
+let optionFloatEquals = (left: option<float>, right: option<float>): bool =>
+  switch (left, right) {
+  | (Some(a), Some(b)) => a == b
+  | (None, None) => true
+  | _ => false
+  }
+
+let intMax = (left: int, right: int): int =>
+  if left > right {
+    left
+  } else {
+    right
+  }
+
+let intMin = (left: int, right: int): int =>
+  if left < right {
+    left
+  } else {
+    right
+  }
 
 let getSnapshot = (): statusSnapshot => {
-  let reason = currentReason.contents
-  {online: currentStatus.contents, reason, message: reasonToMessage(reason)}
+  let phase = currentPhase.contents
+  {
+    online: currentOnline.contents,
+    phase,
+    reason: currentReason.contents,
+    message: phaseMessage(phase),
+    attempt: currentAttempt.contents,
+    retryDelayMs: currentRetryDelayMs.contents,
+    nextRetryAtMs: currentNextRetryAtMs.contents,
+    lastHealthyAtMs: lastHealthyAtMs.contents,
+  }
 }
+
+let isOnline = (): bool => currentOnline.contents
 
 let subscribe = (callback: bool => unit): (unit => unit) => {
-  Array.push(subscribers.contents, callback)
+  Array.push(boolSubscribers.contents, callback)
   () => {
-    subscribers := subscribers.contents->Belt.Array.keep(cb => cb !== callback)
+    boolSubscribers := boolSubscribers.contents->Belt.Array.keep(cb => cb !== callback)
   }
 }
 
-// --- Internal ---
-let notifySubscribers = (online: bool) => {
-  subscribers.contents->Belt.Array.forEach(cb => cb(online))
-}
-
-let updateStatus = (online: bool, ~reason: statusReason) => {
-  let changedOnline = currentStatus.contents !== online
-  let changedReason = currentReason.contents !== reason
-
-  if changedOnline || changedReason {
-    currentStatus := online
-    currentReason := reason
-
-    switch reason {
-    | Healthy => Console.info("NetworkStatus: NETWORK_ONLINE")
-    | BrowserOffline => Console.warn("NetworkStatus: BROWSER_OFFLINE")
-    | ProbeNetworkFailure => Console.warn("NetworkStatus: BACKEND_UNREACHABLE")
-    | BackendRateLimited(Some(secs)) =>
-      Console.warn2("NetworkStatus: BACKEND_RATE_LIMITED", {"retryAfterSec": secs})
-    | BackendRateLimited(None) => Console.warn("NetworkStatus: BACKEND_RATE_LIMITED")
-    | BackendUnavailable(status, statusText) =>
-      Console.warn2(
-        "NetworkStatus: BACKEND_UNAVAILABLE",
-        {"status": status, "statusText": statusText},
-      )
-    }
-
-    if changedOnline {
-      EventBus.dispatch(NetworkStatusChanged(online))
-    }
-    notifySubscribers(online)
+let subscribeSnapshot = (callback: statusSnapshot => unit): (unit => unit) => {
+  Array.push(snapshotSubscribers.contents, callback)
+  () => {
+    snapshotSubscribers := snapshotSubscribers.contents->Belt.Array.keep(cb => cb !== callback)
   }
 }
 
-let parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {
+let notifySubscribers = (~onlineChanged: bool) => {
+  let snapshot = getSnapshot()
+  if onlineChanged {
+    EventBus.dispatch(NetworkStatusChanged(snapshot.online))
+  }
+  boolSubscribers.contents->Belt.Array.forEach(cb => cb(snapshot.online))
+  snapshotSubscribers.contents->Belt.Array.forEach(cb => cb(snapshot))
+}
+
+let clearRetryTimer = () => {
+  switch retryTimeoutId.contents {
+  | Some(id) =>
+    ReBindings.Window.clearTimeout(id)
+    retryTimeoutId := None
+  | None => ()
+  }
+}
+
+let applySnapshot = (
+  ~phase: statusPhase,
+  ~reason: statusReason,
+  ~attempt: int,
+  ~retryDelayMs: option<int>,
+  ~nextRetryAtMs: option<float>,
+) => {
+  let nextOnline = phaseAllowsRequests(phase)
+  let onlineChanged = currentOnline.contents !== nextOnline
+  let changed =
+    onlineChanged ||
+    currentPhase.contents !== phase ||
+    reasonSignature(currentReason.contents) != reasonSignature(reason) ||
+    currentAttempt.contents != attempt ||
+    !optionIntEquals(currentRetryDelayMs.contents, retryDelayMs) ||
+    !optionFloatEquals(currentNextRetryAtMs.contents, nextRetryAtMs)
+
+  currentPhase := phase
+  currentReason := reason
+  currentOnline := nextOnline
+  currentAttempt := attempt
+  currentRetryDelayMs := retryDelayMs
+  currentNextRetryAtMs := nextRetryAtMs
+
+  if phase === HealthyPhase {
+    lastHealthyAtMs := Some(Date.now())
+  }
+
+  if changed {
+    notifySubscribers(~onlineChanged)
+  }
+}
+
+let nextDelayForAttempt = (attempt: int): int => {
+  let index = intMax(0, attempt - 1)
+  retryDelaysMs
+  ->Belt.Array.get(intMin(index, Array.length(retryDelaysMs) - 1))
+  ->Option.getOr(30000)
+}
+
+let rec scheduleRetry = (delayMs: int) => {
+  clearRetryTimer()
+  let nextRetryAt = Date.now() +. Float.fromInt(delayMs)
+  retryTimeoutId := Some(
+    ReBindings.Window.setTimeout(() => {
+      retryTimeoutId := None
+      let _ = probe()
+    }, delayMs),
+  )
+  (Some(delayMs), Some(nextRetryAt))
+}
+
+and enterState = (
+  ~phase: statusPhase,
+  ~reason: statusReason,
+  ~retryDelayMs: option<int>=?,
+) => {
+  let nextAttempt = if phase === HealthyPhase {
+    0
+  } else if currentPhase.contents === HealthyPhase {
+    1
+  } else {
+    currentAttempt.contents + 1
+  }
+
+  let resolvedRetryDelay =
+    switch retryDelayMs {
+    | Some(ms) => ms
+    | None => nextDelayForAttempt(nextAttempt)
+    }
+
+  switch phase {
+  | HealthyPhase =>
+    clearRetryTimer()
+    applySnapshot(~phase, ~reason, ~attempt=0, ~retryDelayMs=None, ~nextRetryAtMs=None)
+  | BrowserOfflinePhase
+  | RecoveringPhase
+  | RateLimitedPhase =>
+    let (retryDelayMsOpt, nextRetryAtMsOpt) = scheduleRetry(resolvedRetryDelay)
+    applySnapshot(
+      ~phase,
+      ~reason,
+      ~attempt=nextAttempt,
+      ~retryDelayMs=retryDelayMsOpt,
+      ~nextRetryAtMs=nextRetryAtMsOpt,
+    )
+  }
+}
+
+and parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {
   let headers = WebApiBindings.Fetch.headers(res)
   let direct = WebApiBindings.Fetch.getHeader(headers, "retry-after")->Nullable.toOption
   let xRate = WebApiBindings.Fetch.getHeader(headers, "x-ratelimit-after")->Nullable.toOption
@@ -97,34 +269,36 @@ let parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {
   raw->Option.flatMap(Belt.Int.fromString)
 }
 
-let probe = async (~isInitial=false) => {
-  let maxRetries = isInitial ? 3 : 0
-  let rec attempt = async (retryCount: int) => {
+and probe = async (~isInitial=false) => {
+  let _ = isInitial
+  if skipProbe.contents {
+    enterState(~phase=HealthyPhase, ~reason=Healthy)
+    true
+  } else if probeInFlight.contents {
+    currentOnline.contents
+  } else {
+    probeInFlight := true
     try {
       let res = await WebApiBindings.Fetch.fetch(
         "/api/health",
         WebApiBindings.Fetch.requestInit(~method="GET", ()),
       )
+      probeInFlight := false
       if WebApiBindings.Fetch.ok(res) {
-        updateStatus(true, ~reason=Healthy)
+        enterState(~phase=HealthyPhase, ~reason=Healthy)
         true
       } else if WebApiBindings.Fetch.status(res) == 429 {
         let retryAfter = parseRetryAfter(res)
-        updateStatus(false, ~reason=BackendRateLimited(retryAfter))
-        false
-      } else if (
-        (WebApiBindings.Fetch.status(res) == 504 || WebApiBindings.Fetch.status(res) == 502) &&
-          retryCount < maxRetries
-      ) {
-        // Retry Gateway Timeout / Bad Gateway during startup
-        let delay = 1000 * (retryCount + 1)
-        let _ = await Promise.make((resolve, _) => {
-          let _ = ReBindings.Window.setTimeout(() => resolve(Ok()), delay)
-        })
-        await attempt(retryCount + 1)
+        let retryAfterMs = retryAfter->Option.map(seconds => seconds * 1000)
+        enterState(
+          ~phase=RateLimitedPhase,
+          ~reason=BackendRateLimited(retryAfter),
+          ~retryDelayMs=?retryAfterMs,
+        )
+        phaseAllowsRequests(RateLimitedPhase)
       } else {
-        updateStatus(
-          false,
+        enterState(
+          ~phase=RecoveringPhase,
           ~reason=BackendUnavailable(
             WebApiBindings.Fetch.status(res),
             WebApiBindings.Fetch.statusText(res),
@@ -133,73 +307,127 @@ let probe = async (~isInitial=false) => {
         false
       }
     } catch {
-    | _ if retryCount < maxRetries =>
-      // Network error during startup, retry
-      let delay = 1000 * (retryCount + 1)
-      let _ = await Promise.make((resolve, _) => {
-        let _ = ReBindings.Window.setTimeout(() => resolve(Ok()), delay)
-      })
-      await attempt(retryCount + 1)
+    | JsExn(error) =>
+      probeInFlight := false
+      let reason =
+        switch JsExn.message(error)->Option.getOr("") {
+        | "" => ProbeNetworkFailure
+        | message => TransportFailure(message)
+        }
+      let phase = switch reason {
+      | BrowserOffline => BrowserOfflinePhase
+      | _ => RecoveringPhase
+      }
+      enterState(~phase, ~reason)
+      false
     | _ =>
-      updateStatus(false, ~reason=ProbeNetworkFailure)
+      probeInFlight := false
+      enterState(~phase=RecoveringPhase, ~reason=ProbeNetworkFailure)
       false
     }
   }
-  await attempt(0)
+}
+
+and probeNow = () => {
+  clearRetryTimer()
+  probe()
+}
+
+and reportBackendUnavailable = (~status: int, ~statusText: string) => {
+  enterState(~phase=RecoveringPhase, ~reason=BackendUnavailable(status, statusText))
+}
+
+and reportProbeFailure = () => {
+  enterState(~phase=RecoveringPhase, ~reason=ProbeNetworkFailure)
+}
+
+and reportRateLimited = (~retryAfterSeconds: int) => {
+  enterState(
+    ~phase=RateLimitedPhase,
+    ~reason=BackendRateLimited(Some(retryAfterSeconds)),
+    ~retryDelayMs=retryAfterSeconds * 1000,
+  )
+}
+
+and reportTransportFailure = (~message: string) => {
+  enterState(~phase=RecoveringPhase, ~reason=TransportFailure(message))
+}
+
+and reportRequestSuccess = () => {
+  if currentPhase.contents !== HealthyPhase {
+    enterState(~phase=HealthyPhase, ~reason=Healthy)
+  }
 }
 
 let forceStatus = (online: bool) => {
   if online {
-    updateStatus(true, ~reason=Healthy)
+    enterState(~phase=HealthyPhase, ~reason=Healthy)
   } else {
-    updateStatus(false, ~reason=BrowserOffline)
+    enterState(~phase=BrowserOfflinePhase, ~reason=BrowserOffline)
   }
 }
 
-let skipProbe = ref(false)
-
 let handleOnline = () => {
   if skipProbe.contents {
-    updateStatus(true, ~reason=Healthy)
+    enterState(~phase=HealthyPhase, ~reason=Healthy)
   } else {
-    Console.info("NetworkStatus: Browser reported ONLINE, probing...")
-    let _ = probe(~isInitial=true)
+    let _ = probeNow()
   }
 }
 
 let handleOffline = () => {
-  // If browser says we are offline, we usually trust it for immediate UI fallback,
-  // but we might want to double check if we are on a weird LAN.
-  // For now, we trust the browser's "offline" event as a fast-path.
-  updateStatus(false, ~reason=BrowserOffline)
+  enterState(~phase=BrowserOfflinePhase, ~reason=BrowserOffline)
 }
 
-let intervalId: ref<option<int>> = ref(None)
-
-let initialize = () => {
-  currentStatus := navigatorOnLine
-  addEventListener("online", handleOnline)
-  addEventListener("offline", handleOffline)
-
-  // Initial probe to verify true status
-  let _ = probe(~isInitial=true)
-
-  // Periodic probe if we are offline to recover automatically
-  intervalId := Some(ReBindings.Window.setInterval(() => {
-        if !currentStatus.contents {
-          let _ = probe()
-        }
-      }, 30000)) // Every 30 seconds if offline
-
-  Console.info2("NetworkStatus: INITIALIZED", {"online": navigatorOnLine})
+let handleFocus = () => {
+  if currentPhase.contents !== HealthyPhase {
+    let _ = probeNow()
+  }
 }
 
 let cleanup = () => {
+  initialized := false
+  clearRetryTimer()
+  probeInFlight := false
   removeEventListener("online", handleOnline)
   removeEventListener("offline", handleOffline)
-  switch intervalId.contents {
-  | Some(id) => ReBindings.Window.clearInterval(id)
-  | None => ()
+  removeEventListener("focus", handleFocus)
+}
+
+let initialize = () => {
+  if initialized.contents {
+    cleanup()
   }
-  subscribers := []
+
+  initialized := true
+  clearRetryTimer()
+  currentAttempt := 0
+  currentRetryDelayMs := None
+  currentNextRetryAtMs := None
+  currentPhase := if navigatorOnLine {
+    HealthyPhase
+  } else {
+    BrowserOfflinePhase
+  }
+  currentReason := if navigatorOnLine {
+    Healthy
+  } else {
+    BrowserOffline
+  }
+  currentOnline := phaseAllowsRequests(currentPhase.contents)
+  lastHealthyAtMs := if navigatorOnLine {
+    Some(Date.now())
+  } else {
+    None
+  }
+
+  addEventListener("online", handleOnline)
+  addEventListener("offline", handleOffline)
+  addEventListener("focus", handleFocus)
+
+  if navigatorOnLine {
+    let _ = probeNow()
+  } else {
+    enterState(~phase=BrowserOfflinePhase, ~reason=BrowserOffline)
+  }
 }

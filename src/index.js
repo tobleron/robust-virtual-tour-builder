@@ -54,6 +54,9 @@ async function preloadDashboardProjectIfRequested() {
       const sessionId = payload.sessionId || projectId;
       window.__VTB_BOOT_PROJECT_DATA__ = normalizeProjectDataForBuilder(sessionId, payload.projectData);
       window.__VTB_BOOT_PROJECT_SESSION_ID__ = sessionId;
+      window.__VTB_BOOT_PROJECT_LABEL__ =
+        (payload.projectData && typeof payload.projectData.tourName === 'string' && payload.projectData.tourName.trim()) ||
+        'saved tour';
     }
   } catch (_error) {
     // Keep boot resilient; builder still opens normally if preload fails.

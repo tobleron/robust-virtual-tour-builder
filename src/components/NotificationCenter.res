@@ -58,7 +58,13 @@ module Toast = {
     >
       <div className="viewer-toast-icon"> icon </div>
 
-      <div className="viewer-toast-content"> {React.string(notification.message)} </div>
+      <div className="viewer-toast-copy">
+        <div className="viewer-toast-content"> {React.string(notification.message)} </div>
+        {switch notification.details {
+        | Some(details) => <div className="viewer-toast-details"> {React.string(details)} </div>
+        | None => React.null
+        }}
+      </div>
 
       /* Optional Action Button */
       {switch notification.action {

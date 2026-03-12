@@ -1,4 +1,18 @@
 let script = `
+    function getPortraitModeSelectorPanel() {
+      return document.getElementById("viewer-portrait-mode-selector-export");
+    }
+    function clearPortraitModeSelectorPanel(panel) {
+      if (!panel) return;
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("is-portrait-adaptive-preview");
+      panel.classList.remove("is-portrait-mode-selector");
+      panel.classList.remove("state-intro");
+      panel.classList.remove("state-collapsing");
+      panel.classList.remove("state-docked");
+      panel.classList.add("state-hidden");
+      panel.setAttribute("aria-hidden", "true");
+    }
     function getExportFloorLevelsInUse() {
       const activeFloorIds = new Set();
       if (scenesData && typeof scenesData === "object") {
@@ -12,16 +26,35 @@ let script = `
     function updateExportFloorNav(sceneId) {
       const nav = document.getElementById("viewer-floor-nav-export");
       if (!nav) return;
+      const isPortraitAdaptiveUi =
+        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
+      const shouldShowPortraitUiChrome =
+        !(
+          typeof isPortraitModeSelectorBlockingUi === "function" &&
+          isPortraitModeSelectorBlockingUi()
+        );
       const sceneData = scenesData[sceneId];
       const currentFloor = normalizeSceneFloor(sceneData);
       const visibleFloorLevels = getExportFloorLevelsInUse();
+      nav.setAttribute(
+        "aria-hidden",
+        isPortraitAdaptiveUi && shouldShowPortraitUiChrome ? "false" : "true",
+      );
       while (nav.firstChild) nav.removeChild(nav.firstChild);
       for (const level of visibleFloorLevels) {
-        const btn = document.createElement("div");
+        const btn = document.createElement(isPortraitAdaptiveUi ? "button" : "div");
+        if (isPortraitAdaptiveUi) btn.type = "button";
         btn.className = "floor-nav-btn " + (level.id === currentFloor ? "state-active" : "state-idle");
         btn.setAttribute("title", level.label);
         btn.setAttribute("aria-label", level.label);
         btn.textContent = level.short;
+        if (isPortraitAdaptiveUi) {
+          btn.addEventListener("click", () => {
+            if (typeof navigateToFirstSceneInFloor === "function") {
+              navigateToFirstSceneInFloor(level.id);
+            }
+          });
+        }
         if (level.suffix) {
           const suffix = document.createElement("sup");
           suffix.textContent = level.suffix;
@@ -29,6 +62,249 @@ let script = `
         }
         nav.appendChild(btn);
       }
+    }
+    function clearPortraitJoystick() {
+      const joystick = document.getElementById("viewer-portrait-joystick-export");
+      if (!joystick) return;
+      while (joystick.firstChild) joystick.removeChild(joystick.firstChild);
+      joystick.classList.add("state-hidden");
+      joystick.setAttribute("aria-hidden", "true");
+    }
+    function syncFloorTagShortcutState(sceneId, nextTarget, prevTarget) {
+      const nextSceneId = nextTarget?.targetSceneId ?? null;
+      const prevSceneId = prevTarget?.targetSceneId ?? null;
+      floorTagShortcutState.sceneId = sceneId;
+      floorTagShortcutState.nextSceneId = nextSceneId;
+      floorTagShortcutState.prevSceneId = prevSceneId;
+      floorTagShortcutState.nextHotspotIndex = nextSceneId ? nextTarget.hotspotIndex : null;
+      floorTagShortcutState.nextSequenceNumber = nextSceneId ? nextTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevHotspotIndex = prevSceneId ? prevTarget.hotspotIndex : null;
+      floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;
+      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;
+    }
+    function resolvePortraitAutoOrbLabel() {
+      if (!floorTagShortcutState.isAutoTourActive) return "Auto";
+      return typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted()
+        ? "2x"
+        : "1x";
+    }
+    function resolvePortraitModeOrbLines(mode) {
+      const normalizedMode =
+        typeof normalizePortraitNavigationMode === "function"
+          ? normalizePortraitNavigationMode(mode)
+          : mode;
+      if (normalizedMode === EXPORT_NAVIGATION_MODE_MANUAL) {
+        return { primary: "Manual", secondary: "" };
+      }
+      if (normalizedMode === EXPORT_NAVIGATION_MODE_AUTO) {
+        return { primary: resolvePortraitAutoOrbLabel(), secondary: "" };
+      }
+      return { primary: "Semi", secondary: "Auto" };
+    }
+    function handlePortraitModeSelectorClick(mode, event) {
+      if (typeof event?.preventDefault === "function") event.preventDefault();
+      if (typeof event?.stopPropagation === "function") event.stopPropagation();
+      const normalizedMode =
+        typeof normalizePortraitNavigationMode === "function"
+          ? normalizePortraitNavigationMode(mode)
+          : mode;
+      const shouldCollapseIntro =
+        typeof isPortraitModeSelectorIntroVisible === "function" &&
+        isPortraitModeSelectorIntroVisible();
+
+      if (normalizedMode === EXPORT_NAVIGATION_MODE_AUTO) {
+        if (autoTourHomeReturnCountdownRemaining > 0) return;
+        if (
+          typeof shouldIgnorePortraitAutoOrbTap === "function" &&
+          shouldIgnorePortraitAutoOrbTap()
+        ) {
+          return;
+        }
+        if (!floorTagShortcutState.isAutoTourActive) {
+          if (shouldCollapseIntro && typeof collapsePortraitModeSelectorIntro === "function") {
+            collapsePortraitModeSelectorIntro();
+          }
+          if (typeof startAutoTour === "function") startAutoTour();
+          return;
+        }
+        if (typeof isAutoTourSpeedBoosted === "function" && isAutoTourSpeedBoosted()) {
+          if (typeof stopAutoTour === "function") stopAutoTour();
+          return;
+        }
+        if (typeof setAutoTourSpeedMultiplier === "function") {
+          setAutoTourSpeedMultiplier(AUTO_TOUR_BOOSTED_SPEED_MULTIPLIER);
+        }
+        const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+        if (sid && typeof updateNavShortcutsV2 === "function") {
+          updateNavShortcutsV2(sid, true);
+        }
+        return;
+      }
+
+      if (typeof setPortraitBaseNavigationMode === "function") {
+        setPortraitBaseNavigationMode(normalizedMode);
+      }
+      if (floorTagShortcutState.isAutoTourActive && typeof stopAutoTour === "function") {
+        stopAutoTour();
+      }
+      if (shouldCollapseIntro && typeof collapsePortraitModeSelectorIntro === "function") {
+        collapsePortraitModeSelectorIntro();
+        return;
+      }
+      if (typeof syncPortraitModeSelectorClasses === "function") {
+        syncPortraitModeSelectorClasses();
+      }
+      const sid = window.viewer?.getScene?.() ?? floorTagShortcutState.sceneId;
+      if (sid && typeof updateNavShortcutsV2 === "function") {
+        updateNavShortcutsV2(sid, true);
+      }
+    }
+    function updatePortraitJoystick() {
+      const joystick = document.getElementById("viewer-portrait-joystick-export");
+      if (!joystick) return;
+      while (joystick.firstChild) joystick.removeChild(joystick.firstChild);
+      if (
+        !(
+          typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi()
+        ) ||
+        isExportMapOpen() ||
+        (
+          typeof isPortraitModeSelectorBlockingUi === "function" &&
+          isPortraitModeSelectorBlockingUi()
+        ) ||
+        autoTourHomeReturnCountdownRemaining > 0
+      ) {
+        joystick.classList.add("state-hidden");
+        joystick.setAttribute("aria-hidden", "true");
+        return;
+      }
+      joystick.classList.remove("state-hidden");
+      joystick.setAttribute("aria-hidden", "false");
+      const createButton = (direction, enabled, onClick) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "portrait-joystick-btn state-" +
+          direction +
+          " " +
+          (enabled ? "state-enabled state-active" : "state-disabled");
+        btn.setAttribute("aria-label", direction === "up" ? "Go forward" : "Go back");
+        btn.disabled = !enabled;
+
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("class", "portrait-joystick-icon");
+        icon.setAttribute("viewBox", "0 0 24 24");
+        icon.setAttribute("fill", "none");
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M5 12h14M12 5l7 7-7 7");
+        icon.appendChild(path);
+        btn.appendChild(icon);
+
+        if (enabled) {
+          btn.addEventListener("click", onClick);
+        }
+        return btn;
+      };
+      const nextEnabled = !!floorTagShortcutState.nextSceneId && !floorTagShortcutState.isAutoTourActive;
+      const prevEnabled =
+        !!floorTagShortcutState.prevSceneId &&
+        floorTagShortcutState.prevSceneId !== floorTagShortcutState.sceneId &&
+        !floorTagShortcutState.isAutoTourActive;
+      joystick.appendChild(
+        createButton("up", nextEnabled, () => {
+          if (typeof stopAutoTour === "function") stopAutoTour();
+          if (typeof navigateToNextSequenceShortcut === "function") {
+            navigateToNextSequenceShortcut();
+          }
+        }),
+      );
+      joystick.appendChild(
+        createButton("down", prevEnabled, () => {
+          if (typeof stopAutoTour === "function") stopAutoTour();
+          if (typeof navigateToPreviousSequenceShortcut === "function") {
+            navigateToPreviousSequenceShortcut();
+          }
+        }),
+      );
+    }
+    function renderPortraitAdaptiveShortcutPanel(panel) {
+      if (!panel) return;
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("state-hidden");
+      panel.classList.remove("is-portrait-adaptive-preview");
+      panel.classList.add("is-portrait-mode-selector");
+      const isIntroVisible =
+        typeof isPortraitModeSelectorIntroVisible === "function" &&
+        isPortraitModeSelectorIntroVisible();
+      const isTransitioning =
+        typeof isPortraitModeSelectorTransitioning === "function" &&
+        isPortraitModeSelectorTransitioning();
+      panel.classList.toggle("state-intro", isIntroVisible);
+      panel.classList.toggle("state-collapsing", isTransitioning);
+      panel.classList.toggle("state-docked", !isIntroVisible && !isTransitioning);
+      panel.setAttribute("aria-hidden", "false");
+
+      const cluster = document.createElement("div");
+      cluster.className = "portrait-mode-selector-cluster";
+      const createModeOrb = mode => {
+        const orb = document.createElement("button");
+        orb.type = "button";
+        const normalizedMode =
+          typeof normalizePortraitNavigationMode === "function"
+            ? normalizePortraitNavigationMode(mode)
+            : mode;
+        const activeMode =
+          typeof resolveActivePortraitNavigationMode === "function"
+            ? resolveActivePortraitNavigationMode()
+            : normalizedMode;
+        const isActive = activeMode === normalizedMode;
+        const isBoosted =
+          normalizedMode === EXPORT_NAVIGATION_MODE_AUTO &&
+          typeof isAutoTourSpeedBoosted === "function" &&
+          isAutoTourSpeedBoosted();
+        orb.className =
+          "portrait-mode-orb state-" +
+          String(normalizedMode).replace(/[^a-z0-9]+/gi, "-") +
+          (isActive ? " state-active" : " state-idle") +
+          (isBoosted ? " state-boosted" : "");
+        orb.setAttribute(
+          "aria-label",
+          normalizedMode === EXPORT_NAVIGATION_MODE_SEMI_AUTO
+            ? "Semi-Auto mode"
+            : normalizedMode === EXPORT_NAVIGATION_MODE_MANUAL
+              ? "Manual mode"
+              : "Auto mode",
+        );
+        orb.disabled =
+          normalizedMode === EXPORT_NAVIGATION_MODE_AUTO &&
+          autoTourHomeReturnCountdownRemaining > 0;
+        const labelLines = resolvePortraitModeOrbLines(normalizedMode);
+        const primary = document.createElement("span");
+        primary.className = "portrait-mode-orb-line portrait-mode-orb-line-primary";
+        primary.textContent = labelLines.primary;
+        orb.appendChild(primary);
+        if (labelLines.secondary !== "") {
+          const secondary = document.createElement("span");
+          secondary.className = "portrait-mode-orb-line portrait-mode-orb-line-secondary";
+          secondary.textContent = labelLines.secondary;
+          orb.appendChild(secondary);
+        }
+        if (!orb.disabled) {
+          orb.addEventListener("click", event => {
+            handlePortraitModeSelectorClick(normalizedMode, event);
+          });
+        }
+        return orb;
+      };
+      cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_SEMI_AUTO));
+      cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_MANUAL));
+      cluster.appendChild(createModeOrb(EXPORT_NAVIGATION_MODE_AUTO));
+      panel.appendChild(cluster);
+      if (typeof syncPortraitModeSelectorClasses === "function") {
+        syncPortraitModeSelectorClasses();
+      }
+      updatePortraitJoystick();
     }
     function updateExportRoomLabel(sceneId, animateOnShow) {
       const labelEl = document.getElementById("viewer-room-label-export");
@@ -371,6 +647,9 @@ let script = `
       clearAutoTourCompletionCountdown();
       floorTagShortcutState.isAutoTourActive = true;
       window.isAutoTourActive = true;
+      if (typeof syncPortraitModeSelectorClasses === "function") {
+        syncPortraitModeSelectorClasses();
+      }
       if (typeof resetAutoTourManifestCursor === "function") {
         resetAutoTourManifestCursor();
       }
@@ -395,6 +674,9 @@ let script = `
       if (!floorTagShortcutState.isAutoTourActive) return;
       floorTagShortcutState.isAutoTourActive = false;
       window.isAutoTourActive = false;
+      if (typeof syncPortraitModeSelectorClasses === "function") {
+        syncPortraitModeSelectorClasses();
+      }
       if (typeof resetAutoTourManifestCursor === "function") {
         resetAutoTourManifestCursor();
       }
@@ -418,26 +700,67 @@ let script = `
       floorTagShortcutState.prevHotspotIndex = null;
       floorTagShortcutState.prevSequenceNumber = null;
       floorTagShortcutState.prevUsesReturnLink = false;
+      clearPortraitJoystick();
+      clearPortraitModeSelectorPanel(getPortraitModeSelectorPanel());
       if (!panel) return;
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("is-portrait-adaptive-preview");
+      panel.classList.remove("is-portrait-mode-selector");
+      panel.classList.remove("state-intro");
+      panel.classList.remove("state-collapsing");
+      panel.classList.remove("state-docked");
       panel.classList.add("state-hidden");
+      panel.setAttribute("aria-hidden", "true");
     }
     function updateNavShortcutsV2(sceneId, _resetPage) {
       const panel = document.getElementById("viewer-floor-tags-export");
+      const portraitSelectorPanel = getPortraitModeSelectorPanel();
       if (!panel) return;
+      const isPortraitAdaptiveUi =
+        typeof isPortraitAdaptiveExportUi === "function" && isPortraitAdaptiveExportUi();
       if (suppressShortcutPanelUntilNextLoad) {
         clearExportFloorTagShortcuts(panel);
         return;
       }
-      
+
       while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.classList.remove("is-portrait-adaptive-preview");
+      panel.classList.remove("is-portrait-mode-selector");
+      panel.classList.remove("state-intro");
+      panel.classList.remove("state-collapsing");
+      panel.classList.remove("state-docked");
       panel.classList.remove("state-hidden");
+      panel.setAttribute("aria-hidden", "false");
       const mapEntries = buildMapEntries();
       floorTagShortcutState.hasMap = mapEntries.length > 0;
       if (isExportMapOpen()) {
+        clearPortraitJoystick();
+        clearPortraitModeSelectorPanel(portraitSelectorPanel);
         renderExportMapRows(panel, mapEntries);
         return;
       }
+
+      const currentSceneData = scenesData[sceneId];
+      if (!currentSceneData) {
+        clearPortraitJoystick();
+        clearPortraitModeSelectorPanel(portraitSelectorPanel);
+        return;
+      }
+
+      const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);
+      const nextTarget = shortcutTargets?.nextTarget ?? null;
+      const prevTarget = shortcutTargets?.prevTarget ?? null;
+      syncFloorTagShortcutState(sceneId, nextTarget, prevTarget);
+
+      if (isPortraitAdaptiveUi) {
+        panel.classList.add("state-hidden");
+        panel.setAttribute("aria-hidden", "true");
+        renderPortraitAdaptiveShortcutPanel(portraitSelectorPanel);
+        return;
+      }
+
+      clearPortraitModeSelectorPanel(portraitSelectorPanel);
+      clearPortraitJoystick();
 
       if (floorTagShortcutState.isAutoTourActive) {
         const isSpeedBoosted =
@@ -448,7 +771,7 @@ let script = `
         speedRow.className = "floor-tag-shortcut-row";
         speedRow.setAttribute(
           "aria-label",
-          isSpeedBoosted ? "Slow down auto tour 1x" : "Speed up auto tour 1.7x",
+          isSpeedBoosted ? "Auto tour 2x" : "Auto tour 1x",
         );
         speedRow.addEventListener("click", () => {
           if (typeof speedUpAutoTour === "function") speedUpAutoTour();
@@ -461,7 +784,7 @@ let script = `
         speedIndex.textContent = "a";
         const speedLabel = document.createElement("span");
         speedLabel.className = "floor-tag-shortcut-label";
-        speedLabel.textContent = isSpeedBoosted ? "slow down 1x" : "speed up 1.7x";
+        speedLabel.textContent = isSpeedBoosted ? "2x" : "1x";
 
         speedRow.appendChild(speedSpacer);
         speedRow.appendChild(speedIndex);
@@ -510,25 +833,9 @@ let script = `
         return;
       }
 
-      const currentSceneData = scenesData[sceneId];
-      if (!currentSceneData) return;
-
       // Navigation Logic: Next (Up) and Previous (Down)
-      const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);
-      const nextTarget = shortcutTargets?.nextTarget ?? null;
-      const prevTarget = shortcutTargets?.prevTarget ?? null;
       const nextSceneId = nextTarget?.targetSceneId ?? null;
       const prevSceneId = prevTarget?.targetSceneId ?? null;
-
-      // Update state for keyboard/input logic
-      floorTagShortcutState.sceneId = sceneId;
-      floorTagShortcutState.nextSceneId = nextSceneId;
-      floorTagShortcutState.prevSceneId = prevSceneId;
-      floorTagShortcutState.nextHotspotIndex = nextSceneId ? nextTarget.hotspotIndex : null;
-      floorTagShortcutState.nextSequenceNumber = nextSceneId ? nextTarget.sequenceCursorOverride : null;
-      floorTagShortcutState.prevHotspotIndex = prevSceneId ? prevTarget.hotspotIndex : null;
-      floorTagShortcutState.prevSequenceNumber = prevSceneId ? prevTarget.sequenceCursorOverride : null;
-      floorTagShortcutState.prevUsesReturnLink = prevSceneId ? prevTarget?.usesReturnLink === true : false;
 
       const createRow = (id, iconChar, label, onClick) => {
         const row = document.createElement("button");
