@@ -258,7 +258,6 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::models::{QualityAnalysis, QualityStats};
 
     #[test]
