@@ -12,6 +12,14 @@ let _ = describe("TourTemplateStyles", () => {
     t
     ->expect(String.includes(css, "body.export-state-tablet #stage { width: 640px"))
     ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "max-width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 16 / 10), calc(100vw - (var(--export-fallback-padding) * 2)))",
+      ),
+    )
+    ->Expect.toBe(true)
     t->expect(String.includes(css, "height: 32px"))->Expect.toBe(true) // Base size
     t->expect(String.includes(css, "min-height: 27px"))->Expect.toBe(true)
     t->expect(String.includes(css, "padding: 4px 9px 3px 9px"))->Expect.toBe(true)
@@ -35,6 +43,17 @@ let _ = describe("TourTemplateStyles", () => {
     t->expect(String.includes(css, "mob.jpg"))->Expect.toBe(true)
     t->expect(String.includes(css, "width: 640px"))->Expect.toBe(true)
     t->expect(String.includes(css, "body.export-state-portrait #stage"))->Expect.toBe(true)
+    t->expect(String.includes(css, "height: 100dvh; min-height: 100dvh;"))->Expect.toBe(true)
+    t->expect(String.includes(css, "overflow: hidden;"))->Expect.toBe(true)
+    t->expect(String.includes(css, "375px"))->Expect.toBe(false)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-state-portrait #stage { width: min(calc((100dvh - (var(--export-fallback-padding) * 2)) * 9 / 16), calc((100vw - (var(--export-fallback-padding) * 2)) * 0.791)) !important;",
+      ),
+    )
+    ->Expect.toBe(true)
     t
     ->expect(
       String.includes(css, "body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn"),
@@ -121,7 +140,23 @@ let _ = describe("TourTemplateStyles", () => {
     ->expect(
       String.includes(
         css,
-        "state-docked .portrait-mode-selector-cluster { flex-direction: column;",
+        "state-docked .portrait-mode-selector-cluster { flex-direction: column; align-items: flex-start; justify-content: flex-start;",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector.state-docked { top: var(--export-touch-docked-top); left: var(--export-touch-docked-orb-left); transform: none; align-items: flex-start; width: fit-content; }",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector.state-docked .portrait-mode-selector-title { display: none; }",
       ),
     )
     ->Expect.toBe(true)
@@ -141,8 +176,26 @@ let _ = describe("TourTemplateStyles", () => {
     ->Expect.toBe(true)
     t->expect(String.includes(css, "--export-touch-orb-size: 48px"))->Expect.toBe(true)
     t->expect(String.includes(css, "--export-touch-floor-btn-size: 34px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "--export-touch-rail-left: 13px"))->Expect.toBe(true)
+    t->expect(String.includes(css, "--export-touch-docked-orb-left: 6px"))->Expect.toBe(true)
     t
     ->expect(String.includes(css, "width: var(--export-touch-orb-size); height: var(--export-touch-orb-size);"))
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-floor-nav-export { gap: 10px; bottom: var(--export-touch-floor-bottom); left: var(--export-touch-rail-left);",
+      ),
+    )
+    ->Expect.toBe(true)
+    t
+    ->expect(
+      String.includes(
+        css,
+        "body.export-ui-portrait-adaptive #viewer-portrait-mode-selector-export.is-portrait-mode-selector { position: absolute; top: var(--export-touch-docked-top); left: var(--export-touch-docked-orb-left);",
+      ),
+    )
     ->Expect.toBe(true)
     t
     ->expect(

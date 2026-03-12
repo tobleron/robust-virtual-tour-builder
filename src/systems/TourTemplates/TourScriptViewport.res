@@ -9,10 +9,16 @@ let script = `
       if (!document || !document.documentElement) return;
       const stage = document.getElementById("stage");
       const stageWidth = stage?.getBoundingClientRect?.().width;
+      const stageHeight = stage?.getBoundingClientRect?.().height;
       const effectiveStageWidth =
         Number.isFinite(stageWidth) && stageWidth > 0 ? stageWidth : STAGE_MAX_WIDTH;
-      const baselineStageWidth = 832.0;
-      const scale = effectiveStageWidth / baselineStageWidth;
+      const fallbackStageHeight = STAGE_MAX_WIDTH * (10.0 / 16.0);
+      const effectiveStageHeight =
+        Number.isFinite(stageHeight) && stageHeight > 0 ? stageHeight : fallbackStageHeight;
+      const referenceStageArea = 832.0 * 520.0;
+      const scale = Math.sqrt(
+        (effectiveStageWidth * effectiveStageHeight) / referenceStageArea,
+      );
       const orbSizePx = Math.round(clampExportMetric(48.0 * scale, 40.0, 60.0));
       const orbIconSizePx = Math.round(clampExportMetric(13.0 * scale, 11.0, 16.0));
       const primaryFontPx = Math.round(clampExportMetric(10.0 * scale, 8.0, 12.0));
@@ -24,6 +30,10 @@ let script = `
       const orbGapPx = Math.round(clampExportMetric(8.0 * scale, 6.0, 10.0));
       const introGapPx = Math.round(clampExportMetric(14.0 * scale, 10.0, 18.0));
       const collapsedGapPx = Math.round(clampExportMetric(10.0 * scale, 8.0, 14.0));
+      const railLeftPx = Math.round(clampExportMetric(13.0 * scale, 10.0, 18.0));
+      const dockedTopPx = Math.round(clampExportMetric(12.0 * scale, 10.0, 18.0));
+      const dockedOrbLeftPx = railLeftPx;
+      const floorBottomPx = Math.round(clampExportMetric(20.0 * scale, 12.0, 28.0));
       const root = document.documentElement.style;
       root.setProperty("--export-touch-orb-size", orbSizePx + "px");
       root.setProperty("--export-touch-orb-icon-size", orbIconSizePx + "px");
@@ -36,6 +46,10 @@ let script = `
       root.setProperty("--export-touch-orb-gap", orbGapPx + "px");
       root.setProperty("--export-touch-orb-intro-gap", introGapPx + "px");
       root.setProperty("--export-touch-orb-collapsed-gap", collapsedGapPx + "px");
+      root.setProperty("--export-touch-rail-left", railLeftPx + "px");
+      root.setProperty("--export-touch-docked-top", dockedTopPx + "px");
+      root.setProperty("--export-touch-docked-orb-left", dockedOrbLeftPx + "px");
+      root.setProperty("--export-touch-floor-bottom", floorBottomPx + "px");
     }
     function syncExportAdaptiveUiForCurrentScene() {
       const sceneId = window.viewer?.getScene?.() ?? null;
@@ -153,15 +167,34 @@ let script = `
 
       return nextState;
     }
+    function getAdaptivePortraitHfov() {
+      const stage = document.getElementById("stage");
+      const stageWidth = stage?.getBoundingClientRect?.().width;
+      const effectiveStageWidth =
+        Number.isFinite(stageWidth) && stageWidth > 0 ? stageWidth : STAGE_MIN_WIDTH;
+      const portraitMaxHfov = clampExportMetric(Math.floor((MAX_HFOV * 0.93) * 10.0) / 10.0, MIN_HFOV, MAX_HFOV);
+      if (effectiveStageWidth >= 700) return portraitMaxHfov;
+      if (effectiveStageWidth >= 600) return clampExportMetric(78.0, MIN_HFOV, portraitMaxHfov);
+      if (effectiveStageWidth >= 480) return clampExportMetric(72.0, MIN_HFOV, portraitMaxHfov);
+      return MIN_HFOV;
+    }
     function getCurrentHfov() {
       const state = exportViewportState === "" ? updateExportStateClasses() : exportViewportState;
-      return state === "portrait" ? MIN_HFOV : MAX_HFOV;
+      return state === "portrait" ? getAdaptivePortraitHfov() : MAX_HFOV;
     }
     function applyCurrentHfov() {
       updateExportStateClasses();
       if (!window.viewer || typeof window.viewer.setHfov !== "function") return;
+      const nextHfov = getCurrentHfov();
+      if (typeof window.viewer.setHfovBounds === "function") {
+        if (typeof isTouchFriendlyExportUi === "function" && isTouchFriendlyExportUi()) {
+          window.viewer.setHfovBounds([nextHfov, nextHfov]);
+        } else {
+          window.viewer.setHfovBounds([MIN_HFOV, MAX_HFOV]);
+        }
+      }
       if (typeof window.viewer.resize === "function") window.viewer.resize();
-      window.viewer.setHfov(getCurrentHfov(), false);
+      window.viewer.setHfov(nextHfov, false);
       // Double trigger to catch late layout paint
       setTimeout(() => { if (window.viewer && window.viewer.resize) window.viewer.resize(); }, 50);
     }
