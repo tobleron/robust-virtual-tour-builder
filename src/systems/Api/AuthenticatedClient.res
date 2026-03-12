@@ -34,6 +34,7 @@ let requestWithRetry = (
   }
   let domain = CircuitBreakerRegistry.resolveDomainForUrl(url)
   let domainBreaker = getDomainCircuitBreaker(domain)
+  let sawConnectivityRetry = ref(false)
 
   let runRequest = () =>
     Retry.execute(
@@ -47,6 +48,7 @@ let requestWithRetry = (
           ~signal,
           ~requestId,
           ~operationId?,
+          ~bypassOfflineGate=true,
           (),
         ),
       ~signal=resolvedSignal,
@@ -78,23 +80,28 @@ let requestWithRetry = (
           (),
         )
 
-        NotificationManager.dispatch({
-          id: incidentNotificationId,
-          importance: Warning,
-          context: Operation("api"),
-          message: "Connection issue detected. Retrying request.",
-          details: Some(
-            `Attempt ${Belt.Int.toString(
-                attempt,
-              )} failed (${error}). Next attempt in ${Float.toString(
-                Float.fromInt(delay) /. 1000.0,
-              )}s`,
-          ),
-          action: None,
-          duration: 10000,
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        let isConnectivityIncident = RetryClassification.isConnectivityIncidentError(error)
+        if isConnectivityIncident {
+          sawConnectivityRetry := true
+        } else {
+          NotificationManager.dispatch({
+            id: incidentNotificationId,
+            importance: Warning,
+            context: Operation("api"),
+            message: "Connection issue detected. Retrying request.",
+            details: Some(
+              `Attempt ${Belt.Int.toString(
+                  attempt,
+                )} failed (${error}). Next attempt in ${Float.toString(
+                  Float.fromInt(delay) /. 1000.0,
+                )}s`,
+            ),
+            action: None,
+            duration: 10000,
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        }
       },
       ~getDelay=(error, _) => {
         if String.startsWith(error, "RateLimited: ") {
@@ -110,7 +117,7 @@ let requestWithRetry = (
       },
     )->Promise.then(result => {
       switch result {
-      | Retry.Success(_, attempts) if attempts > 1 =>
+      | Retry.Success(_, attempts) if attempts > 1 && !sawConnectivityRetry.contents =>
         NotificationManager.dispatch({
           id: incidentNotificationId,
           importance: Success,
@@ -122,8 +129,11 @@ let requestWithRetry = (
           dismissible: true,
           createdAt: Date.now(),
         })
+      | Retry.Success(_, _) if sawConnectivityRetry.contents =>
+        NotificationManager.dismiss(incidentNotificationId)
       | Retry.Exhausted("AbortError") => NotificationManager.dismiss(incidentNotificationId)
-      | Retry.Exhausted("NetworkOffline") => () // Handled by offline banner
+      | Retry.Exhausted(error) if RetryClassification.isConnectivityIncidentError(error) =>
+        NotificationManager.dismiss(incidentNotificationId)
       | Retry.Exhausted(error) =>
         NotificationManager.dispatch({
           id: incidentNotificationId,

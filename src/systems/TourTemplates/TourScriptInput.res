@@ -1,22 +1,36 @@
 let script = `
     /* --- LOOKING MODE & LAZY DRIFT LOGIC --- */
-    function shouldEnableLookingModeByDefault() {
-      const viewportState = typeof resolveExportViewportState === "function" ? resolveExportViewportState() : "";
-      const isPortraitViewport = viewportState === "portrait";
+    function isLookingModeInteractionAvailable() {
+      const interactionShell =
+        typeof resolveExportInteractionShell === "function"
+          ? resolveExportInteractionShell()
+          : (
+              typeof resolveExportViewportState === "function" &&
+              resolveExportViewportState() === "portrait"
+            )
+            ? "portrait-adaptive"
+            : "classic";
       const isTouchPrimaryInput = typeof detectTouchPrimaryInput === "function"
         ? detectTouchPrimaryInput()
         : (typeof isExportTouchDevice === "function" ? isExportTouchDevice() : false);
-      return !isPortraitViewport && !isTouchPrimaryInput;
+      return interactionShell === "classic" && !isTouchPrimaryInput;
+    }
+    function shouldEnableLookingModeByDefault() {
+      return isLookingModeInteractionAvailable();
     }
     let lookingMode = shouldEnableLookingModeByDefault();
     let manualLookingMode = shouldEnableLookingModeByDefault();
     function enableLookingModeAfterMapNavigation() {
-      if (!shouldEnableLookingModeByDefault()) return;
+      if (!isLookingModeInteractionAvailable()) return;
       manualLookingMode = true;
       lookingMode = true;
       updateLookingModeUI();
     }
     function updateLookingModeUI() {
+      if (!isLookingModeInteractionAvailable()) {
+        manualLookingMode = false;
+        lookingMode = false;
+      }
       const titleEl = document.getElementById('looking-mode-title');
       const dotEl = document.getElementById('looking-mode-dot');
       const container = document.querySelector('.pnlm-container');
@@ -26,6 +40,7 @@ let script = `
       if (!lookingMode) { driftRuntime.vector = { x: 0, y: 0 }; driftRuntime.smoothedVector = { x: 0, y: 0 }; driftRuntime.active = false; driftRuntime.lastTickTime = null; }
     }
     function toggleLookingMode() {
+        if (!isLookingModeInteractionAvailable()) return;
         manualLookingMode = !manualLookingMode;
         lookingMode = manualLookingMode;
         updateLookingModeUI();
@@ -65,6 +80,13 @@ let script = `
           }
           return;
         }
+      }
+
+      if (
+        typeof isPortraitModeSelectorBlockingUi === "function" &&
+        isPortraitModeSelectorBlockingUi()
+      ) {
+        return;
       }
 
       if (isTypingElement) return;
@@ -124,6 +146,7 @@ let script = `
         return;
       }
       if (key === "l" || key === "L") {
+        if (!isLookingModeInteractionAvailable()) return;
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof stopAutoTour === "function") stopAutoTour();
         if (typeof e.preventDefault === "function") e.preventDefault();
@@ -309,11 +332,24 @@ let script = `
       driftRuntime.rafId = requestAnimationFrame(tick);
     }
 
+    function shouldStopAutoTourOnPointerDown(event) {
+      const target = event?.target;
+      if (!target || typeof target.closest !== "function") return true;
+      return !target.closest(
+        "#viewer-floor-tags-export, #viewer-portrait-mode-selector-export, #viewer-floor-nav-export, #viewer-portrait-joystick-export, .looking-mode-indicator",
+      );
+    }
+
     // Attach Global Listeners
     if (typeof document !== 'undefined') {
       document.addEventListener("mousemove", updateDriftVector);
-      document.addEventListener("mousedown", () => {
-         if (typeof stopAutoTour === "function") stopAutoTour();
+      document.addEventListener("mousedown", event => {
+         if (
+           typeof stopAutoTour === "function" &&
+           shouldStopAutoTourOnPointerDown(event)
+         ) {
+           stopAutoTour();
+         }
          driftRuntime.vector = { x: 0, y: 0 };
          driftRuntime.smoothedVector = { x: 0, y: 0 };
          driftRuntime.active = false;

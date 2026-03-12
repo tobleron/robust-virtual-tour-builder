@@ -14,9 +14,28 @@ let probeHealth = async (~lastState, ~domainBreaker, ~signalScope: requestSignal
     )
     if probeRes.status >= 400 {
       CircuitBreaker.recordFailure(domainBreaker)
+      if probeRes.status == 429 {
+        let retryAfter =
+          probeRes.headers
+          ->getHeader("Retry-After")
+          ->Nullable.toOption
+          ->Option.flatMap(Belt.Int.fromString)
+          ->Option.getOr(10)
+        NetworkStatus.reportRateLimited(~retryAfterSeconds=retryAfter)
+      } else if
+        probeRes.status == 502 || probeRes.status == 503 || probeRes.status == 504
+      {
+        NetworkStatus.reportBackendUnavailable(
+          ~status=probeRes.status,
+          ~statusText=probeRes.statusText,
+        )
+      } else {
+        NetworkStatus.reportProbeFailure()
+      }
       false
     } else {
       CircuitBreaker.recordSuccess(domainBreaker)
+      NetworkStatus.reportRequestSuccess()
       true
     }
   } else {
@@ -51,6 +70,7 @@ let handleResponse = async (
 
     RequestQueue.handleRateLimitForScope(~scope=rateScope, ~seconds=retryAfter)
     EventBus.dispatch(RateLimitBackoff(retryAfter))
+    NetworkStatus.reportRateLimited(~retryAfterSeconds=retryAfter)
     Error(`RateLimited: ${Belt.Int.toString(retryAfter)}`)
   } else if res.status >= 400 {
     signalScope.cleanup()
@@ -59,23 +79,17 @@ let handleResponse = async (
     let currentState = CircuitBreaker.getState(domainBreaker)
 
     if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
+      NetworkStatus.reportTransportFailure(~message="Circuit breaker is open")
       Logger.info(
         ~module_="AuthenticatedClient",
         ~message="CIRCUIT_OPENED",
         ~data=Logger.castToJson({"domain": domainKey}),
         (),
       )
-      NotificationManager.dispatch({
-        id: "circuit-breaker-open-" ++ domainKey,
-        importance: Warning,
-        context: Operation("network"),
-        message: "Connection issues detected for service domain.",
-        details: Some("Circuit breaker activated to prevent overload in this domain."),
-        action: None,
-        duration: 10000,
-        dismissible: true,
-        createdAt: Date.now(),
-      })
+    }
+
+    if res.status == 502 || res.status == 503 || res.status == 504 {
+      NetworkStatus.reportBackendUnavailable(~status=res.status, ~statusText=res.statusText)
     }
 
     let errorText = await res.text()
@@ -84,6 +98,7 @@ let handleResponse = async (
     signalScope.cleanup()
     CircuitBreaker.recordSuccess(domainBreaker)
     CircuitBreakerRegistry.releaseBulkhead(domain)
+    NetworkStatus.reportRequestSuccess()
     Ok(res)
   }
 }
@@ -105,12 +120,17 @@ let classifyException = (
 
   if name == "AbortError" || name == "Abort" {
     if signalScope.wasTimedOut() {
-      "TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms"
+      let timeoutMessage =
+        "TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms"
+      NetworkStatus.reportTransportFailure(~message=timeoutMessage)
+      timeoutMessage
     } else {
       "AbortError"
     }
   } else {
     CircuitBreaker.recordFailure(domainBreaker)
+    let errorMessage = if msg == "" { "Unknown Error" } else { msg }
+    NetworkStatus.reportTransportFailure(~message=errorMessage)
     if msg == "" {
       "Unknown Error"
     } else {

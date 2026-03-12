@@ -7,6 +7,8 @@ export const BUNDLE_BUDGETS = {
   maxLargestChunkBytes: 2_000_000,
 };
 
+const devAutoReloadEnabled = process.env.RSBUILD_AUTO_RELOAD !== '0';
+
 export default defineConfig({
   plugins: [pluginReact()],
   source: {
@@ -65,6 +67,15 @@ export default defineConfig({
     },
     // Remove console logs in production
     removeConsole: true,
+  },
+  dev: {
+    hmr: devAutoReloadEnabled,
+    liveReload: devAutoReloadEnabled,
+    client: {
+      reconnect: devAutoReloadEnabled ? 20 : 0,
+      overlay: devAutoReloadEnabled ? { runtime: false } : false,
+      logLevel: devAutoReloadEnabled ? 'info' : 'silent',
+    },
   },
   server: {
     proxy: {

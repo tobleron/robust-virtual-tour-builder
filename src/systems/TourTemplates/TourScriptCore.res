@@ -8,18 +8,24 @@ let script = `
     const DYNAMIC_HFOV_ENABLED = __DYNAMIC_HFOV_ENABLED__;
     const IS_HD_EXPORT = __IS_HD_EXPORT__;
     const EXPORT_TRAVERSAL_MODE = "__EXPORT_TRAVERSAL_MODE__";
-    // Set to "always" to restore manual exported-tour waypoint playback.
+    // Set to "always" to force full manual exported-tour waypoint playback regardless of mode.
     const EXPORT_WAYPOINT_ANIMATION_POLICY = "auto-tour-only";
+    const EXPORT_NAVIGATION_MODE_MANUAL = "manual";
+    const EXPORT_NAVIGATION_MODE_SEMI_AUTO = "semi-auto";
+    const EXPORT_NAVIGATION_MODE_AUTO = "auto";
+    const EXPORT_DEFAULT_NAVIGATION_MODE = EXPORT_NAVIGATION_MODE_SEMI_AUTO;
     const IS_4K_EXPORT = STAGE_MAX_WIDTH >= 1000;
     const PAN_VELOCITY = 25.0;
     const PAN_MIN_DURATION = 1000.0;
     const PAN_MAX_DURATION = 20000.0;
-    const AUTO_TOUR_BASE_SPEED_MULTIPLIER = 1.2;
-    const AUTO_TOUR_SPEED_UP_MULTIPLIER = 1.7;
+    const ANIMATED_NAVIGATION_BASE_SPEED_MULTIPLIER = 1.44;
+    const AUTO_TOUR_BASE_SPEED_MULTIPLIER = ANIMATED_NAVIGATION_BASE_SPEED_MULTIPLIER;
+    const AUTO_TOUR_BOOSTED_SPEED_MULTIPLIER = 2.24;
     const AUTO_TOUR_FORWARD_DELAY_MS = 360;
     const AUTO_TOUR_MIN_ANIMATION_MS = 180.0;
     const AUTO_TOUR_MIN_FORWARD_DELAY_MS = 80;
     const MANUAL_POST_ARRIVAL_FOCUS_MS = 320.0;
+    const PORTRAIT_MODE_SELECTOR_COLLAPSE_MS = 420;
     const TRAPEZOID_FACTOR = 0.12;
     const WAYPOINT_SMOOTHING_FACTOR = 0.3;
     const SPLINE_SEGMENTS = 100;

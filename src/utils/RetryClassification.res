@@ -57,6 +57,19 @@ let isRetryableError = (error: string): bool =>
   | None => isRetryableNetworkError(error)
   }
 
+let isConnectivityIncidentError = (error: string): bool =>
+  if error == "NetworkOffline" || error == "Circuit breaker is open" {
+    true
+  } else if String.startsWith(error, "RateLimited: ") {
+    true
+  } else {
+    switch parseHttpStatusCode(error) {
+    | Some(429 | 502 | 503 | 504) => true
+    | Some(_) => false
+    | None => isRetryableNetworkError(error)
+    }
+  }
+
 let classifyError = (error: string): retryClass =>
   if isAbortError(error) {
     Aborted

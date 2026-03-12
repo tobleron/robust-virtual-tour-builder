@@ -137,3 +137,13 @@ body.export-mode .interaction-lock-overlay .spinner,
 body.project-load-mode .interaction-lock-overlay .spinner {
     display: none;
 }
+
+.network-degraded-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 7000;
+    pointer-events: none;
+    background: rgba(8, 15, 29, 0.18);
+    backdrop-filter: grayscale(1) saturate(0.38) brightness(0.78);
+    transition: opacity 0.2s ease;
+}

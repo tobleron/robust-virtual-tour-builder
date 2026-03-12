@@ -113,6 +113,8 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "assets/logo/logo.png")
     t->expectToContain(html, "id=\"export-watermark-image\"")
     t->expectToContain(html, "const LOGO_AREA_RATIO = 0.008;")
+    t->expectToContain(html, "const EXPORT_TOUCH_PAN_SPEED_COEFF = 1.0;")
+    t->expectToContain(html, "const EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR = 1.4;")
     t->expectToContain(html, "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;")
     t->expectToContain(html, "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;")
     t->expectToContain(html, "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;")
@@ -122,6 +124,8 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "const portraitFinalHeight = Math.min(")
     t->expectToContain(html, "stage.style.setProperty('--export-logo-height'")
     t->expectToContain(html, "'--export-logo-portrait-height'")
+    t->expectToContain(html, "\"touchPanSpeedCoeffFactor\": EXPORT_TOUCH_PAN_SPEED_COEFF")
+    t->expectToContain(html, "\"touchReleaseMomentumFactor\": EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR")
 
     // Check hotspot data
     t->expectToContain(html, "\"yaw\":10")
@@ -416,6 +420,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "const isAutoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "animatedScenes.add(sceneId);")
     t->expectToContain(html, "const EXPORT_WAYPOINT_ANIMATION_POLICY = \"auto-tour-only\";")
+    t->expectToContain(html, "const EXPORT_DEFAULT_NAVIGATION_MODE = EXPORT_NAVIGATION_MODE_SEMI_AUTO;")
     t->expectToContain(html, "const MANUAL_POST_ARRIVAL_FOCUS_MS = 320.0;")
     t->expectToContain(html, "function resolveDestinationView(args, options)")
     t->expectToContain(html, "if (Number.isFinite(options?.destinationOverride?.yaw)")
@@ -428,7 +433,12 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function snapToPlaybackTerminalView(terminalView)")
     t->expectToContain(html, "function getHotspotFocusView(hotspot)")
     t->expectToContain(html, "function shouldAnimateExportArrivalPlayback()")
+    t->expectToContain(html, "typeof isSemiAutoExportNavigationMode === \"function\"")
+    t->expectToContain(html, "isSemiAutoExportNavigationMode()")
     t->expectToContain(html, "return EXPORT_WAYPOINT_ANIMATION_POLICY === \"always\";")
+    t->expectToContain(html, "function syncPortraitModeSelectorClasses()")
+    t->expectToContain(html, "body.classList.add(\"export-portrait-mode-intro\");")
+    t->expectToContain(html, "panel.classList.add(\"is-portrait-mode-selector\");")
     t->expectToContain(
       html,
       "const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0",
@@ -733,6 +743,16 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "body.export-state-portrait #stage")
     t->expectToContain(html, "\"minHfov\": 65")
     t->expectToContain(html, "\"maxHfov\": 90")
+  })
+
+  test("generateTourHTML emits portrait export control hosts", t => {
+    let html = generateTourHTML([mockScene1], "Touch Portrait Tour", None, "2k", 32, 40, "1.0")
+
+    t->expectToContain(html, "id=\"viewer-portrait-mode-selector-export\"")
+    t->expectToContain(html, "id=\"viewer-floor-nav-export\"")
+    t->expectToContain(html, "id=\"viewer-portrait-joystick-export\"")
+    t->expectToContain(html, "function isPortraitAdaptiveExportUi()")
+    t->expectToContain(html, "function renderPortraitAdaptiveShortcutPanel(panel)")
   })
 
   test("generateTourHTML includes session-based auto-forward expiration logic", t => {

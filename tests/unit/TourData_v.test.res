@@ -58,7 +58,7 @@ describe("TourData", () => {
   })
 
   test("encodeSceneData and encodeAutoTourManifest preserve stable scene-number metadata", t => {
-    let hotspot: TourData.hotspotData = {
+    let hotspot: TourData.hotspotData = ({
       "pitch": 5.0,
       "yaw": 25.0,
       "target": "014_Master_Bedroom.webp",
@@ -74,8 +74,8 @@ describe("TourData", () => {
       "viewFrame": Nullable.fromOption(Some(sampleViewFrame)),
       "targetYaw": Nullable.fromOption(Some(35.0)),
       "targetPitch": Nullable.fromOption(Some(0.0)),
-    }
-    let sceneData: TourData.sceneData = {
+    }:> TourData.hotspotData)
+    let sceneData: TourData.sceneData = ({
       "name": "010_Corridor_Hub_1.webp",
       "panorama": "assets/images/2k/010_Corridor_Hub_1.webp",
       "autoLoad": true,
@@ -98,8 +98,8 @@ describe("TourData", () => {
         },
       ],
       "isHubScene": false,
-    }
-    let manifest: TourData.autoTourManifestData = {
+    }:> TourData.sceneData)
+    let manifest = {
       "steps": [
         {
           "sourceSceneId": "scene-10",

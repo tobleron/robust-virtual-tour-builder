@@ -19,6 +19,7 @@ import {
 } from './PageFrameworkAuth.js';
 import {
   handleDashboardProjectDelete,
+  handleDashboardProjectDuplicate,
   handleDashboardSnapshotOpen,
   loadDashboardProjects,
   toggleDashboardProjectHistory,
@@ -113,6 +114,16 @@ function bindGlobalChromeHandlers() {
       handleDashboardProjectDelete(
         deleteButton.getAttribute('data-dashboard-delete') || '',
         deleteButton.getAttribute('data-project-name') || 'saved tour'
+      );
+      return;
+    }
+
+    const duplicateButton = target.closest('[data-dashboard-duplicate]');
+    if (duplicateButton) {
+      event.preventDefault();
+      handleDashboardProjectDuplicate(
+        duplicateButton.getAttribute('data-dashboard-duplicate') || '',
+        duplicateButton.getAttribute('data-project-name') || 'saved tour'
       );
     }
   });

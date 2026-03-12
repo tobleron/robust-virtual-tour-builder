@@ -214,8 +214,8 @@ let drain = (): int => {
 }
 
 let initializeNetworkListener = () => {
-  let _unsubscribe = NetworkStatus.subscribe(online => {
-    if online {
+  let _unsubscribe = NetworkStatus.subscribeSnapshot(snapshot => {
+    if snapshot.phase === NetworkStatus.HealthyPhase {
       resume()
     } else {
       pause()

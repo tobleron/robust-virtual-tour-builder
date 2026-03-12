@@ -42,20 +42,26 @@ let useInitComplete = (~dispatch: action => unit) => {
 let useBootProject = (
   ~bootProjectData: option<JSON.t>,
   ~bootProjectSessionId: option<string>,
-  ~dispatch: action => unit,
+  ~bootProjectLabel: option<string>,
+  ~loadSavedProject: (~sessionId: string, ~projectData: JSON.t, ~label: string) => Promise.t<unit>,
 ) => {
-  React.useEffect1(() => {
-    switch bootProjectData {
-    | Some(projectData) =>
-      bootProjectSessionId->Option.forEach(id => dispatch(SetSessionId(id)))
-      dispatch(LoadProject(projectData))
+  React.useEffect3(() => {
+    switch (bootProjectData, bootProjectSessionId) {
+    | (Some(projectData), Some(sessionId)) =>
       let _ = %raw(
-        "((w) => { w.__VTB_BOOT_PROJECT_DATA__ = undefined; w.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined; })(window)"
+        "((w) => { w.__VTB_BOOT_PROJECT_DATA__ = undefined; w.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined; w.__VTB_BOOT_PROJECT_LABEL__ = undefined; })(window)"
       )
-    | None => ()
+      loadSavedProject(
+        ~sessionId,
+        ~projectData,
+        ~label=bootProjectLabel->Option.getOr("saved tour"),
+      )
+      ->Promise.catch(_ => Promise.resolve())
+      ->ignore
+    | _ => ()
     }
     None
-  }, [dispatch])
+  }, (bootProjectData, bootProjectSessionId, bootProjectLabel))
 }
 
 let useExposeState = (~state: state) => {

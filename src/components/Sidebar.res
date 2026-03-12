@@ -11,6 +11,7 @@ let resetAndStartNewProject = () => {
     %raw(`(() => {
     window.__VTB_BOOT_PROJECT_DATA__ = undefined
     window.__VTB_BOOT_PROJECT_SESSION_ID__ = undefined
+    window.__VTB_BOOT_PROJECT_LABEL__ = undefined
   })()`),
   )
   assignLocation("/builder")

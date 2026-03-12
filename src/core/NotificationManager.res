@@ -149,13 +149,13 @@ let dispatch = (notif: notification): unit => {
   switch existingByContext {
   | Some(existing) =>
     let refreshed = {
-      ...existing,
+      ...withId,
+      id: existing.id,
       createdAt: Date.now(),
-      duration: withId.duration,
     }
     state := upsertById(refreshed, state.contents)
     cancelTimer(existing.id)
-    scheduleAutoDismiss(existing.id, withId.duration)
+    scheduleAutoDismiss(existing.id, refreshed.duration)
     Logger.info(
       ~module_="NotificationManager",
       ~message="REFRESHING_NOTIFICATION",

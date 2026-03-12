@@ -156,4 +156,37 @@ describe("NotificationManager", () => {
 
     unsub2()
   })
+
+  test("refresh by context updates details and action payload", t => {
+    clear()
+
+    let initial = {
+      ...makeNotif(NotificationTypes.Warning, "Connectivity issue"),
+      id: "connectivity-toast",
+      context: NotificationTypes.SystemEvent("connectivity"),
+      details: Some("Retrying in 5s."),
+      action: Some({
+        label: "Retry now",
+        onClick: () => (),
+        shortcut: None,
+      }),
+      duration: 0,
+    }
+
+    let refreshed = {
+      ...initial,
+      details: Some("Retrying in 2s."),
+    }
+
+    NotificationManager.dispatch(initial)
+    NotificationManager.dispatch(refreshed)
+
+    let state = NotificationManager.getState()
+    let active = Belt.Array.concat(state.active, state.pending)
+    let notif = Belt.Array.get(active, 0)->Option.getOrThrow
+
+    t->expect(Belt.Array.length(active))->Expect.toBe(1)
+    t->expect(notif.details)->Expect.toEqual(Some("Retrying in 2s."))
+    t->expect(notif.action->Option.map(action => action.label))->Expect.toEqual(Some("Retry now"))
+  })
 })
