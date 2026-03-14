@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fix compact mobile landscape export viewport classification
+- Checkpoint before task 1879
 
 ## [5.2.5] - 2026-03-11
 
