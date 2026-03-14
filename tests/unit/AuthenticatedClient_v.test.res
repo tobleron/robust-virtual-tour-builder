@@ -148,11 +148,13 @@ describe("AuthenticatedClient", () => {
     unsubscribe()
   })
 
-  testAsync("502 recovery uses shared connectivity state instead of api incident toasts", async t => {
-    Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
+  testAsync(
+    "502 recovery uses shared connectivity state instead of api incident toasts",
+    async t => {
+      Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
 
-    let fetchMock = %raw("global.fetch")
-    let _ = %raw(`function(m){
+      let fetchMock = %raw("global.fetch")
+      let _ = %raw(`function(m){
       m.mockResolvedValueOnce({
         ok: false,
         status: 502,
@@ -168,28 +170,28 @@ describe("AuthenticatedClient", () => {
       })
     }`)(fetchMock)
 
-    let retryConfig: Retry.config = {
-      maxRetries: 2,
-      initialDelayMs: 1,
-      maxDelayMs: 10,
-      backoffMultiplier: 1.0,
-      jitter: false,
-      totalDeadlineMs: 500,
-    }
+      let retryConfig: Retry.config = {
+        maxRetries: 2,
+        initialDelayMs: 1,
+        maxDelayMs: 10,
+        backoffMultiplier: 1.0,
+        jitter: false,
+        totalDeadlineMs: 500,
+      }
 
-    let result = await AuthenticatedClient.requestWithRetry("/test-502", ~retryConfig, ())
-    switch result {
-    | Retry.Success(_, attempts) => t->expect(attempts)->Expect.toBe(2)
-    | Retry.Exhausted(_) => t->expect(true)->Expect.toBe(false)
-    }
+      let result = await AuthenticatedClient.requestWithRetry("/test-502", ~retryConfig, ())
+      switch result {
+      | Retry.Success(_, attempts) => t->expect(attempts)->Expect.toBe(2)
+      | Retry.Exhausted(_) => t->expect(true)->Expect.toBe(false)
+      }
 
-    let notifications = NotificationManager.getState()
-    let visible = Belt.Array.concat(notifications.active, notifications.pending)
-    let hasApiIncident =
-      visible->Belt.Array.some(n => String.includes(n.id, "api-incident-"))
-    t->expect(hasApiIncident)->Expect.toBe(false)
-    t->expect(NetworkStatus.getSnapshot().phase)->Expect.toBe(NetworkStatus.HealthyPhase)
-  })
+      let notifications = NotificationManager.getState()
+      let visible = Belt.Array.concat(notifications.active, notifications.pending)
+      let hasApiIncident = visible->Belt.Array.some(n => String.includes(n.id, "api-incident-"))
+      t->expect(hasApiIncident)->Expect.toBe(false)
+      t->expect(NetworkStatus.getSnapshot().phase)->Expect.toBe(NetworkStatus.HealthyPhase)
+    },
+  )
 
   testAsync("retries on 429 and succeeds", async t => {
     Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")

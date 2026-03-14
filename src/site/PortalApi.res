@@ -20,13 +20,9 @@ type signInPayload = {
   message: option<string>,
 }
 
-type okPayload = {
-  ok: bool,
-}
+type okPayload = {ok: bool}
 
-type sessionUser = {
-  email: option<string>,
-}
+type sessionUser = {email: option<string>}
 
 let devHosts = Belt.Set.String.fromArray(["localhost", "127.0.0.1", "0.0.0.0"])
 
@@ -44,9 +40,9 @@ let adminSessionDecoder = Decode.object((field): adminSession => {
   authenticated: field.optional("authenticated", Decode.bool)->Option.getOr(false),
   email: field.optional(
     "user",
-    (Decode.object((inner): sessionUser => {
+    Decode.object((inner): sessionUser => {
       email: inner.optional("email", Decode.string),
-    })),
+    }),
   )->Option.flatMap(result => result.email),
 })
 
@@ -86,13 +82,13 @@ let decodeResponse = (response, decoder) =>
   })
 
 let decodeErrorResponse = response =>
-  Fetch.json(response)->Promise.then(json => {
+  Fetch.json(response)
+  ->Promise.then(json => {
     let message =
       maybeErrorMessage(json)->Option.getOr("HTTP_" ++ Belt.Int.toString(Fetch.status(response)))
     Promise.resolve(message)
-  })->Promise.catch(_ =>
-    Promise.resolve("HTTP_" ++ Belt.Int.toString(Fetch.status(response)))
-  )
+  })
+  ->Promise.catch(_ => Promise.resolve("HTTP_" ++ Belt.Int.toString(Fetch.status(response))))
 
 let request = async (
   url: string,
@@ -114,20 +110,10 @@ let request = async (
   | (Some(body), _) =>
     await Fetch.fetch(
       url,
-      Fetch.requestInit(
-        ~method,
-        ~body=JsonCombinators.Json.stringify(body),
-        ~headers,
-        (),
-      ),
+      Fetch.requestInit(~method, ~body=JsonCombinators.Json.stringify(body), ~headers, ()),
     )
-  | (None, Some(fd)) =>
-    await Fetch.fetch(
-      url,
-      Fetch.requestInit(~method, ~body=fd, ~headers, ()),
-    )
-  | (None, None) =>
-    await Fetch.fetch(url, Fetch.requestInit(~method, ~headers, ()))
+  | (None, Some(fd)) => await Fetch.fetch(url, Fetch.requestInit(~method, ~body=fd, ~headers, ()))
+  | (None, None) => await Fetch.fetch(url, Fetch.requestInit(~method, ~headers, ()))
   }
 
   if Fetch.ok(response) {
@@ -146,10 +132,7 @@ let getAdminSession = async () => {
 }
 
 let signInAdmin = async (~email, ~password) => {
-  let body = Encode.object([
-    ("email", Encode.string(email)),
-    ("password", Encode.string(password)),
-  ])
+  let body = Encode.object([("email", Encode.string(email)), ("password", Encode.string(password))])
   switch await request(
     "/api/auth/signin",
     ~method="POST",
@@ -207,18 +190,9 @@ let updateSettings = async (~settings: PortalTypes.settings) => {
   let body = Encode.object([
     ("renewalHeading", Encode.string(settings.renewalHeading)),
     ("renewalMessage", Encode.string(settings.renewalMessage)),
-    (
-      "contactEmail",
-      Encode.option(Encode.string)(settings.contactEmail),
-    ),
-    (
-      "contactPhone",
-      Encode.option(Encode.string)(settings.contactPhone),
-    ),
-    (
-      "whatsappNumber",
-      Encode.option(Encode.string)(settings.whatsappNumber),
-    ),
+    ("contactEmail", Encode.option(Encode.string)(settings.contactEmail)),
+    ("contactPhone", Encode.option(Encode.string)(settings.contactPhone)),
+    ("whatsappNumber", Encode.option(Encode.string)(settings.whatsappNumber)),
   ])
   await request(
     "/api/portal/admin/settings",
@@ -243,10 +217,20 @@ let listLibraryTours = async () =>
     ~authenticated=true,
   )
 
+let encodeRecipientType = (recipientType: PortalTypes.recipientType) =>
+  Encode.string(
+    switch recipientType {
+    | PortalTypes.PropertyOwner => "property_owner"
+    | PortalTypes.Broker => "broker"
+    | PortalTypes.PropertyOwnerBroker => "property_owner_broker"
+    },
+  )
+
 let createCustomer = async (
   ~slug,
   ~displayName,
   ~expiresAt,
+  ~recipientType,
   ~contactName,
   ~contactEmail,
   ~contactPhone,
@@ -255,6 +239,7 @@ let createCustomer = async (
     ("slug", Encode.string(slug)),
     ("displayName", Encode.string(displayName)),
     ("expiresAt", Encode.string(expiresAt)),
+    ("recipientType", encodeRecipientType(recipientType)),
     ("contactName", Encode.option(Encode.string)(contactName)),
     ("contactEmail", Encode.option(Encode.string)(contactEmail)),
     ("contactPhone", Encode.option(Encode.string)(contactPhone)),
@@ -271,6 +256,7 @@ let createCustomer = async (
 let updateCustomer = async (
   ~customerId,
   ~displayName,
+  ~recipientType,
   ~contactName,
   ~contactEmail,
   ~contactPhone,
@@ -278,6 +264,7 @@ let updateCustomer = async (
 ) => {
   let body = Encode.object([
     ("displayName", Encode.string(displayName)),
+    ("recipientType", encodeRecipientType(recipientType)),
     ("contactName", Encode.option(Encode.string)(contactName)),
     ("contactEmail", Encode.option(Encode.string)(contactEmail)),
     ("contactPhone", Encode.option(Encode.string)(contactPhone)),
@@ -337,6 +324,20 @@ let unassignTour = async (~customerId, ~tourId) =>
     ~decoder=PortalTypes.customerOverviewDecoder,
     ~authenticated=true,
   )
+
+let bulkAssignTours = async (~customerIds, ~tourIds) => {
+  let body = Encode.object([
+    ("customerIds", Encode.array(Encode.string)(customerIds)),
+    ("tourIds", Encode.array(Encode.string)(tourIds)),
+  ])
+  await request(
+    "/api/portal/admin/assignments/bulk",
+    ~method="POST",
+    ~jsonBody=?Some(body),
+    ~decoder=PortalTypes.bulkAssignmentResultDecoder,
+    ~authenticated=true,
+  )
+}
 
 let updateTourStatus = async (~tourId, ~status) => {
   let body = Encode.object([("status", Encode.string(status))])

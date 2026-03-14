@@ -36,10 +36,7 @@ let reasonDetails = (reason: NetworkStatus.statusReason): string =>
   | NetworkStatus.TransportFailure(message) => "Transport failure: " ++ message
   }
 
-let toastDetailsForSnapshot = (
-  snapshot: NetworkStatus.statusSnapshot,
-  ~now: float,
-): string => {
+let toastDetailsForSnapshot = (snapshot: NetworkStatus.statusSnapshot, ~now: float): string => {
   let retryText = switch secondsUntilRetry(snapshot, now) {
   | Some(seconds) =>
     if seconds <= 0 {
@@ -56,21 +53,23 @@ let toastDetailsForSnapshot = (
   | _ => reasonDetails(snapshot.reason)
   }
 
-  let attemptText =
-    if snapshot.attempt > 0 && snapshot.phase !== NetworkStatus.RateLimitedPhase {
-      " Attempt " ++ Belt.Int.toString(snapshot.attempt) ++ "."
-    } else {
-      ""
-    }
+  let attemptText = if snapshot.attempt > 0 && snapshot.phase !== NetworkStatus.RateLimitedPhase {
+    " Attempt " ++ Belt.Int.toString(snapshot.attempt) ++ "."
+  } else {
+    ""
+  }
 
   reasonText ++ " " ++ retryText ++ attemptText
 }
 
-let toastImportanceForSnapshot = (snapshot: NetworkStatus.statusSnapshot): NotificationTypes.importance =>
+let toastImportanceForSnapshot = (
+  snapshot: NetworkStatus.statusSnapshot,
+): NotificationTypes.importance =>
   switch snapshot.phase {
   | NetworkStatus.RateLimitedPhase => NotificationTypes.Info
   | NetworkStatus.BrowserOfflinePhase
-  | NetworkStatus.RecoveringPhase => NotificationTypes.Warning
+  | NetworkStatus.RecoveringPhase =>
+    NotificationTypes.Warning
   | NetworkStatus.HealthyPhase => NotificationTypes.Success
   }
 

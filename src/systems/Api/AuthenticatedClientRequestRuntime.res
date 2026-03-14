@@ -22,9 +22,7 @@ let probeHealth = async (~lastState, ~domainBreaker, ~signalScope: requestSignal
           ->Option.flatMap(Belt.Int.fromString)
           ->Option.getOr(10)
         NetworkStatus.reportRateLimited(~retryAfterSeconds=retryAfter)
-      } else if
-        probeRes.status == 502 || probeRes.status == 503 || probeRes.status == 504
-      {
+      } else if probeRes.status == 502 || probeRes.status == 503 || probeRes.status == 504 {
         NetworkStatus.reportBackendUnavailable(
           ~status=probeRes.status,
           ~statusText=probeRes.statusText,
@@ -129,7 +127,11 @@ let classifyException = (
     }
   } else {
     CircuitBreaker.recordFailure(domainBreaker)
-    let errorMessage = if msg == "" { "Unknown Error" } else { msg }
+    let errorMessage = if msg == "" {
+      "Unknown Error"
+    } else {
+      msg
+    }
     NetworkStatus.reportTransportFailure(~message=errorMessage)
     if msg == "" {
       "Unknown Error"

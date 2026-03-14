@@ -10,8 +10,9 @@ use sqlx::SqlitePool;
 
 use crate::models::{AppError, User};
 use crate::services::portal::{
-    self, AssignPortalTourInput, CreatePortalCustomerInput, PortalLibraryTour,
-    RegeneratePortalAccessLinkInput, UpdatePortalCustomerInput, UpdatePortalSettingsInput,
+    self, AssignPortalTourInput, BulkAssignPortalToursInput, CreatePortalCustomerInput,
+    PortalLibraryTour, RegeneratePortalAccessLinkInput, UpdatePortalCustomerInput,
+    UpdatePortalSettingsInput,
 };
 
 const PORTAL_SESSION_ACCESS_LINK_ID: &str = "portal_access_link_id";
@@ -167,10 +168,14 @@ fn store_portal_session(
 ) -> Result<(), AppError> {
     session
         .insert(PORTAL_SESSION_ACCESS_LINK_ID, access_link_id)
-        .map_err(|error| AppError::InternalError(format!("Portal session write failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal session write failed: {}", error))
+        })?;
     session
         .insert(PORTAL_SESSION_CUSTOMER_SLUG, customer_slug.to_string())
-        .map_err(|error| AppError::InternalError(format!("Portal session write failed: {}", error)))?;
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal session write failed: {}", error))
+        })?;
     Ok(())
 }
 
@@ -315,6 +320,18 @@ pub async fn admin_unassign_customer_tour(
     Ok(HttpResponse::Ok().json(overview))
 }
 
+pub async fn admin_bulk_assign_tours(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<BulkAssignPortalToursInput>,
+) -> Result<HttpResponse, AppError> {
+    let admin = require_portal_admin(&req)?;
+    let result =
+        portal::bulk_assign_tours_to_customers(pool.get_ref(), payload.into_inner(), Some(&admin))
+            .await?;
+    Ok(HttpResponse::Ok().json(result))
+}
+
 pub async fn admin_regenerate_access_link(
     req: HttpRequest,
     pool: web::Data<SqlitePool>,
@@ -401,9 +418,13 @@ pub async fn customer_session(
 ) -> Result<HttpResponse, AppError> {
     let access_link_id = ensure_slug_matches_session(&session, &path.slug)?;
     let public_base_url = portal_public_base_url(&req);
-    let view =
-        portal::load_customer_session(pool.get_ref(), &path.slug, &access_link_id, &public_base_url)
-            .await?;
+    let view = portal::load_customer_session(
+        pool.get_ref(),
+        &path.slug,
+        &access_link_id,
+        &public_base_url,
+    )
+    .await?;
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "authenticated": true,
         "session": view,
@@ -445,7 +466,7 @@ pub async fn customer_tour_launch(
         Err(AppError::Unauthorized(_)) => {
             return Ok(HttpResponse::Found()
                 .append_header((header::LOCATION, format!("/u/{}", path.slug)))
-                .finish())
+                .finish());
         }
         Err(error) => return Err(error),
     };
@@ -546,7 +567,8 @@ pub async fn user_access_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } if customer_slug == requested_slug => {
-            let (_, access_link_id) = portal::access_session_for_token(pool.get_ref(), &path.token).await?;
+            let (_, access_link_id) =
+                portal::access_session_for_token(pool.get_ref(), &path.token).await?;
             store_portal_session(&session, access_link_id, &customer_slug)?;
             Ok(HttpResponse::Found()
                 .append_header((header::LOCATION, format!("/u/{}", customer_slug)))
@@ -556,7 +578,10 @@ pub async fn user_access_redirect(
             customer_slug: Some(customer_slug),
             allowed: false,
         } if customer_slug == requested_slug => Ok(HttpResponse::Found()
-            .append_header((header::LOCATION, format!("/u/{}?access=expired", customer_slug)))
+            .append_header((
+                header::LOCATION,
+                format!("/u/{}?access=expired", customer_slug),
+            ))
             .finish()),
         _ => Ok(HttpResponse::Found()
             .append_header((header::LOCATION, "/?access=invalid"))
@@ -620,17 +645,24 @@ pub async fn user_tour_access_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } if customer_slug == requested_slug => {
-            let (_, access_link_id) = portal::access_session_for_token(pool.get_ref(), &path.token).await?;
+            let (_, access_link_id) =
+                portal::access_session_for_token(pool.get_ref(), &path.token).await?;
             store_portal_session(&session, access_link_id, &customer_slug)?;
             Ok(HttpResponse::Found()
-                .append_header((header::LOCATION, safe_tour_path(&customer_slug, &path.tour_slug)))
+                .append_header((
+                    header::LOCATION,
+                    safe_tour_path(&customer_slug, &path.tour_slug),
+                ))
                 .finish())
         }
         portal::PortalAccessRedirect {
             customer_slug: Some(customer_slug),
             allowed: false,
         } if customer_slug == requested_slug => Ok(HttpResponse::Found()
-            .append_header((header::LOCATION, format!("/u/{}?access=expired", customer_slug)))
+            .append_header((
+                header::LOCATION,
+                format!("/u/{}?access=expired", customer_slug),
+            ))
             .finish()),
         _ => Ok(HttpResponse::Found()
             .append_header((header::LOCATION, "/?access=invalid"))

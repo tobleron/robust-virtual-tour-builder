@@ -6,9 +6,9 @@ use actix_web::web;
 
 use super::{auth, health, portal};
 #[cfg(feature = "builder-runtime")]
-use super::{telemetry, utils};
-#[cfg(feature = "builder-runtime")]
 use super::{geocoding, media, project, project_export, project_import};
+#[cfg(feature = "builder-runtime")]
+use super::{telemetry, utils};
 
 #[cfg(feature = "builder-runtime")]
 pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
@@ -228,6 +228,10 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .route(
                                 "/customers/{customer_id}/assignments/{tour_id}",
                                 web::delete().to(portal::admin_unassign_customer_tour),
+                            )
+                            .route(
+                                "/assignments/bulk",
+                                web::post().to(portal::admin_bulk_assign_tours),
                             )
                             .route("/tours", web::get().to(portal::admin_list_library_tours))
                             .route(
@@ -489,7 +493,10 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
         "/u/{slug}/tour/{tour_slug}",
         web::get().to(portal::customer_tour_launch),
     );
-    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
+    cfg.route(
+        "/u/{slug}/{token}",
+        web::get().to(portal::user_access_redirect),
+    );
     cfg.route(
         "/u/{slug}/{token}/tour/{tour_slug}",
         web::get().to(portal::user_tour_access_redirect),
@@ -589,6 +596,10 @@ pub(super) fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &Rate
                                 "/customers/{customer_id}/assignments/{tour_id}",
                                 web::delete().to(portal::admin_unassign_customer_tour),
                             )
+                            .route(
+                                "/assignments/bulk",
+                                web::post().to(portal::admin_bulk_assign_tours),
+                            )
                             .route("/tours", web::get().to(portal::admin_list_library_tours))
                             .route(
                                 "/tours/upload",
@@ -649,7 +660,10 @@ pub(super) fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &Rate
         "/u/{slug}/tour/{tour_slug}",
         web::get().to(portal::customer_tour_launch),
     );
-    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
+    cfg.route(
+        "/u/{slug}/{token}",
+        web::get().to(portal::user_access_redirect),
+    );
     cfg.route(
         "/u/{slug}/{token}/tour/{tour_slug}",
         web::get().to(portal::user_tour_access_redirect),

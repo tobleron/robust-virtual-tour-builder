@@ -9,7 +9,9 @@ let _ = describe("TourTemplateStyles", () => {
 
     t->expect(String.includes(css, "scene1.jpg"))->Expect.toBe(true)
     t->expect(String.includes(css, "width: 1024px"))->Expect.toBe(true)
-    t->expect(String.includes(css, "body.export-state-tablet #stage { width: 640px"))->Expect.toBe(false)
+    t
+    ->expect(String.includes(css, "body.export-state-tablet #stage { width: 640px"))
+    ->Expect.toBe(false)
     t
     ->expect(
       String.includes(
@@ -61,9 +63,7 @@ let _ = describe("TourTemplateStyles", () => {
     )
     ->Expect.toBe(true)
     t
-    ->expect(
-      String.includes(css, "body.is-hd-export #viewer-floor-nav-export .floor-nav-btn"),
-    )
+    ->expect(String.includes(css, "body.is-hd-export #viewer-floor-nav-export .floor-nav-btn"))
     ->Expect.toBe(true)
     t->expect(String.includes(css, "height: 24px"))->Expect.toBe(true)
     t
@@ -201,7 +201,12 @@ let _ = describe("TourTemplateStyles", () => {
     )
     ->Expect.toBe(true)
     t
-    ->expect(String.includes(css, "width: var(--export-touch-orb-size); height: var(--export-touch-orb-size);"))
+    ->expect(
+      String.includes(
+        css,
+        "width: var(--export-touch-orb-size); height: var(--export-touch-orb-size);",
+      ),
+    )
     ->Expect.toBe(true)
     t
     ->expect(
@@ -268,7 +273,12 @@ let _ = describe("TourTemplateStyles", () => {
     )
     ->Expect.toBe(true)
     t
-    ->expect(String.includes(css, "portrait-joystick-icon { width: var(--export-touch-orb-icon-size); height: var(--export-touch-orb-icon-size)"))
+    ->expect(
+      String.includes(
+        css,
+        "portrait-joystick-icon { width: var(--export-touch-orb-icon-size); height: var(--export-touch-orb-icon-size)",
+      ),
+    )
     ->Expect.toBe(true)
     t
     ->expect(String.includes(css, "filter: grayscale(1) blur(6px) brightness(0.82);"))

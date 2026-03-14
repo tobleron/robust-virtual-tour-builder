@@ -250,8 +250,7 @@ let generateTourHTML = (
     exportType == "desktop_blob_2k_landscape_touch" ||
     exportType == "desktop_blob_4k_landscape_touch"
   let forcedExportInteractionShell = switch exportType {
-  | "desktop_blob_hd_landscape_touch" | "desktop_blob_2k_landscape_touch" =>
-    "landscape-touch"
+  | "desktop_blob_hd_landscape_touch" | "desktop_blob_2k_landscape_touch" => "landscape-touch"
   | "desktop_blob_4k_landscape_touch" => "landscape-touch"
   | _ => ""
   }

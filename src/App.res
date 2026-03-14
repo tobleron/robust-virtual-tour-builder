@@ -7,10 +7,9 @@ module InnerApp = {
     @val external window: t = "window"
     @set external setLoadProject: (t, JSON.t => unit) => unit = "__VTB_LOAD_PROJECT__"
     @set external setSessionId: (t, string => unit) => unit = "__VTB_SET_SESSION_ID__"
-    @set external setLoadSavedProject: (
-      t,
-      (string, JSON.t, string) => Promise.t<unit>,
-    ) => unit = "__VTB_LOAD_SAVED_PROJECT__"
+    @set
+    external setLoadSavedProject: (t, (string, JSON.t, string) => Promise.t<unit>) => unit =
+      "__VTB_LOAD_SAVED_PROJECT__"
   }
 
   @val external bootProjectData: option<JSON.t> = "window.__VTB_BOOT_PROJECT_DATA__"
@@ -200,8 +199,7 @@ module InnerApp = {
       </AppErrorBoundary>
 
       <AppErrorBoundary
-        featureName="ViewerSurface"
-        fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
+        featureName="ViewerSurface" fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
       >
         <main
           id="viewer-container"
@@ -240,8 +238,7 @@ module InnerApp = {
             <NotificationCenter />
           </div>
 
-          {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) ==
-              0 {
+          {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) == 0 {
             <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
               <h3> {React.string("Ready to build.")} </h3>
             </div>

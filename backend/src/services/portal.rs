@@ -8,7 +8,7 @@ use image::{DynamicImage, Rgba, RgbaImage};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{FromRow, QueryBuilder, SqlitePool};
 use uuid::Uuid;
 use zip::ZipArchive;
 
@@ -20,6 +20,9 @@ const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
 const PORTAL_ACCESS_CODE_ALPHABET: &[u8; 62] =
     b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const PORTAL_ACCESS_CODE_LEN: usize = 7;
+const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER: &str = "property_owner";
+const PORTAL_RECIPIENT_TYPE_BROKER: &str = "broker";
+const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER_BROKER: &str = "property_owner_broker";
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +30,7 @@ pub struct PortalCustomer {
     pub id: String,
     pub slug: String,
     pub display_name: String,
+    pub recipient_type: String,
     pub contact_name: Option<String>,
     pub contact_email: Option<String>,
     pub contact_phone: Option<String>,
@@ -67,6 +71,7 @@ struct AccessTokenLookupRow {
     customer_id: String,
     customer_slug: String,
     customer_display_name: String,
+    customer_recipient_type: String,
     customer_contact_name: Option<String>,
     customer_contact_email: Option<String>,
     customer_contact_phone: Option<String>,
@@ -213,6 +218,7 @@ pub struct CreatePortalCustomerInput {
     pub slug: String,
     pub display_name: String,
     pub expires_at: String,
+    pub recipient_type: String,
     pub contact_name: Option<String>,
     pub contact_email: Option<String>,
     pub contact_phone: Option<String>,
@@ -222,6 +228,7 @@ pub struct CreatePortalCustomerInput {
 #[serde(rename_all = "camelCase")]
 pub struct UpdatePortalCustomerInput {
     pub display_name: String,
+    pub recipient_type: String,
     pub contact_name: Option<String>,
     pub contact_email: Option<String>,
     pub contact_phone: Option<String>,
@@ -250,6 +257,23 @@ pub struct AssignPortalTourInput {
     pub tour_id: String,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkAssignPortalToursInput {
+    pub customer_ids: Vec<String>,
+    pub tour_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalBulkAssignmentResult {
+    pub customer_ids: Vec<String>,
+    pub tour_ids: Vec<String>,
+    pub requested_count: i64,
+    pub created_count: i64,
+    pub skipped_count: i64,
+}
+
 pub fn portal_storage_root() -> PathBuf {
     std::env::var("PORTAL_STORAGE_ROOT")
         .map(PathBuf::from)
@@ -274,6 +298,18 @@ pub fn validate_slug(raw: &str) -> Result<String, AppError> {
         ));
     }
     Ok(normalized)
+}
+
+pub fn normalize_recipient_type(raw: &str) -> Result<String, AppError> {
+    let normalized = raw.trim().to_ascii_lowercase();
+    match normalized.as_str() {
+        PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER
+        | PORTAL_RECIPIENT_TYPE_BROKER
+        | PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER_BROKER => Ok(normalized),
+        _ => Err(AppError::ValidationError(
+            "Recipient type must be property_owner, broker, or property_owner_broker.".into(),
+        )),
+    }
 }
 
 pub fn parse_expiry(raw: &str) -> Result<DateTime<Utc>, AppError> {
@@ -396,7 +432,10 @@ fn inject_base_href(document: String, base_href: &str) -> String {
 
 fn boost_portal_launch_branding(document: String) -> String {
     document
-        .replace("const LOGO_AREA_RATIO = 0.008;", "const LOGO_AREA_RATIO = 0.012;")
+        .replace(
+            "const LOGO_AREA_RATIO = 0.008;",
+            "const LOGO_AREA_RATIO = 0.012;",
+        )
         .replace(
             "const LOGO_WIDTH_CAP_RATIO = 0.13;",
             "const LOGO_WIDTH_CAP_RATIO = 0.17;",
@@ -417,6 +456,74 @@ fn boost_portal_launch_branding(document: String) -> String {
             "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;",
             "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.12;",
         )
+}
+
+fn dedupe_ids(ids: Vec<String>) -> Vec<String> {
+    let mut deduped = Vec::with_capacity(ids.len());
+    for id in ids {
+        if !deduped.iter().any(|existing| existing == &id) {
+            deduped.push(id);
+        }
+    }
+    deduped
+}
+
+async fn validate_existing_customer_ids(
+    pool: &SqlitePool,
+    customer_ids: &[String],
+) -> Result<(), AppError> {
+    let mut builder: QueryBuilder<'_, sqlx::Sqlite> =
+        QueryBuilder::new("SELECT id FROM portal_customers WHERE id IN (");
+    let mut separated = builder.separated(", ");
+    for customer_id in customer_ids {
+        separated.push_bind(customer_id);
+    }
+    separated.push_unseparated(")");
+
+    let existing = builder
+        .build_query_scalar::<String>()
+        .fetch_all(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal customer validation failed: {}", error))
+        })?;
+
+    if existing.len() != customer_ids.len() {
+        return Err(AppError::ValidationError(
+            "One or more selected recipients no longer exist.".into(),
+        ));
+    }
+
+    Ok(())
+}
+
+async fn validate_existing_tour_ids(
+    pool: &SqlitePool,
+    tour_ids: &[String],
+) -> Result<(), AppError> {
+    let mut builder: QueryBuilder<'_, sqlx::Sqlite> =
+        QueryBuilder::new("SELECT id FROM portal_library_tours WHERE id IN (");
+    let mut separated = builder.separated(", ");
+    for tour_id in tour_ids {
+        separated.push_bind(tour_id);
+    }
+    separated.push_unseparated(")");
+
+    let existing = builder
+        .build_query_scalar::<String>()
+        .fetch_all(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal tour validation failed: {}", error))
+        })?;
+
+    if existing.len() != tour_ids.len() {
+        return Err(AppError::ValidationError(
+            "One or more selected tours no longer exist.".into(),
+        ));
+    }
+
+    Ok(())
 }
 
 fn admin_access_link_summary(
@@ -726,6 +833,7 @@ pub async fn create_customer(
 ) -> Result<PortalCustomerCreateResult, AppError> {
     let slug = validate_slug(&input.slug)?;
     let display_name = input.display_name.trim().to_string();
+    let recipient_type = normalize_recipient_type(&input.recipient_type)?;
     let expires_at = parse_expiry(&input.expires_at)?;
     if display_name.is_empty() {
         return Err(AppError::ValidationError(
@@ -742,13 +850,14 @@ pub async fn create_customer(
     sqlx::query(
         r#"
         INSERT INTO portal_customers (
-            id, slug, display_name, contact_name, contact_email, contact_phone, renewal_message, is_active, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, NULL, 1, ?, ?)
+            id, slug, display_name, recipient_type, contact_name, contact_email, contact_phone, renewal_message, is_active, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 1, ?, ?)
         "#,
     )
     .bind(&customer_id)
     .bind(&slug)
     .bind(&display_name)
+    .bind(&recipient_type)
     .bind(input.contact_name.as_deref())
     .bind(input.contact_email.as_deref())
     .bind(input.contact_phone.as_deref())
@@ -765,7 +874,7 @@ pub async fn create_customer(
         actor.map(|value| value.id.as_str()),
         Some(&customer_id),
         "portal_customer_created",
-        serde_json::json!({"slug": slug, "expiresAt": expires_at}),
+        serde_json::json!({"slug": slug, "recipientType": recipient_type, "expiresAt": expires_at}),
     )
     .await?;
 
@@ -807,6 +916,7 @@ pub async fn update_customer(
     public_base_url: &str,
 ) -> Result<PortalCustomerOverview, AppError> {
     let display_name = input.display_name.trim().to_string();
+    let recipient_type = normalize_recipient_type(&input.recipient_type)?;
     if display_name.is_empty() {
         return Err(AppError::ValidationError(
             "Customer display name is required.".into(),
@@ -817,11 +927,12 @@ pub async fn update_customer(
     sqlx::query(
         r#"
         UPDATE portal_customers
-        SET display_name = ?, contact_name = ?, contact_email = ?, contact_phone = ?, is_active = ?, updated_at = ?
+        SET display_name = ?, recipient_type = ?, contact_name = ?, contact_email = ?, contact_phone = ?, is_active = ?, updated_at = ?
         WHERE id = ?
         "#,
     )
     .bind(&display_name)
+    .bind(&recipient_type)
     .bind(input.contact_name.as_deref())
     .bind(input.contact_email.as_deref())
     .bind(input.contact_phone.as_deref())
@@ -837,7 +948,7 @@ pub async fn update_customer(
         actor.map(|value| value.id.as_str()),
         Some(customer_id),
         "portal_customer_updated",
-        serde_json::json!({"isActive": input.is_active}),
+        serde_json::json!({"recipientType": recipient_type, "isActive": input.is_active}),
     )
     .await?;
 
@@ -1123,6 +1234,92 @@ pub async fn unassign_tour_from_customer(
     build_customer_overview(pool, customer, public_base_url).await
 }
 
+pub async fn bulk_assign_tours_to_customers(
+    pool: &SqlitePool,
+    input: BulkAssignPortalToursInput,
+    actor: Option<&User>,
+) -> Result<PortalBulkAssignmentResult, AppError> {
+    let customer_ids = dedupe_ids(input.customer_ids);
+    let tour_ids = dedupe_ids(input.tour_ids);
+
+    if customer_ids.is_empty() {
+        return Err(AppError::ValidationError(
+            "Select at least one recipient before assigning tours.".into(),
+        ));
+    }
+
+    if tour_ids.is_empty() {
+        return Err(AppError::ValidationError(
+            "Select at least one tour before assigning recipients.".into(),
+        ));
+    }
+
+    validate_existing_customer_ids(pool, &customer_ids).await?;
+    validate_existing_tour_ids(pool, &tour_ids).await?;
+
+    let customer_count = i64::try_from(customer_ids.len())
+        .map_err(|_| AppError::InternalError("Recipient count overflow.".into()))?;
+    let tour_count = i64::try_from(tour_ids.len())
+        .map_err(|_| AppError::InternalError("Tour count overflow.".into()))?;
+    let requested_count = customer_count
+        .checked_mul(tour_count)
+        .ok_or_else(|| AppError::InternalError("Assignment count overflow.".into()))?;
+
+    let mut tx = pool.begin().await.map_err(|error| {
+        AppError::InternalError(format!("Portal bulk-assign transaction failed: {}", error))
+    })?;
+
+    let mut created_count = 0_i64;
+    let now = Utc::now();
+    for customer_id in &customer_ids {
+        for tour_id in &tour_ids {
+            let result = sqlx::query(
+                r#"
+                INSERT OR IGNORE INTO portal_customer_tour_assignments (id, customer_id, tour_id, created_at)
+                VALUES (?, ?, ?, ?)
+                "#,
+            )
+            .bind(Uuid::new_v4().to_string())
+            .bind(customer_id)
+            .bind(tour_id)
+            .bind(now)
+            .execute(&mut *tx)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal bulk assignment failed: {}", error))
+            })?;
+
+            created_count += result.rows_affected() as i64;
+        }
+    }
+
+    log_audit_event(
+        &mut tx,
+        actor.map(|value| value.id.as_str()),
+        None,
+        "portal_tours_bulk_assigned",
+        serde_json::json!({
+            "customerIds": customer_ids.clone(),
+            "tourIds": tour_ids.clone(),
+            "requestedCount": requested_count,
+            "createdCount": created_count
+        }),
+    )
+    .await?;
+
+    tx.commit().await.map_err(|error| {
+        AppError::InternalError(format!("Portal bulk-assign commit failed: {}", error))
+    })?;
+
+    Ok(PortalBulkAssignmentResult {
+        customer_ids,
+        tour_ids,
+        requested_count,
+        created_count,
+        skipped_count: requested_count - created_count,
+    })
+}
+
 async fn next_available_library_tour_slug(
     pool: &SqlitePool,
     base_slug: &str,
@@ -1393,6 +1590,7 @@ async fn resolve_access_token(
             c.id as customer_id,
             c.slug as customer_slug,
             c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
             c.contact_name as customer_contact_name,
             c.contact_email as customer_contact_email,
             c.contact_phone as customer_contact_phone,
@@ -1436,6 +1634,7 @@ async fn resolve_access_token(
         id: row.customer_id,
         slug: row.customer_slug.clone(),
         display_name: row.customer_display_name,
+        recipient_type: row.customer_recipient_type,
         contact_name: row.customer_contact_name,
         contact_email: row.customer_contact_email,
         contact_phone: row.customer_contact_phone,
@@ -1655,7 +1854,9 @@ pub async fn load_portal_launch_document(
             Some((dir, _)) => format!("/portal-assets/{}/{}/{}/", customer_slug, tour_slug, dir),
             None => format!("/portal-assets/{}/{}/", customer_slug, tour_slug),
         };
-        return Ok(boost_portal_launch_branding(inject_base_href(document, &base_href)));
+        return Ok(boost_portal_launch_branding(inject_base_href(
+            document, &base_href,
+        )));
     }
 
     Err(AppError::ValidationError(
@@ -1735,8 +1936,8 @@ fn generate_portal_cover_thumbnail(
         fs::create_dir_all(parent).map_err(AppError::IoError)?;
     }
     let cover_image = DynamicImage::ImageRgba8(output);
-    let cover_bytes = encode_portal_cover_webp(&cover_image, 82.0)
-        .map_err(AppError::ValidationError)?;
+    let cover_bytes =
+        encode_portal_cover_webp(&cover_image, 82.0).map_err(AppError::ValidationError)?;
     fs::write(destination_path, cover_bytes).map_err(AppError::IoError)?;
     Ok(())
 }

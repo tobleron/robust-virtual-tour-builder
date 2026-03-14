@@ -1,0 +1,55 @@
+{
+  "allFiles": [
+    "/static/js/index.js",
+    "/static/js/npm.rescript.runtime.js",
+    "/static/js/npm.rsbuild.core.js",
+    "/static/js/npm.react.js",
+    "/static/js/npm.react-dom.js",
+    "/static/js/npm.rspack.plugin-react-refresh.js",
+    "/static/js/npm.glennsl.rescript-json-combinators.js",
+    "/static/js/npm.scheduler.js",
+    "/static/js/npm.react-refresh.js",
+    "/index.html",
+    "/static/js/index.js.map",
+    "/static/js/npm.rescript.runtime.js.map",
+    "/static/js/npm.rsbuild.core.js.map",
+    "/static/js/npm.react.js.map",
+    "/static/js/npm.react-dom.js.map",
+    "/static/js/npm.rspack.plugin-react-refresh.js.map",
+    "/static/js/npm.glennsl.rescript-json-combinators.js.map",
+    "/static/js/npm.scheduler.js.map",
+    "/static/js/npm.react-refresh.js.map"
+  ],
+  "entries": {
+    "index": {
+      "assets": [
+        "static/js/npm.react-refresh.js.map",
+        "static/js/npm.scheduler.js.map",
+        "static/js/npm.glennsl.rescript-json-combinators.js.map",
+        "static/js/npm.rspack.plugin-react-refresh.js.map",
+        "static/js/npm.react-dom.js.map",
+        "static/js/npm.react.js.map",
+        "static/js/npm.rsbuild.core.js.map",
+        "static/js/npm.rescript.runtime.js.map",
+        "static/js/index.js.map"
+      ],
+      "html": [
+        "/index.html"
+      ],
+      "initial": {
+        "js": [
+          "/static/js/npm.rescript.runtime.js",
+          "/static/js/npm.rsbuild.core.js",
+          "/static/js/npm.react.js",
+          "/static/js/npm.react-dom.js",
+          "/static/js/npm.rspack.plugin-react-refresh.js",
+          "/static/js/npm.glennsl.rescript-json-combinators.js",
+          "/static/js/npm.scheduler.js",
+          "/static/js/npm.react-refresh.js",
+          "/static/js/index.js"
+        ]
+      }
+    }
+  },
+  "integrity": {}
+}

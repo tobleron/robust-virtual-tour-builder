@@ -24,8 +24,7 @@ use sqlx::SqlitePool;
 pub use auth_types::{
     AuthChallengeResponse, AuthPublicUser, AuthSuccessResponse, ChangePasswordPayload,
     ForgotPasswordPayload, MeResponse, ResendOtpPayload, ResendVerificationPayload,
-    ResetPasswordPayload, SignInPayload,
-    SignUpPayload, VerifyEmailPayload, VerifyOtpPayload,
+    ResetPasswordPayload, SignInPayload, SignUpPayload, VerifyEmailPayload, VerifyOtpPayload,
 };
 use auth_types::{IpReputation, LoginContext, RiskDecision, TrustedDeviceRecord};
 

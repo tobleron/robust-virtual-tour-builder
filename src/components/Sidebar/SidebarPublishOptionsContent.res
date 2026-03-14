@@ -24,10 +24,7 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
     (),
   ) => {
     onOptionsChanged({
-      selectedProfiles: buildSelectedProfiles(
-        ~includeWebPackageValue,
-        ~includeStandalone2kValue,
-      ),
+      selectedProfiles: buildSelectedProfiles(~includeWebPackageValue, ~includeStandalone2kValue),
       includeLogo: includeLogoValue,
       includeMarketing: includeMarketingValue,
     })

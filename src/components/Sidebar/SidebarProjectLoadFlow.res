@@ -193,17 +193,15 @@ let handleLoadProject = async (
 
           if !loadSettled.contents {
             switch projectDataResult {
-            | Ok((sessionId, projectData)) => {
-                await finalizeLoadedProject(
-                  ~sessionId,
-                  ~projectData,
-                  ~getState,
-                  ~dispatch,
-                  ~opId,
-                  ~loadSettled,
-                  ~finalizeStageStarted,
-                )
-              }
+            | Ok((sessionId, projectData)) => await finalizeLoadedProject(
+                ~sessionId,
+                ~projectData,
+                ~getState,
+                ~dispatch,
+                ~opId,
+                ~loadSettled,
+                ~finalizeStageStarted,
+              )
             | Error(msg) =>
               Logger.info(
                 ~module_="SidebarLogic",

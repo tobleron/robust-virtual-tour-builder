@@ -11,8 +11,8 @@ use sqlx::SqlitePool;
 use crate::models::{AppError, User};
 
 use super::{
-    ChangePasswordPayload, ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload, SignInPayload,
-    SignUpPayload, VerifyEmailPayload,
+    ChangePasswordPayload, ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload,
+    SignInPayload, SignUpPayload, VerifyEmailPayload,
 };
 
 pub(super) async fn signup(

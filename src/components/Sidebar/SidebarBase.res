@@ -2,7 +2,7 @@
 
 module SidebarTypes = {
   type publishProfile = [
-    #hd
+    | #hd
     | #k2
     | #k4
     | #standalone2k

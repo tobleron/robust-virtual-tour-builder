@@ -107,9 +107,25 @@ let script = `
       return interactionShell === "landscape-touch";
     }
     function resolveExportViewportState() {
-      const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
+      const portraitViewport = window.innerHeight > window.innerWidth;
       if (portraitViewport) return "portrait";
       return "desktop";
+    }
+    function isCompactLandscapeTouch() {
+      const interactionShell =
+        exportInteractionShell === "" ? resolveExportInteractionShell() : exportInteractionShell;
+      if (interactionShell !== "landscape-touch") return false;
+      const stage = document.getElementById("stage");
+      const stageHeight = stage?.getBoundingClientRect?.().height;
+      const effectiveStageHeight =
+        Number.isFinite(stageHeight) && stageHeight > 0 ? stageHeight : STAGE_MAX_WIDTH * (10.0 / 16.0);
+      const stageWidth = stage?.getBoundingClientRect?.().width;
+      const effectiveStageWidth =
+        Number.isFinite(stageWidth) && stageWidth > 0 ? stageWidth : STAGE_MAX_WIDTH;
+      const aspectRatio = effectiveStageWidth / effectiveStageHeight;
+      const isShortHeight = effectiveStageHeight < 420;
+      const isNarrowLandscape = aspectRatio > 1.8 && effectiveStageHeight < 480;
+      return isShortHeight || isNarrowLandscape;
     }
     function updateExportStateClasses() {
       const nextState = resolveExportViewportState();
@@ -124,11 +140,13 @@ let script = `
       const nextPortraitAdaptiveUi = nextInteractionShell === "portrait-adaptive";
       const nextLandscapeTouchUi = nextInteractionShell === "landscape-touch";
       const nextTouchFriendlyUi = nextPortraitAdaptiveUi || nextLandscapeTouchUi;
+      const nextCompactLandscape = nextLandscapeTouchUi && isCompactLandscapeTouch();
       document.body.classList.remove("export-state-desktop");
       document.body.classList.remove("export-state-portrait");
       document.body.classList.remove("is-touch-device");
       document.body.classList.remove("export-ui-portrait-adaptive");
       document.body.classList.remove("export-ui-landscape-touch");
+      document.body.classList.remove("export-ui-landscape-touch-compact");
       document.body.classList.remove("export-shell-classic");
       document.body.classList.remove("export-shell-portrait-adaptive");
       document.body.classList.remove("export-shell-landscape-touch");
@@ -142,6 +160,9 @@ let script = `
       }
       if (nextLandscapeTouchUi) {
         document.body.classList.add("export-ui-landscape-touch");
+      }
+      if (nextCompactLandscape) {
+        document.body.classList.add("export-ui-landscape-touch-compact");
       }
 
       if (typeof ensurePortraitModeSelectorForViewport === "function") {

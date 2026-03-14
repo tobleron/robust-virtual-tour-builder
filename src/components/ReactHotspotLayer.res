@@ -65,44 +65,53 @@ type projectedHotspot = {
   targetSceneId: option<string>,
 }
 
-let deriveDuplicateStackPlacements = (
-  seeds: array<duplicateStackSeed>,
-): Belt.Map.String.t<duplicateStackPlacement> => {
+let deriveDuplicateStackPlacements = (seeds: array<duplicateStackSeed>): Belt.Map.String.t<
+  duplicateStackPlacement,
+> => {
   let initialGroups: Belt.Map.String.t<duplicateTargetGroup> = Belt.Map.String.empty
   let initialPlacements: Belt.Map.String.t<duplicateStackPlacement> = Belt.Map.String.empty
-  let (_, placements) = seeds->Belt.Array.reduce(
-    (initialGroups, initialPlacements),
-    ((groups, placements), seed) =>
-      switch seed.targetSceneId {
-      | Some(targetSceneId) if targetSceneId != "" =>
-        switch groups->Belt.Map.String.get(targetSceneId) {
-        | Some(group) =>
-          let nextGroups =
-            groups->Belt.Map.String.set(targetSceneId, {
-              anchorLinkId: group.anchorLinkId,
-              nextStackIndex: group.nextStackIndex + 1,
-            })
-          let nextPlacements =
-            placements->Belt.Map.String.set(seed.linkId, {
-              anchorLinkId: group.anchorLinkId,
-              stackIndex: group.nextStackIndex,
-            })
-          (nextGroups, nextPlacements)
-        | None =>
-          let nextGroups =
-            groups->Belt.Map.String.set(targetSceneId, {
-              anchorLinkId: seed.linkId,
-              nextStackIndex: 1,
-            })
-          let nextPlacements =
-            placements->Belt.Map.String.set(seed.linkId, {
-              anchorLinkId: seed.linkId,
-              stackIndex: 0,
-            })
-          (nextGroups, nextPlacements)
-        }
-      | _ => (groups, placements)
-      },
+  let (_, placements) = seeds->Belt.Array.reduce((initialGroups, initialPlacements), (
+    (groups, placements),
+    seed,
+  ) =>
+    switch seed.targetSceneId {
+    | Some(targetSceneId) if targetSceneId != "" =>
+      switch groups->Belt.Map.String.get(targetSceneId) {
+      | Some(group) =>
+        let nextGroups = groups->Belt.Map.String.set(
+          targetSceneId,
+          {
+            anchorLinkId: group.anchorLinkId,
+            nextStackIndex: group.nextStackIndex + 1,
+          },
+        )
+        let nextPlacements = placements->Belt.Map.String.set(
+          seed.linkId,
+          {
+            anchorLinkId: group.anchorLinkId,
+            stackIndex: group.nextStackIndex,
+          },
+        )
+        (nextGroups, nextPlacements)
+      | None =>
+        let nextGroups = groups->Belt.Map.String.set(
+          targetSceneId,
+          {
+            anchorLinkId: seed.linkId,
+            nextStackIndex: 1,
+          },
+        )
+        let nextPlacements = placements->Belt.Map.String.set(
+          seed.linkId,
+          {
+            anchorLinkId: seed.linkId,
+            stackIndex: 0,
+          },
+        )
+        (nextGroups, nextPlacements)
+      }
+    | _ => (groups, placements)
+    }
   )
 
   placements
@@ -301,15 +310,16 @@ let make = React.memo(() => {
 
             let resolvedTargetSceneId = HotspotTarget.resolveSceneId(activeScenes, h)
             let coords = ProjectionMath.getScreenCoords(camState, pitch, yaw, rect)
-            let labelText = resolvedTargetSceneId->Option.flatMap(targetSceneId =>
-              activeScenes
-              ->Belt.Array.getBy(scene => scene.id == targetSceneId)
-              ->Option.map(sceneDisplayLabel)
+            let labelText = resolvedTargetSceneId->Option.flatMap(
+              targetSceneId =>
+                activeScenes
+                ->Belt.Array.getBy(scene => scene.id == targetSceneId)
+                ->Option.map(sceneDisplayLabel),
             )
             let badge = hotspotBadgeByLinkId->Belt.Map.String.get(h.linkId)
             let targetSceneNumber =
-              resolvedTargetSceneId->Option.flatMap(targetSceneId =>
-                sceneNumberBySceneId->Belt.Map.String.get(targetSceneId)
+              resolvedTargetSceneId->Option.flatMap(
+                targetSceneId => sceneNumberBySceneId->Belt.Map.String.get(targetSceneId),
               )
 
             {
@@ -341,8 +351,8 @@ let make = React.memo(() => {
               duplicateStackPlacements,
             )
             let hoveredGroupAnchorLinkId =
-              hoveredStackHotspotLinkId->Option.map(linkId =>
-                resolveDuplicateGroupAnchorLinkId(linkId, duplicateStackPlacements)
+              hoveredStackHotspotLinkId->Option.map(
+                linkId => resolveDuplicateGroupAnchorLinkId(linkId, duplicateStackPlacements),
               )
             let isHiddenByHoveredSibling = switch hoveredStackHotspotLinkId {
             | Some(hoveredLinkId) =>
@@ -386,21 +396,24 @@ let make = React.memo(() => {
                   clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
                   setHoveredStackHotspotLinkId(_ => Some(h.linkId))
                 }}
-                onMouseLeave={_ =>
-                  {
-                    clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
-                    hoveredStackRestoreTimerRef.current = Some(
-                      ReBindings.Window.setTimeout(() => {
-                        setHoveredStackHotspotLinkId(current =>
-                          switch current {
-                          | Some(currentLinkId) if currentLinkId == h.linkId => None
-                          | _ => current
-                          }
+                onMouseLeave={_ => {
+                  clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
+                  hoveredStackRestoreTimerRef.current = Some(
+                    ReBindings.Window.setTimeout(
+                      () => {
+                        setHoveredStackHotspotLinkId(
+                          current =>
+                            switch current {
+                            | Some(currentLinkId) if currentLinkId == h.linkId => None
+                            | _ => current
+                            },
                         )
                         hoveredStackRestoreTimerRef.current = None
-                      }, duplicateStackRestoreDelayMs)
-                    )
-                  }}
+                      },
+                      duplicateStackRestoreDelayMs,
+                    ),
+                  )
+                }}
               >
                 {if showLabelForHotspot {
                   switch hotspotData.labelText {

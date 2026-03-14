@@ -74,7 +74,7 @@ describe("TourData", () => {
       "viewFrame": Nullable.fromOption(Some(sampleViewFrame)),
       "targetYaw": Nullable.fromOption(Some(35.0)),
       "targetPitch": Nullable.fromOption(Some(0.0)),
-    }:> TourData.hotspotData)
+    } :> TourData.hotspotData)
     let sceneData: TourData.sceneData = ({
       "name": "010_Corridor_Hub_1.webp",
       "panorama": "assets/images/2k/010_Corridor_Hub_1.webp",
@@ -98,7 +98,7 @@ describe("TourData", () => {
         },
       ],
       "isHubScene": false,
-    }:> TourData.sceneData)
+    } :> TourData.sceneData)
     let manifest = {
       "steps": [
         {

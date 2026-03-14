@@ -215,20 +215,14 @@ let nextDelayForAttempt = (attempt: int): int => {
 let rec scheduleRetry = (delayMs: int) => {
   clearRetryTimer()
   let nextRetryAt = Date.now() +. Float.fromInt(delayMs)
-  retryTimeoutId := Some(
-    ReBindings.Window.setTimeout(() => {
-      retryTimeoutId := None
-      let _ = probe()
-    }, delayMs),
-  )
+  retryTimeoutId := Some(ReBindings.Window.setTimeout(() => {
+        retryTimeoutId := None
+        let _ = probe()
+      }, delayMs))
   (Some(delayMs), Some(nextRetryAt))
 }
 
-and enterState = (
-  ~phase: statusPhase,
-  ~reason: statusReason,
-  ~retryDelayMs: option<int>=?,
-) => {
+and enterState = (~phase: statusPhase, ~reason: statusReason, ~retryDelayMs: option<int>=?) => {
   let nextAttempt = if phase === HealthyPhase {
     0
   } else if currentPhase.contents === HealthyPhase {
@@ -237,11 +231,10 @@ and enterState = (
     currentAttempt.contents + 1
   }
 
-  let resolvedRetryDelay =
-    switch retryDelayMs {
-    | Some(ms) => ms
-    | None => nextDelayForAttempt(nextAttempt)
-    }
+  let resolvedRetryDelay = switch retryDelayMs {
+  | Some(ms) => ms
+  | None => nextDelayForAttempt(nextAttempt)
+  }
 
   switch phase {
   | HealthyPhase =>
@@ -309,11 +302,10 @@ and probe = async (~isInitial=false) => {
     } catch {
     | JsExn(error) =>
       probeInFlight := false
-      let reason =
-        switch JsExn.message(error)->Option.getOr("") {
-        | "" => ProbeNetworkFailure
-        | message => TransportFailure(message)
-        }
+      let reason = switch JsExn.message(error)->Option.getOr("") {
+      | "" => ProbeNetworkFailure
+      | message => TransportFailure(message)
+      }
       let phase = switch reason {
       | BrowserOffline => BrowserOfflinePhase
       | _ => RecoveringPhase
@@ -405,21 +397,21 @@ let initialize = () => {
   currentRetryDelayMs := None
   currentNextRetryAtMs := None
   currentPhase := if navigatorOnLine {
-    HealthyPhase
-  } else {
-    BrowserOfflinePhase
-  }
+      HealthyPhase
+    } else {
+      BrowserOfflinePhase
+    }
   currentReason := if navigatorOnLine {
-    Healthy
-  } else {
-    BrowserOffline
-  }
+      Healthy
+    } else {
+      BrowserOffline
+    }
   currentOnline := phaseAllowsRequests(currentPhase.contents)
   lastHealthyAtMs := if navigatorOnLine {
-    Some(Date.now())
-  } else {
-    None
-  }
+      Some(Date.now())
+    } else {
+      None
+    }
 
   addEventListener("online", handleOnline)
   addEventListener("offline", handleOffline)

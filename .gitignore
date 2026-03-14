@@ -54,6 +54,7 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+tests/cypress/videos/
 
 # Ensure tasks are always tracked
 !tasks/

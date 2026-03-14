@@ -65,9 +65,11 @@ describe("NetworkStatus", () => {
 
   test("subscribeSnapshot receives phase updates", t => {
     let seenPhases = ref([])
-    let unsubscribe = NetworkStatus.subscribeSnapshot(snapshot => {
-      Array.push(seenPhases.contents, snapshot.phase)
-    })
+    let unsubscribe = NetworkStatus.subscribeSnapshot(
+      snapshot => {
+        Array.push(seenPhases.contents, snapshot.phase)
+      },
+    )
 
     NetworkStatus.forceStatus(false)
     NetworkStatus.forceStatus(true)

@@ -420,7 +420,10 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "const isAutoForward = playbackTarget.autoForward === true;")
     t->expectToContain(html, "animatedScenes.add(sceneId);")
     t->expectToContain(html, "const EXPORT_WAYPOINT_ANIMATION_POLICY = \"auto-tour-only\";")
-    t->expectToContain(html, "const EXPORT_DEFAULT_NAVIGATION_MODE = EXPORT_NAVIGATION_MODE_SEMI_AUTO;")
+    t->expectToContain(
+      html,
+      "const EXPORT_DEFAULT_NAVIGATION_MODE = EXPORT_NAVIGATION_MODE_SEMI_AUTO;",
+    )
     t->expectToContain(html, "const MANUAL_POST_ARRIVAL_FOCUS_MS = 320.0;")
     t->expectToContain(html, "function resolveDestinationView(args, options)")
     t->expectToContain(html, "if (Number.isFinite(options?.destinationOverride?.yaw)")
@@ -729,7 +732,9 @@ let _ = describe("TourTemplates", () => {
   test("generateTourHTML integrates correct CSS for 4k", t => {
     let html = generateTourHTML([mockScene1], "4k Tour", None, "4k", 32, 40, "1.0")
     t->expectToContain(html, "width: 1024px")
-    t->expect(String.includes(html, "body.export-state-tablet #stage { width: 640px"))->Expect.toBe(false)
+    t
+    ->expect(String.includes(html, "body.export-state-tablet #stage { width: 640px"))
+    ->Expect.toBe(false)
   })
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {

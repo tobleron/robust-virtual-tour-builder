@@ -24,11 +24,11 @@ pub use similarity::*;
 pub use video::*;
 
 #[cfg(not(feature = "video-export"))]
+use crate::models::AppError;
+#[cfg(not(feature = "video-export"))]
 use actix_multipart::Multipart;
 #[cfg(not(feature = "video-export"))]
 use actix_web::{HttpRequest, HttpResponse};
-#[cfg(not(feature = "video-export"))]
-use crate::models::AppError;
 
 #[cfg(not(feature = "video-export"))]
 pub async fn generate_teaser(
