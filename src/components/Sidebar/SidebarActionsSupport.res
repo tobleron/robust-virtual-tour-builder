@@ -78,7 +78,7 @@ let saveModalConfig = (
 }
 
 let resetPublishOptions = (): SidebarTypes.publishOptions => {
-  selectedProfiles: [#hd, #k2, #k4, #standalone2k],
+  selectedProfiles: [#k4, #k2],
   includeLogo: true,
   includeMarketing: true,
 }
@@ -88,7 +88,7 @@ let publishModalConfig = (
   ~onPublish: unit => unit,
 ): EventBus.modalConfig => {
   title: "Publish Tour",
-  description: Some("Choose what will be included in the published package."),
+  description: Some("Choose the production web package and optional standalone test export."),
   icon: Some("info"),
   content: Some(<SidebarPublishOptionsContent onOptionsChanged />),
   onClose: None,

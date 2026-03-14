@@ -3,6 +3,7 @@ pub mod auth;
 pub mod metrics;
 pub mod middleware;
 pub mod models;
+#[cfg(feature = "builder-runtime")]
 pub mod pathfinder;
 pub mod services;
 pub mod startup;

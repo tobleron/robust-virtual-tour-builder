@@ -112,12 +112,12 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "assets/images/scene2")
     t->expectToContain(html, "assets/logo/logo.png")
     t->expectToContain(html, "id=\"export-watermark-image\"")
-    t->expectToContain(html, "const LOGO_AREA_RATIO = 0.008;")
+    t->expectToContain(html, "const LOGO_AREA_RATIO = 0.012;")
     t->expectToContain(html, "const EXPORT_TOUCH_PAN_SPEED_COEFF = 1.0;")
     t->expectToContain(html, "const EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR = 1.4;")
-    t->expectToContain(html, "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;")
-    t->expectToContain(html, "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;")
-    t->expectToContain(html, "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.55;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.22;")
+    t->expectToContain(html, "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.12;")
     t->expectToContain(html, "function syncExportLogoSize()")
     t->expectToContain(html, "const portraitTargetArea =")
     t->expectToContain(html, "const portraitFinalWidth = Math.min(")
@@ -280,7 +280,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "\"sceneNumber\":1")
     t->expectToContain(html, "const rawSceneNumber = scenesData?.[sid]?.sceneNumber;")
     t->expectToContain(html, "function buildSceneNumberRows()")
-    t->expectToContain(html, "function navigateToSceneByNumberValue(chosen)")
+    t->expectToContain(html, "function navigateToSceneByNumberValue(chosen, options)")
     t->expectToContain(html, "if (homeSceneId) pushDefaultSceneSequenceCursor(homeSceneId, 0);")
     t->expectToContain(html, "pushSceneSequencePosition(targetSceneId, seqRaw + 1);")
     t->expectToContain(html, "function resolveSceneIdForSequencePosition(sequencePosition)")
@@ -390,7 +390,7 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function navigateToNextSequenceShortcut()")
     t->expectToContain(html, "function navigateToPreviousSequenceShortcut()")
     t->expectToContain(html, "navigateToFloorTagShortcut(")
-    t->expectToContain(html, "navigateToFloorTagShortcut(targetEntry.sceneId, { fromMap: true });")
+    t->expectToContain(html, "navigateToFloorTagShortcut(targetEntry.sceneId, options);")
     t->expectToContain(
       html,
       "const shortcutTargets = resolveShortcutNavigationTargets(sceneId, currentSceneData);",
@@ -439,6 +439,9 @@ let _ = describe("TourTemplates", () => {
     t->expectToContain(html, "function syncPortraitModeSelectorClasses()")
     t->expectToContain(html, "body.classList.add(\"export-portrait-mode-intro\");")
     t->expectToContain(html, "panel.classList.add(\"is-portrait-mode-selector\");")
+    t->expectToContain(html, "Choose tour mode:")
+    t->expectToContain(html, "mode-shortcut-key mode-shortcut-key-inline")
+    t->expectToContain(html, "if (interactionShell !== \"classic\") return false;")
     t->expectToContain(
       html,
       "const focusDurationMs = Number.isFinite(options?.durationMs) && options.durationMs > 0",
@@ -550,14 +553,7 @@ let _ = describe("TourTemplates", () => {
       String.includes(html, "const oppositeYaw = normalizeYaw(entryHotspot.hotspot.yaw + 180);"),
     )
     ->Expect.toBe(false)
-    t
-    ->expect(
-      String.includes(
-        html,
-        "window.viewer.lookAt(currentPitch, postArrivalHotspot.yaw, getCurrentHfov(), false);",
-      ),
-    )
-    ->Expect.toBe(false)
+    t->expectToContain(html, "const currentYaw = typeof window.viewer.getYaw === \"function\"")
     t
     ->expect(String.includes(html, "const autoForward = primary.targetIsAutoForward === true;"))
     ->Expect.toBe(false)
@@ -733,13 +729,13 @@ let _ = describe("TourTemplates", () => {
   test("generateTourHTML integrates correct CSS for 4k", t => {
     let html = generateTourHTML([mockScene1], "4k Tour", None, "4k", 32, 40, "1.0")
     t->expectToContain(html, "width: 1024px")
-    t->expectToContain(html, "body.export-state-tablet #stage { width: 640px")
+    t->expect(String.includes(html, "body.export-state-tablet #stage { width: 640px"))->Expect.toBe(false)
   })
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
     let html = generateTourHTML([mockScene1], "HD Tour", None, "hd", 32, 40, "1.0")
     t->expectToContain(html, "width: 640px")
-    t->expectToContain(html, "body.export-state-tablet #viewer-floor-nav-export .floor-nav-btn")
+    t->expectToContain(html, "body.is-hd-export #viewer-floor-nav-export .floor-nav-btn")
     t->expectToContain(html, "body.export-state-portrait #stage")
     t->expectToContain(html, "\"minHfov\": 65")
     t->expectToContain(html, "\"maxHfov\": 90")
@@ -749,6 +745,7 @@ let _ = describe("TourTemplates", () => {
     let html = generateTourHTML([mockScene1], "Touch Portrait Tour", None, "2k", 32, 40, "1.0")
 
     t->expectToContain(html, "id=\"viewer-portrait-mode-selector-export\"")
+    t->expectToContain(html, "id=\"viewer-sequence-prompt-export\"")
     t->expectToContain(html, "id=\"viewer-floor-nav-export\"")
     t->expectToContain(html, "id=\"viewer-portrait-joystick-export\"")
     t->expectToContain(html, "function isPortraitAdaptiveExportUi()")

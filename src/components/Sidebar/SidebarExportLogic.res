@@ -8,6 +8,9 @@ let profileToKey = (profile: SidebarBase.SidebarTypes.publishProfile): string =>
   | #k2 => "2k"
   | #k4 => "4k"
   | #standalone2k => "desktop_blob_2k"
+  | #standaloneHdLandscapeTouch => "desktop_blob_hd_landscape_touch"
+  | #standalone2kLandscapeTouch => "desktop_blob_2k_landscape_touch"
+  | #standalone4kLandscapeTouch => "desktop_blob_4k_landscape_touch"
   }
 
 let handleExport = async (

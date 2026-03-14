@@ -24,9 +24,47 @@ pub fn write_zip_file(
     Ok(())
 }
 
-pub fn create_root_index() -> String {
-    String::from(
-        r#"<!DOCTYPE html>
+pub fn create_root_index(
+    include_web_only: bool,
+    include_desktop: bool,
+    include_desktop_landscape_touch_hd: bool,
+    include_desktop_landscape_touch_2k: bool,
+    include_desktop_landscape_touch_4k: bool,
+) -> String {
+    let mut cards = String::new();
+
+    if include_web_only {
+        cards.push_str(
+            r#"<a href="web_only/index.html">Open Web Package<span>4K by default, with automatic 2K fallback on small phones for website integration over HTTP/HTTPS.</span></a>"#,
+        );
+    }
+    if include_desktop {
+        cards.push_str(
+            r#"<a href="desktop/index.html">Open Desktop Package<span>Single 2K standalone HTML with embedded scene blobs for direct local opening.</span></a>"#,
+        );
+    }
+    if include_desktop_landscape_touch_hd {
+        cards.push_str(
+            r#"<a href="desktop_landscape_touch_hd/index.html">Open HD Landscape Touch Package<span>Single HD standalone HTML that forces the touch-friendly landscape UI for calibration.</span></a>"#,
+        );
+    }
+    if include_desktop_landscape_touch_2k {
+        cards.push_str(
+            r#"<a href="desktop_landscape_touch/index.html">Open Landscape Touch Package<span>Single 2K standalone HTML that forces the touch-friendly landscape UI for calibration.</span></a>"#,
+        );
+    }
+    if include_desktop_landscape_touch_4k {
+        cards.push_str(
+            r#"<a href="desktop_landscape_touch_4k/index.html">Open 4K Landscape Touch Package<span>Single 4K standalone HTML that forces the touch-friendly landscape UI for calibration.</span></a>"#,
+        );
+    }
+    if cards.is_empty() {
+        cards.push_str(
+            r#"<div style="padding:16px 18px;border:1px solid #33486b;border-radius:12px;background:#162544;color:#f8fafc;font-weight:600;">No export variants were included in this package.</div>"#,
+        );
+    }
+
+    r#"<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -49,13 +87,12 @@ pub fn create_root_index() -> String {
     <h1>Virtual Tour Export</h1>
     <p>Choose the package mode for your distribution target.</p>
     <div class="grid">
-      <a href="web_only/index.html">Open Web Package<span>4K, 2K, and HD tours for website integration over HTTP/HTTPS.</span></a>
-      <a href="desktop/index.html">Open Desktop Package<span>Single 2K standalone HTML with embedded scene blobs for direct local opening.</span></a>
+      __ROOT_EXPORT_CARDS__
     </div>
   </main>
 </body>
-</html>"#,
-    )
+ </html>"#
+        .replace("__ROOT_EXPORT_CARDS__", &cards)
 }
 
 pub fn create_web_only_deployment_readme() -> String {
@@ -64,24 +101,27 @@ pub fn create_web_only_deployment_readme() -> String {
 
 This folder is designed for website hosting over HTTP/HTTPS.
 
+Each tour resolution adapts at runtime:
+- desktop/laptop: classic UI
+- touch portrait: portrait touch UI
+- touch landscape: landscape touch UI
+
 Upload this folder exactly as-is:
 - web_only/
   - assets/
   - libs/
   - tour_4k/
   - tour_2k/
-  - tour_hd/
 
 Primary entry:
 - web_only/index.html
 
-Embed URLs:
-- web_only/tour_4k/index.html
-- web_only/tour_2k/index.html
-- web_only/tour_hd/index.html
+Behavior:
+- `web_only/index.html` chooses `4K` by default.
+- Small phone-class devices automatically fall back to `2K`.
 
 Example iframe:
-<iframe src="/virtual-tour/web_only/tour_4k/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
+<iframe src="/virtual-tour/web_only/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
 
 Notes:
 1) Keep folder structure unchanged.
@@ -107,6 +147,26 @@ Behavior:
 Notes:
 1) Keep desktop/libs beside desktop/index.html.
 2) No local webserver is required for desktop mode.
+"#,
+    )
+}
+
+pub fn create_desktop_landscape_touch_readme(folder_name: &str, resolution_label: &str) -> String {
+    format!(
+        r#"LANDSCAPE TOUCH PACKAGE - QUICK GUIDE
+
+Entry file:
+- {folder_name}/index.html
+
+Behavior:
+- Uses {resolution_label} scenes only.
+- Scenes are embedded as data URIs in one HTML file (blob-style standalone).
+- Opens directly from extracted files (file:// supported).
+- Forces the touch-friendly landscape UI so it can be calibrated on any device.
+
+Notes:
+1) Keep {folder_name}/libs beside {folder_name}/index.html.
+2) This package is for UI calibration/testing and should not replace the classic desktop package yet.
 "#,
     )
 }

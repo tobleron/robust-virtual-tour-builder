@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
 
-use super::{SNAPSHOT_FILENAME, project_assets, project_snapshot};
+use super::{project_assets, project_snapshot};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +17,51 @@ pub struct DashboardProjectSummary {
     pub updated_at: String,
     pub scene_count: usize,
     pub hotspot_count: usize,
+}
+
+const SUMMARY_FILENAME: &str = "summary.txt";
+
+fn parse_summary_count(line: &str, prefix: &str) -> Option<usize> {
+    line.strip_prefix(prefix)
+        .map(str::trim)
+        .and_then(|value| value.split_whitespace().next())
+        .and_then(|value| value.parse::<usize>().ok())
+}
+
+fn parse_project_summary_file(project_dir: &std::path::Path) -> Option<(String, usize, usize)> {
+    let summary_path = project_dir.join(SUMMARY_FILENAME);
+    let raw = std::fs::read_to_string(summary_path).ok()?;
+
+    let mut tour_name: Option<String> = None;
+    let mut scene_count: Option<usize> = None;
+    let mut hotspot_count: Option<usize> = None;
+
+    for line in raw.lines() {
+        let trimmed = line.trim();
+        if tour_name.is_none()
+            && let Some(value) = trimmed.strip_prefix("Project Name:")
+        {
+            let parsed = value.trim();
+            if !parsed.is_empty() {
+                tour_name = Some(parsed.to_string());
+            }
+            continue;
+        }
+
+        if scene_count.is_none() {
+            scene_count = parse_summary_count(trimmed, "Total Scenes:");
+        }
+
+        if hotspot_count.is_none() {
+            hotspot_count = parse_summary_count(trimmed, "Total Hotspots:");
+        }
+    }
+
+    Some((
+        tour_name.unwrap_or_else(|| "Untitled Tour".to_string()),
+        scene_count.unwrap_or(0),
+        hotspot_count.unwrap_or(0),
+    ))
 }
 
 pub(super) async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResponse, AppError> {
@@ -40,17 +85,29 @@ pub(super) async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResp
 
         let session_id = entry.file_name().to_string_lossy().to_string();
         let project_dir: PathBuf = entry.path();
-        let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+        let snapshot_path = match project_snapshot::resolve_snapshot_path(&project_dir) {
+            Ok(path) => path,
+            Err(_) => continue,
+        };
         if !snapshot_path.exists() {
             continue;
         }
 
-        let project_data = project_snapshot::read_snapshot(&project_dir)?;
-        let tour_name = project_data
-            .get("tourName")
-            .and_then(|value| value.as_str())
-            .unwrap_or("Untitled Tour")
-            .to_string();
+        let (tour_name, scene_count, hotspot_count) =
+            if let Some(summary) = parse_project_summary_file(&project_dir) {
+                summary
+            } else {
+                let project_data = project_snapshot::read_snapshot(&project_dir)?;
+                (
+                    project_data
+                        .get("tourName")
+                        .and_then(|value| value.as_str())
+                        .unwrap_or("Untitled Tour")
+                        .to_string(),
+                    project_snapshot::scene_count(&project_data),
+                    project_snapshot::count_hotspots(&project_data),
+                )
+            };
 
         let updated_at = std::fs::metadata(&snapshot_path)
             .and_then(|metadata| metadata.modified())
@@ -62,8 +119,8 @@ pub(super) async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResp
             session_id,
             tour_name,
             updated_at,
-            scene_count: project_snapshot::scene_count(&project_data),
-            hotspot_count: project_snapshot::count_hotspots(&project_data),
+            scene_count,
+            hotspot_count,
         });
     }
 
@@ -94,7 +151,9 @@ fn build_duplicate_project_data(project_data: &Value, session_id: &str) -> Resul
     object.insert("sessionId".into(), Value::String(session_id.to_string()));
     object.insert(
         "tourName".into(),
-        Value::String(duplicate_tour_name(&project_snapshot::project_tour_name(project_data))),
+        Value::String(duplicate_tour_name(&project_snapshot::project_tour_name(
+            project_data,
+        ))),
     );
     Ok(Value::Object(object))
 }
@@ -131,10 +190,9 @@ pub(super) async fn duplicate_dashboard_project(
     let user_root = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
     let source_project_dir = StorageManager::get_user_project_path(&user.id, &source_session_id)
         .map_err(AppError::IoError)?;
-    let source_project_data =
-        project_snapshot::validate_snapshot_project(&project_snapshot::read_snapshot(
-            &source_project_dir,
-        )?)?;
+    let source_project_data = project_snapshot::validate_snapshot_project(
+        &project_snapshot::read_snapshot(&source_project_dir)?,
+    )?;
 
     project_assets::repair_missing_project_assets(
         &user_root,
@@ -143,8 +201,8 @@ pub(super) async fn duplicate_dashboard_project(
     )?;
 
     let duplicate_session_id = Uuid::new_v4().to_string();
-    let duplicate_project_dir =
-        StorageManager::ensure_project_dir(&user.id, &duplicate_session_id).map_err(AppError::IoError)?;
+    let duplicate_project_dir = StorageManager::ensure_project_dir(&user.id, &duplicate_session_id)
+        .map_err(AppError::IoError)?;
     let duplicate_project_data =
         build_duplicate_project_data(&source_project_data, &duplicate_session_id)?;
 

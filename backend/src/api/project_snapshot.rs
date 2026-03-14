@@ -9,6 +9,8 @@ use crate::services::media::StorageManager;
 
 use super::{MAX_PROJECT_SNAPSHOTS, SNAPSHOT_FILENAME, SNAPSHOT_HISTORY_DIR, project_assets};
 
+const LEGACY_PROJECT_FILENAME: &str = "project.json";
+
 pub(super) fn default_snapshot_origin() -> String {
     "auto".to_string()
 }
@@ -264,10 +266,32 @@ pub(super) fn snapshot_item_from_envelope(
 }
 
 pub(super) fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {
-    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+    let snapshot_path = resolve_snapshot_path(project_dir)?;
     let raw = std::fs::read_to_string(snapshot_path).map_err(AppError::IoError)?;
     serde_json::from_str::<serde_json::Value>(&raw)
         .map_err(|error| AppError::ValidationError(format!("Invalid snapshot JSON: {}", error)))
+}
+
+pub(super) fn resolve_snapshot_path(project_dir: &Path) -> Result<PathBuf, AppError> {
+    let snapshot_path = project_dir.join(SNAPSHOT_FILENAME);
+    if snapshot_path.exists() {
+        return Ok(snapshot_path);
+    }
+
+    let legacy_path = project_dir.join(LEGACY_PROJECT_FILENAME);
+    if legacy_path.exists() {
+        return Ok(legacy_path);
+    }
+
+    Err(AppError::IoError(std::io::Error::new(
+        std::io::ErrorKind::NotFound,
+        format!(
+            "Neither {} nor {} exists in {}",
+            SNAPSHOT_FILENAME,
+            LEGACY_PROJECT_FILENAME,
+            project_dir.display()
+        ),
+    )))
 }
 
 pub(super) fn validate_snapshot_project(

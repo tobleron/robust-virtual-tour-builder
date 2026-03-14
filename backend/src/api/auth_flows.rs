@@ -11,7 +11,7 @@ use sqlx::SqlitePool;
 use crate::models::AppError;
 
 use super::{
-    ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload, SignInPayload,
+    ChangePasswordPayload, ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload, SignInPayload,
     SignUpPayload, VerifyEmailPayload,
 };
 
@@ -64,4 +64,12 @@ pub(super) async fn reset_password(
     payload: web::Json<ResetPasswordPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows_password::reset_password(pool, payload).await
+}
+
+pub(super) async fn change_password(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ChangePasswordPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_password::change_password(req, pool, payload).await
 }

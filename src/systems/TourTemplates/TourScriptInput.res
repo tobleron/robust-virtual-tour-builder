@@ -20,8 +20,26 @@ let script = `
     }
     let lookingMode = shouldEnableLookingModeByDefault();
     let manualLookingMode = shouldEnableLookingModeByDefault();
+    const sceneSequencePromptRuntime = { restoreLookingModeOnSuccess: false };
     function enableLookingModeAfterMapNavigation() {
       if (!isLookingModeInteractionAvailable()) return;
+      manualLookingMode = true;
+      lookingMode = true;
+      updateLookingModeUI();
+    }
+    function suspendLookingModeForSceneSequencePrompt() {
+      if (!isLookingModeInteractionAvailable()) return;
+      sceneSequencePromptRuntime.restoreLookingModeOnSuccess =
+        manualLookingMode === true || lookingMode === true;
+      manualLookingMode = false;
+      lookingMode = false;
+      updateLookingModeUI();
+    }
+    function restoreLookingModeAfterSceneSequencePromptSuccess() {
+      if (!isLookingModeInteractionAvailable()) return;
+      const shouldRestore = sceneSequencePromptRuntime.restoreLookingModeOnSuccess === true;
+      sceneSequencePromptRuntime.restoreLookingModeOnSuccess = false;
+      if (!shouldRestore) return;
       manualLookingMode = true;
       lookingMode = true;
       updateLookingModeUI();
@@ -57,12 +75,11 @@ let script = `
         target?.isContentEditable === true;
       const mapOpen = typeof isExportMapOpen === "function" && isExportMapOpen();
       const sequencePromptOpen =
-        mapOpen &&
         typeof isSceneSequencePromptOpen === "function" &&
         isSceneSequencePromptOpen();
 
       if (sequencePromptOpen) {
-        if (key === "Escape" || key === "Esc" || key === "e" || key === "E") {
+        if (key === "Escape" || key === "Esc" || key === "n" || key === "N") {
           if (typeof e.preventDefault === "function") e.preventDefault();
           if (typeof e.stopPropagation === "function") e.stopPropagation();
           if (typeof closeSceneSequencePrompt === "function") closeSceneSequencePrompt();
@@ -99,21 +116,13 @@ let script = `
         return;
       }
       if (key === "e" || key === "E") {
-        if (!mapOpen) return;
+        if (!mapOpen && !sequencePromptOpen) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (typeof closeExportMap === "function") closeExportMap();
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         return;
       }
       if (mapOpen) {
-        if (key === "n" || key === "N") {
-          if (typeof e.preventDefault === "function") e.preventDefault();
-          if (typeof e.stopPropagation === "function") e.stopPropagation();
-          if (typeof navigateToSceneBySequenceInput === "function") {
-            navigateToSceneBySequenceInput();
-          }
-          return;
-        }
         const mapShortcutKey = key.toLowerCase();
         if (typeof navigateExportMapShortcut === "function" && mapShortcutKey !== "") {
           const didNavigateToMapScene = navigateExportMapShortcut(mapShortcutKey);
@@ -127,10 +136,11 @@ let script = `
       
       if (key === "s" || key === "S") {
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
-        if (!window.isAutoTourActive) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (typeof stopAutoTour === "function") stopAutoTour();
+        if (typeof activateExportNavigationMode === "function") {
+          activateExportNavigationMode(EXPORT_NAVIGATION_MODE_SEMI_AUTO);
+        }
         return;
       }
 
@@ -138,11 +148,7 @@ let script = `
         if (mapOpen && typeof closeExportMap === "function") closeExportMap();
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (window.isAutoTourActive) {
-          if (typeof speedUpAutoTour === "function") speedUpAutoTour();
-          return;
-        }
-        if (typeof startAutoTour === "function") startAutoTour();
+        if (typeof triggerAutoNavigationMode === "function") triggerAutoNavigationMode();
         return;
       }
       if (key === "l" || key === "L") {
@@ -156,10 +162,21 @@ let script = `
       }
 
       if (key === "m" || key === "M") {
-        if (!floorTagShortcutState.hasMap) return;
         if (typeof e.preventDefault === "function") e.preventDefault();
         if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (typeof toggleExportMap === "function") toggleExportMap();
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
+        if (typeof activateExportNavigationMode === "function") {
+          activateExportNavigationMode(EXPORT_NAVIGATION_MODE_MANUAL);
+        }
+        return;
+      }
+      if (key === "n" || key === "N") {
+        if (mapOpen && typeof closeExportMap === "function") closeExportMap();
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof navigateToSceneBySequenceInput === "function") {
+          navigateToSceneBySequenceInput();
+        }
         return;
       }
       if (key === "h" || key === "H") {
@@ -336,7 +353,7 @@ let script = `
       const target = event?.target;
       if (!target || typeof target.closest !== "function") return true;
       return !target.closest(
-        "#viewer-floor-tags-export, #viewer-portrait-mode-selector-export, #viewer-floor-nav-export, #viewer-portrait-joystick-export, .looking-mode-indicator",
+        "#viewer-floor-tags-export, #viewer-portrait-mode-selector-export, #viewer-floor-nav-export, #viewer-portrait-joystick-export, #viewer-sequence-prompt-export, .looking-mode-indicator",
       );
     }
 

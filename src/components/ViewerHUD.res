@@ -231,7 +231,5 @@ let make = React.memo(() => {
         </span>
       </div>
     }}
-
-    <NotificationCenter />
   </>
 })

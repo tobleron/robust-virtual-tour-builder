@@ -9,7 +9,7 @@ body::after { content: ""; position: fixed; inset: 0; background-image: var(--te
 .blob-2 { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(15, 23, 42, 0.3) 0%, rgba(0, 0, 0, 0) 70%); }
 .container { position: relative; width: 90%; max-width: 1000px; text-align: center; padding: 60px 0; animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.logo-container { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); padding: 3px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); width: 126px; height: 66px; overflow: hidden; }
+.logo-container { position: fixed; right: 24px; bottom: 24px; z-index: 10; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); padding: 4px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.18); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); width: 158px; height: 82px; overflow: hidden; }
 .logo-container img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 5px; }
 h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .version-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--glass); padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--slate-400); }
@@ -23,7 +23,7 @@ h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 .btn { margin-top: 10px; background: rgba(255, 255, 255, 0.05); color: var(--slate-200); padding: 12px 32px; border-radius: 100px; font-size: 14px; font-weight: 600; }
 .card:hover .btn { background: white; color: #0f172a; }
 .footer { margin-top: 80px; font-size: 13px; color: var(--slate-600); }
-@media (max-width: 768px) { .logo-container { right: 10px; bottom: 10px; width: 98px; height: 52px; padding: 2px; border-radius: 6px; } }
+@media (max-width: 768px) { .logo-container { right: 10px; bottom: 10px; width: 118px; height: 62px; padding: 3px; border-radius: 8px; } }
 </style></head><body><div class="background-blob blob-1"></div><div class="background-blob blob-2"></div><div class="container"><div class="header">
 __LOGO_BLOCK__
 <h1>__TOUR_NAME_PRETTY__</h1><div class="version-badge">Virtual Tour v__VERSION__</div></div><div class="grid">

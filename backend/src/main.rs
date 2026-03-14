@@ -6,6 +6,7 @@ use actix_web::middleware::Compress;
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
+use std::path::PathBuf;
 use tokio::signal;
 use tracing_actix_web::TracingLogger;
 
@@ -28,6 +29,42 @@ use services::project::ChunkedProjectExportUploadManager;
 use services::project::ChunkedProjectImportManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum AppSurface {
+    Builder,
+    Portal,
+}
+
+impl AppSurface {
+    fn from_env() -> Self {
+        match std::env::var("APP_SURFACE")
+            .unwrap_or_default()
+            .trim()
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "portal" => Self::Portal,
+            "builder" => Self::Builder,
+            _ => Self::Builder,
+        }
+    }
+
+    fn builder_dist_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dist")
+    }
+
+    fn portal_dist_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dist-portal")
+    }
+
+    fn dist_root(self) -> PathBuf {
+        match self {
+            Self::Builder => Self::builder_dist_root(),
+            Self::Portal => Self::portal_dist_root(),
+        }
+    }
+}
 
 #[cfg(unix)]
 async fn wait_for_shutdown_signal() -> &'static str {
@@ -117,6 +154,8 @@ async fn main() -> io::Result<()> {
     // Load environment variables from .env file
     let _ = dotenvy::dotenv();
 
+    let app_surface = AppSurface::from_env();
+
     // Initialize Logging
     let _guards = startup::init_logging();
 
@@ -137,6 +176,12 @@ async fn main() -> io::Result<()> {
         io::Error::new(
             io::ErrorKind::Other,
             format!("Failed to init storage: {}", e),
+        )
+    })?;
+    services::portal::init_storage().map_err(|e| {
+        io::Error::new(
+            io::ErrorKind::Other,
+            format!("Failed to init portal storage: {}", e),
         )
     })?;
 
@@ -210,6 +255,7 @@ async fn main() -> io::Result<()> {
         } else {
             "development"
         },
+        app_surface = ?app_surface,
         "Rate limiters configured"
     );
 
@@ -219,8 +265,11 @@ async fn main() -> io::Result<()> {
     let project_import_uploads_for_app = project_import_uploads.clone();
     let project_export_uploads_for_app = project_export_uploads.clone();
     let worker_count = startup::server_worker_count();
+    let dist_root = app_surface.dist_root();
 
     let server = HttpServer::new(move || {
+        let app_surface = app_surface;
+        let dist_root = dist_root.clone();
         App::new()
             .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
             .app_data(quota_manager.clone())
@@ -264,35 +313,72 @@ async fn main() -> io::Result<()> {
                     ))
                     .wrap(actix_governor::Governor::new(&rate_limiters.health)),
             )
-            .configure(|cfg| api::config(cfg, &rate_limiters))
-            // --- STATIC FILES (Serve Production Build from dist/) ---
-            .configure(|cfg: &mut web::ServiceConfig| {
-                if std::path::Path::new("../dist/static").is_dir() {
-                    cfg.service(fs::Files::new("/static", "../dist/static"));
-                }
-                if std::path::Path::new("../dist/images").is_dir() {
-                    cfg.service(fs::Files::new("/images", "../dist/images"));
+            .configure(|cfg| match app_surface {
+                AppSurface::Builder => api::config(cfg, &rate_limiters),
+                AppSurface::Portal => api::config_portal(cfg, &rate_limiters),
+            })
+            .configure({
+                let static_root = dist_root.clone();
+                move |cfg: &mut web::ServiceConfig| {
+                    let static_dir = static_root.join("static");
+                    let image_dir = static_root.join("images");
+                    if static_dir.is_dir() {
+                        cfg.service(fs::Files::new("/static", static_dir));
+                    }
+                    if image_dir.is_dir() {
+                        cfg.service(fs::Files::new("/images", image_dir));
+                    }
                 }
             })
-            .service(fs::Files::new("/sounds", "../public/sounds"))
-            .service(fs::Files::new("/libs", "../public/libs"))
-            .route(
-                "/service-worker.js",
-                web::get().to(|| async { fs::NamedFile::open("../dist/service-worker.js") }),
-            )
+            .configure(move |cfg: &mut web::ServiceConfig| match app_surface {
+                AppSurface::Builder => {
+                    cfg.service(fs::Files::new("/sounds", "../public/sounds"));
+                    cfg.service(fs::Files::new("/libs", "../public/libs"));
+                    cfg.route(
+                        "/service-worker.js",
+                        web::get()
+                            .to(|| async { fs::NamedFile::open("../dist/service-worker.js") }),
+                    );
+                }
+                AppSurface::Portal => {}
+            })
             .route(
                 "/manifest.json",
-                web::get().to(|| async { fs::NamedFile::open("../dist/manifest.json") }),
+                web::get().to({
+                    let dist_root = dist_root.clone();
+                    move || {
+                        let path = dist_root.join("manifest.json");
+                        async move { fs::NamedFile::open(path) }
+                    }
+                }),
             )
             .route(
                 "/asset-manifest.json",
-                web::get().to(|| async { fs::NamedFile::open("../dist/asset-manifest.json") }),
+                web::get().to({
+                    let dist_root = dist_root.clone();
+                    move || {
+                        let path = dist_root.join("asset-manifest.json");
+                        async move { fs::NamedFile::open(path) }
+                    }
+                }),
             )
             .route(
                 "/",
-                web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }),
+                web::get().to({
+                    let dist_root = dist_root.clone();
+                    move || {
+                        let path = dist_root.join("index.html");
+                        async move { fs::NamedFile::open(path) }
+                    }
+                }),
             )
-            .default_service(web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
+            .default_service(web::get().to({
+                let dist_root = dist_root.clone();
+                move || {
+                    let path = dist_root.join("index.html");
+                    async move { fs::NamedFile::open(path) }
+                }
+            }))
     })
     .workers(worker_count)
     .shutdown_timeout(shutdown_timeout.as_secs() as u64);

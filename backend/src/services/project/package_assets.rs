@@ -17,6 +17,9 @@ pub(super) struct SelectedProfiles {
     pub(super) include_2k: bool,
     pub(super) include_hd: bool,
     pub(super) include_desktop_blob_2k: bool,
+    pub(super) include_desktop_blob_hd_landscape_touch: bool,
+    pub(super) include_desktop_blob_2k_landscape_touch: bool,
+    pub(super) include_desktop_blob_4k_landscape_touch: bool,
 }
 
 pub(super) struct PreparedPackageAssets {
@@ -50,6 +53,12 @@ pub(super) fn selected_profiles(fields: &HashMap<String, String>) -> SelectedPro
         include_2k: selected_profiles.contains("2k"),
         include_hd: selected_profiles.contains("hd"),
         include_desktop_blob_2k: selected_profiles.contains("desktop_blob_2k"),
+        include_desktop_blob_hd_landscape_touch: selected_profiles
+            .contains("desktop_blob_hd_landscape_touch"),
+        include_desktop_blob_2k_landscape_touch: selected_profiles
+            .contains("desktop_blob_2k_landscape_touch"),
+        include_desktop_blob_4k_landscape_touch: selected_profiles
+            .contains("desktop_blob_4k_landscape_touch"),
     }
 }
 

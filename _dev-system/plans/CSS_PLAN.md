@@ -8,13 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../css/components/viewer-ui.css**
-  - *Reason:* [Nesting: 1.20, Density: 0.16, Coupling: 0.00] | Drag: 2.36 | LOC: 560/399
-- [ ] **../../css/components/modals.css**
-  - *Reason:* [Nesting: 1.20, Density: 0.16, Coupling: 0.00] | Drag: 2.36 | LOC: 626/399
-- [ ] **../../css/components/site-pages.css**
-  - *Reason:* [Nesting: 1.20, Density: 0.18, Coupling: 0.00] | Drag: 2.38 | LOC: 653/396
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../css/components/portal-pages.css**
+  - *Reason:* [Nesting: 1.20, Density: 0.17, Coupling: 0.00] | Drag: 2.37 | LOC: 980/393  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.
 
 ---
 

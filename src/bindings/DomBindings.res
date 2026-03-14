@@ -200,10 +200,16 @@ module Window = {
   @val @scope("window") external innerHeight: int = "innerHeight"
   @val @scope("window") external innerWidth: int = "innerWidth"
   @val @scope("window") external confirm: string => bool = "confirm"
+  @val @scope("window") external openWindow: (string, string) => unit = "open"
   @set external setDebug: ({..}, {..}) => unit = "DEBUG"
   @set external setAppLog: ({..}, array<string>) => unit = "appLog"
   @set external setOnError: ({..}, (string, string, int, int, {..}) => bool) => unit = "onerror"
   @set external setOnUnhandledRejection: ({..}, {..} => unit) => unit = "onunhandledrejection"
+}
+
+module Clipboard = {
+  @scope(("window", "navigator", "clipboard")) @val
+  external writeText: string => promise<unit> = "writeText"
 }
 
 module ReactDOMPortal = {

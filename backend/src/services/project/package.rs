@@ -41,8 +41,20 @@ fn write_zip_file(
     package_utils::write_zip_file(zip, options, path, data)
 }
 
-fn create_root_index() -> String {
-    package_utils::create_root_index()
+fn create_root_index(
+    include_web_only: bool,
+    include_desktop: bool,
+    include_desktop_landscape_touch_hd: bool,
+    include_desktop_landscape_touch_2k: bool,
+    include_desktop_landscape_touch_4k: bool,
+) -> String {
+    package_utils::create_root_index(
+        include_web_only,
+        include_desktop,
+        include_desktop_landscape_touch_hd,
+        include_desktop_landscape_touch_2k,
+        include_desktop_landscape_touch_4k,
+    )
 }
 
 fn create_web_only_deployment_readme() -> String {
@@ -51,6 +63,10 @@ fn create_web_only_deployment_readme() -> String {
 
 fn create_desktop_readme() -> String {
     package_utils::create_desktop_readme()
+}
+
+fn create_desktop_landscape_touch_readme(folder_name: &str, resolution_label: &str) -> String {
+    package_utils::create_desktop_landscape_touch_readme(folder_name, resolution_label)
 }
 
 fn rewrite_tour_html_for_subfolder(web_html: &str, resolution_key: &str) -> String {
@@ -85,8 +101,13 @@ pub fn create_tour_package(
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
 
-        package_output::write_root_launcher(&mut zip, options)?;
-        package_output::write_shared_assets(&mut zip, options, &package_assets)?;
+        package_output::write_root_launcher(&mut zip, options, &selected_profiles)?;
+        package_output::write_shared_assets(
+            &mut zip,
+            options,
+            &selected_profiles,
+            &package_assets,
+        )?;
         package_output::write_image_assets(
             &mut zip,
             options,

@@ -238,10 +238,23 @@ let generateTourHTML = (
   ~marketingPhone2: string="",
 ) => {
   let normalizedExportType = switch exportType {
+  | "desktop_blob_hd_landscape_touch" => "hd"
   | "desktop_blob_2k" => "2k"
+  | "desktop_blob_2k_landscape_touch" => "2k"
+  | "desktop_blob_4k_landscape_touch" => "4k"
   | other => other
   }
-  let allowFileProtocol = exportType == "desktop_blob_2k"
+  let allowFileProtocol =
+    exportType == "desktop_blob_2k" ||
+    exportType == "desktop_blob_hd_landscape_touch" ||
+    exportType == "desktop_blob_2k_landscape_touch" ||
+    exportType == "desktop_blob_4k_landscape_touch"
+  let forcedExportInteractionShell = switch exportType {
+  | "desktop_blob_hd_landscape_touch" | "desktop_blob_2k_landscape_touch" =>
+    "landscape-touch"
+  | "desktop_blob_4k_landscape_touch" => "landscape-touch"
+  | _ => ""
+  }
 
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
@@ -475,15 +488,7 @@ let generateTourHTML = (
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
   let exportTraversalMode = "canonical"
-  let allowTabletLandscapeStage = !allowFileProtocol
-  let css =
-    TourStyles.generateCSS(
-      firstSceneName,
-      normalizedExportType,
-      baseSize,
-      logoSize,
-      ~allowTabletLandscapeStage,
-    )
+  let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
     defaultHfov,
@@ -494,7 +499,6 @@ let generateTourHTML = (
     dynamicHfovEnabled,
     normalizedExportType == "hd",
     ~exportTraversalMode,
-    ~allowTabletLandscapeStage,
   )
   let logoDiv = switch logoFilename {
   | Some(filename) =>
@@ -530,11 +534,12 @@ let generateTourHTML = (
     TourData.encodeAutoTourManifest(autoTourManifest),
   )
 
-  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><div class="mode-label-group"><div id="looking-mode-title" class="mode-title">Looking mode: ON</div><div class="mode-subtitle"><span class="mode-shortcut-key">L</span> to toggle</div></div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-portrait-mode-selector-export" class="state-hidden" aria-hidden="true"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export"></div><div id="viewer-portrait-joystick-export" class="state-hidden"></div>${marketingBannerHtml}${portraitMarketingHtml}${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="../../libs/pannellum.css"/><script src="../../libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div><div class="looking-mode-indicator"><div class="mode-status-line"><div id="looking-mode-dot" class="mode-dot"></div><span class="mode-shortcut-key mode-shortcut-key-inline">L</span><div id="looking-mode-title" class="mode-title">Looking mode: ON</div></div><div id="viewer-floor-tags-export" class="state-hidden" aria-live="polite"></div></div><div id="viewer-portrait-mode-selector-export" class="state-hidden" aria-hidden="true"></div><div id="viewer-sequence-prompt-export" class="state-hidden" aria-hidden="true"></div><div id="viewer-room-label-export" class="viewer-persistent-label-export state-hidden"></div><div id="viewer-floor-nav-export"></div><div id="viewer-portrait-joystick-export" class="state-hidden"></div>${marketingBannerHtml}${portraitMarketingHtml}${logoDiv}</div><script>
 
     const firstSceneId = "${firstSceneId}";
     const scenesData = ${scenesDataJson};
     const autoTourManifest = ${autoTourManifestJson};
+    const FORCED_EXPORT_INTERACTION_SHELL = "${forcedExportInteractionShell}";
     const EXPORT_TOUCH_PAN_SPEED_COEFF = 1.0;
     const EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR = 1.4;
     ${renderScript}
@@ -567,12 +572,12 @@ let generateTourHTML = (
       document.body.appendChild(host);
     };
 
-    const LOGO_AREA_RATIO = 0.008;
-    const LOGO_WIDTH_CAP_RATIO = 0.13;
-    const LOGO_HEIGHT_CAP_RATIO = 0.075;
-    const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;
-    const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;
-    const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;
+    const LOGO_AREA_RATIO = 0.012;
+    const LOGO_WIDTH_CAP_RATIO = 0.17;
+    const LOGO_HEIGHT_CAP_RATIO = 0.095;
+    const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.55;
+    const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.22;
+    const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.12;
     function syncExportLogoSize() {
       const stage = document.getElementById('stage');
       const logo = document.getElementById('export-watermark-image');

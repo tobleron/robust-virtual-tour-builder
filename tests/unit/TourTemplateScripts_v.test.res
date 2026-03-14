@@ -123,22 +123,13 @@ describe("TourTemplateScripts", () => {
     t->expectToContain(script, "root.setProperty(\"--export-touch-floor-btn-sup-size\", floorButtonSupPx + \"px\");")
   })
 
-  test("generateRenderScript should let standalone skip the tablet landscape stage", t => {
-    let script =
-      generateRenderScript(
-        32,
-        90.0,
-        65.0,
-        90.0,
-        375,
-        832,
-        true,
-        false,
-        ~allowTabletLandscapeStage=false,
-      )
+  test("generateRenderScript should resolve exported viewport state to portrait or desktop only", t => {
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 832, true, false)
 
-    t->expectToContain(script, "const EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE = false;")
-    t->expectToContain(script, "if (!EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE) return \"desktop\";")
+    t->expectToContain(script, "if (portraitViewport) return \"portrait\";")
+    t->expectToContain(script, "return \"desktop\";")
+    t->expect(String.includes(script, "EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE"))->Expect.toBe(false)
+    t->expect(String.includes(script, "return \"tablet\";"))->Expect.toBe(false)
   })
 
   test("generateRenderScript should suspend looking mode around classic desktop scene-number prompt", t => {

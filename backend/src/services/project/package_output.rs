@@ -35,18 +35,37 @@ fn minify_export_html(html: &str) -> Vec<u8> {
 pub(super) fn write_root_launcher(
     zip: &mut ZipWriter<std::fs::File>,
     options: FileOptions,
+    selected_profiles: &SelectedProfiles,
 ) -> Result<(), String> {
+    let include_web_only = selected_profiles.include_4k
+        || selected_profiles.include_2k
+        || selected_profiles.include_hd;
+    let include_desktop = selected_profiles.include_desktop_blob_2k;
+    let include_desktop_landscape_touch_hd =
+        selected_profiles.include_desktop_blob_hd_landscape_touch;
+    let include_desktop_landscape_touch_2k =
+        selected_profiles.include_desktop_blob_2k_landscape_touch;
+    let include_desktop_landscape_touch_4k =
+        selected_profiles.include_desktop_blob_4k_landscape_touch;
     super::write_zip_file(
         zip,
         options,
         "index.html",
-        super::create_root_index().as_bytes(),
+        super::create_root_index(
+            include_web_only,
+            include_desktop,
+            include_desktop_landscape_touch_hd,
+            include_desktop_landscape_touch_2k,
+            include_desktop_landscape_touch_4k,
+        )
+        .as_bytes(),
     )
 }
 
 pub(super) fn write_shared_assets(
     zip: &mut ZipWriter<std::fs::File>,
     options: FileOptions,
+    selected_profiles: &SelectedProfiles,
     package_assets: &PreparedPackageAssets,
 ) -> Result<(), String> {
     if let Some((name, bytes)) = &package_assets.logo_asset {
@@ -60,7 +79,33 @@ pub(super) fn write_shared_assets(
 
     for (lib_name, bytes) in &package_assets.lib_assets {
         super::write_zip_file(zip, options, &format!("web_only/libs/{}", lib_name), bytes)?;
-        super::write_zip_file(zip, options, &format!("desktop/libs/{}", lib_name), bytes)?;
+        if selected_profiles.include_desktop_blob_2k {
+            super::write_zip_file(zip, options, &format!("desktop/libs/{}", lib_name), bytes)?;
+        }
+        if selected_profiles.include_desktop_blob_hd_landscape_touch {
+            super::write_zip_file(
+                zip,
+                options,
+                &format!("desktop_landscape_touch_hd/libs/{}", lib_name),
+                bytes,
+            )?;
+        }
+        if selected_profiles.include_desktop_blob_2k_landscape_touch {
+            super::write_zip_file(
+                zip,
+                options,
+                &format!("desktop_landscape_touch/libs/{}", lib_name),
+                bytes,
+            )?;
+        }
+        if selected_profiles.include_desktop_blob_4k_landscape_touch {
+            super::write_zip_file(
+                zip,
+                options,
+                &format!("desktop_landscape_touch_4k/libs/{}", lib_name),
+                bytes,
+            )?;
+        }
     }
 
     Ok(())
@@ -75,8 +120,15 @@ pub(super) fn write_image_assets(
     for (resolution_key, _, _) in TARGETS {
         let should_include = match resolution_key {
             "4k" => selected_profiles.include_4k,
-            "2k" => selected_profiles.include_2k || selected_profiles.include_desktop_blob_2k,
-            "hd" => selected_profiles.include_hd,
+            "2k" => {
+                selected_profiles.include_2k
+                    || selected_profiles.include_desktop_blob_2k
+                    || selected_profiles.include_desktop_blob_2k_landscape_touch
+            }
+            "hd" => {
+                selected_profiles.include_hd
+                    || selected_profiles.include_desktop_blob_hd_landscape_touch
+            }
             _ => false,
         };
         if !should_include {
@@ -172,24 +224,99 @@ fn write_desktop_bundle(
     package_assets: &PreparedPackageAssets,
 ) -> Result<(), String> {
     if !selected_profiles.include_desktop_blob_2k {
-        return Ok(());
+        if !selected_profiles.include_desktop_blob_hd_landscape_touch
+            && !selected_profiles.include_desktop_blob_2k_landscape_touch
+            && !selected_profiles.include_desktop_blob_4k_landscape_touch
+        {
+            return Ok(());
+        }
     }
 
-    let desktop_template = fields
-        .get("html_desktop_2k_blob")
-        .or_else(|| fields.get("html_2k"))
-        .ok_or_else(|| "Missing desktop 2k html template".to_string())?;
-    let assets_2k = package_assets
-        .artifacts_by_resolution
-        .get("2k")
-        .ok_or_else(|| "Missing 2k assets for desktop package".to_string())?;
-    let desktop_html = super::build_desktop_blob_html(
-        desktop_template,
-        assets_2k,
-        package_assets.logo_asset.as_ref(),
-    );
-    let minified_desktop_html = minify_export_html(&desktop_html);
-    super::write_zip_file(zip, options, "desktop/index.html", &minified_desktop_html)
+    if selected_profiles.include_desktop_blob_2k {
+        let assets_2k = package_assets
+            .artifacts_by_resolution
+            .get("2k")
+            .ok_or_else(|| "Missing 2k assets for desktop package".to_string())?;
+        let desktop_template = fields
+            .get("html_desktop_2k_blob")
+            .or_else(|| fields.get("html_2k"))
+            .ok_or_else(|| "Missing desktop 2k html template".to_string())?;
+        let desktop_html = super::build_desktop_blob_html(
+            desktop_template,
+            assets_2k,
+            package_assets.logo_asset.as_ref(),
+        );
+        let minified_desktop_html = minify_export_html(&desktop_html);
+        super::write_zip_file(zip, options, "desktop/index.html", &minified_desktop_html)?;
+    }
+    if selected_profiles.include_desktop_blob_hd_landscape_touch {
+        let assets_hd = package_assets
+            .artifacts_by_resolution
+            .get("hd")
+            .ok_or_else(|| "Missing hd assets for landscape touch desktop package".to_string())?;
+        let landscape_touch_template = fields
+            .get("html_desktop_hd_landscape_touch_blob")
+            .or_else(|| fields.get("html_hd"))
+            .ok_or_else(|| "Missing landscape touch desktop hd html template".to_string())?;
+        let landscape_touch_html = super::build_desktop_blob_html(
+            landscape_touch_template,
+            assets_hd,
+            package_assets.logo_asset.as_ref(),
+        );
+        let minified_landscape_touch_html = minify_export_html(&landscape_touch_html);
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_hd/index.html",
+            &minified_landscape_touch_html,
+        )?;
+    }
+    if selected_profiles.include_desktop_blob_2k_landscape_touch {
+        let assets_2k = package_assets
+            .artifacts_by_resolution
+            .get("2k")
+            .ok_or_else(|| "Missing 2k assets for landscape touch desktop package".to_string())?;
+        let landscape_touch_template = fields
+            .get("html_desktop_2k_landscape_touch_blob")
+            .or_else(|| fields.get("html_desktop_2k_blob"))
+            .or_else(|| fields.get("html_2k"))
+            .ok_or_else(|| "Missing landscape touch desktop 2k html template".to_string())?;
+        let landscape_touch_html = super::build_desktop_blob_html(
+            landscape_touch_template,
+            assets_2k,
+            package_assets.logo_asset.as_ref(),
+        );
+        let minified_landscape_touch_html = minify_export_html(&landscape_touch_html);
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch/index.html",
+            &minified_landscape_touch_html,
+        )?;
+    }
+    if selected_profiles.include_desktop_blob_4k_landscape_touch {
+        let assets_4k = package_assets
+            .artifacts_by_resolution
+            .get("4k")
+            .ok_or_else(|| "Missing 4k assets for landscape touch desktop package".to_string())?;
+        let landscape_touch_template = fields
+            .get("html_desktop_4k_landscape_touch_blob")
+            .or_else(|| fields.get("html_4k"))
+            .ok_or_else(|| "Missing landscape touch desktop 4k html template".to_string())?;
+        let landscape_touch_html = super::build_desktop_blob_html(
+            landscape_touch_template,
+            assets_4k,
+            package_assets.logo_asset.as_ref(),
+        );
+        let minified_landscape_touch_html = minify_export_html(&landscape_touch_html);
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_4k/index.html",
+            &minified_landscape_touch_html,
+        )?;
+    }
+    Ok(())
 }
 
 fn write_web_only_support(
@@ -236,22 +363,70 @@ fn write_desktop_support(
     options: FileOptions,
     selected_profiles: &SelectedProfiles,
 ) -> Result<(), String> {
-    if !selected_profiles.include_desktop_blob_2k {
-        return Ok(());
+    if selected_profiles.include_desktop_blob_2k {
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop/README.txt",
+            super::create_desktop_readme().as_bytes(),
+        )?;
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop/embed_codes.txt",
+            b"DESKTOP PACKAGE\n\nOpen:\ndesktop/index.html\n",
+        )?;
     }
 
-    super::write_zip_file(
-        zip,
-        options,
-        "desktop/README.txt",
-        super::create_desktop_readme().as_bytes(),
-    )?;
-    super::write_zip_file(
-        zip,
-        options,
-        "desktop/embed_codes.txt",
-        b"DESKTOP PACKAGE\n\nOpen:\ndesktop/index.html\n",
-    )
+    if selected_profiles.include_desktop_blob_2k_landscape_touch {
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch/README.txt",
+            super::create_desktop_landscape_touch_readme("desktop_landscape_touch", "2K")
+                .as_bytes(),
+        )?;
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch/embed_codes.txt",
+            b"LANDSCAPE TOUCH PACKAGE\n\nOpen:\ndesktop_landscape_touch/index.html\n",
+        )?;
+    }
+
+    if selected_profiles.include_desktop_blob_hd_landscape_touch {
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_hd/README.txt",
+            super::create_desktop_landscape_touch_readme("desktop_landscape_touch_hd", "HD")
+                .as_bytes(),
+        )?;
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_hd/embed_codes.txt",
+            b"LANDSCAPE TOUCH HD PACKAGE\n\nOpen:\ndesktop_landscape_touch_hd/index.html\n",
+        )?;
+    }
+
+    if selected_profiles.include_desktop_blob_4k_landscape_touch {
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_4k/README.txt",
+            super::create_desktop_landscape_touch_readme("desktop_landscape_touch_4k", "4K")
+                .as_bytes(),
+        )?;
+        super::write_zip_file(
+            zip,
+            options,
+            "desktop_landscape_touch_4k/embed_codes.txt",
+            b"LANDSCAPE TOUCH 4K PACKAGE\n\nOpen:\ndesktop_landscape_touch_4k/index.html\n",
+        )?;
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

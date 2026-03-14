@@ -8,9 +8,11 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
-- [ ] `../../src/AppAutosave.res`
-- [ ] `../../src/AppEffects.res`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (4)
+- [ ] `../../src/portal-index.js`
+- [ ] `../../backend/src/bin/portal.rs`
+- [ ] `../../backend/src/services/portal.rs`
+- [ ] `../../src/site/PortalApp.res`
 
 ---
 

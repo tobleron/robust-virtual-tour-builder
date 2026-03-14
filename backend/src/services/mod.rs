@@ -1,6 +1,10 @@
 pub mod database;
+#[cfg(feature = "builder-runtime")]
 pub mod geocoding;
+#[cfg(feature = "builder-runtime")]
 pub mod media;
+pub mod portal;
+#[cfg(feature = "builder-runtime")]
 pub mod project;
 pub mod shutdown;
 pub mod upload_quota;

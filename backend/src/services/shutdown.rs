@@ -157,6 +157,7 @@ pub async fn cleanup_temp_files() -> std::io::Result<()> {
 }
 
 /// Persist all caches to disk
+#[cfg(feature = "builder-runtime")]
 pub async fn persist_caches() -> Result<(), String> {
     tracing::info!("Persisting caches...");
 
@@ -170,6 +171,12 @@ pub async fn persist_caches() -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(not(feature = "builder-runtime"))]
+pub async fn persist_caches() -> Result<(), String> {
+    Ok(())
+}
+
+#[cfg(feature = "builder-runtime")]
 pub async fn persist_inflight_upload_sessions(
     import_manager: &crate::services::project::ChunkedProjectImportManager,
     export_manager: &crate::services::project::ChunkedProjectExportUploadManager,
@@ -185,6 +192,7 @@ pub async fn persist_inflight_upload_sessions(
 }
 
 /// Perform all shutdown cleanup tasks
+#[cfg(feature = "builder-runtime")]
 pub async fn perform_shutdown_cleanup(
     shutdown_manager: &ShutdownManager,
     import_manager: &crate::services::project::ChunkedProjectImportManager,
@@ -218,6 +226,29 @@ pub async fn perform_shutdown_cleanup(
         completed_all_requests = all_completed,
         remaining_requests = shutdown_manager.active_count(),
         "✅ Graceful shutdown complete"
+    );
+}
+
+#[cfg(feature = "portal-runtime")]
+pub async fn perform_portal_shutdown_cleanup(shutdown_manager: &ShutdownManager) {
+    tracing::info!("🛑 Initiating portal graceful shutdown...");
+    let drain_started = std::time::Instant::now();
+
+    let all_completed = shutdown_manager.wait_for_completion().await;
+
+    if !all_completed {
+        tracing::warn!("Some portal requests did not complete in time");
+    }
+
+    if let Err(e) = cleanup_temp_files().await {
+        tracing::error!(error = %e, "Portal temp file cleanup failed");
+    }
+
+    tracing::info!(
+        drain_ms = drain_started.elapsed().as_millis(),
+        completed_all_requests = all_completed,
+        remaining_requests = shutdown_manager.active_count(),
+        "✅ Portal graceful shutdown complete"
     );
 }
 

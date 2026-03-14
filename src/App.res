@@ -183,7 +183,7 @@ module InnerApp = {
       None
     }, [dispatch])
 
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
+    <div id="app-shell" className="flex h-screen w-screen overflow-hidden bg-slate-900">
       <OfflineBanner />
       {if isSystemLocked {
         <div className="interaction-lock-overlay">
@@ -200,7 +200,8 @@ module InnerApp = {
       </AppErrorBoundary>
 
       <AppErrorBoundary
-        featureName="ViewerSurface" fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
+        featureName="ViewerSurface"
+        fallback={<FeatureCrashFallback featureName="Viewer Surface" />}
       >
         <main
           id="viewer-container"
@@ -235,9 +236,12 @@ module InnerApp = {
               <ViewerUI />
               <VisualPipeline />
             </div>
+
+            <NotificationCenter />
           </div>
 
-          {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) == 0 {
+          {if Array.length(SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)) ==
+              0 {
             <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
               <h3> {React.string("Ready to build.")} </h3>
             </div>
@@ -245,7 +249,6 @@ module InnerApp = {
             React.null
           }}
 
-          /* Modal & Notification Containers */
           <div id="modal-container">
             <ModalContext />
             <RecoveryCheck />
@@ -254,7 +257,6 @@ module InnerApp = {
         </main>
       </AppErrorBoundary>
 
-      /* Logic Controllers */
       <Navigation.Controller />
       <AppErrorBoundary featureName="ViewerManager" fallback={React.null}>
         <ViewerManager />
