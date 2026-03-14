@@ -1,6 +1,6 @@
 {
   "name": "robust-virtual-tour-builder",
-  "version": "5.2.5",
+  "version": "5.3.0",
   "buildNumber": 0,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
@@ -27,6 +27,7 @@
     "sw:sync": "node scripts/sync-sw.cjs",
     "sw:watch": "node scripts/sync-sw.cjs --watch",
     "build": "npm run sw:sync && npm run res:build && rsbuild build",
+    "build:portal": "npm run res:build && rsbuild build --config rsbuild.portal.config.mjs",
     "version-sync": "node scripts/update-version.js && node scripts/sync-sw.cjs",
     "postversion": "npm run version-sync",
     "test:logging": "node scripts/test-logging.js",
@@ -41,6 +42,7 @@
     "dev:system": "./scripts/dev-system.sh",
     "dev:all": "concurrently --kill-others -n \"RES,SW,BACK,FRONT,GOV\" -c \"yellow,cyan,blue,green,magenta\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:system\"",
     "dev:frontend": "rsbuild dev",
+    "dev:portal": "rsbuild dev --config rsbuild.portal.config.mjs",
     "dev:backend": "cd backend && (command -v cargo-watch >/dev/null 2>&1 && cargo watch -w src -w Cargo.toml -w Cargo.lock -w migrations -x run || cargo run)",
     "start": "./scripts/start-prod.sh"
   },

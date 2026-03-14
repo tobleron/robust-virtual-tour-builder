@@ -102,7 +102,12 @@ pub fn create_tour_package(
             .unix_permissions(0o755);
 
         package_output::write_root_launcher(&mut zip, options, &selected_profiles)?;
-        package_output::write_shared_assets(&mut zip, options, &selected_profiles, &package_assets)?;
+        package_output::write_shared_assets(
+            &mut zip,
+            options,
+            &selected_profiles,
+            &package_assets,
+        )?;
         package_output::write_image_assets(
             &mut zip,
             options,

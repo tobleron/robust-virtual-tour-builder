@@ -37,8 +37,9 @@ pub(super) fn write_root_launcher(
     options: FileOptions,
     selected_profiles: &SelectedProfiles,
 ) -> Result<(), String> {
-    let include_web_only =
-        selected_profiles.include_4k || selected_profiles.include_2k || selected_profiles.include_hd;
+    let include_web_only = selected_profiles.include_4k
+        || selected_profiles.include_2k
+        || selected_profiles.include_hd;
     let include_desktop = selected_profiles.include_desktop_blob_2k;
     let include_desktop_landscape_touch_hd =
         selected_profiles.include_desktop_blob_hd_landscape_touch;

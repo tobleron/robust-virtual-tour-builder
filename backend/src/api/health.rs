@@ -1,4 +1,5 @@
 use crate::metrics::ACTIVE_SESSIONS;
+#[cfg(feature = "builder-runtime")]
 use crate::services::geocoding;
 use actix_web::{HttpResponse, Responder, web};
 use serde::Serialize;
@@ -105,13 +106,18 @@ pub async fn health_check(db_pool: web::Data<SqlitePool>) -> impl Responder {
     };
 
     // Geocoding cache observability.
+    #[cfg(feature = "builder-runtime")]
     let geocode_info = geocoding::get_info().await;
+    #[cfg(feature = "builder-runtime")]
     let total_requests = geocode_info.stats.hits + geocode_info.stats.misses;
+    #[cfg(feature = "builder-runtime")]
     let hit_rate = if total_requests > 0 {
         (geocode_info.stats.hits as f64 / total_requests as f64) * 100.0
     } else {
         0.0
     };
+    #[cfg(not(feature = "builder-runtime"))]
+    let hit_rate = 0.0;
 
     let healthy = db_ok && disk_ok;
     let active_sessions = ACTIVE_SESSIONS
@@ -131,10 +137,22 @@ pub async fn health_check(db_pool: web::Data<SqlitePool>) -> impl Responder {
             database_dir: database_dir.display().to_string(),
         },
         cache: HealthCache {
+            #[cfg(feature = "builder-runtime")]
             cache_size: geocode_info.cache_size,
+            #[cfg(not(feature = "builder-runtime"))]
+            cache_size: 0,
+            #[cfg(feature = "builder-runtime")]
             max_cache_size: geocoding::MAX_CACHE_SIZE,
+            #[cfg(not(feature = "builder-runtime"))]
+            max_cache_size: 0,
+            #[cfg(feature = "builder-runtime")]
             hits: geocode_info.stats.hits,
+            #[cfg(not(feature = "builder-runtime"))]
+            hits: 0,
+            #[cfg(feature = "builder-runtime")]
             misses: geocode_info.stats.misses,
+            #[cfg(not(feature = "builder-runtime"))]
+            misses: 0,
             hit_rate,
         },
         runtime: HealthRuntime { active_sessions },

@@ -36,54 +36,38 @@ let appendTemplates = (
   let generateWebIndex = () => {
     let logoBlock = switch logoFilename {
     | Some(filename) =>
-      `<div style="position:fixed;right:16px;bottom:16px;background:rgba(255,255,255,0.1);padding:4px;border-radius:8px;"><img src="../assets/logo/${filename}" style="height:52px;width:auto;display:block;" /></div>`
+      `<div style="position:fixed;right:16px;bottom:16px;background:rgba(255,255,255,0.1);padding:5px;border-radius:10px;"><img src="../assets/logo/${filename}" style="height:64px;width:auto;display:block;" /></div>`
     | None => ""
     }
-    let cards =
-      webProfiles
-      ->Belt.Array.map(profile =>
-        switch profile {
-        | "4k" => `<a href="tour_4k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">4K Adaptive</a>`
-        | "2k" => `<a href="tour_2k/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">2K Adaptive</a>`
-        | _ => `<a href="tour_hd/index.html" style="display:block;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">HD Adaptive</a>`
-        }
-      )
-      ->Array.joinUnsafe("\n")
-    `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(
+    let has4k = hasProfile("4k")
+    let has2k = hasProfile("2k")
+    let fallbackHref = if has4k {
+      "tour_4k/index.html"
+    } else if has2k {
+      "tour_2k/index.html"
+    } else {
+      "tour_hd/index.html"
+    }
+    let adaptiveTarget = if has4k && has2k {
+      "(() => { const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches; const shortEdge = Math.min(window.innerWidth || 0, window.innerHeight || 0); return coarse && shortEdge <= 430 ? 'tour_2k/index.html' : 'tour_4k/index.html'; })()"
+    } else {
+      "'" ++ fallbackHref ++ "'"
+    }
+    `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;text-align:center;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(
         /_/g,
         " ",
-      )}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">Virtual Tour v${version}</p><div style="display:grid;gap:12px;">${cards}</div></div>${logoBlock}</body></html>`
+      )}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">Adaptive web package v${version}</p><p style="margin:0 0 24px 0;color:rgba(255,255,255,0.68);">4K loads by default, with a 2K fallback on small phones.</p><a href="${fallbackHref}" style="display:inline-block;padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">Open Tour</a><noscript><p style="margin:16px 0 0 0;color:rgba(255,255,255,0.6);">JavaScript is disabled, so the default tour entry is being shown.</p></noscript></div><script>window.location.replace(${adaptiveTarget});</script>${logoBlock}</body></html>`
   }
 
   let generateEmbedCodes = () => {
     let lines = ref([`VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n`])
-    if hasProfile("4k") {
-      lines :=
-        Belt.Array.concat(
-          lines.contents,
-          [
-            `\n1. 4K (Adaptive):\n   <iframe src="tour_4k/index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
-          ],
-        )
-    }
-    if hasProfile("2k") {
-      lines :=
-        Belt.Array.concat(
-          lines.contents,
-          [
-            `\n2. 2K (Adaptive):\n   <iframe src="tour_2k/index.html" width="100%" height="400" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
-          ],
-        )
-    }
-    if hasProfile("hd") {
-      lines :=
-        Belt.Array.concat(
-          lines.contents,
-          [
-            `\n3. HD (Adaptive):\n   <iframe src="tour_hd/index.html" width="375" height="667" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
-          ],
-        )
-    }
+    lines :=
+      Belt.Array.concat(
+        lines.contents,
+        [
+          `\n1. Web Package (4K default, 2K on small phones):\n   <iframe src="index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
+        ],
+      )
     lines.contents->Array.joinUnsafe("")
   }
 

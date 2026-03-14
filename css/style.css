@@ -22,6 +22,7 @@
 @import './components/label-menu.css';
 @import './components/popover.css';
 @import './components/site-pages.css';
+@import './components/portal-pages.css';
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';

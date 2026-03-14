@@ -1,27 +1,14 @@
 @react.component
 let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) => {
-  let (include4k, setInclude4k) = React.useState(_ => true)
-  let (include2k, setInclude2k) = React.useState(_ => true)
-  let (includeHd, setIncludeHd) = React.useState(_ => true)
-  let (includeStandalone2k, setIncludeStandalone2k) = React.useState(_ => true)
+  let (includeWebPackage, setIncludeWebPackage) = React.useState(_ => true)
+  let (includeStandalone2k, setIncludeStandalone2k) = React.useState(_ => false)
   let (includeLogo, setIncludeLogo) = React.useState(_ => true)
   let (includeMarketing, setIncludeMarketing) = React.useState(_ => true)
 
-  let buildSelectedProfiles = (
-    ~include4kValue,
-    ~include2kValue,
-    ~includeHdValue,
-    ~includeStandalone2kValue,
-  ) => {
+  let buildSelectedProfiles = (~includeWebPackageValue, ~includeStandalone2kValue) => {
     let acc = ref([])
-    if include4kValue {
-      acc := Belt.Array.concat(acc.contents, [#k4])
-    }
-    if include2kValue {
-      acc := Belt.Array.concat(acc.contents, [#k2])
-    }
-    if includeHdValue {
-      acc := Belt.Array.concat(acc.contents, [#hd])
+    if includeWebPackageValue {
+      acc := Belt.Array.concat(acc.contents, [#k4, #k2])
     }
     if includeStandalone2kValue {
       acc := Belt.Array.concat(acc.contents, [#standalone2k])
@@ -30,9 +17,7 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
   }
 
   let emitOptions = (
-    ~include4kValue=include4k,
-    ~include2kValue=include2k,
-    ~includeHdValue=includeHd,
+    ~includeWebPackageValue=includeWebPackage,
     ~includeStandalone2kValue=includeStandalone2k,
     ~includeLogoValue=includeLogo,
     ~includeMarketingValue=includeMarketing,
@@ -40,9 +25,7 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
   ) => {
     onOptionsChanged({
       selectedProfiles: buildSelectedProfiles(
-        ~include4kValue,
-        ~include2kValue,
-        ~includeHdValue,
+        ~includeWebPackageValue,
         ~includeStandalone2kValue,
       ),
       includeLogo: includeLogoValue,
@@ -66,44 +49,16 @@ let make = (~onOptionsChanged: SidebarBase.SidebarTypes.publishOptions => unit) 
       <label className="publish-options-row">
         <input
           type_="checkbox"
-          checked={includeHd}
+          checked={includeWebPackage}
           onChange={_ =>
-            setIncludeHd(prev => {
+            setIncludeWebPackage(prev => {
               let next = !prev
-              emitOptions(~includeHdValue=next, ())
+              emitOptions(~includeWebPackageValue=next, ())
               next
             })}
           className="accent-orange-500"
         />
-        {optionLabel(~label="HD", ())}
-      </label>
-      <label className="publish-options-row">
-        <input
-          type_="checkbox"
-          checked={include2k}
-          onChange={_ =>
-            setInclude2k(prev => {
-              let next = !prev
-              emitOptions(~include2kValue=next, ())
-              next
-            })}
-          className="accent-orange-500"
-        />
-        {optionLabel(~label="2K", ())}
-      </label>
-      <label className="publish-options-row">
-        <input
-          type_="checkbox"
-          checked={include4k}
-          onChange={_ =>
-            setInclude4k(prev => {
-              let next = !prev
-              emitOptions(~include4kValue=next, ())
-              next
-            })}
-          className="accent-orange-500"
-        />
-        {optionLabel(~label="4K", ())}
+        {optionLabel(~label="Web Package", ~meta="4K default, 2K on small phones", ())}
       </label>
       <label className="publish-options-row">
         <input

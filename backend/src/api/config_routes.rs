@@ -4,10 +4,13 @@ use crate::middleware::rate_limiter::{RateLimitResponseTransformer, RateLimiters
 use actix_governor::Governor;
 use actix_web::web;
 
-use super::{
-    auth, geocoding, health, media, project, project_export, project_import, telemetry, utils,
-};
+use super::{auth, health, portal};
+#[cfg(feature = "builder-runtime")]
+use super::{telemetry, utils};
+#[cfg(feature = "builder-runtime")]
+use super::{geocoding, media, project, project_export, project_import};
 
+#[cfg(feature = "builder-runtime")]
 pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
     cfg.service(
         web::scope("/api")
@@ -166,6 +169,14 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .wrap(auth_middleware::AuthMiddleware)
                             .wrap(RateLimitResponseTransformer::new("read"))
                             .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/change-password",
+                        web::post()
+                            .to(auth::change_password)
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
                     ),
             )
             .service(
@@ -177,6 +188,88 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .to(auth::revoke_all_trusted_devices)
                             .wrap(RateLimitResponseTransformer::new("write"))
                             .wrap(Governor::new(&limiters.write)),
+                    ),
+            )
+            .service(
+                web::scope("/portal")
+                    .service(
+                        web::scope("/admin")
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("admin"))
+                            .wrap(Governor::new(&limiters.admin))
+                            .route("/settings", web::get().to(portal::admin_get_settings))
+                            .route("/settings", web::patch().to(portal::admin_update_settings))
+                            .route("/customers", web::get().to(portal::admin_list_customers))
+                            .route("/customers", web::post().to(portal::admin_create_customer))
+                            .route(
+                                "/customers/{customer_id}",
+                                web::patch().to(portal::admin_update_customer),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links/regenerate",
+                                web::post().to(portal::admin_regenerate_access_link),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links/revoke",
+                                web::post().to(portal::admin_revoke_access_links),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links",
+                                web::delete().to(portal::admin_delete_access_links),
+                            )
+                            .route(
+                                "/customers/{customer_id}",
+                                web::delete().to(portal::admin_delete_customer),
+                            )
+                            .route(
+                                "/customers/{customer_id}/assignments",
+                                web::post().to(portal::admin_assign_customer_tour),
+                            )
+                            .route(
+                                "/customers/{customer_id}/assignments/{tour_id}",
+                                web::delete().to(portal::admin_unassign_customer_tour),
+                            )
+                            .route("/tours", web::get().to(portal::admin_list_library_tours))
+                            .route(
+                                "/tours/upload",
+                                web::post().to(portal::admin_upload_library_tour),
+                            )
+                            .route(
+                                "/tours/{tour_id}/status",
+                                web::post().to(portal::admin_update_library_tour_status),
+                            )
+                            .route(
+                                "/tours/{tour_id}",
+                                web::delete().to(portal::admin_delete_library_tour),
+                            ),
+                    )
+                    .route(
+                        "/customers/{slug}/public",
+                        web::get()
+                            .to(portal::customer_public)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/customers/{slug}/session",
+                        web::get()
+                            .to(portal::customer_session)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/customers/{slug}/signout",
+                        web::post()
+                            .to(portal::customer_sign_out)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/customers/{slug}/tours",
+                        web::get()
+                            .to(portal::customer_tours)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
                     ),
             )
             .service(
@@ -386,5 +479,187 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                     .wrap(RateLimitResponseTransformer::new("health"))
                     .wrap(Governor::new(&limiters.health)),
             ),
+    );
+
+    cfg.route(
+        "/portal-assets/{slug}/{tour_slug}/{tail:.*}",
+        web::get().to(portal::customer_tour_asset),
+    );
+    cfg.route(
+        "/u/{slug}/tour/{tour_slug}",
+        web::get().to(portal::customer_tour_launch),
+    );
+    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
+    cfg.route(
+        "/u/{slug}/{token}/tour/{tour_slug}",
+        web::get().to(portal::user_tour_access_redirect),
+    );
+    cfg.route(
+        "/access/{token}/tour/{tour_slug}",
+        web::get().to(portal::access_tour_redirect),
+    );
+    cfg.route(
+        "/access/{token}",
+        web::get().to(portal::access_link_redirect),
+    );
+}
+
+#[cfg(not(feature = "builder-runtime"))]
+pub(super) fn configure_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}
+
+pub(super) fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
+    cfg.service(
+        web::scope("/api")
+            .service(
+                web::scope("/auth")
+                    .route(
+                        "/signin",
+                        web::post()
+                            .to(auth::signin)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/dev-login",
+                        web::post()
+                            .to(auth::dev_signin)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/signout",
+                        web::post()
+                            .to(auth::signout)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/me",
+                        web::get()
+                            .to(auth::me)
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/change-password",
+                        web::post()
+                            .to(auth::change_password)
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    ),
+            )
+            .service(
+                web::scope("/portal")
+                    .service(
+                        web::scope("/admin")
+                            .wrap(auth_middleware::AuthMiddleware)
+                            .wrap(RateLimitResponseTransformer::new("admin"))
+                            .wrap(Governor::new(&limiters.admin))
+                            .route("/settings", web::get().to(portal::admin_get_settings))
+                            .route("/settings", web::patch().to(portal::admin_update_settings))
+                            .route("/customers", web::get().to(portal::admin_list_customers))
+                            .route("/customers", web::post().to(portal::admin_create_customer))
+                            .route(
+                                "/customers/{customer_id}",
+                                web::patch().to(portal::admin_update_customer),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links/regenerate",
+                                web::post().to(portal::admin_regenerate_access_link),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links/revoke",
+                                web::post().to(portal::admin_revoke_access_links),
+                            )
+                            .route(
+                                "/customers/{customer_id}/access-links",
+                                web::delete().to(portal::admin_delete_access_links),
+                            )
+                            .route(
+                                "/customers/{customer_id}",
+                                web::delete().to(portal::admin_delete_customer),
+                            )
+                            .route(
+                                "/customers/{customer_id}/assignments",
+                                web::post().to(portal::admin_assign_customer_tour),
+                            )
+                            .route(
+                                "/customers/{customer_id}/assignments/{tour_id}",
+                                web::delete().to(portal::admin_unassign_customer_tour),
+                            )
+                            .route("/tours", web::get().to(portal::admin_list_library_tours))
+                            .route(
+                                "/tours/upload",
+                                web::post().to(portal::admin_upload_library_tour),
+                            )
+                            .route(
+                                "/tours/{tour_id}/status",
+                                web::post().to(portal::admin_update_library_tour_status),
+                            )
+                            .route(
+                                "/tours/{tour_id}",
+                                web::delete().to(portal::admin_delete_library_tour),
+                            ),
+                    )
+                    .route(
+                        "/customers/{slug}/public",
+                        web::get()
+                            .to(portal::customer_public)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/customers/{slug}/session",
+                        web::get()
+                            .to(portal::customer_session)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/customers/{slug}/signout",
+                        web::post()
+                            .to(portal::customer_sign_out)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/customers/{slug}/tours",
+                        web::get()
+                            .to(portal::customer_tours)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    ),
+            )
+            .route(
+                "/health",
+                web::get()
+                    .to(health::health_check)
+                    .wrap(RateLimitResponseTransformer::new("health"))
+                    .wrap(Governor::new(&limiters.health)),
+            ),
+    );
+
+    cfg.route(
+        "/portal-assets/{slug}/{tour_slug}/{tail:.*}",
+        web::get().to(portal::customer_tour_asset),
+    );
+    cfg.route(
+        "/u/{slug}/tour/{tour_slug}",
+        web::get().to(portal::customer_tour_launch),
+    );
+    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
+    cfg.route(
+        "/u/{slug}/{token}/tour/{tour_slug}",
+        web::get().to(portal::user_tour_access_redirect),
+    );
+    cfg.route(
+        "/access/{token}/tour/{tour_slug}",
+        web::get().to(portal::access_tour_redirect),
+    );
+    cfg.route(
+        "/access/{token}",
+        web::get().to(portal::access_link_redirect),
     );
 }

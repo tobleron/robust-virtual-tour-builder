@@ -114,7 +114,8 @@ pub(super) async fn signin(
         incoming_device_token.as_deref(),
     )
     .await?;
-    let force_new_device_hard_trigger = trusted_device.is_none();
+    let force_new_device_hard_trigger = trusted_device.is_none()
+        && super::super::super::config_bool("STEP_UP_HARD_TRIGGER_NEW_DEVICE", true);
     let risk = super::super::super::compute_risk_decision(
         pool.get_ref(),
         &user,

@@ -1,0 +1,35 @@
+FROM node:22-bookworm AS frontend
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+RUN npm run build:portal
+
+FROM rust:1.88-bookworm AS backend-builder
+WORKDIR /app/backend
+
+COPY backend/Cargo.toml backend/Cargo.lock* ./
+COPY backend/migrations ./migrations
+COPY backend/src ./src
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates libssl3 \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=frontend /app/dist-portal ./dist-portal
+COPY --from=backend-builder /app/backend/target/release/backend ./backend
+COPY backend/migrations ./backend/migrations
+
+ENV NODE_ENV=production
+ENV APP_SURFACE=portal
+ENV DATABASE_URL=sqlite://data/database.db
+
+EXPOSE 8080
+
+CMD ["./backend"]

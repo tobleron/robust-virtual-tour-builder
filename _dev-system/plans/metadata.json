@@ -1,14 +1,552 @@
 {
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project_snapshot.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.02] | Drag: 3.46 | LOC: 433/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 16.7554272517321,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/project_snapshot.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/project_snapshot.rs",
+              "functions": [
+                {
+                  "name": "default_snapshot_origin",
+                  "signature": "fn default_snapshot_origin() -> String {",
+                  "line": 14
+                },
+                {
+                  "name": "count_hotspots",
+                  "signature": "fn count_hotspots(project_data: &serde_json::Value) -> usize {",
+                  "line": 69
+                },
+                {
+                  "name": "scene_count",
+                  "signature": "fn scene_count(project_data: &serde_json::Value) -> usize {",
+                  "line": 88
+                },
+                {
+                  "name": "project_tour_name",
+                  "signature": "fn project_tour_name(project_data: &serde_json::Value) -> String {",
+                  "line": 96
+                },
+                {
+                  "name": "snapshot_history_dir",
+                  "signature": "fn snapshot_history_dir(project_dir: &Path) -> PathBuf {",
+                  "line": 104
+                },
+                {
+                  "name": "snapshot_content_hash",
+                  "signature": "fn snapshot_content_hash(project_data: &serde_json::Value) -> Result<String, AppError> {",
+                  "line": 108
+                },
+                {
+                  "name": "write_current_snapshot",
+                  "signature": "fn write_current_snapshot(",
+                  "line": 117
+                },
+                {
+                  "name": "load_snapshot_history",
+                  "signature": "fn load_snapshot_history(",
+                  "line": 128
+                },
+                {
+                  "name": "load_snapshot_history_files",
+                  "signature": "fn load_snapshot_history_files(",
+                  "line": 138
+                },
+                {
+                  "name": "prune_snapshot_history",
+                  "signature": "fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError> {",
+                  "line": 164
+                },
+                {
+                  "name": "persist_snapshot_history",
+                  "signature": "fn persist_snapshot_history(",
+                  "line": 173
+                },
+                {
+                  "name": "persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save",
+                  "signature": "fn persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save()",
+                  "line": 229
+                },
+                {
+                  "name": "snapshot_item_from_envelope",
+                  "signature": "fn snapshot_item_from_envelope(",
+                  "line": 254
+                },
+                {
+                  "name": "read_snapshot",
+                  "signature": "fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {",
+                  "line": 268
+                },
+                {
+                  "name": "resolve_snapshot_path",
+                  "signature": "fn resolve_snapshot_path(project_dir: &Path) -> Result<PathBuf, AppError> {",
+                  "line": 275
+                },
+                {
+                  "name": "validate_snapshot_project",
+                  "signature": "fn validate_snapshot_project(",
+                  "line": 297
+                },
+                {
+                  "name": "sync_snapshot",
+                  "signature": "async fn sync_snapshot(",
+                  "line": 316
+                },
+                {
+                  "name": "list_project_snapshots",
+                  "signature": "async fn list_project_snapshots(",
+                  "line": 352
+                },
+                {
+                  "name": "load_project_snapshot",
+                  "signature": "async fn load_project_snapshot(",
+                  "line": 373
+                },
+                {
+                  "name": "restore_project_snapshot",
+                  "signature": "async fn restore_project_snapshot(",
+                  "line": 406
+                }
+              ],
+              "fingerprint": "2c82a577e88062e7dc2e04e281028bf340c4ef4551159aa0d40b18f3eb48cfa2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/config_routes.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.60, Density: 0.00, Coupling: 0.01] | Drag: 1.60 | LOC: 665/392  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 28.900000000000002,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/config_routes.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/config_routes.rs",
+              "functions": [
+                {
+                  "name": "configure_api",
+                  "signature": "fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
+                  "line": 14
+                },
+                {
+                  "name": "configure_api",
+                  "signature": "fn configure_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}",
+                  "line": 508
+                },
+                {
+                  "name": "configure_portal_api",
+                  "signature": "fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
+                  "line": 510
+                }
+              ],
+              "fingerprint": "b90713ffb2446f9c0b1751ab2a6dfe0aa73393d9ae43f5c6b6d1d29d4d6332df"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/main.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.06] | Drag: 4.04 | LOC: 447/300  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 18.73803131991051,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/main.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/main.rs",
+              "functions": [
+                {
+                  "name": "from_env",
+                  "signature": "fn from_env() -> Self {",
+                  "line": 40
+                },
+                {
+                  "name": "builder_dist_root",
+                  "signature": "fn builder_dist_root() -> PathBuf {",
+                  "line": 53
+                },
+                {
+                  "name": "portal_dist_root",
+                  "signature": "fn portal_dist_root() -> PathBuf {",
+                  "line": 57
+                },
+                {
+                  "name": "dist_root",
+                  "signature": "fn dist_root(self) -> PathBuf {",
+                  "line": 61
+                },
+                {
+                  "name": "wait_for_shutdown_signal",
+                  "signature": "async fn wait_for_shutdown_signal() -> &'static str {",
+                  "line": 70
+                },
+                {
+                  "name": "wait_for_shutdown_signal",
+                  "signature": "async fn wait_for_shutdown_signal() -> &'static str {",
+                  "line": 88
+                },
+                {
+                  "name": "is_hashed_static_asset",
+                  "signature": "fn is_hashed_static_asset(path: &str) -> bool {",
+                  "line": 93
+                },
+                {
+                  "name": "detects_hashed_static_and_assets_paths",
+                  "signature": "fn detects_hashed_static_and_assets_paths() {",
+                  "line": 119
+                },
+                {
+                  "name": "ignores_non_hashed_or_non_static_paths",
+                  "signature": "fn ignores_non_hashed_or_non_static_paths() {",
+                  "line": 126
+                },
+                {
+                  "name": "health_check",
+                  "signature": "async fn health_check(shutdown_manager: web::Data<ShutdownManager>) -> impl Responder {",
+                  "line": 133
+                },
+                {
+                  "name": "main",
+                  "signature": "async fn main() -> io::Result<()> {",
+                  "line": 153
+                }
+              ],
+              "fingerprint": "07058063f3c73ed3cc4e78bf1aac2837c10c8678936ca6825ba2acee209d26f5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/package_output.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.05, Coupling: 0.02] | Drag: 3.75 | LOC: 466/300  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 20.35364806866953,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/services/project/package_output.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/services/project/package_output.rs",
+              "functions": [
+                {
+                  "name": "export_html_minifier_cfg",
+                  "signature": "fn export_html_minifier_cfg() -> Cfg {",
+                  "line": 11
+                },
+                {
+                  "name": "minify_export_html",
+                  "signature": "fn minify_export_html(html: &str) -> Vec<u8> {",
+                  "line": 31
+                },
+                {
+                  "name": "write_root_launcher",
+                  "signature": "fn write_root_launcher(",
+                  "line": 35
+                },
+                {
+                  "name": "write_shared_assets",
+                  "signature": "fn write_shared_assets(",
+                  "line": 65
+                },
+                {
+                  "name": "write_image_assets",
+                  "signature": "fn write_image_assets(",
+                  "line": 114
+                },
+                {
+                  "name": "write_tour_htmls",
+                  "signature": "fn write_tour_htmls(",
+                  "line": 153
+                },
+                {
+                  "name": "write_supporting_files",
+                  "signature": "fn write_supporting_files(",
+                  "line": 191
+                },
+                {
+                  "name": "write_project_metadata",
+                  "signature": "fn write_project_metadata(",
+                  "line": 203
+                },
+                {
+                  "name": "write_desktop_bundle",
+                  "signature": "fn write_desktop_bundle(",
+                  "line": 219
+                },
+                {
+                  "name": "write_web_only_support",
+                  "signature": "fn write_web_only_support(",
+                  "line": 322
+                },
+                {
+                  "name": "write_desktop_support",
+                  "signature": "fn write_desktop_support(",
+                  "line": 361
+                },
+                {
+                  "name": "minify_export_html_reduces_markup_and_keeps_inline_runtime",
+                  "signature": "fn minify_export_html_reduces_markup_and_keeps_inline_runtime() {",
+                  "line": 437
+                }
+              ],
+              "fingerprint": "2f7dd26562ee7df68b4c7b19ed15897108a16ccc22be665e41464e5b275863f0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/portal.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.02] | Drag: 3.47 | LOC: 690/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 42.469565217391306,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/portal.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/portal.rs",
+              "functions": [
+                {
+                  "name": "require_portal_admin",
+                  "signature": "fn require_portal_admin(req: &HttpRequest) -> Result<User, AppError> {",
+                  "line": 83
+                },
+                {
+                  "name": "current_portal_session",
+                  "signature": "fn current_portal_session(session: &Session) -> Result<(String, String), AppError> {",
+                  "line": 99
+                },
+                {
+                  "name": "ensure_slug_matches_session",
+                  "signature": "fn ensure_slug_matches_session(session: &Session, slug: &str) -> Result<String, AppError> {",
+                  "line": 111
+                },
+                {
+                  "name": "portal_public_base_url",
+                  "signature": "fn portal_public_base_url(req: &HttpRequest) -> String {",
+                  "line": 121
+                },
+                {
+                  "name": "safe_next_path",
+                  "signature": "fn safe_next_path(customer_slug: &str, next: Option<&str>) -> String {",
+                  "line": 131
+                },
+                {
+                  "name": "safe_tour_path",
+                  "signature": "fn safe_tour_path(customer_slug: &str, tour_slug: &str) -> String {",
+                  "line": 151
+                },
+                {
+                  "name": "normalized_requested_slug",
+                  "signature": "fn normalized_requested_slug(raw_slug: &str) -> Result<String, AppError> {",
+                  "line": 159
+                },
+                {
+                  "name": "store_portal_session",
+                  "signature": "fn store_portal_session(",
+                  "line": 163
+                },
+                {
+                  "name": "admin_list_customers",
+                  "signature": "pub async fn admin_list_customers(",
+                  "line": 177
+                },
+                {
+                  "name": "admin_create_customer",
+                  "signature": "pub async fn admin_create_customer(",
+                  "line": 186
+                },
+                {
+                  "name": "admin_update_customer",
+                  "signature": "pub async fn admin_update_customer(",
+                  "line": 202
+                },
+                {
+                  "name": "admin_get_settings",
+                  "signature": "pub async fn admin_get_settings(",
+                  "line": 220
+                },
+                {
+                  "name": "admin_update_settings",
+                  "signature": "pub async fn admin_update_settings(",
+                  "line": 229
+                },
+                {
+                  "name": "admin_list_library_tours",
+                  "signature": "pub async fn admin_list_library_tours(",
+                  "line": 240
+                },
+                {
+                  "name": "admin_upload_library_tour",
+                  "signature": "pub async fn admin_upload_library_tour(",
+                  "line": 249
+                },
+                {
+                  "name": "admin_update_library_tour_status",
+                  "signature": "pub async fn admin_update_library_tour_status(",
+                  "line": 265
+                },
+                {
+                  "name": "admin_assign_customer_tour",
+                  "signature": "pub async fn admin_assign_customer_tour(",
+                  "line": 282
+                },
+                {
+                  "name": "admin_unassign_customer_tour",
+                  "signature": "pub async fn admin_unassign_customer_tour(",
+                  "line": 300
+                },
+                {
+                  "name": "admin_regenerate_access_link",
+                  "signature": "pub async fn admin_regenerate_access_link(",
+                  "line": 318
+                },
+                {
+                  "name": "admin_revoke_access_links",
+                  "signature": "pub async fn admin_revoke_access_links(",
+                  "line": 336
+                },
+                {
+                  "name": "admin_delete_access_links",
+                  "signature": "pub async fn admin_delete_access_links(",
+                  "line": 352
+                },
+                {
+                  "name": "admin_delete_customer",
+                  "signature": "pub async fn admin_delete_customer(",
+                  "line": 368
+                },
+                {
+                  "name": "admin_delete_library_tour",
+                  "signature": "pub async fn admin_delete_library_tour(",
+                  "line": 378
+                },
+                {
+                  "name": "customer_public",
+                  "signature": "pub async fn customer_public(",
+                  "line": 388
+                },
+                {
+                  "name": "customer_session",
+                  "signature": "pub async fn customer_session(",
+                  "line": 396
+                },
+                {
+                  "name": "customer_sign_out",
+                  "signature": "pub async fn customer_sign_out(session: Session) -> Result<HttpResponse, AppError> {",
+                  "line": 413
+                },
+                {
+                  "name": "customer_tours",
+                  "signature": "pub async fn customer_tours(",
+                  "line": 419
+                },
+                {
+                  "name": "customer_tour_launch",
+                  "signature": "pub async fn customer_tour_launch(",
+                  "line": 437
+                },
+                {
+                  "name": "customer_tour_asset",
+                  "signature": "pub async fn customer_tour_asset(",
+                  "line": 477
+                },
+                {
+                  "name": "access_link_redirect",
+                  "signature": "pub async fn access_link_redirect(",
+                  "line": 493
+                },
+                {
+                  "name": "user_access_redirect",
+                  "signature": "pub async fn user_access_redirect(",
+                  "line": 538
+                },
+                {
+                  "name": "access_tour_redirect",
+                  "signature": "pub async fn access_tour_redirect(",
+                  "line": 567
+                },
+                {
+                  "name": "user_tour_access_redirect",
+                  "signature": "pub async fn user_tour_access_redirect(",
+                  "line": 612
+                },
+                {
+                  "name": "read_portal_zip_upload",
+                  "signature": "async fn read_portal_zip_upload(mut payload: Multipart) -> Result<(String, PathBuf), AppError> {",
+                  "line": 641
+                }
+              ],
+              "fingerprint": "9e43f91ac94ab86ba5df1da0b68b957c8d641113da8ab4915101e2e8a78f3391"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../src/portal-index.js",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/bin/portal.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/portal.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../src/site/PortalApp.res",
+        "strategy": ""
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
         "file": "../../src/systems/TourTemplates/TourScriptUINav.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 556/414  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 979/419  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.2,
-        "recommended_splits": 2,
+        "complexity": 57.0,
+        "recommended_splits": 3,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScriptUINav.res`",
           "snapshots": [
@@ -29,20 +567,246 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TourTemplateHtml.res",
+        "file": "../../src/utils/NetworkStatus.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.02, Coupling: 0.01] | Drag: 4.02 | LOC: 391/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "reason": "[Nesting: 2.40, Density: 0.36, Coupling: 0.03] | Drag: 4.03 | LOC: 385/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.  🎯 Target: Function: `initialize` (High Local Complexity (9.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.123017902813299,
+        "complexity": 12.533766233766233,
         "recommended_splits": 1,
         "verification": {
-          "headline": "Pre-split snapshot for `src/systems/TourTemplateHtml.res`",
+          "headline": "Pre-split snapshot for `src/utils/NetworkStatus.res`",
           "snapshots": [
             {
-              "path": "src/systems/TourTemplateHtml.res",
-              "functions": [],
-              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              "path": "src/utils/NetworkStatus.res",
+              "functions": [
+                {
+                  "name": "boolSubscribers",
+                  "signature": "boolSubscribers: ref<array<bool => unit>> = ref([])",
+                  "line": 36
+                },
+                {
+                  "name": "snapshotSubscribers",
+                  "signature": "snapshotSubscribers: ref<array<statusSnapshot => unit>> = ref([])",
+                  "line": 37
+                },
+                {
+                  "name": "retryDelaysMs",
+                  "signature": "retryDelaysMs = [2000, 5000, 10000, 15000, 30000]",
+                  "line": 39
+                },
+                {
+                  "name": "phaseAllowsRequests",
+                  "signature": "phaseAllowsRequests = (phase: statusPhase): bool =>",
+                  "line": 41
+                },
+                {
+                  "name": "currentPhase",
+                  "signature": "currentPhase: ref<statusPhase> = ref(",
+                  "line": 49
+                },
+                {
+                  "name": "currentReason",
+                  "signature": "currentReason: ref<statusReason> = ref(",
+                  "line": 56
+                },
+                {
+                  "name": "currentOnline",
+                  "signature": "currentOnline: ref<bool> = ref(phaseAllowsRequests(currentPhase.contents))",
+                  "line": 63
+                },
+                {
+                  "name": "currentAttempt",
+                  "signature": "currentAttempt: ref<int> = ref(0)",
+                  "line": 64
+                },
+                {
+                  "name": "currentRetryDelayMs",
+                  "signature": "currentRetryDelayMs: ref<option<int>> = ref(None)",
+                  "line": 65
+                },
+                {
+                  "name": "currentNextRetryAtMs",
+                  "signature": "currentNextRetryAtMs: ref<option<float>> = ref(None)",
+                  "line": 66
+                },
+                {
+                  "name": "lastHealthyAtMs",
+                  "signature": "lastHealthyAtMs: ref<option<float>> = ref(",
+                  "line": 67
+                },
+                {
+                  "name": "retryTimeoutId",
+                  "signature": "retryTimeoutId: ref<option<int>> = ref(None)",
+                  "line": 74
+                },
+                {
+                  "name": "probeInFlight",
+                  "signature": "probeInFlight = ref(false)",
+                  "line": 75
+                },
+                {
+                  "name": "initialized",
+                  "signature": "initialized = ref(false)",
+                  "line": 76
+                },
+                {
+                  "name": "skipProbe",
+                  "signature": "skipProbe = ref(false)",
+                  "line": 77
+                },
+                {
+                  "name": "phaseMessage",
+                  "signature": "phaseMessage = (phase: statusPhase): string =>",
+                  "line": 79
+                },
+                {
+                  "name": "reasonSignature",
+                  "signature": "reasonSignature = (reason: statusReason): string =>",
+                  "line": 87
+                },
+                {
+                  "name": "optionIntEquals",
+                  "signature": "optionIntEquals = (left: option<int>, right: option<int>): bool =>",
+                  "line": 99
+                },
+                {
+                  "name": "optionFloatEquals",
+                  "signature": "optionFloatEquals = (left: option<float>, right: option<float>): bool =>",
+                  "line": 106
+                },
+                {
+                  "name": "intMax",
+                  "signature": "intMax = (left: int, right: int): int =>",
+                  "line": 113
+                },
+                {
+                  "name": "intMin",
+                  "signature": "intMin = (left: int, right: int): int =>",
+                  "line": 120
+                },
+                {
+                  "name": "getSnapshot",
+                  "signature": "getSnapshot = (): statusSnapshot => {",
+                  "line": 127
+                },
+                {
+                  "name": "isOnline",
+                  "signature": "isOnline = (): bool => currentOnline.contents",
+                  "line": 141
+                },
+                {
+                  "name": "subscribe",
+                  "signature": "subscribe = (callback: bool => unit): (unit => unit) => {",
+                  "line": 143
+                },
+                {
+                  "name": "subscribeSnapshot",
+                  "signature": "subscribeSnapshot = (callback: statusSnapshot => unit): (unit => unit) => {",
+                  "line": 150
+                },
+                {
+                  "name": "notifySubscribers",
+                  "signature": "notifySubscribers = (~onlineChanged: bool) => {",
+                  "line": 157
+                },
+                {
+                  "name": "clearRetryTimer",
+                  "signature": "clearRetryTimer = () => {",
+                  "line": 166
+                },
+                {
+                  "name": "applySnapshot",
+                  "signature": "applySnapshot = (",
+                  "line": 175
+                },
+                {
+                  "name": "nextDelayForAttempt",
+                  "signature": "nextDelayForAttempt = (attempt: int): int => {",
+                  "line": 208
+                },
+                {
+                  "name": "scheduleRetry",
+                  "signature": "scheduleRetry = (delayMs: int) => {",
+                  "line": 215
+                },
+                {
+                  "name": "enterState",
+                  "signature": "enterState = (",
+                  "line": 227
+                },
+                {
+                  "name": "parseRetryAfter",
+                  "signature": "parseRetryAfter = (res: WebApiBindings.Fetch.response): option<int> => {",
+                  "line": 264
+                },
+                {
+                  "name": "probe",
+                  "signature": "probe = async (~isInitial=false) => {",
+                  "line": 272
+                },
+                {
+                  "name": "probeNow",
+                  "signature": "probeNow = () => {",
+                  "line": 331
+                },
+                {
+                  "name": "reportBackendUnavailable",
+                  "signature": "reportBackendUnavailable = (~status: int, ~statusText: string) => {",
+                  "line": 336
+                },
+                {
+                  "name": "reportProbeFailure",
+                  "signature": "reportProbeFailure = () => {",
+                  "line": 340
+                },
+                {
+                  "name": "reportRateLimited",
+                  "signature": "reportRateLimited = (~retryAfterSeconds: int) => {",
+                  "line": 344
+                },
+                {
+                  "name": "reportTransportFailure",
+                  "signature": "reportTransportFailure = (~message: string) => {",
+                  "line": 352
+                },
+                {
+                  "name": "reportRequestSuccess",
+                  "signature": "reportRequestSuccess = () => {",
+                  "line": 356
+                },
+                {
+                  "name": "forceStatus",
+                  "signature": "forceStatus = (online: bool) => {",
+                  "line": 362
+                },
+                {
+                  "name": "handleOnline",
+                  "signature": "handleOnline = () => {",
+                  "line": 370
+                },
+                {
+                  "name": "handleOffline",
+                  "signature": "handleOffline = () => {",
+                  "line": 378
+                },
+                {
+                  "name": "handleFocus",
+                  "signature": "handleFocus = () => {",
+                  "line": 382
+                },
+                {
+                  "name": "cleanup",
+                  "signature": "cleanup = () => {",
+                  "line": 388
+                },
+                {
+                  "name": "initialize",
+                  "signature": "initialize = () => {",
+                  "line": 397
+                }
+              ],
+              "fingerprint": "80aceeeed5ae07ffef623f71c750bce9851f94f602e2402e178992b5744c3ea0"
             }
           ]
         }
@@ -52,11 +816,11 @@
       "Surgical": {
         "file": "../../src/systems/TourTemplates/TourScriptNavigation.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 719/414  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 1051/419  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 31.5,
-        "recommended_splits": 2,
+        "complexity": 64.2,
+        "recommended_splits": 4,
         "verification": {
           "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScriptNavigation.res`",
           "snapshots": [
@@ -74,23 +838,908 @@
           ]
         }
       }
-    }
-  ],
-  "web": [
+    },
     {
       "Surgical": {
-        "file": "../../src/site/PageFrameworkBuilder.js",
+        "file": "../../src/components/ReactHotspotLayer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 9.00, Density: 0.21, Coupling: 0.01] | Drag: 10.21 | LOC: 341/300  ⚠️ Trigger: Drag above target (1.80) with file already at 341 LOC.",
+        "reason": "[Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 7.50 | LOC: 404/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.  🎯 Target: Function: `make` (High Local Complexity (41.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.311143695014662,
+        "complexity": 17.904950495049505,
         "recommended_splits": 1,
         "verification": {
-          "headline": "Pre-split snapshot for `src/site/PageFrameworkBuilder.js`",
+          "headline": "Pre-split snapshot for `src/components/ReactHotspotLayer.res`",
           "snapshots": [
             {
-              "path": "src/site/PageFrameworkBuilder.js",
+              "path": "src/components/ReactHotspotLayer.res",
+              "functions": [
+                {
+                  "name": "cleanSceneTag",
+                  "signature": "cleanSceneTag = raw => {",
+                  "line": 9
+                },
+                {
+                  "name": "sceneDisplayLabel",
+                  "signature": "sceneDisplayLabel = (scene: scene) => {",
+                  "line": 22
+                },
+                {
+                  "name": "sceneIdFromMeta",
+                  "signature": "sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr(\"\")",
+                  "line": 38
+                },
+                {
+                  "name": "duplicateTargetStackSpacingPx",
+                  "signature": "duplicateTargetStackSpacingPx = 42.0",
+                  "line": 39
+                },
+                {
+                  "name": "duplicateStackRestoreDelayMs",
+                  "signature": "duplicateStackRestoreDelayMs = 240",
+                  "line": 40
+                },
+                {
+                  "name": "deriveDuplicateStackPlacements",
+                  "signature": "deriveDuplicateStackPlacements = (",
+                  "line": 68
+                },
+                {
+                  "name": "resolveStackedCoords",
+                  "signature": "resolveStackedCoords = (",
+                  "line": 111
+                },
+                {
+                  "name": "shouldShowHotspotLabel",
+                  "signature": "shouldShowHotspotLabel = (",
+                  "line": 132
+                },
+                {
+                  "name": "resolveDuplicateGroupAnchorLinkId",
+                  "signature": "resolveDuplicateGroupAnchorLinkId = (",
+                  "line": 147
+                },
+                {
+                  "name": "clearHoveredStackRestoreTimer",
+                  "signature": "clearHoveredStackRestoreTimer = (timerRef: React.ref<option<int>>) => {",
+                  "line": 156
+                },
+                {
+                  "name": "make",
+                  "signature": "make = React.memo(() => {",
+                  "line": 165
+                }
+              ],
+              "fingerprint": "9b6048619a9b271e13d431855e9668a0e4a4b195bc42fe43a28dd8dcbb573cce"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/site/PortalTypes.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 194)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0,
+        "recommended_splits": 1,
+        "verification": null
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserRecorderHudSupport.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.35, Coupling: 0.03] | Drag: 5.58 | LOC: 256/300  ⚠️ Trigger: Drag above target (1.80) with file already at 256 LOC.  🎯 Target: Function: `clampCorner` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 5.5828125,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TeaserRecorderHudSupport.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TeaserRecorderHudSupport.res",
+              "functions": [
+                {
+                  "name": "drawRoundedRectCorners",
+                  "signature": "drawRoundedRectCorners = (",
+                  "line": 10
+                },
+                {
+                  "name": "fitTextToWidth",
+                  "signature": "fitTextToWidth = (~ctx, ~rawText: string, ~maxWidth: float): string => {",
+                  "line": 74
+                },
+                {
+                  "name": "renderMarketingBanner",
+                  "signature": "renderMarketingBanner = (",
+                  "line": 106
+                }
+              ],
+              "fingerprint": "3b71133bc3bd110c968b887c62b2a24c4366e7085b773837f8e3dc5f45d82863"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates/TourScriptUIMap.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.00, Density: 0.00, Coupling: 0.00] | Drag: 1.00 | LOC: 588/419  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.9,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplates/TourScriptUIMap.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplates/TourScriptUIMap.res",
+              "functions": [
+                {
+                  "name": "script",
+                  "signature": "script = `",
+                  "line": 1
+                }
+              ],
+              "fingerprint": "1b4994e3d0d530e944a37ae6a8149a225dcf114ddac118de74f1c95d1b2a3e5c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/RequestQueue.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.15, Coupling: 0.06] | Drag: 4.25 | LOC: 253/300  ⚠️ Trigger: Drag above target (1.80) with file already at 253 LOC.  🎯 Target: Function: `pushByPriority` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 4.24505928853755,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/RequestQueue.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/RequestQueue.res",
+              "functions": [
+                {
+                  "name": "maxConcurrent",
+                  "signature": "maxConcurrent = 6",
+                  "line": 3
+                },
+                {
+                  "name": "maxQueued",
+                  "signature": "maxQueued = 256",
+                  "line": 4
+                },
+                {
+                  "name": "criticalBurstSlots",
+                  "signature": "criticalBurstSlots = 2",
+                  "line": 5
+                },
+                {
+                  "name": "activeCount",
+                  "signature": "activeCount = ref(0)",
+                  "line": 6
+                },
+                {
+                  "name": "criticalQueue",
+                  "signature": "criticalQueue: array<queuedItem> = []",
+                  "line": 20
+                },
+                {
+                  "name": "normalQueue",
+                  "signature": "normalQueue: array<queuedItem> = []",
+                  "line": 21
+                },
+                {
+                  "name": "backgroundQueue",
+                  "signature": "backgroundQueue: array<queuedItem> = []",
+                  "line": 22
+                },
+                {
+                  "name": "paused",
+                  "signature": "paused = ref(false)",
+                  "line": 24
+                },
+                {
+                  "name": "nowMs",
+                  "signature": "nowMs: ref<unit => float> = ref(() => Date.now())",
+                  "line": 25
+                },
+                {
+                  "name": "scopeBackoffUntilMs",
+                  "signature": "scopeBackoffUntilMs = Dict.make()",
+                  "line": 26
+                },
+                {
+                  "name": "length",
+                  "signature": "length = (): int =>",
+                  "line": 28
+                },
+                {
+                  "name": "logQueueDepths",
+                  "signature": "logQueueDepths = (~reason: string) => {",
+                  "line": 31
+                },
+                {
+                  "name": "pushByPriority",
+                  "signature": "pushByPriority = (item: queuedItem) => {",
+                  "line": 48
+                },
+                {
+                  "name": "promoteStarved",
+                  "signature": "promoteStarved = () => {",
+                  "line": 56
+                },
+                {
+                  "name": "shiftNext",
+                  "signature": "shiftNext = (): option<queuedItem> => {",
+                  "line": 80
+                },
+                {
+                  "name": "currentConcurrencyLimit",
+                  "signature": "currentConcurrencyLimit = () => {",
+                  "line": 87
+                },
+                {
+                  "name": "process",
+                  "signature": "process = () => {",
+                  "line": 95
+                },
+                {
+                  "name": "pause",
+                  "signature": "pause = () => {",
+                  "line": 129
+                },
+                {
+                  "name": "resume",
+                  "signature": "resume = () => {",
+                  "line": 139
+                },
+                {
+                  "name": "handleRateLimit",
+                  "signature": "handleRateLimit = (seconds: int) => {",
+                  "line": 150
+                },
+                {
+                  "name": "handleRateLimitForScope",
+                  "signature": "handleRateLimitForScope = (~scope: string, ~seconds: int) => {",
+                  "line": 168
+                },
+                {
+                  "name": "waitForScope",
+                  "signature": "waitForScope = (~scope: string): Promise.t<unit> => {",
+                  "line": 179
+                },
+                {
+                  "name": "drain",
+                  "signature": "drain = (): int => {",
+                  "line": 192
+                },
+                {
+                  "name": "initializeNetworkListener",
+                  "signature": "initializeNetworkListener = () => {",
+                  "line": 216
+                },
+                {
+                  "name": "schedule",
+                  "signature": "schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {",
+                  "line": 226
+                },
+                {
+                  "name": "scheduleWithPriority",
+                  "signature": "scheduleWithPriority = (~priority: priority, task: unit => Promise.t<'a>): Promise.t<'a> => {",
+                  "line": 230
+                },
+                {
+                  "name": "scheduleWithRetry",
+                  "signature": "scheduleWithRetry = (",
+                  "line": 261
+                }
+              ],
+              "fingerprint": "2e9c38c24430464a8cc471f0a744b3786ca874bb7a7028a337e83911be78cc60"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipelineEdgePaths.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.43, Coupling: 0.05] | Drag: 6.23 | LOC: 253/300  ⚠️ Trigger: Drag above target (1.80) with file already at 253 LOC.  🎯 Target: Function: `clipId` (High Local Complexity (2.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 6.234782608695652,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/VisualPipelineEdgePaths.res`",
+          "snapshots": [
+            {
+              "path": "src/components/VisualPipelineEdgePaths.res",
+              "functions": [
+                {
+                  "name": "hasNodeCollisionOnHorizontal",
+                  "signature": "hasNodeCollisionOnHorizontal = (",
+                  "line": 5
+                },
+                {
+                  "name": "edgePathForPair",
+                  "signature": "edgePathForPair = (",
+                  "line": 30
+                },
+                {
+                  "name": "buildContinuityPaths",
+                  "signature": "buildContinuityPaths = (",
+                  "line": 173
+                }
+              ],
+              "fingerprint": "8f00ac5dfcc74a1f849933ccc36d8434774aa9cdaea44538359a68047d21477b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarActionsSupport.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.14, Coupling: 0.06] | Drag: 4.83 | LOC: 254/300  ⚠️ Trigger: Drag above target (1.80) with file already at 254 LOC.  🎯 Target: Function: `saveTargetLabel` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 4.832283464566928,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/Sidebar/SidebarActionsSupport.res`",
+          "snapshots": [
+            {
+              "path": "src/components/Sidebar/SidebarActionsSupport.res",
+              "functions": [
+                {
+                  "name": "defaultTeaserRequest",
+                  "signature": "defaultTeaserRequest = (): teaserRequest => {",
+                  "line": 9
+                },
+                {
+                  "name": "saveTargetLabel",
+                  "signature": "saveTargetLabel = target =>",
+                  "line": 15
+                },
+                {
+                  "name": "saveModalConfig",
+                  "signature": "saveModalConfig = (",
+                  "line": 22
+                },
+                {
+                  "name": "resetPublishOptions",
+                  "signature": "resetPublishOptions = (): SidebarTypes.publishOptions => {",
+                  "line": 80
+                },
+                {
+                  "name": "publishModalConfig",
+                  "signature": "publishModalConfig = (",
+                  "line": 86
+                },
+                {
+                  "name": "make",
+                  "signature": "make = (~teaserStyleRequestRef: React.ref<teaserRequest>) => {",
+                  "line": 115
+                },
+                {
+                  "name": "teaserModalConfig",
+                  "signature": "teaserModalConfig = (",
+                  "line": 241
+                }
+              ],
+              "fingerprint": "8bd1d122c153eab7dcab75cb582fa2b76b01a8d2fd38e7610e84451476c771ce"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/site/PortalApi.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 362)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0,
+        "recommended_splits": 1,
+        "verification": null
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/site/PortalApi.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.19, Coupling: 0.06] | Drag: 2.99 | LOC: 362/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.  🎯 Target: Function: `authHeaderValue` (High Local Complexity (5.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.19060773480663,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/site/PortalApi.res`",
+          "snapshots": [
+            {
+              "path": "src/site/PortalApi.res",
+              "functions": [
+                {
+                  "name": "devHosts",
+                  "signature": "devHosts = Belt.Set.String.fromArray([\"localhost\", \"127.0.0.1\", \"0.0.0.0\"])",
+                  "line": 31
+                },
+                {
+                  "name": "apiErrorDecoder",
+                  "signature": "apiErrorDecoder = Decode.object((field): apiErrorPayload => {",
+                  "line": 37
+                },
+                {
+                  "name": "adminSessionDecoder",
+                  "signature": "adminSessionDecoder = Decode.object((field): adminSession => {",
+                  "line": 43
+                },
+                {
+                  "name": "signInDecoder",
+                  "signature": "signInDecoder = Decode.object((field): signInPayload => {",
+                  "line": 53
+                },
+                {
+                  "name": "okDecoder",
+                  "signature": "okDecoder = Decode.object((field): okPayload => {",
+                  "line": 59
+                },
+                {
+                  "name": "authHeaderValue",
+                  "signature": "authHeaderValue = () => {",
+                  "line": 63
+                },
+                {
+                  "name": "maybeErrorMessage",
+                  "signature": "maybeErrorMessage = json =>",
+                  "line": 71
+                },
+                {
+                  "name": "decodeResponse",
+                  "signature": "decodeResponse = (response, decoder) =>",
+                  "line": 80
+                },
+                {
+                  "name": "decodeErrorResponse",
+                  "signature": "decodeErrorResponse = response =>",
+                  "line": 88
+                },
+                {
+                  "name": "request",
+                  "signature": "request = async (",
+                  "line": 97
+                },
+                {
+                  "name": "getAdminSession",
+                  "signature": "getAdminSession = async () => {",
+                  "line": 141
+                },
+                {
+                  "name": "signInAdmin",
+                  "signature": "signInAdmin = async (~email, ~password) => {",
+                  "line": 148
+                },
+                {
+                  "name": "signOutAdmin",
+                  "signature": "signOutAdmin = async () => {",
+                  "line": 172
+                },
+                {
+                  "name": "changeAdminPassword",
+                  "signature": "changeAdminPassword = async (~currentPassword, ~newPassword) => {",
+                  "line": 182
+                },
+                {
+                  "name": "loadSettings",
+                  "signature": "loadSettings = async () =>",
+                  "line": 199
+                },
+                {
+                  "name": "updateSettings",
+                  "signature": "updateSettings = async (~settings: PortalTypes.settings) => {",
+                  "line": 206
+                },
+                {
+                  "name": "listCustomers",
+                  "signature": "listCustomers = async () =>",
+                  "line": 232
+                },
+                {
+                  "name": "listLibraryTours",
+                  "signature": "listLibraryTours = async () =>",
+                  "line": 239
+                },
+                {
+                  "name": "createCustomer",
+                  "signature": "createCustomer = async (",
+                  "line": 246
+                },
+                {
+                  "name": "updateCustomer",
+                  "signature": "updateCustomer = async (",
+                  "line": 271
+                },
+                {
+                  "name": "regenerateAccessLink",
+                  "signature": "regenerateAccessLink = async (~customerId, ~expiresAt) => {",
+                  "line": 295
+                },
+                {
+                  "name": "revokeAccessLink",
+                  "signature": "revokeAccessLink = async (~customerId) =>",
+                  "line": 306
+                },
+                {
+                  "name": "deleteAccessLinks",
+                  "signature": "deleteAccessLinks = async (~customerId) =>",
+                  "line": 314
+                },
+                {
+                  "name": "assignTour",
+                  "signature": "assignTour = async (~customerId, ~tourId) => {",
+                  "line": 322
+                },
+                {
+                  "name": "unassignTour",
+                  "signature": "unassignTour = async (~customerId, ~tourId) =>",
+                  "line": 333
+                },
+                {
+                  "name": "updateTourStatus",
+                  "signature": "updateTourStatus = async (~tourId, ~status) => {",
+                  "line": 341
+                },
+                {
+                  "name": "deleteCustomer",
+                  "signature": "deleteCustomer = async (~customerId) =>",
+                  "line": 352
+                },
+                {
+                  "name": "deleteTour",
+                  "signature": "deleteTour = async (~tourId) =>",
+                  "line": 360
+                },
+                {
+                  "name": "uploadTour",
+                  "signature": "uploadTour = async (~title, ~file: File.t) => {",
+                  "line": 368
+                },
+                {
+                  "name": "loadCustomerPublic",
+                  "signature": "loadCustomerPublic = async slug =>",
+                  "line": 381
+                },
+                {
+                  "name": "loadCustomerSession",
+                  "signature": "loadCustomerSession = async slug =>",
+                  "line": 387
+                },
+                {
+                  "name": "loadCustomerTours",
+                  "signature": "loadCustomerTours = async slug =>",
+                  "line": 393
+                },
+                {
+                  "name": "signOutCustomer",
+                  "signature": "signOutCustomer = async slug =>",
+                  "line": 399
+                }
+              ],
+              "fingerprint": "793b045fd7e881859ac3679775e53545073e9d9e2b20841fd039cbee196023d4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.29, Coupling: 0.07] | Drag: 3.17 | LOC: 279/300  ⚠️ Trigger: Drag above target (1.80) with file already at 279 LOC.  🎯 Target: Function: `init` (High Local Complexity (18.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 3.172759856630824,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/utils/Logger.res`",
+          "snapshots": [
+            {
+              "path": "src/utils/Logger.res",
+              "functions": [
+                {
+                  "name": "telemetryQueue",
+                  "signature": "telemetryQueue = LoggerTelemetry.telemetryQueue",
+                  "line": 18
+                },
+                {
+                  "name": "isFlushing",
+                  "signature": "isFlushing = LoggerTelemetry.isFlushing",
+                  "line": 19
+                },
+                {
+                  "name": "setBypassTestEnvCheck",
+                  "signature": "setBypassTestEnvCheck = LoggerTelemetry.setBypassTestEnvCheck",
+                  "line": 20
+                },
+                {
+                  "name": "flushTelemetry",
+                  "signature": "flushTelemetry = LoggerTelemetry.flushTelemetry",
+                  "line": 21
+                },
+                {
+                  "name": "sendTelemetry",
+                  "signature": "sendTelemetry = LoggerTelemetry.sendTelemetry",
+                  "line": 22
+                },
+                {
+                  "name": "enabled",
+                  "signature": "enabled = LoggerConsole.enabled",
+                  "line": 24
+                },
+                {
+                  "name": "minLevel",
+                  "signature": "minLevel = LoggerConsole.minLevel",
+                  "line": 25
+                },
+                {
+                  "name": "enabledModules",
+                  "signature": "enabledModules = LoggerConsole.enabledModules",
+                  "line": 26
+                },
+                {
+                  "name": "logToConsole",
+                  "signature": "logToConsole = LoggerConsole.logToConsole",
+                  "line": 27
+                },
+                {
+                  "name": "entries",
+                  "signature": "entries: array<logEntry> = []",
+                  "line": 29
+                },
+                {
+                  "name": "maxEntries",
+                  "signature": "maxEntries = 2000",
+                  "line": 30
+                },
+                {
+                  "name": "appLog",
+                  "signature": "appLog: array<string> = []",
+                  "line": 31
+                },
+                {
+                  "name": "maxAppLogEntries",
+                  "signature": "maxAppLogEntries = 1000",
+                  "line": 32
+                },
+                {
+                  "name": "sessionId",
+                  "signature": "sessionId = ref(None)",
+                  "line": 34
+                },
+                {
+                  "name": "currentOperationId",
+                  "signature": "currentOperationId = ref(None)",
+                  "line": 35
+                },
+                {
+                  "name": "setOperationId",
+                  "signature": "setOperationId = id => currentOperationId := id",
+                  "line": 37
+                },
+                {
+                  "name": "getOperationId",
+                  "signature": "getOperationId = () => currentOperationId.contents",
+                  "line": 38
+                },
+                {
+                  "name": "getSessionId",
+                  "signature": "getSessionId = () => sessionId.contents",
+                  "line": 39
+                },
+                {
+                  "name": "runtimeContext",
+                  "signature": "runtimeContext = (): LoggerLogic.runtimeContext => {",
+                  "line": 41
+                },
+                {
+                  "name": "createLogEntry",
+                  "signature": "createLogEntry = (",
+                  "line": 53
+                },
+                {
+                  "name": "updateLogBuffers",
+                  "signature": "updateLogBuffers = (entry: logEntry, level: level, module_: string, message: string) => {",
+                  "line": 68
+                },
+                {
+                  "name": "log",
+                  "signature": "log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit =>",
+                  "line": 81
+                },
+                {
+                  "name": "trace",
+                  "signature": "trace = (~module_, ~message, ~data: 'a=?, ()) =>",
+                  "line": 84
+                },
+                {
+                  "name": "debug",
+                  "signature": "debug = (~module_, ~message, ~data: 'a=?, ()) =>",
+                  "line": 86
+                },
+                {
+                  "name": "info",
+                  "signature": "info = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Info, ~message, ~data?, ())",
+                  "line": 88
+                },
+                {
+                  "name": "warn",
+                  "signature": "warn = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Warn, ~message, ~data?, ())",
+                  "line": 89
+                },
+                {
+                  "name": "error",
+                  "signature": "error = (~module_, ~message, ~data: 'a=?, ()) =>",
+                  "line": 90
+                },
+                {
+                  "name": "logWithAppError",
+                  "signature": "logWithAppError = (",
+                  "line": 93
+                },
+                {
+                  "name": "warnWithAppError",
+                  "signature": "warnWithAppError = (",
+                  "line": 113
+                },
+                {
+                  "name": "errorWithAppError",
+                  "signature": "errorWithAppError = (",
+                  "line": 122
+                },
+                {
+                  "name": "perf",
+                  "signature": "perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) =>",
+                  "line": 131
+                },
+                {
+                  "name": "timed",
+                  "signature": "timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<'a> => {",
+                  "line": 141
+                },
+                {
+                  "name": "timedAsync",
+                  "signature": "timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<",
+                  "line": 150
+                },
+                {
+                  "name": "attempt",
+                  "signature": "attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationResult<'a> => {",
+                  "line": 160
+                },
+                {
+                  "name": "attemptAsync",
+                  "signature": "attemptAsync = async (",
+                  "line": 169
+                },
+                {
+                  "name": "startOperation",
+                  "signature": "startOperation = (~module_, ~operation, ~data=?, ()) =>",
+                  "line": 181
+                },
+                {
+                  "name": "endOperation",
+                  "signature": "endOperation = (~module_, ~operation, ~data=?, ()) =>",
+                  "line": 183
+                },
+                {
+                  "name": "initialized",
+                  "signature": "initialized = (~module_) => debug(~module_, ~message=`${module_} initialized`, ())",
+                  "line": 185
+                },
+                {
+                  "name": "logResult",
+                  "signature": "logResult = (",
+                  "line": 187
+                },
+                {
+                  "name": "isDiagnosticMode",
+                  "signature": "isDiagnosticMode = () => Constants.Telemetry.diagnosticMode.contents",
+                  "line": 204
+                },
+                {
+                  "name": "setLevel",
+                  "signature": "setLevel = lvl =>",
+                  "line": 206
+                },
+                {
+                  "name": "enable",
+                  "signature": "enable = () =>",
+                  "line": 213
+                },
+                {
+                  "name": "enableDiagnostics",
+                  "signature": "enableDiagnostics = () =>",
+                  "line": 218
+                },
+                {
+                  "name": "disableDiagnostics",
+                  "signature": "disableDiagnostics = () =>",
+                  "line": 223
+                },
+                {
+                  "name": "disable",
+                  "signature": "disable = () =>",
+                  "line": 228
+                },
+                {
+                  "name": "toggle",
+                  "signature": "toggle = () => {",
+                  "line": 233
+                },
+                {
+                  "name": "isError",
+                  "signature": "isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)",
+                  "line": 246
+                },
+                {
+                  "name": "setGlobalLoggerWarnHook",
+                  "signature": "setGlobalLoggerWarnHook: (",
+                  "line": 251
+                },
+                {
+                  "name": "batchTimer",
+                  "signature": "batchTimer = ref(None)",
+                  "line": 255
+                },
+                {
+                  "name": "init",
+                  "signature": "init = () => {",
+                  "line": 257
+                }
+              ],
+              "fingerprint": "8cef8da528b4129723c7d58584a08535eaa6a9fd22d1083c00d78e636ab4e9bc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/site/PortalApp.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 2354)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0,
+        "recommended_splits": 1,
+        "verification": null
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplateHtml.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.01, Coupling: 0.01] | Drag: 4.01 | LOC: 621/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 36.11449275362319,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/systems/TourTemplateHtml.res`",
+          "snapshots": [
+            {
+              "path": "src/systems/TourTemplateHtml.res",
               "functions": [],
               "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             }
@@ -99,120 +1748,46 @@
       }
     }
   ],
-  "system": [],
-  "rust": [
+  "css": [
     {
       "Surgical": {
-        "file": "../../backend/src/api/project_snapshot.rs",
+        "file": "../../css/components/portal-pages.css",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.01, Coupling: 0.02] | Drag: 3.45 | LOC: 403/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "reason": "[Nesting: 1.20, Density: 0.17, Coupling: 0.00] | Drag: 2.37 | LOC: 980/393  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
         "strategy": "",
-        "platform": "backend",
-        "complexity": 13.754590570719603,
-        "recommended_splits": 1,
+        "platform": "frontend",
+        "complexity": 61.07448979591837,
+        "recommended_splits": 3,
         "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/project_snapshot.rs`",
+          "headline": "Pre-split snapshot for `css/components/portal-pages.css`",
           "snapshots": [
             {
-              "path": "backend/src/api/project_snapshot.rs",
-              "functions": [
-                {
-                  "name": "default_snapshot_origin",
-                  "signature": "fn default_snapshot_origin() -> String {",
-                  "line": 12
-                },
-                {
-                  "name": "count_hotspots",
-                  "signature": "fn count_hotspots(project_data: &serde_json::Value) -> usize {",
-                  "line": 67
-                },
-                {
-                  "name": "scene_count",
-                  "signature": "fn scene_count(project_data: &serde_json::Value) -> usize {",
-                  "line": 86
-                },
-                {
-                  "name": "project_tour_name",
-                  "signature": "fn project_tour_name(project_data: &serde_json::Value) -> String {",
-                  "line": 94
-                },
-                {
-                  "name": "snapshot_history_dir",
-                  "signature": "fn snapshot_history_dir(project_dir: &Path) -> PathBuf {",
-                  "line": 102
-                },
-                {
-                  "name": "snapshot_content_hash",
-                  "signature": "fn snapshot_content_hash(project_data: &serde_json::Value) -> Result<String, AppError> {",
-                  "line": 106
-                },
-                {
-                  "name": "write_current_snapshot",
-                  "signature": "fn write_current_snapshot(",
-                  "line": 114
-                },
-                {
-                  "name": "load_snapshot_history",
-                  "signature": "fn load_snapshot_history(",
-                  "line": 124
-                },
-                {
-                  "name": "load_snapshot_history_files",
-                  "signature": "fn load_snapshot_history_files(",
-                  "line": 134
-                },
-                {
-                  "name": "prune_snapshot_history",
-                  "signature": "fn prune_snapshot_history(project_dir: &Path) -> Result<(), AppError> {",
-                  "line": 160
-                },
-                {
-                  "name": "persist_snapshot_history",
-                  "signature": "fn persist_snapshot_history(",
-                  "line": 169
-                },
-                {
-                  "name": "persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save",
-                  "signature": "fn persist_snapshot_history_upgrades_auto_origin_for_identical_manual_save(",
-                  "line": 225
-                },
-                {
-                  "name": "snapshot_item_from_envelope",
-                  "signature": "fn snapshot_item_from_envelope(",
-                  "line": 250
-                },
-                {
-                  "name": "read_snapshot",
-                  "signature": "fn read_snapshot(project_dir: &Path) -> Result<serde_json::Value, AppError> {",
-                  "line": 264
-                },
-                {
-                  "name": "validate_snapshot_project",
-                  "signature": "fn validate_snapshot_project(",
-                  "line": 271
-                },
-                {
-                  "name": "sync_snapshot",
-                  "signature": "async fn sync_snapshot(",
-                  "line": 290
-                },
-                {
-                  "name": "list_project_snapshots",
-                  "signature": "async fn list_project_snapshots(",
-                  "line": 326
-                },
-                {
-                  "name": "load_project_snapshot",
-                  "signature": "async fn load_project_snapshot(",
-                  "line": 347
-                },
-                {
-                  "name": "restore_project_snapshot",
-                  "signature": "async fn restore_project_snapshot(",
-                  "line": 376
-                }
-              ],
-              "fingerprint": "9b1922a2b48be8e1edfb0978dc497bb6fa63a44f3a1f23076002f2ac96e70552"
+              "path": "css/components/portal-pages.css",
+              "functions": [],
+              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "web": [
+    {
+      "Surgical": {
+        "file": "../../src/site/PageFrameworkBuilder.js",
+        "action": "De-bloat",
+        "reason": "[Nesting: 9.00, Density: 0.20, Coupling: 0.01] | Drag: 10.20 | LOC: 352/300  ⚠️ Trigger: Drag above target (1.80); keep the module within the 250-350 LOC working band if you extract helpers.",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.404545454545456,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/site/PageFrameworkBuilder.js`",
+          "snapshots": [
+            {
+              "path": "src/site/PageFrameworkBuilder.js",
+              "functions": [],
+              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             }
           ]
         }

@@ -1,11 +1,14 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use chrono::{Duration, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use crate::models::{AppError, User};
 
-use super::super::{ForgotPasswordPayload, PASSWORD_RESET_TOKEN_TTL_HOURS, ResetPasswordPayload};
+use super::super::{
+    ChangePasswordPayload, ForgotPasswordPayload, PASSWORD_RESET_TOKEN_TTL_HOURS,
+    ResetPasswordPayload,
+};
 
 pub(super) async fn forgot_password(
     pool: web::Data<SqlitePool>,
@@ -140,5 +143,66 @@ pub(super) async fn reset_password(
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "ok": true,
         "message": "Password reset successful. Please sign in."
+    })))
+}
+
+pub(super) async fn change_password(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ChangePasswordPayload>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or_else(|| AppError::Unauthorized("Authentication required.".into()))?;
+
+    let current_password = payload.current_password.trim();
+    let new_password = payload.new_password.trim();
+    if !super::super::verify_password(current_password, &user.password_hash)? {
+        return Err(AppError::ValidationError(
+            "Current password is incorrect.".into(),
+        ));
+    }
+
+    super::super::validate_password(new_password)?;
+    let new_hash = super::super::hash_password(new_password)?;
+    sqlx::query(
+        "UPDATE users SET password_hash = ?, force_step_up_reason = NULL, force_step_up_until = NULL WHERE id = ?",
+    )
+    .bind(new_hash)
+    .bind(&user.id)
+    .execute(pool.get_ref())
+    .await
+    .map_err(|error| AppError::InternalError(format!("Password change failed: {}", error)))?;
+
+    sqlx::query("UPDATE trusted_devices SET revoked_at = ? WHERE user_id = ?")
+        .bind(Utc::now())
+        .bind(&user.id)
+        .execute(pool.get_ref())
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!(
+                "Trusted device revocation on password change failed: {}",
+                error
+            ))
+        })?;
+
+    let context = super::super::extract_login_context(&req);
+    super::super::log_auth_event(
+        pool.get_ref(),
+        Some(&user.id),
+        "password_changed",
+        "allow",
+        Some(15),
+        Some("authenticated_password_change"),
+        &context,
+        None,
+    )
+    .await?;
+
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "ok": true,
+        "message": "Password updated successfully."
     })))
 }

@@ -2,6 +2,13 @@
 name = "backend"
 version = "0.1.0"
 edition = "2024"
+default-run = "backend"
+
+[features]
+default = ["builder-runtime", "video-export"]
+builder-runtime = []
+portal-runtime = []
+video-export = ["dep:headless_chrome"]
 
 [dependencies]
 actix-cors = "0.7.1"
@@ -25,7 +32,7 @@ img-parts = "0.3"
 little_exif = "0.4"
 bytes = "1.0"
 actix-governor = "0.5"
-headless_chrome = "1.0"
+headless_chrome = { version = "1.0", optional = true }
 base64 = "0.21"
 fast_image_resize = { version = "5.1.0", features = ["rayon"] }
 webp = "0.3.0"
@@ -54,6 +61,12 @@ sentry = { version = "0.46.1", features = ["backtrace", "contexts", "panic", "tr
 sentry-tracing = "0.46.1"
 percent-encoding = "2.3.2"
 minify-html = "0.18.1"
+
+[[bin]]
+name = "portal"
+path = "src/bin/portal.rs"
+required-features = ["portal-runtime"]
+
 # PERFORMANCE: Release build optimizations
 [profile.release]
 lto = true           # Link-Time Optimization for smaller, faster binaries

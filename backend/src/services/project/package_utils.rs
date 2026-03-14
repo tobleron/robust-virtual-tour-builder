@@ -35,7 +35,7 @@ pub fn create_root_index(
 
     if include_web_only {
         cards.push_str(
-            r#"<a href="web_only/index.html">Open Web Package<span>Adaptive 4K, 2K, and HD tours for website integration over HTTP/HTTPS.</span></a>"#,
+            r#"<a href="web_only/index.html">Open Web Package<span>4K by default, with automatic 2K fallback on small phones for website integration over HTTP/HTTPS.</span></a>"#,
         );
     }
     if include_desktop {
@@ -112,18 +112,16 @@ Upload this folder exactly as-is:
   - libs/
   - tour_4k/
   - tour_2k/
-  - tour_hd/
 
 Primary entry:
 - web_only/index.html
 
-Embed URLs:
-- web_only/tour_4k/index.html
-- web_only/tour_2k/index.html
-- web_only/tour_hd/index.html
+Behavior:
+- `web_only/index.html` chooses `4K` by default.
+- Small phone-class devices automatically fall back to `2K`.
 
 Example iframe:
-<iframe src="/virtual-tour/web_only/tour_4k/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
+<iframe src="/virtual-tour/web_only/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
 
 Notes:
 1) Keep folder structure unchanged.

@@ -109,10 +109,7 @@ let script = `
     function resolveExportViewportState() {
       const portraitViewport = window.innerHeight > window.innerWidth || window.innerWidth <= 720;
       if (portraitViewport) return "portrait";
-      if (!EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE) return "desktop";
-      // Allow desktop mode if viewport is at least 60px wider than the stage max width
-      if (window.innerWidth >= (STAGE_MAX_WIDTH + 60)) return "desktop";
-      return "tablet";
+      return "desktop";
     }
     function updateExportStateClasses() {
       const nextState = resolveExportViewportState();
@@ -128,7 +125,6 @@ let script = `
       const nextLandscapeTouchUi = nextInteractionShell === "landscape-touch";
       const nextTouchFriendlyUi = nextPortraitAdaptiveUi || nextLandscapeTouchUi;
       document.body.classList.remove("export-state-desktop");
-      document.body.classList.remove("export-state-tablet");
       document.body.classList.remove("export-state-portrait");
       document.body.classList.remove("is-touch-device");
       document.body.classList.remove("export-ui-portrait-adaptive");

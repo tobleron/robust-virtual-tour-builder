@@ -22,8 +22,9 @@ use chrono::Utc;
 use sqlx::SqlitePool;
 
 pub use auth_types::{
-    AuthChallengeResponse, AuthPublicUser, AuthSuccessResponse, ForgotPasswordPayload, MeResponse,
-    ResendOtpPayload, ResendVerificationPayload, ResetPasswordPayload, SignInPayload,
+    AuthChallengeResponse, AuthPublicUser, AuthSuccessResponse, ChangePasswordPayload,
+    ForgotPasswordPayload, MeResponse, ResendOtpPayload, ResendVerificationPayload,
+    ResetPasswordPayload, SignInPayload,
     SignUpPayload, VerifyEmailPayload, VerifyOtpPayload,
 };
 use auth_types::{IpReputation, LoginContext, RiskDecision, TrustedDeviceRecord};
@@ -323,6 +324,14 @@ pub async fn reset_password(
     payload: web::Json<ResetPasswordPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows::reset_password(pool, payload).await
+}
+
+pub async fn change_password(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<ChangePasswordPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows::change_password(req, pool, payload).await
 }
 
 pub async fn verify_step_up_otp(

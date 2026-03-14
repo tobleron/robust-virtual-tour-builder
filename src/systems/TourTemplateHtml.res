@@ -488,15 +488,7 @@ let generateTourHTML = (
   | _ => (90.0, 65.0, 90.0, 375, 640, true)
   }
   let exportTraversalMode = "canonical"
-  let allowTabletLandscapeStage = !allowFileProtocol
-  let css =
-    TourStyles.generateCSS(
-      firstSceneName,
-      normalizedExportType,
-      baseSize,
-      logoSize,
-      ~allowTabletLandscapeStage,
-    )
+  let css = TourStyles.generateCSS(firstSceneName, normalizedExportType, baseSize, logoSize)
   let renderScript = TourScripts.generateRenderScript(
     baseSize,
     defaultHfov,
@@ -507,7 +499,6 @@ let generateTourHTML = (
     dynamicHfovEnabled,
     normalizedExportType == "hd",
     ~exportTraversalMode,
-    ~allowTabletLandscapeStage,
   )
   let logoDiv = switch logoFilename {
   | Some(filename) =>
@@ -581,12 +572,12 @@ let generateTourHTML = (
       document.body.appendChild(host);
     };
 
-    const LOGO_AREA_RATIO = 0.008;
-    const LOGO_WIDTH_CAP_RATIO = 0.13;
-    const LOGO_HEIGHT_CAP_RATIO = 0.075;
-    const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;
-    const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;
-    const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;
+    const LOGO_AREA_RATIO = 0.012;
+    const LOGO_WIDTH_CAP_RATIO = 0.17;
+    const LOGO_HEIGHT_CAP_RATIO = 0.095;
+    const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.55;
+    const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.22;
+    const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.12;
     function syncExportLogoSize() {
       const stage = document.getElementById('stage');
       const logo = document.getElementById('export-watermark-image');
