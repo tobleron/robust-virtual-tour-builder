@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.2] - 2026-03-15
+
+### Fixed
+- Backend SessionMiddleware builder syntax + local dev CORS
+
+- Fixed SessionMiddleware::builder() syntax for cookie_same_site
+- Added localhost to CORS_ALLOWED_ORIGINS for local dev
+- Set NODE_ENV=development for dev-token support
+- Dev account login should now work on localhost
+
 ## [5.3.1] - 2026-03-15
 
 ### Fixed

@@ -298,11 +298,12 @@ async fn main() -> io::Result<()> {
             })
             .wrap(TracingLogger::default())
             .wrap(startup::security_headers())
-            .wrap(SessionMiddleware::new(
+            .wrap(SessionMiddleware::builder(
                 CookieSessionStore::default(),
                 session_key.clone(),
             )
-            .cookie_same_site(actix_web::cookie::SameSite::None))
+            .cookie_same_site(actix_web::cookie::SameSite::None)
+            .build())
             .wrap(startup::cors())
             .wrap(prometheus.clone())
             .route(
