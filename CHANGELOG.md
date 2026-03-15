@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.6] - 2026-03-15
+
+### Changed
+- Test: Add Priority 2 & 3 tests (CORS, GeoIP, Constants)
+
+- ApiTypes: Added CORS credentials documentation test
+- Constants: NEW - Environment detection & CORS config tests (7 tests)
+  - CORS allows localhost for development
+  - dev-token usage documentation
+  - Session cookie configuration (SameSite, Secure, HttpOnly)
+- GeoUtils: NEW - GeoIP service tests (11 tests)
+  - GeoIP disabled by default
+  - GeoIP lookup behavior
+  - Data storage expectations
+  - Privacy & GDPR compliance
+- All tests compile successfully
+- Total tests added in T1882: 33 tests
+
 ## [5.3.5] - 2026-03-15
 
 ### Changed
