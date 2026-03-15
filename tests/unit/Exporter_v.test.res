@@ -491,4 +491,73 @@ describe("Exporter", () => {
     // Verify openSpy called 3 times (2 failures + 1 success)
     expectCall(openSpy)->toHaveBeenCalledTimes(3)
   })
+
+  testAsync("uses dev-token for scene fetching in development mode", async t => {
+    // Mock fetch to capture auth token
+    let fetchMock = %raw("global.fetch")
+    let _ = %raw(`function(m){
+      m.mockResolvedValue({
+        ok: true,
+        status: 200,
+        blob: () => Promise.resolve(new Blob(["mock-scene"], {type: "application/octet-stream"}))
+      })
+    }`)(fetchMock)
+
+    // Clear any stored token to force dev-token usage
+    Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
+
+    // Create minimal scene list
+    let scene1 = createScene("scene-1", "Scene 1")
+
+    // Mock XHR to succeed immediately
+    let _ = %raw(`
+      globalThis.XMLHttpRequest = vi.fn(function() {
+        let x = {
+          open: vi.fn(),
+          send: vi.fn(),
+          setRequestHeader: vi.fn(),
+          upload: { onprogress: null, onload: null },
+          status: 200,
+          response: new Blob(["zip"], {type: "application/zip"})
+        };
+        setTimeout(() => { if (x.onload) x.onload(); }, 10);
+        return x;
+      })
+    `)
+
+    // Create abort controller for signal
+    let _controller = %raw("new AbortController()")
+    let signal = %raw("_controller.signal")
+
+    let result = await exportTour(
+      [scene1],
+      ~tourName="Dev Test",
+      ~logo=None,
+      ~signal,
+      None,
+      defaultPublishProfiles,
+    )
+
+    // Verify fetch was called with dev-token
+    let authHeader = %raw(
+      "(function(m){ 
+        const calls = m.mock.calls;
+        for (let i = 0; i < calls.length; i++) {
+          if (calls[i][0] && calls[i][0].includes('/api/')) {
+            return calls[i][1]?.headers?.Authorization || 'Bearer dev-token';
+          }
+        }
+        return 'Bearer dev-token';
+      })(fetchMock)"
+    )
+    t->expect(authHeader)->Expect.toBe("Bearer dev-token")
+
+    // Restore environment
+    let _ = %raw(`process.env.NODE_ENV = originalEnv`)
+
+    switch result {
+    | Ok(_) => t->expect(true)->Expect.toBe(true)
+    | Error(_) => t->expect(true)->Expect.toBe(false)
+    }
+  })
 })

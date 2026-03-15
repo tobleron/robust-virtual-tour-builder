@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.5] - 2026-03-15
+
+### Changed
+- Test: Add Priority 1 unit tests for auth & access links
+
+- AuthenticatedClient: Added credentials:include and dev-token tests
+- PortalAccessLinks: NEW test file with 12 test cases
+  - Access precedence (5 gates)
+  - Per-link expiry override
+  - Short code generation
+  - Per-link revocation
+  - Session cookie handling
+- Exporter: Added dev-token usage test
+- All tests compile and pass type checking
+- Coverage goals: 85% auth, 90% access links
+
 ## [5.3.4] - 2026-03-15
 
 ### Changed

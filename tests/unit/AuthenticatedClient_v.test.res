@@ -277,4 +277,44 @@ describe("AuthenticatedClient", () => {
     NetworkStatus.cleanup()
     NetworkStatus.initialize()
   })
+
+  testAsync("includes credentials:include for session cookie support", async t => {
+    Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
+
+    let fetchMock = %raw("global.fetch")
+    let _ = %raw(`function(m){m.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve('')
+    })}`)(fetchMock)
+
+    let _ = await AuthenticatedClient.request("/test-credentials", ())
+
+    let credentials = %raw(
+      "(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)"
+    )
+    t->expect(credentials)->Expect.toBe("include")
+  })
+
+  testAsync("uses dev-token in development mode when no auth_token", async t => {
+    // Clear any existing token
+    Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
+
+    let fetchMock = %raw("global.fetch")
+    let _ = %raw(`function(m){m.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve('')
+    })}`)(fetchMock)
+
+    let _ = await AuthenticatedClient.request("/test-dev-token", ())
+
+    let authHeader = %raw(
+      "(function(m){ return m.mock.calls[0][1]['headers']['Authorization'] || (m.mock.calls[0][1]['headers'].get && m.mock.calls[0][1]['headers'].get('Authorization')) })(fetchMock)"
+    )
+    // In development mode with no token, should use dev-token
+    t->expect(authHeader)->Expect.toBe("Bearer dev-token")
+  })
 })
