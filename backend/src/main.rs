@@ -301,7 +301,8 @@ async fn main() -> io::Result<()> {
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
                 session_key.clone(),
-            ))
+            )
+            .cookie_same_site(actix_web::cookie::SameSite::None))
             .wrap(startup::cors())
             .wrap(prometheus.clone())
             .route(

@@ -1584,6 +1584,7 @@ async fn resolve_access_token(
     token: &str,
 ) -> Result<AccessTokenOutcome, AppError> {
     let token_hash = sha256_hex(token);
+    let now_str = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
     let row = sqlx::query_as::<_, AccessTokenLookupRow>(
         r#"
         SELECT
@@ -1603,20 +1604,23 @@ async fn resolve_access_token(
             l.short_code as link_short_code,
             l.token_hash as link_token_hash,
             l.token_value as link_token_value,
-            l.expires_at as link_expires_at,
+            datetime(l.expires_at) as link_expires_at,
             l.revoked_at as link_revoked_at,
             l.last_opened_at as link_last_opened_at,
             l.created_at as link_created_at,
             l.updated_at as link_updated_at
         FROM portal_access_links l
         JOIN portal_customers c ON c.id = l.customer_id
-        WHERE l.short_code = ? OR l.token_hash = ?
+        WHERE (l.short_code = ? OR l.token_hash = ?)
+            AND (l.revoked_at IS NULL)
+            AND (datetime(l.expires_at) > ?)
         ORDER BY CASE WHEN l.short_code = ? THEN 0 ELSE 1 END
         LIMIT 1
         "#,
     )
     .bind(token)
     .bind(token_hash)
+    .bind(&now_str)
     .bind(token)
     .fetch_optional(pool)
     .await
@@ -1656,11 +1660,8 @@ async fn resolve_access_token(
         updated_at: row.link_updated_at,
     };
 
-    let is_valid = customer.is_active == 1
-        && access_link.revoked_at.is_none()
-        && access_link.expires_at >= Utc::now();
-
-    if !is_valid {
+    // Expiry and revoked checks are done in SQL, just verify customer is active
+    if customer.is_active != 1 {
         return Ok(AccessTokenOutcome::Rejected {
             customer_slug: Some(customer.slug),
         });

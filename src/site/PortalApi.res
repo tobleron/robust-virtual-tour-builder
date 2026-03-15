@@ -97,6 +97,7 @@ let request = async (
   ~formData: option<FormData.t>=?,
   ~decoder,
   ~authenticated=false,
+  ~includeCredentials=false,
 ) => {
   let headers = Dict.make()
   if jsonBody->Option.isSome {
@@ -106,14 +107,16 @@ let request = async (
     authHeaderValue()->Option.forEach(value => Dict.set(headers, "Authorization", value))
   }
 
+  let credentials = if includeCredentials { "include" } else { "same-origin" }
+
   let response = switch (jsonBody, formData) {
   | (Some(body), _) =>
     await Fetch.fetch(
       url,
-      Fetch.requestInit(~method, ~body=JsonCombinators.Json.stringify(body), ~headers, ()),
+      Fetch.requestInit(~method, ~body=JsonCombinators.Json.stringify(body), ~headers, ~credentials, ()),
     )
-  | (None, Some(fd)) => await Fetch.fetch(url, Fetch.requestInit(~method, ~body=fd, ~headers, ()))
-  | (None, None) => await Fetch.fetch(url, Fetch.requestInit(~method, ~headers, ()))
+  | (None, Some(fd)) => await Fetch.fetch(url, Fetch.requestInit(~method, ~body=fd, ~headers, ~credentials, ()))
+  | (None, None) => await Fetch.fetch(url, Fetch.requestInit(~method, ~headers, ~credentials, ()))
   }
 
   if Fetch.ok(response) {
@@ -389,12 +392,14 @@ let loadCustomerSession = async slug =>
   await request(
     "/api/portal/customers/" ++ slug ++ "/session",
     ~decoder=PortalTypes.customerSessionResponseDecoder,
+    ~includeCredentials=true,
   )
 
 let loadCustomerTours = async slug =>
   await request(
     "/api/portal/customers/" ++ slug ++ "/tours",
     ~decoder=PortalTypes.galleryViewDecoder,
+    ~includeCredentials=true,
   )
 
 let signOutCustomer = async slug =>
@@ -402,4 +407,5 @@ let signOutCustomer = async slug =>
     "/api/portal/customers/" ++ slug ++ "/signout",
     ~method="POST",
     ~decoder=Decode.object(_ => {"ok": true}),
+    ~includeCredentials=true,
   )

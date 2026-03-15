@@ -1,4 +1,29 @@
 #!/bin/bash
+# Portal VPS Deployment Script
+# 
+# INCREMENTAL BUILD BEHAVIOR:
+# - By default, backend/target is preserved between deployments for incremental compilation
+# - Cargo will only recompile changed source files (typically 10-30 seconds)
+# - Full rebuilds only occur when:
+#   * REMOTE_RESET_TARGET=1 is set (forces backend/target deletion)
+#   * Rust version changes on the server
+#   * Dependency versions change in Cargo.toml
+#   * backend/target doesn't exist (first deployment or manual deletion)
+#
+# USAGE:
+#   ./update-portal.sh                    # Normal deployment (incremental)
+#   REMOTE_RESET_TARGET=1 ./update-portal.sh  # Force full rebuild
+#
+# TROUBLESHOOTING SLOW BUILDS:
+# 1. SSH to remote server: ssh root@<portal-vps-host>
+# 2. Check if target exists: ls -la /opt/robust-vtb/current/backend/target
+# 3. Check build log: cat /tmp/cargo-build.log
+# 4. Look for "Compiling" vs "Fresh" messages:
+#    - "Fresh" = using cache (good)
+#    - "Compiling" = recompiling (check what changed)
+# 5. If always recompiling, check file timestamps:
+#    find /opt/robust-vtb/current/backend/src -name "*.rs" -exec stat -c "%y %n" {} \;
+#
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -9,7 +34,7 @@ REMOTE_SERVICE="${PORTAL_VPS_SERVICE:-robust-vtb-portal}"
 REMOTE_RESET_TARGET="${PORTAL_REMOTE_RESET_TARGET:-0}"
 REMOTE_HEALTH_URL="${PORTAL_VPS_HEALTH_URL:-http://127.0.0.1:8080/api/health}"
 REMOTE_INSTALL_CMD="${PORTAL_VPS_INSTALL_CMD:-npm install}"
-REMOTE_BUILD_SCRIPT="${PORTAL_VPS_BUILD_SCRIPT:-/root/scripts/robust-vtb-full-build.sh}"
+REMOTE_BUILD_SCRIPT="${PORTAL_VPS_BUILD_SCRIPT:-/root/scripts/robust-vtb-portal-build.sh}"
 REMOTE_RUNTIME_USER="${PORTAL_VPS_RUNTIME_USER:-robustvtb}"
 REMOTE_SSH_KEY="${PORTAL_VPS_SSH_KEY:-}"
 REMOTE_SSH_OPTS="${PORTAL_VPS_SSH_OPTS:-}"
@@ -56,7 +81,15 @@ set -euo pipefail
 cd "$REMOTE_APP_DIR"
 
 if [[ "$REMOTE_RESET_TARGET" == "1" ]]; then
+  echo "[portal-deploy] Resetting backend target directory (full rebuild)..."
   rm -rf backend/target
+else
+  echo "[portal-deploy] Preserving backend/target for incremental compilation..."
+  if [[ -d "backend/target" ]]; then
+    echo "[portal-deploy] backend/target exists with $(du -sh backend/target 2>/dev/null | cut -f1)"
+  else
+    echo "[portal-deploy] WARNING: backend/target does not exist - full rebuild required"
+  fi
 fi
 
 echo "[portal-deploy] Installing frontend dependencies..."
@@ -64,13 +97,24 @@ eval "$REMOTE_INSTALL_CMD"
 
 echo "[portal-deploy] Running portal build script..."
 if [[ -x "$REMOTE_BUILD_SCRIPT" ]]; then
+  echo "[portal-deploy] Using remote build script: $REMOTE_BUILD_SCRIPT"
   "$REMOTE_BUILD_SCRIPT"
 else
+  echo "[portal-deploy] Using default build process..."
   npm run build:portal
   cd backend
+  echo "[portal-deploy] Building backend (incremental if target exists)..."
+  echo "[portal-deploy] Cargo version: $(cargo --version)"
+  echo "[portal-deploy] Target directory size before build: $(du -sh target 2>/dev/null | cut -f1 || echo 'N/A')"
+  
+  # Enable Cargo incremental compilation explicitly
+  CARGO_INCREMENTAL=1 \
   APP_DIST_ROOT="$REMOTE_APP_DIR/dist-portal" \
   APP_SURFACE=portal \
-  cargo build --release --bin portal --no-default-features --features portal-runtime
+  cargo build --release --bin portal --no-default-features --features portal-runtime 2>&1 | tee /tmp/cargo-build.log
+  
+  echo "[portal-deploy] Target directory size after build: $(du -sh target 2>/dev/null | cut -f1 || echo 'N/A')"
+  echo "[portal-deploy] Build complete. Check /tmp/cargo-build.log for details."
   cd "$REMOTE_APP_DIR"
 fi
 
@@ -109,8 +153,11 @@ mkdir -p "$ROOT_DIR/.tmp"
 echo "[portal-deploy] Syncing source to $REMOTE..."
 
 RSYNC_RSH="${SSH_CMD[*]}"
-rsync -az --delete \
-  -v \
+rsync -avz \
+  --times \
+  --perms \
+  --owner \
+  --group \
   -e "$RSYNC_RSH" \
   --exclude '.git' \
   --exclude '.DS_Store' \

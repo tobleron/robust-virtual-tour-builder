@@ -138,6 +138,15 @@ let parseRoute = () => {
     | (Some("u"), Some(slug)) => CustomerPortal(slug)
     | _ => Landing
     }
+  | 4 =>
+    // Handle /u/{slug}/{accessCode}
+    switch (Belt.Array.get(segments, 1), Belt.Array.get(segments, 2), Belt.Array.get(segments, 3)) {
+    | (Some("u"), Some(slug), Some(accessCode)) =>
+      // Redirect to /access/{accessCode} to establish session
+      assignLocation("/access/" ++ accessCode ++ "?next=/u/" ++ slug)
+      Landing
+    | _ => Landing
+    }
   | 5 =>
     switch (
       Belt.Array.get(segments, 1),
@@ -1163,14 +1172,19 @@ module AdminSurface = {
     let onUploadTour = async () => {
       switch selectedUploadFile {
       | Some(file) =>
+        Logger.info(~module_="PortalApp", ~message="Starting tour upload", ~data=Some({"title": uploadTitle, "fileSize": BrowserBindings.File.size(file)}), ())
+        setFlash(_ => {error: None, success: Some("Starting upload...")})
         switch await PortalApi.uploadTour(~title=uploadTitle->String.trim, ~file) {
         | Ok(_) =>
+          Logger.info(~module_="PortalApp", ~message="Tour upload successful", ~data=Some({"title": uploadTitle}), ())
           setUploadTitle(_ => "")
           setSelectedUploadFile(_ => None)
           setActiveDrawer(_ => NoDrawer)
           setFlash(_ => {error: None, success: Some("Tour uploaded to the library.")})
           loadAdmin(~preserveReadyState=true)
-        | Error(message) => setFlash(_ => {error: Some(message), success: None})
+        | Error(message) =>
+          Logger.error(~module_="PortalApp", ~message="Tour upload failed", ~data=Some({"error": message}), ())
+          setFlash(_ => {error: Some(message), success: None})
         }
       | None => setFlash(_ => {error: Some("Choose a ZIP file first."), success: None})
       }

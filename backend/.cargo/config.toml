@@ -1,0 +1,28 @@
+# Cargo configuration for optimal incremental builds
+# This file is synced to the remote server during deployment
+
+[build]
+# Enable incremental compilation by default
+incremental = true
+
+# Use more parallelism for faster builds
+jobs = 4
+
+[profile.release]
+# Keep debug info for better error messages (optional, can be removed for smaller binaries)
+debug = false
+
+# Optimize for speed
+opt-level = 3
+
+# Link-Time Optimization (can be disabled for faster incremental builds during development)
+# lto = false
+
+# Single codegen unit for better optimization (can be increased for faster incremental builds)
+# codegen-units = 1
+
+[profile.dev]
+# Faster compilation during development
+opt-level = 0
+debug = true
+incremental = true

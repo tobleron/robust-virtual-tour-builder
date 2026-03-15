@@ -130,4 +130,5 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [tests/e2e/](tests/e2e/): End-to-end Playwright suites. `#tests`
 
 ## 🆕 Unmapped Modules
+* [backend/src/bin/portal.rs](backend/src/bin/portal.rs): New module detected. Please classify. #new
 * None currently.

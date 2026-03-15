@@ -1,52 +1,44 @@
 {
   "allFiles": [
-    "/static/js/index.js",
-    "/static/js/npm.rescript.runtime.js",
-    "/static/js/npm.rsbuild.core.js",
-    "/static/js/npm.react.js",
-    "/static/js/npm.react-dom.js",
-    "/static/js/npm.rspack.plugin-react-refresh.js",
-    "/static/js/npm.glennsl.rescript-json-combinators.js",
-    "/static/js/npm.scheduler.js",
-    "/static/js/npm.react-refresh.js",
+    "/static/js/index.6bf07ef0.js",
+    "/static/js/npm.rescript.runtime.0dcc3628.js",
+    "/static/js/npm.rsbuild.core.8bf22c55.js",
+    "/static/js/npm.react.cbcde218.js",
+    "/static/js/npm.react-dom.74e36a48.js",
+    "/static/js/npm.glennsl.rescript-json-combinators.8f7db3a8.js",
+    "/static/js/npm.scheduler.e54a974f.js",
     "/index.html",
-    "/static/js/index.js.map",
-    "/static/js/npm.rescript.runtime.js.map",
-    "/static/js/npm.rsbuild.core.js.map",
-    "/static/js/npm.react.js.map",
-    "/static/js/npm.react-dom.js.map",
-    "/static/js/npm.rspack.plugin-react-refresh.js.map",
-    "/static/js/npm.glennsl.rescript-json-combinators.js.map",
-    "/static/js/npm.scheduler.js.map",
-    "/static/js/npm.react-refresh.js.map"
+    "/static/js/index.6bf07ef0.js.map",
+    "/static/js/npm.rescript.runtime.0dcc3628.js.map",
+    "/static/js/npm.rsbuild.core.8bf22c55.js.map",
+    "/static/js/npm.react.cbcde218.js.map",
+    "/static/js/npm.react-dom.74e36a48.js.map",
+    "/static/js/npm.glennsl.rescript-json-combinators.8f7db3a8.js.map",
+    "/static/js/npm.scheduler.e54a974f.js.map"
   ],
   "entries": {
     "index": {
       "assets": [
-        "static/js/npm.react-refresh.js.map",
-        "static/js/npm.scheduler.js.map",
-        "static/js/npm.glennsl.rescript-json-combinators.js.map",
-        "static/js/npm.rspack.plugin-react-refresh.js.map",
-        "static/js/npm.react-dom.js.map",
-        "static/js/npm.react.js.map",
-        "static/js/npm.rsbuild.core.js.map",
-        "static/js/npm.rescript.runtime.js.map",
-        "static/js/index.js.map"
+        "static/js/npm.scheduler.e54a974f.js.map",
+        "static/js/npm.glennsl.rescript-json-combinators.8f7db3a8.js.map",
+        "static/js/npm.react-dom.74e36a48.js.map",
+        "static/js/npm.react.cbcde218.js.map",
+        "static/js/npm.rsbuild.core.8bf22c55.js.map",
+        "static/js/npm.rescript.runtime.0dcc3628.js.map",
+        "static/js/index.6bf07ef0.js.map"
       ],
       "html": [
         "/index.html"
       ],
       "initial": {
         "js": [
-          "/static/js/npm.rescript.runtime.js",
-          "/static/js/npm.rsbuild.core.js",
-          "/static/js/npm.react.js",
-          "/static/js/npm.react-dom.js",
-          "/static/js/npm.rspack.plugin-react-refresh.js",
-          "/static/js/npm.glennsl.rescript-json-combinators.js",
-          "/static/js/npm.scheduler.js",
-          "/static/js/npm.react-refresh.js",
-          "/static/js/index.js"
+          "/static/js/npm.rescript.runtime.0dcc3628.js",
+          "/static/js/npm.rsbuild.core.8bf22c55.js",
+          "/static/js/npm.react.cbcde218.js",
+          "/static/js/npm.react-dom.74e36a48.js",
+          "/static/js/npm.glennsl.rescript-json-combinators.8f7db3a8.js",
+          "/static/js/npm.scheduler.e54a974f.js",
+          "/static/js/index.6bf07ef0.js"
         ]
       }
     }
