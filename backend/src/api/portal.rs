@@ -3,20 +3,23 @@ use std::path::PathBuf;
 use actix_files::NamedFile;
 use actix_multipart::Multipart;
 use actix_session::Session;
-use actix_web::{HttpMessage, HttpRequest, HttpResponse, http::header, web};
+use actix_web::{HttpRequest, HttpResponse, http::header, web};
 use futures_util::TryStreamExt;
 use serde::Deserialize;
 use sqlx::SqlitePool;
 
-use crate::models::{AppError, User};
+use crate::models::AppError;
 use crate::services::portal::{
     self, AssignPortalTourInput, BulkAssignPortalToursInput, CreatePortalCustomerInput,
-    PortalLibraryTour, RegeneratePortalAccessLinkInput, UpdatePortalCustomerInput,
-    UpdatePortalSettingsInput,
+    PortalLibraryTour, RegeneratePortalAccessLinkInput, RevokeRecipientTourLinkInput,
+    UpdateLinkExpiryInput, UpdatePortalCustomerInput, UpdatePortalSettingsInput,
 };
-
-const PORTAL_SESSION_ACCESS_LINK_ID: &str = "portal_access_link_id";
-const PORTAL_SESSION_CUSTOMER_SLUG: &str = "portal_customer_slug";
+use super::portal_support::{
+    PORTAL_SESSION_ACCESS_KIND, PORTAL_SESSION_ACCESS_LINK_ID, PORTAL_SESSION_CUSTOMER_SLUG,
+    ensure_gallery_session, ensure_slug_matches_session, normalized_requested_slug,
+    portal_public_base_url, require_portal_admin, safe_next_path, safe_tour_path,
+    store_portal_session,
+};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -53,6 +56,17 @@ pub struct TourIdPath {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct AssignmentIdPath {
+    pub assignment_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CustomerTourLinkPath {
+    pub customer_id: String,
+    pub tour_id: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct AccessTokenPath {
     pub token: String,
 }
@@ -79,104 +93,6 @@ pub struct UserAccessTourPath {
 #[derive(Debug, Deserialize)]
 pub struct AccessTokenQuery {
     pub next: Option<String>,
-}
-
-fn require_portal_admin(req: &HttpRequest) -> Result<User, AppError> {
-    let user = req
-        .extensions()
-        .get::<User>()
-        .cloned()
-        .ok_or_else(|| AppError::Unauthorized("Authentication required.".into()))?;
-
-    if portal::is_portal_admin(&user) {
-        Ok(user)
-    } else {
-        Err(AppError::Unauthorized(
-            "Portal administrator access is required.".into(),
-        ))
-    }
-}
-
-fn current_portal_session(session: &Session) -> Result<(String, String), AppError> {
-    let access_link_id = session
-        .get::<String>(PORTAL_SESSION_ACCESS_LINK_ID)
-        .map_err(|error| AppError::InternalError(format!("Portal session read failed: {}", error)))?
-        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
-    let customer_slug = session
-        .get::<String>(PORTAL_SESSION_CUSTOMER_SLUG)
-        .map_err(|error| AppError::InternalError(format!("Portal session read failed: {}", error)))?
-        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
-    Ok((access_link_id, customer_slug))
-}
-
-fn ensure_slug_matches_session(session: &Session, slug: &str) -> Result<String, AppError> {
-    let (access_link_id, session_slug) = current_portal_session(session)?;
-    if session_slug != portal::validate_slug(slug)? {
-        return Err(AppError::Unauthorized(
-            "Portal session is not valid for this customer.".into(),
-        ));
-    }
-    Ok(access_link_id)
-}
-
-fn portal_public_base_url(req: &HttpRequest) -> String {
-    match std::env::var("PORTAL_PUBLIC_BASE_URL") {
-        Ok(value) if !value.trim().is_empty() => value.trim().trim_end_matches('/').to_string(),
-        _ => {
-            let info = req.connection_info();
-            format!("{}://{}", info.scheme(), info.host())
-        }
-    }
-}
-
-fn safe_next_path(customer_slug: &str, next: Option<&str>) -> String {
-    let fallback = format!("/u/{}", customer_slug);
-    let legacy = format!("/portal/{}", customer_slug);
-    match next.map(str::trim) {
-        Some(value)
-            if (value.starts_with(&fallback) || value.starts_with(&legacy))
-                && !value.starts_with("//")
-                && !value.contains('\n')
-                && !value.contains('\r') =>
-        {
-            if value.starts_with(&legacy) {
-                value.replacen(&legacy, &fallback, 1)
-            } else {
-                value.to_string()
-            }
-        }
-        _ => fallback,
-    }
-}
-
-fn safe_tour_path(customer_slug: &str, tour_slug: &str) -> String {
-    let fallback = format!("/u/{}", customer_slug);
-    match portal::validate_slug(tour_slug) {
-        Ok(normalized_tour_slug) => format!("{}/tour/{}", fallback, normalized_tour_slug),
-        Err(_) => fallback,
-    }
-}
-
-fn normalized_requested_slug(raw_slug: &str) -> Result<String, AppError> {
-    portal::validate_slug(raw_slug)
-}
-
-fn store_portal_session(
-    session: &Session,
-    access_link_id: String,
-    customer_slug: &str,
-) -> Result<(), AppError> {
-    session
-        .insert(PORTAL_SESSION_ACCESS_LINK_ID, access_link_id)
-        .map_err(|error| {
-            AppError::InternalError(format!("Portal session write failed: {}", error))
-        })?;
-    session
-        .insert(PORTAL_SESSION_CUSTOMER_SLUG, customer_slug.to_string())
-        .map_err(|error| {
-            AppError::InternalError(format!("Portal session write failed: {}", error))
-        })?;
-    Ok(())
 }
 
 pub async fn admin_list_customers(
@@ -282,6 +198,122 @@ pub async fn admin_update_library_tour_status(
     )
     .await?;
     Ok(HttpResponse::Ok().json(tour))
+}
+
+pub async fn admin_get_customer_tours(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<CustomerIdPath>,
+) -> Result<HttpResponse, AppError> {
+    let _ = require_portal_admin(&req)?;
+    let view = portal::list_customer_assignments_view(
+        pool.get_ref(),
+        &path.customer_id,
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(view))
+}
+
+pub async fn admin_get_tour_recipients(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<TourIdPath>,
+) -> Result<HttpResponse, AppError> {
+    let _ = require_portal_admin(&req)?;
+    let view = portal::list_tour_assignments_view(
+        pool.get_ref(),
+        &path.tour_id,
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(view))
+}
+
+pub async fn admin_get_assignment(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<AssignmentIdPath>,
+) -> Result<HttpResponse, AppError> {
+    let _ = require_portal_admin(&req)?;
+    let view = portal::assignment_view_by_id(
+        pool.get_ref(),
+        &path.assignment_id,
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(view))
+}
+
+pub async fn admin_create_customer_tour_link(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<CustomerTourLinkPath>,
+    payload: web::Json<UpdateLinkExpiryInput>,
+) -> Result<HttpResponse, AppError> {
+    let admin = require_portal_admin(&req)?;
+    let assignment = portal::create_or_activate_assignment_link(
+        pool.get_ref(),
+        &path.customer_id,
+        &path.tour_id,
+        payload.expires_at_override.as_deref(),
+        Some(&admin),
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(assignment))
+}
+
+pub async fn admin_revoke_assignment_link(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<AssignmentIdPath>,
+    payload: web::Json<RevokeRecipientTourLinkInput>,
+) -> Result<HttpResponse, AppError> {
+    let admin = require_portal_admin(&req)?;
+    let assignment = portal::revoke_assignment_link(
+        pool.get_ref(),
+        &path.assignment_id,
+        payload.reason.as_deref(),
+        Some(&admin),
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(assignment))
+}
+
+pub async fn admin_update_assignment_expiry(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<AssignmentIdPath>,
+    payload: web::Json<UpdateLinkExpiryInput>,
+) -> Result<HttpResponse, AppError> {
+    let admin = require_portal_admin(&req)?;
+    let assignment = portal::update_assignment_expiry(
+        pool.get_ref(),
+        &path.assignment_id,
+        payload.expires_at_override.as_deref(),
+        Some(&admin),
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(assignment))
+}
+
+pub async fn admin_reactivate_assignment_link(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    path: web::Path<AssignmentIdPath>,
+) -> Result<HttpResponse, AppError> {
+    let admin = require_portal_admin(&req)?;
+    let assignment = portal::reactivate_assignment_link(
+        pool.get_ref(),
+        &path.assignment_id,
+        Some(&admin),
+        &portal_public_base_url(&req),
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(assignment))
 }
 
 pub async fn admin_assign_customer_tour(
@@ -416,7 +448,7 @@ pub async fn customer_session(
     session: Session,
     path: web::Path<CustomerSlugPath>,
 ) -> Result<HttpResponse, AppError> {
-    let access_link_id = ensure_slug_matches_session(&session, &path.slug)?;
+    let access_link_id = ensure_gallery_session(&session, &path.slug)?;
     let public_base_url = portal_public_base_url(&req);
     let view = portal::load_customer_session(
         pool.get_ref(),
@@ -432,6 +464,7 @@ pub async fn customer_session(
 }
 
 pub async fn customer_sign_out(session: Session) -> Result<HttpResponse, AppError> {
+    session.remove(PORTAL_SESSION_ACCESS_KIND);
     session.remove(PORTAL_SESSION_ACCESS_LINK_ID);
     session.remove(PORTAL_SESSION_CUSTOMER_SLUG);
     Ok(HttpResponse::Ok().json(serde_json::json!({ "ok": true })))
@@ -443,7 +476,7 @@ pub async fn customer_tours(
     session: Session,
     path: web::Path<CustomerSlugPath>,
 ) -> Result<HttpResponse, AppError> {
-    let access_link_id = ensure_slug_matches_session(&session, &path.slug)?;
+    let access_link_id = ensure_gallery_session(&session, &path.slug)?;
     let public_base_url = portal_public_base_url(&req);
     let view = portal::gallery_view_for_customer(
         pool.get_ref(),
@@ -461,7 +494,7 @@ pub async fn customer_tour_launch(
     session: Session,
     path: web::Path<CustomerTourPath>,
 ) -> Result<HttpResponse, AppError> {
-    let access_link_id = match ensure_slug_matches_session(&session, &path.slug) {
+    let (access_kind, access_ref) = match ensure_slug_matches_session(&session, &path.slug) {
         Ok(value) => value,
         Err(AppError::Unauthorized(_)) => {
             return Ok(HttpResponse::Found()
@@ -480,7 +513,8 @@ pub async fn customer_tour_launch(
         pool.get_ref(),
         &path.slug,
         &path.tour_slug,
-        &access_link_id,
+        &access_kind,
+        &access_ref,
         user_agent,
     )
     .await
@@ -500,13 +534,14 @@ pub async fn customer_tour_asset(
     session: Session,
     path: web::Path<CustomerTourAssetPath>,
 ) -> Result<NamedFile, AppError> {
-    let access_link_id = ensure_slug_matches_session(&session, &path.slug)?;
+    let (access_kind, access_ref) = ensure_slug_matches_session(&session, &path.slug)?;
     portal::resolve_portal_asset(
         pool.get_ref(),
         &path.slug,
         &path.tour_slug,
         &path.tail,
-        &access_link_id,
+        &access_kind,
+        &access_ref,
     )
     .await
 }
@@ -523,10 +558,11 @@ pub async fn access_link_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } => {
-            let (_, access_link_id) = portal::access_session_for_token(pool.get_ref(), &path.token)
+            let (_, access_kind, access_ref) =
+                portal::access_session_for_token(pool.get_ref(), &path.token)
                 .await
-                .map(|(slug, link_id)| (slug, link_id))?;
-            store_portal_session(&session, access_link_id, &customer_slug)?;
+                .map(|(slug, kind, ref_id)| (slug, kind, ref_id))?;
+            store_portal_session(&session, &access_kind, access_ref, &customer_slug)?;
             let redirect = safe_next_path(&customer_slug, query.next.as_deref());
             Ok(HttpResponse::Found()
                 .append_header((header::LOCATION, redirect))
@@ -567,9 +603,9 @@ pub async fn user_access_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } if customer_slug == requested_slug => {
-            let (_, access_link_id) =
+            let (_, access_kind, access_ref) =
                 portal::access_session_for_token(pool.get_ref(), &path.token).await?;
-            store_portal_session(&session, access_link_id, &customer_slug)?;
+            store_portal_session(&session, &access_kind, access_ref, &customer_slug)?;
             Ok(HttpResponse::Found()
                 .append_header((header::LOCATION, format!("/u/{}", customer_slug)))
                 .finish())
@@ -599,10 +635,10 @@ pub async fn access_tour_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } => {
-            let (_, access_link_id) = portal::access_session_for_token(pool.get_ref(), &path.token)
+            let (_, access_kind, access_ref) = portal::access_session_for_token(pool.get_ref(), &path.token)
                 .await
-                .map(|(slug, link_id)| (slug, link_id))?;
-            store_portal_session(&session, access_link_id, &customer_slug)?;
+                .map(|(slug, kind, ref_id)| (slug, kind, ref_id))?;
+            store_portal_session(&session, &access_kind, access_ref, &customer_slug)?;
             Ok(HttpResponse::Found()
                 .append_header((
                     header::LOCATION,
@@ -645,9 +681,9 @@ pub async fn user_tour_access_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } if customer_slug == requested_slug => {
-            let (_, access_link_id) =
+            let (_, access_kind, access_ref) =
                 portal::access_session_for_token(pool.get_ref(), &path.token).await?;
-            store_portal_session(&session, access_link_id, &customer_slug)?;
+            store_portal_session(&session, &access_kind, access_ref, &customer_slug)?;
             Ok(HttpResponse::Found()
                 .append_header((
                     header::LOCATION,
