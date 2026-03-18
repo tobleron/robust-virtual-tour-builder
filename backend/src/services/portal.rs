@@ -6,7 +6,6 @@ use std::path::{Path, PathBuf};
 use actix_files::NamedFile;
 use chrono::{DateTime, Utc};
 use image::{DynamicImage, Rgba, RgbaImage};
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use sqlx::{FromRow, QueryBuilder, SqlitePool};
@@ -14,8 +13,13 @@ use uuid::Uuid;
 use zip::ZipArchive;
 
 use crate::models::{AppError, User};
+use crate::services::portal_audit::{log_audit, log_audit_event};
+use crate::services::portal_paths::{
+    detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,
+};
 
-const PORTAL_STORAGE_ROOT_DEFAULT: &str = "data/portal";
+pub use crate::services::portal_paths::{portal_library_tour_dir, portal_storage_root, validate_slug};
+
 const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
     ["index.html", "tour_4k/index.html", "tour_2k/index.html"];
 const PORTAL_ACCESS_CODE_ALPHABET: &[u8; 62] =
@@ -411,30 +415,8 @@ pub struct PortalBulkAssignmentResult {
     pub skipped_count: i64,
 }
 
-pub fn portal_storage_root() -> PathBuf {
-    std::env::var("PORTAL_STORAGE_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(PORTAL_STORAGE_ROOT_DEFAULT))
-}
-
 pub fn init_storage() -> Result<(), AppError> {
     fs::create_dir_all(portal_storage_root().join("tours")).map_err(AppError::IoError)
-}
-
-pub fn portal_library_tour_dir(tour_slug: &str) -> Result<PathBuf, AppError> {
-    Ok(portal_storage_root()
-        .join("tours")
-        .join(validate_slug(tour_slug)?))
-}
-
-pub fn validate_slug(raw: &str) -> Result<String, AppError> {
-    let normalized = slugify(raw);
-    if normalized.len() < 3 {
-        return Err(AppError::ValidationError(
-            "Slug must normalize to at least 3 characters.".into(),
-        ));
-    }
-    Ok(normalized)
 }
 
 pub fn normalize_recipient_type(raw: &str) -> Result<String, AppError> {
@@ -453,15 +435,6 @@ pub fn parse_expiry(raw: &str) -> Result<DateTime<Utc>, AppError> {
     DateTime::parse_from_rfc3339(raw)
         .map(|value| value.with_timezone(&Utc))
         .map_err(|_| AppError::ValidationError("Expiry must be an ISO-8601 timestamp.".into()))
-}
-
-fn slugify(raw: &str) -> String {
-    let lower = raw.trim().to_ascii_lowercase();
-    let replaced = Regex::new(r"[^a-z0-9]+")
-        .ok()
-        .map(|regex| regex.replace_all(&lower, "-").into_owned())
-        .unwrap_or(lower);
-    replaced.trim_matches('-').to_string()
 }
 
 fn sha256_hex(raw: &str) -> String {
@@ -3308,129 +3281,7 @@ fn extract_portal_package(
     })
 }
 
-fn should_keep_portal_relative_path(relative_path: &str) -> bool {
-    relative_path == "index.html"
-        || relative_path.starts_with("tour_4k/")
-        || relative_path.starts_with("tour_2k/")
-        || relative_path.starts_with("assets/")
-        || relative_path.starts_with("libs/")
-}
-
-fn detect_portal_package_root(entry_names: &[String]) -> Result<String, AppError> {
-    let mut preferred_root: Option<String> = None;
-    let mut fallback_root: Option<String> = None;
-
-    for entry_name in entry_names {
-        if let Some(prefix) = entry_name.strip_suffix("tour_4k/index.html") {
-            let normalized = prefix.to_string();
-            if normalized.ends_with("web_only/") {
-                preferred_root = Some(normalized.clone());
-            }
-            if fallback_root.is_none() {
-                fallback_root = Some(normalized);
-            }
-        }
-    }
-
-    preferred_root.or(fallback_root).ok_or_else(|| {
-        AppError::ValidationError(
-            "Portal ZIP must include a valid web_only package with tour_4k/index.html and tour_2k/index.html.".into(),
-        )
-    })
-}
-
-fn sanitize_relative_path(relative_path: &str) -> Result<PathBuf, AppError> {
-    if relative_path.trim().is_empty() {
-        return Err(AppError::ValidationError(
-            "Portal asset path is required.".into(),
-        ));
-    }
-
-    let candidate = Path::new(relative_path);
-    if candidate.is_absolute() {
-        return Err(AppError::ValidationError(
-            "Portal asset path must be relative.".into(),
-        ));
-    }
-
-    let mut clean = PathBuf::new();
-    for component in candidate.components() {
-        match component {
-            std::path::Component::Normal(part) => clean.push(part),
-            _ => {
-                return Err(AppError::ValidationError(
-                    "Portal asset path contains unsupported segments.".into(),
-                ));
-            }
-        }
-    }
-
-    Ok(clean)
-}
-
-async fn log_audit(
-    pool: &SqlitePool,
-    actor_user_id: Option<&str>,
-    customer_id: Option<&str>,
-    event_type: &str,
-    details_json: serde_json::Value,
-) -> Result<(), AppError> {
-    let mut tx = pool.begin().await.map_err(|error| {
-        AppError::InternalError(format!("Portal audit transaction failed: {}", error))
-    })?;
-    log_audit_event(
-        &mut tx,
-        actor_user_id,
-        customer_id,
-        event_type,
-        details_json,
-    )
-    .await?;
-    tx.commit()
-        .await
-        .map_err(|error| AppError::InternalError(format!("Portal audit commit failed: {}", error)))
-}
-
-async fn log_audit_event(
-    tx: &mut sqlx::Transaction<'_, sqlx::Sqlite>,
-    actor_user_id: Option<&str>,
-    customer_id: Option<&str>,
-    event_type: &str,
-    details_json: serde_json::Value,
-) -> Result<(), AppError> {
-    sqlx::query(
-        r#"
-        INSERT INTO portal_audit_log (id, actor_user_id, customer_id, event_type, details_json)
-        VALUES (?, ?, ?, ?, ?)
-        "#,
-    )
-    .bind(Uuid::new_v4().to_string())
-    .bind(actor_user_id)
-    .bind(customer_id)
-    .bind(event_type)
-    .bind(details_json.to_string())
-    .execute(&mut **tx)
-    .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal audit log write failed: {}", error))
-    })?;
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn slugify_normalizes_and_strips_noise() {
-        assert_eq!(slugify("  ACME Tower  "), "acme-tower");
-        assert_eq!(slugify("Unit # 19 / Showroom"), "unit-19-showroom");
-    }
-
-    #[test]
-    fn sanitize_relative_path_blocks_parent_segments() {
-        assert!(sanitize_relative_path("../tour_4k/index.html").is_err());
-        assert!(sanitize_relative_path("/tmp/tour_4k/index.html").is_err());
-        assert!(sanitize_relative_path("tour_4k/index.html").is_ok());
-    }
 }

@@ -3,6 +3,8 @@ pub mod database;
 pub mod geocoding;
 #[cfg(feature = "builder-runtime")]
 pub mod media;
+pub mod portal_audit;
+pub mod portal_paths;
 pub mod portal;
 #[cfg(feature = "builder-runtime")]
 pub mod project;
