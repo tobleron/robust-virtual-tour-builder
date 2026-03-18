@@ -33,7 +33,7 @@ let appendTemplates = (
       }
     )
 
-  let generateWebIndex = () => {
+  let generateWebIndex = (~bundleLabel="Adaptive web package", ~bundleNote="4K loads by default, with a 2K fallback only on constrained devices when image detail remains acceptable.") => {
     let logoBlock = switch logoFilename {
     | Some(filename) =>
       `<div style="position:fixed;right:16px;bottom:16px;background:rgba(255,255,255,0.1);padding:5px;border-radius:10px;"><img src="../assets/logo/${filename}" style="height:64px;width:auto;display:block;" /></div>`
@@ -102,16 +102,16 @@ let appendTemplates = (
     `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;text-align:center;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(
         /_/g,
         " ",
-      )}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">Adaptive web package v${version}</p><p style="margin:0 0 24px 0;color:rgba(255,255,255,0.68);">4K loads by default, with a 2K fallback only on constrained devices when image detail remains acceptable.</p><a href="${fallbackHref}" style="display:inline-block;padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">Open Tour</a><noscript><p style="margin:16px 0 0 0;color:rgba(255,255,255,0.6);">JavaScript is disabled, so the default tour entry is being shown.</p></noscript></div><script>window.location.replace(${adaptiveTarget});</script>${logoBlock}</body></html>`
+      )}</h1><p style="margin:0 0 18px 0;color:rgba(255,255,255,0.75);">${bundleLabel} v${version}</p><p style="margin:0 0 24px 0;color:rgba(255,255,255,0.68);">${bundleNote}</p><a href="${fallbackHref}" style="display:inline-block;padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);color:#fff;text-decoration:none;background:rgba(255,255,255,0.04);font-weight:700;">Open Tour</a><noscript><p style="margin:16px 0 0 0;color:rgba(255,255,255,0.6);">JavaScript is disabled, so the default tour entry is being shown.</p></noscript></div><script>window.location.replace(${adaptiveTarget});</script>${logoBlock}</body></html>`
   }
 
-  let generateEmbedCodes = () => {
+  let generateEmbedCodes = (~bundleLabel="Web Package") => {
     let lines = ref([`VIRTUAL TOUR - EMBED CODES\nVersion: ${version}\nProperty: ${tourName}\n`])
     lines :=
       Belt.Array.concat(
         lines.contents,
         [
-          `\n1. Web Package (4K default, 2K on constrained devices when detail remains acceptable):\n   <iframe src="index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
+          `\n1. ${bundleLabel} (4K default, 2K on constrained devices when detail remains acceptable):\n   <iframe src="index.html" width="100%" height="640" style="border:none;" title="360° Virtual Tour - ${tourName}"></iframe>\n`,
         ],
       )
     lines.contents->Array.joinUnsafe("")

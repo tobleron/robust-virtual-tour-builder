@@ -96,10 +96,24 @@ pub fn create_root_index(
 }
 
 pub fn create_web_only_deployment_readme() -> String {
-    String::from(
-        r#"WEB-ONLY DEPLOYMENT INSTRUCTIONS
+    create_web_bundle_deployment_readme(
+        "web_only",
+        "Web Package",
+        "This folder is designed for website hosting over HTTP/HTTPS.",
+        "4K by default, with automatic 2K fallback on small phones for website integration over HTTP/HTTPS.",
+    )
+}
 
-This folder is designed for website hosting over HTTP/HTTPS.
+fn create_web_bundle_deployment_readme(
+    bundle_folder_name: &str,
+    bundle_label: &str,
+    bundle_intro: &str,
+    bundle_behavior: &str,
+) -> String {
+    format!(
+        r#"{bundle_label_upper} DEPLOYMENT INSTRUCTIONS
+
+{bundle_intro}
 
 Each tour resolution adapts at runtime:
 - desktop/laptop: classic UI
@@ -107,28 +121,32 @@ Each tour resolution adapts at runtime:
 - touch landscape: landscape touch UI
 
 Upload this folder exactly as-is:
-- web_only/
+- {bundle_folder_name}/
   - assets/
   - libs/
   - tour_4k/
   - tour_2k/
 
 Primary entry:
-- web_only/index.html
+- {bundle_folder_name}/index.html
 
 Behavior:
-- `web_only/index.html` chooses `4K` by default.
-- Small phone-class devices automatically fall back to `2K`.
+- `{bundle_folder_name}/index.html` chooses `4K` by default.
+- {bundle_behavior}
 
 Example iframe:
-<iframe src="/virtual-tour/web_only/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
+<iframe src="/virtual-tour/{bundle_folder_name}/index.html" width="100%" height="640" style="border:none" title="360 Virtual Tour"></iframe>
 
 Notes:
 1) Keep folder structure unchanged.
-2) Keep web_only/libs unless you intentionally rewrite script/style paths to a shared site library.
+2) Keep {bundle_folder_name}/libs unless you intentionally rewrite script/style paths to a shared site library.
 3) Serve through HTTP/HTTPS (not file://).
 4) Ensure your static host serves .webp, .js, and .css.
-"#,
+        "#,
+        bundle_label_upper = bundle_label.to_uppercase(),
+        bundle_intro = bundle_intro,
+        bundle_folder_name = bundle_folder_name,
+        bundle_behavior = bundle_behavior,
     )
 }
 

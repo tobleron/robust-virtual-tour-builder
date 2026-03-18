@@ -161,7 +161,6 @@ pub(super) fn write_tour_htmls(
         ("html_2k", "2k", "tour_2k"),
         ("html_hd", "hd", "tour_hd"),
     ];
-
     for (field_name, resolution_key, folder) in html_targets {
         let should_include = match resolution_key {
             "4k" => selected_profiles.include_4k,
