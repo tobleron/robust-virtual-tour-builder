@@ -12,20 +12,6 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 ## Tasks
 
-### 🔧 Action: Audit & Delete
-**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
-
-- [ ] - **../../css/components/portal-pages-admin-tables.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 159)) → Refactor in-place (keep near ~400 LOC and above 220 LOC floor)
-
-- [ ] - **../../css/components/portal-pages-admin-ui.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 305)) → Refactor in-place (keep near ~400 LOC and above 220 LOC floor)
-
-- [ ] - **../../css/components/portal-pages-auth.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 76)) → Refactor in-place (keep near ~400 LOC and above 220 LOC floor)
-
-- [ ] - **../../css/components/portal-pages-base.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 238)) → Refactor in-place (keep near ~400 LOC and above 220 LOC floor)
-
-- [ ] - **../../css/components/portal-pages-customer.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 319)) → Refactor in-place (keep near ~400 LOC and above 220 LOC floor)
-
-
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 

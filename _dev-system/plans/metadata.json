@@ -2,11 +2,103 @@
   "system": [
     {
       "Merge": {
+        "folder": "../../src/systems/ExifReport",
+        "files": [
+          "ExifReportGeneratorLogicGroups.res",
+          "ExifReportGeneratorLogicLocation.res",
+          "ExifReportGeneratorLogicExtraction.res",
+          "ExifReportGeneratorLogicTypes.res"
+        ],
+        "reason": "Read Tax high (Score 4.00). Projected Limit: 400 (Drag 3.92)",
+        "strategy": "",
+        "platform": "frontend",
+        "verification": {
+          "headline": "Pre-merge snapshots for `../../src/systems/ExifReport`",
+          "snapshots": [
+            {
+              "path": "src/systems/ExifReport/ExifReportGeneratorLogicGroups.res",
+              "functions": [
+                {
+                  "name": "analyzeGroups",
+                  "signature": "analyzeGroups = (exifResults: array<exifResult>, lines) => {",
+                  "line": 6
+                },
+                {
+                  "name": "listIndividualFiles",
+                  "signature": "listIndividualFiles = (exifResults: array<exifResult>, lines) => {",
+                  "line": 64
+                }
+              ],
+              "fingerprint": "0c614deb623ccce92005ad856266bbf052b326605fc422677563f1f9e3f6a570"
+            },
+            {
+              "path": "src/systems/ExifReport/ExifReportGeneratorLogicLocation.res",
+              "functions": [
+                {
+                  "name": "analyzeLocation",
+                  "signature": "analyzeLocation = async (gpsPoints, gpsFilenames, totalCount, lines) => {",
+                  "line": 3
+                }
+              ],
+              "fingerprint": "757a25ee836c8cdd83d5417e22d81462edec73a61ae9f61898f08a7b24c0f05b"
+            },
+            {
+              "path": "src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res",
+              "functions": [
+                {
+                  "name": "isLikelyValidExif",
+                  "signature": "isLikelyValidExif = (meta: exifMetadata): bool => {",
+                  "line": 11
+                },
+                {
+                  "name": "isLikelyValidQuality",
+                  "signature": "isLikelyValidQuality = (q: qualityAnalysis): bool =>",
+                  "line": 19
+                },
+                {
+                  "name": "decodeExifMetadata",
+                  "signature": "decodeExifMetadata = (json: JSON.t): exifMetadata =>",
+                  "line": 22
+                },
+                {
+                  "name": "decodeQualityAnalysis",
+                  "signature": "decodeQualityAnalysis = (json: JSON.t): qualityAnalysis =>",
+                  "line": 50
+                },
+                {
+                  "name": "resolveExifData",
+                  "signature": "resolveExifData = async (item: sceneDataItem) => {",
+                  "line": 78
+                },
+                {
+                  "name": "processSceneDataItem",
+                  "signature": "processSceneDataItem = async (item: sceneDataItem) => {",
+                  "line": 109
+                },
+                {
+                  "name": "extractAllExif",
+                  "signature": "extractAllExif = async (sceneDataList: array<sceneDataItem>) => {",
+                  "line": 137
+                }
+              ],
+              "fingerprint": "ef7d28e1dde0b406c2fa5375f5b5cc9e6e658c3b186f4f8833d7ebb503cc0dac"
+            },
+            {
+              "path": "src/systems/ExifReport/ExifReportGeneratorLogicTypes.res",
+              "functions": [],
+              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Merge": {
         "folder": "../../src/systems/Viewer",
         "files": [
-          "ViewerPool.res",
+          "ViewerAdapter.res",
           "ViewerFollow.res",
-          "ViewerAdapter.res"
+          "ViewerPool.res"
         ],
         "reason": "Read Tax high (Score 3.00). Projected Limit: 400 (Drag 5.06)",
         "strategy": "",
@@ -14,108 +106,6 @@
         "verification": {
           "headline": "Pre-merge snapshots for `../../src/systems/Viewer`",
           "snapshots": [
-            {
-              "path": "src/systems/Viewer/ViewerPool.res",
-              "functions": [
-                {
-                  "name": "pool",
-                  "signature": "pool = ref([",
-                  "line": 11
-                },
-                {
-                  "name": "getViewport",
-                  "signature": "getViewport = id => pool.contents->Belt.Array.getBy(v => v.id == id)",
-                  "line": 27
-                },
-                {
-                  "name": "getViewportByContainer",
-                  "signature": "getViewportByContainer = cId => pool.contents->Belt.Array.getBy(v => v.containerId == cId)",
-                  "line": 28
-                },
-                {
-                  "name": "getActive",
-                  "signature": "getActive = () => pool.contents->Belt.Array.getBy(v => v.status == #Active)",
-                  "line": 29
-                },
-                {
-                  "name": "getActiveViewer",
-                  "signature": "getActiveViewer = () => getActive()->Option.flatMap(v => v.instance)",
-                  "line": 30
-                },
-                {
-                  "name": "getInactive",
-                  "signature": "getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)",
-                  "line": 31
-                },
-                {
-                  "name": "getInactiveViewer",
-                  "signature": "getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)",
-                  "line": 32
-                },
-                {
-                  "name": "swapActive",
-                  "signature": "swapActive = () =>",
-                  "line": 33
-                },
-                {
-                  "name": "registerInstance",
-                  "signature": "registerInstance = (cId, inst) =>",
-                  "line": 43
-                },
-                {
-                  "name": "clearInstance",
-                  "signature": "clearInstance = cId =>",
-                  "line": 52
-                },
-                {
-                  "name": "setCleanupTimeout",
-                  "signature": "setCleanupTimeout = (id, t) =>",
-                  "line": 61
-                },
-                {
-                  "name": "clearCleanupTimeout",
-                  "signature": "clearCleanupTimeout = id =>",
-                  "line": 71
-                },
-                {
-                  "name": "reset",
-                  "signature": "reset = () => {",
-                  "line": 82
-                }
-              ],
-              "fingerprint": "24dcb180435ff050c476908592dcc686240602b152601a3fb9bdc3195bce16e6"
-            },
-            {
-              "path": "src/systems/Viewer/ViewerFollow.res",
-              "functions": [
-                {
-                  "name": "linkingDeadZone",
-                  "signature": "linkingDeadZone = 0.35",
-                  "line": 4
-                },
-                {
-                  "name": "linkingYawSensitivity",
-                  "signature": "linkingYawSensitivity = 2.0",
-                  "line": 5
-                },
-                {
-                  "name": "linkingPitchSensitivity",
-                  "signature": "linkingPitchSensitivity = 1.3",
-                  "line": 6
-                },
-                {
-                  "name": "isInsideDeadZone",
-                  "signature": "isInsideDeadZone = (startPt, lastMouse) => {",
-                  "line": 8
-                },
-                {
-                  "name": "updateFollowLoop",
-                  "signature": "updateFollowLoop = (~getState: unit => state) => {",
-                  "line": 25
-                }
-              ],
-              "fingerprint": "c632b0b784d08e282a1d50b48a94d85959218434069b5d5b3f9c09c625a650a0"
-            },
             {
               "path": "src/systems/Viewer/ViewerAdapter.res",
               "functions": [
@@ -221,98 +211,131 @@
                 }
               ],
               "fingerprint": "edec2a95380cfa4c76fb69d6b61e86002dda40c6f82ed4e2612d592411a6bf22"
+            },
+            {
+              "path": "src/systems/Viewer/ViewerFollow.res",
+              "functions": [
+                {
+                  "name": "linkingDeadZone",
+                  "signature": "linkingDeadZone = 0.35",
+                  "line": 4
+                },
+                {
+                  "name": "linkingYawSensitivity",
+                  "signature": "linkingYawSensitivity = 2.0",
+                  "line": 5
+                },
+                {
+                  "name": "linkingPitchSensitivity",
+                  "signature": "linkingPitchSensitivity = 1.3",
+                  "line": 6
+                },
+                {
+                  "name": "isInsideDeadZone",
+                  "signature": "isInsideDeadZone = (startPt, lastMouse) => {",
+                  "line": 8
+                },
+                {
+                  "name": "updateFollowLoop",
+                  "signature": "updateFollowLoop = (~getState: unit => state) => {",
+                  "line": 25
+                }
+              ],
+              "fingerprint": "c632b0b784d08e282a1d50b48a94d85959218434069b5d5b3f9c09c625a650a0"
+            },
+            {
+              "path": "src/systems/Viewer/ViewerPool.res",
+              "functions": [
+                {
+                  "name": "pool",
+                  "signature": "pool = ref([",
+                  "line": 11
+                },
+                {
+                  "name": "getViewport",
+                  "signature": "getViewport = id => pool.contents->Belt.Array.getBy(v => v.id == id)",
+                  "line": 27
+                },
+                {
+                  "name": "getViewportByContainer",
+                  "signature": "getViewportByContainer = cId => pool.contents->Belt.Array.getBy(v => v.containerId == cId)",
+                  "line": 28
+                },
+                {
+                  "name": "getActive",
+                  "signature": "getActive = () => pool.contents->Belt.Array.getBy(v => v.status == #Active)",
+                  "line": 29
+                },
+                {
+                  "name": "getActiveViewer",
+                  "signature": "getActiveViewer = () => getActive()->Option.flatMap(v => v.instance)",
+                  "line": 30
+                },
+                {
+                  "name": "getInactive",
+                  "signature": "getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)",
+                  "line": 31
+                },
+                {
+                  "name": "getInactiveViewer",
+                  "signature": "getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)",
+                  "line": 32
+                },
+                {
+                  "name": "swapActive",
+                  "signature": "swapActive = () =>",
+                  "line": 33
+                },
+                {
+                  "name": "registerInstance",
+                  "signature": "registerInstance = (cId, inst) =>",
+                  "line": 43
+                },
+                {
+                  "name": "clearInstance",
+                  "signature": "clearInstance = cId =>",
+                  "line": 52
+                },
+                {
+                  "name": "setCleanupTimeout",
+                  "signature": "setCleanupTimeout = (id, t) =>",
+                  "line": 61
+                },
+                {
+                  "name": "clearCleanupTimeout",
+                  "signature": "clearCleanupTimeout = id =>",
+                  "line": 71
+                },
+                {
+                  "name": "reset",
+                  "signature": "reset = () => {",
+                  "line": 82
+                }
+              ],
+              "fingerprint": "24dcb180435ff050c476908592dcc686240602b152601a3fb9bdc3195bce16e6"
             }
           ]
         }
       }
-    },
+    }
+  ],
+  "css": [
     {
-      "Merge": {
-        "folder": "../../src/systems/ExifReport",
-        "files": [
-          "ExifReportGeneratorLogicGroups.res",
-          "ExifReportGeneratorLogicTypes.res",
-          "ExifReportGeneratorLogicLocation.res",
-          "ExifReportGeneratorLogicExtraction.res"
-        ],
-        "reason": "Read Tax high (Score 4.00). Projected Limit: 400 (Drag 3.92)",
+      "Surgical": {
+        "file": "../../css/components/portal-pages.css",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.17, Coupling: 0.00] | Drag: 2.37 | LOC: 1078/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
         "strategy": "",
         "platform": "frontend",
+        "complexity": 70.17439703153988,
+        "recommended_splits": 3,
         "verification": {
-          "headline": "Pre-merge snapshots for `../../src/systems/ExifReport`",
+          "headline": "Pre-split snapshot for `css/components/portal-pages.css`",
           "snapshots": [
             {
-              "path": "src/systems/ExifReport/ExifReportGeneratorLogicGroups.res",
-              "functions": [
-                {
-                  "name": "analyzeGroups",
-                  "signature": "analyzeGroups = (exifResults: array<exifResult>, lines) => {",
-                  "line": 6
-                },
-                {
-                  "name": "listIndividualFiles",
-                  "signature": "listIndividualFiles = (exifResults: array<exifResult>, lines) => {",
-                  "line": 64
-                }
-              ],
-              "fingerprint": "0c614deb623ccce92005ad856266bbf052b326605fc422677563f1f9e3f6a570"
-            },
-            {
-              "path": "src/systems/ExifReport/ExifReportGeneratorLogicTypes.res",
+              "path": "css/components/portal-pages.css",
               "functions": [],
               "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-            },
-            {
-              "path": "src/systems/ExifReport/ExifReportGeneratorLogicLocation.res",
-              "functions": [
-                {
-                  "name": "analyzeLocation",
-                  "signature": "analyzeLocation = async (gpsPoints, gpsFilenames, totalCount, lines) => {",
-                  "line": 3
-                }
-              ],
-              "fingerprint": "757a25ee836c8cdd83d5417e22d81462edec73a61ae9f61898f08a7b24c0f05b"
-            },
-            {
-              "path": "src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res",
-              "functions": [
-                {
-                  "name": "isLikelyValidExif",
-                  "signature": "isLikelyValidExif = (meta: exifMetadata): bool => {",
-                  "line": 11
-                },
-                {
-                  "name": "isLikelyValidQuality",
-                  "signature": "isLikelyValidQuality = (q: qualityAnalysis): bool =>",
-                  "line": 19
-                },
-                {
-                  "name": "decodeExifMetadata",
-                  "signature": "decodeExifMetadata = (json: JSON.t): exifMetadata =>",
-                  "line": 22
-                },
-                {
-                  "name": "decodeQualityAnalysis",
-                  "signature": "decodeQualityAnalysis = (json: JSON.t): qualityAnalysis =>",
-                  "line": 50
-                },
-                {
-                  "name": "resolveExifData",
-                  "signature": "resolveExifData = async (item: sceneDataItem) => {",
-                  "line": 78
-                },
-                {
-                  "name": "processSceneDataItem",
-                  "signature": "processSceneDataItem = async (item: sceneDataItem) => {",
-                  "line": 109
-                },
-                {
-                  "name": "extractAllExif",
-                  "signature": "extractAllExif = async (sceneDataList: array<sceneDataItem>) => {",
-                  "line": 137
-                }
-              ],
-              "fingerprint": "ef7d28e1dde0b406c2fa5375f5b5cc9e6e658c3b186f4f8833d7ebb503cc0dac"
             }
           ]
         }
@@ -345,6 +368,18 @@
             }
           ]
         }
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/site/PortalTypes.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 225)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0,
+        "recommended_splits": 1,
+        "verification": null
       }
     },
     {
@@ -561,14 +596,79 @@
     },
     {
       "Surgical": {
-        "file": "../../src/site/PortalTypes.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 225)",
+        "file": "../../src/components/ReactHotspotLayer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 6.00, Density: 0.37, Coupling: 0.08] | Drag: 7.49 | LOC: 417/400  ⚠️ Trigger: Drag above target (2.40) with file already at 417 LOC.  🎯 Target: Function: `make` (High Local Complexity (41.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 0.0,
+        "complexity": 9.189208633093525,
         "recommended_splits": 1,
-        "verification": null
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/ReactHotspotLayer.res`",
+          "snapshots": [
+            {
+              "path": "src/components/ReactHotspotLayer.res",
+              "functions": [
+                {
+                  "name": "cleanSceneTag",
+                  "signature": "cleanSceneTag = raw => {",
+                  "line": 9
+                },
+                {
+                  "name": "sceneDisplayLabel",
+                  "signature": "sceneDisplayLabel = (scene: scene) => {",
+                  "line": 22
+                },
+                {
+                  "name": "sceneIdFromMeta",
+                  "signature": "sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr(\"\")",
+                  "line": 38
+                },
+                {
+                  "name": "duplicateTargetStackSpacingPx",
+                  "signature": "duplicateTargetStackSpacingPx = 42.0",
+                  "line": 39
+                },
+                {
+                  "name": "duplicateStackRestoreDelayMs",
+                  "signature": "duplicateStackRestoreDelayMs = 240",
+                  "line": 40
+                },
+                {
+                  "name": "deriveDuplicateStackPlacements",
+                  "signature": "deriveDuplicateStackPlacements = (seeds: array<duplicateStackSeed>): Belt.Map.String.t<",
+                  "line": 68
+                },
+                {
+                  "name": "resolveStackedCoords",
+                  "signature": "resolveStackedCoords = (",
+                  "line": 120
+                },
+                {
+                  "name": "shouldShowHotspotLabel",
+                  "signature": "shouldShowHotspotLabel = (",
+                  "line": 141
+                },
+                {
+                  "name": "resolveDuplicateGroupAnchorLinkId",
+                  "signature": "resolveDuplicateGroupAnchorLinkId = (",
+                  "line": 156
+                },
+                {
+                  "name": "clearHoveredStackRestoreTimer",
+                  "signature": "clearHoveredStackRestoreTimer = (timerRef: React.ref<option<int>>) => {",
+                  "line": 165
+                },
+                {
+                  "name": "make",
+                  "signature": "make = React.memo(() => {",
+                  "line": 174
+                }
+              ],
+              "fingerprint": "dec58200b9c44b04ba3103f1d1a5cf56461b9ad7eb045b2f7a58c2f5fe8dfc05"
+            }
+          ]
+        }
       }
     },
     {
@@ -844,86 +944,283 @@
           ]
         }
       }
-    },
+    }
+  ],
+  "rust": [
     {
       "Surgical": {
-        "file": "../../src/components/ReactHotspotLayer.res",
+        "file": "../../backend/src/api/config_routes.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 6.00, Density: 0.37, Coupling: 0.08] | Drag: 7.49 | LOC: 417/400  ⚠️ Trigger: Drag above target (2.40) with file already at 417 LOC.  🎯 Target: Function: `make` (High Local Complexity (41.0). Logic heavy.)",
+        "reason": "[Nesting: 0.60, Density: 0.00, Coupling: 0.01] | Drag: 1.60 | LOC: 735/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
         "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.189208633093525,
-        "recommended_splits": 1,
+        "platform": "backend",
+        "complexity": 35.1,
+        "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/components/ReactHotspotLayer.res`",
+          "headline": "Pre-split snapshot for `backend/src/api/config_routes.rs`",
           "snapshots": [
             {
-              "path": "src/components/ReactHotspotLayer.res",
+              "path": "backend/src/api/config_routes.rs",
               "functions": [
                 {
-                  "name": "cleanSceneTag",
-                  "signature": "cleanSceneTag = raw => {",
-                  "line": 9
+                  "name": "configure_api",
+                  "signature": "fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
+                  "line": 14
                 },
                 {
-                  "name": "sceneDisplayLabel",
-                  "signature": "sceneDisplayLabel = (scene: scene) => {",
-                  "line": 22
+                  "name": "configure_api",
+                  "signature": "fn configure_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}",
+                  "line": 543
                 },
                 {
-                  "name": "sceneIdFromMeta",
-                  "signature": "sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr(\"\")",
-                  "line": 38
-                },
-                {
-                  "name": "duplicateTargetStackSpacingPx",
-                  "signature": "duplicateTargetStackSpacingPx = 42.0",
-                  "line": 39
-                },
-                {
-                  "name": "duplicateStackRestoreDelayMs",
-                  "signature": "duplicateStackRestoreDelayMs = 240",
-                  "line": 40
-                },
-                {
-                  "name": "deriveDuplicateStackPlacements",
-                  "signature": "deriveDuplicateStackPlacements = (seeds: array<duplicateStackSeed>): Belt.Map.String.t<",
-                  "line": 68
-                },
-                {
-                  "name": "resolveStackedCoords",
-                  "signature": "resolveStackedCoords = (",
-                  "line": 120
-                },
-                {
-                  "name": "shouldShowHotspotLabel",
-                  "signature": "shouldShowHotspotLabel = (",
-                  "line": 141
-                },
-                {
-                  "name": "resolveDuplicateGroupAnchorLinkId",
-                  "signature": "resolveDuplicateGroupAnchorLinkId = (",
-                  "line": 156
-                },
-                {
-                  "name": "clearHoveredStackRestoreTimer",
-                  "signature": "clearHoveredStackRestoreTimer = (timerRef: React.ref<option<int>>) => {",
-                  "line": 165
-                },
-                {
-                  "name": "make",
-                  "signature": "make = React.memo(() => {",
-                  "line": 174
+                  "name": "configure_portal_api",
+                  "signature": "fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
+                  "line": 545
                 }
               ],
-              "fingerprint": "dec58200b9c44b04ba3103f1d1a5cf56461b9ad7eb045b2f7a58c2f5fe8dfc05"
+              "fingerprint": "b90713ffb2446f9c0b1751ab2a6dfe0aa73393d9ae43f5c6b6d1d29d4d6332df"
             }
           ]
         }
       }
-    }
-  ],
-  "rust": [
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/portal.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.01] | Drag: 3.46 | LOC: 874/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 50.85606407322654,
+        "recommended_splits": 2,
+        "verification": {
+          "headline": "Pre-split snapshot for `backend/src/api/portal.rs`",
+          "snapshots": [
+            {
+              "path": "backend/src/api/portal.rs",
+              "functions": [
+                {
+                  "name": "require_portal_admin",
+                  "signature": "fn require_portal_admin(req: &HttpRequest) -> Result<User, AppError> {",
+                  "line": 96
+                },
+                {
+                  "name": "current_portal_session",
+                  "signature": "fn current_portal_session(session: &Session) -> Result<(String, String, String), AppError> {",
+                  "line": 112
+                },
+                {
+                  "name": "ensure_slug_matches_session",
+                  "signature": "fn ensure_slug_matches_session(session: &Session, slug: &str) -> Result<(String, String), AppError> {",
+                  "line": 128
+                },
+                {
+                  "name": "ensure_gallery_session",
+                  "signature": "fn ensure_gallery_session(session: &Session, slug: &str) -> Result<String, AppError> {",
+                  "line": 138
+                },
+                {
+                  "name": "portal_public_base_url",
+                  "signature": "fn portal_public_base_url(req: &HttpRequest) -> String {",
+                  "line": 148
+                },
+                {
+                  "name": "safe_next_path",
+                  "signature": "fn safe_next_path(customer_slug: &str, next: Option<&str>) -> String {",
+                  "line": 158
+                },
+                {
+                  "name": "safe_tour_path",
+                  "signature": "fn safe_tour_path(customer_slug: &str, tour_slug: &str) -> String {",
+                  "line": 178
+                },
+                {
+                  "name": "normalized_requested_slug",
+                  "signature": "fn normalized_requested_slug(raw_slug: &str) -> Result<String, AppError> {",
+                  "line": 186
+                },
+                {
+                  "name": "store_portal_session",
+                  "signature": "fn store_portal_session(",
+                  "line": 190
+                },
+                {
+                  "name": "admin_list_customers",
+                  "signature": "pub async fn admin_list_customers(",
+                  "line": 214
+                },
+                {
+                  "name": "admin_create_customer",
+                  "signature": "pub async fn admin_create_customer(",
+                  "line": 223
+                },
+                {
+                  "name": "admin_update_customer",
+                  "signature": "pub async fn admin_update_customer(",
+                  "line": 239
+                },
+                {
+                  "name": "admin_get_settings",
+                  "signature": "pub async fn admin_get_settings(",
+                  "line": 257
+                },
+                {
+                  "name": "admin_update_settings",
+                  "signature": "pub async fn admin_update_settings(",
+                  "line": 266
+                },
+                {
+                  "name": "admin_list_library_tours",
+                  "signature": "pub async fn admin_list_library_tours(",
+                  "line": 277
+                },
+                {
+                  "name": "admin_upload_library_tour",
+                  "signature": "pub async fn admin_upload_library_tour(",
+                  "line": 286
+                },
+                {
+                  "name": "admin_update_library_tour_status",
+                  "signature": "pub async fn admin_update_library_tour_status(",
+                  "line": 302
+                },
+                {
+                  "name": "admin_get_customer_tours",
+                  "signature": "pub async fn admin_get_customer_tours(",
+                  "line": 319
+                },
+                {
+                  "name": "admin_get_tour_recipients",
+                  "signature": "pub async fn admin_get_tour_recipients(",
+                  "line": 334
+                },
+                {
+                  "name": "admin_get_assignment",
+                  "signature": "pub async fn admin_get_assignment(",
+                  "line": 349
+                },
+                {
+                  "name": "admin_create_customer_tour_link",
+                  "signature": "pub async fn admin_create_customer_tour_link(",
+                  "line": 364
+                },
+                {
+                  "name": "admin_revoke_assignment_link",
+                  "signature": "pub async fn admin_revoke_assignment_link(",
+                  "line": 383
+                },
+                {
+                  "name": "admin_update_assignment_expiry",
+                  "signature": "pub async fn admin_update_assignment_expiry(",
+                  "line": 401
+                },
+                {
+                  "name": "admin_reactivate_assignment_link",
+                  "signature": "pub async fn admin_reactivate_assignment_link(",
+                  "line": 419
+                },
+                {
+                  "name": "admin_assign_customer_tour",
+                  "signature": "pub async fn admin_assign_customer_tour(",
+                  "line": 435
+                },
+                {
+                  "name": "admin_unassign_customer_tour",
+                  "signature": "pub async fn admin_unassign_customer_tour(",
+                  "line": 453
+                },
+                {
+                  "name": "admin_bulk_assign_tours",
+                  "signature": "pub async fn admin_bulk_assign_tours(",
+                  "line": 471
+                },
+                {
+                  "name": "admin_regenerate_access_link",
+                  "signature": "pub async fn admin_regenerate_access_link(",
+                  "line": 483
+                },
+                {
+                  "name": "admin_revoke_access_links",
+                  "signature": "pub async fn admin_revoke_access_links(",
+                  "line": 501
+                },
+                {
+                  "name": "admin_delete_access_links",
+                  "signature": "pub async fn admin_delete_access_links(",
+                  "line": 517
+                },
+                {
+                  "name": "admin_delete_customer",
+                  "signature": "pub async fn admin_delete_customer(",
+                  "line": 533
+                },
+                {
+                  "name": "admin_delete_library_tour",
+                  "signature": "pub async fn admin_delete_library_tour(",
+                  "line": 543
+                },
+                {
+                  "name": "customer_public",
+                  "signature": "pub async fn customer_public(",
+                  "line": 553
+                },
+                {
+                  "name": "customer_session",
+                  "signature": "pub async fn customer_session(",
+                  "line": 561
+                },
+                {
+                  "name": "customer_sign_out",
+                  "signature": "pub async fn customer_sign_out(session: Session) -> Result<HttpResponse, AppError> {",
+                  "line": 582
+                },
+                {
+                  "name": "customer_tours",
+                  "signature": "pub async fn customer_tours(",
+                  "line": 589
+                },
+                {
+                  "name": "customer_tour_launch",
+                  "signature": "pub async fn customer_tour_launch(",
+                  "line": 607
+                },
+                {
+                  "name": "customer_tour_asset",
+                  "signature": "pub async fn customer_tour_asset(",
+                  "line": 648
+                },
+                {
+                  "name": "access_link_redirect",
+                  "signature": "pub async fn access_link_redirect(",
+                  "line": 665
+                },
+                {
+                  "name": "user_access_redirect",
+                  "signature": "pub async fn user_access_redirect(",
+                  "line": 711
+                },
+                {
+                  "name": "access_tour_redirect",
+                  "signature": "pub async fn access_tour_redirect(",
+                  "line": 744
+                },
+                {
+                  "name": "user_tour_access_redirect",
+                  "signature": "pub async fn user_tour_access_redirect(",
+                  "line": 789
+                },
+                {
+                  "name": "read_portal_zip_upload",
+                  "signature": "async fn read_portal_zip_upload(mut payload: Multipart) -> Result<(String, PathBuf), AppError> {",
+                  "line": 825
+                }
+              ],
+              "fingerprint": "3a5d936a41daa56f8162d3588e4a9a40efd3e5e30b95946d36a2f6fc0dc3dc40"
+            }
+          ]
+        }
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/services/portal.rs",
@@ -1389,363 +1686,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/config_routes.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.60, Density: 0.00, Coupling: 0.01] | Drag: 1.60 | LOC: 735/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 35.1,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/config_routes.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/config_routes.rs",
-              "functions": [
-                {
-                  "name": "configure_api",
-                  "signature": "fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
-                  "line": 14
-                },
-                {
-                  "name": "configure_api",
-                  "signature": "fn configure_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}",
-                  "line": 543
-                },
-                {
-                  "name": "configure_portal_api",
-                  "signature": "fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {",
-                  "line": 545
-                }
-              ],
-              "fingerprint": "b90713ffb2446f9c0b1751ab2a6dfe0aa73393d9ae43f5c6b6d1d29d4d6332df"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/portal.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.02, Coupling: 0.01] | Drag: 3.46 | LOC: 874/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 50.85606407322654,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `backend/src/api/portal.rs`",
-          "snapshots": [
-            {
-              "path": "backend/src/api/portal.rs",
-              "functions": [
-                {
-                  "name": "require_portal_admin",
-                  "signature": "fn require_portal_admin(req: &HttpRequest) -> Result<User, AppError> {",
-                  "line": 96
-                },
-                {
-                  "name": "current_portal_session",
-                  "signature": "fn current_portal_session(session: &Session) -> Result<(String, String, String), AppError> {",
-                  "line": 112
-                },
-                {
-                  "name": "ensure_slug_matches_session",
-                  "signature": "fn ensure_slug_matches_session(session: &Session, slug: &str) -> Result<(String, String), AppError> {",
-                  "line": 128
-                },
-                {
-                  "name": "ensure_gallery_session",
-                  "signature": "fn ensure_gallery_session(session: &Session, slug: &str) -> Result<String, AppError> {",
-                  "line": 138
-                },
-                {
-                  "name": "portal_public_base_url",
-                  "signature": "fn portal_public_base_url(req: &HttpRequest) -> String {",
-                  "line": 148
-                },
-                {
-                  "name": "safe_next_path",
-                  "signature": "fn safe_next_path(customer_slug: &str, next: Option<&str>) -> String {",
-                  "line": 158
-                },
-                {
-                  "name": "safe_tour_path",
-                  "signature": "fn safe_tour_path(customer_slug: &str, tour_slug: &str) -> String {",
-                  "line": 178
-                },
-                {
-                  "name": "normalized_requested_slug",
-                  "signature": "fn normalized_requested_slug(raw_slug: &str) -> Result<String, AppError> {",
-                  "line": 186
-                },
-                {
-                  "name": "store_portal_session",
-                  "signature": "fn store_portal_session(",
-                  "line": 190
-                },
-                {
-                  "name": "admin_list_customers",
-                  "signature": "pub async fn admin_list_customers(",
-                  "line": 214
-                },
-                {
-                  "name": "admin_create_customer",
-                  "signature": "pub async fn admin_create_customer(",
-                  "line": 223
-                },
-                {
-                  "name": "admin_update_customer",
-                  "signature": "pub async fn admin_update_customer(",
-                  "line": 239
-                },
-                {
-                  "name": "admin_get_settings",
-                  "signature": "pub async fn admin_get_settings(",
-                  "line": 257
-                },
-                {
-                  "name": "admin_update_settings",
-                  "signature": "pub async fn admin_update_settings(",
-                  "line": 266
-                },
-                {
-                  "name": "admin_list_library_tours",
-                  "signature": "pub async fn admin_list_library_tours(",
-                  "line": 277
-                },
-                {
-                  "name": "admin_upload_library_tour",
-                  "signature": "pub async fn admin_upload_library_tour(",
-                  "line": 286
-                },
-                {
-                  "name": "admin_update_library_tour_status",
-                  "signature": "pub async fn admin_update_library_tour_status(",
-                  "line": 302
-                },
-                {
-                  "name": "admin_get_customer_tours",
-                  "signature": "pub async fn admin_get_customer_tours(",
-                  "line": 319
-                },
-                {
-                  "name": "admin_get_tour_recipients",
-                  "signature": "pub async fn admin_get_tour_recipients(",
-                  "line": 334
-                },
-                {
-                  "name": "admin_get_assignment",
-                  "signature": "pub async fn admin_get_assignment(",
-                  "line": 349
-                },
-                {
-                  "name": "admin_create_customer_tour_link",
-                  "signature": "pub async fn admin_create_customer_tour_link(",
-                  "line": 364
-                },
-                {
-                  "name": "admin_revoke_assignment_link",
-                  "signature": "pub async fn admin_revoke_assignment_link(",
-                  "line": 383
-                },
-                {
-                  "name": "admin_update_assignment_expiry",
-                  "signature": "pub async fn admin_update_assignment_expiry(",
-                  "line": 401
-                },
-                {
-                  "name": "admin_reactivate_assignment_link",
-                  "signature": "pub async fn admin_reactivate_assignment_link(",
-                  "line": 419
-                },
-                {
-                  "name": "admin_assign_customer_tour",
-                  "signature": "pub async fn admin_assign_customer_tour(",
-                  "line": 435
-                },
-                {
-                  "name": "admin_unassign_customer_tour",
-                  "signature": "pub async fn admin_unassign_customer_tour(",
-                  "line": 453
-                },
-                {
-                  "name": "admin_bulk_assign_tours",
-                  "signature": "pub async fn admin_bulk_assign_tours(",
-                  "line": 471
-                },
-                {
-                  "name": "admin_regenerate_access_link",
-                  "signature": "pub async fn admin_regenerate_access_link(",
-                  "line": 483
-                },
-                {
-                  "name": "admin_revoke_access_links",
-                  "signature": "pub async fn admin_revoke_access_links(",
-                  "line": 501
-                },
-                {
-                  "name": "admin_delete_access_links",
-                  "signature": "pub async fn admin_delete_access_links(",
-                  "line": 517
-                },
-                {
-                  "name": "admin_delete_customer",
-                  "signature": "pub async fn admin_delete_customer(",
-                  "line": 533
-                },
-                {
-                  "name": "admin_delete_library_tour",
-                  "signature": "pub async fn admin_delete_library_tour(",
-                  "line": 543
-                },
-                {
-                  "name": "customer_public",
-                  "signature": "pub async fn customer_public(",
-                  "line": 553
-                },
-                {
-                  "name": "customer_session",
-                  "signature": "pub async fn customer_session(",
-                  "line": 561
-                },
-                {
-                  "name": "customer_sign_out",
-                  "signature": "pub async fn customer_sign_out(session: Session) -> Result<HttpResponse, AppError> {",
-                  "line": 582
-                },
-                {
-                  "name": "customer_tours",
-                  "signature": "pub async fn customer_tours(",
-                  "line": 589
-                },
-                {
-                  "name": "customer_tour_launch",
-                  "signature": "pub async fn customer_tour_launch(",
-                  "line": 607
-                },
-                {
-                  "name": "customer_tour_asset",
-                  "signature": "pub async fn customer_tour_asset(",
-                  "line": 648
-                },
-                {
-                  "name": "access_link_redirect",
-                  "signature": "pub async fn access_link_redirect(",
-                  "line": 665
-                },
-                {
-                  "name": "user_access_redirect",
-                  "signature": "pub async fn user_access_redirect(",
-                  "line": 711
-                },
-                {
-                  "name": "access_tour_redirect",
-                  "signature": "pub async fn access_tour_redirect(",
-                  "line": 744
-                },
-                {
-                  "name": "user_tour_access_redirect",
-                  "signature": "pub async fn user_tour_access_redirect(",
-                  "line": 789
-                },
-                {
-                  "name": "read_portal_zip_upload",
-                  "signature": "async fn read_portal_zip_upload(mut payload: Multipart) -> Result<(String, PathBuf), AppError> {",
-                  "line": 825
-                }
-              ],
-              "fingerprint": "3a5d936a41daa56f8162d3588e4a9a40efd3e5e30b95946d36a2f6fc0dc3dc40"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "css": [
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages-admin-ui.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 305)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0,
-        "recommended_splits": 1,
-        "verification": null
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages.css",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.17, Coupling: 0.00] | Drag: 2.37 | LOC: 1078/400  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 70.17439703153988,
-        "recommended_splits": 3,
-        "verification": {
-          "headline": "Pre-split snapshot for `css/components/portal-pages.css`",
-          "snapshots": [
-            {
-              "path": "css/components/portal-pages.css",
-              "functions": [],
-              "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages-admin-tables.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 159)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0,
-        "recommended_splits": 1,
-        "verification": null
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages-auth.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 76)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0,
-        "recommended_splits": 1,
-        "verification": null
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages-customer.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 319)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0,
-        "recommended_splits": 1,
-        "verification": null
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/portal-pages-base.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 238)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0,
-        "recommended_splits": 1,
-        "verification": null
       }
     }
   ]
