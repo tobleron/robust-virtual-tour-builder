@@ -423,5 +423,11 @@ CI job
 ### 📂 backend/src/bin
 - `[backend/src/bin/portal.rs]`
 
+### 📂 backend/src/services
+- `[backend/src/services/portal.rs]`
+
+### 📂 src
+- `[src/portal-index.js]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

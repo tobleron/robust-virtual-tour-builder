@@ -1,3 +1,4 @@
+// @efficiency-role: service-orchestrator
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -20,6 +21,8 @@ const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
 const PORTAL_ACCESS_CODE_ALPHABET: &[u8; 62] =
     b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const PORTAL_ACCESS_CODE_LEN: usize = 7;
+const PORTAL_SESSION_KIND_GALLERY: &str = "gallery";
+const PORTAL_SESSION_KIND_ASSIGNMENT: &str = "assignment";
 const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER: &str = "property_owner";
 const PORTAL_RECIPIENT_TYPE_BROKER: &str = "broker";
 const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER_BROKER: &str = "property_owner_broker";
@@ -67,6 +70,25 @@ struct PortalAccessLinkRecord {
 }
 
 #[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+struct PortalCustomerTourAssignmentRecord {
+    id: String,
+    customer_id: String,
+    tour_id: String,
+    short_code: Option<String>,
+    status: String,
+    expires_at_override: Option<DateTime<Utc>>,
+    revoked_at: Option<DateTime<Utc>>,
+    revoked_reason: Option<String>,
+    last_opened_at: Option<DateTime<Utc>>,
+    open_count: i64,
+    geo_country_code: Option<String>,
+    geo_region: Option<String>,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
 struct AccessTokenLookupRow {
     customer_id: String,
     customer_slug: String,
@@ -89,6 +111,42 @@ struct AccessTokenLookupRow {
     link_last_opened_at: Option<DateTime<Utc>>,
     link_created_at: DateTime<Utc>,
     link_updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+struct AssignmentLinkLookupRow {
+    assignment_id: String,
+    customer_id: String,
+    customer_slug: String,
+    customer_display_name: String,
+    customer_recipient_type: String,
+    customer_contact_name: Option<String>,
+    customer_contact_email: Option<String>,
+    customer_contact_phone: Option<String>,
+    customer_renewal_message: Option<String>,
+    customer_is_active: i64,
+    customer_created_at: DateTime<Utc>,
+    customer_updated_at: DateTime<Utc>,
+    assignment_tour_id: String,
+    assignment_short_code: Option<String>,
+    assignment_status: String,
+    assignment_expires_at_override: Option<DateTime<Utc>>,
+    assignment_revoked_at: Option<DateTime<Utc>>,
+    assignment_revoked_reason: Option<String>,
+    assignment_last_opened_at: Option<DateTime<Utc>>,
+    assignment_open_count: i64,
+    assignment_geo_country_code: Option<String>,
+    assignment_geo_region: Option<String>,
+    assignment_created_at: DateTime<Utc>,
+    assignment_updated_at: DateTime<Utc>,
+    tour_id: String,
+    tour_title: String,
+    tour_slug: String,
+    tour_status: String,
+    tour_storage_path: String,
+    tour_cover_path: Option<String>,
+    tour_created_at: DateTime<Utc>,
+    tour_updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -212,6 +270,73 @@ pub struct PortalAccessRedirect {
     pub allowed: bool,
 }
 
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalAssignmentTourSummary {
+    pub id: String,
+    pub slug: String,
+    pub title: String,
+    pub status: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalAssignmentCustomerSummary {
+    pub id: String,
+    pub slug: String,
+    pub display_name: String,
+    pub recipient_type: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalCustomerTourAssignmentView {
+    pub assignment_id: String,
+    pub tour: PortalAssignmentTourSummary,
+    pub short_code: Option<String>,
+    pub status: String,
+    pub effective_expiry: String,
+    pub expires_at_override: Option<String>,
+    pub inherited_from_recipient: bool,
+    pub revoked_at: Option<String>,
+    pub revoked_reason: Option<String>,
+    pub last_opened_at: Option<String>,
+    pub open_count: i64,
+    pub access_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalCustomerTourAssignmentsView {
+    pub customer: PortalCustomerPublic,
+    pub access_link: Option<PortalAdminAccessLinkSummary>,
+    pub assignments: Vec<PortalCustomerTourAssignmentView>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalTourRecipientAssignmentView {
+    pub assignment_id: String,
+    pub customer: PortalAssignmentCustomerSummary,
+    pub short_code: Option<String>,
+    pub status: String,
+    pub effective_expiry: String,
+    pub expires_at_override: Option<String>,
+    pub inherited_from_recipient: bool,
+    pub revoked_at: Option<String>,
+    pub revoked_reason: Option<String>,
+    pub last_opened_at: Option<String>,
+    pub open_count: i64,
+    pub access_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortalTourRecipientsView {
+    pub tour: PortalLibraryTour,
+    pub recipients: Vec<PortalTourRecipientAssignmentView>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePortalCustomerInput {
@@ -255,6 +380,18 @@ pub struct RegeneratePortalAccessLinkInput {
 #[serde(rename_all = "camelCase")]
 pub struct AssignPortalTourInput {
     pub tour_id: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLinkExpiryInput {
+    pub expires_at_override: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RevokeRecipientTourLinkInput {
+    pub reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -333,7 +470,7 @@ fn sha256_hex(raw: &str) -> String {
     format!("{:x}", hasher.finalize())
 }
 
-fn make_access_short_code() -> String {
+fn make_short_code() -> String {
     let mut value = Uuid::new_v4().as_u128();
     let mut chars = ['0'; PORTAL_ACCESS_CODE_LEN];
 
@@ -344,6 +481,47 @@ fn make_access_short_code() -> String {
     }
 
     chars.iter().collect()
+}
+
+async fn short_code_exists(pool: &SqlitePool, short_code: &str) -> Result<bool, AppError> {
+    let access_link_exists = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(1) FROM portal_access_links WHERE short_code = ?",
+    )
+    .bind(short_code)
+    .fetch_one(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal access short-code lookup failed: {}", error))
+    })?;
+
+    if access_link_exists > 0 {
+        return Ok(true);
+    }
+
+    let assignment_exists = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(1) FROM portal_customer_tour_assignments WHERE short_code = ?",
+    )
+    .bind(short_code)
+    .fetch_one(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment short-code lookup failed: {}", error))
+    })?;
+
+    Ok(assignment_exists > 0)
+}
+
+async fn generate_unique_short_code(pool: &SqlitePool) -> Result<String, AppError> {
+    for _attempt in 0..10 {
+        let short_code = make_short_code();
+        if !short_code_exists(pool, &short_code).await? {
+            return Ok(short_code);
+        }
+    }
+
+    Err(AppError::InternalError(
+        "Failed to allocate a unique portal short code.".into(),
+    ))
 }
 
 fn public_access_code<'a>(record: &'a PortalAccessLinkRecord) -> Option<&'a str> {
@@ -380,6 +558,105 @@ fn customer_access_link_summary(
         )
     });
     summary
+}
+
+fn assignment_access_url(
+    public_base_url: &str,
+    customer_slug: &str,
+    short_code: &str,
+    tour_slug: &str,
+) -> String {
+    format!(
+        "{}/u/{}/{}/tour/{}",
+        public_base_url.trim_end_matches('/'),
+        customer_slug,
+        short_code,
+        tour_slug
+    )
+}
+
+fn assignment_effective_expiry(
+    assignment: &PortalCustomerTourAssignmentRecord,
+    recipient_expiry: DateTime<Utc>,
+) -> DateTime<Utc> {
+    assignment
+        .expires_at_override
+        .unwrap_or(recipient_expiry)
+}
+
+fn assignment_is_active(
+    assignment: &PortalCustomerTourAssignmentRecord,
+    recipient_expiry: DateTime<Utc>,
+) -> bool {
+    assignment.status == "active"
+        && assignment.revoked_at.is_none()
+        && assignment_effective_expiry(assignment, recipient_expiry) > Utc::now()
+}
+
+fn customer_tour_assignment_view(
+    assignment: &PortalCustomerTourAssignmentRecord,
+    customer_slug: &str,
+    tour: &PortalLibraryTour,
+    recipient_expiry: DateTime<Utc>,
+    public_base_url: &str,
+) -> PortalCustomerTourAssignmentView {
+    PortalCustomerTourAssignmentView {
+        assignment_id: assignment.id.clone(),
+        tour: PortalAssignmentTourSummary {
+            id: tour.id.clone(),
+            slug: tour.slug.clone(),
+            title: tour.title.clone(),
+            status: tour.status.clone(),
+        },
+        short_code: assignment.short_code.clone(),
+        status: assignment.status.clone(),
+        effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
+        expires_at_override: assignment
+            .expires_at_override
+            .map(|value| value.to_rfc3339()),
+        inherited_from_recipient: assignment.expires_at_override.is_none(),
+        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
+        revoked_reason: assignment.revoked_reason.clone(),
+        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
+        open_count: assignment.open_count,
+        access_url: assignment
+            .short_code
+            .as_ref()
+            .map(|short_code| assignment_access_url(public_base_url, customer_slug, short_code, &tour.slug)),
+    }
+}
+
+fn tour_recipient_assignment_view(
+    assignment: &PortalCustomerTourAssignmentRecord,
+    customer: &PortalCustomer,
+    tour_slug: &str,
+    recipient_expiry: DateTime<Utc>,
+    public_base_url: &str,
+) -> PortalTourRecipientAssignmentView {
+    PortalTourRecipientAssignmentView {
+        assignment_id: assignment.id.clone(),
+        customer: PortalAssignmentCustomerSummary {
+            id: customer.id.clone(),
+            slug: customer.slug.clone(),
+            display_name: customer.display_name.clone(),
+            recipient_type: customer.recipient_type.clone(),
+        },
+        short_code: assignment.short_code.clone(),
+        status: assignment.status.clone(),
+        effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
+        expires_at_override: assignment
+            .expires_at_override
+            .map(|value| value.to_rfc3339()),
+        inherited_from_recipient: assignment.expires_at_override.is_none(),
+        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
+        revoked_reason: assignment.revoked_reason.clone(),
+        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
+        open_count: assignment.open_count,
+        access_url: assignment
+            .short_code
+            .as_ref()
+            .map(|short_code| assignment_access_url(public_base_url, &customer.slug, short_code, tour_slug)),
+    }
 }
 
 fn portal_launch_entry_candidates(user_agent: Option<&str>) -> Vec<&'static str> {
@@ -578,32 +855,65 @@ async fn load_authorized_portal_tour(
     pool: &SqlitePool,
     customer_slug: &str,
     tour_slug: &str,
-    access_link_id: &str,
+    access_kind: &str,
+    access_ref: &str,
 ) -> Result<PortalLibraryTour, AppError> {
-    let session = load_customer_session(pool, customer_slug, access_link_id, "").await?;
-    if !session.can_open_tours {
+    let normalized_slug = validate_slug(customer_slug)?;
+    let normalized_tour_slug = validate_slug(tour_slug)?;
+    let kind = match access_kind {
+        PORTAL_SESSION_KIND_GALLERY => PORTAL_SESSION_KIND_GALLERY,
+        PORTAL_SESSION_KIND_ASSIGNMENT => PORTAL_SESSION_KIND_ASSIGNMENT,
+        _ => {
+            return Err(AppError::Unauthorized(
+                "Portal access is invalid for this tour.".into(),
+            ));
+        }
+    };
+
+    let (customer, access_link) = current_customer_and_access_link_by_slug(pool, &normalized_slug).await?;
+    if customer.is_active != 1 {
         return Err(AppError::Unauthorized(
             "Portal access is expired or inactive.".into(),
         ));
     }
 
-    let tour = sqlx::query_as::<_, PortalLibraryTour>(
-        r#"
-        SELECT t.*
-        FROM portal_library_tours t
-        JOIN portal_customer_tour_assignments a ON a.tour_id = t.id
-        JOIN portal_customers c ON c.id = a.customer_id
-        WHERE c.slug = ? AND t.slug = ?
-        "#,
-    )
-    .bind(customer_slug)
-    .bind(tour_slug)
-    .fetch_optional(pool)
-    .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal asset tour lookup failed: {}", error))
-    })?
+    if access_link.revoked_at.is_some() || access_link.expires_at <= Utc::now() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    let assignment_row = if kind == PORTAL_SESSION_KIND_GALLERY {
+        if access_link.id != access_ref {
+            return Err(AppError::Unauthorized(
+                "Portal session is not valid for this customer.".into(),
+            ));
+        }
+        assignment_by_customer_and_tour(pool, &normalized_slug, &normalized_tour_slug).await?
+    } else {
+        assignment_by_id(pool, access_ref).await?
+    }
     .ok_or_else(|| AppError::ValidationError("Portal tour not found.".into()))?;
+
+    let (assignment_customer, assignment, tour) = assignment_from_lookup_row(assignment_row);
+    if assignment_customer.id != customer.id || tour.slug != normalized_tour_slug {
+        return Err(AppError::Unauthorized(
+            "Portal session is not valid for this customer.".into(),
+        ));
+    }
+
+    if assignment.status != "active" || assignment.revoked_at.is_some() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    let effective_expiry = assignment_effective_expiry(&assignment, access_link.expires_at);
+    if effective_expiry <= Utc::now() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
 
     if tour.status != "published" {
         return Err(AppError::Unauthorized(
@@ -702,12 +1012,285 @@ async fn current_access_link_for_customer(
     })
 }
 
+async fn current_customer_and_access_link_by_slug(
+    pool: &SqlitePool,
+    slug: &str,
+) -> Result<(PortalCustomer, PortalAccessLinkRecord), AppError> {
+    let normalized_slug = validate_slug(slug)?;
+    let customer =
+        sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
+            .bind(&normalized_slug)
+            .fetch_optional(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal customer lookup failed: {}", error))
+            })?
+            .ok_or_else(|| AppError::Unauthorized("Portal session is invalid for this customer.".into()))?;
+
+    let access_link = current_access_link_for_customer(pool, &customer.id)
+        .await?
+        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
+
+    Ok((customer, access_link))
+}
+
+async fn assignment_by_short_code(
+    pool: &SqlitePool,
+    short_code: &str,
+) -> Result<Option<AssignmentLinkLookupRow>, AppError> {
+    sqlx::query_as::<_, AssignmentLinkLookupRow>(
+        r#"
+        SELECT
+            a.id as assignment_id,
+            c.id as customer_id,
+            c.slug as customer_slug,
+            c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
+            c.contact_name as customer_contact_name,
+            c.contact_email as customer_contact_email,
+            c.contact_phone as customer_contact_phone,
+            c.renewal_message as customer_renewal_message,
+            c.is_active as customer_is_active,
+            c.created_at as customer_created_at,
+            c.updated_at as customer_updated_at,
+            a.tour_id as assignment_tour_id,
+            a.short_code as assignment_short_code,
+            a.status as assignment_status,
+            a.expires_at_override as assignment_expires_at_override,
+            a.revoked_at as assignment_revoked_at,
+            a.revoked_reason as assignment_revoked_reason,
+            a.last_opened_at as assignment_last_opened_at,
+            a.open_count as assignment_open_count,
+            a.geo_country_code as assignment_geo_country_code,
+            a.geo_region as assignment_geo_region,
+            a.created_at as assignment_created_at,
+            a.updated_at as assignment_updated_at,
+            t.id as tour_id,
+            t.title as tour_title,
+            t.slug as tour_slug,
+            t.status as tour_status,
+            t.storage_path as tour_storage_path,
+            t.cover_path as tour_cover_path,
+            t.created_at as tour_created_at,
+            t.updated_at as tour_updated_at
+        FROM portal_customer_tour_assignments a
+        JOIN portal_customers c ON c.id = a.customer_id
+        JOIN portal_library_tours t ON t.id = a.tour_id
+        WHERE a.short_code = ?
+        LIMIT 1
+        "#,
+    )
+    .bind(short_code)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment short-code lookup failed: {}", error))
+    })
+}
+
+async fn assignment_by_customer_and_tour(
+    pool: &SqlitePool,
+    customer_slug: &str,
+    tour_slug: &str,
+) -> Result<Option<AssignmentLinkLookupRow>, AppError> {
+    let normalized_slug = validate_slug(customer_slug)?;
+    let normalized_tour_slug = validate_slug(tour_slug)?;
+    sqlx::query_as::<_, AssignmentLinkLookupRow>(
+        r#"
+        SELECT
+            a.id as assignment_id,
+            c.id as customer_id,
+            c.slug as customer_slug,
+            c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
+            c.contact_name as customer_contact_name,
+            c.contact_email as customer_contact_email,
+            c.contact_phone as customer_contact_phone,
+            c.renewal_message as customer_renewal_message,
+            c.is_active as customer_is_active,
+            c.created_at as customer_created_at,
+            c.updated_at as customer_updated_at,
+            a.tour_id as assignment_tour_id,
+            a.short_code as assignment_short_code,
+            a.status as assignment_status,
+            a.expires_at_override as assignment_expires_at_override,
+            a.revoked_at as assignment_revoked_at,
+            a.revoked_reason as assignment_revoked_reason,
+            a.last_opened_at as assignment_last_opened_at,
+            a.open_count as assignment_open_count,
+            a.geo_country_code as assignment_geo_country_code,
+            a.geo_region as assignment_geo_region,
+            a.created_at as assignment_created_at,
+            a.updated_at as assignment_updated_at,
+            t.id as tour_id,
+            t.title as tour_title,
+            t.slug as tour_slug,
+            t.status as tour_status,
+            t.storage_path as tour_storage_path,
+            t.cover_path as tour_cover_path,
+            t.created_at as tour_created_at,
+            t.updated_at as tour_updated_at
+        FROM portal_customer_tour_assignments a
+        JOIN portal_customers c ON c.id = a.customer_id
+        JOIN portal_library_tours t ON t.id = a.tour_id
+        WHERE c.slug = ? AND t.slug = ?
+        LIMIT 1
+        "#,
+    )
+    .bind(&normalized_slug)
+    .bind(&normalized_tour_slug)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment lookup failed: {}", error))
+    })
+}
+
+async fn assignment_by_id(
+    pool: &SqlitePool,
+    assignment_id: &str,
+) -> Result<Option<AssignmentLinkLookupRow>, AppError> {
+    sqlx::query_as::<_, AssignmentLinkLookupRow>(
+        r#"
+        SELECT
+            a.id as assignment_id,
+            c.id as customer_id,
+            c.slug as customer_slug,
+            c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
+            c.contact_name as customer_contact_name,
+            c.contact_email as customer_contact_email,
+            c.contact_phone as customer_contact_phone,
+            c.renewal_message as customer_renewal_message,
+            c.is_active as customer_is_active,
+            c.created_at as customer_created_at,
+            c.updated_at as customer_updated_at,
+            a.tour_id as assignment_tour_id,
+            a.short_code as assignment_short_code,
+            a.status as assignment_status,
+            a.expires_at_override as assignment_expires_at_override,
+            a.revoked_at as assignment_revoked_at,
+            a.revoked_reason as assignment_revoked_reason,
+            a.last_opened_at as assignment_last_opened_at,
+            a.open_count as assignment_open_count,
+            a.geo_country_code as assignment_geo_country_code,
+            a.geo_region as assignment_geo_region,
+            a.created_at as assignment_created_at,
+            a.updated_at as assignment_updated_at,
+            t.id as tour_id,
+            t.title as tour_title,
+            t.slug as tour_slug,
+            t.status as tour_status,
+            t.storage_path as tour_storage_path,
+            t.cover_path as tour_cover_path,
+            t.created_at as tour_created_at,
+            t.updated_at as tour_updated_at
+        FROM portal_customer_tour_assignments a
+        JOIN portal_customers c ON c.id = a.customer_id
+        JOIN portal_library_tours t ON t.id = a.tour_id
+        WHERE a.id = ?
+        LIMIT 1
+        "#,
+    )
+    .bind(assignment_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment lookup failed: {}", error))
+    })
+}
+
+fn assignment_from_lookup_row(
+    row: AssignmentLinkLookupRow,
+) -> (
+    PortalCustomer,
+    PortalCustomerTourAssignmentRecord,
+    PortalLibraryTour,
+) {
+    let AssignmentLinkLookupRow {
+        assignment_id,
+        customer_id,
+        customer_slug,
+        customer_display_name,
+        customer_recipient_type,
+        customer_contact_name,
+        customer_contact_email,
+        customer_contact_phone,
+        customer_renewal_message,
+        customer_is_active,
+        customer_created_at,
+        customer_updated_at,
+        assignment_tour_id,
+        assignment_short_code,
+        assignment_status,
+        assignment_expires_at_override,
+        assignment_revoked_at,
+        assignment_revoked_reason,
+        assignment_last_opened_at,
+        assignment_open_count,
+        assignment_geo_country_code,
+        assignment_geo_region,
+        assignment_created_at,
+        assignment_updated_at,
+        tour_id,
+        tour_title,
+        tour_slug,
+        tour_status,
+        tour_storage_path,
+        tour_cover_path,
+        tour_created_at,
+        tour_updated_at,
+    } = row;
+
+    (
+        PortalCustomer {
+            id: customer_id.clone(),
+            slug: customer_slug,
+            display_name: customer_display_name,
+            recipient_type: customer_recipient_type,
+            contact_name: customer_contact_name,
+            contact_email: customer_contact_email,
+            contact_phone: customer_contact_phone,
+            renewal_message: customer_renewal_message,
+            is_active: customer_is_active,
+            created_at: customer_created_at,
+            updated_at: customer_updated_at,
+        },
+        PortalCustomerTourAssignmentRecord {
+            id: assignment_id,
+            customer_id,
+            tour_id: assignment_tour_id,
+            short_code: assignment_short_code,
+            status: assignment_status,
+            expires_at_override: assignment_expires_at_override,
+            revoked_at: assignment_revoked_at,
+            revoked_reason: assignment_revoked_reason,
+            last_opened_at: assignment_last_opened_at,
+            open_count: assignment_open_count,
+            geo_country_code: assignment_geo_country_code,
+            geo_region: assignment_geo_region,
+            created_at: assignment_created_at,
+            updated_at: assignment_updated_at,
+        },
+        PortalLibraryTour {
+            id: tour_id,
+            title: tour_title,
+            slug: tour_slug,
+            status: tour_status,
+            storage_path: tour_storage_path,
+            cover_path: tour_cover_path,
+            created_at: tour_created_at,
+            updated_at: tour_updated_at,
+        },
+    )
+}
+
 async fn assigned_tour_ids_for_customer(
     pool: &SqlitePool,
     customer_id: &str,
 ) -> Result<Vec<String>, AppError> {
     sqlx::query_scalar::<_, String>(
-        "SELECT tour_id FROM portal_customer_tour_assignments WHERE customer_id = ? ORDER BY created_at DESC",
+        "SELECT tour_id FROM portal_customer_tour_assignments WHERE customer_id = ? AND status = 'active' AND revoked_at IS NULL ORDER BY created_at DESC",
     )
     .bind(customer_id)
     .fetch_all(pool)
@@ -752,7 +1335,251 @@ pub async fn list_customers(
     Ok(overviews)
 }
 
+async fn ensure_assignment_short_code(
+    pool: &SqlitePool,
+    assignment_id: &str,
+) -> Result<String, AppError> {
+    if let Some(existing) = sqlx::query_scalar::<_, Option<String>>(
+        "SELECT short_code FROM portal_customer_tour_assignments WHERE id = ?",
+    )
+    .bind(assignment_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment short-code load failed: {}", error))
+    })?
+    .flatten()
+    {
+        return Ok(existing);
+    }
+
+    for _attempt in 0..10 {
+        let short_code = generate_unique_short_code(pool).await?;
+        let result = sqlx::query(
+            "UPDATE portal_customer_tour_assignments SET short_code = ?, updated_at = ? WHERE id = ? AND short_code IS NULL",
+        )
+        .bind(&short_code)
+        .bind(Utc::now())
+        .bind(assignment_id)
+        .execute(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal assignment short-code update failed: {}", error))
+        })?;
+
+        if result.rows_affected() > 0 {
+            return Ok(short_code);
+        }
+
+        if let Some(existing) = sqlx::query_scalar::<_, Option<String>>(
+            "SELECT short_code FROM portal_customer_tour_assignments WHERE id = ?",
+        )
+        .bind(assignment_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal assignment short-code reload failed: {}", error))
+        })?
+        .flatten()
+        {
+            return Ok(existing);
+        }
+    }
+
+    Err(AppError::InternalError(
+        "Failed to allocate a portal assignment short code.".into(),
+    ))
+}
+
+async fn customer_assignment_rows(
+    pool: &SqlitePool,
+    customer_id: &str,
+) -> Result<Vec<AssignmentLinkLookupRow>, AppError> {
+    sqlx::query_as::<_, AssignmentLinkLookupRow>(
+        r#"
+        SELECT
+            a.id as assignment_id,
+            c.id as customer_id,
+            c.slug as customer_slug,
+            c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
+            c.contact_name as customer_contact_name,
+            c.contact_email as customer_contact_email,
+            c.contact_phone as customer_contact_phone,
+            c.renewal_message as customer_renewal_message,
+            c.is_active as customer_is_active,
+            c.created_at as customer_created_at,
+            c.updated_at as customer_updated_at,
+            a.tour_id as assignment_tour_id,
+            a.short_code as assignment_short_code,
+            a.status as assignment_status,
+            a.expires_at_override as assignment_expires_at_override,
+            a.revoked_at as assignment_revoked_at,
+            a.revoked_reason as assignment_revoked_reason,
+            a.last_opened_at as assignment_last_opened_at,
+            a.open_count as assignment_open_count,
+            a.geo_country_code as assignment_geo_country_code,
+            a.geo_region as assignment_geo_region,
+            a.created_at as assignment_created_at,
+            a.updated_at as assignment_updated_at,
+            t.id as tour_id,
+            t.title as tour_title,
+            t.slug as tour_slug,
+            t.status as tour_status,
+            t.storage_path as tour_storage_path,
+            t.cover_path as tour_cover_path,
+            t.created_at as tour_created_at,
+            t.updated_at as tour_updated_at
+        FROM portal_customer_tour_assignments a
+        JOIN portal_customers c ON c.id = a.customer_id
+        JOIN portal_library_tours t ON t.id = a.tour_id
+        WHERE a.customer_id = ?
+        ORDER BY t.updated_at DESC, a.created_at DESC
+        "#,
+    )
+    .bind(customer_id)
+    .fetch_all(pool)
+    .await
+    .map_err(|error| AppError::InternalError(format!("Portal assignment list failed: {}", error)))
+}
+
+async fn tour_assignment_rows(
+    pool: &SqlitePool,
+    tour_id: &str,
+) -> Result<Vec<AssignmentLinkLookupRow>, AppError> {
+    sqlx::query_as::<_, AssignmentLinkLookupRow>(
+        r#"
+        SELECT
+            a.id as assignment_id,
+            c.id as customer_id,
+            c.slug as customer_slug,
+            c.display_name as customer_display_name,
+            c.recipient_type as customer_recipient_type,
+            c.contact_name as customer_contact_name,
+            c.contact_email as customer_contact_email,
+            c.contact_phone as customer_contact_phone,
+            c.renewal_message as customer_renewal_message,
+            c.is_active as customer_is_active,
+            c.created_at as customer_created_at,
+            c.updated_at as customer_updated_at,
+            a.tour_id as assignment_tour_id,
+            a.short_code as assignment_short_code,
+            a.status as assignment_status,
+            a.expires_at_override as assignment_expires_at_override,
+            a.revoked_at as assignment_revoked_at,
+            a.revoked_reason as assignment_revoked_reason,
+            a.last_opened_at as assignment_last_opened_at,
+            a.open_count as assignment_open_count,
+            a.geo_country_code as assignment_geo_country_code,
+            a.geo_region as assignment_geo_region,
+            a.created_at as assignment_created_at,
+            a.updated_at as assignment_updated_at,
+            t.id as tour_id,
+            t.title as tour_title,
+            t.slug as tour_slug,
+            t.status as tour_status,
+            t.storage_path as tour_storage_path,
+            t.cover_path as tour_cover_path,
+            t.created_at as tour_created_at,
+            t.updated_at as tour_updated_at
+        FROM portal_customer_tour_assignments a
+        JOIN portal_customers c ON c.id = a.customer_id
+        JOIN portal_library_tours t ON t.id = a.tour_id
+        WHERE a.tour_id = ?
+        ORDER BY c.updated_at DESC, a.created_at DESC
+        "#,
+    )
+    .bind(tour_id)
+    .fetch_all(pool)
+    .await
+    .map_err(|error| AppError::InternalError(format!("Portal tour assignment list failed: {}", error)))
+}
+
+async fn customer_assignment_view(
+    pool: &SqlitePool,
+    customer_id: &str,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentsView, AppError> {
+    let customer = sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE id = ?")
+        .bind(customer_id)
+        .fetch_one(pool)
+        .await
+        .map_err(|error| AppError::InternalError(format!("Portal customer reload failed: {}", error)))?;
+    let access_link = current_access_link_for_customer(pool, customer_id)
+        .await?
+        .map(|value| admin_access_link_summary(&value, public_base_url, &customer.slug));
+    let recipient_expiry = current_access_link_for_customer(pool, customer_id)
+        .await?
+        .map(|value| value.expires_at)
+        .unwrap_or_else(Utc::now);
+    let mut assignments = Vec::new();
+
+    for row in customer_assignment_rows(pool, customer_id).await? {
+        let (assignment_customer, assignment, tour) = assignment_from_lookup_row(row);
+        let short_code = match assignment.short_code.clone() {
+            Some(value) => Some(value),
+            None => Some(ensure_assignment_short_code(pool, &assignment.id).await?),
+        };
+        let assignment = PortalCustomerTourAssignmentRecord {
+            short_code,
+            ..assignment
+        };
+        assignments.push(customer_tour_assignment_view(
+            &assignment,
+            &assignment_customer.slug,
+            &tour,
+            recipient_expiry,
+            public_base_url,
+        ));
+    }
+
+    Ok(PortalCustomerTourAssignmentsView {
+        customer: customer_public(&customer),
+        access_link,
+        assignments,
+    })
+}
+
+async fn tour_recipient_view(
+    pool: &SqlitePool,
+    tour_id: &str,
+    public_base_url: &str,
+) -> Result<PortalTourRecipientsView, AppError> {
+    let tour = sqlx::query_as::<_, PortalLibraryTour>("SELECT * FROM portal_library_tours WHERE id = ?")
+        .bind(tour_id)
+        .fetch_one(pool)
+        .await
+        .map_err(|error| AppError::InternalError(format!("Portal tour reload failed: {}", error)))?;
+    let mut recipients = Vec::new();
+
+    for row in tour_assignment_rows(pool, tour_id).await? {
+        let (customer, assignment, assignment_tour) = assignment_from_lookup_row(row);
+        let short_code = match assignment.short_code.clone() {
+            Some(value) => Some(value),
+            None => Some(ensure_assignment_short_code(pool, &assignment.id).await?),
+        };
+        let assignment = PortalCustomerTourAssignmentRecord {
+            short_code,
+            ..assignment
+        };
+        let recipient_expiry = current_access_link_for_customer(pool, &customer.id)
+            .await?
+            .map(|value| value.expires_at)
+            .unwrap_or_else(Utc::now);
+        recipients.push(tour_recipient_assignment_view(
+            &assignment,
+            &customer,
+            &assignment_tour.slug,
+            recipient_expiry,
+            public_base_url,
+        ));
+    }
+
+    Ok(PortalTourRecipientsView { tour, recipients })
+}
+
 async fn create_access_link_in_tx(
+    pool: &SqlitePool,
     tx: &mut sqlx::Transaction<'_, sqlx::Sqlite>,
     customer_id: &str,
     expires_at: DateTime<Utc>,
@@ -769,7 +1596,7 @@ async fn create_access_link_in_tx(
     .map_err(|error| AppError::InternalError(format!("Portal access link revoke failed: {}", error)))?;
 
     for _attempt in 0..6 {
-        let short_code = make_access_short_code();
+        let short_code = generate_unique_short_code(pool).await?;
         let record = PortalAccessLinkRecord {
             id: Uuid::new_v4().to_string(),
             customer_id: customer_id.to_string(),
@@ -867,7 +1694,8 @@ pub async fn create_customer(
     .await
     .map_err(|error| AppError::ValidationError(format!("Customer create failed: {}", error)))?;
 
-    let (_, short_code) = create_access_link_in_tx(&mut tx, &customer_id, expires_at, now).await?;
+    let (_, short_code) =
+        create_access_link_in_tx(pool, &mut tx, &customer_id, expires_at, now).await?;
 
     log_audit_event(
         &mut tx,
@@ -985,7 +1813,8 @@ pub async fn regenerate_access_link(
     let mut tx = pool.begin().await.map_err(|error| {
         AppError::InternalError(format!("Portal access-link transaction failed: {}", error))
     })?;
-    let (_, short_code) = create_access_link_in_tx(&mut tx, customer_id, expires_at, now).await?;
+    let (_, short_code) =
+        create_access_link_in_tx(pool, &mut tx, customer_id, expires_at, now).await?;
     log_audit_event(
         &mut tx,
         actor.map(|value| value.id.as_str()),
@@ -1115,6 +1944,8 @@ pub async fn list_library_tours(
             COALESCE(COUNT(a.id), 0) as assignment_count
         FROM portal_library_tours t
         LEFT JOIN portal_customer_tour_assignments a ON a.tour_id = t.id
+            AND a.status = 'active'
+            AND a.revoked_at IS NULL
         GROUP BY t.id
         ORDER BY t.updated_at DESC
         "#,
@@ -1157,6 +1988,301 @@ pub async fn list_library_tours(
         .collect())
 }
 
+async fn load_assignment_record_for_customer_tour(
+    pool: &SqlitePool,
+    customer_id: &str,
+    tour_id: &str,
+) -> Result<Option<PortalCustomerTourAssignmentRecord>, AppError> {
+    sqlx::query_as::<_, PortalCustomerTourAssignmentRecord>(
+        "SELECT * FROM portal_customer_tour_assignments WHERE customer_id = ? AND tour_id = ? LIMIT 1",
+    )
+    .bind(customer_id)
+    .bind(tour_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment lookup failed: {}", error))
+    })
+}
+
+async fn upsert_assignment_link(
+    pool: &SqlitePool,
+    customer_id: &str,
+    tour_id: &str,
+    _actor: Option<&User>,
+    now: DateTime<Utc>,
+) -> Result<PortalCustomerTourAssignmentRecord, AppError> {
+    match load_assignment_record_for_customer_tour(pool, customer_id, tour_id).await? {
+        Some(existing) => {
+            let mut short_code = existing.short_code.clone();
+            let mut status = existing.status.clone();
+            let mut revoked_at = existing.revoked_at;
+            let mut revoked_reason = existing.revoked_reason.clone();
+
+            if short_code.is_none() || status != "active" || revoked_at.is_some() {
+                short_code = Some(generate_unique_short_code(pool).await?);
+                status = "active".to_string();
+                revoked_at = None;
+                revoked_reason = None;
+            }
+
+            sqlx::query(
+                r#"
+                UPDATE portal_customer_tour_assignments
+                SET short_code = ?, status = ?, revoked_at = ?, revoked_reason = ?, updated_at = ?
+                WHERE id = ?
+                "#,
+            )
+            .bind(short_code.as_deref())
+            .bind(&status)
+            .bind(revoked_at)
+            .bind(revoked_reason.as_deref())
+            .bind(now)
+            .bind(&existing.id)
+            .execute(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal assignment update failed: {}", error))
+            })?;
+
+            sqlx::query_as::<_, PortalCustomerTourAssignmentRecord>(
+                "SELECT * FROM portal_customer_tour_assignments WHERE id = ?",
+            )
+            .bind(&existing.id)
+            .fetch_one(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal assignment reload failed: {}", error))
+            })
+        }
+        None => {
+            let short_code = generate_unique_short_code(pool).await?;
+            let assignment_id = Uuid::new_v4().to_string();
+            sqlx::query(
+                r#"
+                INSERT INTO portal_customer_tour_assignments (
+                    id, customer_id, tour_id, short_code, status, expires_at_override, revoked_at,
+                    revoked_reason, last_opened_at, open_count, geo_country_code, geo_region, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, 'active', NULL, NULL, NULL, NULL, 0, NULL, NULL, ?, ?)
+                "#,
+            )
+            .bind(&assignment_id)
+            .bind(customer_id)
+            .bind(tour_id)
+            .bind(&short_code)
+            .bind(now)
+            .bind(now)
+            .execute(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal assignment create failed: {}", error))
+            })?;
+
+            sqlx::query_as::<_, PortalCustomerTourAssignmentRecord>(
+                "SELECT * FROM portal_customer_tour_assignments WHERE id = ?",
+            )
+            .bind(&assignment_id)
+            .fetch_one(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal assignment reload failed: {}", error))
+            })
+        }
+    }
+}
+
+pub async fn list_customer_assignments_view(
+    pool: &SqlitePool,
+    customer_id: &str,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentsView, AppError> {
+    customer_assignment_view(pool, customer_id, public_base_url).await
+}
+
+pub async fn list_tour_assignments_view(
+    pool: &SqlitePool,
+    tour_id: &str,
+    public_base_url: &str,
+) -> Result<PortalTourRecipientsView, AppError> {
+    tour_recipient_view(pool, tour_id, public_base_url).await
+}
+
+pub async fn assignment_view_by_id(
+    pool: &SqlitePool,
+    assignment_id: &str,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentView, AppError> {
+    let row = assignment_by_id(pool, assignment_id)
+        .await?
+        .ok_or_else(|| AppError::ValidationError("Portal assignment not found.".into()))?;
+    let (customer, assignment, tour) = assignment_from_lookup_row(row);
+    let short_code = match assignment.short_code.clone() {
+        Some(value) => Some(value),
+        None => Some(ensure_assignment_short_code(pool, &assignment.id).await?),
+    };
+    let assignment = PortalCustomerTourAssignmentRecord {
+        short_code,
+        ..assignment
+    };
+    let recipient_expiry = current_access_link_for_customer(pool, &customer.id)
+        .await?
+        .map(|value| value.expires_at)
+        .unwrap_or_else(Utc::now);
+
+    Ok(customer_tour_assignment_view(
+        &assignment,
+        &customer.slug,
+        &tour,
+        recipient_expiry,
+        public_base_url,
+    ))
+}
+
+pub async fn create_or_activate_assignment_link(
+    pool: &SqlitePool,
+    customer_id: &str,
+    tour_id: &str,
+    expires_at_override_raw: Option<&str>,
+    actor: Option<&User>,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentView, AppError> {
+    let expires_at_override = match expires_at_override_raw {
+        Some(value) => Some(parse_expiry(value)?),
+        None => None,
+    };
+    let now = Utc::now();
+    let assignment = upsert_assignment_link(pool, customer_id, tour_id, actor, now).await?;
+    if expires_at_override != assignment.expires_at_override {
+        sqlx::query(
+            "UPDATE portal_customer_tour_assignments SET expires_at_override = ?, updated_at = ? WHERE id = ?",
+        )
+        .bind(expires_at_override)
+        .bind(now)
+        .bind(&assignment.id)
+        .execute(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal assignment expiry update failed: {}", error))
+        })?;
+    }
+    assignment_view_by_id(pool, &assignment.id, public_base_url).await
+}
+
+pub async fn revoke_assignment_link(
+    pool: &SqlitePool,
+    assignment_id: &str,
+    reason: Option<&str>,
+    actor: Option<&User>,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentView, AppError> {
+    let now = Utc::now();
+    sqlx::query(
+        r#"
+        UPDATE portal_customer_tour_assignments
+        SET status = 'revoked', revoked_at = ?, revoked_reason = ?, updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(now)
+    .bind(reason)
+    .bind(now)
+    .bind(assignment_id)
+    .execute(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment revoke failed: {}", error))
+    })?;
+
+    let assignment = assignment_view_by_id(pool, assignment_id, public_base_url).await?;
+
+    log_audit(
+        pool,
+        actor.map(|value| value.id.as_str()),
+        None,
+        "portal_assignment_revoked",
+        serde_json::json!({"assignmentId": assignment_id, "reason": reason}),
+    )
+    .await?;
+
+    Ok(assignment)
+}
+
+pub async fn update_assignment_expiry(
+    pool: &SqlitePool,
+    assignment_id: &str,
+    expires_at_override_raw: Option<&str>,
+    actor: Option<&User>,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentView, AppError> {
+    let expires_at_override = match expires_at_override_raw {
+        Some(value) => Some(parse_expiry(value)?),
+        None => None,
+    };
+    let now = Utc::now();
+    sqlx::query(
+        "UPDATE portal_customer_tour_assignments SET expires_at_override = ?, updated_at = ? WHERE id = ?",
+    )
+    .bind(expires_at_override)
+    .bind(now)
+    .bind(assignment_id)
+    .execute(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment expiry update failed: {}", error))
+    })?;
+
+    let assignment = assignment_view_by_id(pool, assignment_id, public_base_url).await?;
+
+    log_audit(
+        pool,
+        actor.map(|value| value.id.as_str()),
+        None,
+        "portal_assignment_expiry_updated",
+        serde_json::json!({"assignmentId": assignment_id, "expiresAtOverride": expires_at_override}),
+    )
+    .await?;
+
+    Ok(assignment)
+}
+
+pub async fn reactivate_assignment_link(
+    pool: &SqlitePool,
+    assignment_id: &str,
+    actor: Option<&User>,
+    public_base_url: &str,
+) -> Result<PortalCustomerTourAssignmentView, AppError> {
+    let now = Utc::now();
+    let short_code = generate_unique_short_code(pool).await?;
+    sqlx::query(
+        r#"
+        UPDATE portal_customer_tour_assignments
+        SET short_code = ?, status = 'active', revoked_at = NULL, revoked_reason = NULL, updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&short_code)
+    .bind(now)
+    .bind(assignment_id)
+    .execute(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal assignment reactivation failed: {}", error))
+    })?;
+
+    let assignment = assignment_view_by_id(pool, assignment_id, public_base_url).await?;
+
+    log_audit(
+        pool,
+        actor.map(|value| value.id.as_str()),
+        None,
+        "portal_assignment_reactivated",
+        serde_json::json!({"assignmentId": assignment_id, "shortCode": short_code}),
+    )
+    .await?;
+
+    Ok(assignment)
+}
+
 pub async fn assign_tour_to_customer(
     pool: &SqlitePool,
     customer_id: &str,
@@ -1164,26 +2290,15 @@ pub async fn assign_tour_to_customer(
     actor: Option<&User>,
     public_base_url: &str,
 ) -> Result<PortalCustomerOverview, AppError> {
-    sqlx::query(
-        r#"
-        INSERT OR IGNORE INTO portal_customer_tour_assignments (id, customer_id, tour_id, created_at)
-        VALUES (?, ?, ?, ?)
-        "#,
-    )
-    .bind(Uuid::new_v4().to_string())
-    .bind(customer_id)
-    .bind(tour_id)
-    .bind(Utc::now())
-    .execute(pool)
-    .await
-    .map_err(|error| AppError::InternalError(format!("Portal tour assignment failed: {}", error)))?;
+    let now = Utc::now();
+    let assignment = upsert_assignment_link(pool, customer_id, tour_id, actor, now).await?;
 
     log_audit(
         pool,
         actor.map(|value| value.id.as_str()),
         Some(customer_id),
         "portal_tour_assigned",
-        serde_json::json!({"tourId": tour_id}),
+        serde_json::json!({"tourId": tour_id, "assignmentId": assignment.id, "shortCode": assignment.short_code}),
     )
     .await?;
 
@@ -1265,36 +2380,65 @@ pub async fn bulk_assign_tours_to_customers(
         .checked_mul(tour_count)
         .ok_or_else(|| AppError::InternalError("Assignment count overflow.".into()))?;
 
-    let mut tx = pool.begin().await.map_err(|error| {
-        AppError::InternalError(format!("Portal bulk-assign transaction failed: {}", error))
-    })?;
-
     let mut created_count = 0_i64;
     let now = Utc::now();
     for customer_id in &customer_ids {
         for tour_id in &tour_ids {
-            let result = sqlx::query(
-                r#"
-                INSERT OR IGNORE INTO portal_customer_tour_assignments (id, customer_id, tour_id, created_at)
-                VALUES (?, ?, ?, ?)
-                "#,
-            )
-            .bind(Uuid::new_v4().to_string())
-            .bind(customer_id)
-            .bind(tour_id)
-            .bind(now)
-            .execute(&mut *tx)
-            .await
-            .map_err(|error| {
-                AppError::InternalError(format!("Portal bulk assignment failed: {}", error))
-            })?;
-
-            created_count += result.rows_affected() as i64;
+            match load_assignment_record_for_customer_tour(pool, customer_id, tour_id).await? {
+                Some(existing) => {
+                    if existing.status != "active" || existing.revoked_at.is_some() || existing.short_code.is_none() {
+                        let short_code = generate_unique_short_code(pool).await?;
+                        sqlx::query(
+                            r#"
+                            UPDATE portal_customer_tour_assignments
+                            SET short_code = ?, status = 'active', revoked_at = NULL, revoked_reason = NULL, updated_at = ?
+                            WHERE id = ?
+                            "#,
+                        )
+                        .bind(&short_code)
+                        .bind(now)
+                        .bind(&existing.id)
+                        .execute(pool)
+                        .await
+                        .map_err(|error| {
+                            AppError::InternalError(format!(
+                                "Portal bulk assignment reactivation failed: {}",
+                                error
+                            ))
+                        })?;
+                        created_count += 1;
+                    }
+                }
+                None => {
+                    let short_code = generate_unique_short_code(pool).await?;
+                    sqlx::query(
+                        r#"
+                        INSERT INTO portal_customer_tour_assignments (
+                            id, customer_id, tour_id, short_code, status, expires_at_override,
+                            revoked_at, revoked_reason, last_opened_at, open_count,
+                            geo_country_code, geo_region, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, 'active', NULL, NULL, NULL, NULL, 0, NULL, NULL, ?, ?)
+                        "#,
+                    )
+                    .bind(Uuid::new_v4().to_string())
+                    .bind(customer_id)
+                    .bind(tour_id)
+                    .bind(&short_code)
+                    .bind(now)
+                    .bind(now)
+                    .execute(pool)
+                    .await
+                    .map_err(|error| {
+                        AppError::InternalError(format!("Portal bulk assignment failed: {}", error))
+                    })?;
+                    created_count += 1;
+                }
+            }
         }
     }
 
-    log_audit_event(
-        &mut tx,
+    log_audit(
+        pool,
         actor.map(|value| value.id.as_str()),
         None,
         "portal_tours_bulk_assigned",
@@ -1306,10 +2450,6 @@ pub async fn bulk_assign_tours_to_customers(
         }),
     )
     .await?;
-
-    tx.commit().await.map_err(|error| {
-        AppError::InternalError(format!("Portal bulk-assign commit failed: {}", error))
-    })?;
 
     Ok(PortalBulkAssignmentResult {
         customer_ids,
@@ -1572,7 +2712,8 @@ pub async fn delete_library_tour(
 enum AccessTokenOutcome {
     Granted {
         customer: PortalCustomer,
-        access_link: PortalAccessLinkRecord,
+        access_kind: String,
+        access_ref: String,
     },
     Rejected {
         customer_slug: Option<String>,
@@ -1583,6 +2724,63 @@ async fn resolve_access_token(
     pool: &SqlitePool,
     token: &str,
 ) -> Result<AccessTokenOutcome, AppError> {
+    if let Some(row) = assignment_by_short_code(pool, token).await? {
+        let (customer, assignment, tour) = assignment_from_lookup_row(row);
+        if customer.is_active != 1 {
+            return Ok(AccessTokenOutcome::Rejected {
+                customer_slug: Some(customer.slug),
+            });
+        }
+
+        let access_link = current_access_link_for_customer(pool, &customer.id)
+            .await?
+            .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
+
+        if access_link.revoked_at.is_some() || access_link.expires_at <= Utc::now() {
+            return Ok(AccessTokenOutcome::Rejected {
+                customer_slug: Some(customer.slug),
+            });
+        }
+
+        if assignment.status != "active" || assignment.revoked_at.is_some() {
+            return Ok(AccessTokenOutcome::Rejected {
+                customer_slug: Some(customer.slug),
+            });
+        }
+
+        if assignment_effective_expiry(&assignment, access_link.expires_at) <= Utc::now() {
+            return Ok(AccessTokenOutcome::Rejected {
+                customer_slug: Some(customer.slug),
+            });
+        }
+
+        if tour.status != "published" {
+            return Ok(AccessTokenOutcome::Rejected {
+                customer_slug: Some(customer.slug),
+            });
+        }
+
+        let pool_for_update = pool.clone();
+        let assignment_id = assignment.id.clone();
+        tokio::spawn(async move {
+            let now = Utc::now();
+            let _ = sqlx::query(
+                "UPDATE portal_customer_tour_assignments SET open_count = open_count + 1, last_opened_at = ?, updated_at = ? WHERE id = ?",
+            )
+            .bind(now)
+            .bind(now)
+            .bind(&assignment_id)
+            .execute(&pool_for_update)
+            .await;
+        });
+
+        return Ok(AccessTokenOutcome::Granted {
+            customer,
+            access_kind: PORTAL_SESSION_KIND_ASSIGNMENT.to_string(),
+            access_ref: assignment.id,
+        });
+    }
+
     let token_hash = sha256_hex(token);
     let now_str = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
     let row = sqlx::query_as::<_, AccessTokenLookupRow>(
@@ -1667,24 +2865,24 @@ async fn resolve_access_token(
         });
     }
 
-    let now = Utc::now();
-    sqlx::query("UPDATE portal_access_links SET last_opened_at = ?, updated_at = ? WHERE id = ?")
+    let pool_for_update = pool.clone();
+    let access_link_id = access_link.id.clone();
+    tokio::spawn(async move {
+        let now = Utc::now();
+        let _ = sqlx::query(
+            "UPDATE portal_access_links SET last_opened_at = ?, updated_at = ? WHERE id = ?",
+        )
         .bind(now)
         .bind(now)
-        .bind(&access_link.id)
-        .execute(pool)
-        .await
-        .map_err(|error| {
-            AppError::InternalError(format!("Portal access-link touch failed: {}", error))
-        })?;
+        .bind(&access_link_id)
+        .execute(&pool_for_update)
+        .await;
+    });
 
     Ok(AccessTokenOutcome::Granted {
         customer,
-        access_link: PortalAccessLinkRecord {
-            last_opened_at: Some(now),
-            updated_at: now,
-            ..access_link
-        },
+        access_kind: PORTAL_SESSION_KIND_GALLERY.to_string(),
+        access_ref: access_link.id,
     })
 }
 
@@ -1707,12 +2905,13 @@ pub async fn authenticate_access_token(
 pub async fn access_session_for_token(
     pool: &SqlitePool,
     token: &str,
-) -> Result<(String, String), AppError> {
+) -> Result<(String, String, String), AppError> {
     match resolve_access_token(pool, token).await? {
         AccessTokenOutcome::Granted {
             customer,
-            access_link,
-        } => Ok((customer.slug, access_link.id)),
+            access_kind,
+            access_ref,
+        } => Ok((customer.slug, access_kind, access_ref)),
         AccessTokenOutcome::Rejected { .. } => Err(AppError::Unauthorized(
             "Portal access link is invalid or expired.".into(),
         )),
@@ -1790,23 +2989,32 @@ pub async fn gallery_view_for_customer(
     public_base_url: &str,
 ) -> Result<PortalGalleryView, AppError> {
     let session = load_customer_session(pool, slug, access_link_id, public_base_url).await?;
-    let tours = sqlx::query_as::<_, PortalLibraryTour>(
-        r#"
-        SELECT t.*
-        FROM portal_library_tours t
-        JOIN portal_customer_tour_assignments a ON a.tour_id = t.id
-        JOIN portal_customers c ON c.id = a.customer_id
-        WHERE c.slug = ? AND t.status != 'archived'
-        ORDER BY t.updated_at DESC
-        "#,
-    )
-    .bind(&session.customer.slug)
-    .fetch_all(pool)
-    .await
-    .map_err(|error| AppError::InternalError(format!("Portal gallery lookup failed: {}", error)))?;
+    let customer = sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
+        .bind(&session.customer.slug)
+        .fetch_one(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal gallery customer reload failed: {}", error))
+        })?;
+    let access_link = current_access_link_for_customer(pool, &customer.id)
+        .await?
+        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
+    let recipient_expiry = access_link.expires_at;
+    let mut cards = Vec::new();
 
-    let mut cards = Vec::with_capacity(tours.len());
-    for tour in tours {
+    for row in customer_assignment_rows(pool, &customer.id).await? {
+        let (assignment_customer, assignment, tour) = assignment_from_lookup_row(row);
+        if tour.status == "archived" {
+            continue;
+        }
+        let short_code = match assignment.short_code.clone() {
+            Some(value) => Some(value),
+            None => Some(ensure_assignment_short_code(pool, &assignment.id).await?),
+        };
+        let assignment = PortalCustomerTourAssignmentRecord {
+            short_code,
+            ..assignment
+        };
         let cover_path = ensure_portal_cover_path(pool, &tour).await?;
         cards.push(PortalTourCard {
             id: tour.id.clone(),
@@ -1816,10 +3024,12 @@ pub async fn gallery_view_for_customer(
             cover_url: cover_path.map(|cover| {
                 format!(
                     "/portal-assets/{}/{}/{}",
-                    session.customer.slug, tour.slug, cover
+                    assignment_customer.slug, tour.slug, cover
                 )
             }),
-            can_open: session.can_open_tours && tour.status == "published",
+            can_open: session.can_open_tours
+                && assignment_is_active(&assignment, recipient_expiry)
+                && tour.status == "published",
         });
     }
 
@@ -1837,10 +3047,12 @@ pub async fn load_portal_launch_document(
     pool: &SqlitePool,
     customer_slug: &str,
     tour_slug: &str,
-    access_link_id: &str,
+    access_kind: &str,
+    access_ref: &str,
     user_agent: Option<&str>,
 ) -> Result<String, AppError> {
-    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_link_id).await?;
+    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_kind, access_ref)
+        .await?;
     let storage_root = PathBuf::from(&tour.storage_path);
 
     for candidate in portal_launch_entry_candidates(user_agent) {
@@ -1870,9 +3082,11 @@ pub async fn resolve_portal_asset(
     customer_slug: &str,
     tour_slug: &str,
     relative_path: &str,
-    access_link_id: &str,
+    access_kind: &str,
+    access_ref: &str,
 ) -> Result<NamedFile, AppError> {
-    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_link_id).await?;
+    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_kind, access_ref)
+        .await?;
     let storage_root = PathBuf::from(&tour.storage_path);
     let safe_relative = sanitize_relative_path(relative_path)?;
     let resolved = storage_root.join(&safe_relative);

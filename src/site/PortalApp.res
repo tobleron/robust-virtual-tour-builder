@@ -1,3 +1,4 @@
+// @efficiency-role: ui-component
 open ReBindings
 
 type route =

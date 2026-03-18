@@ -1,3 +1,4 @@
+// @efficiency-role: orchestrator
 import '../css/style.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
