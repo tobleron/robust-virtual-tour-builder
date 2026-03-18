@@ -1,5 +1,6 @@
 use crate::config::EfficiencyConfig;
 use crate::graph::DependencyGraph;
+use crate::utils::get_drag_target;
 use crate::verification::{VerificationBundle, VerificationReport};
 use anyhow::Result;
 use serde_json;
@@ -847,10 +848,17 @@ fn surgical_reason_is_size_only(reason: &str, drag_target: f64) -> bool {
 }
 
 fn surgical_working_band(soft_floor_loc: usize) -> (usize, usize) {
-    (
-        soft_floor_loc.saturating_sub(50).max(250),
-        soft_floor_loc + 50,
-    )
+    (soft_floor_loc.saturating_sub(50), soft_floor_loc + 50)
+}
+
+fn drag_target_for_unit(unit: &WorkUnit, config: &EfficiencyConfig) -> f64 {
+    match unit {
+        WorkUnit::Ambiguity { file, .. }
+        | WorkUnit::Violation { file, .. }
+        | WorkUnit::Structural { file, .. }
+        | WorkUnit::Surgical { file, .. } => get_drag_target(config, file),
+        WorkUnit::Merge { folder, .. } => get_drag_target(config, folder),
+    }
 }
 
 /// Extract the base strategy text for a surgical work unit (without split count)
@@ -871,22 +879,24 @@ fn surgical_base_strategy(reason: &str, drag_target: f64) -> &'static str {
 /// Generate strategic directive for a work unit (full version with split count, used in metadata/JSON)
 pub fn generate_strategic_directive(
     unit: &WorkUnit,
-    drag_target: f64,
-    soft_floor_loc: usize,
+    config: &EfficiencyConfig,
 ) -> String {
+    let drag_target = drag_target_for_unit(unit, config);
+    let soft_floor_loc = config.settings.soft_floor_loc;
+    let minimum_child_loc = config.settings.min_extracted_module_loc;
     let (lower, upper) = surgical_working_band(soft_floor_loc);
     match unit {
         WorkUnit::Surgical { reason, recommended_splits, .. } => {
             let base = surgical_base_strategy(reason, drag_target);
             if *recommended_splits > 1 {
                 format!(
-                    "{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules while keeping each module within the {}-{} LOC working band (center ~{} LOC).",
-                    base, recommended_splits, lower, upper, soft_floor_loc
+                    "{} 🏗️ ARCHITECTURAL TARGET: Split into {} cohesive modules while keeping each module within the {}-{} LOC working band (center ~{} LOC, minimum child floor {} LOC).",
+                    base, recommended_splits, lower, upper, soft_floor_loc, minimum_child_loc
                 )
             } else {
                 format!(
-                    "{} Refactor in-place to reduce drag score while keeping the module near the ~{} LOC centerline.",
-                    base, soft_floor_loc
+                    "{} Refactor in-place to reduce drag score while keeping the module near the ~{} LOC centerline and above the {} LOC child floor.",
+                    base, soft_floor_loc, minimum_child_loc
                 )
             }
         },
@@ -1002,12 +1012,11 @@ pub fn sync_all_architectural_tasks(
     );
     let mut surgical_fe_units: Vec<SurgicalEntry> = Vec::new();
     let mut surgical_be_units: Vec<SurgicalEntry> = Vec::new();
-    let drag_target = config.settings.drag_target;
     let soft_floor_loc = config.settings.soft_floor_loc;
 
     for units in buffer.values() {
         for unit in units {
-            let strategy = generate_strategic_directive(unit, drag_target, soft_floor_loc);
+            let strategy = generate_strategic_directive(unit, config);
             match unit {
                 WorkUnit::Ambiguity { file, .. } => {
                     ambiguities_grouped
@@ -1159,8 +1168,7 @@ pub fn sync_all_architectural_tasks(
         .replace(
             "{density_w}",
             &format!("{:.2}", config.settings.density_weight),
-        )
-        .replace("{drag_t}", &format!("{:.2}", config.settings.drag_target));
+        );
 
     let merge_obj = config.templates.merge_objective.replace(
         "{merge_t}",
@@ -1226,15 +1234,16 @@ pub fn sync_all_architectural_tasks(
 
         for (domain, domain_units) in domain_groups {
             let mut action_groups: HashMap<
-                (String, String),
+                (String, String, i32),
                 Vec<(String, String, usize, bool, Option<VerificationBundle>)>,
             > = HashMap::new();
 
             for (file, reason, action, _strategy, _comp, splits, verification) in domain_units {
+                let drag_target = get_drag_target(config, &file);
                 let base_strategy = surgical_base_strategy(&reason, drag_target).to_string();
                 let size_only = surgical_reason_is_size_only(&reason, drag_target);
                 action_groups
-                    .entry((action, base_strategy))
+                    .entry((action, base_strategy, (drag_target * 100.0).round() as i32))
                     .or_default()
                     .push((file, reason, splits, size_only, verification));
             }
@@ -1251,8 +1260,12 @@ pub fn sync_all_architectural_tasks(
             let mut action_keys = action_groups.keys().cloned().collect::<Vec<_>>();
             action_keys.sort();
 
-            for (action, base_strategy) in action_keys {
-                let Some(items) = action_groups.get_mut(&(action.clone(), base_strategy.clone()))
+            for (action, base_strategy, drag_target_key) in action_keys {
+                let Some(items) = action_groups.get_mut(&(
+                    action.clone(),
+                    base_strategy.clone(),
+                    drag_target_key,
+                ))
                 else {
                     continue;
                 };
@@ -1266,11 +1279,18 @@ pub fn sync_all_architectural_tasks(
                     // Embed per-file split recommendation inline
                     let split_note = if *splits > 1 {
                         format!(
-                            " → 🏗️ Split into {} modules (target {}-{} LOC each, center ~{} LOC)",
-                            splits, working_band_lower, working_band_upper, soft_floor_loc
+                            " → 🏗️ Split into {} modules (target {}-{} LOC each, center ~{} LOC, floor {} LOC)",
+                            splits,
+                            working_band_lower,
+                            working_band_upper,
+                            soft_floor_loc,
+                            config.settings.min_extracted_module_loc
                         )
                     } else {
-                        format!(" → Refactor in-place (keep near ~{} LOC)", soft_floor_loc)
+                        format!(
+                            " → Refactor in-place (keep near ~{} LOC and above {} LOC floor)",
+                            soft_floor_loc, config.settings.min_extracted_module_loc
+                        )
                     };
                     let size_note = if *size_only {
                         " [Size-only candidate; drag already within target.]"
@@ -1827,6 +1847,8 @@ mod tests {
 
     #[test]
     fn generate_strategic_directive_uses_working_band_for_split_targets() {
+        let config =
+            EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load");
         let directive = generate_strategic_directive(
             &WorkUnit::Surgical {
                 file: "src/App.res".to_string(),
@@ -1838,15 +1860,17 @@ mod tests {
                 recommended_splits: 2,
                 verification: None,
             },
-            1.8,
-            300,
+            &config,
         );
-        assert!(directive.contains("250-350 LOC working band"));
-        assert!(directive.contains("center ~300 LOC"));
+        assert!(directive.contains("350-450 LOC working band"));
+        assert!(directive.contains("center ~400 LOC"));
+        assert!(directive.contains("minimum child floor 220 LOC"));
     }
 
     #[test]
     fn generate_strategic_directive_keeps_in_place_drag_work_near_centerline() {
+        let config =
+            EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load");
         let directive = generate_strategic_directive(
             &WorkUnit::Surgical {
                 file: "src/systems/Navigation/NavigationController.res".to_string(),
@@ -1858,10 +1882,10 @@ mod tests {
                 recommended_splits: 1,
                 verification: None,
             },
-            1.8,
-            300,
+            &config,
         );
         assert!(directive.contains("Refactor in-place"));
-        assert!(directive.contains("~300 LOC centerline"));
+        assert!(directive.contains("~400 LOC centerline"));
+        assert!(directive.contains("220 LOC child floor"));
     }
 }

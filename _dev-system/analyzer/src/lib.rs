@@ -9,4 +9,5 @@ pub mod rescript_auto_discovery;
 pub mod resolver;
 pub mod spec_snapshot;
 pub mod state;
+pub mod utils;
 pub mod verification;

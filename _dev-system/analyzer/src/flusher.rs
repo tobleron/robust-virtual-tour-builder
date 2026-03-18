@@ -2,7 +2,7 @@ use crate::config::EfficiencyConfig;
 use crate::task_generator::{resolve_merge_member_path, WorkUnit};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
-use std::fs::OpenOptions;
+use std::fs::{self, OpenOptions};
 use std::io::Write;
 
 /// Flush work unit plans to markdown files
@@ -10,6 +10,20 @@ pub fn flush_plans(
     buffer: &HashMap<String, Vec<WorkUnit>>,
     config: &EfficiencyConfig,
 ) -> Result<()> {
+    if let Ok(entries) = fs::read_dir("../plans") {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path
+                .file_name()
+                .and_then(|value| value.to_str())
+                .map(|value| value.ends_with("_PLAN.md"))
+                .unwrap_or(false)
+            {
+                let _ = fs::remove_file(path);
+            }
+        }
+    }
+
     for (driver_name, units) in buffer {
         if units.is_empty() {
             continue;

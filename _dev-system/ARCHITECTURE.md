@@ -55,7 +55,7 @@ The Rust Kernel (`analyzer`) processes the codebase in **4 Distinct Phases**:
     4.  **Reachability**: Traverses graph to find **Dead Code** (Unreachable islands).
 
 ### Phase 3: The Mathematical Engine (Drag & Limits)
-This is the core differentiator. Instead of a static LOC limit, the system calculates a **Dynamic Limit** for *each file*.
+This is the core differentiator. Instead of a static LOC limit, the system calculates a **Dynamic Limit** for *each file*. Drag is treated as an estimated modification-risk heuristic, not a direct measurement of model capability.
 
 #### 📉 The Drag Formula (v2.0)
 **Drag** represents the "Cognitive Resistance" of a file.
@@ -73,7 +73,7 @@ Drag = (1.0
 *   **Density** = `logic_count / LOC` (1.0 weight): Moderate impact. Ratio of control flow keywords to lines.
 *   **StateDensity** = `state_count / LOC` (8.0 weight): Heavy penalty. Mutable state causes "Context Fog" and tracking failures.
 *   **DepthPenalty** = `max(0, dir_depth - 4) × 0.6` (0.6 weight): Minor penalty for deep directory nesting.
-*   **FailurePenalty** = `1.0 + (failure_count × 0.1)`: If an agent recently failed to edit this file, Drag increases automatically.
+*   **FailurePenalty** = bounded recent-failure multiplier (`1.0`, `1.05`, or `1.15`): recent failures raise Drag slightly, but the penalty is intentionally capped so noisy history does not dominate.
 
 **Note:** v2.0 removed the `complexity_density × 20.0` term which was double-counting state penalties.
 
@@ -86,7 +86,7 @@ Limit = (BaseLimit × RoleMultiplier × CohesionBonus) / Drag^0.8
 *   **RoleMultiplier**: 0.4 to 2.5 based on file taxonomy (e.g., util-pure=0.4, infra-binding=2.5)
 *   **CohesionBonus**: `1.0 + max(0, 0.5 - dependency_density)` - rewards self-contained files
 *   **Exponent 0.8**: Diminishing returns curve (less aggressive than linear)
-*   **Result**: A complex, state-heavy file might have a limit of **95 LOC**, while a flat DTO file might have a limit of **600 LOC**.
+*   **Result**: A complex, state-heavy file might have a limit of **95 LOC**, while a flat DTO file might have a limit of **600 LOC**. For cohesive Rust and ReScript modules, the preferred working band is now **350-450 LOC** with a **220 LOC** minimum extracted child-module floor to prevent fragmentation.
 
 ### Phase 4: Task Synthesis (Decision Tree)
 The system compares `Current State` vs `Optimal State` and generates discrete tasks.

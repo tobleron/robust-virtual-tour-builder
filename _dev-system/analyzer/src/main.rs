@@ -11,6 +11,7 @@ mod merger;
 mod spec_snapshot;
 mod state;
 mod task_generator;
+mod utils;
 mod verification;
 
 use anyhow::Result;
@@ -26,6 +27,7 @@ use discovery::discover_and_analyze;
 use flusher::flush_plans;
 use merger::{detect_merge_candidates, detect_recursive_clusters};
 use task_generator::{sync_all_architectural_tasks, WorkUnit};
+use utils::get_drag_target;
 use verification::VerificationBundle;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -268,6 +270,7 @@ fn generate_work_units(
 
         let mut is_surgical = false;
         if taxonomy != "unknown" {
+            let drag_target = get_drag_target(config, p_str);
             if let Some(trigger) = surgical_trigger(
                 p_str,
                 content,
@@ -276,6 +279,7 @@ fn generate_work_units(
                 metrics.loc,
                 limit,
                 drag,
+                drag_target,
                 metrics.hotspot_symbol.is_some(),
                 metrics.max_nesting,
                 density,
@@ -296,18 +300,18 @@ fn generate_work_units(
                     SurgicalTrigger::DragRisk if metrics.loc <= working_band_upper_loc(config) => {
                         reason.push_str(&format!(
                             "  ⚠️ Trigger: Drag above target ({:.2}) with file already at {} LOC.",
-                            config.settings.drag_target, metrics.loc
+                            drag_target, metrics.loc
                         ));
                     }
                     SurgicalTrigger::DragRisk => {
                         reason.push_str(&format!(
-                            "  ⚠️ Trigger: Drag above target ({:.2}); keep the module within the 250-350 LOC working band if you extract helpers.",
-                            config.settings.drag_target
+                            "  ⚠️ Trigger: Drag above target ({:.2}); keep the module within the 350-450 LOC working band if you extract helpers.",
+                            drag_target
                         ));
                     }
                     SurgicalTrigger::Oversized => {
                         reason.push_str(
-                            "  ⚠️ Trigger: Oversized beyond the preferred 250-350 LOC working band.",
+                            "  ⚠️ Trigger: Oversized beyond the preferred 350-450 LOC working band.",
                         );
                     }
                 }
@@ -421,7 +425,11 @@ fn split_threshold(limit: usize) -> usize {
 }
 
 fn drag_trigger_min_loc(config: &EfficiencyConfig) -> usize {
-    config.settings.soft_floor_loc.saturating_sub(50).max(250)
+    config
+        .settings
+        .soft_floor_loc
+        .saturating_sub(50)
+        .max(config.settings.min_extracted_module_loc)
 }
 
 fn working_band_upper_loc(config: &EfficiencyConfig) -> usize {
@@ -432,14 +440,21 @@ fn module_count_score(loc: usize, modules: usize, config: &EfficiencyConfig) -> 
     let average_loc = loc as f64 / modules as f64;
     let center = config.settings.soft_floor_loc as f64;
     let lower = drag_trigger_min_loc(config) as f64;
-    let mut score = (average_loc - center).abs();
+    let upper = working_band_upper_loc(config) as f64;
+    let minimum_child = config.settings.min_extracted_module_loc as f64;
 
-    // Strongly discourage fragmenting into helper shards that fall below the working floor.
-    if average_loc < lower {
-        score += 100.0 + ((lower - average_loc) * 2.0);
+    if average_loc < minimum_child {
+        return f64::INFINITY;
     }
 
-    score
+    if average_loc < lower {
+        return (lower - average_loc) * 3.0;
+    }
+    if average_loc > upper {
+        return (average_loc - upper) * 2.0;
+    }
+
+    (average_loc - center).abs() * 0.5
 }
 
 fn recommended_module_count(loc: usize, config: &EfficiencyConfig) -> usize {
@@ -447,7 +462,8 @@ fn recommended_module_count(loc: usize, config: &EfficiencyConfig) -> usize {
         return 1;
     }
 
-    let max_modules = ((loc as f64 / drag_trigger_min_loc(config) as f64).ceil() as usize).max(1);
+    let max_modules =
+        ((loc as f64 / config.settings.min_extracted_module_loc as f64).ceil() as usize).max(1);
     let mut best_modules = 1usize;
     let mut best_score = module_count_score(loc, best_modules, config);
 
@@ -513,9 +529,9 @@ fn is_drag_risk_exempt(
     )
 }
 
-fn drag_risk_threshold(has_hotspot: bool, config: &EfficiencyConfig) -> f64 {
+fn drag_risk_threshold(drag_target: f64, has_hotspot: bool) -> f64 {
     let margin = if has_hotspot { 0.8 } else { 1.4 };
-    config.settings.drag_target + margin
+    drag_target + margin
 }
 
 fn is_thin_shell_drag_exempt(
@@ -563,6 +579,7 @@ fn surgical_trigger(
     loc: usize,
     limit: usize,
     drag: f64,
+    drag_target: f64,
     has_hotspot: bool,
     max_nesting: usize,
     density: f64,
@@ -588,7 +605,7 @@ fn surgical_trigger(
     if is_low_value_drag_churn(loc, density, coupling_score, hotspot_reason, config) {
         return None;
     }
-    if drag >= drag_risk_threshold(has_hotspot, config) && loc >= min_loc {
+    if drag >= drag_risk_threshold(drag_target, has_hotspot) && loc >= min_loc {
         return Some(SurgicalTrigger::DragRisk);
     }
 
@@ -659,9 +676,10 @@ mod tests {
                 "",
                 "service-orchestrator",
                 "rescript",
-                401,
-                300,
+                520,
+                400,
                 1.2,
+                2.4,
                 false,
                 2,
                 0.08,
@@ -682,9 +700,10 @@ mod tests {
                 "",
                 "domain-logic",
                 "rescript",
-                280,
-                300,
+                380,
+                400,
                 4.0,
+                2.4,
                 true,
                 5,
                 0.15,
@@ -706,8 +725,9 @@ mod tests {
                 "service-orchestrator",
                 "rescript",
                 410,
-                300,
+                400,
                 5.3,
+                2.4,
                 true,
                 5,
                 0.14,
@@ -729,8 +749,9 @@ mod tests {
                 "service-orchestrator",
                 "rescript",
                 220,
-                300,
+                400,
                 3.5,
+                2.4,
                 true,
                 4,
                 0.11,
@@ -745,21 +766,21 @@ mod tests {
     #[test]
     fn drag_trigger_min_loc_tracks_soft_floor_with_guardrail() {
         let config = config();
-        assert_eq!(drag_trigger_min_loc(&config), 250);
+        assert_eq!(drag_trigger_min_loc(&config), 350);
     }
 
     #[test]
     fn recommended_module_count_keeps_medium_drag_risk_modules_in_place() {
         let config = config();
-        assert_eq!(recommended_module_count(368, &config), 1);
-        assert_eq!(recommended_module_count(420, &config), 1);
+        assert_eq!(recommended_module_count(450, &config), 1);
+        assert_eq!(recommended_module_count(500, &config), 1);
     }
 
     #[test]
     fn recommended_module_count_splits_only_when_modules_stay_near_centerline() {
         let config = config();
-        assert_eq!(recommended_module_count(520, &config), 2);
-        assert_eq!(recommended_module_count(750, &config), 3);
+        assert_eq!(recommended_module_count(700, &config), 2);
+        assert_eq!(recommended_module_count(900, &config), 2);
         assert_eq!(recommended_module_count(1011, &config), 3);
     }
 
@@ -775,6 +796,7 @@ mod tests {
                 362,
                 500,
                 4.66,
+                2.4,
                 true,
                 4,
                 0.13,
@@ -798,6 +820,7 @@ mod tests {
                 269,
                 408,
                 2.3,
+                2.2,
                 false,
                 2,
                 0.08,
@@ -819,8 +842,9 @@ mod tests {
                 "orchestrator",
                 "rust",
                 261,
-                300,
+                400,
                 1.9,
+                2.6,
                 false,
                 2,
                 0.10,
@@ -839,6 +863,7 @@ mod tests {
                 280,
                 337,
                 2.82,
+                2.6,
                 false,
                 2,
                 0.10,
@@ -860,8 +885,9 @@ mod tests {
                 "service-orchestrator",
                 "rescript",
                 285,
-                300,
+                400,
                 3.16,
+                2.4,
                 true,
                 3,
                 0.19,
@@ -874,7 +900,7 @@ mod tests {
     }
 
     #[test]
-    fn surgical_trigger_keeps_real_hotspots_even_when_medium_sized() {
+    fn surgical_trigger_keeps_real_hotspots_in_place_inside_new_band() {
         let config = config();
         assert_eq!(
             surgical_trigger(
@@ -882,9 +908,10 @@ mod tests {
                 "",
                 "service-orchestrator",
                 "rescript",
-                258,
-                300,
-                4.09,
+                420,
+                400,
+                4.2,
+                2.4,
                 true,
                 5,
                 0.09,
@@ -906,8 +933,9 @@ mod tests {
                 "service-orchestrator",
                 "rescript",
                 294,
-                300,
+                400,
                 6.64,
+                2.4,
                 true,
                 9,
                 0.22,

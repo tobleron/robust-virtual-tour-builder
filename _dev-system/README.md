@@ -11,8 +11,8 @@ To ensure the codebase evolves into a structure where **AI Agents perform better
 
 ## 🧠 CORE VOCABULARY & CONCEPTS
 
-### 1. 💨 Drag (Resistance Metric)
-**Drag** is the cumulative weight of a file's complexity. A file with high drag requires more "inference energy" to understand and modify safely.
+### 1. 💨 Drag (Estimated Modification Risk)
+**Drag** is the cumulative weight of a file's complexity. A file with high drag is more likely to produce unsafe or incomplete edits, but Drag is still a heuristic rather than a direct measurement of AI capability.
 *   **Metric Sources**: AST-derived nesting depth, logic density (branching/loops), and language-specific risks (e.g., `mutable`, `unsafe`, `unwrap`).
 
 ### 2. 🌫️ Context Fog (Hotspots)
@@ -24,7 +24,7 @@ The "hidden cost" of file fragmentation. Every time an agent has to perform a fi
 *   **Solution**: **Contextual Merges** unify related small modules into a single context window.
 
 ### 4. 🚀 Cohesion Bonus
-Files with a high ratio of internal logic to external dependencies receive a **LOC Allowance**. Cohesive files are "AI-Friendly" as they minimize context-switching.
+Files with a high ratio of internal logic to external dependencies receive a **LOC Allowance**. Cohesive files can stay larger because they minimize context-switching and reduce the need for tiny helper shards.
 
 ### 5. 🧱 Vertical Slicing (Feature Pods)
 A structural paradigm where **UI, State, and Logic** for a single feature live in the same folder to minimize directory traversal and "folder hopping."
@@ -38,6 +38,7 @@ A structural paradigm where **UI, State, and Logic** for a single feature live i
 
 *   **Base Limit**: 400 lines (Adjustable per project avg).
 *   **Hard Ceiling**: **800 lines** (The standard AI safety threshold for standard context windows).
+*   **Preferred Working Band**: **350-450 LOC**, centered at **400 LOC** for cohesive Rust and ReScript modules.
 *   **Semantic Weights** (v2.0 - Empirically Optimized): 
     *   **Nesting**: 0.60 (Critical for AI comprehension - increased from 0.50).
     *   **Density**: 1.00 (Moderate impact - decreased from 1.20).

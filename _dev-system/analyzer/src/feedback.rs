@@ -1,6 +1,8 @@
+use crate::utils::canonicalize_tracked_file_path;
 use regex::Regex;
 use std::collections::HashSet;
 use std::fs;
+use std::path::Path;
 
 pub fn get_recent_failures() -> HashSet<String> {
     let mut failed_modules = HashSet::new();
@@ -24,37 +26,41 @@ pub fn get_recent_failures() -> HashSet<String> {
 }
 
 fn extract_failures(content: &str, set: &mut HashSet<String>) {
-    // Look for ReScript/Rust file extensions in error logs
-    let file_regex = Regex::new(r"([a-zA-Z0-9_\-\/]+\.(res|rs|js))").unwrap();
-
-    // Look for ReScript module names in error logs (e.g., "Module.SubModule")
-    // Avoid common words by ensuring it starts with Uppercase
-    let module_regex = Regex::new(r"\b([A-Z][a-zA-Z0-9_]+)\b").unwrap();
+    let file_regex =
+        Regex::new(r"((?:\.\./)*[a-zA-Z0-9_\-\/\.]+\.(res|rs|js|jsx|css|html))").unwrap();
 
     for line in content.lines() {
         if line.to_lowercase().contains("fail") || line.to_lowercase().contains("error") {
             for cap in file_regex.captures_iter(line) {
                 if let Some(m) = cap.get(1) {
-                    let path = m.as_str().to_string();
-                    if !path.contains("node_modules") {
+                    if let Some(path) = canonicalize_tracked_file_path(m.as_str()) {
+                        if let Some(stem) =
+                            Path::new(&path).file_stem().and_then(|value| value.to_str())
+                        {
+                            set.insert(stem.to_string());
+                        }
                         set.insert(path);
                     }
                 }
             }
-
-            for cap in module_regex.captures_iter(line) {
-                if let Some(m) = cap.get(1) {
-                    let module = m.as_str();
-                    // Basic filtering of common words that look like modules
-                    if module != "Error"
-                        && module != "Fail"
-                        && module != "Test"
-                        && module != "React"
-                    {
-                        set.insert(module.to_string());
-                    }
-                }
-            }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extract_failures_keeps_canonical_paths_and_file_stems_only() {
+        let mut failures = HashSet::new();
+        extract_failures(
+            "error: ../../backend/src/auth/../../backend/src/auth/middleware.rs failed\nError Reference `src/core/SchemaDefinitions.res` for current shapes.",
+            &mut failures,
+        );
+
+        assert!(failures.contains("backend/src/auth/middleware.rs"));
+        assert!(failures.contains("middleware"));
+        assert!(!failures.contains("Reference"));
     }
 }

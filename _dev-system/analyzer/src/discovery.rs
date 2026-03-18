@@ -4,6 +4,7 @@ use crate::drivers::{self, CommonMetrics};
 use crate::feedback;
 use crate::guard::is_project_source;
 use crate::state::AnalyzerState;
+use crate::utils::canonicalize_tracked_file_path;
 use anyhow::Result;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -117,7 +118,13 @@ pub fn discover_and_analyze(
                 .unwrap_or_default();
 
             // Feedback loop integration
-            if failed_items.contains(&p_str) || failed_items.contains(&file_stem) {
+            let normalized_path = canonicalize_tracked_file_path(&p_str);
+            if normalized_path
+                .as_ref()
+                .map(|value| failed_items.contains(value))
+                .unwrap_or(false)
+                || failed_items.contains(&file_stem)
+            {
                 state.mark_failure(&p_str);
             }
 

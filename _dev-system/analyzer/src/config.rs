@@ -43,6 +43,7 @@ pub struct Settings {
     pub base_loc_limit: usize,
     pub hard_ceiling_loc: usize,
     pub soft_floor_loc: usize,
+    pub min_extracted_module_loc: usize,
     #[allow(dead_code)]
     pub max_session_complexity: f64,
     pub merge_score_threshold: f64,
@@ -55,6 +56,10 @@ pub struct Settings {
 
 #[derive(Debug, Deserialize)]
 pub struct Profile {
+    #[serde(default)]
+    pub extensions: Vec<String>,
+    #[serde(default)]
+    pub drag_target: Option<f64>,
     pub complexity_dictionary: HashMap<String, f64>,
     pub forbidden_patterns: Vec<String>,
 }
