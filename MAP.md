@@ -123,15 +123,15 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/services/project/export_upload_runtime_session.rs](backend/src/services/project/export_upload_runtime_session.rs): Export upload session assembly and lifecycle helpers. `#project` `#upload`
 * [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Media services façade root. `#media` `#facade`
 * [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Geocoding service façade root. `#geocoding` `#facade`
+* [backend/src/services/portal.rs](backend/src/services/portal.rs): Portal access, assignment, and package management service orchestration. `#services` `#orchestrator`
 * [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Pathfinding orchestration entry. `#pathfinding` `#orchestrator`
 * [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): Algorithm selection orchestration for pathfinder runtime strategies. `#pathfinding` `#orchestrator`
 
 ## 🧪 Primary Test Entrypoints
 * [tests/unit/](tests/unit/): Unit test suites (Vitest + ReScript bindings). `#tests`
 * [tests/e2e/](tests/e2e/): End-to-end Playwright suites. `#tests`
+* [src/portal-index.js](src/portal-index.js): Portal frontend bootstrap entrypoint. `#entry-point` `#orchestrator`
+* [backend/src/bin/portal.rs](backend/src/bin/portal.rs): Portal backend binary entrypoint and service bootstrap. `#entry-point` `#orchestrator`
 
 ## 🆕 Unmapped Modules
-* [backend/src/services/portal.rs](backend/src/services/portal.rs): New module detected. Please classify. #new
-* [src/portal-index.js](src/portal-index.js): New module detected. Please classify. #new
-* [backend/src/bin/portal.rs](backend/src/bin/portal.rs): New module detected. Please classify. #new
 * None currently.
