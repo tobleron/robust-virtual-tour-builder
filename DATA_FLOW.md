@@ -411,6 +411,11 @@ CI job
 ### Portal Delivery & Management
 **Purpose:** Portal frontend bootstrap, backend binary startup, and portal-specific access/assignment management.
 - [backend/src/api/config_routes.rs], [backend/src/api/config_routes_project.rs], [backend/src/api/config_routes_portal.rs], [backend/src/api/portal_support.rs], [backend/src/api/portal.rs], [backend/src/api/portal_admin_routes.rs], [backend/src/api/portal_public_routes.rs], [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [backend/src/services/portal_admin.rs], [backend/src/services/portal_assets.rs], [backend/src/services/portal_codes.rs], [backend/src/services/portal_types.rs], [backend/src/services/portal_assignment_queries.rs], [backend/src/services/portal_assignments.rs], [backend/src/services/portal_customers.rs], [backend/src/services/portal_views.rs], [backend/src/services/portal_sessions.rs], [backend/src/services/portal_audit.rs], [src/portal-index.js]
+- [src/portal-index.js] → [src/site/PortalApp.res] → [src/site/PortalAppCore.res] / [src/site/PortalAppUI.res] / [src/site/PortalAppAdminSurface.res] / [src/site/PortalAppCustomerSurface.res]
+- [src/site/PortalAppCore.res] provides portal route parsing, date helpers, and portal URL helpers used by the admin and customer surfaces.
+- [src/site/PortalAppUI.res] provides portal branding, action icons, and copy-to-clipboard controls shared across portal surfaces.
+- [src/site/PortalAppAdminSurface.res] orchestrates recipient, tour, and renewal management for the admin portal.
+- [src/site/PortalAppCustomerSurface.res] orchestrates the customer gallery, tour viewer, and access-link display flows.
 
 ---
 

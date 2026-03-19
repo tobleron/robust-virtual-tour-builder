@@ -54,6 +54,11 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Teaser logic façade coordinating playback/render submodules. `#teaser`
 * [src/systems/TeaserHeadlessLogicSupport.res](src/systems/TeaserHeadlessLogicSupport.res): Headless teaser capture helper routines for viewer sizing, branding assets, and export runtime setup. `#teaser` `#service`
 * [src/systems/TourTemplates.res](src/systems/TourTemplates.res): Exported tour script/style orchestration. `#templates` `#orchestrator`
+* [src/site/PortalApp.res](src/site/PortalApp.res): Portal route selection and top-level bootstrap orchestration. `#site` `#orchestrator`
+* [src/site/PortalAppCore.res](src/site/PortalAppCore.res): Portal route parsing, shared date helpers, and portal URL helpers. `#site` `#service`
+* [src/site/PortalAppUI.res](src/site/PortalAppUI.res): Portal branding, copy actions, and shared UI helper components. `#site` `#ui`
+* [src/site/PortalAppAdminSurface.res](src/site/PortalAppAdminSurface.res): Portal administration workspace and recipient/tour management surface. `#site` `#ui`
+* [src/site/PortalAppCustomerSurface.res](src/site/PortalAppCustomerSurface.res): Portal customer gallery and tour viewer surface. `#site` `#ui`
 * [src/site/PageFramework.js](src/site/PageFramework.js): Static site/dashboard page orchestration entry. `#site` `#orchestrator`
 * [src/systems/Api.res](src/systems/Api.res): API façade entrypoint for backend calls. `#api` `#facade`
 * [src/systems/ApiLogic.res](src/systems/ApiLogic.res): API orchestration logic and transport routing. `#api` `#orchestrator`
