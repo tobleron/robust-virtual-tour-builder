@@ -1,5 +1,6 @@
 #[path = "config_routes.rs"]
 mod config_routes;
+mod config_routes_project;
 mod config_routes_portal;
 mod portal_support;
 

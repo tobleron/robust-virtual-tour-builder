@@ -410,7 +410,7 @@ CI job
 
 ### Portal Delivery & Management
 **Purpose:** Portal frontend bootstrap, backend binary startup, and portal-specific access/assignment management.
-- [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [backend/src/services/portal_admin.rs], [backend/src/services/portal_assets.rs], [backend/src/services/portal_codes.rs], [backend/src/services/portal_assignments.rs], [backend/src/services/portal_customers.rs], [backend/src/services/portal_views.rs], [backend/src/services/portal_sessions.rs], [backend/src/services/portal_audit.rs], [src/portal-index.js]
+- [backend/src/api/config_routes.rs], [backend/src/api/config_routes_project.rs], [backend/src/api/config_routes_portal.rs], [backend/src/api/portal_support.rs], [backend/src/api/portal.rs], [backend/src/api/portal_admin_routes.rs], [backend/src/api/portal_public_routes.rs], [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [backend/src/services/portal_admin.rs], [backend/src/services/portal_assets.rs], [backend/src/services/portal_codes.rs], [backend/src/services/portal_assignments.rs], [backend/src/services/portal_customers.rs], [backend/src/services/portal_views.rs], [backend/src/services/portal_sessions.rs], [backend/src/services/portal_audit.rs], [src/portal-index.js]
 
 ---
 

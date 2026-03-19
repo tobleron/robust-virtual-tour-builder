@@ -93,6 +93,13 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 
 ## ⚙️ Backend API Orchestrators
 * [backend/src/api/mod.rs](backend/src/api/mod.rs): API router composition root. `#api` `#orchestrator`
+* [backend/src/api/config_routes.rs](backend/src/api/config_routes.rs): API route tree builder for standard and portal scopes. `#api` `#orchestrator`
+* [backend/src/api/config_routes_project.rs](backend/src/api/config_routes_project.rs): Project route tree builder. `#api` `#orchestrator`
+* [backend/src/api/config_routes_portal.rs](backend/src/api/config_routes_portal.rs): Portal route tree builder. `#api` `#orchestrator`
+* [backend/src/api/portal_support.rs](backend/src/api/portal_support.rs): Portal session and URL helper boundary. `#api` `#service`
+* [backend/src/api/portal.rs](backend/src/api/portal.rs): Portal API façade re-exporting admin and public handlers. `#api` `#facade`
+* [backend/src/api/portal_admin_routes.rs](backend/src/api/portal_admin_routes.rs): Portal admin endpoint handlers. `#api` `#portal`
+* [backend/src/api/portal_public_routes.rs](backend/src/api/portal_public_routes.rs): Portal public endpoint handlers. `#api` `#portal`
 * [backend/src/middleware.rs](backend/src/middleware.rs): Shared middleware orchestration (auth/quota/rate-limit wiring). `#backend` `#orchestrator`
 * [backend/src/api/project.rs](backend/src/api/project.rs): Project API entrypoints. `#api` `#project`
 * [backend/src/api/project_import.rs](backend/src/api/project_import.rs): Chunked project import API entrypoints. `#api` `#project`
@@ -142,8 +149,4 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/bin/portal.rs](backend/src/bin/portal.rs): Portal backend binary entrypoint and service bootstrap. `#entry-point` `#orchestrator`
 
 ## 🆕 Unmapped Modules
-* [backend/src/services/portal_assignments.rs](backend/src/services/portal_assignments.rs): New module detected. Please classify. #new
-* [backend/src/services/portal_customers.rs](backend/src/services/portal_customers.rs): New module detected. Please classify. #new
-* [backend/src/services/portal_views.rs](backend/src/services/portal_views.rs): New module detected. Please classify. #new
-* [backend/src/services/portal_admin.rs](backend/src/services/portal_admin.rs): New module detected. Please classify. #new
 * None currently.
