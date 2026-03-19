@@ -4,15 +4,15 @@ use chrono::Utc;
 
 use crate::models::AppError;
 use crate::services::portal::{
-    assignment_by_short_code, assignment_from_lookup_row, customer_assignment_rows,
-    assignment_by_customer_and_tour, assignment_by_id, current_access_link_for_customer,
-    current_customer_and_access_link_by_slug, ensure_assignment_short_code, PortalAccessRedirect,
-    PortalCustomer, PortalCustomerPublicView, PortalCustomerSessionView,
-    PortalCustomerTourAssignmentRecord, PortalGalleryView, PortalLibraryTour, PortalTourCard,
-    customer_public, validate_slug,
+    assignment_by_short_code, assignment_from_lookup_row, assignment_by_customer_and_tour,
+    assignment_by_id, current_access_link_for_customer, current_customer_and_access_link_by_slug,
+    ensure_assignment_short_code, PortalAccessRedirect, PortalCustomer,
+    PortalCustomerPublicView, PortalCustomerSessionView, PortalCustomerTourAssignmentRecord,
+    PortalGalleryView, PortalLibraryTour, PortalTourCard, customer_public, validate_slug,
 };
 use crate::services::portal_assets::ensure_portal_cover_path;
 use crate::services::portal_admin::load_settings;
+use crate::services::portal_views::customer_assignment_rows;
 use crate::services::portal_support::{
     assignment_effective_expiry, assignment_is_active, customer_access_link_summary, sha256_hex,
 };

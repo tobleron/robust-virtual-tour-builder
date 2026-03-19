@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before portal admin classification
 - Classify portal admin module
 - Checkpoint before portal views split
+- Checkpoint before portal views classification
 
 ## [5.3.6] - 2026-03-18
 

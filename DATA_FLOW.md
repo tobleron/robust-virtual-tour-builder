@@ -424,5 +424,8 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 backend/src/services
+- `[backend/src/services/portal_views.rs]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

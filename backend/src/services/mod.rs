@@ -8,6 +8,7 @@ pub mod portal_admin;
 pub mod portal_assets;
 pub mod portal_codes;
 pub mod portal_paths;
+pub mod portal_views;
 pub mod portal_support;
 pub mod portal_sessions;
 pub mod portal;
