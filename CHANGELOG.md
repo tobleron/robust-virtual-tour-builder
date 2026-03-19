@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before D009 TourScripts split
 - Split TourScriptNavigation and TourScriptUINav into chunk modules
 - Checkpoint before D009 folder merge
+- Checkpoint before D015 MAP update
 
 ## [5.3.6] - 2026-03-18
 
