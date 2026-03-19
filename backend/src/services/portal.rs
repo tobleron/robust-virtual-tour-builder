@@ -7,29 +7,29 @@ use actix_files::NamedFile;
 use chrono::{DateTime, Utc};
 use image::{DynamicImage, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use sqlx::{FromRow, QueryBuilder, SqlitePool};
 use uuid::Uuid;
 use zip::ZipArchive;
 
 use crate::models::{AppError, User};
 use crate::services::portal_audit::{log_audit, log_audit_event};
+use crate::services::portal_support::{
+    admin_access_link_summary, assignment_effective_expiry, assignment_is_active,
+    boost_portal_launch_branding, customer_access_link_summary, customer_tour_assignment_view,
+    dedupe_ids, inject_base_href, make_short_code, portal_launch_entry_candidates, sha256_hex,
+    tour_recipient_assignment_view,
+};
 use crate::services::portal_paths::{
     detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,
 };
 
-pub use crate::services::portal_paths::{portal_library_tour_dir, portal_storage_root, validate_slug};
+pub use crate::services::portal_paths::{portal_library_tour_dir, validate_slug};
+pub use crate::services::portal_support::{customer_public, init_storage, normalize_recipient_type, parse_expiry};
 
 const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
     ["index.html", "tour_4k/index.html", "tour_2k/index.html"];
-const PORTAL_ACCESS_CODE_ALPHABET: &[u8; 62] =
-    b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const PORTAL_ACCESS_CODE_LEN: usize = 7;
 const PORTAL_SESSION_KIND_GALLERY: &str = "gallery";
 const PORTAL_SESSION_KIND_ASSIGNMENT: &str = "assignment";
-const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER: &str = "property_owner";
-const PORTAL_RECIPIENT_TYPE_BROKER: &str = "broker";
-const PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER_BROKER: &str = "property_owner_broker";
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
@@ -60,36 +60,36 @@ pub struct PortalSettings {
 }
 
 #[derive(Debug, Clone, FromRow)]
-struct PortalAccessLinkRecord {
-    id: String,
-    customer_id: String,
-    short_code: Option<String>,
-    token_hash: String,
-    token_value: Option<String>,
-    expires_at: DateTime<Utc>,
-    revoked_at: Option<DateTime<Utc>>,
-    last_opened_at: Option<DateTime<Utc>>,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
+pub struct PortalAccessLinkRecord {
+    pub(crate) id: String,
+    pub(crate) customer_id: String,
+    pub(crate) short_code: Option<String>,
+    pub(crate) token_hash: String,
+    pub(crate) token_value: Option<String>,
+    pub(crate) expires_at: DateTime<Utc>,
+    pub(crate) revoked_at: Option<DateTime<Utc>>,
+    pub(crate) last_opened_at: Option<DateTime<Utc>>,
+    pub(crate) created_at: DateTime<Utc>,
+    pub(crate) updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
-struct PortalCustomerTourAssignmentRecord {
-    id: String,
-    customer_id: String,
-    tour_id: String,
-    short_code: Option<String>,
-    status: String,
-    expires_at_override: Option<DateTime<Utc>>,
-    revoked_at: Option<DateTime<Utc>>,
-    revoked_reason: Option<String>,
-    last_opened_at: Option<DateTime<Utc>>,
-    open_count: i64,
-    geo_country_code: Option<String>,
-    geo_region: Option<String>,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
+pub struct PortalCustomerTourAssignmentRecord {
+    pub(crate) id: String,
+    pub(crate) customer_id: String,
+    pub(crate) tour_id: String,
+    pub(crate) short_code: Option<String>,
+    pub(crate) status: String,
+    pub(crate) expires_at_override: Option<DateTime<Utc>>,
+    pub(crate) revoked_at: Option<DateTime<Utc>>,
+    pub(crate) revoked_reason: Option<String>,
+    pub(crate) last_opened_at: Option<DateTime<Utc>>,
+    pub(crate) open_count: i64,
+    pub(crate) geo_country_code: Option<String>,
+    pub(crate) geo_region: Option<String>,
+    pub(crate) created_at: DateTime<Utc>,
+    pub(crate) updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, FromRow)]
@@ -415,47 +415,6 @@ pub struct PortalBulkAssignmentResult {
     pub skipped_count: i64,
 }
 
-pub fn init_storage() -> Result<(), AppError> {
-    fs::create_dir_all(portal_storage_root().join("tours")).map_err(AppError::IoError)
-}
-
-pub fn normalize_recipient_type(raw: &str) -> Result<String, AppError> {
-    let normalized = raw.trim().to_ascii_lowercase();
-    match normalized.as_str() {
-        PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER
-        | PORTAL_RECIPIENT_TYPE_BROKER
-        | PORTAL_RECIPIENT_TYPE_PROPERTY_OWNER_BROKER => Ok(normalized),
-        _ => Err(AppError::ValidationError(
-            "Recipient type must be property_owner, broker, or property_owner_broker.".into(),
-        )),
-    }
-}
-
-pub fn parse_expiry(raw: &str) -> Result<DateTime<Utc>, AppError> {
-    DateTime::parse_from_rfc3339(raw)
-        .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AppError::ValidationError("Expiry must be an ISO-8601 timestamp.".into()))
-}
-
-fn sha256_hex(raw: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(raw.as_bytes());
-    format!("{:x}", hasher.finalize())
-}
-
-fn make_short_code() -> String {
-    let mut value = Uuid::new_v4().as_u128();
-    let mut chars = ['0'; PORTAL_ACCESS_CODE_LEN];
-
-    for index in (0..PORTAL_ACCESS_CODE_LEN).rev() {
-        let alphabet_index = (value % 62) as usize;
-        chars[index] = PORTAL_ACCESS_CODE_ALPHABET[alphabet_index] as char;
-        value /= 62;
-    }
-
-    chars.iter().collect()
-}
-
 async fn short_code_exists(pool: &SqlitePool, short_code: &str) -> Result<bool, AppError> {
     let access_link_exists = sqlx::query_scalar::<_, i64>(
         "SELECT COUNT(1) FROM portal_access_links WHERE short_code = ?",
@@ -495,227 +454,6 @@ async fn generate_unique_short_code(pool: &SqlitePool) -> Result<String, AppErro
     Err(AppError::InternalError(
         "Failed to allocate a unique portal short code.".into(),
     ))
-}
-
-fn public_access_code<'a>(record: &'a PortalAccessLinkRecord) -> Option<&'a str> {
-    record
-        .short_code
-        .as_deref()
-        .or(record.token_value.as_deref())
-}
-
-fn access_link_summary(record: &PortalAccessLinkRecord) -> PortalAccessLinkSummary {
-    let expired = record.expires_at < Utc::now();
-    PortalAccessLinkSummary {
-        id: record.id.clone(),
-        expires_at: record.expires_at.to_rfc3339(),
-        revoked_at: record.revoked_at.map(|value| value.to_rfc3339()),
-        last_opened_at: record.last_opened_at.map(|value| value.to_rfc3339()),
-        active: record.revoked_at.is_none() && !expired,
-        access_url: None,
-    }
-}
-
-fn customer_access_link_summary(
-    record: &PortalAccessLinkRecord,
-    public_base_url: &str,
-    customer_slug: &str,
-) -> PortalAccessLinkSummary {
-    let mut summary = access_link_summary(record);
-    summary.access_url = public_access_code(record).map(|value| {
-        format!(
-            "{}/u/{}/{}",
-            public_base_url.trim_end_matches('/'),
-            customer_slug,
-            value
-        )
-    });
-    summary
-}
-
-fn assignment_access_url(
-    public_base_url: &str,
-    customer_slug: &str,
-    short_code: &str,
-    tour_slug: &str,
-) -> String {
-    format!(
-        "{}/u/{}/{}/tour/{}",
-        public_base_url.trim_end_matches('/'),
-        customer_slug,
-        short_code,
-        tour_slug
-    )
-}
-
-fn assignment_effective_expiry(
-    assignment: &PortalCustomerTourAssignmentRecord,
-    recipient_expiry: DateTime<Utc>,
-) -> DateTime<Utc> {
-    assignment
-        .expires_at_override
-        .unwrap_or(recipient_expiry)
-}
-
-fn assignment_is_active(
-    assignment: &PortalCustomerTourAssignmentRecord,
-    recipient_expiry: DateTime<Utc>,
-) -> bool {
-    assignment.status == "active"
-        && assignment.revoked_at.is_none()
-        && assignment_effective_expiry(assignment, recipient_expiry) > Utc::now()
-}
-
-fn customer_tour_assignment_view(
-    assignment: &PortalCustomerTourAssignmentRecord,
-    customer_slug: &str,
-    tour: &PortalLibraryTour,
-    recipient_expiry: DateTime<Utc>,
-    public_base_url: &str,
-) -> PortalCustomerTourAssignmentView {
-    PortalCustomerTourAssignmentView {
-        assignment_id: assignment.id.clone(),
-        tour: PortalAssignmentTourSummary {
-            id: tour.id.clone(),
-            slug: tour.slug.clone(),
-            title: tour.title.clone(),
-            status: tour.status.clone(),
-        },
-        short_code: assignment.short_code.clone(),
-        status: assignment.status.clone(),
-        effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
-        expires_at_override: assignment
-            .expires_at_override
-            .map(|value| value.to_rfc3339()),
-        inherited_from_recipient: assignment.expires_at_override.is_none(),
-        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
-        revoked_reason: assignment.revoked_reason.clone(),
-        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
-        open_count: assignment.open_count,
-        access_url: assignment
-            .short_code
-            .as_ref()
-            .map(|short_code| assignment_access_url(public_base_url, customer_slug, short_code, &tour.slug)),
-    }
-}
-
-fn tour_recipient_assignment_view(
-    assignment: &PortalCustomerTourAssignmentRecord,
-    customer: &PortalCustomer,
-    tour_slug: &str,
-    recipient_expiry: DateTime<Utc>,
-    public_base_url: &str,
-) -> PortalTourRecipientAssignmentView {
-    PortalTourRecipientAssignmentView {
-        assignment_id: assignment.id.clone(),
-        customer: PortalAssignmentCustomerSummary {
-            id: customer.id.clone(),
-            slug: customer.slug.clone(),
-            display_name: customer.display_name.clone(),
-            recipient_type: customer.recipient_type.clone(),
-        },
-        short_code: assignment.short_code.clone(),
-        status: assignment.status.clone(),
-        effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
-        expires_at_override: assignment
-            .expires_at_override
-            .map(|value| value.to_rfc3339()),
-        inherited_from_recipient: assignment.expires_at_override.is_none(),
-        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
-        revoked_reason: assignment.revoked_reason.clone(),
-        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
-        open_count: assignment.open_count,
-        access_url: assignment
-            .short_code
-            .as_ref()
-            .map(|short_code| assignment_access_url(public_base_url, &customer.slug, short_code, tour_slug)),
-    }
-}
-
-fn portal_launch_entry_candidates(user_agent: Option<&str>) -> Vec<&'static str> {
-    let mobile_user_agent = user_agent
-        .map(|value| value.to_ascii_lowercase())
-        .map(|value| {
-            value.contains("android")
-                || value.contains("iphone")
-                || value.contains("ipad")
-                || value.contains("mobile")
-        })
-        .unwrap_or(false);
-
-    if mobile_user_agent {
-        vec![
-            "tour_2k/index.html",
-            "tour_hd/index.html",
-            "tour_4k/index.html",
-            "index.html",
-        ]
-    } else {
-        vec![
-            "tour_4k/index.html",
-            "tour_2k/index.html",
-            "tour_hd/index.html",
-            "index.html",
-        ]
-    }
-}
-
-fn inject_base_href(document: String, base_href: &str) -> String {
-    if document.contains("<base ") || document.contains("<base href=") {
-        return document;
-    }
-
-    let lower = document.to_ascii_lowercase();
-    let base_tag = format!(r#"<base href="{}">"#, base_href);
-
-    if let Some(index) = lower.find("<head>") {
-        let insert_at = index + "<head>".len();
-        let mut output = String::with_capacity(document.len() + base_tag.len());
-        output.push_str(&document[..insert_at]);
-        output.push_str(&base_tag);
-        output.push_str(&document[insert_at..]);
-        output
-    } else {
-        format!("{}{}", base_tag, document)
-    }
-}
-
-fn boost_portal_launch_branding(document: String) -> String {
-    document
-        .replace(
-            "const LOGO_AREA_RATIO = 0.008;",
-            "const LOGO_AREA_RATIO = 0.012;",
-        )
-        .replace(
-            "const LOGO_WIDTH_CAP_RATIO = 0.13;",
-            "const LOGO_WIDTH_CAP_RATIO = 0.17;",
-        )
-        .replace(
-            "const LOGO_HEIGHT_CAP_RATIO = 0.075;",
-            "const LOGO_HEIGHT_CAP_RATIO = 0.095;",
-        )
-        .replace(
-            "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.35;",
-            "const LOGO_PORTRAIT_AREA_MULTIPLIER = 1.55;",
-        )
-        .replace(
-            "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.18;",
-            "const LOGO_PORTRAIT_WIDTH_CAP_RATIO = 0.22;",
-        )
-        .replace(
-            "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.10;",
-            "const LOGO_PORTRAIT_HEIGHT_CAP_RATIO = 0.12;",
-        )
-}
-
-fn dedupe_ids(ids: Vec<String>) -> Vec<String> {
-    let mut deduped = Vec::with_capacity(ids.len());
-    for id in ids {
-        if !deduped.iter().any(|existing| existing == &id) {
-            deduped.push(id);
-        }
-    }
-    deduped
 }
 
 async fn validate_existing_customer_ids(
@@ -774,37 +512,6 @@ async fn validate_existing_tour_ids(
     }
 
     Ok(())
-}
-
-fn admin_access_link_summary(
-    record: &PortalAccessLinkRecord,
-    public_base_url: &str,
-    customer_slug: &str,
-) -> PortalAdminAccessLinkSummary {
-    let summary = access_link_summary(record);
-    PortalAdminAccessLinkSummary {
-        id: summary.id,
-        expires_at: summary.expires_at,
-        revoked_at: summary.revoked_at,
-        last_opened_at: summary.last_opened_at,
-        active: summary.active,
-        access_url: public_access_code(record).map(|value| {
-            format!(
-                "{}/u/{}/{}",
-                public_base_url.trim_end_matches('/'),
-                customer_slug,
-                value
-            )
-        }),
-    }
-}
-
-fn customer_public(customer: &PortalCustomer) -> PortalCustomerPublic {
-    PortalCustomerPublic {
-        slug: customer.slug.clone(),
-        display_name: customer.display_name.clone(),
-        is_active: customer.is_active == 1,
-    }
 }
 
 pub fn is_portal_admin(user: &User) -> bool {

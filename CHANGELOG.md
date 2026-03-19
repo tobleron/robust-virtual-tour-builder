@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before dev-task D001 src components
 - Checkpoint before dev-task backend services
 - V5.3.6+21 [FAST]: snapshot portal service split
+- V5.3.6+22 [FAST]: split portal service helpers
 
 ## [5.3.6] - 2026-03-18
 

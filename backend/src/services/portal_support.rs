@@ -1,11 +1,10 @@
 use std::fs;
-use std::path::Path;
 
 use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use crate::models::{AppError, User};
+use crate::models::AppError;
 use crate::services::portal::{
     PortalAccessLinkRecord, PortalAccessLinkSummary, PortalAdminAccessLinkSummary,
     PortalAssignmentCustomerSummary, PortalAssignmentTourSummary, PortalCustomer,
@@ -68,8 +67,12 @@ pub fn access_link_summary(record: &PortalAccessLinkRecord) -> PortalAccessLinkS
     PortalAccessLinkSummary {
         id: record.id.clone(),
         expires_at: record.expires_at.to_rfc3339(),
-        revoked_at: record.revoked_at.map(|value| value.to_rfc3339()),
-        last_opened_at: record.last_opened_at.map(|value| value.to_rfc3339()),
+        revoked_at: record
+            .revoked_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
+        last_opened_at: record
+            .last_opened_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         active: record.revoked_at.is_none() && !expired,
         access_url: None,
     }
@@ -141,11 +144,17 @@ pub fn customer_tour_assignment_view(
         short_code: assignment.short_code.clone(),
         status: assignment.status.clone(),
         effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
-        expires_at_override: assignment.expires_at_override.map(|value| value.to_rfc3339()),
+        expires_at_override: assignment
+            .expires_at_override
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         inherited_from_recipient: assignment.expires_at_override.is_none(),
-        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
+        revoked_at: assignment
+            .revoked_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         revoked_reason: assignment.revoked_reason.clone(),
-        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
+        last_opened_at: assignment
+            .last_opened_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         open_count: assignment.open_count,
         access_url: assignment.short_code.as_ref().map(|short_code| {
             assignment_access_url(public_base_url, customer_slug, short_code, &tour.slug)
@@ -171,11 +180,17 @@ pub fn tour_recipient_assignment_view(
         short_code: assignment.short_code.clone(),
         status: assignment.status.clone(),
         effective_expiry: assignment_effective_expiry(assignment, recipient_expiry).to_rfc3339(),
-        expires_at_override: assignment.expires_at_override.map(|value| value.to_rfc3339()),
+        expires_at_override: assignment
+            .expires_at_override
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         inherited_from_recipient: assignment.expires_at_override.is_none(),
-        revoked_at: assignment.revoked_at.map(|value| value.to_rfc3339()),
+        revoked_at: assignment
+            .revoked_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         revoked_reason: assignment.revoked_reason.clone(),
-        last_opened_at: assignment.last_opened_at.map(|value| value.to_rfc3339()),
+        last_opened_at: assignment
+            .last_opened_at
+            .map(|value: DateTime<Utc>| value.to_rfc3339()),
         open_count: assignment.open_count,
         access_url: assignment.short_code.as_ref().map(|short_code| {
             assignment_access_url(public_base_url, &customer.slug, short_code, tour_slug)
