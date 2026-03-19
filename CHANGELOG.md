@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Checkpoint before D008 NetworkStatus refactor
+- Split TourTemplateHtmlSupport into data and render modules
 
 ## [5.3.6] - 2026-03-18
 
