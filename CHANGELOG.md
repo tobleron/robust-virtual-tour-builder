@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+53 [FAST]: checkpoint before site frontend refactor
 - V5.3.6+55 [FAST]: split portal site surfaces
 - V5.3.6+56 [FAST]: split tour template html render logic
+- V5.3.6+57 [FAST]: checkpoint before utils frontend refactor
 
 ## [5.3.6] - 2026-03-18
 
