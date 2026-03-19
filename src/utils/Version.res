@@ -5,9 +5,9 @@
  */
 
 let version = "5.3.6"
-let buildNumber = 26
+let buildNumber = 27
 let generatedBuildInfo = "[Development Build]"
-let buildInfo = "[Development Build 26]"
+let buildInfo = "[Development Build 27]"
 
 /**
  * Returns the current application version.
