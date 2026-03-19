@@ -1,14 +1,13 @@
 // @efficiency-role: service-orchestrator
-use sqlx::SqlitePool;
 use chrono::Utc;
+use sqlx::SqlitePool;
 
 use crate::models::AppError;
 use crate::services::portal::{
-    assignment_by_short_code, assignment_from_lookup_row, assignment_by_customer_and_tour,
-    assignment_by_id, current_access_link_for_customer, current_customer_and_access_link_by_slug,
-    ensure_assignment_short_code, PortalAccessRedirect, PortalCustomer,
-    PortalCustomerPublicView, PortalCustomerSessionView, PortalCustomerTourAssignmentRecord,
-    PortalGalleryView, PortalLibraryTour, PortalTourCard, customer_public, validate_slug,
+    assignment_by_short_code, assignment_from_lookup_row, ensure_assignment_short_code,
+    PortalAccessLinkRecord, PortalAccessRedirect, PortalCustomer, PortalCustomerPublicView,
+    PortalCustomerSessionView, PortalCustomerTourAssignmentRecord, PortalGalleryView,
+    PortalTourCard, customer_public, validate_slug,
 };
 use crate::services::portal_assets::ensure_portal_cover_path;
 use crate::services::portal_admin::load_settings;
@@ -17,8 +16,50 @@ use crate::services::portal_support::{
     assignment_effective_expiry, assignment_is_active, customer_access_link_summary, sha256_hex,
 };
 
-const PORTAL_SESSION_KIND_GALLERY: &str = "gallery";
-const PORTAL_SESSION_KIND_ASSIGNMENT: &str = "assignment";
+pub(crate) async fn current_access_link_for_customer(
+    pool: &SqlitePool,
+    customer_id: &str,
+) -> Result<Option<PortalAccessLinkRecord>, AppError> {
+    sqlx::query_as::<_, PortalAccessLinkRecord>(
+        r#"
+        SELECT *
+        FROM portal_access_links
+        WHERE customer_id = ? AND revoked_at IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
+        "#,
+    )
+    .bind(customer_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal access link lookup failed: {}", error))
+    })
+}
+
+pub(crate) async fn current_customer_and_access_link_by_slug(
+    pool: &SqlitePool,
+    slug: &str,
+) -> Result<(PortalCustomer, PortalAccessLinkRecord), AppError> {
+    let normalized_slug = validate_slug(slug)?;
+    let customer =
+        sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
+            .bind(&normalized_slug)
+            .fetch_optional(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal customer lookup failed: {}", error))
+            })?
+            .ok_or_else(|| {
+                AppError::Unauthorized("Portal session is invalid for this customer.".into())
+            })?;
+
+    let access_link = current_access_link_for_customer(pool, &customer.id)
+        .await?
+        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
+
+    Ok((customer, access_link))
+}
 
 #[derive(Debug)]
 enum AccessTokenOutcome {
@@ -211,80 +252,6 @@ pub async fn authenticate_access_token(
             allowed: false,
         }),
     }
-}
-
-pub(crate) async fn load_authorized_portal_tour(
-    pool: &SqlitePool,
-    customer_slug: &str,
-    tour_slug: &str,
-    access_kind: &str,
-    access_ref: &str,
-) -> Result<PortalLibraryTour, AppError> {
-    let normalized_slug = validate_slug(customer_slug)?;
-    let normalized_tour_slug = validate_slug(tour_slug)?;
-    let kind = match access_kind {
-        PORTAL_SESSION_KIND_GALLERY => PORTAL_SESSION_KIND_GALLERY,
-        PORTAL_SESSION_KIND_ASSIGNMENT => PORTAL_SESSION_KIND_ASSIGNMENT,
-        _ => {
-            return Err(AppError::Unauthorized(
-                "Portal access is invalid for this tour.".into(),
-            ));
-        }
-    };
-
-    let (customer, access_link) =
-        current_customer_and_access_link_by_slug(pool, &normalized_slug).await?;
-    if customer.is_active != 1 {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    if access_link.revoked_at.is_some() || access_link.expires_at <= Utc::now() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    let assignment_row = if kind == PORTAL_SESSION_KIND_GALLERY {
-        if access_link.id != access_ref {
-            return Err(AppError::Unauthorized(
-                "Portal session is not valid for this customer.".into(),
-            ));
-        }
-        assignment_by_customer_and_tour(pool, &normalized_slug, &normalized_tour_slug).await?
-    } else {
-        assignment_by_id(pool, access_ref).await?
-    }
-    .ok_or_else(|| AppError::ValidationError("Portal tour not found.".into()))?;
-
-    let (assignment_customer, assignment, tour) = assignment_from_lookup_row(assignment_row);
-    if assignment_customer.id != customer.id || tour.slug != normalized_tour_slug {
-        return Err(AppError::Unauthorized(
-            "Portal session is not valid for this customer.".into(),
-        ));
-    }
-
-    if assignment.status != "active" || assignment.revoked_at.is_some() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    let effective_expiry = assignment_effective_expiry(&assignment, access_link.expires_at);
-    if effective_expiry <= Utc::now() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    if tour.status != "published" {
-        return Err(AppError::Unauthorized(
-            "Portal tour is not currently published.".into(),
-        ));
-    }
-
-    Ok(tour)
 }
 
 pub async fn access_session_for_token(

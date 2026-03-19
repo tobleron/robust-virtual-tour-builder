@@ -134,6 +134,8 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/services/portal_admin.rs](backend/src/services/portal_admin.rs): Portal administrator authentication and settings orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_assets.rs](backend/src/services/portal_assets.rs): Portal launch document serving, asset resolution, and cover packaging orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_codes.rs](backend/src/services/portal_codes.rs): Portal short-code allocation and assignment validation helpers. `#services` `#orchestrator`
+* [backend/src/services/portal_types.rs](backend/src/services/portal_types.rs): Portal domain records, views, and DTO type definitions. `#services` `#types`
+* [backend/src/services/portal_assignment_queries.rs](backend/src/services/portal_assignment_queries.rs): Portal assignment lookup, session, and upsert helper queries. `#services` `#orchestrator`
 * [backend/src/services/portal_assignments.rs](backend/src/services/portal_assignments.rs): Portal assignment lookup and lifecycle orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_customers.rs](backend/src/services/portal_customers.rs): Portal customer lifecycle and access-link orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_views.rs](backend/src/services/portal_views.rs): Portal customer, tour, and assignment view orchestration helpers. `#services` `#orchestrator`

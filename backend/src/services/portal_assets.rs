@@ -11,17 +11,94 @@ use zip::ZipArchive;
 
 use crate::api::utils::validate_path_safe;
 use crate::models::AppError;
-use crate::services::portal::PortalLibraryTour;
+use crate::services::portal::{
+    assignment_by_customer_and_tour, assignment_by_id, assignment_from_lookup_row,
+    current_customer_and_access_link_by_slug, PortalLibraryTour,
+};
 use crate::services::portal_paths::{
     detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,
 };
-use crate::services::portal_sessions::load_authorized_portal_tour;
 use crate::services::portal_support::{
-    boost_portal_launch_branding, inject_base_href, portal_launch_entry_candidates,
+    assignment_effective_expiry, boost_portal_launch_branding, inject_base_href,
+    portal_launch_entry_candidates,
 };
 
 const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
     ["index.html", "tour_4k/index.html", "tour_2k/index.html"];
+
+pub(crate) async fn load_authorized_portal_tour(
+    pool: &SqlitePool,
+    customer_slug: &str,
+    tour_slug: &str,
+    access_kind: &str,
+    access_ref: &str,
+) -> Result<PortalLibraryTour, AppError> {
+    let normalized_slug = crate::services::portal::validate_slug(customer_slug)?;
+    let normalized_tour_slug = crate::services::portal::validate_slug(tour_slug)?;
+    let kind = match access_kind {
+        "gallery" => "gallery",
+        "assignment" => "assignment",
+        _ => {
+            return Err(AppError::Unauthorized(
+                "Portal access is invalid for this tour.".into(),
+            ));
+        }
+    };
+
+    let (customer, access_link) =
+        current_customer_and_access_link_by_slug(pool, &normalized_slug).await?;
+    if customer.is_active != 1 {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    if access_link.revoked_at.is_some() || access_link.expires_at <= chrono::Utc::now() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    let assignment_row = if kind == "gallery" {
+        if access_link.id != access_ref {
+            return Err(AppError::Unauthorized(
+                "Portal session is not valid for this customer.".into(),
+            ));
+        }
+        assignment_by_customer_and_tour(pool, &normalized_slug, &normalized_tour_slug).await?
+    } else {
+        assignment_by_id(pool, access_ref).await?
+    }
+    .ok_or_else(|| AppError::ValidationError("Portal tour not found.".into()))?;
+
+    let (assignment_customer, assignment, tour) = assignment_from_lookup_row(assignment_row);
+    if assignment_customer.id != customer.id || tour.slug != normalized_tour_slug {
+        return Err(AppError::Unauthorized(
+            "Portal session is not valid for this customer.".into(),
+        ));
+    }
+
+    if assignment.status != "active" || assignment.revoked_at.is_some() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    let effective_expiry = assignment_effective_expiry(&assignment, access_link.expires_at);
+    if effective_expiry <= chrono::Utc::now() {
+        return Err(AppError::Unauthorized(
+            "Portal access is expired or inactive.".into(),
+        ));
+    }
+
+    if tour.status != "published" {
+        return Err(AppError::Unauthorized(
+            "Portal tour is not currently published.".into(),
+        ));
+    }
+
+    Ok(tour)
+}
 
 pub async fn load_portal_launch_document(
     pool: &SqlitePool,
