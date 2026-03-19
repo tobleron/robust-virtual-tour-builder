@@ -38,8 +38,9 @@ This project is **open source** under the AGPL v3 license:
 
 🎯 **Creator is open to opportunities in agentic coding!** This project demonstrates production-grade functional architecture, FSM-based state management, and community-driven development.
 
-💼 **Open to roles in:** Agentic Coding, AI Engineering, Full-Stack Development (ReScript/Rust)  
-📧 **Contact:** [YOUR_EMAIL_HERE] | [Your Portfolio/LinkedIn]
+💼 **Open to roles in:** Agentic Coding, AI Engineering, Full-Stack Development (ReScript/Rust)
+📧 **Contact:** arto.eg@gmail.com | +20 100 568 4094 | [Add your LinkedIn/Portfolio URL]
+🌐 **Website:** www.robust-vtb.com (portal system - main marketing site coming soon)
 
 ---
 

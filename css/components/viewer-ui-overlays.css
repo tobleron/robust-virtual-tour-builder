@@ -216,66 +216,28 @@ body.viewer-force-fallback #viewer-utility-bar {
     gap: 8px !important;
 }
 
-body.viewer-state-tablet #viewer-utility-bar button,
-body.viewer-state-2k #viewer-utility-bar button,
-body.viewer-state-portrait #viewer-utility-bar button,
-body.viewer-force-fallback #viewer-utility-bar button {
+body.viewer-state-tablet .viewer-rail--utility .viewer-control--utility,
+body.viewer-state-2k .viewer-rail--utility .viewer-control--utility,
+body.viewer-state-portrait .viewer-rail--utility .viewer-control--utility,
+body.viewer-force-fallback .viewer-rail--utility .viewer-control--utility {
     width: 24px !important;
     height: 24px !important;
     min-width: 24px !important;
     min-height: 24px !important;
 }
 
-body.viewer-state-tablet #viewer-utility-bar button svg,
-body.viewer-state-2k #viewer-utility-bar button svg,
-body.viewer-state-portrait #viewer-utility-bar button svg,
-body.viewer-force-fallback #viewer-utility-bar button svg {
+body.viewer-state-tablet .viewer-rail--utility .viewer-control--utility svg,
+body.viewer-state-2k .viewer-rail--utility .viewer-control--utility svg,
+body.viewer-state-portrait .viewer-rail--utility .viewer-control--utility svg,
+body.viewer-force-fallback .viewer-rail--utility .viewer-control--utility svg {
     width: 58% !important;
     height: 58% !important;
 }
 
-#viewer-utility-bar button:disabled {
-    background-color: rgba(14, 45, 82, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: rgba(255, 255, 255, 0.92) !important;
-    box-shadow: none !important;
-    opacity: 0.82 !important;
-}
-
-#viewer-utility-bar button:disabled:hover {
-    transform: none !important;
-    background-color: rgba(14, 45, 82, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-#viewer-utility-bar button:disabled svg {
-    color: rgba(255, 255, 255, 0.92) !important;
-    opacity: 0.9;
-}
-
-#viewer-label-menu-trigger:disabled {
-    background-color: rgba(14, 45, 82, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: rgba(255, 255, 255, 0.92) !important;
-    box-shadow: none !important;
-    opacity: 0.82 !important;
-}
-
-#viewer-label-menu-trigger:disabled:hover {
-    transform: none !important;
-    background-color: rgba(14, 45, 82, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-#viewer-label-menu-trigger:disabled svg {
-    color: rgba(255, 255, 255, 0.92) !important;
-    opacity: 0.9;
-}
-
-body.viewer-state-tablet #viewer-floor-nav button,
-body.viewer-state-2k #viewer-floor-nav button,
-body.viewer-state-portrait #viewer-floor-nav button,
-body.viewer-force-fallback #viewer-floor-nav button {
+body.viewer-state-tablet .viewer-rail--floor .viewer-control--floor,
+body.viewer-state-2k .viewer-rail--floor .viewer-control--floor,
+body.viewer-state-portrait .viewer-rail--floor .viewer-control--floor,
+body.viewer-force-fallback .viewer-rail--floor .viewer-control--floor {
     width: 24px !important;
     height: 24px !important;
     min-width: 24px !important;
@@ -283,17 +245,17 @@ body.viewer-force-fallback #viewer-floor-nav button {
     font-size: 9.36px !important;
 }
 
-body.viewer-state-tablet #viewer-floor-nav button sup,
-body.viewer-state-2k #viewer-floor-nav button sup,
-body.viewer-state-portrait #viewer-floor-nav button sup,
-body.viewer-force-fallback #viewer-floor-nav button sup {
+body.viewer-state-tablet .viewer-rail--floor .viewer-control--floor sup,
+body.viewer-state-2k .viewer-rail--floor .viewer-control--floor sup,
+body.viewer-state-portrait .viewer-rail--floor .viewer-control--floor sup,
+body.viewer-force-fallback .viewer-rail--floor .viewer-control--floor sup {
     font-size: 5.8px !important;
 }
 
-body.viewer-state-tablet #viewer-floor-nav button .floor-combo .floor-suffix,
-body.viewer-state-2k #viewer-floor-nav button .floor-combo .floor-suffix,
-body.viewer-state-portrait #viewer-floor-nav button .floor-combo .floor-suffix,
-body.viewer-force-fallback #viewer-floor-nav button .floor-combo .floor-suffix {
+body.viewer-state-tablet .viewer-rail--floor .viewer-control--floor .floor-combo .floor-suffix,
+body.viewer-state-2k .viewer-rail--floor .viewer-control--floor .floor-combo .floor-suffix,
+body.viewer-state-portrait .viewer-rail--floor .viewer-control--floor .floor-combo .floor-suffix,
+body.viewer-force-fallback .viewer-rail--floor .viewer-control--floor .floor-combo .floor-suffix {
     top: -0.40em;
     right: -0.46em;
     font-size: 0.52em !important;
@@ -340,19 +302,19 @@ body.viewer-force-fallback #viewer-logo svg {
         gap: 8px !important;
     }
 
-    #viewer-utility-bar button {
+    .viewer-rail--utility .viewer-control--utility {
         width: 24px !important;
         height: 24px !important;
         min-width: 24px !important;
         min-height: 24px !important;
     }
 
-    #viewer-utility-bar button svg {
+    .viewer-rail--utility .viewer-control--utility svg {
         width: 58% !important;
         height: 58% !important;
     }
 
-    #viewer-floor-nav button {
+    .viewer-rail--floor .viewer-control--floor {
         width: 24px !important;
         height: 24px !important;
         min-width: 24px !important;
@@ -360,11 +322,11 @@ body.viewer-force-fallback #viewer-logo svg {
         font-size: 9.36px !important;
     }
 
-    #viewer-floor-nav button sup {
+    .viewer-rail--floor .viewer-control--floor sup {
         font-size: 5.8px !important;
     }
 
-    #viewer-floor-nav button .floor-combo .floor-suffix {
+    .viewer-rail--floor .viewer-control--floor .floor-combo .floor-suffix {
         top: -0.40em;
         right: -0.46em;
         font-size: 0.52em !important;

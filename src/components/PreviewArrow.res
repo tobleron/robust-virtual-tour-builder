@@ -94,31 +94,18 @@ let make = (
     None
   }, [state.structuralRevision])
 
-  let centerBaseColor = if isMovingThis {
-    "bg-yellow-600"
+  let centerStateClass = if isMovingThis {
+    "is-moving"
   } else if localIsAF {
-    "bg-[#059669]"
+    "is-autoforward"
   } else {
-    "bg-[#ea580c]"
+    "is-manual"
   }
 
-  let centerHoverColor = if isMovingThis {
-    "hover:bg-yellow-500"
-  } else if localIsAF {
-    "hover:bg-[#10b981]"
+  let rightStateClass = if !localIsAF {
+    "is-autoforward-target"
   } else {
-    "hover:bg-[#f97316]"
-  }
-
-  let rightBaseColor = if !localIsAF {
-    "bg-[#059669]"
-  } else {
-    "bg-[#ea580c]"
-  }
-  let rightHoverColor = if !localIsAF {
-    "hover:bg-[#10b981]"
-  } else {
-    "hover:bg-[#f97316]"
+    "is-manual-target"
   }
 
   let swapClass = isSwapping ? "animate-swap-icon" : ""
@@ -141,7 +128,7 @@ let make = (
     >
       // CENTER BUTTON
       <div
-        className={`absolute inset-0 ${centerBaseColor} ${centerHoverColor} rounded-md shadow-lg flex items-center justify-center z-20 transition-colors overflow-hidden ${swapClass} ${flickerMove
+        className={`hs-hotspot-control hs-hotspot-control--center absolute inset-0 rounded-md flex items-center justify-center z-20 overflow-hidden ${centerStateClass} ${swapClass} ${flickerMove
             ? "animate-flicker-yellow-flat"
             : ""} ${isMovingThis ? "pointer-events-none" : "cursor-pointer"}`}
         onClick={e =>
@@ -165,12 +152,12 @@ let make = (
         ? <>
             // RIGHT BUTTON (Toggle)
             <div
-              className={`absolute inset-0 ${rightBaseColor} ${rightHoverColor} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--toggle absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[110%]
-                         ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
+                         ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
               onClick={e =>
                 PreviewArrowSupport.handleRightClick(
                   e,
@@ -188,13 +175,11 @@ let make = (
             </div>
             // BOTTOM BUTTON (Move)
             <div
-              className={`absolute inset-0 ${isMovingThis
-                  ? "bg-yellow-500"
-                  : "bg-yellow-600 hover:bg-yellow-500"} rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--move absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[110%]`}
+                         group-hover:opacity-100 group-hover:translate-y-[110%] ${isMovingThis ? "is-moving" : ""}`}
               onClick={e =>
                 PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}
               title={isMovingThis ? "Cancel Move" : "Move Hotspot"}
@@ -205,7 +190,7 @@ let make = (
             </div>
             // RETARGET BUTTON (#)
             <div
-              className={`absolute inset-0 bg-[#003da5] hover:bg-[#0046ca] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--retarget absolute inset-0 rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
@@ -219,7 +204,7 @@ let make = (
             </div>
             // LEFT BUTTON (Delete)
             <div
-              className={`absolute inset-0 bg-[#ea580c] rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer hover:bg-red-600
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--delete absolute inset-0 rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer
                          transition-all duration-300 ease-out 
                          delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-x-0

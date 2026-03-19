@@ -122,12 +122,11 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
   }
 
   let utilBarClass =
-    "absolute top-5 left-5 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
-      isTeasing
-    ) {
-      "hidden"
+    "viewer-rail viewer-rail--utility" ++
+    if isTeasing {
+      " is-hidden"
     } else if !scenesLoaded || isSystemLocked || isMovingHotspot {
-      "grayscale opacity-70 pointer-events-none"
+      " is-inactive"
     } else {
       ""
     }
@@ -144,22 +143,20 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
     >
       <Shadcn.Button
         size="icon"
-        variant={if !scenesLoaded {
-          "secondary"
-        } else if isLinking {
-          "accent"
-        } else {
-          "destructive"
-        }}
-        className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer font-semibold border border-transparent hover:border-[#0e2d52]" ++ if (
-          !scenesLoaded
-        ) {
-          " disabled:opacity-100"
-        } else if (simActive || isTeasing) && !isLinking {
-          " opacity-20 pointer-events-none"
-        } else {
-          ""
-        }}
+        variant="ghost"
+        className={
+          "viewer-control viewer-control--orb viewer-control--utility viewer-control--link " ++
+          if isLinking {
+            "viewer-control--accent"
+          } else {
+            "viewer-control--danger"
+          } ++
+          if (simActive || isTeasing) && !isLinking {
+            " viewer-control--dimmed"
+          } else {
+            ""
+          }
+        }
         onClick={handleFabClick}
         disabled={!scenesLoaded || isSystemLocked || (!isLinking && !canEditHotspots)}
         ariaLabel={if isLinking {
@@ -194,20 +191,15 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
           >
             <Shadcn.Button
               size="icon"
-              variant={if !scenesLoaded {
-                "secondary"
-              } else {
-                "destructive"
-              }}
-              className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer border border-transparent hover:border-[#0e2d52]" ++ if (
-                !scenesLoaded
-              ) {
-                " disabled:opacity-100"
-              } else if isTeasing {
-                " opacity-20 pointer-events-none"
-              } else {
-                ""
-              }}
+              variant="ghost"
+              className={
+                "viewer-control viewer-control--orb viewer-control--utility viewer-control--preview viewer-control--danger" ++
+                if isTeasing {
+                  " viewer-control--dimmed"
+                } else {
+                  ""
+                }
+              }
               onClick={handleSimClick}
               disabled={!scenesLoaded ||
               isSystemLocked ||

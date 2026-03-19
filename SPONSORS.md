@@ -40,7 +40,12 @@ Perfect for individual brokers who want to say thanks.
 - Name listed in SPONSORS.md (optional)
 - Good karma for helping keep this project free
 
-[Donate via PayPal] [Donate via Stripe] [Donate via GitHub Sponsors]
+**Setup:** To enable donations, create accounts at:
+- [GitHub Sponsors](https://github.com/sponsors) (recommended for open source)
+- [PayPal](https://www.paypal.com/buttons) (for one-time donations)
+- [Stripe](https://stripe.com/payment-links) (for credit card payments)
+
+Once set up, replace these links in SPONSORS.md with your actual donation URLs.
 
 ---
 
@@ -56,7 +61,7 @@ For individuals who regularly use this software and want to ensure its continued
 - Early access to beta features
 - Vote on feature priorities
 
-[Become a Supporter via GitHub Sponsors] [Become a Supporter via Patreon]
+*[Link will be added once GitHub Sponsors/Patreon is set up]*
 
 ---
 
@@ -73,7 +78,7 @@ For brokerages and businesses that benefit from this software and want to give b
 - Public recognition on website
 - Social media shout-outs
 
-[Become a Patron via GitHub Sponsors] [Contact for Custom Arrangement]
+*[Contact arto.eg@gmail.com | +20 100 568 4094 for Patron sponsorship]*
 
 ---
 
@@ -91,7 +96,7 @@ For organizations that want to make a significant impact on the project's future
 - Speaking opportunities at user meetups
 - Press release announcement
 
-[Contact for Corporate Sponsorship]
+*[Contact arto.eg@gmail.com | +20 100 568 4094 for corporate sponsorship]*
 
 ---
 
@@ -249,13 +254,12 @@ Beyond sponsorship, we offer partnership opportunities for organizations aligned
 
 **Questions about sponsorship?**
 
-- Email: sponsorship@[YOUR_DOMAIN_HERE]
-- Website: [YOUR_WEBSITE_HERE]/sponsor
-- Twitter: @[YOUR_TWITTER]
+- Email: arto.eg@gmail.com | +20 100 568 4094
+- Website: https://www.robust-vtb.com/sponsor (coming soon)
 
 **Ready to sponsor?**
 
-Choose your tier above and click the donation link, or contact us for custom arrangements.
+Choose your tier above and click the donation link, or contact arto.eg@gmail.com | +20 100 568 4094 for custom arrangements.
 
 ---
 

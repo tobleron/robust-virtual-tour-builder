@@ -6,6 +6,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
   let dispatch = AppContext.useAppDispatch()
   let sceneSlice = AppContext.useSceneSlice()
   let isSystemLocked = Capability.useIsSystemLocked()
+  let canMutateProject = Capability.useCapability(CanMutateProject)
 
   let currentFloor = if activeIndex >= 0 {
     switch Belt.Array.get(sceneSlice.scenes, activeIndex) {
@@ -40,10 +41,10 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
   }
 
   let floorNavClass =
-    "absolute bottom-5 left-5 z-[200] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
-      (!scenesLoaded && !simActive) || isSystemLocked
+    "viewer-rail viewer-rail--floor" ++ if (
+      (!scenesLoaded && !simActive) || isSystemLocked || !canMutateProject
     ) {
-      " grayscale opacity-70 pointer-events-none"
+      " is-inactive"
     } else {
       ""
     }
@@ -53,9 +54,9 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
     ->Belt.Array.map(f => {
       let isSelected = (scenesLoaded || simActive) && f.id == currentFloor
       let buttonStateClass = if isSelected {
-        "state-active border-2 border-[#ea580c] bg-[#ea580c] text-white hover:bg-[#ea580c] hover:text-white"
+        "viewer-control--active"
       } else {
-        "state-idle border border-white/20 hover:border-[#ea580c] bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
+        "viewer-control--idle"
       }
 
       <Tooltip key={f.id ++ keySuffix} content={f.label} alignment=#Right disabled={isLinking}>
@@ -63,10 +64,10 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false
           <Shadcn.Button
             size="icon"
             variant="ghost"
-            className={"w-8 h-8 min-w-8 min-h-8 rounded-full cursor-pointer text-[15px] font-medium opacity-100 transition-all " ++
+            className={"viewer-control viewer-control--orb viewer-control--floor " ++
             buttonStateClass}
             onClick={e => handleFloorClick(f.id, f.label, e)}
-            disabled={isLinking || isSystemLocked}
+            disabled={isLinking || isSystemLocked || !canMutateProject}
           >
             <span className="floor-combo">
               <span className="floor-main"> {React.string(f.short)} </span>

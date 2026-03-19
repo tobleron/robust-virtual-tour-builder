@@ -1,122 +1,146 @@
 /* =========================================
-   Refactor: ViewerUI Specific Classes
+   Viewer Control System
    ========================================= */
 
-/* --- Utility Bar Buttons --- */
-/* Add Link Button */
-.v-util-btn-add-link.state-empty {
-    background-color: var(--slate-500);
-    color: white;
+.viewer-rail {
+    position: absolute;
+    display: flex;
+    z-index: 5002;
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-.v-util-btn-add-link.state-linking {
-    background-color: var(--accent);
-    color: black;
+.viewer-rail--utility {
+    top: 20px;
+    left: 20px;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.v-util-btn-add-link.state-idle {
+.viewer-rail--floor {
+    bottom: 20px;
+    left: 20px;
+    z-index: 200;
+    flex-direction: column-reverse;
+    gap: 8px;
+    align-items: center;
+}
+
+.viewer-rail.is-hidden {
+    display: none;
+}
+
+.viewer-rail.is-inactive {
+    opacity: 0.72;
+    filter: grayscale(1);
+    pointer-events: none;
+}
+
+.viewer-control {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    line-height: 1;
+    color: #ffffff;
+    transition:
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.viewer-control--orb {
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.95);
+}
+
+.viewer-control--orb:hover:not(:disabled):not(.viewer-control--dimmed) {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.95);
+}
+
+.viewer-control--utility {
+    font-weight: 700;
+}
+
+.viewer-control--utility.viewer-control--danger {
     background-color: var(--danger);
-    color: white;
+    color: #ffffff;
 }
 
-.v-util-btn-add-link-icon {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-/* Semantic Hover States */
-.v-util-btn-add-link.state-idle:hover {
+.viewer-control--utility.viewer-control--danger:hover:not(:disabled):not(.viewer-control--dimmed) {
     background-color: var(--danger-light);
 }
 
-.v-util-btn-add-link.state-linking:hover {
+.viewer-control--utility.viewer-control--accent {
+    background-color: var(--accent);
+    color: #000000;
+}
+
+.viewer-control--utility.viewer-control--accent:hover:not(:disabled) {
     background-color: var(--accent-light);
 }
 
-.v-util-btn-add-link.state-empty:hover {
-    background-color: var(--slate-500);
-    cursor: not-allowed;
-}
-
-/* Auto-Pilot Button */
-.v-util-btn-autopilot.state-empty {
-    background-color: var(--slate-500);
-}
-
-.v-util-btn-autopilot.state-active {
-    background-color: var(--danger);
-}
-
-.v-util-btn-autopilot.state-idle {
-    background-color: var(--danger);
-}
-
-.v-util-btn-autopilot.state-active:hover {
-    background-color: var(--danger-light);
-}
-
-.v-util-btn-autopilot.state-idle:hover {
-    background-color: var(--danger-light);
-}
-
-.v-util-btn-icon {
-    font-size: 18px;
-    color: white;
-}
-
-/* Category Button */
-.v-util-btn-category.state-empty {
-    background-color: var(--slate-500);
-}
-
-.v-util-btn-category.cat-outdoor {
-    background-color: var(--danger);
-}
-
-.v-util-btn-category.cat-indoor {
-    background-color: var(--danger);
-}
-
-.v-util-btn-category.cat-none {
-    background-color: var(--danger);
-}
-
-.v-util-btn-category.cat-outdoor:hover {
-    background-color: var(--danger-light);
-}
-
-.v-util-btn-category.cat-indoor:hover {
-    background-color: var(--danger-light);
-}
-
-.v-util-btn-category.cat-none:hover {
-    background-color: var(--danger-light);
-}
-
-/* Label Button */
-.v-util-btn-label.state-empty {
-    background-color: var(--slate-500);
-}
-
-.v-util-btn-label.state-loaded {
-    background-color: var(--danger);
-}
-
-.v-util-btn-label.state-loaded:hover {
-    background-color: var(--danger-light);
-}
-
-/* Global Disabled State for Buttons (Used during Auto-Pilot for non-active buttons) */
-.v-util-btn.state-disabled {
-    opacity: 0.6;
+.viewer-control--utility.viewer-control--dimmed {
+    opacity: 0.2;
     pointer-events: none;
-    cursor: not-allowed;
-    filter: grayscale(1);
-    transition: all 0.3s ease;
 }
 
-/* HUD Labels */
-/* Moved dynamic logic to CSS classes if possible, but opacity/transform is best handled by conditional classes already present */
+.viewer-control--utility:disabled {
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: none !important;
+    opacity: 0.82 !important;
+    transform: none !important;
+}
+
+.viewer-control--utility:disabled:hover {
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.viewer-control--utility:disabled svg {
+    color: rgba(255, 255, 255, 0.92) !important;
+    opacity: 0.9;
+}
+
+.viewer-control--floor {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 1;
+}
+
+.viewer-control--floor.viewer-control--active {
+    border: 2px solid #ea580c;
+    background: #ea580c;
+    color: #ffffff;
+}
+
+.viewer-control--floor.viewer-control--idle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(14, 45, 82, 0.8);
+    color: #ffffff;
+}
+
+.viewer-control--floor.viewer-control--idle:hover:not(:disabled) {
+    border-color: #ea580c;
+    background: rgba(14, 45, 82, 0.92);
+    color: #ffffff;
+}
+
+.viewer-control--floor.viewer-control--active:hover:not(:disabled) {
+    background: #ea580c;
+    color: #ffffff;
+}
 
 /* --- Quality Badges --- */
 .quality-badge {
@@ -208,6 +232,82 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.88);
 }
 
+.hs-hotspot-control {
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.hs-hotspot-control--center.is-manual {
+    background: #ea580c;
+}
+
+.hs-hotspot-control--center.is-manual:hover {
+    background: #f97316;
+}
+
+.hs-hotspot-control--center.is-autoforward {
+    background: #059669;
+}
+
+.hs-hotspot-control--center.is-autoforward:hover {
+    background: #10b981;
+}
+
+.hs-hotspot-control--center.is-moving,
+.hs-hotspot-control--move.is-moving {
+    background: #eab308;
+}
+
+.hs-hotspot-control--center.is-moving:hover,
+.hs-hotspot-control--move.is-moving:hover {
+    background: #facc15;
+}
+
+.hs-hotspot-control--toggle.is-autoforward-target {
+    background: #059669;
+}
+
+.hs-hotspot-control--toggle.is-autoforward-target:hover {
+    background: #10b981;
+}
+
+.hs-hotspot-control--toggle.is-manual-target {
+    background: #ea580c;
+}
+
+.hs-hotspot-control--toggle.is-manual-target:hover {
+    background: #f97316;
+}
+
+.hs-hotspot-control--move {
+    background: #ca8a04;
+}
+
+.hs-hotspot-control--move:hover {
+    background: #eab308;
+}
+
+.hs-hotspot-control--retarget {
+    background: #003da5;
+}
+
+.hs-hotspot-control--retarget:hover {
+    background: #0046ca;
+}
+
+.hs-hotspot-control--delete {
+    background: #ea580c;
+}
+
+.hs-hotspot-control--delete:hover {
+    background: #dc2626;
+}
+
 .hs-hotspot-sequence-badge {
     position: absolute;
     top: -26px;
@@ -262,26 +362,11 @@
     line-height: 1;
 }
 
-/* Desktop/default controls */
-#viewer-floor-nav button {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    line-height: 1;
-    font-size: 15px;
-}
-
-#viewer-floor-nav button sup {
+.viewer-control--floor sup {
     font-size: 10px !important;
 }
 
-#viewer-floor-nav button .floor-combo .floor-suffix {
+.viewer-control--floor .floor-combo .floor-suffix {
     position: absolute;
     top: -0.42em;
     right: -0.52em;

@@ -86,7 +86,7 @@ Requirement: None (unless you modify and distribute)
 | **SaaS/Platform** | Custom | Product integration |
 
 📄 [View Commercial License Terms](../LICENSE_COMMERCIAL)  
-📧 **Contact:** licensing@[YOUR_DOMAIN_HERE]
+📧 **Contact:** licensing@robust-vtb.com
 
 ---
 
@@ -206,7 +206,7 @@ Realized you've been using it without proper license?
 ### Reporting Violations
 
 Suspect commercial abuse? Report anonymously:
-- Email: compliance@[YOUR_DOMAIN_HERE]
+- Email: compliance@robust-vtb.com
 - Include: URL, company name, description of use
 
 ---
@@ -225,7 +225,7 @@ Suspect commercial abuse? Report anonymously:
 - Non-commercial use only
 - Annual verification
 
-📧 **Contact:** education@[YOUR_DOMAIN_HERE]
+📧 **Contact:** education@robust-vtb.com
 
 ### Non-Profit Licensing
 
@@ -238,7 +238,7 @@ Suspect commercial abuse? Report anonymously:
 - Small Brokerage: $249/year (50% off)
 - Enterprise: $999/year (50% off)
 
-📧 **Contact:** nonprofit@[YOUR_DOMAIN_HERE]
+📧 **Contact:** nonprofit@robust-vtb.com
 
 ### Government Licensing
 
@@ -246,7 +246,7 @@ Special pricing for government entities:
 - Federal, state, local agencies
 - Government contractors
 
-📧 **Contact:** government@[YOUR_DOMAIN_HERE]
+📧 **Contact:** government@robust-vtb.com
 
 ---
 
@@ -281,9 +281,9 @@ Are you an individual (not a company)?
 
 ### Licensing Questions
 
-- **Email:** licensing@[YOUR_DOMAIN_HERE]
-- **Sales:** sales@[YOUR_DOMAIN_HERE]
-- **Support:** support@[YOUR_DOMAIN_HERE]
+- **Email:** arto.eg@gmail.com | +20 100 568 4094
+- **Sales:** arto.eg@gmail.com | +20 100 568 4094
+- **Support:** arto.eg@gmail.com | +20 100 568 4094
 
 ### Response Times
 
@@ -294,8 +294,8 @@ Are you an individual (not a company)?
 
 ### Business Hours
 
-- **Sales:** Monday-Friday, 9 AM - 6 PM [YOUR_TIMEZONE]
-- **Support:** Monday-Friday, 8 AM - 8 PM [YOUR_TIMEZONE]
+- **Sales:** Monday-Friday, 9 AM - 6 PM PST
+- **Support:** Monday-Friday, 8 AM - 8 PM PST
 - **Enterprise Support:** 24/7/365
 
 ---
