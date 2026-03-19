@@ -408,6 +408,10 @@ CI job
 **Purpose:** Static marketing/dashboard chrome and offline asset caching.
 - [src/site/PageFramework.js], [src/site/PageFrameworkShared.js], [src/site/PageFrameworkAuth.js], [src/site/PageFrameworkDashboard.js], [src/site/PageFrameworkBuilder.js], [src/site/PageFrameworkContent.js], and [src/site/PageFrameworkRoutes.js]
 
+### Portal Delivery & Management
+**Purpose:** Portal frontend bootstrap, backend binary startup, and portal-specific access/assignment management.
+- [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [src/portal-index.js]
+
 ---
 
 ### 📂 src/hooks
@@ -419,15 +423,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src/bin
-- `[backend/src/bin/portal.rs]`
-
-### 📂 backend/src/services
-- `[backend/src/services/portal.rs]`
-
-### 📂 src
-- `[src/portal-index.js]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

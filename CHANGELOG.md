@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before D015 MAP update
 - Add dist-portal to MAP tree
 - Classify portal modules in MAP
+- Integrate portal modules into DATA_FLOW
 
 ## [5.3.6] - 2026-03-18
 
