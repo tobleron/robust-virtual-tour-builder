@@ -1,3 +1,4 @@
+// @efficiency-role: util-pure
 use std::path::{Path, PathBuf};
 
 use crate::models::AppError;

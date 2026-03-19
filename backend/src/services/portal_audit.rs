@@ -1,3 +1,4 @@
+// @efficiency-role: service-orchestrator
 use sqlx::{SqlitePool, Transaction};
 use uuid::Uuid;
 
