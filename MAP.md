@@ -12,6 +12,7 @@
 ├── [scripts/](scripts/) – Build/test/dev automation.
 ├── [tasks/](tasks/) – Task workflow files.
 ├── [dist/](dist/) – Build artifacts.
+├── [dist-portal/](dist-portal/) – Portal build artifacts.
 ├── [data/](data/) – Supporting datasets.
 ├── [cache/](cache/) – Generated cache data.
 ├── [node_modules/](node_modules/) – Installed dependencies.
