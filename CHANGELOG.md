@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+28 [FAST]: classify portal assets in map and flows
 - V5.3.6+29 [FAST]: checkpoint before portal package split
 - V5.3.6+30 [FAST]: split portal package helpers
+- V5.3.6+31 [FAST]: checkpoint before portal session split
 
 ## [5.3.6] - 2026-03-18
 
