@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split portal customer lifecycle
 - Checkpoint before portal assignment split
 - Checkpoint before portal assignments classification
+- Split portal assignments lifecycle
 
 ## [5.3.6] - 2026-03-18
 
