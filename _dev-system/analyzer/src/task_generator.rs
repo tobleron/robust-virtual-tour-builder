@@ -746,19 +746,36 @@ fn write_architectural_task(
 
     file.write_all(
         format!(
-            "# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n",
+            "# Task {}: {}\n\n## Objective\n",
             id,
-            spec.key.replace("_", " "),
-            spec.objective
+            spec.key.replace("_", " ")
         )
         .as_bytes(),
     )?;
 
+    let objective_paragraph = spec
+        .objective
+        .lines()
+        .map(|line| line.trim())
+        .filter(|line| !line.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    file.write_all(format!("{}\n\n", objective_paragraph).as_bytes())?;
+
+    file.write_all("\n## Work Items\n".as_bytes())?;
+
     for line in &spec.lines {
-        let formatted = if line.trim().starts_with('#') {
-            format!("{}\n", line)
+        let trimmed = line.trim();
+        let formatted = if trimmed.is_empty() {
+            "\n".to_string()
+        } else if trimmed.starts_with('#') || trimmed.starts_with("*") {
+            format!("{}\n", trimmed)
+        } else if trimmed.starts_with("- [ ]") || trimmed.starts_with("- [x]") {
+            format!("{}\n", trimmed)
+        } else if trimmed.starts_with('-') {
+            format!("- [ ] {}\n", trimmed.trim_start_matches('-').trim())
         } else {
-            format!("- [ ] {}\n", line)
+            format!("- [ ] {}\n", trimmed)
         };
         file.write_all(formatted.as_bytes())?;
     }
@@ -768,7 +785,7 @@ fn write_architectural_task(
         file.write_all("\n## 🔎 Programmatic Verification\n".as_bytes())?;
         file.write_all(
             format!(
-                "Baseline artifacts: `{}` (files at `{}/files/`).\n",
+                "- Baseline artifacts: `{}` (files at `{}/files/`).\n",
                 baseline.report_relative.display(),
                 baseline.root_relative.display()
             )
@@ -776,7 +793,7 @@ fn write_architectural_task(
         )?;
         file.write_all(
             format!(
-                "Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline {} --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.\n\n",
+                "- Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline {} --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.\n\n",
                 baseline.report_relative.display()
             )
             .as_bytes(),
@@ -1184,14 +1201,18 @@ pub fn sync_all_architectural_tasks(
         .flat_map(|bundles| bundles.iter().cloned())
         .collect();
 
-    let mut role_list = String::new();
-    for (role, data) in &config.taxonomy {
-        role_list.push_str(&format!(
-            "*   **{}**: {}\n",
-            role,
-            data.desc.as_ref().cloned().unwrap_or_default()
-        ));
-    }
+    let role_list = config
+        .taxonomy
+        .iter()
+        .map(|(role, data)| {
+            format!(
+                "**{}**: {}",
+                role,
+                data.desc.as_ref().cloned().unwrap_or_default()
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("; ");
     let ambiguity_obj = config
         .templates
         .ambiguity_objective
