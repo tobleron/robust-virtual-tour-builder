@@ -107,6 +107,7 @@ describe("ProjectManager.Logic", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       nextSceneSequenceId: 1,
     }
     let projectJson = JsonParsers.Encoders.project(project)
@@ -162,6 +163,7 @@ describe("ProjectManager.Logic", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       nextSceneSequenceId: 1,
     }
     let projectJson = JsonParsers.Encoders.project(project)
@@ -206,6 +208,7 @@ describe("ProjectManager.Logic", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       nextSceneSequenceId: 1,
     }
     let projectJson = JsonParsers.Encoders.project(project)
@@ -245,6 +248,7 @@ describe("ProjectManager.Logic", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       nextSceneSequenceId: 1,
     }
     let projectJson = JsonParsers.Encoders.project(project)

@@ -22,6 +22,7 @@ let generateTourHTML = (
   ~marketingShowSale: bool=false,
   ~marketingPhone1: string="",
   ~marketingPhone2: string="",
+  ~tripodDeadZoneEnabled: bool=true,
 ) =>
   TourTemplateHtml.generateTourHTML(
     scenes,
@@ -36,6 +37,7 @@ let generateTourHTML = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
 
 // --- COMPATIBILITY ALIASES ---

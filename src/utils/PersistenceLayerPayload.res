@@ -88,6 +88,7 @@ let buildProjectData = (state: state): JSON.t => {
     marketingPhone2: state.marketingPhone2,
     marketingForRent: state.marketingForRent,
     marketingForSale: state.marketingForSale,
+    tripodDeadZoneEnabled: state.tripodDeadZoneEnabled,
     nextSceneSequenceId: state.nextSceneSequenceId,
   }
   JsonParsers.Encoders.project(project)

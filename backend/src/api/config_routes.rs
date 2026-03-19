@@ -4,11 +4,9 @@ use crate::middleware::rate_limiter::{RateLimitResponseTransformer, RateLimiters
 use actix_governor::Governor;
 use actix_web::web;
 
-use super::{auth, health, portal};
+use super::{auth, portal, utils};
 #[cfg(feature = "builder-runtime")]
-use super::{telemetry, utils};
-#[cfg(feature = "builder-runtime")]
-use super::{geocoding, media, project, project_export, project_import};
+use super::{geocoding, media, telemetry};
 
 #[cfg(feature = "builder-runtime")]
 pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
@@ -121,6 +119,13 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
+                        "/dev-login",
+                        web::post()
+                            .to(auth::dev_signin)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/step-up/verify",
                         web::post()
                             .to(auth::verify_step_up_otp)
@@ -222,6 +227,38 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                                 "/customers/{customer_id}/assignments/{tour_id}",
                                 web::delete().to(portal::admin_unassign_customer_tour),
                             )
+                            .route(
+                                "/customers/{customer_id}/tours",
+                                web::get().to(portal::admin_get_customer_tours),
+                            )
+                            .route(
+                                "/customers/{customer_id}/tours/{tour_id}/link",
+                                web::post().to(portal::admin_create_customer_tour_link),
+                            )
+                            .route(
+                                "/assignments/bulk",
+                                web::post().to(portal::admin_bulk_assign_tours),
+                            )
+                            .route(
+                                "/assignments/{assignment_id}",
+                                web::get().to(portal::admin_get_assignment),
+                            )
+                            .route(
+                                "/assignments/{assignment_id}/revoke",
+                                web::post().to(portal::admin_revoke_assignment_link),
+                            )
+                            .route(
+                                "/assignments/{assignment_id}/expiry",
+                                web::post().to(portal::admin_update_assignment_expiry),
+                            )
+                            .route(
+                                "/assignments/{assignment_id}/reactivate",
+                                web::post().to(portal::admin_reactivate_assignment_link),
+                            )
+                            .route(
+                                "/tours/{tour_id}/recipients",
+                                web::get().to(portal::admin_get_tour_recipients),
+                            )
                             .route("/tours", web::get().to(portal::admin_list_library_tours))
                             .route(
                                 "/tours/upload",
@@ -268,207 +305,19 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
             .service(
                 web::scope("/project")
                     .wrap(auth_middleware::AuthMiddleware)
-                    .route(
-                        "/save",
-                        web::post()
-                            .to(project::save_project)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/load",
-                        web::post()
-                            .to(project::load_project)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/create-tour-package",
-                        web::post()
-                            .to(project::create_tour_package)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/validate",
-                        web::post()
-                            .to(project::validate_project)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/snapshot/sync",
-                        web::post()
-                            .to(project::sync_snapshot)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dashboard/projects",
-                        web::get()
-                            .to(project::list_dashboard_projects)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}",
-                        web::get()
-                            .to(project::load_dashboard_project)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}",
-                        web::delete()
-                            .to(project::delete_dashboard_project)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}/duplicate",
-                        web::post()
-                            .to(project::duplicate_dashboard_project)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}/snapshots",
-                        web::get()
-                            .to(project::list_project_snapshots)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}/snapshots/{snapshot_id}/restore",
-                        web::post()
-                            .to(project::restore_project_snapshot)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dashboard/projects/{session_id}/snapshots/{snapshot_id}",
-                        web::get()
-                            .to(project::load_project_snapshot)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/snapshot/assets",
-                        web::post()
-                            .to(project::sync_snapshot_assets)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/cache/cleanup",
-                        web::post()
-                            .to(project::cleanup_backend_cache)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/import",
-                        web::post()
-                            .to(project_import::import_project)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/import/init",
-                        web::post()
-                            .to(project_import::import_project_init)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/import/chunk",
-                        web::post()
-                            .to(project_import::import_project_chunk)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/import/status/{upload_id}",
-                        web::get()
-                            .to(project_import::import_project_status)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/import/complete",
-                        web::post()
-                            .to(project_import::import_project_complete)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/import/abort",
-                        web::post()
-                            .to(project_import::import_project_abort)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/export/init",
-                        web::post()
-                            .to(project_export::export_init)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/export/chunk",
-                        web::post()
-                            .to(project_export::export_chunk)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/export/status/{upload_id}",
-                        web::get()
-                            .to(project_export::export_status)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/export/complete",
-                        web::post()
-                            .to(project_export::export_complete)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/export/abort",
-                        web::post()
-                            .to(project_export::export_abort)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/calculate-path",
-                        web::post()
-                            .to(project::calculate_path)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/{project_id}/file/{filename:.*}",
-                        web::get()
-                            .to(media::serve_project_file)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    ),
+                    .configure(|cfg| super::config_routes_project::configure_project_api(cfg, limiters)),
             )
             .route(
                 "/quota/stats",
                 web::get()
-                    .to(utils::quota_stats)
+                    .to(super::utils::quota_stats)
                     .wrap(RateLimitResponseTransformer::new("health"))
                     .wrap(Governor::new(&limiters.health)),
             )
             .route(
                 "/health",
                 web::get()
-                    .to(health::health_check)
+                    .to(super::health::health_check)
                     .wrap(RateLimitResponseTransformer::new("health"))
                     .wrap(Governor::new(&limiters.health)),
             ),
@@ -482,7 +331,10 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
         "/u/{slug}/tour/{tour_slug}",
         web::get().to(portal::customer_tour_launch),
     );
-    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
+    cfg.route(
+        "/u/{slug}/{token}",
+        web::get().to(portal::user_access_redirect),
+    );
     cfg.route(
         "/u/{slug}/{token}/tour/{tour_slug}",
         web::get().to(portal::user_tour_access_redirect),
@@ -501,158 +353,5 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
 pub(super) fn configure_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}
 
 pub(super) fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiters) {
-    cfg.service(
-        web::scope("/api")
-            .service(
-                web::scope("/auth")
-                    .route(
-                        "/signin",
-                        web::post()
-                            .to(auth::signin)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dev-login",
-                        web::post()
-                            .to(auth::dev_signin)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/signout",
-                        web::post()
-                            .to(auth::signout)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/me",
-                        web::get()
-                            .to(auth::me)
-                            .wrap(auth_middleware::AuthMiddleware)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/change-password",
-                        web::post()
-                            .to(auth::change_password)
-                            .wrap(auth_middleware::AuthMiddleware)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    ),
-            )
-            .service(
-                web::scope("/portal")
-                    .service(
-                        web::scope("/admin")
-                            .wrap(auth_middleware::AuthMiddleware)
-                            .wrap(RateLimitResponseTransformer::new("admin"))
-                            .wrap(Governor::new(&limiters.admin))
-                            .route("/settings", web::get().to(portal::admin_get_settings))
-                            .route("/settings", web::patch().to(portal::admin_update_settings))
-                            .route("/customers", web::get().to(portal::admin_list_customers))
-                            .route("/customers", web::post().to(portal::admin_create_customer))
-                            .route(
-                                "/customers/{customer_id}",
-                                web::patch().to(portal::admin_update_customer),
-                            )
-                            .route(
-                                "/customers/{customer_id}/access-links/regenerate",
-                                web::post().to(portal::admin_regenerate_access_link),
-                            )
-                            .route(
-                                "/customers/{customer_id}/access-links/revoke",
-                                web::post().to(portal::admin_revoke_access_links),
-                            )
-                            .route(
-                                "/customers/{customer_id}/access-links",
-                                web::delete().to(portal::admin_delete_access_links),
-                            )
-                            .route(
-                                "/customers/{customer_id}",
-                                web::delete().to(portal::admin_delete_customer),
-                            )
-                            .route(
-                                "/customers/{customer_id}/assignments",
-                                web::post().to(portal::admin_assign_customer_tour),
-                            )
-                            .route(
-                                "/customers/{customer_id}/assignments/{tour_id}",
-                                web::delete().to(portal::admin_unassign_customer_tour),
-                            )
-                            .route("/tours", web::get().to(portal::admin_list_library_tours))
-                            .route(
-                                "/tours/upload",
-                                web::post().to(portal::admin_upload_library_tour),
-                            )
-                            .route(
-                                "/tours/{tour_id}/status",
-                                web::post().to(portal::admin_update_library_tour_status),
-                            )
-                            .route(
-                                "/tours/{tour_id}",
-                                web::delete().to(portal::admin_delete_library_tour),
-                            ),
-                    )
-                    .route(
-                        "/customers/{slug}/public",
-                        web::get()
-                            .to(portal::customer_public)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/customers/{slug}/session",
-                        web::get()
-                            .to(portal::customer_session)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    )
-                    .route(
-                        "/customers/{slug}/signout",
-                        web::post()
-                            .to(portal::customer_sign_out)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/customers/{slug}/tours",
-                        web::get()
-                            .to(portal::customer_tours)
-                            .wrap(RateLimitResponseTransformer::new("read"))
-                            .wrap(Governor::new(&limiters.read)),
-                    ),
-            )
-            .route(
-                "/health",
-                web::get()
-                    .to(health::health_check)
-                    .wrap(RateLimitResponseTransformer::new("health"))
-                    .wrap(Governor::new(&limiters.health)),
-            ),
-    );
-
-    cfg.route(
-        "/portal-assets/{slug}/{tour_slug}/{tail:.*}",
-        web::get().to(portal::customer_tour_asset),
-    );
-    cfg.route(
-        "/u/{slug}/tour/{tour_slug}",
-        web::get().to(portal::customer_tour_launch),
-    );
-    cfg.route("/u/{slug}/{token}", web::get().to(portal::user_access_redirect));
-    cfg.route(
-        "/u/{slug}/{token}/tour/{tour_slug}",
-        web::get().to(portal::user_tour_access_redirect),
-    );
-    cfg.route(
-        "/access/{token}/tour/{tour_slug}",
-        web::get().to(portal::access_tour_redirect),
-    );
-    cfg.route(
-        "/access/{token}",
-        web::get().to(portal::access_link_redirect),
-    );
+    super::config_routes_portal::configure_portal_api(cfg, limiters);
 }

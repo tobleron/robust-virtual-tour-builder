@@ -1,4 +1,5 @@
 /* src/utils/NetworkStatus.res */
+include NetworkStatusTypes
 
 @val @scope("navigator") external navigatorOnLine: bool = "onLine"
 
@@ -8,43 +9,26 @@ external addEventListener: (string, unit => unit) => unit = "addEventListener"
 @val @scope("window")
 external removeEventListener: (string, unit => unit) => unit = "removeEventListener"
 
-type statusPhase =
-  | HealthyPhase
-  | BrowserOfflinePhase
-  | RecoveringPhase
-  | RateLimitedPhase
-
-type statusReason =
-  | BrowserOffline
-  | ProbeNetworkFailure
-  | BackendRateLimited(option<int>)
-  | BackendUnavailable(int, string)
-  | TransportFailure(string)
-  | Healthy
-
-type statusSnapshot = {
-  online: bool,
-  phase: statusPhase,
-  reason: statusReason,
-  message: string,
-  attempt: int,
-  retryDelayMs: option<int>,
-  nextRetryAtMs: option<float>,
-  lastHealthyAtMs: option<float>,
-}
-
 let boolSubscribers: ref<array<bool => unit>> = ref([])
 let snapshotSubscribers: ref<array<statusSnapshot => unit>> = ref([])
 
 let retryDelaysMs = [2000, 5000, 10000, 15000, 30000]
 
-let phaseAllowsRequests = (phase: statusPhase): bool =>
-  switch phase {
-  | HealthyPhase
-  | RateLimitedPhase => true
-  | BrowserOfflinePhase
-  | RecoveringPhase => false
-  }
+let phaseAllowsRequests = phase => NetworkStatusTypes.phaseAllowsRequests(phase)
+
+let phaseMessage = phase => NetworkStatusTypes.phaseMessage(phase)
+
+let reasonSignature = reason => NetworkStatusTypes.reasonSignature(reason)
+
+let optionIntEquals = (left: option<int>, right: option<int>): bool =>
+  NetworkStatusTypes.optionIntEquals(left, right)
+
+let optionFloatEquals = (left: option<float>, right: option<float>): bool =>
+  NetworkStatusTypes.optionFloatEquals(left, right)
+
+let intMax = (left: int, right: int): int => NetworkStatusTypes.intMax(left, right)
+
+let intMin = (left: int, right: int): int => NetworkStatusTypes.intMin(left, right)
 
 let currentPhase: ref<statusPhase> = ref(
   if navigatorOnLine {
@@ -76,53 +60,6 @@ let probeInFlight = ref(false)
 let initialized = ref(false)
 let skipProbe = ref(false)
 
-let phaseMessage = (phase: statusPhase): string =>
-  switch phase {
-  | HealthyPhase => "Connected."
-  | BrowserOfflinePhase => "Connection lost. Working locally until the network returns."
-  | RecoveringPhase => "Connection lost. Retrying automatically."
-  | RateLimitedPhase => "Server busy. Pausing backend requests before retrying."
-  }
-
-let reasonSignature = (reason: statusReason): string =>
-  switch reason {
-  | Healthy => "healthy"
-  | BrowserOffline => "browser-offline"
-  | ProbeNetworkFailure => "probe-network-failure"
-  | BackendRateLimited(Some(secs)) => "backend-rate-limited:" ++ Belt.Int.toString(secs)
-  | BackendRateLimited(None) => "backend-rate-limited"
-  | BackendUnavailable(status, statusText) =>
-    "backend-unavailable:" ++ Belt.Int.toString(status) ++ ":" ++ statusText
-  | TransportFailure(message) => "transport-failure:" ++ message
-  }
-
-let optionIntEquals = (left: option<int>, right: option<int>): bool =>
-  switch (left, right) {
-  | (Some(a), Some(b)) => a == b
-  | (None, None) => true
-  | _ => false
-  }
-
-let optionFloatEquals = (left: option<float>, right: option<float>): bool =>
-  switch (left, right) {
-  | (Some(a), Some(b)) => a == b
-  | (None, None) => true
-  | _ => false
-  }
-
-let intMax = (left: int, right: int): int =>
-  if left > right {
-    left
-  } else {
-    right
-  }
-
-let intMin = (left: int, right: int): int =>
-  if left < right {
-    left
-  } else {
-    right
-  }
 
 let getSnapshot = (): statusSnapshot => {
   let phase = currentPhase.contents

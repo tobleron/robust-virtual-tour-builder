@@ -104,6 +104,14 @@ let appendTemplates = (
   let marketingBody = marketingBanner->Option.map(m => m.body)->Option.getOr("")
   let marketingPhone1 = marketingBanner->Option.map(m => m.phone1)->Option.getOr("")
   let marketingPhone2 = marketingBanner->Option.map(m => m.phone2)->Option.getOr("")
+  let tripodDeadZoneEnabled = switch projectData {
+  | Some(data) =>
+    switch JsonCombinators.Json.decode(data, JsonParsers.Domain.project) {
+    | Ok(projectData) => projectData.tripodDeadZoneEnabled
+    | Error(_) => true
+    }
+  | None => true
+  }
 
   let html4k = TourTemplates.generateTourHTML(
     exportScenes,
@@ -118,6 +126,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let html2k = TourTemplates.generateTourHTML(
     exportScenes,
@@ -132,6 +141,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlHd = TourTemplates.generateTourHTML(
     exportScenes,
@@ -146,6 +156,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlDesktop2kBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -160,6 +171,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlDesktopHdLandscapeTouchBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -174,6 +186,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlDesktop2kLandscapeTouchBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -188,6 +201,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlDesktop4kLandscapeTouchBlob = TourTemplates.generateTourHTML(
     exportScenes,
@@ -202,6 +216,7 @@ let appendTemplates = (
     ~marketingShowSale,
     ~marketingPhone1,
     ~marketingPhone2,
+    ~tripodDeadZoneEnabled,
   )
   let htmlIndex = TourTemplates.generateExportIndex(tourName, version, logoFilename)
   let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)

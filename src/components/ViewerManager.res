@@ -26,6 +26,7 @@ let make = () => {
     ~isLinking=uiSlice.isLinking,
     ~activeYaw=sceneSlice.activeYaw,
     ~activePitch=sceneSlice.activePitch,
+    ~tripodDeadZoneEnabled=state.tripodDeadZoneEnabled,
     ~getState,
     ~dispatch,
   )

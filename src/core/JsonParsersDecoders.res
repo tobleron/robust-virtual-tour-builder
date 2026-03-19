@@ -163,12 +163,13 @@ module SessionState = {
       Types.tourName: f.required("tourName", string),
       activeIndex: f.required("activeIndex", int),
       activeYaw: f.required("activeYaw", float),
-      activePitch: f.required("activePitch", float),
-      isLinking: f.required("isLinking", bool),
-      isTeasing: f.required("isTeasing", bool),
-      timeline: f->opt("timeline", array(timelineItem), [])->Some,
-      activeTimelineStepId: f.optional("activeTimelineStepId", option(string))->Option.flatMap(x =>
-        x
+    activePitch: f.required("activePitch", float),
+    isLinking: f.required("isLinking", bool),
+    isTeasing: f.required("isTeasing", bool),
+    tripodDeadZoneEnabled: f.optional("tripodDeadZoneEnabled", bool)->Option.getOr(true),
+    timeline: f->opt("timeline", array(timelineItem), [])->Some,
+    activeTimelineStepId: f.optional("activeTimelineStepId", option(string))->Option.flatMap(x =>
+      x
       ),
     }
   })
@@ -181,6 +182,7 @@ module SessionState = {
       ("activePitch", Encode.float(state.activePitch)),
       ("isLinking", Encode.bool(state.isLinking)),
       ("isTeasing", Encode.bool(state.isTeasing)),
+      ("tripodDeadZoneEnabled", Encode.bool(state.tripodDeadZoneEnabled)),
     ])
   }
 }

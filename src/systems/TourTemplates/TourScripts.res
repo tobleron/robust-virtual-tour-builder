@@ -27,6 +27,7 @@ let loadEventScript = `
       }
       updateNavShortcutsV2(sid, true);
       updateExportStateClasses();
+      if (typeof applyTripodPitchBounds === "function") applyTripodPitchBounds();
       updateLookingModeUI();
       clearWaypointRuntime();
       waypointRuntime.sceneId = sid;
@@ -43,8 +44,8 @@ let generateRenderScript = (
   stageMaxWidth,
   dynamicHfovEnabled,
   isHdExport,
+  tripodDeadZoneEnabled,
   ~exportTraversalMode: string="legacy",
-  ~allowTabletLandscapeStage: bool=true,
 ) =>
   renderScriptTemplate
   ->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))
@@ -56,7 +57,7 @@ let generateRenderScript = (
   ->String.replaceRegExp(/__DYNAMIC_HFOV_ENABLED__/g, dynamicHfovEnabled ? "true" : "false")
   ->String.replaceRegExp(/__IS_HD_EXPORT__/g, isHdExport ? "true" : "false")
   ->String.replaceRegExp(
-    /__EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE__/g,
-    allowTabletLandscapeStage ? "true" : "false",
+    /__TRIPOD_DEAD_ZONE_ENABLED__/g,
+    tripodDeadZoneEnabled ? "true" : "false",
   )
   ->String.replaceRegExp(/__EXPORT_TRAVERSAL_MODE__/g, exportTraversalMode)

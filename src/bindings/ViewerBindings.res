@@ -17,6 +17,7 @@ module Viewer = {
   @send external setPitch: (t, float, bool) => unit = "setPitch"
   @send external setYaw: (t, float, bool) => unit = "setYaw"
   @send external setHfov: (t, float, bool) => unit = "setHfov"
+  @send external setPitchBounds: (t, array<float>) => unit = "setPitchBounds"
 
   @send external mouseEventToCoords: (t, mouseEvent) => array<float> = "mouseEventToCoords"
   @send external setYawWithDuration: (t, float, int) => unit = "setYaw"

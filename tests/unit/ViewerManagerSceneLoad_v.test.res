@@ -64,6 +64,7 @@ module HookHarness = {
       ~isLinking=model.isLinking,
       ~activeYaw=model.activeYaw,
       ~activePitch=model.activePitch,
+      ~tripodDeadZoneEnabled=model.tripodDeadZoneEnabled,
       ~getState=() => model,
       ~dispatch,
     )

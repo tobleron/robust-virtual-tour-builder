@@ -36,6 +36,7 @@ let saveState = (state: state) => {
     activePitch: state.activePitch,
     isLinking: state.isLinking,
     isTeasing: state.isTeasing,
+    tripodDeadZoneEnabled: state.tripodDeadZoneEnabled,
     timeline: Some(state.timeline),
     activeTimelineStepId: state.activeTimelineStepId,
   }

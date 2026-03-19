@@ -86,6 +86,11 @@ let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
 
 let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
   let inner = makeSceneConfig(scene, ~state, ~dispatch)
+  let (tripodMinPitch, tripodMaxPitch) = if state.tripodDeadZoneEnabled {
+    ViewerTripodDeadZone.safePitchBoundsForViewport(~hfov=Constants.globalMaxHfov)
+  } else {
+    (-90.0, 90.0)
+  }
   {
     "default": {"firstScene": scene.id},
     "scenes": Dict.fromArray([(scene.id, inner)]),
@@ -93,6 +98,8 @@ let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
     "hfov": Constants.globalMaxHfov,
     "minHfov": Constants.globalMinHfov,
     "maxHfov": Constants.globalMaxHfov,
+    "minPitch": tripodMinPitch,
+    "maxPitch": tripodMaxPitch,
     "mouseZoom": false,
     "doubleClickZoom": false,
     "keyboardZoom": false,
@@ -108,6 +115,8 @@ let backgroundViewerConfig = () => {
     "hfov": Constants.globalMaxHfov,
     "minHfov": Constants.globalMinHfov,
     "maxHfov": Constants.globalMaxHfov,
+    "minPitch": -90.0,
+    "maxPitch": 90.0,
     "mouseZoom": false,
     "doubleClickZoom": false,
     "keyboardZoom": false,

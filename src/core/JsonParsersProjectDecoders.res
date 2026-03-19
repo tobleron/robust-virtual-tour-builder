@@ -226,6 +226,7 @@ let decodeProject = (f: Decode.fieldDecoders) => {
     marketingPhone2: f->opt("marketingPhone2", string, ""),
     marketingForRent: f->opt("marketingForRent", bool, false),
     marketingForSale: f->opt("marketingForSale", bool, false),
+    tripodDeadZoneEnabled: f->opt("tripodDeadZoneEnabled", bool, true),
     nextSceneSequenceId: f.optional("nextSceneSequenceId", int)->Option.getOr(1),
   }
 }

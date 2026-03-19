@@ -12,6 +12,7 @@
 ├── [scripts/](scripts/) – Build/test/dev automation.
 ├── [tasks/](tasks/) – Task workflow files.
 ├── [dist/](dist/) – Build artifacts.
+├── [dist-portal/](dist-portal/) – Portal build artifacts.
 ├── [data/](data/) – Supporting datasets.
 ├── [cache/](cache/) – Generated cache data.
 ├── [node_modules/](node_modules/) – Installed dependencies.
@@ -53,6 +54,23 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Teaser logic façade coordinating playback/render submodules. `#teaser`
 * [src/systems/TeaserHeadlessLogicSupport.res](src/systems/TeaserHeadlessLogicSupport.res): Headless teaser capture helper routines for viewer sizing, branding assets, and export runtime setup. `#teaser` `#service`
 * [src/systems/TourTemplates.res](src/systems/TourTemplates.res): Exported tour script/style orchestration. `#templates` `#orchestrator`
+* [src/systems/TourTemplateHtml.res](src/systems/TourTemplateHtml.res): Tour template HTML façade boundary. `#templates` `#facade`
+* [src/systems/TourTemplateHtmlSupport.res](src/systems/TourTemplateHtmlSupport.res): Tour template HTML support façade. `#templates` `#facade`
+* [src/systems/TourTemplateHtmlSupportData.res](src/systems/TourTemplateHtmlSupportData.res): Tour template export hotspot and manifest helpers. `#templates` `#service`
+* [src/systems/TourTemplateHtmlSupportRender.res](src/systems/TourTemplateHtmlSupportRender.res): Tour template HTML render orchestration. `#templates` `#orchestrator`
+* [src/systems/TourTemplateHtmlSupportRenderLogic.res](src/systems/TourTemplateHtmlSupportRenderLogic.res): Tour template auto-forward hotspot selection helper. `#templates` `#service`
+* [src/site/PortalApp.res](src/site/PortalApp.res): Portal route selection and top-level bootstrap orchestration. `#site` `#orchestrator`
+* [src/site/PortalAppCore.res](src/site/PortalAppCore.res): Portal route parsing, shared date helpers, and portal URL helpers. `#site` `#service`
+* [src/site/PortalAppCoreRoutes.res](src/site/PortalAppCoreRoutes.res): Portal route parsing and portal URL helper boundary. `#site` `#service`
+* [src/site/PortalAppUI.res](src/site/PortalAppUI.res): Portal branding, copy actions, and shared UI helper components. `#site` `#ui`
+* [src/site/PortalAppAdminSurface.res](src/site/PortalAppAdminSurface.res): Portal administration workspace and recipient/tour management surface. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceRefresh.res](src/site/PortalAppAdminSurfaceRefresh.res): Portal administration refresh and selection retention helpers. `#site` `#service`
+* [src/site/PortalAppAdminSurfaceActions.res](src/site/PortalAppAdminSurfaceActions.res): Portal administration async action and mutation handlers. `#site` `#service`
+* [src/site/PortalAppAdminSurfaceAuth.res](src/site/PortalAppAdminSurfaceAuth.res): Portal administration sign-in surface. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceDrawer.res](src/site/PortalAppAdminSurfaceDrawer.res): Portal administration drawer forms. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceLists.res](src/site/PortalAppAdminSurfaceLists.res): Portal administration directory and tour library list views. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceInspector.res](src/site/PortalAppAdminSurfaceInspector.res): Portal administration recipient detail and assignment inspector. `#site` `#ui`
+* [src/site/PortalAppCustomerSurface.res](src/site/PortalAppCustomerSurface.res): Portal customer gallery and tour viewer surface. `#site` `#ui`
 * [src/site/PageFramework.js](src/site/PageFramework.js): Static site/dashboard page orchestration entry. `#site` `#orchestrator`
 * [src/systems/Api.res](src/systems/Api.res): API façade entrypoint for backend calls. `#api` `#facade`
 * [src/systems/ApiLogic.res](src/systems/ApiLogic.res): API orchestration logic and transport routing. `#api` `#orchestrator`
@@ -85,6 +103,7 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Persistence orchestration boundary. `#persistence`
 * [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Durable operation journal boundary. `#recovery`
 * [src/utils/RecoveryManager.res](src/utils/RecoveryManager.res): Recovery orchestration boundary. `#recovery`
+* [src/utils/NetworkStatusTypes.res](src/utils/NetworkStatusTypes.res): Network status phase and reason helpers. `#types` `#service`
 * [src/ServiceWorkerMain.res](src/ServiceWorkerMain.res): Service worker install/activate/fetch runtime entry. `#service-worker` `#orchestrator`
 * [src/ServiceWorkerMainSupport.res](src/ServiceWorkerMainSupport.res): Service worker cache/install/activate helper routines. `#service-worker` `#service`
 * [src/systems/Scene/SceneLoaderSupport.res](src/systems/Scene/SceneLoaderSupport.res): Scene loader helper routines for reusable and fresh viewer setup. `#scene` `#service`
@@ -92,6 +111,13 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 
 ## ⚙️ Backend API Orchestrators
 * [backend/src/api/mod.rs](backend/src/api/mod.rs): API router composition root. `#api` `#orchestrator`
+* [backend/src/api/config_routes.rs](backend/src/api/config_routes.rs): API route tree builder for standard and portal scopes. `#api` `#orchestrator`
+* [backend/src/api/config_routes_project.rs](backend/src/api/config_routes_project.rs): Project route tree builder. `#api` `#orchestrator`
+* [backend/src/api/config_routes_portal.rs](backend/src/api/config_routes_portal.rs): Portal route tree builder. `#api` `#orchestrator`
+* [backend/src/api/portal_support.rs](backend/src/api/portal_support.rs): Portal session and URL helper boundary. `#api` `#service`
+* [backend/src/api/portal.rs](backend/src/api/portal.rs): Portal API façade re-exporting admin and public handlers. `#api` `#facade`
+* [backend/src/api/portal_admin_routes.rs](backend/src/api/portal_admin_routes.rs): Portal admin endpoint handlers. `#api` `#portal`
+* [backend/src/api/portal_public_routes.rs](backend/src/api/portal_public_routes.rs): Portal public endpoint handlers. `#api` `#portal`
 * [backend/src/middleware.rs](backend/src/middleware.rs): Shared middleware orchestration (auth/quota/rate-limit wiring). `#backend` `#orchestrator`
 * [backend/src/api/project.rs](backend/src/api/project.rs): Project API entrypoints. `#api` `#project`
 * [backend/src/api/project_import.rs](backend/src/api/project_import.rs): Chunked project import API entrypoints. `#api` `#project`
@@ -122,12 +148,25 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/services/project/export_upload_runtime_session.rs](backend/src/services/project/export_upload_runtime_session.rs): Export upload session assembly and lifecycle helpers. `#project` `#upload`
 * [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Media services façade root. `#media` `#facade`
 * [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Geocoding service façade root. `#geocoding` `#facade`
+* [backend/src/services/portal.rs](backend/src/services/portal.rs): Portal access, assignment, and package management service orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_admin.rs](backend/src/services/portal_admin.rs): Portal administrator authentication and settings orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_assets.rs](backend/src/services/portal_assets.rs): Portal launch document serving, asset resolution, and cover packaging orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_codes.rs](backend/src/services/portal_codes.rs): Portal short-code allocation and assignment validation helpers. `#services` `#orchestrator`
+* [backend/src/services/portal_types.rs](backend/src/services/portal_types.rs): Portal domain records, views, and DTO type definitions. `#services` `#types`
+* [backend/src/services/portal_assignment_queries.rs](backend/src/services/portal_assignment_queries.rs): Portal assignment lookup, session, and upsert helper queries. `#services` `#orchestrator`
+* [backend/src/services/portal_assignments.rs](backend/src/services/portal_assignments.rs): Portal assignment lookup and lifecycle orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_customers.rs](backend/src/services/portal_customers.rs): Portal customer lifecycle and access-link orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_views.rs](backend/src/services/portal_views.rs): Portal customer, tour, and assignment view orchestration helpers. `#services` `#orchestrator`
+* [backend/src/services/portal_sessions.rs](backend/src/services/portal_sessions.rs): Portal token resolution, customer session, and gallery view orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_audit.rs](backend/src/services/portal_audit.rs): Portal audit logging helper routines used by the portal service. `#services` `#service`
 * [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Pathfinding orchestration entry. `#pathfinding` `#orchestrator`
 * [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): Algorithm selection orchestration for pathfinder runtime strategies. `#pathfinding` `#orchestrator`
 
 ## 🧪 Primary Test Entrypoints
 * [tests/unit/](tests/unit/): Unit test suites (Vitest + ReScript bindings). `#tests`
 * [tests/e2e/](tests/e2e/): End-to-end Playwright suites. `#tests`
+* [src/portal-index.js](src/portal-index.js): Portal frontend bootstrap entrypoint. `#entry-point` `#orchestrator`
+* [backend/src/bin/portal.rs](backend/src/bin/portal.rs): Portal backend binary entrypoint and service bootstrap. `#entry-point` `#orchestrator`
 
 ## 🆕 Unmapped Modules
 * None currently.

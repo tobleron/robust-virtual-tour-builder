@@ -103,6 +103,7 @@ describe("NavigationGraph", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       structuralRevision: 0,
       nextSceneSequenceId: 1,
       discoveringTitleCount: 0,

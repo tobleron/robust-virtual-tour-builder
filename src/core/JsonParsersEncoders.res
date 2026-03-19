@@ -128,6 +128,7 @@ let project = (p: Types.project) => {
     ("marketingPhone2", Encode.string(p.marketingPhone2)),
     ("marketingForRent", Encode.bool(p.marketingForRent)),
     ("marketingForSale", Encode.bool(p.marketingForSale)),
+    ("tripodDeadZoneEnabled", Encode.bool(p.tripodDeadZoneEnabled)),
     ("nextSceneSequenceId", Encode.int(p.nextSceneSequenceId)),
   ])
 }
@@ -278,6 +279,7 @@ let state = (s: Types.state) => {
     ("lastUsedCategory", Encode.string(s.lastUsedCategory)),
     ("sessionId", Encode.option(Encode.string)(s.sessionId)),
     ("logo", Encode.option(logoFile)(s.logo)),
+    ("tripodDeadZoneEnabled", Encode.bool(s.tripodDeadZoneEnabled)),
     (
       "appMode",
       switch s.appMode {

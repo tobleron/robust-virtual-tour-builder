@@ -19,6 +19,7 @@ describe("UploadReport", () => {
       marketingPhone2: "",
       marketingForRent: false,
       marketingForSale: false,
+      tripodDeadZoneEnabled: true,
       nextSceneSequenceId: 1,
     }
     JsonParsers.Encoders.project(project)
