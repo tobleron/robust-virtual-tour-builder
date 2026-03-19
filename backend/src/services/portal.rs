@@ -9,14 +9,17 @@ use uuid::Uuid;
 
 use crate::models::{AppError, User};
 use crate::services::portal_audit::{log_audit, log_audit_event};
-use crate::services::portal_assets::{ensure_portal_cover_path, extract_portal_package};
+use crate::services::portal_assets::extract_portal_package;
 use crate::services::portal_support::{
-    admin_access_link_summary, assignment_effective_expiry, assignment_is_active,
-    customer_access_link_summary, customer_tour_assignment_view, dedupe_ids, make_short_code,
-    sha256_hex, tour_recipient_assignment_view,
+    admin_access_link_summary, assignment_effective_expiry, customer_tour_assignment_view,
+    dedupe_ids, make_short_code, sha256_hex, tour_recipient_assignment_view,
 };
 pub use crate::services::portal_paths::{validate_slug, portal_library_tour_dir};
 pub use crate::services::portal_assets::{load_portal_launch_document, resolve_portal_asset};
+pub use crate::services::portal_sessions::{
+    access_session_for_token, authenticate_access_token, gallery_view_for_customer,
+    load_customer_session, public_customer_view,
+};
 pub use crate::services::portal_support::{customer_public, init_storage, normalize_recipient_type, parse_expiry};
 
 const PORTAL_SESSION_KIND_GALLERY: &str = "gallery";
@@ -84,32 +87,32 @@ pub struct PortalCustomerTourAssignmentRecord {
 }
 
 #[derive(Debug, Clone, FromRow)]
-struct AccessTokenLookupRow {
-    customer_id: String,
-    customer_slug: String,
-    customer_display_name: String,
-    customer_recipient_type: String,
-    customer_contact_name: Option<String>,
-    customer_contact_email: Option<String>,
-    customer_contact_phone: Option<String>,
-    customer_renewal_message: Option<String>,
-    customer_is_active: i64,
-    customer_created_at: DateTime<Utc>,
-    customer_updated_at: DateTime<Utc>,
-    link_id: String,
-    link_customer_id: String,
-    link_short_code: Option<String>,
-    link_token_hash: String,
-    link_token_value: Option<String>,
-    link_expires_at: DateTime<Utc>,
-    link_revoked_at: Option<DateTime<Utc>>,
-    link_last_opened_at: Option<DateTime<Utc>>,
-    link_created_at: DateTime<Utc>,
-    link_updated_at: DateTime<Utc>,
+pub(crate) struct AccessTokenLookupRow {
+    pub(crate) customer_id: String,
+    pub(crate) customer_slug: String,
+    pub(crate) customer_display_name: String,
+    pub(crate) customer_recipient_type: String,
+    pub(crate) customer_contact_name: Option<String>,
+    pub(crate) customer_contact_email: Option<String>,
+    pub(crate) customer_contact_phone: Option<String>,
+    pub(crate) customer_renewal_message: Option<String>,
+    pub(crate) customer_is_active: i64,
+    pub(crate) customer_created_at: DateTime<Utc>,
+    pub(crate) customer_updated_at: DateTime<Utc>,
+    pub(crate) link_id: String,
+    pub(crate) link_customer_id: String,
+    pub(crate) link_short_code: Option<String>,
+    pub(crate) link_token_hash: String,
+    pub(crate) link_token_value: Option<String>,
+    pub(crate) link_expires_at: DateTime<Utc>,
+    pub(crate) link_revoked_at: Option<DateTime<Utc>>,
+    pub(crate) link_last_opened_at: Option<DateTime<Utc>>,
+    pub(crate) link_created_at: DateTime<Utc>,
+    pub(crate) link_updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, FromRow)]
-struct AssignmentLinkLookupRow {
+pub(crate) struct AssignmentLinkLookupRow {
     assignment_id: String,
     customer_id: String,
     customer_slug: String,
@@ -662,7 +665,7 @@ pub async fn update_settings(
     load_settings(pool).await
 }
 
-async fn current_access_link_for_customer(
+pub(crate) async fn current_access_link_for_customer(
     pool: &SqlitePool,
     customer_id: &str,
 ) -> Result<Option<PortalAccessLinkRecord>, AppError> {
@@ -683,7 +686,7 @@ async fn current_access_link_for_customer(
     })
 }
 
-async fn current_customer_and_access_link_by_slug(
+pub(crate) async fn current_customer_and_access_link_by_slug(
     pool: &SqlitePool,
     slug: &str,
 ) -> Result<(PortalCustomer, PortalAccessLinkRecord), AppError> {
@@ -705,7 +708,7 @@ async fn current_customer_and_access_link_by_slug(
     Ok((customer, access_link))
 }
 
-async fn assignment_by_short_code(
+pub(crate) async fn assignment_by_short_code(
     pool: &SqlitePool,
     short_code: &str,
 ) -> Result<Option<AssignmentLinkLookupRow>, AppError> {
@@ -759,7 +762,7 @@ async fn assignment_by_short_code(
     })
 }
 
-async fn assignment_by_customer_and_tour(
+pub(crate) async fn assignment_by_customer_and_tour(
     pool: &SqlitePool,
     customer_slug: &str,
     tour_slug: &str,
@@ -817,7 +820,7 @@ async fn assignment_by_customer_and_tour(
     })
 }
 
-async fn assignment_by_id(
+pub(crate) async fn assignment_by_id(
     pool: &SqlitePool,
     assignment_id: &str,
 ) -> Result<Option<AssignmentLinkLookupRow>, AppError> {
@@ -871,7 +874,7 @@ async fn assignment_by_id(
     })
 }
 
-fn assignment_from_lookup_row(
+pub(crate) fn assignment_from_lookup_row(
     row: AssignmentLinkLookupRow,
 ) -> (
     PortalCustomer,
@@ -1006,7 +1009,7 @@ pub async fn list_customers(
     Ok(overviews)
 }
 
-async fn ensure_assignment_short_code(
+pub(crate) async fn ensure_assignment_short_code(
     pool: &SqlitePool,
     assignment_id: &str,
 ) -> Result<String, AppError> {
@@ -1062,7 +1065,7 @@ async fn ensure_assignment_short_code(
     ))
 }
 
-async fn customer_assignment_rows(
+pub(crate) async fn customer_assignment_rows(
     pool: &SqlitePool,
     customer_id: &str,
 ) -> Result<Vec<AssignmentLinkLookupRow>, AppError> {
@@ -2377,341 +2380,6 @@ pub async fn delete_library_tour(
     }
 
     Ok(())
-}
-
-#[derive(Debug)]
-enum AccessTokenOutcome {
-    Granted {
-        customer: PortalCustomer,
-        access_kind: String,
-        access_ref: String,
-    },
-    Rejected {
-        customer_slug: Option<String>,
-    },
-}
-
-async fn resolve_access_token(
-    pool: &SqlitePool,
-    token: &str,
-) -> Result<AccessTokenOutcome, AppError> {
-    if let Some(row) = assignment_by_short_code(pool, token).await? {
-        let (customer, assignment, tour) = assignment_from_lookup_row(row);
-        if customer.is_active != 1 {
-            return Ok(AccessTokenOutcome::Rejected {
-                customer_slug: Some(customer.slug),
-            });
-        }
-
-        let access_link = current_access_link_for_customer(pool, &customer.id)
-            .await?
-            .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
-
-        if access_link.revoked_at.is_some() || access_link.expires_at <= Utc::now() {
-            return Ok(AccessTokenOutcome::Rejected {
-                customer_slug: Some(customer.slug),
-            });
-        }
-
-        if assignment.status != "active" || assignment.revoked_at.is_some() {
-            return Ok(AccessTokenOutcome::Rejected {
-                customer_slug: Some(customer.slug),
-            });
-        }
-
-        if assignment_effective_expiry(&assignment, access_link.expires_at) <= Utc::now() {
-            return Ok(AccessTokenOutcome::Rejected {
-                customer_slug: Some(customer.slug),
-            });
-        }
-
-        if tour.status != "published" {
-            return Ok(AccessTokenOutcome::Rejected {
-                customer_slug: Some(customer.slug),
-            });
-        }
-
-        let pool_for_update = pool.clone();
-        let assignment_id = assignment.id.clone();
-        tokio::spawn(async move {
-            let now = Utc::now();
-            let _ = sqlx::query(
-                "UPDATE portal_customer_tour_assignments SET open_count = open_count + 1, last_opened_at = ?, updated_at = ? WHERE id = ?",
-            )
-            .bind(now)
-            .bind(now)
-            .bind(&assignment_id)
-            .execute(&pool_for_update)
-            .await;
-        });
-
-        return Ok(AccessTokenOutcome::Granted {
-            customer,
-            access_kind: PORTAL_SESSION_KIND_ASSIGNMENT.to_string(),
-            access_ref: assignment.id,
-        });
-    }
-
-    let token_hash = sha256_hex(token);
-    let now_str = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
-    let row = sqlx::query_as::<_, AccessTokenLookupRow>(
-        r#"
-        SELECT
-            c.id as customer_id,
-            c.slug as customer_slug,
-            c.display_name as customer_display_name,
-            c.recipient_type as customer_recipient_type,
-            c.contact_name as customer_contact_name,
-            c.contact_email as customer_contact_email,
-            c.contact_phone as customer_contact_phone,
-            c.renewal_message as customer_renewal_message,
-            c.is_active as customer_is_active,
-            c.created_at as customer_created_at,
-            c.updated_at as customer_updated_at,
-            l.id as link_id,
-            l.customer_id as link_customer_id,
-            l.short_code as link_short_code,
-            l.token_hash as link_token_hash,
-            l.token_value as link_token_value,
-            datetime(l.expires_at) as link_expires_at,
-            l.revoked_at as link_revoked_at,
-            l.last_opened_at as link_last_opened_at,
-            l.created_at as link_created_at,
-            l.updated_at as link_updated_at
-        FROM portal_access_links l
-        JOIN portal_customers c ON c.id = l.customer_id
-        WHERE (l.short_code = ? OR l.token_hash = ?)
-            AND (l.revoked_at IS NULL)
-            AND (datetime(l.expires_at) > ?)
-        ORDER BY CASE WHEN l.short_code = ? THEN 0 ELSE 1 END
-        LIMIT 1
-        "#,
-    )
-    .bind(token)
-    .bind(token_hash)
-    .bind(&now_str)
-    .bind(token)
-    .fetch_optional(pool)
-    .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal access token lookup failed: {}", error))
-    })?;
-
-    let Some(row) = row else {
-        return Ok(AccessTokenOutcome::Rejected {
-            customer_slug: None,
-        });
-    };
-
-    let customer = PortalCustomer {
-        id: row.customer_id,
-        slug: row.customer_slug.clone(),
-        display_name: row.customer_display_name,
-        recipient_type: row.customer_recipient_type,
-        contact_name: row.customer_contact_name,
-        contact_email: row.customer_contact_email,
-        contact_phone: row.customer_contact_phone,
-        renewal_message: row.customer_renewal_message,
-        is_active: row.customer_is_active,
-        created_at: row.customer_created_at,
-        updated_at: row.customer_updated_at,
-    };
-    let access_link = PortalAccessLinkRecord {
-        id: row.link_id,
-        customer_id: row.link_customer_id,
-        short_code: row.link_short_code,
-        token_hash: row.link_token_hash,
-        token_value: row.link_token_value,
-        expires_at: row.link_expires_at,
-        revoked_at: row.link_revoked_at,
-        last_opened_at: row.link_last_opened_at,
-        created_at: row.link_created_at,
-        updated_at: row.link_updated_at,
-    };
-
-    // Expiry and revoked checks are done in SQL, just verify customer is active
-    if customer.is_active != 1 {
-        return Ok(AccessTokenOutcome::Rejected {
-            customer_slug: Some(customer.slug),
-        });
-    }
-
-    let pool_for_update = pool.clone();
-    let access_link_id = access_link.id.clone();
-    tokio::spawn(async move {
-        let now = Utc::now();
-        let _ = sqlx::query(
-            "UPDATE portal_access_links SET last_opened_at = ?, updated_at = ? WHERE id = ?",
-        )
-        .bind(now)
-        .bind(now)
-        .bind(&access_link_id)
-        .execute(&pool_for_update)
-        .await;
-    });
-
-    Ok(AccessTokenOutcome::Granted {
-        customer,
-        access_kind: PORTAL_SESSION_KIND_GALLERY.to_string(),
-        access_ref: access_link.id,
-    })
-}
-
-pub async fn authenticate_access_token(
-    pool: &SqlitePool,
-    token: &str,
-) -> Result<PortalAccessRedirect, AppError> {
-    match resolve_access_token(pool, token).await? {
-        AccessTokenOutcome::Granted { customer, .. } => Ok(PortalAccessRedirect {
-            customer_slug: Some(customer.slug),
-            allowed: true,
-        }),
-        AccessTokenOutcome::Rejected { customer_slug } => Ok(PortalAccessRedirect {
-            customer_slug,
-            allowed: false,
-        }),
-    }
-}
-
-pub async fn access_session_for_token(
-    pool: &SqlitePool,
-    token: &str,
-) -> Result<(String, String, String), AppError> {
-    match resolve_access_token(pool, token).await? {
-        AccessTokenOutcome::Granted {
-            customer,
-            access_kind,
-            access_ref,
-        } => Ok((customer.slug, access_kind, access_ref)),
-        AccessTokenOutcome::Rejected { .. } => Err(AppError::Unauthorized(
-            "Portal access link is invalid or expired.".into(),
-        )),
-    }
-}
-
-pub async fn public_customer_view(
-    pool: &SqlitePool,
-    slug: &str,
-) -> Result<PortalCustomerPublicView, AppError> {
-    let normalized_slug = validate_slug(slug)?;
-    let customer =
-        sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
-            .bind(&normalized_slug)
-            .fetch_optional(pool)
-            .await
-            .map_err(|error| {
-                AppError::InternalError(format!("Portal customer lookup failed: {}", error))
-            })?
-            .ok_or_else(|| AppError::ValidationError("Portal customer not found.".into()))?;
-
-    Ok(PortalCustomerPublicView {
-        customer: customer_public(&customer),
-        settings: load_settings(pool).await?,
-    })
-}
-
-pub async fn load_customer_session(
-    pool: &SqlitePool,
-    slug: &str,
-    access_link_id: &str,
-    public_base_url: &str,
-) -> Result<PortalCustomerSessionView, AppError> {
-    let normalized_slug = validate_slug(slug)?;
-    let customer =
-        sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
-            .bind(&normalized_slug)
-            .fetch_optional(pool)
-            .await
-            .map_err(|error| {
-                AppError::InternalError(format!("Portal session customer lookup failed: {}", error))
-            })?
-            .ok_or_else(|| {
-                AppError::Unauthorized("Portal session is invalid for this customer.".into())
-            })?;
-
-    let access_link = sqlx::query_as::<_, PortalAccessLinkRecord>(
-        "SELECT * FROM portal_access_links WHERE id = ? AND customer_id = ?",
-    )
-    .bind(access_link_id)
-    .bind(&customer.id)
-    .fetch_optional(pool)
-    .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal session link lookup failed: {}", error))
-    })?
-    .ok_or_else(|| AppError::Unauthorized("Portal session is invalid for this customer.".into()))?;
-
-    let summary = customer_access_link_summary(&access_link, public_base_url, &customer.slug);
-    let can_open_tours = customer.is_active == 1 && summary.active;
-
-    Ok(PortalCustomerSessionView {
-        customer: customer_public(&customer),
-        settings: load_settings(pool).await?,
-        access_link: summary.clone(),
-        expired: !summary.active,
-        can_open_tours,
-    })
-}
-
-pub async fn gallery_view_for_customer(
-    pool: &SqlitePool,
-    slug: &str,
-    access_link_id: &str,
-    public_base_url: &str,
-) -> Result<PortalGalleryView, AppError> {
-    let session = load_customer_session(pool, slug, access_link_id, public_base_url).await?;
-    let customer = sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
-        .bind(&session.customer.slug)
-        .fetch_one(pool)
-        .await
-        .map_err(|error| {
-            AppError::InternalError(format!("Portal gallery customer reload failed: {}", error))
-        })?;
-    let access_link = current_access_link_for_customer(pool, &customer.id)
-        .await?
-        .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
-    let recipient_expiry = access_link.expires_at;
-    let mut cards = Vec::new();
-
-    for row in customer_assignment_rows(pool, &customer.id).await? {
-        let (assignment_customer, assignment, tour) = assignment_from_lookup_row(row);
-        if tour.status == "archived" {
-            continue;
-        }
-        let short_code = match assignment.short_code.clone() {
-            Some(value) => Some(value),
-            None => Some(ensure_assignment_short_code(pool, &assignment.id).await?),
-        };
-        let assignment = PortalCustomerTourAssignmentRecord {
-            short_code,
-            ..assignment
-        };
-        let cover_path = ensure_portal_cover_path(pool, &tour).await?;
-        cards.push(PortalTourCard {
-            id: tour.id.clone(),
-            title: tour.title,
-            slug: tour.slug.clone(),
-            status: tour.status.clone(),
-            cover_url: cover_path.map(|cover| {
-                format!(
-                    "/portal-assets/{}/{}/{}",
-                    assignment_customer.slug, tour.slug, cover
-                )
-            }),
-            can_open: session.can_open_tours
-                && assignment_is_active(&assignment, recipient_expiry)
-                && tour.status == "published",
-        });
-    }
-
-    Ok(PortalGalleryView {
-        customer: session.customer,
-        settings: session.settings,
-        access_link: session.access_link,
-        expired: session.expired,
-        can_open_tours: session.can_open_tours,
-        tours: cards,
-    })
 }
 
 #[cfg(test)]

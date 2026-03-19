@@ -7,6 +7,7 @@ pub mod portal_audit;
 pub mod portal_assets;
 pub mod portal_paths;
 pub mod portal_support;
+pub mod portal_sessions;
 pub mod portal;
 #[cfg(feature = "builder-runtime")]
 pub mod project;
