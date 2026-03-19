@@ -386,12 +386,7 @@ let cleanup = () => {
   removeEventListener("focus", handleFocus)
 }
 
-let initialize = () => {
-  if initialized.contents {
-    cleanup()
-  }
-
-  initialized := true
+let resetRuntimeState = () => {
   clearRetryTimer()
   currentAttempt := 0
   currentRetryDelayMs := None
@@ -412,14 +407,29 @@ let initialize = () => {
     } else {
       None
     }
+}
 
+let registerEventListeners = () => {
   addEventListener("online", handleOnline)
   addEventListener("offline", handleOffline)
   addEventListener("focus", handleFocus)
+}
 
+let bootstrapStartupState = () => {
   if navigatorOnLine {
     let _ = probeNow()
   } else {
     enterState(~phase=BrowserOfflinePhase, ~reason=BrowserOffline)
   }
+}
+
+let initialize = () => {
+  if initialized.contents {
+    cleanup()
+  }
+
+  initialized := true
+  resetRuntimeState()
+  registerEventListeners()
+  bootstrapStartupState()
 }
