@@ -45,7 +45,7 @@ let loadLogo = (logo: option<Types.file>) => {
   Promise.make((resolve, _) => {
     let src = switch logo {
     | Some(f) => Types.fileToUrl(f)
-    | None => "images/logo.png"
+    | None => Constants.defaultLogoPath
     }
     let img = Dom.createElement("img")
     Dom.setAttribute(img, "src", src)

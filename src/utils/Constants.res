@@ -32,6 +32,7 @@ let globalMinHfov = 65.0
 let globalMaxHfov = 90.0
 let builderLandscapeMinWidth = 640.0
 let builderLandscapeMaxWidth = 1024.0
+let defaultLogoPath = "images/logo.webp"
 
 // ============================================
 // TEASER SYSTEM CONFIGURATION

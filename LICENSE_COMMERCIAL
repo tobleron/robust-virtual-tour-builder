@@ -1,0 +1,533 @@
+# Commercial License Terms
+
+**For:** Robust Virtual Tour Builder  
+**Version:** 1.0  
+**Effective Date:** March 19, 2026  
+**License:** AGPL v3 + Commercial License (Dual-Licensed)
+
+---
+
+## Overview
+
+This software is dual-licensed under:
+1. **AGPL v3** - Free for individuals, requires sharing modifications
+2. **Commercial License** - Paid, for organizations wanting proprietary use
+
+If you cannot comply with AGPL v3 requirements, you need a commercial license.
+
+---
+
+## Who Needs a Commercial License?
+
+You **MUST** obtain a commercial license if **ANY** of the following apply:
+
+### Organization Type
+- ✅ Real estate brokerage with multiple agents
+- ✅ Corporation, LLC, partnership, or other legal entity
+- ✅ Property management company
+- ✅ Photography/videography business serving clients
+- ✅ Any organization with employees using this software
+
+### Use Case
+- ✅ Creating virtual tours for clients (for compensation)
+- ✅ Providing virtual tour services as a business
+- ✅ Using in rental/lease listings for commercial purposes
+- ✅ Real estate marketing for commercial gain
+- ✅ Integration into commercial products or services
+- ✅ Embedding in SaaS platforms
+
+### AGPL Compliance
+- ✅ You want to use this software without AGPL requirements
+- ✅ You don't want to share your modifications with the community
+- ✅ You want to use this software proprietarily
+
+---
+
+## Who Does NOT Need a Commercial License?
+
+You can use this software **FREE** under AGPL v3 if:
+
+- ✅ You are an individual broker creating tours for your own listings
+- ✅ You are a developer using it for personal projects
+- ✅ You are a student learning 360° photography
+- ✅ You are a hobbyist creating tours for fun
+- ✅ You are okay with sharing any modifications you make
+
+**Note:** Individual brokers are encouraged (but not required) to donate if this software helps your business. See [SPONSORS.md](SPONSORS.md).
+
+---
+
+## Commercial License Tiers
+
+### Tier 1: Small Brokerage
+**Price:** $499/year
+
+**For:**
+- Brokerages with 2-10 agents
+- Annual revenue < $1,000,000
+- Creating tours for own listings or limited client work
+
+**Includes:**
+- ✅ Commercial use license for all agents
+- ✅ Unlimited virtual tours
+- ✅ Email support (48-hour response)
+- ✅ Version updates (minor releases)
+- ✅ Priority bug fixes
+- ✅ Legal compliance (no AGPL requirements)
+
+### Tier 2: Enterprise
+**Price:** $1,999/year
+
+**For:**
+- Large brokerages (10+ agents)
+- Professional tour creation businesses
+- Annual revenue > $1,000,000
+
+**Includes:**
+- ✅ Everything in Small Brokerage
+- ✅ Unlimited user seats
+- ✅ Priority support (24-hour response)
+- ✅ Custom branding options
+- ✅ White-label options (remove "Powered by" attribution)
+- ✅ Indemnification (up to license fee)
+- ✅ Training session (2 hours)
+- ✅ Direct access to developer
+
+### Tier 3: SaaS/Platform
+**Price:** Custom pricing (contact for quote)
+
+**For:**
+- Companies embedding this in their product
+- SaaS providers
+- Platform integrations
+- Multi-tenant deployments
+
+**Includes:**
+- ✅ Everything in Enterprise
+- ✅ Redistribution rights
+- ✅ Source code escrow (optional)
+- ✅ Custom development (quoted separately)
+- ✅ Multi-tenant support
+- ✅ API access
+- ✅ SLA guarantees
+
+---
+
+## License Terms
+
+### Grant of License
+
+Subject to payment of applicable fees, you are granted a non-exclusive, non-transferable, revocable license to:
+
+1. **Use** the software for commercial purposes
+2. **Install** on multiple machines within your organization (within user seat limit)
+3. **Create** virtual tours for clients/customers
+4. **Modify** for internal use only (no redistribution without permission)
+5. **Use** without AGPL requirements (no need to share modifications)
+
+### Restrictions
+
+You may NOT:
+
+1. **Redistribute** the software as a standalone product without explicit permission
+2. **Sublicense** or transfer your license to another organization
+3. **Reverse engineer** or decompile the software (except as permitted by law)
+4. **Remove** copyright notices
+5. **Use** for illegal purposes
+6. **Share** credentials between organizations
+
+### Support & Updates
+
+**Included:**
+- Bug fixes and security patches
+- Minor version updates (5.3.x → 5.4.x)
+- Email support
+- Documentation updates
+
+**Not Included:**
+- Major version upgrades (5.x → 6.x) - available at 50% discount
+- Custom development - quoted separately
+- On-site support - available for Enterprise tier
+- Phone support - Enterprise tier only
+
+### Term & Termination
+
+**Term:** License is valid for the subscription period (annual)
+
+**Renewal:** Automatic renewal unless cancelled with 30-day notice
+
+**Cancellation:**
+- 30-day notice required
+- Pro-rated refund for annual plans (unused portion)
+- No refund for monthly plans (if offered)
+
+**Termination for Cause:**
+- Breach of license terms
+- Non-payment
+- Illegal use
+- 30-day cure period provided
+
+**Effect of Termination:**
+- All use must cease immediately
+- All copies must be destroyed or returned
+- **Existing tours may continue to be used** (perpetual use for tours created during valid license period)
+- New tours cannot be created without valid license
+
+---
+
+## Payment Terms
+
+### Billing
+
+- **Annual:** Billed annually in advance
+- **Multi-year:** Available at 10% discount (2 years), 20% discount (3+ years)
+
+### Payment Methods
+
+- Credit card (Visa, MasterCard, Amex)
+- Bank transfer (Enterprise and above)
+- Check (Enterprise and above, US only)
+- Invoice available (NET 30 for Enterprise and above)
+
+### Taxes
+
+- Prices exclude taxes
+- Customer responsible for applicable taxes (sales tax, VAT, etc.)
+- Tax exemption certificates accepted (non-profit, government)
+
+### Price Changes
+
+- 60-day notice for price increases
+- Existing customers grandfathered at current rate for 2 years
+- New pricing applies at renewal
+
+---
+
+## Support & Maintenance
+
+### Support Channels
+
+| Tier | Email | Response Time | Phone | Dedicated |
+|---|---|---|---|---|
+| Small Brokerage | ✅ | 48 hours | ❌ | ❌ |
+| Enterprise | ✅ | 24 hours | ✅ | ❌ |
+| SaaS/Platform | ✅ | 12 hours | ✅ | ✅ |
+
+### Issue Priority Levels
+
+| Priority | Definition | Response Time |
+|---|---|---|
+| **Critical** | System down, data loss | 4 hours (Enterprise) |
+| **High** | Major feature broken | 24 hours |
+| **Medium** | Minor bug, workaround exists | 48 hours |
+| **Low** | Feature request, cosmetic | 5 business days |
+
+### Maintenance Windows
+
+- Scheduled maintenance: Sundays 2-6 AM UTC
+- Emergency patches: As needed
+- Notice: 48 hours for scheduled maintenance
+- No maintenance windows guaranteed for Small Brokerage tier
+
+---
+
+## Warranty & Liability
+
+### Limited Warranty
+
+The software is provided "as is" with no warranties except:
+
+- **Functionality:** Software will substantially match documentation for 90 days
+- **Media:** Installation media will be free from defects for 90 days
+- **Support:** Support services will be provided as described
+
+### Disclaimer
+
+EXCEPT AS STATED ABOVE, THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING:
+- Merchantability
+- Fitness for a particular purpose
+- Non-infringement
+- Title
+- Quiet enjoyment
+
+### Limitation of Liability
+
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR:
+- Indirect, incidental, or consequential damages
+- Lost profits or business interruption
+- Data loss or corruption
+- Cost of substitute goods or services
+
+**Maximum Liability:** Limited to fees paid in the 12 months preceding the claim
+
+**Exception:** For Enterprise and SaaS tiers, maximum liability is limited to 2x annual license fee
+
+### Indemnification (Enterprise and SaaS Only)
+
+Licensor will defend and indemnify against third-party intellectual property infringement claims, subject to:
+- Prompt notice of claim
+- Licensor control of defense
+- Reasonable cooperation from licensee
+- Exclusion for claims arising from licensee modifications or misuse
+
+---
+
+## Data & Privacy
+
+### Data Collection
+
+We collect:
+- License usage data (anonymized, for license compliance)
+- Error reports (opt-in)
+- Feature usage (aggregated, no personal data)
+
+We do NOT collect:
+- Customer data from virtual tours
+- Personal information from end users
+- Proprietary business information
+- Scene content or images
+
+### Data Protection
+
+- Industry-standard encryption for data in transit
+- Access controls for license data
+- Regular security audits
+- GDPR compliant (for EU customers)
+- CCPA compliant (for California customers)
+
+### Data Retention
+
+- License data: Retained for 7 years after license expiration
+- Support tickets: Retained for 3 years
+- Usage data: Retained for 1 year
+- Customer can request deletion at any time
+
+---
+
+## Compliance & Audit
+
+### License Compliance
+
+Licensee agrees to:
+- Maintain accurate records of license usage
+- Not exceed user seat limits
+- Use software only within scope of license
+- Respond to compliance inquiries within 30 days
+
+### Audit Rights
+
+Licensor may audit licensee's use of the software:
+- Once per year maximum
+- 30-day written notice required
+- During normal business hours
+- By mutually agreed third party
+- At licensor's expense (unless non-compliance found, then licensee pays)
+
+### Non-Compliance
+
+If audit finds non-compliance:
+- Licensee must pay for unlicensed use (at current list price)
+- 10% penalty for unintentional overuse
+- 50% penalty for intentional violation
+- License may be terminated for repeated violations
+
+---
+
+## General Provisions
+
+### Governing Law
+
+This agreement shall be governed by the laws of [YOUR_JURISDICTION], without regard to conflict of law principles.
+
+### Dispute Resolution
+
+Disputes shall be resolved through:
+1. Good faith negotiation (30 days)
+2. Mediation (if negotiation fails, 60 days)
+3. Binding arbitration (if mediation fails, per AAA rules)
+4. Courts of [YOUR_JURISDICTION] (if arbitration unavailable)
+
+**Exception:** Licensor may seek injunctive relief for IP infringement without prior negotiation
+
+### Assignment
+
+Licensee may not assign this agreement without written consent. Licensor may assign without consent (e.g., in case of acquisition).
+
+### Severability
+
+If any provision is found unenforceable, the remaining provisions shall remain in effect. The unenforceable provision shall be modified to the minimum extent necessary to make it enforceable.
+
+### Entire Agreement
+
+This document constitutes the entire agreement between the parties regarding the subject matter, superseding all prior agreements, understandings, and representations.
+
+### Modifications
+
+Licensor may modify these terms with 60-day written notice. Continued use after the effective date constitutes acceptance of modified terms.
+
+### Force Majeure
+
+Neither party shall be liable for delays or failures due to causes beyond reasonable control (natural disasters, war, terrorism, pandemics, etc.).
+
+### Survival
+
+The following sections survive termination:
+- Warranty Disclaimer
+- Limitation of Liability
+- Payment Obligations
+- Confidentiality
+- Governing Law
+- Audit Rights (for 2 years)
+
+---
+
+## Order Form
+
+### License Selection
+
+- [ ] Tier 1: Small Brokerage ($499/year)
+- [ ] Tier 2: Enterprise ($1,999/year)
+- [ ] Tier 3: SaaS/Platform (Custom pricing - contact sales)
+
+### Company Information
+
+```
+Company Name: _________________________
+DBA (if applicable): __________________
+Address: _____________________________
+City/State/Zip: _______________________
+Country: _____________________________
+Tax ID / EIN: ________________________
+```
+
+### Contact Information
+
+```
+Primary Contact: _____________________
+Title: _______________________________
+Email: _______________________________
+Phone: _______________________________
+Website: _____________________________
+```
+
+### License Details
+
+```
+Number of Agents/Users: _______________
+Primary Use Case: ____________________
+Expected Tours/Year: _________________
+Current Revenue Range:
+  [ ] < $500k    [ ] $500k-$1M   [ ] $1M-$5M   [ ] > $5M
+```
+
+### Payment
+
+- [ ] Credit Card (invoice will be sent)
+- [ ] Bank Transfer (Enterprise only)
+- [ ] Check (Enterprise only, US only)
+- [ ] Invoice Required (NET 30, Enterprise only)
+
+### Additional Terms
+
+```
+Special Requirements: _______________________________________________
+_____________________________________________________________________
+_____________________________________________________________________
+```
+
+### Acceptance
+
+By signing below, I represent that:
+1. I have authority to bind the organization
+2. I have read and agree to the license terms
+3. The organization qualifies for the selected license tier
+
+**Signature:** _________________________  
+**Print Name:** ________________________  
+**Title:** _____________________________  
+**Date:** ______________________________
+
+---
+
+## How to Purchase
+
+### Step 1: Complete Order Form
+
+Fill out the order form above or contact sales at licensing@[YOUR_DOMAIN_HERE]
+
+### Step 2: Receive Invoice
+
+We'll send an invoice within 24 hours (business days)
+
+### Step 3: Payment
+
+Pay via your selected method
+
+### Step 4: Receive License Key
+
+License key and activation instructions sent within 24 hours of payment
+
+### Step 5: Activation
+
+Follow activation instructions to activate your commercial license
+
+### Step 6: Support Access
+
+You'll receive access to the customer portal for support tickets
+
+---
+
+## Contact Information
+
+**For licensing inquiries:**
+- Email: licensing@[YOUR_DOMAIN_HERE]
+- Website: [YOUR_WEBSITE_HERE]/licensing
+
+**For support:**
+- Email: support@[YOUR_DOMAIN_HERE]
+- Customer Portal: [YOUR_WEBSITE_HERE]/support
+
+**Mailing Address:**
+```
+[YOUR_COMPANY_NAME]
+[YOUR_STREET_ADDRESS]
+[CITY, STATE ZIP]
+[COUNTRY]
+```
+
+**Business Hours:**
+- Sales: Monday-Friday, 9 AM - 6 PM [YOUR_TIMEZONE]
+- Support: Monday-Friday, 8 AM - 8 PM [YOUR_TIMEZONE]
+- Enterprise Support: 24/7/365
+
+---
+
+## Frequently Asked Questions
+
+**Q: Can I upgrade my license later?**  
+A: Yes, you can upgrade at any time. We'll prorate your existing license credit.
+
+**Q: What happens if I cancel?**  
+A: You can use the software until the end of your billing period. Tours created remain usable forever.
+
+**Q: Do I get all future versions?**  
+A: Your license includes all minor updates (5.3.x → 5.4.x). Major versions (5.x → 6.x) are available at 50% discount.
+
+**Q: Can I install on multiple computers?**  
+A: Yes, within your user seat limit. Enterprise licenses allow unlimited installations.
+
+**Q: What if I exceed my user seat limit?**  
+A: Contact us to add seats. Additional seats are prorated for the remainder of your license term.
+
+**Q: Do you offer refunds?**  
+A: 30-day money-back guarantee if the software doesn't meet your needs.
+
+**Q: Can I get a demo before purchasing?**  
+A: Yes, we offer a 14-day trial for brokerages. Contact sales.
+
+---
+
+**Version:** 1.0  
+**Last Updated:** March 19, 2026
+
+**Questions?** Contact licensing@[YOUR_DOMAIN_HERE]

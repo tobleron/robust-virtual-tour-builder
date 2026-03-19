@@ -139,49 +139,51 @@ module TeaserOptionsContent = {
             {React.string("Pick the teaser look")}
           </div>
         </div>
-        {TeaserStyleCatalog.options
-        ->Belt.Array.map(opt => {
-          let isSelected = selectedStyleId == opt.id
-          let cardClasses = if opt.available {
-            if isSelected {
-              "teaser-settings-option--selected"
+        <div className="teaser-style-grid">
+          {TeaserStyleCatalog.options
+          ->Belt.Array.map(opt => {
+            let isSelected = selectedStyleId == opt.id
+            let cardClasses = if opt.available {
+              if isSelected {
+                "teaser-settings-option--selected"
+              } else {
+                ""
+              }
             } else {
-              ""
+              "teaser-settings-option--unavailable"
             }
-          } else {
-            "teaser-settings-option--unavailable"
-          }
 
-          <label key={opt.id} className={"teaser-settings-option " ++ cardClasses}>
-            <input
-              type_="radio"
-              name="teaser-style"
-              checked={isSelected}
-              disabled={!opt.available}
-              onChange={_ =>
-                if opt.available {
-                  selectStyle(opt.id)
-                }}
-              className="teaser-settings-radio"
-            />
-            <span className="teaser-settings-option-copy">
-              <span className="teaser-settings-option-topline">
-                <span className="teaser-settings-option-label"> {React.string(opt.label)} </span>
-                {if isSelected {
-                  <span className="teaser-settings-status"> {React.string("Selected")} </span>
-                } else if opt.available {
-                  React.null
-                } else {
-                  <span className="teaser-settings-badge"> {React.string("Soon")} </span>
-                }}
+            <label key={opt.id} className={"teaser-settings-option " ++ cardClasses}>
+              <input
+                type_="radio"
+                name="teaser-style"
+                checked={isSelected}
+                disabled={!opt.available}
+                onChange={_ =>
+                  if opt.available {
+                    selectStyle(opt.id)
+                  }}
+                className="teaser-settings-radio"
+              />
+              <span className="teaser-settings-option-copy">
+                <span className="teaser-settings-option-topline">
+                  <span className="teaser-settings-option-label"> {React.string(opt.label)} </span>
+                  {if isSelected {
+                    <span className="teaser-settings-status"> {React.string("Selected")} </span>
+                  } else if opt.available {
+                    React.null
+                  } else {
+                    <span className="teaser-settings-badge"> {React.string("Soon")} </span>
+                  }}
+                </span>
+                <span className="teaser-settings-option-description">
+                  {React.string(opt.description)}
+                </span>
               </span>
-              <span className="teaser-settings-option-description">
-                {React.string(opt.description)}
-              </span>
-            </span>
-          </label>
-        })
-        ->React.array}
+            </label>
+          })
+          ->React.array}
+        </div>
       </div>
 
       {if isCinematicSelected {

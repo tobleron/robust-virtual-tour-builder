@@ -8,9 +8,14 @@ let make = React.memo((
   ~isSystemLocked=false,
   ~isTeasing=false,
 ) => {
+  let state = AppContext.useAppState()
   let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
   let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
-  let isDisabled = !scenesLoaded || isLinking || simActive || isSystemLocked || isTeasing
+  let isMovingHotspot = switch state.movingHotspot {
+  | Some(_) => true
+  | None => false
+  }
+  let isDisabled = !scenesLoaded || isLinking || simActive || isSystemLocked || isTeasing || isMovingHotspot
 
   let handleMenuOpenChange = React.useMemo0(() =>
     isOpen => {
@@ -35,6 +40,7 @@ let make = React.memo((
     >
       <Shadcn.DropdownMenu.Trigger asChild=true>
         <Shadcn.Button
+          id="viewer-label-menu-trigger"
           size="icon"
           variant={if !scenesLoaded {
             "secondary"
@@ -45,8 +51,6 @@ let make = React.memo((
             !scenesLoaded
           ) {
             " disabled:opacity-100"
-          } else if isDisabled {
-            " opacity-20 pointer-events-none"
           } else {
             ""
           }}

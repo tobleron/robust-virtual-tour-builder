@@ -140,7 +140,7 @@ let appendLogo = async (
 
   if allowDefaultLogoFallback && logoFilename.contents == None {
     try {
-      let extensions = ["png", "jpg", "jpeg", "webp"]
+      let extensions = ["webp", "png", "jpg", "jpeg"]
       let rec findLogo = async exts => {
         let isAborted = switch signal {
         | Some(s) => BrowserBindings.AbortSignal.aborted(s)
@@ -153,7 +153,11 @@ let appendLogo = async (
           | list{} => ()
           | list{ext, ...rest} => {
               let filename = "logo." ++ ext
-              let path = "/images/" ++ filename
+              let path = if ext == "webp" {
+                "/" ++ Constants.defaultLogoPath
+              } else {
+                "/images/" ++ filename
+              }
               let res = await Fetch.fetchSimple(path)
               if Fetch.ok(res) {
                 let logoBlob = await Fetch.blob(res)

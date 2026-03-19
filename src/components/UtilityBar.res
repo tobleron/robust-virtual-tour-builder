@@ -209,7 +209,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
                 ""
               }}
               onClick={handleSimClick}
-              disabled={isSystemLocked ||
+              disabled={!scenesLoaded ||
+              isSystemLocked ||
               isLinking && !simActive ||
               (!simActive && !canStartSimulation)}
               ariaLabel={if simActive {

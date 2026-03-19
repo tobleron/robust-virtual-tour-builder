@@ -24,6 +24,13 @@ let make = () => {
   let preview = MarketingText.compose(~comment, ~phone1, ~phone2, ~forRent, ~forSale)
   let charCount = preview.full->String.length
   let overLimit = charCount > MarketingText.maxLen
+  let panelClass = switch activeTab {
+  | Marketing => "settings-tab-panel settings-tab-panel-marketing"
+  | Persistence => "settings-tab-panel settings-tab-panel-persistence"
+  | Viewer => "settings-tab-panel settings-tab-panel-viewer"
+  | About => "settings-tab-panel settings-tab-panel-about"
+  | SystemHealth => "settings-tab-panel settings-tab-panel-system"
+  }
 
   let tabClass = (isActive: bool) =>
     "w-full text-left rounded-md px-3 py-2 text-[12px] font-semibold tracking-wide transition-all " ++ if (
@@ -77,7 +84,8 @@ let make = () => {
     </div>
 
     <div className="settings-modal-content">
-      {switch activeTab {
+      <div className={panelClass}>
+        {switch activeTab {
       | Marketing =>
         <div className="w-full h-full flex flex-col gap-3">
           <label className="settings-field-label"> {React.string("Comment")} </label>
@@ -141,49 +149,137 @@ let make = () => {
         <div className="w-full h-full flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="settings-field-label"> {React.string("Autosave Mode")} </label>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                className={tabClass(autosaveMode == PersistencePreferences.Off)}
-                onClick={_ => setAutosaveMode(_ => PersistencePreferences.Off)}
-              >
-                {React.string("Off")}
-              </button>
-              <button
-                className={tabClass(autosaveMode == PersistencePreferences.LocalOnly)}
-                onClick={_ => setAutosaveMode(_ => PersistencePreferences.LocalOnly)}
-              >
-                {React.string("Local Only")}
-              </button>
-              <button
-                className={tabClass(autosaveMode == PersistencePreferences.Hybrid)}
-                onClick={_ => setAutosaveMode(_ => PersistencePreferences.Hybrid)}
-              >
-                {React.string("Hybrid (local + server)")}
-              </button>
+            <div className="settings-choice-layout">
+              <div className="settings-choice-box">
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="autosave-mode"
+                    checked={autosaveMode == PersistencePreferences.Off}
+                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.Off)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Off")} </span>
+                </label>
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="autosave-mode"
+                    checked={autosaveMode == PersistencePreferences.LocalOnly}
+                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.LocalOnly)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Local Only")} </span>
+                </label>
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="autosave-mode"
+                    checked={autosaveMode == PersistencePreferences.Hybrid}
+                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.Hybrid)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Hybrid")} </span>
+                </label>
+              </div>
+
+              <div className="settings-description-box">
+                <div
+                  className={`settings-description-item ${autosaveMode == PersistencePreferences.Off
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Off")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Disable autosave and keep saving manual.")}
+                  </div>
+                </div>
+                <div
+                  className={`settings-description-item ${autosaveMode == PersistencePreferences.LocalOnly
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Local Only")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Autosave stays in this browser for recovery.")}
+                  </div>
+                </div>
+                <div
+                  className={`settings-description-item ${autosaveMode == PersistencePreferences.Hybrid
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Hybrid")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Autosave writes locally and snapshots to server when online.")}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="settings-field-label"> {React.string("Snapshot Cadence")} </label>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                className={tabClass(snapshotCadence == PersistencePreferences.Conservative)}
-                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Conservative)}
-              >
-                {React.string("Conservative")}
-              </button>
-              <button
-                className={tabClass(snapshotCadence == PersistencePreferences.Balanced)}
-                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Balanced)}
-              >
-                {React.string("Balanced")}
-              </button>
-              <button
-                className={tabClass(snapshotCadence == PersistencePreferences.Frequent)}
-                onClick={_ => setSnapshotCadence(_ => PersistencePreferences.Frequent)}
-              >
-                {React.string("Frequent")}
-              </button>
+            <div className="settings-choice-layout">
+              <div className="settings-choice-box">
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="snapshot-cadence"
+                    checked={snapshotCadence == PersistencePreferences.Conservative}
+                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Conservative)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Conservative")} </span>
+                </label>
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="snapshot-cadence"
+                    checked={snapshotCadence == PersistencePreferences.Balanced}
+                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Balanced)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Balanced")} </span>
+                </label>
+                <label className="settings-radio-option settings-radio-option-compact">
+                  <input
+                    type_="radio"
+                    name="snapshot-cadence"
+                    checked={snapshotCadence == PersistencePreferences.Frequent}
+                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Frequent)}
+                  />
+                  <span className="settings-radio-title"> {React.string("Frequent")} </span>
+                </label>
+              </div>
+
+              <div className="settings-description-box">
+                <div
+                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Conservative
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Conservative")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Fewer snapshots and less disk activity.")}
+                  </div>
+                </div>
+                <div
+                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Balanced
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Balanced")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Keeps a steady recovery cadence with moderate churn.")}
+                  </div>
+                </div>
+                <div
+                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Frequent
+                      ? "settings-description-item--active"
+                      : ""}`}
+                >
+                  <div className="settings-description-title"> {React.string("Frequent")} </div>
+                  <div className="settings-description-text">
+                    {React.string("Snapshot often for the strongest recovery coverage.")}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -236,6 +332,7 @@ let make = () => {
       | About => <SidebarAbout />
       | SystemHealth => <SidebarSystemHealth />
       }}
+      </div>
 
       <div className="settings-actions">
         <button className="modal-btn-premium modal-btn-full" onClick={_ => onCancel()}>

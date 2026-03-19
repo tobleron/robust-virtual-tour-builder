@@ -370,7 +370,7 @@ fi
 # 3. Environment Setup (Standard)
 if [ -f "package.json" ]; then
     echo "📦 Installing Node.js dependencies..."
-    npm install || echo "⚠️  npm install failed. Manual intervention may be needed."
+    npm install --no-audit --no-fund || echo "⚠️  npm install failed. Manual intervention may be needed."
     
     echo "🏗️ Building ReScript modules..."
     npm run res:build || echo "⚠️  Initial ReScript build failed. Ensure rescript is installed."

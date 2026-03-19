@@ -13,12 +13,9 @@ let make = React.memo(() => {
   let dispatch = AppContext.useAppDispatch()
   let fileInputRef = React.useRef(Nullable.null)
 
-  let extensions = ["png", "jpg", "jpeg", "webp"]
-  let (extIndex, setExtIndex) = React.useState(_ => 0)
-
   let logoSrc = switch uiSlice.logo {
   | Some(f) => Types.fileToUrl(f)
-  | None => `images/logo.${Belt.Array.get(extensions, extIndex)->Option.getOr("png")}`
+  | None => Constants.defaultLogoPath
   }
 
   let handleLogoClick = _ => {
@@ -197,11 +194,7 @@ let make = React.memo(() => {
               src=logoSrc
               alt="Logo"
               className="w-full h-full object-contain block"
-              onError={_ => {
-                if uiSlice.logo == None && extIndex < Array.length(extensions) - 1 {
-                  setExtIndex(prev => prev + 1)
-                }
-              }}
+              onError={_ => ()}
             />
             <div
               className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

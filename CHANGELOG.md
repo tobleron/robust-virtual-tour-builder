@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+61 [FAST]: checkpoint before admin surface split
 - V5.3.6+62 [FAST]: split admin surface drawer and auth
 - V5.3.6+63 [FAST]: checkpoint before admin dashboard split
+- Checkpoint viewer css refactor baseline
 
 ## [5.3.6] - 2026-03-18
 

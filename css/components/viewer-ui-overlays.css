@@ -234,6 +234,44 @@ body.viewer-force-fallback #viewer-utility-bar button svg {
     height: 58% !important;
 }
 
+#viewer-utility-bar button:disabled {
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: none !important;
+    opacity: 0.82 !important;
+}
+
+#viewer-utility-bar button:disabled:hover {
+    transform: none !important;
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+#viewer-utility-bar button:disabled svg {
+    color: rgba(255, 255, 255, 0.92) !important;
+    opacity: 0.9;
+}
+
+#viewer-label-menu-trigger:disabled {
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: none !important;
+    opacity: 0.82 !important;
+}
+
+#viewer-label-menu-trigger:disabled:hover {
+    transform: none !important;
+    background-color: rgba(14, 45, 82, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+#viewer-label-menu-trigger:disabled svg {
+    color: rgba(255, 255, 255, 0.92) !important;
+    opacity: 0.9;
+}
+
 body.viewer-state-tablet #viewer-floor-nav button,
 body.viewer-state-2k #viewer-floor-nav button,
 body.viewer-state-portrait #viewer-floor-nav button,

@@ -1,13 +1,45 @@
 # Robust Virtual Tour Builder
 
 ![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/License-AGPL_v3-blue.svg)
+![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.2.5 (Build 0)  
-**Directing Developer:** Arto Kalishian  
-**Release Date:** March 11, 2026  
-**Status:** Commercial Ready
+**Version:** 5.3.6 (Build 63)
+**Directing Developer:** Arto Kalishian
+**Release Date:** March 19, 2026
+**Status:** Production Ready
+**License:** AGPL v3 (Free for individuals) + Commercial License (for brokerages)
 <!-- METADATA_END -->
+
+---
+
+## 📜 License
+
+**Free for Individual Brokers** | **Commercial License for Brokerages**
+
+This project is **open source** under the AGPL v3 license:
+
+- ✅ **FREE** for individual brokers, developers, students, and personal use
+- 💼 **Commercial License** required for brokerages with multiple agents
+- 💰 **Donations welcome** to support ongoing development
+
+**Individual brokers:** Use it free forever! If it helps your business, consider [buying us a coffee](SPONSORS.md).
+
+**Brokerages:** Commercial licenses starting at $499/year. [View Pricing](docs/security/licensing.md)
+
+📄 [View Full License](LICENSE) | 🏆 [Become a Sponsor](SPONSORS.md)
+
+---
+
+## 👋 About This Project
+
+**Open source virtual tour platform** built with ReScript + Rust. Free for individual brokers and developers.
+
+🎯 **Creator is open to opportunities in agentic coding!** This project demonstrates production-grade functional architecture, FSM-based state management, and community-driven development.
+
+💼 **Open to roles in:** Agentic Coding, AI Engineering, Full-Stack Development (ReScript/Rust)  
+📧 **Contact:** [YOUR_EMAIL_HERE] | [Your Portfolio/LinkedIn]
 
 ---
 

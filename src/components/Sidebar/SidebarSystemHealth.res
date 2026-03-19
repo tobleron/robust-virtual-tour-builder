@@ -147,12 +147,12 @@ let make = () => {
     | None => React.null
     }}
 
-    <div className="settings-health-trends">
-      <div className="settings-health-trend-row">
+    <div className="settings-health-trends-grid">
+      <div className="settings-health-trend-card">
         <span className="settings-health-trend-label"> {React.string("Active sessions")} </span>
         <span className="settings-health-trend-values"> {React.string(activeTrend)} </span>
       </div>
-      <div className="settings-health-trend-row">
+      <div className="settings-health-trend-card">
         <span className="settings-health-trend-label"> {React.string("Cache hit rate")} </span>
         <span className="settings-health-trend-values"> {React.string(cacheTrend)} </span>
       </div>

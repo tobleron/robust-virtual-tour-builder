@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "5.3.6",
-  "buildNumber": 63,
+  "buildNumber": 64,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -25,7 +25,7 @@
     "res:watch": "rescript watch",
     "res:clean": "rescript clean",
     "sw:sync": "node scripts/sync-sw.cjs",
-    "sw:watch": "node scripts/sync-sw.cjs --watch",
+    "sw:watch": "NO_COLOR= FORCE_COLOR=0 node scripts/sync-sw.cjs --watch",
     "build": "npm run sw:sync && npm run res:build && rsbuild build",
     "build:portal": "npm run res:build && rsbuild build --config rsbuild.portal.config.mjs",
     "version-sync": "node scripts/update-version.js && node scripts/sync-sw.cjs",
@@ -40,8 +40,8 @@
     "predev": "./scripts/predev.sh",
     "dev": "npm run dev:all",
     "dev:system": "./scripts/dev-system.sh",
-    "dev:all": "concurrently --kill-others -n \"RES,SW,BACK,FRONT,GOV\" -c \"yellow,cyan,blue,green,magenta\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:system\"",
-    "dev:frontend": "rsbuild dev",
+    "dev:all": "concurrently --no-color --kill-others -n \"RES,SW,BACK,FRONT,GOV\" -c \"yellow,cyan,blue,green,magenta\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:system\"",
+    "dev:frontend": "wait-on tcp:8080 && NO_COLOR= FORCE_COLOR=0 rsbuild dev",
     "dev:portal": "rsbuild dev --config rsbuild.portal.config.mjs",
     "dev:backend": "cd backend && (command -v cargo-watch >/dev/null 2>&1 && cargo watch -w src -w Cargo.toml -w Cargo.lock -w migrations -x run || cargo run)",
     "start": "./scripts/start-prod.sh"
