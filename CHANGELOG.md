@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+57 [FAST]: checkpoint before utils frontend refactor
 - V5.3.6+58 [FAST]: simplify network status initialization
 - V5.3.6+59 [FAST]: checkpoint before next dev task
+- V5.3.6+60 [FAST]: route facade and customer view cleanup
 
 ## [5.3.6] - 2026-03-18
 
