@@ -61,8 +61,11 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/systems/TourTemplateHtmlSupportRenderLogic.res](src/systems/TourTemplateHtmlSupportRenderLogic.res): Tour template auto-forward hotspot selection helper. `#templates` `#service`
 * [src/site/PortalApp.res](src/site/PortalApp.res): Portal route selection and top-level bootstrap orchestration. `#site` `#orchestrator`
 * [src/site/PortalAppCore.res](src/site/PortalAppCore.res): Portal route parsing, shared date helpers, and portal URL helpers. `#site` `#service`
+* [src/site/PortalAppCoreRoutes.res](src/site/PortalAppCoreRoutes.res): Portal route parsing and portal URL helper boundary. `#site` `#service`
 * [src/site/PortalAppUI.res](src/site/PortalAppUI.res): Portal branding, copy actions, and shared UI helper components. `#site` `#ui`
 * [src/site/PortalAppAdminSurface.res](src/site/PortalAppAdminSurface.res): Portal administration workspace and recipient/tour management surface. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceAuth.res](src/site/PortalAppAdminSurfaceAuth.res): Portal administration sign-in surface. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceDrawer.res](src/site/PortalAppAdminSurfaceDrawer.res): Portal administration drawer forms. `#site` `#ui`
 * [src/site/PortalAppCustomerSurface.res](src/site/PortalAppCustomerSurface.res): Portal customer gallery and tour viewer surface. `#site` `#ui`
 * [src/site/PageFramework.js](src/site/PageFramework.js): Static site/dashboard page orchestration entry. `#site` `#orchestrator`
 * [src/systems/Api.res](src/systems/Api.res): API façade entrypoint for backend calls. `#api` `#facade`

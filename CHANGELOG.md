@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+59 [FAST]: checkpoint before next dev task
 - V5.3.6+60 [FAST]: route facade and customer view cleanup
 - V5.3.6+61 [FAST]: checkpoint before admin surface split
+- V5.3.6+62 [FAST]: split admin surface drawer and auth
 
 ## [5.3.6] - 2026-03-18
 

@@ -3,75 +3,6 @@ open ReBindings
 open PortalAppCore
 open PortalAppUI
 
-module AdminSignIn = {
-  @react.component
-  let make = (~flash, ~onSignIn) => {
-    let (email, setEmail) = React.useState(() => "")
-    let (password, setPassword) = React.useState(() => "")
-    let (showPassword, setShowPassword) = React.useState(() => false)
-
-    let submit = event => {
-      ReactEvent.Form.preventDefault(event)
-      ignore(onSignIn(email, password))
-    }
-
-    <div className="portal-shell">
-      <main className="portal-main portal-auth-main">
-        <section className="portal-hero portal-auth-card">
-          {brandLockup()}
-          <h1 className="portal-title"> {React.string("Portal Administration")} </h1>
-          <p className="portal-subtitle">
-            {React.string(
-              "Sign in with your internal Robust account to manage portal recipients and tours.",
-            )}
-          </p>
-          {messageNode(~flash)}
-          <form className="portal-form" onSubmit={submit}>
-            <div className="portal-form-grid">
-              <label>
-                {React.string("Email")}
-                <input
-                  value={email}
-                  autoComplete="username"
-                  onChange={e => setEmail(_ => ReactEvent.Form.target(e)["value"])}
-                />
-              </label>
-              <label>
-                {React.string("Password")}
-                <div className="portal-password-input">
-                  <input
-                    type_={showPassword ? "text" : "password"}
-                    value={password}
-                    autoComplete="current-password"
-                    onChange={e => setPassword(_ => ReactEvent.Form.target(e)["value"])}
-                  />
-                  <button
-                    type_="button"
-                    className="portal-password-toggle"
-                    ariaLabel={showPassword ? "Hide password" : "Show password"}
-                    title={showPassword ? "Hide password" : "Show password"}
-                    onClick={_ => setShowPassword(isVisible => !isVisible)}
-                  >
-                    {React.string(showPassword ? "Hide" : "Show")}
-                  </button>
-                </div>
-              </label>
-            </div>
-            <div className="portal-form-actions">
-              <button className="site-btn site-btn-primary" type_="submit">
-                {React.string("Sign In")}
-              </button>
-              <a className="site-btn site-btn-ghost" href="/forgot-password">
-                {React.string("Reset Password")}
-              </a>
-            </div>
-          </form>
-        </section>
-      </main>
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   let (state, setState) = React.useState((): remoteData<adminData> => Loading)
@@ -499,9 +430,9 @@ let make = () => {
         </section>
       </main>
     </div>
-  | Failed("AUTH") => <AdminSignIn.make flash onSignIn={onAdminSignIn} />
+  | Failed("AUTH") => <PortalAppAdminSurfaceAuth.make flash onSignIn={onAdminSignIn} />
   | Failed(message) =>
-    <AdminSignIn.make flash={...flash, error: Some(message)} onSignIn={onAdminSignIn} />
+    <PortalAppAdminSurfaceAuth.make flash={...flash, error: Some(message)} onSignIn={onAdminSignIn} />
   | Idle => React.null
   | Ready(data) =>
     let settingsDraft = settingsEdit->Option.getOr(draftFromSettings(data.settings))
@@ -543,201 +474,21 @@ let make = () => {
       data.tours->Belt.Array.keep(tour => tour.tour.status == "published")->Belt.Array.length
     let totalAssignments =
       data.tours->Belt.Array.reduce(0, (count, tour) => count + tour.assignmentCount)
-    let drawerNode = switch activeDrawer {
-    | NoDrawer => React.null
-    | RecipientDrawer =>
-      <div className="portal-drawer-backdrop" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-        <aside className="portal-drawer" onClick={event => ReactEvent.Mouse.stopPropagation(event)}>
-          <div className="portal-drawer-head">
-            <div>
-              <h2> {React.string("New recipient")} </h2>
-              <p className="portal-card-muted">
-                {React.string("Create a private gallery link without re-uploading tours.")}
-              </p>
-            </div>
-            <button className="site-btn site-btn-ghost" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-              {React.string("Close")}
-            </button>
-          </div>
-          <div className="portal-form-grid">
-            <label>
-              {React.string("Slug")}
-              <input
-                value=createDraft.slug
-                onChange={e => setCreateDraft(prev => {...prev, slug: ReactEvent.Form.target(e)["value"]})}
-              />
-            </label>
-            <label>
-              {React.string("Display name")}
-              <input
-                value=createDraft.displayName
-                onChange={e =>
-                  setCreateDraft(prev => {
-                    ...prev,
-                    displayName: ReactEvent.Form.target(e)["value"],
-                  })}
-              />
-            </label>
-            <label>
-              {React.string("Recipient type")}
-              <select
-                value={createDraft.recipientType->recipientTypeValue}
-                onChange={e =>
-                  setCreateDraft(prev => {
-                    ...prev,
-                    recipientType: ReactEvent.Form.target(e)["value"]->recipientTypeFromValue,
-                  })}
-              >
-                <option value="property_owner"> {React.string("Property owner")} </option>
-                <option value="broker"> {React.string("Broker")} </option>
-                <option value="property_owner_broker">
-                  {React.string("Property owner & broker")}
-                </option>
-              </select>
-            </label>
-            <label>
-              {React.string("Access expiry")}
-              <input
-                type_="datetime-local"
-                value=createDraft.expiresAt
-                onChange={e =>
-                  setCreateDraft(prev => {
-                    ...prev,
-                    expiresAt: ReactEvent.Form.target(e)["value"],
-                  })}
-              />
-            </label>
-          </div>
-          <div className="portal-form-actions">
-            <button className="site-btn site-btn-primary" onClick={_ => ignore(onCreateCustomer())}>
-              {React.string("Create Recipient")}
-            </button>
-          </div>
-        </aside>
-      </div>
-    | UploadDrawer =>
-      <div className="portal-drawer-backdrop" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-        <aside className="portal-drawer" onClick={event => ReactEvent.Mouse.stopPropagation(event)}>
-          <div className="portal-drawer-head">
-            <div>
-              <h2> {React.string("Upload tour")} </h2>
-              <p className="portal-card-muted">
-                {React.string("Add one reusable web_only ZIP containing 4K and 2K tours.")}
-              </p>
-            </div>
-            <button className="site-btn site-btn-ghost" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-              {React.string("Close")}
-            </button>
-          </div>
-          <div className="portal-form-grid">
-            <label>
-              {React.string("Tour title")}
-              <input
-                value=uploadTitle
-                onChange={e => setUploadTitle(_ => ReactEvent.Form.target(e)["value"])}
-              />
-            </label>
-            <label>
-              {React.string("web_only ZIP")}
-              <input
-                type_="file"
-                accept=".zip"
-                onChange={e => {
-                  let fileOpt = switch filesFromInputTarget(ReactEvent.Form.target(e)) {
-                  | Some(files) => FileList.item(files, 0)
-                  | None => None
-                  }
-                  setSelectedUploadFile(_ => fileOpt)
-                }}
-              />
-            </label>
-          </div>
-          <div className="portal-form-actions">
-            <button className="site-btn site-btn-primary" onClick={_ => ignore(onUploadTour())}>
-              {React.string("Upload To Library")}
-            </button>
-          </div>
-        </aside>
-      </div>
-    | SettingsDrawer =>
-      <div className="portal-drawer-backdrop" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-        <aside className="portal-drawer" onClick={event => ReactEvent.Mouse.stopPropagation(event)}>
-          <div className="portal-drawer-head">
-            <div>
-              <h2> {React.string("Renewal settings")} </h2>
-              <p className="portal-card-muted">
-                {React.string("This renewal message is shared by all expired links.")}
-              </p>
-            </div>
-            <button className="site-btn site-btn-ghost" onClick={_ => setActiveDrawer(_ => NoDrawer)}>
-              {React.string("Close")}
-            </button>
-          </div>
-          <div className="portal-form-grid">
-            <label>
-              {React.string("Heading")}
-              <input
-                value=settingsDraft.renewalHeading
-                onChange={e =>
-                  setSettingsEdit(_ => Some({
-                    ...settingsDraft,
-                    renewalHeading: ReactEvent.Form.target(e)["value"],
-                  }))}
-              />
-            </label>
-            <label>
-              {React.string("Email")}
-              <input
-                value=settingsDraft.contactEmail
-                onChange={e =>
-                  setSettingsEdit(_ => Some({
-                    ...settingsDraft,
-                    contactEmail: ReactEvent.Form.target(e)["value"],
-                  }))}
-              />
-            </label>
-            <label>
-              {React.string("Phone")}
-              <input
-                value=settingsDraft.contactPhone
-                onChange={e =>
-                  setSettingsEdit(_ => Some({
-                    ...settingsDraft,
-                    contactPhone: ReactEvent.Form.target(e)["value"],
-                  }))}
-              />
-            </label>
-            <label>
-              {React.string("WhatsApp")}
-              <input
-                value=settingsDraft.whatsappNumber
-                onChange={e =>
-                  setSettingsEdit(_ => Some({
-                    ...settingsDraft,
-                    whatsappNumber: ReactEvent.Form.target(e)["value"],
-                  }))}
-              />
-            </label>
-          </div>
-          <label className="portal-form-field">
-            <span> {React.string("Message")} </span>
-            <textarea
-              value=settingsDraft.renewalMessage
-              onChange={e =>
-                setSettingsEdit(_ => Some({
-                  ...settingsDraft,
-                  renewalMessage: ReactEvent.Form.target(e)["value"],
-                }))}
-            />
-          </label>
-          <div className="portal-form-actions">
-            <button className="site-btn site-btn-primary" onClick={_ => ignore(onSaveSettings())}>
-              {React.string("Save Renewal Settings")}
-            </button>
-          </div>
-        </aside>
-      </div>
-    }
+    let drawerNode =
+      PortalAppAdminSurfaceDrawer.make({
+        activeDrawer,
+        setActiveDrawer,
+        createDraft,
+        setCreateDraft,
+        uploadTitle,
+        setUploadTitle,
+        setSelectedUploadFile,
+        settingsDraft,
+        setSettingsEdit,
+        onCreateCustomer,
+        onUploadTour,
+        onSaveSettings,
+      })
     <div className="portal-shell">
       {drawerNode}
       <main className="portal-main">
