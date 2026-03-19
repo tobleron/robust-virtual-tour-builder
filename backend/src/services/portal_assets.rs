@@ -11,12 +11,11 @@ use zip::ZipArchive;
 
 use crate::api::utils::validate_path_safe;
 use crate::models::AppError;
-use crate::services::portal::{
-    load_authorized_portal_tour, PortalLibraryTour,
-};
+use crate::services::portal::PortalLibraryTour;
 use crate::services::portal_paths::{
     detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,
 };
+use crate::services::portal_sessions::load_authorized_portal_tour;
 use crate::services::portal_support::{
     boost_portal_launch_branding, inject_base_href, portal_launch_entry_candidates,
 };

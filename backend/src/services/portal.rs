@@ -14,8 +14,8 @@ use crate::services::portal_codes::{
     generate_unique_short_code, validate_existing_customer_ids, validate_existing_tour_ids,
 };
 use crate::services::portal_support::{
-    admin_access_link_summary, assignment_effective_expiry, customer_tour_assignment_view,
-    dedupe_ids, sha256_hex, tour_recipient_assignment_view,
+    admin_access_link_summary, customer_tour_assignment_view, dedupe_ids, sha256_hex,
+    tour_recipient_assignment_view,
 };
 pub use crate::services::portal_paths::{validate_slug, portal_library_tour_dir};
 pub use crate::services::portal_assets::{load_portal_launch_document, resolve_portal_asset};
@@ -24,9 +24,6 @@ pub use crate::services::portal_sessions::{
     load_customer_session, public_customer_view,
 };
 pub use crate::services::portal_support::{customer_public, init_storage, normalize_recipient_type, parse_expiry};
-
-const PORTAL_SESSION_KIND_GALLERY: &str = "gallery";
-const PORTAL_SESSION_KIND_ASSIGNMENT: &str = "assignment";
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
@@ -427,79 +424,6 @@ pub fn is_portal_admin(user: &User) -> bool {
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .any(|value| value.eq_ignore_ascii_case(&user.email))
-}
-
-pub(crate) async fn load_authorized_portal_tour(
-    pool: &SqlitePool,
-    customer_slug: &str,
-    tour_slug: &str,
-    access_kind: &str,
-    access_ref: &str,
-) -> Result<PortalLibraryTour, AppError> {
-    let normalized_slug = validate_slug(customer_slug)?;
-    let normalized_tour_slug = validate_slug(tour_slug)?;
-    let kind = match access_kind {
-        PORTAL_SESSION_KIND_GALLERY => PORTAL_SESSION_KIND_GALLERY,
-        PORTAL_SESSION_KIND_ASSIGNMENT => PORTAL_SESSION_KIND_ASSIGNMENT,
-        _ => {
-            return Err(AppError::Unauthorized(
-                "Portal access is invalid for this tour.".into(),
-            ));
-        }
-    };
-
-    let (customer, access_link) = current_customer_and_access_link_by_slug(pool, &normalized_slug).await?;
-    if customer.is_active != 1 {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    if access_link.revoked_at.is_some() || access_link.expires_at <= Utc::now() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    let assignment_row = if kind == PORTAL_SESSION_KIND_GALLERY {
-        if access_link.id != access_ref {
-            return Err(AppError::Unauthorized(
-                "Portal session is not valid for this customer.".into(),
-            ));
-        }
-        assignment_by_customer_and_tour(pool, &normalized_slug, &normalized_tour_slug).await?
-    } else {
-        assignment_by_id(pool, access_ref).await?
-    }
-    .ok_or_else(|| AppError::ValidationError("Portal tour not found.".into()))?;
-
-    let (assignment_customer, assignment, tour) = assignment_from_lookup_row(assignment_row);
-    if assignment_customer.id != customer.id || tour.slug != normalized_tour_slug {
-        return Err(AppError::Unauthorized(
-            "Portal session is not valid for this customer.".into(),
-        ));
-    }
-
-    if assignment.status != "active" || assignment.revoked_at.is_some() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    let effective_expiry = assignment_effective_expiry(&assignment, access_link.expires_at);
-    if effective_expiry <= Utc::now() {
-        return Err(AppError::Unauthorized(
-            "Portal access is expired or inactive.".into(),
-        ));
-    }
-
-    if tour.status != "published" {
-        return Err(AppError::Unauthorized(
-            "Portal tour is not currently published.".into(),
-        ));
-    }
-
-    Ok(tour)
 }
 
 async fn ensure_settings_row(pool: &SqlitePool) -> Result<(), AppError> {
