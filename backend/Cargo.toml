@@ -3,6 +3,7 @@ name = "backend"
 version = "0.1.0"
 edition = "2024"
 default-run = "backend"
+build = "build.rs"
 
 [features]
 default = ["builder-runtime", "video-export"]

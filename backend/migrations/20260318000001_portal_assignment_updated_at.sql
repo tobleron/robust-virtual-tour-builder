@@ -1,0 +1,2 @@
+ALTER TABLE portal_customer_tour_assignments
+ADD COLUMN updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
