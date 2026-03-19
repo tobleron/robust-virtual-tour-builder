@@ -5,11 +5,12 @@ use crate::discovery::RegistryEntry;
 use crate::spec_snapshot::SpecSnapshot;
 use crate::task_generator::WorkUnit;
 use crate::verification::VerificationBundle;
+use crate::utils::normalize_repo_relative_path;
 use std::collections::HashMap;
 use std::path::Path;
 
 fn normalize_scope_path(path: &str) -> String {
-    path.trim().trim_matches('/').replace('\\', "/")
+    normalize_repo_relative_path(path)
 }
 
 fn scope_depth(path: &str) -> usize {
@@ -391,15 +392,6 @@ mod tests {
             registry_entry("../../src/systems/ViewerSystem.res"),
         );
 
-        let normalized_keys = registry
-            .keys()
-            .map(|path| super::normalize_scope_path(path))
-            .collect::<Vec<_>>();
-        eprintln!("normalized_keys={:?}", normalized_keys);
-        eprintln!(
-            "helper={}",
-            super::has_companion_facade("src/systems/Viewer", &registry)
-        );
         assert!(super::has_companion_facade("src/systems/Viewer", &registry));
 
         let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64, f64)>> =

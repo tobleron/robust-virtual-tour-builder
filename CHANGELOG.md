@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before portal_audit flow cleanup
 - Classify portal_audit in MAP and DATA_FLOW
 - Checkpoint before _dev-system merge guard patch
+- Fix dev-system merge guard false positives
 
 ## [5.3.6] - 2026-03-18
 
