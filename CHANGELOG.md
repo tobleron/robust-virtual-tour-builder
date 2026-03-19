@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split portal access gate
 - Checkpoint before portal admin classification
 - Classify portal admin module
+- Checkpoint before portal views split
 
 ## [5.3.6] - 2026-03-18
 
