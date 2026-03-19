@@ -299,23 +299,6 @@ pub fn validate_auth_config() -> io::Result<()> {
             ));
         }
 
-        if std::env::var("ALLOW_DEV_AUTH_BOOTSTRAP")
-            .map(|v| {
-                matches!(
-                    v.trim().to_ascii_lowercase().as_str(),
-                    "1" | "true" | "yes" | "on"
-                )
-            })
-            .unwrap_or(false)
-        {
-            tracing::error!(
-                "🛑 FATAL: ALLOW_DEV_AUTH_BOOTSTRAP=true is set in production environment!"
-            );
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "ALLOW_DEV_AUTH_BOOTSTRAP=true is forbidden in production",
-            ));
-        }
     }
     Ok(())
 }

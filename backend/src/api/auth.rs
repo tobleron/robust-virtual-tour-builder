@@ -48,8 +48,6 @@ fn is_production() -> bool { auth_utils::is_production() }
 #[rustfmt::skip]
 fn config_i64(var_name: &str, default_value: i64) -> i64 { auth_utils::config_i64(var_name, default_value) }
 #[rustfmt::skip]
-fn config_bool(var_name: &str, default_value: bool) -> bool { auth_utils::config_bool(var_name, default_value) }
-#[rustfmt::skip]
 fn normalize_email(input: &str) -> String { auth_utils::normalize_email(input) }
 #[rustfmt::skip]
 fn normalize_username(input: &str) -> String { auth_utils::normalize_username(input) }
@@ -89,20 +87,6 @@ fn extract_login_context(req: &HttpRequest) -> LoginContext { auth_context::extr
 fn empty_login_context() -> LoginContext { auth_context::empty_login_context() }
 #[rustfmt::skip]
 fn parse_user_agent_family(ua: &str) -> Option<String> { auth_context::parse_user_agent_family(ua) }
-#[rustfmt::skip]
-fn is_local_request_host(value: &str) -> bool { auth_context::is_local_request_host(value) }
-#[rustfmt::skip]
-fn is_local_dev_request(req: &HttpRequest) -> bool { auth_context::is_local_dev_request(req) }
-#[rustfmt::skip]
-fn dev_auth_bootstrap_enabled() -> bool { auth_context::dev_auth_bootstrap_enabled() }
-#[rustfmt::skip]
-fn dev_auth_email() -> String { auth_context::dev_auth_email() }
-#[rustfmt::skip]
-fn dev_auth_username() -> String { auth_context::dev_auth_username() }
-#[rustfmt::skip]
-fn dev_auth_name() -> String { auth_context::dev_auth_name() }
-#[rustfmt::skip]
-fn dev_auth_password() -> String { auth_context::dev_auth_password() }
 #[rustfmt::skip]
 fn evaluate_ip_reputation(req: &HttpRequest) -> IpReputation { auth_context::evaluate_ip_reputation(req) }
 
@@ -289,18 +273,6 @@ pub async fn signin(
     payload: web::Json<SignInPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows::signin(req, pool, payload).await
-}
-
-#[allow(dead_code)]
-async fn ensure_dev_bootstrap_user(pool: &SqlitePool) -> Result<User, AppError> {
-    auth_flows::ensure_dev_bootstrap_user(pool).await
-}
-
-pub async fn dev_signin(
-    req: HttpRequest,
-    pool: web::Data<SqlitePool>,
-) -> Result<HttpResponse, AppError> {
-    auth_flows::dev_signin(req, pool).await
 }
 
 pub async fn signout() -> Result<HttpResponse, AppError> {

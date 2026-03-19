@@ -93,56 +93,6 @@ pub(super) fn parse_user_agent_family(ua: &str) -> Option<String> {
     None
 }
 
-pub(super) fn is_local_request_host(value: &str) -> bool {
-    let lowered = value.trim().to_ascii_lowercase();
-    lowered.contains("localhost")
-        || lowered.contains("127.0.0.1")
-        || lowered.contains("0.0.0.0")
-        || lowered.contains("[::1]")
-        || lowered.starts_with("::1")
-}
-
-pub(super) fn is_local_dev_request(req: &HttpRequest) -> bool {
-    if req
-        .connection_info()
-        .realip_remote_addr()
-        .map(super::is_local_request_host)
-        .unwrap_or(false)
-    {
-        return true;
-    }
-
-    ["Origin", "Referer"]
-        .iter()
-        .filter_map(|header_name| req.headers().get(*header_name))
-        .filter_map(|value| value.to_str().ok())
-        .any(super::is_local_request_host)
-}
-
-pub(super) fn dev_auth_bootstrap_enabled() -> bool {
-    !super::is_production() && super::config_bool("ALLOW_DEV_AUTH_BOOTSTRAP", true)
-}
-
-pub(super) fn dev_auth_email() -> String {
-    super::normalize_email(
-        &std::env::var("DEV_AUTH_EMAIL").unwrap_or_else(|_| "dev@robust.local".to_string()),
-    )
-}
-
-pub(super) fn dev_auth_username() -> String {
-    super::normalize_username(
-        &std::env::var("DEV_AUTH_USERNAME").unwrap_or_else(|_| "dev-local".to_string()),
-    )
-}
-
-pub(super) fn dev_auth_name() -> String {
-    std::env::var("DEV_AUTH_NAME").unwrap_or_else(|_| "Local Developer".to_string())
-}
-
-pub(super) fn dev_auth_password() -> String {
-    std::env::var("DEV_AUTH_PASSWORD").unwrap_or_else(|_| "dev-password-123".to_string())
-}
-
 pub(super) fn evaluate_ip_reputation(req: &HttpRequest) -> IpReputation {
     let reputation = req
         .headers()

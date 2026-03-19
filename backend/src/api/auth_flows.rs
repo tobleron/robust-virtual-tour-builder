@@ -8,7 +8,7 @@ mod auth_flows_session;
 use actix_web::{HttpRequest, HttpResponse, web};
 use sqlx::SqlitePool;
 
-use crate::models::{AppError, User};
+use crate::models::AppError;
 
 use super::{
     ChangePasswordPayload, ForgotPasswordPayload, ResendVerificationPayload, ResetPasswordPayload,
@@ -42,18 +42,6 @@ pub(super) async fn signin(
     payload: web::Json<SignInPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows_session::signin(req, pool, payload).await
-}
-
-#[allow(dead_code)]
-pub(super) async fn ensure_dev_bootstrap_user(pool: &SqlitePool) -> Result<User, AppError> {
-    auth_flows_session::ensure_dev_bootstrap_user(pool).await
-}
-
-pub(super) async fn dev_signin(
-    req: HttpRequest,
-    pool: web::Data<SqlitePool>,
-) -> Result<HttpResponse, AppError> {
-    auth_flows_session::dev_signin(req, pool).await
 }
 
 pub(super) fn signout() -> Result<HttpResponse, AppError> {

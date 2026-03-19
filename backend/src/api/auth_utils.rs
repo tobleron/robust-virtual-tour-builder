@@ -20,18 +20,6 @@ pub(super) fn config_i64(var_name: &str, default_value: i64) -> i64 {
         .unwrap_or(default_value)
 }
 
-pub(super) fn config_bool(var_name: &str, default_value: bool) -> bool {
-    std::env::var(var_name)
-        .ok()
-        .map(|value| {
-            matches!(
-                value.trim().to_ascii_lowercase().as_str(),
-                "1" | "true" | "yes" | "on"
-            )
-        })
-        .unwrap_or(default_value)
-}
-
 pub(super) fn normalize_email(input: &str) -> String {
     input.trim().to_lowercase()
 }

@@ -1,10 +1,9 @@
 // @efficiency-role: ui-component
-import { DEV_HOSTS, renderAuthActions } from './PageFrameworkShared.js';
+import { renderAuthActions } from './PageFrameworkShared.js';
 
 export function getAuthHeaderValue() {
   const fromStorage = window.localStorage ? window.localStorage.getItem('auth_token') : null;
   if (fromStorage && fromStorage.trim() !== '') return `Bearer ${fromStorage}`;
-  if (DEV_HOSTS.has((window.location.hostname || '').toLowerCase())) return 'Bearer dev-token';
   return null;
 }
 
@@ -111,22 +110,6 @@ export function bindAuthForms(page) {
 
   const forms = Array.from(document.querySelectorAll('form[data-auth-form]'));
   forms.forEach(form => {
-    const devLoginButton = form.querySelector('[data-auth-dev-login="1"]');
-    if (devLoginButton && !devLoginButton.getAttribute('data-bound')) {
-      devLoginButton.setAttribute('data-bound', '1');
-      devLoginButton.addEventListener('click', async () => {
-        try {
-          const result = await authJson('/api/auth/dev-login', null);
-          if (window.localStorage && result?.token) {
-            window.localStorage.setItem('auth_token', result.token);
-          }
-          window.location.assign('/dashboard');
-        } catch (error) {
-          setAuthMessage(form, error?.message || 'Development login failed.', true);
-        }
-      });
-    }
-
     form.addEventListener('submit', async event => {
       event.preventDefault();
       const mode = form.getAttribute('data-auth-form');

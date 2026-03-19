@@ -1,6 +1,4 @@
 // @efficiency-role: ui-component
-import { DEV_HOSTS } from './PageFrameworkRoutes.js';
-
 function homePage() {
   return `
     <section class="site-hero">
@@ -59,7 +57,6 @@ function pricingPage() {
 }
 
 function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, includeConfirm, includeUsername) {
-  const showDevLogin = !includeConfirm && DEV_HOSTS.has((window.location.hostname || '').toLowerCase());
   return `
     <section class="site-auth-wrap">
       <article class="site-auth-card">
@@ -72,7 +69,6 @@ function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, 
           ${includeConfirm ? '<label>Confirm Password<input type="password" name="confirmPassword" placeholder="********" /></label>' : ''}
           <p class="site-muted" data-auth-message=""></p>
           <button class="site-btn site-btn-primary" type="submit">${primaryLabel}</button>
-          ${showDevLogin ? '<button class="site-btn site-btn-ghost" type="button" data-auth-dev-login="1">Use Dev Account</button><p class="site-muted">Local development only. Creates or reuses a verified local user and signs in immediately.</p>' : ''}
         </form>
         <a class="site-link-muted" href="${secondaryHref}">${secondaryLabel}</a>
       </article>
