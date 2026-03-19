@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before portal views classification
 - Classify portal views module
 - Checkpoint before portal customer split
+- Split portal customer lifecycle
 
 ## [5.3.6] - 2026-03-18
 
