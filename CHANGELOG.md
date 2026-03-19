@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checkpoint before portal assignments classification
 - Split portal assignments lifecycle
 - Split portal assignments API surface
+- Checkpoint before api backend slice
 
 ## [5.3.6] - 2026-03-18
 
