@@ -141,6 +141,7 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/bin/portal.rs](backend/src/bin/portal.rs): Portal backend binary entrypoint and service bootstrap. `#entry-point` `#orchestrator`
 
 ## 🆕 Unmapped Modules
+* [backend/src/services/portal_assignments.rs](backend/src/services/portal_assignments.rs): New module detected. Please classify. #new
 * [backend/src/services/portal_customers.rs](backend/src/services/portal_customers.rs): New module detected. Please classify. #new
 * [backend/src/services/portal_views.rs](backend/src/services/portal_views.rs): New module detected. Please classify. #new
 * [backend/src/services/portal_admin.rs](backend/src/services/portal_admin.rs): New module detected. Please classify. #new
