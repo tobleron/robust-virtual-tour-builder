@@ -1,3 +1,4 @@
+// @efficiency-role: util-pure
 use std::fs;
 
 use chrono::{DateTime, Utc};

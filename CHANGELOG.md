@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+21 [FAST]: snapshot portal service split
 - V5.3.6+22 [FAST]: split portal service helpers
 - V5.3.6+23 [FAST]: checkpoint before classifying portal support
+- V5.3.6+24 [FAST]: classify portal support as util pure
 
 ## [5.3.6] - 2026-03-18
 
