@@ -410,7 +410,7 @@ CI job
 
 ### Portal Delivery & Management
 **Purpose:** Portal frontend bootstrap, backend binary startup, and portal-specific access/assignment management.
-- [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [backend/src/services/portal_audit.rs], [src/portal-index.js]
+- [backend/src/bin/portal.rs], [backend/src/services/portal.rs], [backend/src/services/portal_assets.rs], [backend/src/services/portal_audit.rs], [src/portal-index.js]
 
 ---
 
@@ -423,9 +423,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 backend/src/services
-- `[backend/src/services/portal_assets.rs]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
