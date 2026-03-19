@@ -133,7 +133,7 @@ pub(crate) async fn ensure_portal_cover_path(
 }
 
 pub(crate) struct ExtractedPackage {
-    cover_path: Option<String>,
+    pub(crate) cover_path: Option<String>,
 }
 
 fn generate_portal_cover_thumbnail(
