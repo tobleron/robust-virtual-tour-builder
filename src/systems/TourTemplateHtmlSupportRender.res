@@ -1,4 +1,5 @@
 open Types
+open TourTemplateHtmlSupportRenderLogic
 
 let generateTourHTML = (
   scenes: array<scene>,
@@ -201,32 +202,8 @@ let generateTourHTML = (
       | _ => None
       }
     )
-    let autoForwardHotspotIndex = {
-      let routeFromDoubleChevron =
-        rawHotspots->Belt.Array.getIndexBy(h =>
-          h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
-        )
-      switch routeFromDoubleChevron {
-      | Some(idx) => idx
-      | None =>
-        let routeFromAnyDoubleChevron =
-          rawHotspots->Belt.Array.getIndexBy(h =>
-            h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
-          )
-        switch routeFromAnyDoubleChevron {
-        | Some(idx) => idx
-        | None => -1
-        }
-      }
-    }
-    let autoForwardTargetSceneId = if autoForwardHotspotIndex >= 0 {
-      rawHotspots
-      ->Belt.Array.get(autoForwardHotspotIndex)
-      ->Option.map(h => h["targetSceneId"])
-      ->Option.getOr("")
-    } else {
-      ""
-    }
+    let (autoForwardHotspotIndex, autoForwardTargetSceneId) =
+      resolveAutoForwardHotspotIndex(rawHotspots, hasSceneId)
     Dict.set(
       rawScenesData,
       s.id,

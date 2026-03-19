@@ -54,6 +54,11 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Teaser logic façade coordinating playback/render submodules. `#teaser`
 * [src/systems/TeaserHeadlessLogicSupport.res](src/systems/TeaserHeadlessLogicSupport.res): Headless teaser capture helper routines for viewer sizing, branding assets, and export runtime setup. `#teaser` `#service`
 * [src/systems/TourTemplates.res](src/systems/TourTemplates.res): Exported tour script/style orchestration. `#templates` `#orchestrator`
+* [src/systems/TourTemplateHtml.res](src/systems/TourTemplateHtml.res): Tour template HTML façade boundary. `#templates` `#facade`
+* [src/systems/TourTemplateHtmlSupport.res](src/systems/TourTemplateHtmlSupport.res): Tour template HTML support façade. `#templates` `#facade`
+* [src/systems/TourTemplateHtmlSupportData.res](src/systems/TourTemplateHtmlSupportData.res): Tour template export hotspot and manifest helpers. `#templates` `#service`
+* [src/systems/TourTemplateHtmlSupportRender.res](src/systems/TourTemplateHtmlSupportRender.res): Tour template HTML render orchestration. `#templates` `#orchestrator`
+* [src/systems/TourTemplateHtmlSupportRenderLogic.res](src/systems/TourTemplateHtmlSupportRenderLogic.res): Tour template auto-forward hotspot selection helper. `#templates` `#service`
 * [src/site/PortalApp.res](src/site/PortalApp.res): Portal route selection and top-level bootstrap orchestration. `#site` `#orchestrator`
 * [src/site/PortalAppCore.res](src/site/PortalAppCore.res): Portal route parsing, shared date helpers, and portal URL helpers. `#site` `#service`
 * [src/site/PortalAppUI.res](src/site/PortalAppUI.res): Portal branding, copy actions, and shared UI helper components. `#site` `#ui`
