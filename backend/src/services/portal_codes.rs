@@ -1,3 +1,4 @@
+// @efficiency-role: service-orchestrator
 use sqlx::{QueryBuilder, SqlitePool};
 
 use crate::models::AppError;

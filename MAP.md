@@ -125,6 +125,7 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Geocoding service façade root. `#geocoding` `#facade`
 * [backend/src/services/portal.rs](backend/src/services/portal.rs): Portal access, assignment, and package management service orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_assets.rs](backend/src/services/portal_assets.rs): Portal launch document serving, asset resolution, and cover packaging orchestration. `#services` `#orchestrator`
+* [backend/src/services/portal_codes.rs](backend/src/services/portal_codes.rs): Portal short-code allocation and assignment validation helpers. `#services` `#orchestrator`
 * [backend/src/services/portal_sessions.rs](backend/src/services/portal_sessions.rs): Portal token resolution, customer session, and gallery view orchestration. `#services` `#orchestrator`
 * [backend/src/services/portal_audit.rs](backend/src/services/portal_audit.rs): Portal audit logging helper routines used by the portal service. `#services` `#service`
 * [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Pathfinding orchestration entry. `#pathfinding` `#orchestrator`
