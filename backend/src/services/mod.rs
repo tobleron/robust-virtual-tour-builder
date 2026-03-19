@@ -4,6 +4,7 @@ pub mod geocoding;
 #[cfg(feature = "builder-runtime")]
 pub mod media;
 pub mod portal_audit;
+pub mod portal_admin;
 pub mod portal_assets;
 pub mod portal_codes;
 pub mod portal_paths;

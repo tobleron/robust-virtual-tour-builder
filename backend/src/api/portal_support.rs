@@ -2,7 +2,7 @@ use actix_session::Session;
 use actix_web::{HttpMessage, HttpRequest};
 
 use crate::models::{AppError, User};
-use crate::services::portal::is_portal_admin;
+use crate::services::portal_admin::is_portal_admin;
 use crate::services::portal_paths::validate_slug;
 
 pub(crate) const PORTAL_SESSION_ACCESS_KIND: &str = "portal_access_kind";

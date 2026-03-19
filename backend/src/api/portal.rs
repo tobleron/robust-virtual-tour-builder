@@ -14,6 +14,7 @@ use crate::services::portal::{
     PortalLibraryTour, RegeneratePortalAccessLinkInput, RevokeRecipientTourLinkInput,
     UpdateLinkExpiryInput, UpdatePortalCustomerInput, UpdatePortalSettingsInput,
 };
+use crate::services::portal_admin::{load_settings, update_settings};
 use super::portal_support::{
     PORTAL_SESSION_ACCESS_KIND, PORTAL_SESSION_ACCESS_LINK_ID, PORTAL_SESSION_CUSTOMER_SLUG,
     ensure_gallery_session, ensure_slug_matches_session, normalized_requested_slug,
@@ -143,7 +144,7 @@ pub async fn admin_get_settings(
     pool: web::Data<SqlitePool>,
 ) -> Result<HttpResponse, AppError> {
     let _ = require_portal_admin(&req)?;
-    let settings = portal::load_settings(pool.get_ref()).await?;
+    let settings = load_settings(pool.get_ref()).await?;
     Ok(HttpResponse::Ok().json(settings))
 }
 
@@ -153,8 +154,7 @@ pub async fn admin_update_settings(
     payload: web::Json<UpdatePortalSettingsInput>,
 ) -> Result<HttpResponse, AppError> {
     let admin = require_portal_admin(&req)?;
-    let settings =
-        portal::update_settings(pool.get_ref(), payload.into_inner(), Some(&admin)).await?;
+    let settings = update_settings(pool.get_ref(), payload.into_inner(), Some(&admin)).await?;
     Ok(HttpResponse::Ok().json(settings))
 }
 
