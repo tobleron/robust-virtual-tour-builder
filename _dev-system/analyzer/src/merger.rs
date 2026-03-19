@@ -19,6 +19,46 @@ fn scope_depth(path: &str) -> usize {
         .count()
 }
 
+fn registry_contains_normalized_path(
+    registry: &HashMap<String, RegistryEntry>,
+    candidate: &str,
+) -> bool {
+    let normalized_candidate = normalize_scope_path(candidate);
+    registry.keys().any(|path| normalize_scope_path(path) == normalized_candidate)
+}
+
+fn has_companion_facade(dir: &str, registry: &HashMap<String, RegistryEntry>) -> bool {
+    let normalized = normalize_scope_path(dir);
+    let folder_name = match Path::new(&normalized).file_name().and_then(|n| n.to_str()) {
+        Some(name) if !name.is_empty() => name,
+        _ => return false,
+    };
+    let parent = match Path::new(&normalized).parent() {
+        Some(parent) => parent.to_string_lossy().to_string(),
+        None => return false,
+    };
+
+    let facade_suffixes = [
+        "System",
+        "Generator",
+        "GeneratorLogic",
+        "Logic",
+        "Manager",
+        "Service",
+        "Support",
+        "Main",
+        "Facade",
+        "Runtime",
+    ];
+
+    facade_suffixes.iter().any(|suffix| {
+        let rs = format!("{}/{}{}.rs", parent, folder_name, suffix);
+        let res = format!("{}/{}{}.res", parent, folder_name, suffix);
+        registry_contains_normalized_path(registry, &rs)
+            || registry_contains_normalized_path(registry, &res)
+    })
+}
+
 fn is_invalid_merge_scope(scope: &str, config: &EfficiencyConfig) -> bool {
     let normalized = normalize_scope_path(scope);
     if normalized.is_empty() || scope_depth(&normalized) < 2 {
@@ -63,6 +103,10 @@ pub fn detect_merge_candidates(
 
     for ((dir, _ext), files) in dir_stats {
         if is_invalid_merge_scope(&dir, config) {
+            continue;
+        }
+
+        if has_companion_facade(&dir, _registry) {
             continue;
         }
 
@@ -219,10 +263,14 @@ pub fn detect_recursive_clusters(
     }
 
     // Priority 1: Recursive Feature Pods (Deep Clustering)
-    for ((platform, _ext), files) in recursive_groups {
+        for ((platform, _ext), files) in recursive_groups {
         let clusters = find_recursive_clusters(files, config.settings.hard_ceiling_loc);
         for cluster in clusters {
             if is_invalid_merge_scope(&cluster.root_folder, config) {
+                continue;
+            }
+
+            if has_companion_facade(&cluster.root_folder, registry) {
                 continue;
             }
 
@@ -285,11 +333,29 @@ pub fn detect_recursive_clusters(
 
 #[cfg(test)]
 mod tests {
-    use super::is_invalid_merge_scope;
+    use super::{detect_merge_candidates, is_invalid_merge_scope};
+    use crate::drivers::CommonMetrics;
+    use crate::state::AnalyzerState;
+    use crate::task_generator::WorkUnit;
     use crate::config::EfficiencyConfig;
+    use crate::discovery::RegistryEntry;
+    use crate::spec_snapshot::SpecSnapshot;
+    use std::collections::{HashMap, HashSet};
+    use std::path::PathBuf;
 
     fn config() -> EfficiencyConfig {
         EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load")
+    }
+
+    fn registry_entry(path: &str) -> RegistryEntry {
+        (
+            PathBuf::from(path),
+            String::new(),
+            "orchestrator".to_string(),
+            CommonMetrics::default(),
+            "frontend".to_string(),
+            "test".to_string(),
+        )
     }
 
     #[test]
@@ -304,5 +370,63 @@ mod tests {
             "backend/src/services/geocoding",
             &config
         ));
+    }
+
+    #[test]
+    fn merge_candidates_skip_folders_with_companion_facades() {
+        let config = config();
+        let state = AnalyzerState::default();
+        let mut processed_merge_files = HashSet::new();
+        let mut registry: HashMap<String, RegistryEntry> = HashMap::new();
+        registry.insert(
+            "../../src/systems/Viewer/ViewerPool.res".to_string(),
+            registry_entry("../../src/systems/Viewer/ViewerPool.res"),
+        );
+        registry.insert(
+            "../../src/systems/Viewer/ViewerFollow.res".to_string(),
+            registry_entry("../../src/systems/Viewer/ViewerFollow.res"),
+        );
+        registry.insert(
+            "../../src/systems/ViewerSystem.res".to_string(),
+            registry_entry("../../src/systems/ViewerSystem.res"),
+        );
+
+        let normalized_keys = registry
+            .keys()
+            .map(|path| super::normalize_scope_path(path))
+            .collect::<Vec<_>>();
+        eprintln!("normalized_keys={:?}", normalized_keys);
+        eprintln!(
+            "helper={}",
+            super::has_companion_facade("src/systems/Viewer", &registry)
+        );
+        assert!(super::has_companion_facade("src/systems/Viewer", &registry));
+
+        let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64, f64)>> =
+            HashMap::new();
+        dir_stats.insert(
+            ("src/systems/Viewer".to_string(), "res".to_string()),
+            vec![
+                ("ViewerPool.res".to_string(), 120, "frontend".to_string(), 0.2, 0.0),
+                ("ViewerFollow.res".to_string(), 110, "frontend".to_string(), 0.2, 0.0),
+            ],
+        );
+        let spec_map: HashMap<String, SpecSnapshot> = HashMap::new();
+
+        let merges = detect_merge_candidates(
+            dir_stats,
+            &registry,
+            &HashMap::<String, Vec<WorkUnit>>::new(),
+            &mut processed_merge_files,
+            &state,
+            1.0,
+            &config,
+            &spec_map,
+        );
+
+        assert!(
+            merges.is_empty(),
+            "expected companion facade to suppress merge candidate generation"
+        );
     }
 }
