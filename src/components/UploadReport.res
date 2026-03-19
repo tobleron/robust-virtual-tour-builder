@@ -161,6 +161,7 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
         marketingPhone2: "",
         marketingForRent: false,
         marketingForSale: false,
+        tripodDeadZoneEnabled: true,
         nextSceneSequenceId: getState().nextSceneSequenceId,
       }
     }

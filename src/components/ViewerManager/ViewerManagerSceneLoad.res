@@ -197,6 +197,7 @@ let useMainSceneLoading = (
   ~isLinking: bool,
   ~activeYaw: float,
   ~activePitch: float,
+  ~tripodDeadZoneEnabled: bool,
   ~getState: unit => state,
   ~dispatch: action => unit,
 ) => {
@@ -214,12 +215,25 @@ let useMainSceneLoading = (
           isLinking,
         }
         handleMainSceneLoad(~activeScenes=scenes, currentState, scene, dispatch)
+        switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+        | Some(viewer) =>
+          if tripodDeadZoneEnabled {
+            ViewerTripodDeadZone.applyPitchBounds(~viewer, ~hfov=Viewer.getHfov(viewer))
+          } else {
+            ViewerSystem.Adapter.setPitchBounds(viewer, [-90.0, 90.0])
+          }
+        | None => ()
+        }
       | None => ()
       }
     }
     None
   }, (
-    Belt.Int.toString(activeIndex) ++ "_" ++ Belt.Int.toString(Belt.Array.length(scenes)),
+    Belt.Int.toString(activeIndex)
+    ++ "_"
+    ++ Belt.Int.toString(Belt.Array.length(scenes))
+    ++ "_"
+    ++ (tripodDeadZoneEnabled ? "on" : "off"),
     Float.toString(activeYaw) ++ "_" ++ Float.toString(activePitch),
   ))
 }

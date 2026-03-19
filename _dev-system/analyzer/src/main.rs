@@ -27,7 +27,7 @@ use discovery::discover_and_analyze;
 use flusher::flush_plans;
 use merger::{detect_merge_candidates, detect_recursive_clusters};
 use task_generator::{sync_all_architectural_tasks, WorkUnit};
-use utils::get_drag_target;
+use utils::{get_drag_target, normalize_repo_relative_path};
 use verification::VerificationBundle;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -622,6 +622,17 @@ fn generate_structural_tasks(
 ) {
     for (feature, paths) in feature_map {
         if paths.len() > 2 {
+            let mut unique_layer_keys: Vec<String> = paths
+                .iter()
+                .filter_map(|(p, _)| structural_layer_key(p))
+                .collect();
+            unique_layer_keys.sort();
+            unique_layer_keys.dedup();
+
+            if unique_layer_keys.len() != 1 {
+                continue;
+            }
+
             let mut unique_folders: Vec<String> = paths
                 .iter()
                 .map(|(p, _)| {
@@ -659,9 +670,24 @@ fn generate_structural_tasks(
     }
 }
 
+fn structural_layer_key(path: &str) -> Option<String> {
+    let normalized = normalize_repo_relative_path(path);
+    let parts = normalized
+        .split('/')
+        .filter(|part: &&str| !part.is_empty())
+        .collect::<Vec<_>>();
+
+    match parts.as_slice() {
+        [root, layer, ..] if *root != "backend" => Some(format!("{}/{}", root, layer)),
+        ["backend", "src", layer, ..] => Some(format!("backend/src/{}", layer)),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
 
     fn config() -> EfficiencyConfig {
         EfficiencyConfig::load_from("../config/efficiency.json").expect("config should load")
@@ -945,6 +971,56 @@ mod tests {
             ),
             None
         );
+    }
+
+    #[test]
+    fn structural_tasks_skip_cross_layer_backend_facades() {
+        let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new();
+        feature_map.insert(
+            "portal".to_string(),
+            vec![
+                ("backend/src/api/portal.rs".to_string(), "backend".to_string()),
+                ("backend/src/services/portal.rs".to_string(), "backend".to_string()),
+                ("backend/src/bin/portal.rs".to_string(), "backend".to_string()),
+            ],
+        );
+
+        let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
+        generate_structural_tasks(&feature_map, &mut buffer);
+
+        assert!(buffer.is_empty());
+    }
+
+    #[test]
+    fn structural_tasks_keep_same_layer_feature_pods() {
+        let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new();
+        feature_map.insert(
+            "portal-admin".to_string(),
+            vec![
+                (
+                    "src/site/PortalAppAdminSurface.res".to_string(),
+                    "frontend".to_string(),
+                ),
+                (
+                    "src/site/PortalAppAdminSurfaceActions.res".to_string(),
+                    "frontend".to_string(),
+                ),
+                (
+                    "src/site/PortalAppAdminSurfaceRefresh.res".to_string(),
+                    "frontend".to_string(),
+                ),
+            ],
+        );
+
+        let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
+        generate_structural_tasks(&feature_map, &mut buffer);
+
+        let structural = buffer.get("system").cloned().unwrap_or_default();
+        assert_eq!(structural.len(), 1);
+        match &structural[0] {
+            WorkUnit::Structural { file, .. } => assert_eq!(file, "portal-admin"),
+            other => panic!("unexpected work unit: {:?}", other),
+        }
     }
 
     #[test]

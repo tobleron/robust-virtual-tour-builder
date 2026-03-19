@@ -257,6 +257,38 @@ let script = `
       const state = exportViewportState === "" ? updateExportStateClasses() : exportViewportState;
       return state === "portrait" ? getAdaptivePortraitHfov() : MAX_HFOV;
     }
+    const TRIPOD_DEAD_ZONE_ENABLED = __TRIPOD_DEAD_ZONE_ENABLED__;
+    function getTripodSafePitchBounds() {
+      if (!TRIPOD_DEAD_ZONE_ENABLED) {
+        return { minPitch: -90.0, maxPitch: 90.0 };
+      }
+      const stage = document.getElementById("stage");
+      const rect = stage?.getBoundingClientRect?.();
+      const stageWidth = Number.isFinite(rect?.width) && rect.width > 0 ? rect.width : STAGE_MIN_WIDTH;
+      const fallbackStageHeight = STAGE_MIN_WIDTH * (16.0 / 9.0);
+      const stageHeight = Number.isFinite(rect?.height) && rect.height > 0
+        ? rect.height
+        : fallbackStageHeight;
+      const aspectRatio = stageWidth > 0 && stageHeight > 0 ? stageWidth / stageHeight : (16.0 / 9.0);
+      const safeAspectRatio = Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : (16.0 / 9.0);
+      const hfov = getCurrentHfov();
+      const vfov = 2.0 * Math.atan(Math.tan((hfov * Math.PI / 180.0) / 2.0) / safeAspectRatio) * 180.0 / Math.PI;
+      const safetyMargin = safeAspectRatio < 1.0 ? TRIPOD_DEAD_ZONE_PORTRAIT_SAFETY_MARGIN : 0.0;
+      const minPitch = TRIPOD_DEAD_ZONE_REFERENCE_PITCH - (vfov / 2.0) + safetyMargin;
+      return { minPitch, maxPitch: TRIPOD_DEAD_ZONE_MAX_PITCH };
+    }
+    const TRIPOD_DEAD_ZONE_REFERENCE_PITCH = -30.0;
+    const TRIPOD_DEAD_ZONE_PORTRAIT_SAFETY_MARGIN = 14.0;
+    const TRIPOD_DEAD_ZONE_MAX_PITCH = 90.0;
+    function applyTripodPitchBounds() {
+      if (!window.viewer || typeof window.viewer.setPitchBounds !== "function") return;
+      if (!TRIPOD_DEAD_ZONE_ENABLED) {
+        window.viewer.setPitchBounds([-90.0, 90.0]);
+        return;
+      }
+      const bounds = getTripodSafePitchBounds();
+      window.viewer.setPitchBounds([bounds.minPitch, bounds.maxPitch]);
+    }
     function scheduleFormulaHfovUpdate() {
       if (exportFormulaHfovUpdateQueued) return;
       exportFormulaHfovUpdateQueued = true;
@@ -301,6 +333,7 @@ let script = `
         window.viewer.setHfov(nextHfov, false);
         exportLastAppliedHfov = nextHfov;
       }
+      applyTripodPitchBounds();
       // Double trigger to catch late layout paint
       setTimeout(() => { if (window.viewer && window.viewer.resize) window.viewer.resize(); }, 50);
     }

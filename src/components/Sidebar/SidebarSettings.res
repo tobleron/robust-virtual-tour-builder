@@ -1,6 +1,7 @@
 type tab =
   | Marketing
   | Persistence
+  | Viewer
   | About
   | SystemHealth
 
@@ -15,6 +16,8 @@ let make = () => {
   let (phone2, setPhone2) = React.useState(_ => state.marketingPhone2)
   let (forRent, setForRent) = React.useState(_ => state.marketingForRent)
   let (forSale, setForSale) = React.useState(_ => state.marketingForSale)
+  let (tripodDeadZoneEnabled, setTripodDeadZoneEnabled) =
+    React.useState(_ => state.tripodDeadZoneEnabled)
   let (autosaveMode, setAutosaveMode) = React.useState(_ => initialPrefs.autosaveMode)
   let (snapshotCadence, setSnapshotCadence) = React.useState(_ => initialPrefs.snapshotCadence)
 
@@ -40,6 +43,9 @@ let make = () => {
     | Persistence =>
       PersistencePreferences.setAutosave(~autosaveMode, ~snapshotCadence)->ignore
       EventBus.dispatch(CloseModal)
+    | Viewer =>
+      dispatch(Actions.SetTripodDeadZoneEnabled(tripodDeadZoneEnabled))
+      EventBus.dispatch(CloseModal)
     | _ => ()
     }
   }
@@ -55,6 +61,9 @@ let make = () => {
         className={tabClass(activeTab == Persistence)} onClick={_ => setActiveTab(_ => Persistence)}
       >
         {React.string("Persistence")}
+      </button>
+      <button className={tabClass(activeTab == Viewer)} onClick={_ => setActiveTab(_ => Viewer)}>
+        {React.string("Viewer")}
       </button>
       <button className={tabClass(activeTab == About)} onClick={_ => setActiveTab(_ => About)}>
         {React.string("About")}
@@ -195,6 +204,35 @@ let make = () => {
             </div>
           </div>
         </div>
+      | Viewer =>
+        <div className="w-full h-full flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="settings-field-label"> {React.string("Tripod Dead-Zone")} </label>
+            <label className="settings-check-label">
+              <input
+                type_="checkbox"
+                checked={tripodDeadZoneEnabled}
+                onChange={_ => setTripodDeadZoneEnabled(prev => !prev)}
+              />
+              <span> {React.string("Enable for builder and exported tours")} </span>
+            </label>
+          </div>
+
+          <div className="settings-preview-wrap">
+            <div className="settings-preview-header">
+              <span className="settings-field-label"> {React.string("Behavior")} </span>
+            </div>
+            <div className="settings-preview-banner">
+              <span className="settings-preview-text">
+                {React.string(
+                  tripodDeadZoneEnabled
+                    ? "Builder and exported tours will clamp the camera to a tripod-safe floor."
+                    : "Builder and exported tours will allow the full pitch range.",
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
       | About => <SidebarAbout />
       | SystemHealth => <SidebarSystemHealth />
       }}
@@ -213,6 +251,10 @@ let make = () => {
             <span> {React.string("Save")} </span>
           </button>
         | Persistence =>
+          <button className="modal-btn-premium modal-btn-full bg-white/20" onClick={_ => onSave()}>
+            <span> {React.string("Save")} </span>
+          </button>
+        | Viewer =>
           <button className="modal-btn-premium modal-btn-full bg-white/20" onClick={_ => onSave()}>
             <span> {React.string("Save")} </span>
           </button>

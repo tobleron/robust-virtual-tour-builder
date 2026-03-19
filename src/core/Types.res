@@ -223,6 +223,7 @@ type project = {
   marketingPhone2: string,
   marketingForRent: bool,
   marketingForSale: bool,
+  tripodDeadZoneEnabled: bool,
   nextSceneSequenceId: int,
 }
 
@@ -332,6 +333,7 @@ type state = {
   marketingPhone2: string,
   marketingForRent: bool,
   marketingForSale: bool,
+  tripodDeadZoneEnabled: bool,
   structuralRevision: int,
   nextSceneSequenceId: int,
   discoveringTitleCount: int,
@@ -371,6 +373,7 @@ type sessionState = {
   activePitch: float,
   isLinking: bool,
   isTeasing: bool,
+  tripodDeadZoneEnabled: bool,
   timeline: option<array<timelineItem>>,
   activeTimelineStepId: option<string>,
 }

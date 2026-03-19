@@ -8,7 +8,7 @@ describe("TourTemplateScripts", () => {
   }
 
   test("generateRenderScript should include correct base size and core logic", t => {
-    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
     t->expect(String.includes(script, "32px"))->Expect.toBe(true)
     t->expect(String.includes(script, "const MIN_HFOV = 65"))->Expect.toBe(true)
@@ -19,14 +19,14 @@ describe("TourTemplateScripts", () => {
   })
 
   test("generateRenderScript should scale with different base sizes", t => {
-    let scriptLarge = generateRenderScript(64, 90.0, 65.0, 90.0, 375, 640, true, false)
+    let scriptLarge = generateRenderScript(64, 90.0, 65.0, 90.0, 375, 640, true, false, true)
     t->expect(String.includes(scriptLarge, "64px"))->Expect.toBe(true)
   })
 
   test(
     "generateRenderScript should embed exported auto-tour speed constants and toggle helpers",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
       t->expectToContain(script, "const ANIMATED_NAVIGATION_BASE_SPEED_MULTIPLIER = 1.44;")
       t->expectToContain(
@@ -61,7 +61,7 @@ describe("TourTemplateScripts", () => {
   test(
     "generateRenderScript should render desktop navigation mode rows in manual semi-auto auto order",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
       let manualIndex = String.indexOf(script, "label: \"manual\"")
       let semiAutoIndex = String.indexOf(script, "label: \"semi-auto\"")
       let autoIndex = String.indexOf(script, "label: autoModeLabel")
@@ -75,7 +75,7 @@ describe("TourTemplateScripts", () => {
   )
 
   test("generateRenderScript should include portrait export controls", t => {
-    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
     t->expectToContain(script, "function isPortraitAdaptiveExportUi()")
     t->expectToContain(script, "function resolveExportInteractionShell()")
@@ -171,7 +171,7 @@ describe("TourTemplateScripts", () => {
   test(
     "generateRenderScript should resolve exported viewport state to portrait or desktop only",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 832, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 832, true, false, true)
 
       t->expectToContain(script, "if (portraitViewport) return \"portrait\";")
       t->expectToContain(script, "return \"desktop\";")
@@ -183,7 +183,7 @@ describe("TourTemplateScripts", () => {
   test(
     "generateRenderScript should suspend looking mode around classic desktop scene-number prompt",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
       t->expectToContain(
         script,
@@ -206,7 +206,7 @@ describe("TourTemplateScripts", () => {
   test(
     "generateRenderScript should render selector intro while blocking UI even on classic shell",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
       t->expectToContain(script, "if (portraitModeSelectorState.hasResolvedIntro !== true) {")
       t->expectToContain(script, "const selectorBlockingUi =")
@@ -217,7 +217,7 @@ describe("TourTemplateScripts", () => {
   test(
     "generateRenderScript should hide classic navigation-mode section while auto-tour is active",
     t => {
-      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+      let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
       t->expectToContain(
         script,
@@ -227,7 +227,7 @@ describe("TourTemplateScripts", () => {
   )
 
   test("generateRenderScript should not stop auto-tour when portrait controls are pressed", t => {
-    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false)
+    let script = generateRenderScript(32, 90.0, 65.0, 90.0, 375, 640, true, false, true)
 
     t->expectToContain(script, "function shouldStopAutoTourOnPointerDown(event)")
     t->expectToContain(

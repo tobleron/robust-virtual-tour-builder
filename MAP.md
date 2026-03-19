@@ -64,8 +64,12 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/site/PortalAppCoreRoutes.res](src/site/PortalAppCoreRoutes.res): Portal route parsing and portal URL helper boundary. `#site` `#service`
 * [src/site/PortalAppUI.res](src/site/PortalAppUI.res): Portal branding, copy actions, and shared UI helper components. `#site` `#ui`
 * [src/site/PortalAppAdminSurface.res](src/site/PortalAppAdminSurface.res): Portal administration workspace and recipient/tour management surface. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceRefresh.res](src/site/PortalAppAdminSurfaceRefresh.res): Portal administration refresh and selection retention helpers. `#site` `#service`
+* [src/site/PortalAppAdminSurfaceActions.res](src/site/PortalAppAdminSurfaceActions.res): Portal administration async action and mutation handlers. `#site` `#service`
 * [src/site/PortalAppAdminSurfaceAuth.res](src/site/PortalAppAdminSurfaceAuth.res): Portal administration sign-in surface. `#site` `#ui`
 * [src/site/PortalAppAdminSurfaceDrawer.res](src/site/PortalAppAdminSurfaceDrawer.res): Portal administration drawer forms. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceLists.res](src/site/PortalAppAdminSurfaceLists.res): Portal administration directory and tour library list views. `#site` `#ui`
+* [src/site/PortalAppAdminSurfaceInspector.res](src/site/PortalAppAdminSurfaceInspector.res): Portal administration recipient detail and assignment inspector. `#site` `#ui`
 * [src/site/PortalAppCustomerSurface.res](src/site/PortalAppCustomerSurface.res): Portal customer gallery and tour viewer surface. `#site` `#ui`
 * [src/site/PageFramework.js](src/site/PageFramework.js): Static site/dashboard page orchestration entry. `#site` `#orchestrator`
 * [src/systems/Api.res](src/systems/Api.res): API façade entrypoint for backend calls. `#api` `#facade`
@@ -99,6 +103,7 @@ This map is intentionally compact. It lists high-signal entrypoints, orchestrato
 * [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Persistence orchestration boundary. `#persistence`
 * [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Durable operation journal boundary. `#recovery`
 * [src/utils/RecoveryManager.res](src/utils/RecoveryManager.res): Recovery orchestration boundary. `#recovery`
+* [src/utils/NetworkStatusTypes.res](src/utils/NetworkStatusTypes.res): Network status phase and reason helpers. `#types` `#service`
 * [src/ServiceWorkerMain.res](src/ServiceWorkerMain.res): Service worker install/activate/fetch runtime entry. `#service-worker` `#orchestrator`
 * [src/ServiceWorkerMainSupport.res](src/ServiceWorkerMainSupport.res): Service worker cache/install/activate helper routines. `#service-worker` `#service`
 * [src/systems/Scene/SceneLoaderSupport.res](src/systems/Scene/SceneLoaderSupport.res): Scene loader helper routines for reusable and fresh viewer setup. `#scene` `#service`

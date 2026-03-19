@@ -23,6 +23,7 @@ let loadInitialState = injectedState => {
         activePitch: state.activePitch,
         isLinking: false,
         isTeasing: false,
+        tripodDeadZoneEnabled: state.tripodDeadZoneEnabled,
       }
     | None => State.initialState
     }
@@ -98,7 +99,7 @@ let useLoadSessionTimeline = (dispatch: dispatch) => {
 }
 
 let useSessionSlice = (state: state): Types.sessionState => {
-  let sessionCore = React.useMemo6(() => {
+  let sessionCore = React.useMemo7(() => {
     (
       state.tourName,
       state.activeIndex,
@@ -106,6 +107,7 @@ let useSessionSlice = (state: state): Types.sessionState => {
       state.activePitch,
       state.isLinking,
       state.isTeasing,
+      state.tripodDeadZoneEnabled,
     )
   }, (
     state.tourName,
@@ -114,6 +116,7 @@ let useSessionSlice = (state: state): Types.sessionState => {
     state.activePitch,
     state.isLinking,
     state.isTeasing,
+    state.tripodDeadZoneEnabled,
   ))
 
   let sessionPipeline = React.useMemo2(() => {
@@ -121,7 +124,15 @@ let useSessionSlice = (state: state): Types.sessionState => {
   }, (state.timeline, state.activeTimelineStepId))
 
   React.useMemo2(() => {
-    let (tourName, activeIndex, activeYaw, activePitch, isLinking, isTeasing) = sessionCore
+    let (
+      tourName,
+      activeIndex,
+      activeYaw,
+      activePitch,
+      isLinking,
+      isTeasing,
+      tripodDeadZoneEnabled,
+    ) = sessionCore
     let (timeline, activeTimelineStepId) = sessionPipeline
 
     {
@@ -131,6 +142,7 @@ let useSessionSlice = (state: state): Types.sessionState => {
       activePitch,
       isLinking,
       isTeasing,
+      tripodDeadZoneEnabled,
       timeline: Some(timeline),
       activeTimelineStepId,
     }

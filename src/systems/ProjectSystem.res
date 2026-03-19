@@ -20,6 +20,7 @@ let projectFromState = (state: state): Types.project => {
     marketingPhone2: state.marketingPhone2,
     marketingForRent: state.marketingForRent,
     marketingForSale: state.marketingForSale,
+    tripodDeadZoneEnabled: state.tripodDeadZoneEnabled,
     nextSceneSequenceId: state.nextSceneSequenceId,
   }
 }

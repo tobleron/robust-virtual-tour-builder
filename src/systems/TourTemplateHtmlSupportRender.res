@@ -14,24 +14,10 @@ let generateTourHTML = (
   ~marketingShowSale: bool=false,
   ~marketingPhone1: string="",
   ~marketingPhone2: string="",
+  ~tripodDeadZoneEnabled: bool=true,
 ) => {
-  let normalizedExportType = switch exportType {
-  | "desktop_blob_hd_landscape_touch" => "hd"
-  | "desktop_blob_2k" => "2k"
-  | "desktop_blob_2k_landscape_touch" => "2k"
-  | "desktop_blob_4k_landscape_touch" => "4k"
-  | other => other
-  }
-  let allowFileProtocol =
-    exportType == "desktop_blob_2k" ||
-    exportType == "desktop_blob_hd_landscape_touch" ||
-    exportType == "desktop_blob_2k_landscape_touch" ||
-    exportType == "desktop_blob_4k_landscape_touch"
-  let forcedExportInteractionShell = switch exportType {
-  | "desktop_blob_hd_landscape_touch" | "desktop_blob_2k_landscape_touch" => "landscape-touch"
-  | "desktop_blob_4k_landscape_touch" => "landscape-touch"
-  | _ => ""
-  }
+  let (normalizedExportType, allowFileProtocol, forcedExportInteractionShell) =
+    normalizeExportType(exportType)
 
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
@@ -40,14 +26,7 @@ let generateTourHTML = (
   let entryBySceneHotspotKey = Dict.make()
   let visibleHotspotIndexByLinkId = Dict.make()
   let hasSceneId = (sceneId: string) => scenes->Belt.Array.some(ts => ts.id == sceneId)
-  let sequencingState: state = {
-    ...State.initialState,
-    inventory: scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, scene) =>
-      acc->Belt.Map.String.set(scene.id, {scene, status: Active})
-    ),
-    sceneOrder: scenes->Belt.Array.map(scene => scene.id),
-    activeIndex: 0,
-  }
+  let sequencingState = TourTemplateHtmlSupportRenderLogic.buildSequencingState(scenes)
   let derivedBadgeByLinkId = if scenes->Belt.Array.length > 0 {
     HotspotSequence.deriveBadgeByLinkId(~state=sequencingState)
   } else {
@@ -98,56 +77,21 @@ let generateTourHTML = (
     let rawHotspotEntries: array<TourTemplateHtmlSupportData.exportHotspotEntry> =
       s.hotspots
       ->Belt.Array.mapWithIndex((hotspotIndex, h) => {
-        let resolvedTargetId = switch h.targetSceneId {
-        | Some(targetSceneId) =>
-          if hasSceneId(targetSceneId) {
-            targetSceneId
-          } else {
-            switch TourData.resolveSceneIdFromTargetRef(targetSceneId, scenes) {
-            | Some(id) => id
-            | None => TourData.resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
-            }
-          }
-        | None => TourData.resolveSceneIdFromTargetRef(h.target, scenes)->Option.getOr("")
-        }
-        let targetIsAutoForward = switch h.isAutoForward {
-        | Some(true) => true
-        | _ => false
-        }
+        let resolvedTargetId =
+          resolveTargetSceneId(~targetSceneId=h.targetSceneId, ~target=h.target, ~scenes, ~hasSceneId)
         let hasValidTarget = hasSceneId(resolvedTargetId)
         let targetSceneNumber = sceneNumberBySceneId->Belt.Map.String.get(resolvedTargetId)
         let (isReturnLink, sequenceNumber) = resolveExportBadge(~linkId=h.linkId, ~hasValidTarget)
-        if hasValidTarget {
-          let hotspotData: TourData.hotspotData = {
-            "pitch": h.displayPitch->Option.getOr(h.pitch),
-            "yaw": h.yaw,
-            "target": h.target,
-            "targetSceneId": resolvedTargetId,
-            "targetSceneNumber": targetSceneNumber->Nullable.fromOption,
-            "targetIsAutoForward": targetIsAutoForward,
-            "isReturnLink": isReturnLink,
-            "sequenceNumber": sequenceNumber->Nullable.fromOption,
-            "startYaw": h.startYaw->Nullable.fromOption,
-            "startPitch": h.startPitch->Nullable.fromOption,
-            "waypoints": h.waypoints->Nullable.fromOption,
-            "truePitch": h.pitch,
-            "viewFrame": h.viewFrame->Nullable.fromOption,
-            "targetYaw": h.targetYaw->Nullable.fromOption,
-            "targetPitch": h.targetPitch->Nullable.fromOption,
-          }
-          let entry: TourTemplateHtmlSupportData.exportHotspotEntry = {
-            sourceSceneId: s.id,
-            hotspotIndex,
-            linkId: h.linkId,
-            destinationKey: TourTemplateHtmlSupportData.exportHotspotDestinationKey(hotspotData),
-            isReturnLink,
-            sequenceNumber,
-            hotspotData,
-          }
-          Some(entry)
-        } else {
-          None
-        }
+        TourTemplateHtmlSupportRenderLogic.buildExportHotspotEntry(
+          ~sceneId=s.id,
+          ~hotspotIndex,
+          ~hotspot=h,
+          ~resolvedTargetId,
+          ~targetSceneNumber,
+          ~hasValidTarget,
+          ~isReturnLink,
+          ~sequenceNumber,
+        )
       })
       ->Belt.Array.keepMap(item => item)
     let rawHotspots =
@@ -259,6 +203,7 @@ let generateTourHTML = (
     stageMaxWidth,
     dynamicHfovEnabled,
     normalizedExportType == "hd",
+    tripodDeadZoneEnabled,
     ~exportTraversalMode,
   )
   let logoDiv = switch logoFilename {
@@ -305,6 +250,7 @@ let generateTourHTML = (
     const EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR = 1.4;
     ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
+    const tripodPitchBounds = getTripodSafePitchBounds();
     const config = { "default": { "firstScene": "${firstSceneId}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
       defPitch,
     )}, "yaw": ${Belt.Float.toString(
@@ -313,7 +259,7 @@ let generateTourHTML = (
       minHfov,
     )}, "maxHfov": ${Belt.Float.toString(
       maxHfov,
-    )}, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false, "touchPanSpeedCoeffFactor": EXPORT_TOUCH_PAN_SPEED_COEFF, "touchReleaseMomentumFactor": EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR }, "scenes":{} };
+    )}, "minPitch": tripodPitchBounds.minPitch, "maxPitch": tripodPitchBounds.maxPitch, "showControls": false, "mouseZoom": false, "doubleClickZoom": false, "keyboardZoom": false, "showZoomCtrl": false, "touchPanSpeedCoeffFactor": EXPORT_TOUCH_PAN_SPEED_COEFF, "touchReleaseMomentumFactor": EXPORT_TOUCH_RELEASE_MOMENTUM_FACTOR }, "scenes":{} };
     for (const [sceneId, data] of Object.entries(scenesData)) {
       config.scenes[sceneId] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, sourceSceneId: sceneId, targetSceneId: h.targetSceneId, target: h.target, targetName: h.target, targetSceneNumber: h.targetSceneNumber, targetIsAutoForward: h.targetIsAutoForward, sequenceNumber: h.sequenceNumber, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }

@@ -105,6 +105,7 @@ module Project = {
           marketingPhone2: pd.marketingPhone2,
           marketingForRent: pd.marketingForRent,
           marketingForSale: pd.marketingForSale,
+          tripodDeadZoneEnabled: pd.tripodDeadZoneEnabled,
           activeIndex: if Belt.Array.length(pd.sceneOrder) > 0 {
             0
           } else {
@@ -196,6 +197,7 @@ module Project = {
         marketingForRent: forRent,
         marketingForSale: forSale,
       })
+    | SetTripodDeadZoneEnabled(enabled) => Some({...state, tripodDeadZoneEnabled: enabled})
     | _ => None
     }
   }

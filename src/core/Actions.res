@@ -59,6 +59,7 @@ type rec action =
   | DispatchAppFsmEvent(AppFSM.event)
   | SetLogo(option<file>)
   | SetMarketingSettings(string, string, string, bool, bool)
+  | SetTripodDeadZoneEnabled(bool)
   | Batch(array<action>)
   | PatchSceneThumbnail(string, file) // sceneId, newTinyFile
   | CleanupTimeline // Remove duplicate/orphaned timeline items
@@ -151,6 +152,7 @@ let uiActionToString = (action: action): option<string> =>
   | SetSessionId(id) => Some(`SetSessionId(${id})`)
   | SetLogo(_) => Some("SetLogo")
   | SetMarketingSettings(_, _, _, _, _) => Some("SetMarketingSettings")
+  | SetTripodDeadZoneEnabled(_) => Some("SetTripodDeadZoneEnabled")
   | DispatchAppFsmEvent(_) => Some("DispatchAppFsmEvent")
   | CleanupTimeline => Some("CleanupTimeline")
   | _ => None

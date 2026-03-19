@@ -170,6 +170,7 @@ let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   | Actions.SetSessionId(_)
   | Actions.SetLogo(_)
   | Actions.SetMarketingSettings(_, _, _, _, _)
+  | Actions.SetTripodDeadZoneEnabled(_)
   | Actions.Reset =>
     applyProjectOnly(state, action)
 

@@ -1,7 +1,8 @@
 // @efficiency-role: ui-component
-open ReBindings
 open PortalAppCore
+open ReBindings
 open PortalAppUI
+open PortalAppAdminSurfaceRefresh
 
 @react.component
 let make = () => {
@@ -47,79 +48,45 @@ let make = () => {
   let (nextPassword, setNextPassword) = React.useState(() => "")
   let (confirmNextPassword, setConfirmNextPassword) = React.useState(() => "")
 
-  let fetchAdminData = async (): adminRefreshResult => {
-    let session = await PortalApi.getAdminSession()
-    if !session.authenticated {
-      RefreshAuth
-    } else {
-      switch await PortalApi.loadSettings() {
-      | Error(message) => RefreshError(message)
-      | Ok(settings) =>
-        switch await PortalApi.listCustomers() {
-        | Error(message) => RefreshError(message)
-        | Ok(customers) =>
-          switch await PortalApi.listLibraryTours() {
-          | Error(message) => RefreshError(message)
-          | Ok(tours) => RefreshOk({session, settings, customers, tours})
-          }
-        }
-      }
-    }
-  }
+  let loadAdmin = PortalAppAdminSurfaceRefresh.make(~props={
+    setState,
+    setIsRefreshing,
+    setSelectedCustomerId,
+    setSelectedBulkCustomerIds,
+    setSelectedBulkTourIds,
+    setSettingsEdit,
+  })
 
-  let applyAdminData = payload => {
-    setSelectedCustomerId(prev =>
-      switch prev {
-      | Some(customerId)
-        if payload.customers->Belt.Array.some(customer => customer.customer.id == customerId) =>
-        Some(customerId)
-      | _ => payload.customers->Belt.Array.get(0)->Option.map(customer => customer.customer.id)
-      }
-    )
-    setSelectedBulkCustomerIds(prev =>
-      prev
-      ->Belt.Set.String.toArray
-      ->Belt.Array.keep(customerId =>
-        payload.customers->Belt.Array.some(customer => customer.customer.id == customerId)
-      )
-      ->Belt.Array.reduce(Belt.Set.String.empty, (acc, customerId) =>
-        acc->Belt.Set.String.add(customerId)
-      )
-    )
-    setSelectedBulkTourIds(prev =>
-      prev
-      ->Belt.Set.String.toArray
-      ->Belt.Array.keep(tourId => payload.tours->Belt.Array.some(tour => tour.tour.id == tourId))
-      ->Belt.Array.reduce(Belt.Set.String.empty, (acc, tourId) =>
-        acc->Belt.Set.String.add(tourId)
-      )
-    )
-    setSettingsEdit(_ => Some(draftFromSettings(payload.settings)))
-    setState(_ => Ready(payload))
-  }
-
-  let loadAdmin = (~preserveReadyState=false) => {
-    if preserveReadyState {
-      setIsRefreshing(_ => true)
-    } else {
-      setState(_ => Loading)
-    }
-    ignore(
-      (
-        async () => {
-          switch await fetchAdminData() {
-          | RefreshAuth => setState(_ => Failed("AUTH"))
-          | RefreshError(message) => setState(_ => Failed(message))
-          | RefreshOk(payload) => applyAdminData(payload)
-          }
-          setIsRefreshing(_ => false)
-        }
-      )(),
-    )
-  }
+  let actions = PortalAppAdminSurfaceActions.make(~props={
+    setFlash,
+    setActiveDrawer,
+    setShowPasswordPanel,
+    setCurrentPassword,
+    setNextPassword,
+    setConfirmNextPassword,
+    setSelectedBulkCustomerIds,
+    setSelectedBulkTourIds,
+    setSettingsEdit,
+    setCreateDraft,
+    setUploadTitle,
+    setSelectedUploadFile,
+    setCustomerDrafts,
+    setExpiryDrafts,
+    setLastGeneratedLinks,
+    loadAdmin: (~preserveReadyState: bool) => loadAdmin(~preserveReadyState),
+    currentPassword,
+    nextPassword,
+    confirmNextPassword,
+    createDraft,
+    settingsEdit,
+    uploadTitle,
+    selectedUploadFile,
+    selectedBulkCustomerIds,
+    selectedBulkTourIds,
+  })
 
   React.useEffect0(() => {
-    loadAdmin()
+    loadAdmin(~preserveReadyState=false)
     None
   })
 
@@ -163,262 +130,6 @@ let make = () => {
     setAssignmentMode(_ => SingleRecipientMode)
   }
 
-  let onAdminSignIn = async (email, password) => {
-    switch await PortalApi.signInAdmin(~email, ~password) {
-    | Ok() =>
-      setFlash(_ => {error: None, success: Some("Signed in.")})
-      loadAdmin()
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onChangePassword = async () => {
-    if currentPassword->String.trim == "" || nextPassword->String.trim == "" {
-      setFlash(_ => {
-        success: None,
-        error: Some("Current password and new password are required."),
-      })
-    } else if nextPassword != confirmNextPassword {
-      setFlash(_ => {
-        success: None,
-        error: Some("New password confirmation does not match."),
-      })
-    } else {
-      switch await PortalApi.changeAdminPassword(~currentPassword, ~newPassword=nextPassword) {
-      | Ok() =>
-        setCurrentPassword(_ => "")
-        setNextPassword(_ => "")
-        setConfirmNextPassword(_ => "")
-        setShowPasswordPanel(_ => false)
-        setFlash(_ => {
-          success: Some("Password updated successfully."),
-          error: None,
-        })
-      | Error(message) =>
-        setFlash(_ => {
-          success: None,
-          error: Some(message),
-        })
-      }
-    }
-  }
-
-  let onSaveSettings = async () => {
-    switch settingsEdit {
-    | None => ()
-    | Some(draft) =>
-      switch await PortalApi.updateSettings(
-        ~settings={
-          renewalHeading: draft.renewalHeading,
-          renewalMessage: draft.renewalMessage,
-          contactEmail: draft.contactEmail->String.trim == "" ? None : Some(draft.contactEmail),
-          contactPhone: draft.contactPhone->String.trim == "" ? None : Some(draft.contactPhone),
-          whatsappNumber: draft.whatsappNumber->String.trim == ""
-            ? None
-            : Some(draft.whatsappNumber),
-        },
-      ) {
-      | Ok(settings) =>
-        setSettingsEdit(_ => Some(draftFromSettings(settings)))
-        setActiveDrawer(_ => NoDrawer)
-        setFlash(_ => {error: None, success: Some("Renewal settings updated.")})
-        loadAdmin(~preserveReadyState=true)
-      | Error(message) => setFlash(_ => {error: Some(message), success: None})
-      }
-    }
-  }
-
-  let onCreateCustomer = async () => {
-    let slug = createDraft.slug->String.trim
-    let displayName = createDraft.displayName->String.trim
-    let expiresAt = localDateTimeToIso(createDraft.expiresAt)
-    switch await PortalApi.createCustomer(
-      ~slug,
-      ~displayName,
-      ~expiresAt,
-      ~recipientType=createDraft.recipientType,
-      ~contactName=None,
-      ~contactEmail=None,
-      ~contactPhone=None,
-    ) {
-    | Ok(result) =>
-      setLastGeneratedLinks(prev =>
-        prev->Belt.Map.String.set(result.overview.customer.id, result.accessLink.accessUrl)
-      )
-      setCreateDraft(_ => {
-        slug: "",
-        displayName: "",
-        expiresAt: nowPlusDaysIsoLocal(30),
-        recipientType: PortalTypes.PropertyOwner,
-      })
-      setActiveDrawer(_ => NoDrawer)
-      setFlash(_ => {error: None, success: Some("Customer created and access link generated.")})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onUpdateCustomer = async (customerId, draft: customerDraft) => {
-    switch await PortalApi.updateCustomer(
-      ~customerId,
-      ~displayName=draft.displayName->String.trim,
-      ~recipientType=draft.recipientType,
-      ~contactName=None,
-      ~contactEmail=None,
-      ~contactPhone=None,
-      ~isActive=draft.isActive,
-    ) {
-    | Ok(_) =>
-      setFlash(_ => {error: None, success: Some("Customer updated.")})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onGenerateLink = async (customerId, expiryLocal) => {
-    switch await PortalApi.regenerateAccessLink(
-      ~customerId,
-      ~expiresAt=localDateTimeToIso(expiryLocal),
-    ) {
-    | Ok(result) =>
-      setLastGeneratedLinks(prev => prev->Belt.Map.String.set(customerId, result.accessUrl))
-      setFlash(_ => {error: None, success: Some("New access link generated.")})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onRevokeLink = async customerId => {
-    switch await PortalApi.revokeAccessLink(~customerId) {
-    | Ok(_) =>
-      setLastGeneratedLinks(prev => prev->Belt.Map.String.remove(customerId))
-      setFlash(_ => {error: None, success: Some("Access link revoked.")})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onDeleteAccessLinks = async customerId => {
-    if (Window.confirm("Delete all saved access links for this recipient? This cannot be undone.")) {
-      switch await PortalApi.deleteAccessLinks(~customerId) {
-      | Ok(_) =>
-        setLastGeneratedLinks(prev => prev->Belt.Map.String.remove(customerId))
-        setFlash(_ => {error: None, success: Some("Access links deleted.")})
-        loadAdmin(~preserveReadyState=true)
-      | Error(message) => setFlash(_ => {error: Some(message), success: None})
-      }
-    }
-  }
-
-  let onDeleteCustomer = async customerId => {
-    if (
-      Window.confirm(
-        "Force delete this recipient, all their links, and all tour assignments? This cannot be undone.",
-      )
-    ) {
-      switch await PortalApi.deleteCustomer(~customerId) {
-      | Ok(_) =>
-        setLastGeneratedLinks(prev => prev->Belt.Map.String.remove(customerId))
-        setCustomerDrafts(prev => prev->Belt.Map.String.remove(customerId))
-        setExpiryDrafts(prev => prev->Belt.Map.String.remove(customerId))
-        setSelectedCustomerId(_ => None)
-        setFlash(_ => {error: None, success: Some("Recipient deleted.")})
-        loadAdmin(~preserveReadyState=true)
-      | Error(message) => setFlash(_ => {error: Some(message), success: None})
-      }
-    }
-  }
-
-  let onUploadTour = async () => {
-    switch selectedUploadFile {
-    | Some(file) =>
-      Logger.info(
-        ~module_="PortalApp",
-        ~message="Starting tour upload",
-        ~data=Some({"title": uploadTitle, "fileSize": BrowserBindings.File.size(file)}),
-        (),
-      )
-      setFlash(_ => {error: None, success: Some("Starting upload...")})
-      switch await PortalApi.uploadTour(~title=uploadTitle->String.trim, ~file) {
-      | Ok(_) =>
-        Logger.info(~module_="PortalApp", ~message="Tour upload successful", ~data=Some({"title": uploadTitle}), ())
-        setUploadTitle(_ => "")
-        setSelectedUploadFile(_ => None)
-        setActiveDrawer(_ => NoDrawer)
-        setFlash(_ => {error: None, success: Some("Tour uploaded to the library.")})
-        loadAdmin(~preserveReadyState=true)
-      | Error(message) =>
-        Logger.error(~module_="PortalApp", ~message="Tour upload failed", ~data=Some({"error": message}), ())
-        setFlash(_ => {error: Some(message), success: None})
-      }
-    | None => setFlash(_ => {error: Some("Choose a ZIP file first."), success: None})
-    }
-  }
-
-  let onAssignToggle = async (~customerId, ~tourId, ~assigned) => {
-    let result = if assigned {
-      await PortalApi.unassignTour(~customerId, ~tourId)
-    } else {
-      await PortalApi.assignTour(~customerId, ~tourId)
-    }
-    switch result {
-    | Ok(_) =>
-      setFlash(_ => {
-        error: None,
-        success: Some(
-          if assigned {
-            "Tour unassigned."
-          } else {
-            "Tour assigned."
-          },
-        ),
-      })
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onBulkAssign = async () => {
-    let customerIds = selectedBulkCustomerIds->Belt.Set.String.toArray
-    let tourIds = selectedBulkTourIds->Belt.Set.String.toArray
-    switch await PortalApi.bulkAssignTours(~customerIds, ~tourIds) {
-    | Ok(result) =>
-      let message = if result.skippedCount > 0 {
-        Belt.Int.toString(result.createdCount) ++
-        " assignments created, " ++
-        Belt.Int.toString(result.skippedCount) ++ " already existed."
-      } else {
-        Belt.Int.toString(result.createdCount) ++ " assignments created."
-      }
-      clearBulkSelections()
-      setFlash(_ => {error: None, success: Some(message)})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onTourStatus = async (~tourId, ~status) => {
-    switch await PortalApi.updateTourStatus(~tourId, ~status) {
-    | Ok(_) =>
-      setFlash(_ => {error: None, success: Some("Tour status updated.")})
-      loadAdmin(~preserveReadyState=true)
-    | Error(message) => setFlash(_ => {error: Some(message), success: None})
-    }
-  }
-
-  let onDeleteTour = async (~tourId, ~title) => {
-    if (Window.confirm(
-      "Force delete \"" ++ title ++ "\" from the library and remove all assignments? This cannot be undone.",
-    )) {
-      switch await PortalApi.deleteTour(~tourId) {
-      | Ok(_) =>
-        setFlash(_ => {error: None, success: Some("Tour deleted from library.")})
-        loadAdmin(~preserveReadyState=true)
-      | Error(message) => setFlash(_ => {error: Some(message), success: None})
-      }
-    }
-  }
-
   switch state {
   | Loading =>
     <div className="portal-shell">
@@ -430,50 +141,14 @@ let make = () => {
         </section>
       </main>
     </div>
-  | Failed("AUTH") => <PortalAppAdminSurfaceAuth.make flash onSignIn={onAdminSignIn} />
+  | Failed("AUTH") => <PortalAppAdminSurfaceAuth.make flash onSignIn={actions.onAdminSignIn} />
   | Failed(message) =>
-    <PortalAppAdminSurfaceAuth.make flash={...flash, error: Some(message)} onSignIn={onAdminSignIn} />
+    <PortalAppAdminSurfaceAuth.make flash={...flash, error: Some(message)} onSignIn={actions.onAdminSignIn} />
   | Idle => React.null
   | Ready(data) =>
     let settingsDraft = settingsEdit->Option.getOr(draftFromSettings(data.settings))
     let selectedOverview =
       selectedCustomerId->Option.flatMap(customerId => findCustomerOverview(data.customers, customerId))
-    let filteredRecipients =
-      data.customers->Belt.Array.keep(customerOverview =>
-        matchesRecipientSearch(customerOverview, recipientSearch) &&
-        matchesRecipientFilter(customerOverview, recipientFilter) &&
-        matchesRecipientTypeFilter(customerOverview, recipientTypeFilter)
-      )
-    let (visibleRecipients, recipientTotal, recipientHasPrev, recipientHasNext) = paginateArray(
-      filteredRecipients,
-      recipientPage,
-    )
-    let filteredTours =
-      data.tours->Belt.Array.keep(tourOverview =>
-        matchesTourSearch(tourOverview, tourSearch) && matchesTourFilter(tourOverview, tourFilter)
-      )
-    let (visibleTours, tourTotal, tourHasPrev, tourHasNext) = paginateArray(filteredTours, tourPage)
-    let recipientPageCount = totalPages(recipientTotal)
-    let tourPageCount = totalPages(tourTotal)
-    let bulkCustomerIds = selectedBulkCustomerIds->Belt.Set.String.toArray
-    let bulkTourIds = selectedBulkTourIds->Belt.Set.String.toArray
-    let bulkSelectionCount = bulkCustomerIds->Belt.Array.length
-    let bulkTourSelectionCount = bulkTourIds->Belt.Array.length
-    let bulkRequestedAssignments = bulkSelectionCount * bulkTourSelectionCount
-    let selectedBulkRecipients =
-      data.customers->Belt.Array.keep(overview =>
-        selectedBulkCustomerIds->Belt.Set.String.has(overview.customer.id)
-      )
-    let selectedBulkTours =
-      data.tours->Belt.Array.keep(overview =>
-        selectedBulkTourIds->Belt.Set.String.has(overview.tour.id)
-      )
-    let activeRecipientCount =
-      data.customers->Belt.Array.keep(customer => customer.customer.isActive)->Belt.Array.length
-    let publishedTourCount =
-      data.tours->Belt.Array.keep(tour => tour.tour.status == "published")->Belt.Array.length
-    let totalAssignments =
-      data.tours->Belt.Array.reduce(0, (count, tour) => count + tour.assignmentCount)
     let drawerNode =
       PortalAppAdminSurfaceDrawer.make({
         activeDrawer,
@@ -485,1117 +160,88 @@ let make = () => {
         setSelectedUploadFile,
         settingsDraft,
         setSettingsEdit,
-        onCreateCustomer,
-        onUploadTour,
-        onSaveSettings,
+        onCreateCustomer: actions.onCreateCustomer,
+        onUploadTour: actions.onUploadTour,
+        onSaveSettings: actions.onSaveSettings,
       })
     <div className="portal-shell">
       {drawerNode}
       <main className="portal-main">
-        <section className="portal-hero">
-          <div className="portal-hero-topbar">
-            <div className="portal-hero-copy">
-              {brandLockup()}
-              <h1 className="portal-title">{React.string("Customer Tour Portal Administration")}</h1>
-              <p className="portal-subtitle">
-                {React.string(
-                  "Manage recipients, shared tours, and expiring access links from one branded workspace.",
-                )}
-              </p>
-            </div>
-            <div className="portal-inline-actions">
-              <span className="portal-chip is-active">
-                {React.string(data.session.email->Option.getOr("portal-admin"))}
-              </span>
-              <button
-                className="site-btn site-btn-ghost"
-                onClick={_ => setShowPasswordPanel(isOpen => !isOpen)}
-              >
-                {React.string(showPasswordPanel ? "Close Password" : "Change Password")}
-              </button>
-              <button
-                className="site-btn site-btn-ghost"
-                onClick={_ => {
-                  ignore(
-                    (
-                      async () => {
-                        let _ = await PortalApi.signOutAdmin()
-                        assignLocation("/portal-admin/signin")
-                      }
-                    )(),
-                  )
-                }}
-              >
-                {React.string("Sign Out")}
-              </button>
-            </div>
-          </div>
-          <div className="portal-hero-status">
-            {messageNode(~flash)}
-            {isRefreshing
-              ? <span className="portal-chip portal-refresh-indicator">
-                  {React.string("Updating")}
-                </span>
-              : React.null}
-          </div>
-          {showPasswordPanel
-            ? <div className="portal-password-panel">
-                <div className="portal-form-grid">
-                  <label>
-                    {React.string("Current Password")}
-                    <input
-                      type_="password"
-                      value=currentPassword
-                      onChange={e => setCurrentPassword(_ => ReactEvent.Form.target(e)["value"])}
-                    />
-                  </label>
-                  <label>
-                    {React.string("New Password")}
-                    <input
-                      type_="password"
-                      value=nextPassword
-                      onChange={e => setNextPassword(_ => ReactEvent.Form.target(e)["value"])}
-                    />
-                  </label>
-                  <label>
-                    {React.string("Confirm New Password")}
-                    <input
-                      type_="password"
-                      value=confirmNextPassword
-                      onChange={e =>
-                        setConfirmNextPassword(_ => ReactEvent.Form.target(e)["value"])}
-                    />
-                  </label>
-                </div>
-                <div className="portal-form-actions">
-                  <button
-                    className="site-btn site-btn-primary"
-                    onClick={_ => ignore(onChangePassword())}
-                  >
-                    {React.string("Update Password")}
-                  </button>
-                </div>
-              </div>
-            : React.null}
-          <div className="portal-stat-grid">
-            <article className="portal-stat-card">
-              <span className="portal-stat-label"> {React.string("Recipients")} </span>
-              <strong className="portal-stat-value">
-                {React.string(Belt.Int.toString(data.customers->Belt.Array.length))}
-              </strong>
-            </article>
-            <article className="portal-stat-card">
-              <span className="portal-stat-label"> {React.string("Active")} </span>
-              <strong className="portal-stat-value">
-                {React.string(Belt.Int.toString(activeRecipientCount))}
-              </strong>
-            </article>
-            <article className="portal-stat-card">
-              <span className="portal-stat-label"> {React.string("Published tours")} </span>
-              <strong className="portal-stat-value">
-                {React.string(Belt.Int.toString(publishedTourCount))}
-              </strong>
-            </article>
-            <article className="portal-stat-card">
-              <span className="portal-stat-label"> {React.string("Assignments")} </span>
-              <strong className="portal-stat-value">
-                {React.string(Belt.Int.toString(totalAssignments))}
-              </strong>
-            </article>
-          </div>
-        </section>
+        {PortalAppAdminSurfaceHeader.make(~props={
+          data,
+          flash,
+          isRefreshing,
+          showPasswordPanel,
+          currentPassword,
+          nextPassword,
+          confirmNextPassword,
+          setShowPasswordPanel,
+          setCurrentPassword,
+          setNextPassword,
+          setConfirmNextPassword,
+          onChangePassword: actions.onChangePassword,
+          onSignOut: actions.onSignOut,
+          assignmentMode,
+          setAssignmentMode,
+          setActiveDrawer,
+          exitBulkMode,
+        })}
+        <div className="portal-admin-main">
+          {PortalAppAdminSurfaceLists.make({
+            data,
+            assignmentMode,
+            selectedCustomerId,
+            setSelectedCustomerId,
+            selectedBulkCustomerIds,
+            toggleBulkCustomerSelection,
+            recipientSearch,
+            setRecipientSearch,
+            recipientFilter,
+            setRecipientFilter,
+            recipientTypeFilter,
+            setRecipientTypeFilter,
+            recipientPage,
+            setRecipientPage,
+            selectedBulkTourIds,
+            toggleBulkTourSelection,
+            tourSearch,
+            setTourSearch,
+            tourFilter,
+            setTourFilter,
+            tourPage,
+            setTourPage,
+            onTourStatus: actions.onTourStatus,
+            onDeleteTour: actions.onDeleteTour,
+          })}
 
-        <section className="portal-admin-dashboard">
-          <article className="portal-card portal-admin-toolbar-card">
-            <div className="portal-toolbar-head">
-              <div>
-                <h2> {React.string("Workspace tools")} </h2>
-                <p className="portal-card-muted">
-                  {React.string(
-                    "Use quick actions to create recipients, upload tours, and manage renewals without leaving the directory workspace.",
-                  )}
-                </p>
-              </div>
-            </div>
-            <div className="portal-admin-toolbar">
-              <div className="portal-toolbar-actions">
-                <button
-                  className="site-btn site-btn-primary portal-toolbar-btn"
-                  onClick={_ => setActiveDrawer(_ => RecipientDrawer)}
-                >
-                  {actionLabel(~icon=AddIcon, ~label="New recipient")}
-                </button>
-                <button
-                  className="site-btn site-btn-ghost portal-toolbar-btn"
-                  onClick={_ => setActiveDrawer(_ => UploadDrawer)}
-                >
-                  {actionLabel(~icon=UploadIcon, ~label="Upload tour")}
-                </button>
-                <button
-                  className="site-btn site-btn-ghost portal-toolbar-btn"
-                  onClick={_ => setActiveDrawer(_ => SettingsDrawer)}
-                >
-                  {actionLabel(~icon=SettingsIcon, ~label="Renewals")}
-                </button>
-                <button
-                  className={"site-btn portal-toolbar-btn " ++ (
-                    assignmentMode == BulkAssignMode ? "site-btn-primary" : "site-btn-ghost"
-                  )}
-                  onClick={_ =>
-                    assignmentMode == BulkAssignMode ? exitBulkMode() : setAssignmentMode(_ => BulkAssignMode)}
-                >
-                  {actionLabel(
-                    ~icon=assignmentMode == BulkAssignMode ? RevokeIcon : AddIcon,
-                    ~label=assignmentMode == BulkAssignMode ? "Exit bulk mode" : "Bulk assign",
-                  )}
-                </button>
-              </div>
-              <div className="portal-toolbar-filters">
-                <label className="portal-search-field">
-                  <span> {React.string("Search recipients")} </span>
-                  <input
-                    placeholder="Name or slug"
-                    value=recipientSearch
-                    onChange={e => {
-                      setRecipientSearch(_ => ReactEvent.Form.target(e)["value"])
-                      setRecipientPage(_ => 0)
-                    }}
-                  />
-                </label>
-                <label className="portal-inline-field">
-                  <span> {React.string("Status")} </span>
-                  <select
-                    value={switch recipientFilter {
-                    | RecipientAll => "all"
-                    | RecipientActive => "active"
-                    | RecipientAttention => "attention"
-                    }}
-                    onChange={e => {
-                      let value = ReactEvent.Form.target(e)["value"]
-                      setRecipientFilter(_ =>
-                        switch value {
-                        | "active" => RecipientActive
-                        | "attention" => RecipientAttention
-                        | _ => RecipientAll
-                        }
-                      )
-                      setRecipientPage(_ => 0)
-                    }}
-                  >
-                    <option value="all"> {React.string("All")} </option>
-                    <option value="active"> {React.string("Active")} </option>
-                    <option value="attention"> {React.string("Revoked / Missing")} </option>
-                  </select>
-                </label>
-                <label className="portal-inline-field">
-                  <span> {React.string("Type")} </span>
-                  <select
-                    value={switch recipientTypeFilter {
-                    | RecipientTypeAll => "all"
-                    | RecipientTypePropertyOwner => "property_owner"
-                    | RecipientTypeBroker => "broker"
-                    | RecipientTypePropertyOwnerBroker => "property_owner_broker"
-                    }}
-                    onChange={e => {
-                      let value = ReactEvent.Form.target(e)["value"]
-                      setRecipientTypeFilter(_ =>
-                        switch value {
-                        | "property_owner" => RecipientTypePropertyOwner
-                        | "broker" => RecipientTypeBroker
-                        | "property_owner_broker" => RecipientTypePropertyOwnerBroker
-                        | _ => RecipientTypeAll
-                        }
-                      )
-                      setRecipientPage(_ => 0)
-                    }}
-                  >
-                    <option value="all"> {React.string("All types")} </option>
-                    <option value="property_owner"> {React.string("Property owner")} </option>
-                    <option value="broker"> {React.string("Broker")} </option>
-                    <option value="property_owner_broker">
-                      {React.string("Property owner & broker")}
-                    </option>
-                  </select>
-                </label>
-              </div>
-            </div>
-          </article>
-          <div className="portal-admin-main">
-            <article className="portal-card">
-              <div className="portal-section-head">
-                <div>
-                  <h2> {React.string("Recipient directory")} </h2>
-                  <p className="portal-card-muted">
-                    {React.string(
-                      "Scan status, expiry, and recent activity in one full-width workspace table.",
-                    )}
-                  </p>
-                </div>
-                <div className="portal-inline-actions">
-                  <span className="portal-chip">
-                    {React.string(
-                      "Showing " ++
-                      Belt.Int.toString(visibleRecipients->Belt.Array.length) ++
-                      " of " ++
-                      Belt.Int.toString(recipientTotal),
-                    )}
-                  </span>
-                  {assignmentMode == BulkAssignMode && bulkSelectionCount > 0
-                    ? <span className="portal-chip is-active">
-                        {React.string(Belt.Int.toString(bulkSelectionCount) ++ " selected")}
-                      </span>
-                    : React.null}
-                </div>
-              </div>
-              <div className="portal-table-scroll">
-                <div className="portal-recipient-table">
-                  <div className="portal-table-head portal-recipient-table-head">
-                    <span> {React.string("Recipient")} </span>
-                    <span> {React.string("Tours")} </span>
-                    <span> {React.string("Access")} </span>
-                    <span> {React.string("Expiry")} </span>
-                    <span> {React.string("Last opened")} </span>
-                    <span>{React.string(assignmentMode == BulkAssignMode ? "Select" : "Open")}</span>
-                  </div>
-                  {switch recipientTotal {
-                  | 0 =>
-                    <div className="portal-empty-inline">
-                      {React.string("No recipients match the current filters.")}
-                    </div>
-                  | _ =>
-                    visibleRecipients
-                    ->Belt.Array.map(customerOverview => {
-                      let isSelected =
-                        selectedCustomerId
-                        ->Option.map(id => id == customerOverview.customer.id)
-                        ->Option.getOr(false)
-                      let isBulkSelected =
-                        selectedBulkCustomerIds->Belt.Set.String.has(customerOverview.customer.id)
-                      let expiryText =
-                        customerOverview.accessLink
-                        ->Option.map(link => isoToLocalDateTime(link.expiresAt))
-                        ->Option.getOr("Not generated")
-                      let lastOpenedText =
-                        customerOverview.accessLink
-                        ->Option.flatMap(link => link.lastOpenedAt)
-                        ->Option.map(isoToLocalDateTime)
-                        ->Option.getOr("Never")
-                      let (accessLabel, accessClass) = recipientAccessLabel(customerOverview)
-                      <button
-                        key={customerOverview.customer.id}
-                        className={"portal-recipient-row " ++ (
-                          assignmentMode == BulkAssignMode
-                            ? isBulkSelected ? "is-selected" : ""
-                            : isSelected
-                            ? "is-selected"
-                            : ""
-                        )}
-                        ariaLabel={(
-                          assignmentMode == BulkAssignMode
-                            ? "Select recipient "
-                            : "Open recipient "
-                        ) ++
-                        customerOverview.customer.displayName}
-                        onClick={_ =>
-                          assignmentMode == BulkAssignMode
-                            ? toggleBulkCustomerSelection(customerOverview.customer.id)
-                            : setSelectedCustomerId(_ => Some(customerOverview.customer.id))}
-                      >
-                        <span className="portal-table-cell portal-table-cell-primary">
-                          {mobileLabel("Recipient")}
-                          <span className="portal-row-primary">
-                            <span className="portal-row-primary-title">
-                              {assignmentMode == BulkAssignMode
-                                ? <input
-                                    type_="checkbox" checked={isBulkSelected} readOnly=true
-                                  />
-                                : React.null}
-                              <strong>
-                                {React.string(customerOverview.customer.displayName)}
-                              </strong>
-                            </span>
-                            <span className="portal-chip-row portal-chip-row-compact">
-                              <span className="portal-chip portal-chip-subtle">
-                                {React.string(
-                                  customerOverview.customer.recipientType->recipientTypeLabel,
-                                )}
-                              </span>
-                              <small> {React.string(customerOverview.customer.slug)} </small>
-                            </span>
-                          </span>
-                        </span>
-                        <span className="portal-table-cell portal-table-cell-number">
-                          {mobileLabel("Tours")}
-                          <strong className="portal-row-number">
-                            {React.string(Belt.Int.toString(customerOverview.tourCount))}
-                          </strong>
-                        </span>
-                        <span className="portal-table-cell">
-                          {mobileLabel("Access")}
-                          <span className={"portal-chip " ++ accessClass}>
-                            {React.string(accessLabel)}
-                          </span>
-                        </span>
-                        <span className="portal-table-cell">
-                          {mobileLabel("Expiry")}
-                          <span className="portal-row-muted"> {React.string(expiryText)} </span>
-                        </span>
-                        <span className="portal-table-cell">
-                          {mobileLabel("Last opened")}
-                          <span className="portal-row-muted">
-                            {React.string(lastOpenedText)}
-                          </span>
-                        </span>
-                        <span className="portal-table-cell portal-table-cell-action">
-                          {mobileLabel(assignmentMode == BulkAssignMode ? "Select" : "Open")}
-                          <span className="portal-table-action-chip">
-                            {actionLabel(
-                              ~icon=assignmentMode == BulkAssignMode
-                                ? isBulkSelected ? CheckIcon : AddIcon
-                                : DetailIcon,
-                              ~label=assignmentMode == BulkAssignMode
-                                ? isBulkSelected ? "Selected" : "Select"
-                                : "Details",
-                            )}
-                          </span>
-                        </span>
-                      </button>
-                    })
-                    ->React.array
-                  }}
-                </div>
-              </div>
-              <div className="portal-pagination">
-                <button
-                  className="site-btn site-btn-ghost"
-                  disabled={!recipientHasPrev}
-                  onClick={_ => recipientHasPrev ? setRecipientPage(prev => prev - 1) : ()}
-                >
-                  {React.string("Previous")}
-                </button>
-                <span className="portal-row-muted">
-                  {React.string(
-                    "Page " ++
-                    Belt.Int.toString(recipientPage + 1) ++
-                    " of " ++
-                    Belt.Int.toString(recipientPageCount),
-                  )}
-                </span>
-                <button
-                  className="site-btn site-btn-ghost"
-                  disabled={!recipientHasNext}
-                  onClick={_ => recipientHasNext ? setRecipientPage(prev => prev + 1) : ()}
-                >
-                  {React.string("Next")}
-                </button>
-              </div>
-            </article>
+          {PortalAppAdminSurfaceBulk.make(~props={
+            assignmentMode,
+            data,
+            selectedBulkCustomerIds,
+            selectedBulkTourIds,
+            setSelectedBulkCustomerIds,
+            setSelectedBulkTourIds,
+            clearBulkSelections,
+            onBulkAssign: actions.onBulkAssign,
+          })}
 
-            {assignmentMode == BulkAssignMode
-              ? <article className="portal-card portal-bulk-inspector-card">
-                  <div className="portal-section-head">
-                    <div>
-                      <h2> {React.string("Bulk assignment")} </h2>
-                      <p className="portal-card-muted">
-                        {React.string(
-                          "Select recipients on the left and tours below, then assign that full combination in one action.",
-                        )}
-                      </p>
-                    </div>
-                    <div className="portal-chip-row">
-                      <span className="portal-chip is-active">
-                        {React.string(Belt.Int.toString(bulkSelectionCount) ++ " recipients")}
-                      </span>
-                      <span className="portal-chip is-active">
-                        {React.string(Belt.Int.toString(bulkTourSelectionCount) ++ " tours")}
-                      </span>
-                      <span className="portal-chip">
-                        {React.string(
-                          Belt.Int.toString(bulkRequestedAssignments) ++ " assignments",
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="portal-bulk-inspector-grid">
-                    <div className="portal-detail-card">
-                      <span className="portal-link-label">
-                        {React.string("Recipients selected")}
-                      </span>
-                      {switch selectedBulkRecipients->Belt.Array.length {
-                      | 0 =>
-                        <div className="portal-empty-inline">
-                          {React.string(
-                            "Pick one or more recipients from the directory to start the assignment set.",
-                          )}
-                        </div>
-                      | _ =>
-                        <div className="portal-selection-chip-list">
-                          {selectedBulkRecipients
-                          ->Belt.Array.map(overview =>
-                            <span key={overview.customer.id} className="portal-selection-chip">
-                              {React.string(
-                                overview.customer.displayName ++
-                                " · " ++
-                                overview.customer.recipientType->recipientTypeLabel,
-                              )}
-                            </span>
-                          )
-                          ->React.array}
-                        </div>
-                      }}
-                    </div>
-                    <div className="portal-detail-card">
-                      <span className="portal-link-label"> {React.string("Tours selected")} </span>
-                      {switch selectedBulkTours->Belt.Array.length {
-                      | 0 =>
-                        <div className="portal-empty-inline">
-                          {React.string(
-                            "Pick one or more tours from the library to build the assignment set.",
-                          )}
-                        </div>
-                      | _ =>
-                        <div className="portal-selection-chip-list">
-                          {selectedBulkTours
-                          ->Belt.Array.map(overview =>
-                            <span key={overview.tour.id} className="portal-selection-chip">
-                              {React.string(overview.tour.title)}
-                            </span>
-                          )
-                          ->React.array}
-                        </div>
-                      }}
-                    </div>
-                  </div>
-                  <div className="portal-bulk-inspector-preview">
-                    <span className="portal-link-label"> {React.string("Preview")} </span>
-                    <p className="portal-card-muted">
-                      {React.string(
-                        "Existing assignments are left untouched and skipped automatically. Only missing links are created.",
-                      )}
-                    </p>
-                  </div>
-                </article>
-              : switch selectedOverview {
-                | None =>
-                  <article className="portal-card portal-empty-state">
-                    <h2> {React.string("No recipient selected")} </h2>
-                    <p className="portal-card-muted">
-                      {React.string(
-                        "Select a recipient from the directory to manage links, status, and assignments.",
-                      )}
-                    </p>
-                  </article>
-                | Some(customerOverview) =>
-                  let customerId = customerOverview.customer.id
-                  let customerDraft =
-                    customerDrafts
-                    ->Belt.Map.String.get(customerId)
-                    ->Option.getOr(customerDraftFromOverview(customerOverview))
-                  let expiryDraft =
-                    expiryDrafts
-                    ->Belt.Map.String.get(customerId)
-                    ->Option.getOr(
-                      customerOverview.accessLink
-                      ->Option.map(link => isoToLocalDateTime(link.expiresAt))
-                      ->Option.getOr(nowPlusDaysIsoLocal(30)),
-                    )
-                  let lastLink = lastGeneratedLinks->Belt.Map.String.get(customerId)
-                  let activeAccessUrl =
-                    lastLink->Option.orElse(
-                      customerOverview.accessLink->Option.flatMap(link => link.accessUrl),
-                    )
-                  let galleryExpiryLabel = if expiryDraft == "" {
-                    "Set an expiry before sharing."
-                  } else {
-                    "Expires " ++ expiryDraft
-                  }
-                  <article className="portal-card portal-recipient-detail-card">
-                    <div className="portal-section-head">
-                      <div>
-                        <h2> {React.string("Recipient detail")} </h2>
-                        <p className="portal-card-muted">
-                          {React.string("Recipient ID: " ++ customerId)}
-                        </p>
-                      </div>
-                      <div className="portal-chip-row">
-                        <span
-                          className={"portal-chip " ++ (
-                            customerDraft.isActive ? "is-active" : "is-expired"
-                          )}
-                        >
-                          {React.string(
-                            if customerDraft.isActive {
-                              "Active"
-                            } else {
-                              "Inactive"
-                            },
-                          )}
-                        </span>
-                        <span className="portal-chip portal-chip-subtle">
-                          {React.string(customerDraft.recipientType->recipientTypeLabel)}
-                        </span>
-                        <span className="portal-chip">
-                          {React.string(
-                            Belt.Int.toString(customerOverview.tourCount) ++ " tours",
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="portal-detail-grid">
-                      <div className="portal-detail-card">
-                        <div className="portal-form-grid">
-                          <label>
-                            {React.string("Display name")}
-                            <input
-                              value=customerDraft.displayName
-                              onChange={e =>
-                                updateCustomerDraft(customerId, draft => {
-                                  ...draft,
-                                  displayName: ReactEvent.Form.target(e)["value"],
-                                })}
-                            />
-                          </label>
-                          <label>
-                            {React.string("Recipient type")}
-                            <select
-                              value={customerDraft.recipientType->recipientTypeValue}
-                              onChange={e =>
-                                updateCustomerDraft(customerId, draft => {
-                                  ...draft,
-                                  recipientType: ReactEvent.Form.target(e)["value"]->recipientTypeFromValue,
-                                })}
-                            >
-                              <option value="property_owner">
-                                {React.string("Property owner")}
-                              </option>
-                              <option value="broker"> {React.string("Broker")} </option>
-                              <option value="property_owner_broker">
-                                {React.string("Property owner & broker")}
-                              </option>
-                            </select>
-                          </label>
-                          <label>
-                            {React.string("Slug")}
-                            <input readOnly=true value={customerOverview.customer.slug} />
-                          </label>
-                          <label>
-                            {React.string("Access expiry")}
-                            <input
-                              type_="datetime-local"
-                              value=expiryDraft
-                              onChange={e =>
-                                updateExpiryDraft(customerId, ReactEvent.Form.target(e)["value"])}
-                            />
-                          </label>
-                          <label className="portal-toggle-field">
-                            <span> {React.string("Recipient status")} </span>
-                            <span className="portal-toggle-control">
-                              <input
-                                type_="checkbox"
-                                checked=customerDraft.isActive
-                                onChange={_ =>
-                                  updateCustomerDraft(customerId, draft => {
-                                    ...draft,
-                                    isActive: !draft.isActive,
-                                  })}
-                              />
-                              <strong>
-                                {React.string(
-                                  if customerDraft.isActive {
-                                    "Recipient active"
-                                  } else {
-                                    "Recipient inactive"
-                                  },
-                                )}
-                              </strong>
-                            </span>
-                          </label>
-                        </div>
-                        <div className="portal-inline-actions portal-inline-actions-compact">
-                          <button
-                            className="site-btn site-btn-ghost portal-compact-btn"
-                            onClick={_ => ignore(onUpdateCustomer(customerId, customerDraft))}
-                          >
-                            {actionLabel(~icon=SaveIcon, ~label="Save")}
-                          </button>
-                          <button
-                            className="site-btn site-btn-primary portal-compact-btn"
-                            onClick={_ => ignore(onGenerateLink(customerId, expiryDraft))}
-                          >
-                            {actionLabel(~icon=LinkIcon, ~label="Generate")}
-                          </button>
-                          <button
-                            className="site-btn site-btn-ghost portal-compact-btn"
-                            onClick={_ => ignore(onRevokeLink(customerId))}
-                          >
-                            {actionLabel(~icon=RevokeIcon, ~label="Revoke")}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="portal-detail-card portal-detail-card-danger">
-                        <span className="portal-link-label"> {React.string("Danger zone")} </span>
-                        <p className="portal-card-muted">
-                          {React.string(
-                            "Remove links or recipients only when cleaning invalid data or test records.",
-                          )}
-                        </p>
-                        <div className="portal-inline-actions portal-inline-actions-compact">
-                          <button
-                            className="site-btn site-btn-ghost portal-compact-btn is-destructive"
-                            onClick={_ => ignore(onDeleteAccessLinks(customerId))}
-                          >
-                            {actionLabel(~icon=DeleteIcon, ~label="Delete link")}
-                          </button>
-                          <button
-                            className="site-btn site-btn-ghost portal-compact-btn is-destructive"
-                            onClick={_ => ignore(onDeleteCustomer(customerId))}
-                          >
-                            {actionLabel(~icon=DeleteIcon, ~label="Delete recipient")}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="portal-section-head portal-section-head-tight">
-                      <div>
-                        <h3> {React.string("Access delivery")} </h3>
-                        <p className="portal-card-muted">
-                          {React.string(
-                            "Share the gallery with the client, or use direct broker links for assigned tours.",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    {switch activeAccessUrl {
-                    | Some(url) =>
-                      <div className="portal-link-panel">
-                        <div className="portal-link-card">
-                          <div className="portal-link-copy">
-                            <span className="portal-link-label">
-                              {React.string("Gallery access")}
-                            </span>
-                            <a
-                              className="portal-link-anchor"
-                              href={url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {React.string("Open secure gallery")}
-                            </a>
-                            <span className="portal-link-meta">
-                              {React.string(galleryExpiryLabel)}
-                            </span>
-                            <span className="portal-link-value">
-                              {React.string(
-                                "Copy to share the private gallery URL, or open it to verify the experience first.",
-                              )}
-                            </span>
-                          </div>
-                          <div className="portal-inline-actions portal-inline-actions-compact">
-                            <CopyActionButton
-                              className="site-btn site-btn-ghost portal-compact-btn portal-copy-btn"
-                              url
-                              label="Copy"
-                              copiedLabel="Copied"
-                              ariaLabel="Copy gallery link"
-                              title="Copy gallery link"
-                              onCopyError={message =>
-                                setFlash(_ => {error: Some(message), success: None})}
-                            />
-                            <button
-                              className="site-btn site-btn-ghost portal-compact-btn"
-                              onClick={_ => Window.openWindow(url, "_blank")}
-                            >
-                              {actionLabel(~icon=OpenIcon, ~label="Open")}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    | None =>
-                      <div className="portal-empty-inline">
-                        {React.string(
-                          "Generate an access link to start sharing this recipient gallery.",
-                        )}
-                      </div>
-                    }}
-                    <div className="portal-section-head">
-                      <div>
-                        <h3> {React.string("Tour assignments")} </h3>
-                        <p className="portal-card-muted">
-                          {React.string(
-                            "Assign tours here, then use copy/open actions once a gallery link is active.",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="portal-table-scroll">
-                      <div className="portal-assignment-table">
-                        <div className="portal-table-head portal-assignment-table-head">
-                          <span> {React.string("Tour")} </span>
-                          <span> {React.string("Status")} </span>
-                          <span> {React.string("Direct link")} </span>
-                          <span> {React.string("Action")} </span>
-                        </div>
-                        {data.tours
-                        ->Belt.Array.map(tourOverview => {
-                          let assigned =
-                            customerOverview.assignedTourIds->Belt.Array.some(id =>
-                              id == tourOverview.tour.id
-                            )
-                          <div key={tourOverview.tour.id} className="portal-assignment-row">
-                            <span className="portal-table-cell portal-table-cell-primary">
-                              {mobileLabel("Tour")}
-                              <span className="portal-row-primary">
-                                <strong> {React.string(tourOverview.tour.title)} </strong>
-                                <small> {React.string("ID: " ++ tourOverview.tour.id)} </small>
-                              </span>
-                            </span>
-                            <span className="portal-table-cell">
-                              {mobileLabel("Status")}
-                              <span
-                                className={"portal-chip " ++ (
-                                  tourOverview.tour.status == "published" ? "is-published" : ""
-                                )}
-                              >
-                                {React.string(tourOverview.tour.status)}
-                              </span>
-                            </span>
-                            <span className="portal-table-cell">
-                              {mobileLabel("Direct link")}
-                              {switch activeAccessUrl {
-                              | Some(accessUrl) if assigned => {
-                                  let directUrl = directTourAccessUrl(
-                                    ~accessUrl,
-                                    ~tourSlug=tourOverview.tour.slug,
-                                  )
-                                  <div className="portal-link-summary">
-                                    <a
-                                      className="portal-link-anchor is-inline"
-                                      href={directUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      {React.string("Open direct access link")}
-                                    </a>
-                                    <small className="portal-row-muted">
-                                      {React.string(
-                                        "Bypasses the gallery and opens this assigned tour immediately.",
-                                      )}
-                                    </small>
-                                    <div className="portal-inline-actions portal-inline-actions-compact">
-                                      <CopyActionButton
-                                        className="site-btn site-btn-ghost portal-compact-btn portal-copy-btn"
-                                        url={directUrl}
-                                        label="Copy"
-                                        copiedLabel="Copied"
-                                        ariaLabel={"Copy direct tour link for " ++
-                                        tourOverview.tour.title}
-                                        title={"Copy direct tour link for " ++
-                                        tourOverview.tour.title}
-                                        onCopyError={message =>
-                                          setFlash(_ => {error: Some(message), success: None})}
-                                      />
-                                      <button
-                                        className="site-btn site-btn-ghost portal-compact-btn"
-                                        onClick={_ => Window.openWindow(directUrl, "_blank")}
-                                      >
-                                        {actionLabel(~icon=OpenIcon, ~label="Open")}
-                                      </button>
-                                    </div>
-                                  </div>
-                                }
-                              | _ =>
-                                <span className="portal-row-muted">
-                                  {React.string(
-                                    if assigned {
-                                      "Generate link first"
-                                    } else {
-                                      "Assign to enable"
-                                    },
-                                  )}
-                                </span>
-                              }}
-                            </span>
-                            <span className="portal-table-cell portal-table-cell-action">
-                              {mobileLabel("Action")}
-                              <div className="portal-table-action-cluster">
-                                <button
-                                  className={"site-btn site-btn-ghost portal-compact-btn " ++ (
-                                    assigned ? "is-active-state" : ""
-                                  )}
-                                  onClick={_ =>
-                                    ignore(
-                                      onAssignToggle(
-                                        ~customerId,
-                                        ~tourId=tourOverview.tour.id,
-                                        ~assigned,
-                                      ),
-                                    )}
-                                >
-                                  {actionLabel(
-                                    ~icon=assigned ? RevokeIcon : AddIcon,
-                                    ~label=assigned ? "Remove" : "Assign",
-                                  )}
-                                </button>
-                              </div>
-                            </span>
-                          </div>
-                        })
-                        ->React.array}
-                      </div>
-                    </div>
-                  </article>
-              }}
-
-            <article className="portal-card">
-              <div className="portal-section-head">
-                <div>
-                  <h2> {React.string("Tour library")} </h2>
-                  <p className="portal-card-muted">
-                    {React.string(
-                      "Keep the tour library dense and reusable so assignments stay quick to operate.",
-                    )}
-                  </p>
-                </div>
-                <div className="portal-section-tools">
-                  {assignmentMode == BulkAssignMode && bulkTourSelectionCount > 0
-                    ? <span className="portal-chip is-active portal-selection-count-chip">
-                        {React.string(Belt.Int.toString(bulkTourSelectionCount) ++ " selected")}
-                      </span>
-                    : React.null}
-                  <label className="portal-search-field">
-                    <span> {React.string("Search tours")} </span>
-                    <input
-                      placeholder="Title, slug, or ID"
-                      value=tourSearch
-                      onChange={e => {
-                        setTourSearch(_ => ReactEvent.Form.target(e)["value"])
-                        setTourPage(_ => 0)
-                      }}
-                    />
-                  </label>
-                  <label className="portal-inline-field">
-                    <span> {React.string("Status")} </span>
-                    <select
-                      value={switch tourFilter {
-                      | TourAll => "all"
-                      | TourPublished => "published"
-                      | TourDraft => "draft"
-                      | TourArchived => "archived"
-                      }}
-                      onChange={e => {
-                        let value = ReactEvent.Form.target(e)["value"]
-                        setTourFilter(_ =>
-                          switch value {
-                          | "published" => TourPublished
-                          | "draft" => TourDraft
-                          | "archived" => TourArchived
-                          | _ => TourAll
-                          }
-                        )
-                        setTourPage(_ => 0)
-                      }}
-                    >
-                      <option value="all"> {React.string("All")} </option>
-                      <option value="published"> {React.string("Published")} </option>
-                      <option value="draft"> {React.string("Draft")} </option>
-                      <option value="archived"> {React.string("Archived")} </option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-              <div className="portal-table-scroll">
-                <div className="portal-library-table">
-                  <div className="portal-table-head portal-library-table-head">
-                    <span> {React.string("Tour")} </span>
-                    <span> {React.string("Status")} </span>
-                    <span> {React.string("Assignments")} </span>
-                    <span>{React.string(assignmentMode == BulkAssignMode ? "Select" : "Actions")}</span>
-                  </div>
-                  {visibleTours
-                  ->Belt.Array.map(tourOverview => {
-                    let isPublished = tourOverview.tour.status == "published"
-                    let isDraft = tourOverview.tour.status == "draft"
-                    let isArchived = tourOverview.tour.status == "archived"
-                    let isBulkSelected =
-                      selectedBulkTourIds->Belt.Set.String.has(tourOverview.tour.id)
-                    <div key={tourOverview.tour.id} className="portal-library-row">
-                      <span className="portal-table-cell portal-table-cell-primary">
-                        {mobileLabel("Tour")}
-                        <span className="portal-row-primary">
-                          <span className="portal-row-primary-title">
-                            {assignmentMode == BulkAssignMode
-                              ? <input type_="checkbox" checked={isBulkSelected} readOnly=true />
-                              : React.null}
-                            <strong> {React.string(tourOverview.tour.title)} </strong>
-                          </span>
-                          <small>
-                            {React.string(
-                              "ID: " ++ tourOverview.tour.id ++ " · " ++ tourOverview.tour.slug,
-                            )}
-                          </small>
-                        </span>
-                      </span>
-                      <span className="portal-table-cell">
-                        {mobileLabel("Status")}
-                        <span className={"portal-chip " ++ (isPublished ? "is-published" : "")}>
-                          {React.string(tourOverview.tour.status)}
-                        </span>
-                      </span>
-                      <span className="portal-table-cell portal-table-cell-number">
-                        {mobileLabel("Assignments")}
-                        <strong className="portal-row-number">
-                          {React.string(Belt.Int.toString(tourOverview.assignmentCount))}
-                        </strong>
-                      </span>
-                      <span className="portal-table-cell portal-table-cell-action">
-                        {mobileLabel(assignmentMode == BulkAssignMode ? "Select" : "Actions")}
-                        {assignmentMode == BulkAssignMode
-                          ? <button
-                              className={"site-btn site-btn-ghost portal-compact-btn " ++ (
-                                isBulkSelected ? "is-active-state" : ""
-                              )}
-                              onClick={_ => toggleBulkTourSelection(tourOverview.tour.id)}
-                            >
-                              {actionLabel(
-                                ~icon=isBulkSelected ? CheckIcon : AddIcon,
-                                ~label=isBulkSelected ? "Selected" : "Select",
-                              )}
-                            </button>
-                          : <div className="portal-table-action-cluster">
-                              <button
-                                className={"site-btn site-btn-ghost portal-compact-btn " ++ (
-                                  isPublished ? "is-current-status" : ""
-                                )}
-                                disabled={isPublished}
-                                onClick={_ =>
-                                  ignore(
-                                    onTourStatus(
-                                      ~tourId=tourOverview.tour.id,
-                                      ~status="published",
-                                    ),
-                                  )}
-                              >
-                                {actionLabel(~icon=PublishIcon, ~label="Pub")}
-                              </button>
-                              <button
-                                className={"site-btn site-btn-ghost portal-compact-btn " ++ (
-                                  isDraft ? "is-current-status" : ""
-                                )}
-                                disabled={isDraft}
-                                onClick={_ =>
-                                  ignore(
-                                    onTourStatus(~tourId=tourOverview.tour.id, ~status="draft"),
-                                  )}
-                              >
-                                {actionLabel(~icon=DraftIcon, ~label="Draft")}
-                              </button>
-                              <button
-                                className={"site-btn site-btn-ghost portal-compact-btn " ++ (
-                                  isArchived ? "is-current-status" : ""
-                                )}
-                                disabled={isArchived}
-                                onClick={_ =>
-                                  ignore(
-                                    onTourStatus(~tourId=tourOverview.tour.id, ~status="archived"),
-                                  )}
-                              >
-                                {actionLabel(~icon=ArchiveIcon, ~label="Arch")}
-                              </button>
-                              <button
-                                className="site-btn site-btn-ghost portal-compact-btn is-destructive"
-                                ariaLabel={"Delete tour " ++ tourOverview.tour.title}
-                                onClick={_ =>
-                                  ignore(
-                                    onDeleteTour(
-                                      ~tourId=tourOverview.tour.id,
-                                      ~title=tourOverview.tour.title,
-                                    ),
-                                  )}
-                              >
-                                {actionLabel(~icon=DeleteIcon, ~label="Delete")}
-                              </button>
-                            </div>}
-                      </span>
-                    </div>
-                  })
-                  ->React.array}
-                </div>
-              </div>
-              <div className="portal-pagination">
-                <button
-                  className="site-btn site-btn-ghost"
-                  disabled={!tourHasPrev}
-                  onClick={_ => tourHasPrev ? setTourPage(prev => prev - 1) : ()}
-                >
-                  {React.string("Previous")}
-                </button>
-                <span className="portal-row-muted">
-                  {React.string(
-                    "Page " ++
-                    Belt.Int.toString(tourPage + 1) ++
-                    " of " ++
-                    Belt.Int.toString(tourPageCount) ++
-                    " · " ++
-                    Belt.Int.toString(visibleTours->Belt.Array.length) ++ " visible",
-                  )}
-                </span>
-                <button
-                  className="site-btn site-btn-ghost"
-                  disabled={!tourHasNext}
-                  onClick={_ => tourHasNext ? setTourPage(prev => prev + 1) : ()}
-                >
-                  {React.string("Next")}
-                </button>
-              </div>
-            </article>
-            {assignmentMode == BulkAssignMode
-              ? <div className="portal-bulk-bar">
-                  <div className="portal-bulk-bar-copy">
-                    <strong>
-                      {React.string(
-                        Belt.Int.toString(bulkSelectionCount) ++
-                        " recipients x " ++
-                        Belt.Int.toString(bulkTourSelectionCount) ++ " tours",
-                      )}
-                    </strong>
-                    <span className="portal-row-muted">
-                      {React.string(
-                        Belt.Int.toString(bulkRequestedAssignments) ++
-                        " assignments will be created or skipped if they already exist.",
-                      )}
-                    </span>
-                  </div>
-                  <div className="portal-inline-actions portal-inline-actions-compact">
-                    <button
-                      className="site-btn site-btn-ghost portal-toolbar-btn"
-                      onClick={_ => setSelectedBulkCustomerIds(_ => Belt.Set.String.empty)}
-                    >
-                      {React.string("Clear recipients")}
-                    </button>
-                    <button
-                      className="site-btn site-btn-ghost portal-toolbar-btn"
-                      onClick={_ => setSelectedBulkTourIds(_ => Belt.Set.String.empty)}
-                    >
-                      {React.string("Clear tours")}
-                    </button>
-                    <button
-                      className="site-btn site-btn-ghost portal-toolbar-btn"
-                      onClick={_ => clearBulkSelections()}
-                    >
-                      {React.string("Clear all")}
-                    </button>
-                    <button
-                      className="site-btn site-btn-primary portal-toolbar-btn"
-                      disabled={bulkRequestedAssignments == 0}
-                      onClick={_ => ignore(onBulkAssign())}
-                    >
-                      {React.string("Assign selected")}
-                    </button>
-                  </div>
-                </div>
-              : React.null}
-          </div>
-        </section>
+          {PortalAppAdminSurfaceInspector.make(~props={
+            data,
+            selectedOverview,
+            customerDrafts,
+            expiryDrafts,
+            lastGeneratedLinks,
+            updateCustomerDraft,
+            updateExpiryDraft,
+            onUpdateCustomer: actions.onUpdateCustomer,
+            onGenerateLink: actions.onGenerateLink,
+            onRevokeLink: actions.onRevokeLink,
+            onDeleteAccessLinks: actions.onDeleteAccessLinks,
+            onDeleteCustomer: actions.onDeleteCustomer,
+            onAssignToggle: actions.onAssignToggle,
+            setFlash,
+          })}
+        </div>
       </main>
     </div>
   }

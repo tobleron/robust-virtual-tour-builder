@@ -301,10 +301,27 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                             .wrap(RateLimitResponseTransformer::new("read"))
                             .wrap(Governor::new(&limiters.read)),
                     ),
+            )
+            .service(
+                web::scope("/project")
+                    .wrap(auth_middleware::AuthMiddleware)
+                    .configure(|cfg| super::config_routes_project::configure_project_api(cfg, limiters)),
+            )
+            .route(
+                "/quota/stats",
+                web::get()
+                    .to(super::utils::quota_stats)
+                    .wrap(RateLimitResponseTransformer::new("health"))
+                    .wrap(Governor::new(&limiters.health)),
+            )
+            .route(
+                "/health",
+                web::get()
+                    .to(super::health::health_check)
+                    .wrap(RateLimitResponseTransformer::new("health"))
+                    .wrap(Governor::new(&limiters.health)),
             ),
     );
-
-    super::config_routes_project::configure_project_api(cfg, limiters);
 
     cfg.route(
         "/portal-assets/{slug}/{tour_slug}/{tail:.*}",

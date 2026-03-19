@@ -30,6 +30,7 @@ let generateServerTeaser = (
     marketingPhone2: "",
     marketingForRent: false,
     marketingForSale: false,
+    tripodDeadZoneEnabled: state.tripodDeadZoneEnabled,
     nextSceneSequenceId: state.nextSceneSequenceId,
   }
 

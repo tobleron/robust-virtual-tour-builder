@@ -35,6 +35,7 @@ module Adapter = {
   let setPitch = (v, p, a) => Viewer.setPitch(v, p, a)
   let setYaw = (v, y, a) => Viewer.setYaw(v, y, a)
   let setHfov = (v, h, a) => Viewer.setHfov(v, h, a)
+  let setPitchBounds = (v, bounds) => Viewer.setPitchBounds(v, bounds)
   let resize = v => Viewer.resize(v)
   let setView = (v, ~pitch=?, ~yaw=?, ~hfov=?, ~animated=false, ()) => {
     ViewerAdapter.setView(v, ~pitch?, ~yaw?, ~hfov?, ~animated, ())
