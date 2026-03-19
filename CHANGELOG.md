@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V5.3.6+32 [FAST]: split portal session helpers
 - V5.3.6+33 [FAST]: checkpoint before portal management split
 - Checkpoint before portal helper split
+- Split portal code helpers
 
 ## [5.3.6] - 2026-03-18
 

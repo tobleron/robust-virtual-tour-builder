@@ -5,6 +5,7 @@ pub mod geocoding;
 pub mod media;
 pub mod portal_audit;
 pub mod portal_assets;
+pub mod portal_codes;
 pub mod portal_paths;
 pub mod portal_support;
 pub mod portal_sessions;
