@@ -6,9 +6,9 @@
 
 ## About This Project
 
-Robust Virtual Tour Builder is an **open source** virtual tour creation platform built with ReScript and Rust. It's **free for individual brokers, developers, and personal use** under the AGPL v3 license.
+Robust Virtual Tour Builder is an **open source** virtual tour creation platform built with ReScript and Rust.
 
-**Commercial licenses** are available for brokerages and organizations that want to use this software without AGPL requirements.
+The project is available under the **AGPL v3** for users who can comply with that license, with separate **commercial licensing** available for proprietary or negotiated deployments.
 
 [View License](LICENSE) | [Commercial Licensing](docs/security/licensing.md)
 
@@ -22,9 +22,9 @@ Your sponsorship directly supports:
 - ✅ **Community Support** - Responding to issues, PRs, and questions
 - ✅ **Documentation** - Tutorials, guides, and examples
 - ✅ **Infrastructure** - Hosting costs, build servers, testing
-- ✅ **Long-term Sustainability** - Ensuring this project remains free for individuals
+- ✅ **Long-term Sustainability** - Keeping the project healthy and maintained
 
-**100% of sponsorship funds go toward development and maintenance.**
+Sponsorship funds are used for development, infrastructure, documentation, and community support.
 
 ---
 
@@ -267,7 +267,7 @@ Choose your tier above and click the donation link, or contact arto.eg@gmail.com
 
 To all our sponsors, supporters, and contributors: **thank you**.
 
-Your support makes it possible to keep this software free for individual brokers, developers, and hobbyists while continuing to add new features and improvements.
+Your support helps fund ongoing development, infrastructure, documentation, and community support while keeping the AGPL version available.
 
 **Together, we're building the future of virtual tour creation.**
 

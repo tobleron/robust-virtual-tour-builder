@@ -10,16 +10,16 @@
 ## Overview
 
 This software is dual-licensed under:
-1. **AGPL v3** - Free for individuals, requires sharing modifications
-2. **Commercial License** - Paid, for organizations wanting proprietary use
+1. **AGPL v3** - available to anyone who can comply with the AGPL terms
+2. **Commercial License** - available for proprietary use, separate contractual terms, or redistribution under negotiated terms
 
-If you cannot comply with AGPL v3 requirements, you need a commercial license.
+This document summarizes the commercial terms. It is not legal advice and does not replace a signed agreement.
 
 ---
 
-## Who Needs a Commercial License?
+## When Commercial Terms Apply
 
-You **MUST** obtain a commercial license if **ANY** of the following apply:
+Commercial terms are typically appropriate if **any** of the following apply:
 
 ### Organization Type
 - ✅ Real estate brokerage with multiple agents
@@ -36,24 +36,22 @@ You **MUST** obtain a commercial license if **ANY** of the following apply:
 - ✅ Integration into commercial products or services
 - ✅ Embedding in SaaS platforms
 
-### AGPL Compliance
-- ✅ You want to use this software without AGPL requirements
-- ✅ You don't want to share your modifications with the community
-- ✅ You want to use this software proprietarily
+### AGPL Compatibility
+- ✅ You want separate terms instead of the AGPL
+- ✅ You want proprietary use or redistribution terms
+- ✅ You want support, branding, or SLA terms under contract
 
 ---
 
-## Who Does NOT Need a Commercial License?
+## When AGPL Terms May Be Enough
 
-You can use this software **FREE** under AGPL v3 if:
+You may be able to use this software under the AGPL v3 if:
 
-- ✅ You are an individual broker creating tours for your own listings
-- ✅ You are a developer using it for personal projects
-- ✅ You are a student learning 360° photography
-- ✅ You are a hobbyist creating tours for fun
-- ✅ You are okay with sharing any modifications you make
+- ✅ You are willing to comply with the AGPL obligations
+- ✅ You are comfortable sharing modifications when required by the license
+- ✅ You do not need separate commercial terms
 
-**Note:** Individual brokers are encouraged (but not required) to donate if this software helps your business. See [SPONSORS.md](SPONSORS.md).
+**Note:** Sponsorship is separate from licensing. See [SPONSORS.md](SPONSORS.md) if you want to support the project.
 
 ---
 
@@ -117,13 +115,13 @@ You can use this software **FREE** under AGPL v3 if:
 
 ### Grant of License
 
-Subject to payment of applicable fees, you are granted a non-exclusive, non-transferable, revocable license to:
+Subject to payment of applicable fees and the final commercial agreement, you are granted a non-exclusive, non-transferable license to:
 
-1. **Use** the software for commercial purposes
-2. **Install** on multiple machines within your organization (within user seat limit)
-3. **Create** virtual tours for clients/customers
-4. **Modify** for internal use only (no redistribution without permission)
-5. **Use** without AGPL requirements (no need to share modifications)
+1. **Use** the software for the agreed commercial purpose
+2. **Install** on the agreed number of machines or seats
+3. **Create** virtual tours for clients or customers
+4. **Modify** for internal use as permitted by the agreement
+5. **Use** without AGPL sharing obligations for the covered deployment
 
 ### Restrictions
 
@@ -131,24 +129,23 @@ You may NOT:
 
 1. **Redistribute** the software as a standalone product without explicit permission
 2. **Sublicense** or transfer your license to another organization
-3. **Reverse engineer** or decompile the software (except as permitted by law)
-4. **Remove** copyright notices
-5. **Use** for illegal purposes
-6. **Share** credentials between organizations
+3. **Remove** copyright notices
+4. **Use** for illegal purposes
+5. **Share** credentials between organizations unless the agreement allows it
 
 ### Support & Updates
 
-**Included:**
+**Common inclusions**
 - Bug fixes and security patches
-- Minor version updates (5.3.x → 5.4.x)
+- Minor version updates where stated in the agreement
 - Email support
 - Documentation updates
 
-**Not Included:**
-- Major version upgrades (5.x → 6.x) - available at 50% discount
-- Custom development - quoted separately
-- On-site support - available for Enterprise tier
-- Phone support - Enterprise tier only
+**Common exclusions unless separately contracted**
+- Major version upgrades
+- Custom development
+- On-site support
+- Phone support
 
 ### Term & Termination
 
@@ -170,7 +167,7 @@ You may NOT:
 **Effect of Termination:**
 - All use must cease immediately
 - All copies must be destroyed or returned
-- **Existing tours may continue to be used** (perpetual use for tours created during valid license period)
+- **Existing tours may continue to be used** if the agreement explicitly grants that right
 - New tours cannot be created without valid license
 
 ---

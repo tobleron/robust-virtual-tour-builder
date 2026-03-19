@@ -7,10 +7,12 @@
 
 ## Dual License Model
 
-Robust Virtual Tour Builder uses a **dual licensing model** to balance open source accessibility with sustainable development:
+Robust Virtual Tour Builder uses a **dual licensing model**:
 
-1. **AGPL v3** - Free for individuals, hobbyists, and open source projects
-2. **Commercial License** - Paid, for brokerages and organizations wanting proprietary use
+1. **AGPL v3** - for users who are comfortable complying with the AGPL terms
+2. **Commercial License** - for proprietary use, redistribution under separate terms, or contract-backed support
+
+This page is a policy summary, not legal advice.
 
 ---
 
@@ -41,21 +43,7 @@ If you use this software under AGPL v3:
 
 ### What This Means
 
-**Individual Broker Example:**
-```
-You: Individual real estate agent
-Use: Creating tours for your own listings
-Pay: FREE
-Requirement: If you modify the code, share your changes
-```
-
-**Developer Example:**
-```
-You: Software developer
-Use: Learning 360° photography, personal projects
-Pay: FREE
-Requirement: None (unless you modify and distribute)
-```
+If you use the AGPL option, you keep the AGPL obligations that come with it, including sharing modifications when you distribute or offer a modified network service.
 
 📄 [View Full AGPL v3 License](../LICENSE)
 
@@ -69,13 +57,13 @@ Requirement: None (unless you modify and distribute)
 - 🔒 Organizations wanting proprietary use
 - 🎯 Embedding in commercial products
 
-### Why Pay?
+### Why Choose Commercial Terms?
 
-- ✅ **Legal Compliance:** No AGPL requirements
-- ✅ **Priority Support:** Faster response times
-- ✅ **Custom Branding:** White-label options
-- ✅ **Indemnification:** Legal protection
-- ✅ **Sustainability:** Supports ongoing development
+- ✅ Proprietary use without AGPL obligations
+- ✅ Priority support and maintenance terms
+- ✅ Custom branding or white-label options where contracted
+- ✅ Optional indemnification and SLA terms where contracted
+- ✅ Direct support for ongoing development
 
 ### Pricing Tiers
 
@@ -178,75 +166,11 @@ A: Recognition in SPONSORS.md, priority support, early access to features, and i
 
 ---
 
-## Compliance
+## Clarifications
 
-### How We Enforce
-
-We use a **trust but verify** approach:
-
-1. **Clear License Terms:** Most people comply when terms are clear
-2. **Community Reporting:** Users report commercial abuse
-3. **Website Monitoring:** We check brokerage websites for unlicensed use
-4. **Grace Period:** 30-day cure period for unintentional violations
-
-### What Happens If You Violate
-
-1. **First Notice:** Friendly email explaining license requirements
-2. **Second Notice:** Formal cease and desist if no response
-3. **Third Notice:** Legal action if still unresolved
-
-### Voluntary Compliance
-
-Realized you've been using it without proper license?
-
-- Contact us within 30 days
-- We'll offer grace period
-- No penalties for voluntary compliance
-
-### Reporting Violations
-
-Suspect commercial abuse? Report anonymously:
-- Email: compliance@robust-vtb.com
-- Include: URL, company name, description of use
-
----
-
-## Special Programs
-
-### Educational Licensing
-
-**Free commercial license** for:
-- Accredited educational institutions
-- Students enrolled in relevant courses
-- Educators teaching photography/real estate
-
-**Requirements:**
-- Valid .edu email or student ID
-- Non-commercial use only
-- Annual verification
-
-📧 **Contact:** education@robust-vtb.com
-
-### Non-Profit Licensing
-
-**50% discount** on commercial licenses for:
-- Registered 501(c)(3) organizations
-- Charitable organizations
-- Religious organizations
-
-**Discount Tiers:**
-- Small Brokerage: $249/year (50% off)
-- Enterprise: $999/year (50% off)
-
-📧 **Contact:** nonprofit@robust-vtb.com
-
-### Government Licensing
-
-Special pricing for government entities:
-- Federal, state, local agencies
-- Government contractors
-
-📧 **Contact:** government@robust-vtb.com
+- The AGPL path is available to anyone who can comply with the AGPL terms.
+- The commercial path is for cases where you want separate terms, proprietary use, or contract-backed support.
+- If you are unsure which path applies, contact `licensing@robust-vtb.com`.
 
 ---
 
@@ -257,22 +181,22 @@ Are you an individual (not a company)?
 │
 ├─ YES → Using for personal projects or own listings?
 │         │
-│         ├─ YES → AGPL v3 (FREE) ✅
-│         │        [Download Now]
+│         ├─ YES → AGPL v3 is likely enough ✅
+│         │        [Read AGPL Terms]
 │         │
 │         └─ NO → Creating tours for clients as business?
 │                  │
-│                  ├─ YES → Commercial License Required 💼
+│                  ├─ YES → Commercial terms are usually the right fit 💼
 │                  │        [View Pricing]
 │                  │
-│                  └─ NO → AGPL v3 (FREE) ✅
+│                  └─ NO → AGPL v3 is likely enough ✅
 │
 └─ NO → Are you a brokerage/company?
           │
-          ├─ YES → Commercial License Required 💼
+          ├─ YES → Commercial terms are usually the right fit 💼
           │        [View Pricing]
           │
-          └─ NO → (You're a company, so...) Commercial License Required 💼
+          └─ NO → Contact licensing if you are unsure
 ```
 
 ---
@@ -282,7 +206,7 @@ Are you an individual (not a company)?
 ### Licensing Questions
 
 - **Email:** arto.eg@gmail.com | +20 100 568 4094
-- **Sales:** arto.eg@gmail.com | +20 100 568 4094
+- **Licensing:** arto.eg@gmail.com | +20 100 568 4094
 - **Support:** arto.eg@gmail.com | +20 100 568 4094
 
 ### Response Times
@@ -294,7 +218,7 @@ Are you an individual (not a company)?
 
 ### Business Hours
 
-- **Sales:** Monday-Friday, 9 AM - 6 PM PST
+- **Licensing:** Monday-Friday, 9 AM - 6 PM PST
 - **Support:** Monday-Friday, 8 AM - 8 PM PST
 - **Enterprise Support:** 24/7/365
 

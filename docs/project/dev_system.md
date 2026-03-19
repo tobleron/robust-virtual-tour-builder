@@ -1,120 +1,86 @@
 # Project Dev System (`_dev-system`)
 
-The `_dev-system` is an AI-native codebase governance system designed to optimize for AI cognitive load rather than traditional human-centric metrics.
+The `_dev-system` is the repo's advisory analyzer. It scans the codebase, measures modification risk, and writes guidance tasks when a file looks too risky to edit safely in one pass.
 
-## 1. Core Principles & Metrics
+## What It Does
 
-### The "Drag" Metric
-A cognitive resistance metric for AI inference.
-- **Formula**: `(1.0 + Nesting*0.6 + Density*1.0 + StateDensity*8.0 + DepthPenalty*0.6) * FailurePenalty`
-- **Target**: Drag score < 1.8.
-- **Why**: Files with high Drag (>1.8) cause context fog and AI hallucinations.
+- Scans the configured roots in `_dev-system/config/efficiency.json`
+- Measures LOC, nesting, density, role, and recent failure history
+- Calculates a dynamic LOC limit per file
+- Generates advisory tasks in `tasks/pending/dev_tasks/`
+- Keeps analyzer state in `_dev-system/analyzer_state.json`
 
-### Hysteresis Mechanism
-Prevents architectural thrashing.
-- **Split Trigger**: 1.15x
-- **Merge Safety**: 0.85x
+## Current Configuration
 
-### Role-Based Limits (Taxonomy)
-Files have different line count (`LOC`) limits based on their semantic role:
-- Domain Logic: More constrained due to complexity.
-- UI Components: Moderately constrained.
-- Orchestrators / Presentational: More forgiving limits.
+| Setting | Current Value | Meaning |
+|---|---:|---|
+| `base_loc_limit` | `400` | Default centerline for cohesive modules |
+| `soft_floor_loc` | `400` | Preferred working band center |
+| `hard_ceiling_loc` | `800` | Absolute upper bound |
+| `min_extracted_module_loc` | `220` | Minimum useful extracted child module size |
+| `drag_target` | `2.2` | Global fallback drag target |
+| `drag_target` for ReScript | `2.4` | Language-specific target |
+| `drag_target` for Rust | `2.6` | Language-specific target |
+| `merge_score_threshold` | `1.2` | Merge-task sensitivity |
+| `hysteresis` | `1.15 / 0.85` | Split/move buffer to avoid flip-flopping |
 
-## 2. Dev System Configuration
+## How The Analyzer Thinks
 
-The system is configured via `config/efficiency.json` which includes:
-- `scanned_roots`: Directories to analyze.
-- `settings`: Numeric thresholds (e.g., `base_loc_limit: 400`).
-- `profiles`: Language-specific AST parsing rules.
-- `taxonomy`: Role-based multipliers.
-
-## 3. Tooling & Automation
-
-### Task Generation
-The analyzer inspects the codebase and generates tasks in `tasks/pending/`.
-```bash
-./scripts/dev-system.sh  # Generate actionable tasks (surgical, merge, violation)
+```text
+Code change
+  -> scan files
+  -> infer role + measure drag
+  -> compare against dynamic limit
+  -> emit task if the file is meaningfully over target
+  -> write task into tasks/pending/dev_tasks/
 ```
 
-### Standardized Task Schema
-Tasks follow a rigid frontmatter schema for automation:
-```yaml
----
-id: {task_id}
-type: {surgical|merge|violation|ambiguity}
-priority: {high|medium|low}
-target_file: {root_relative_path}
-drag_score: {float}
-loc: {int}
----
-```
+### Drag
 
-### Split/Merge Calibration (March 2026)
+Drag is a heuristic, not a direct measure of AI capability. It is a modification-risk score built from:
 
-**Current Configuration:**
-- `soft_floor_loc = 300` (conservative default for AI-agent editing)
-- `hard_ceiling_loc = 800` (absolute maximum)
-- `merge_score_threshold = 1.2` (appropriately conservative)
-- `drag_target = 1.8` (target threshold)
+- nesting depth
+- logic density
+- state density
+- directory depth
+- recent failure history
 
-**Current State:**
-- Surgical candidates: 31 files
-- Total recommended splits: 74 files
-- Merge candidates: 1 file
+Higher drag means the analyzer is more cautious about recommending direct edits.
 
-**Known Issue:** Split detection is primarily LOC-driven, not complexity-aware. The `drag_target` metric is used for task wording but NOT for deciding whether a file becomes a surgical task.
+### Dynamic Limit
 
-**Recommended Optimization Plan:**
+The analyzer does not use one static LOC limit for everything. It adjusts the limit with:
 
-#### Phase 1: Add Drag-Based Secondary Trigger (Apply Now)
-Add a second surgical trigger in addition to LOC-based detection:
+- the base size policy
+- the file's taxonomy role
+- the cohesion bonus
+- the current drag score
 
-```rust
-// Keep existing LOC-based trigger
-// Add second trigger:
-if drag > drag_target && metrics.loc >= 250 {
-    // emit surgical task
-}
-```
+For cohesive Rust and ReScript modules, the preferred band is `350-450 LOC`, with `400 LOC` as the centerline.
 
-**Why:** Makes split detection genuinely size-and-complexity-aware, preserves signal for hard medium-sized files.
+## Task Types
 
-#### Phase 2: Re-evaluate Floor (After Drag Gate Exists)
-- Test `soft_floor_loc = 325`
-- Then test `soft_floor_loc = 350`
+- `Surgical Refactor`: split or simplify a risky module
+- `Merge Folders`: combine fragmented sibling modules when that reduces read tax
+- `Violation Fix`: remove a forbidden pattern
+- `Ambiguity Resolution`: assign a clear architectural role
+- `Structural Refactor`: flatten deep path hierarchies when needed
 
-**Expected Result:** Low-drag orchestrators become less aggressively split; high-drag files remain flagged.
+## Workflow
 
-#### Phase 3: Optional Role-Aware Refinement
-- Role-specific soft floors
-- Role-specific drag triggers
-- Separate orchestration exception lane for shallow files
+1. Run `./scripts/dev-system.sh` or the analyzer directly.
+2. Review `MAP.md` and `DATA_FLOW.md` first for context.
+3. Open the generated dev task in `tasks/pending/dev_tasks/`.
+4. Make the smallest safe architectural change.
+5. Re-run `npm run build` and the analyzer to confirm the task disappears or changes.
 
-**Do NOT Apply Yet:**
-- Do not raise `soft_floor_loc` to 350 before drag trigger exists (would hide legitimate high-drag files)
-- Do not loosen merge policy (currently appropriately conservative)
+## Reading The Output
 
-**Context-Window Reality for AI-Agent Editing:**
+- A task is advisory guidance, not a blocking project task.
+- The analyzer is conservative on purpose.
+- If a file is already cohesive and near the preferred band, the analyzer should prefer keeping it intact.
+- If a file is both large and dense, it should get a stronger split suggestion.
 
-| LOC | Approximate Tokens | Agent Editing Risk |
-|---|---|---|
-| 250 | 2500-3500 | Safe but increases file hopping |
-| 300 | 3000-4200 | Cautious default (current floor) |
-| 350 | 3500-4900 | Safe for low-drag orchestrators |
-| 400+ | 4000-5600+ | Risky unless file is shallow/stable |
+## One-Line Summary
 
-**True Cost:** Agent often needs dependency files, consumer/caller files, tests, and task context simultaneously.
-
-### Planned Optimizations (Action Plan)
-- **Tool Integration**: Implementing a REST API for the analyzer to enable real-time analysis IDE plugins.
-- **Calibration Tool**: Automated tuning of weights (`nesting_weight`, `state_weight`) per AI model.
-- **Multi-Agent Support**: Assigning specific tasks (e.g., surgical vs violation) to specialized agents.
-- **Semantic Analysis**: Embedding-based similarity checks for finding refactor patterns.
-
-## 4. AI Agent Quick Start
-
-1. **What**: This system prevents files from becoming too complex for AI inference.
-2. **How**: Run `./scripts/dev-system.sh` to generate tasks in `tasks/pending/`.
-3. **Execution**: Pick a task, follow its instructions, run `npm run build`, and check Drag improvement.
-4. **Pathing**: ALWAYS use root-relative paths (`src/Main.res`) for reliable context.
+The `_dev-system` is a guardrail that keeps the repo readable and editable for both humans and AI agents.

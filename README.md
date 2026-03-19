@@ -9,32 +9,52 @@
 **Directing Developer:** Arto Kalishian
 **Release Date:** March 19, 2026
 **Status:** Production Ready
-**License:** AGPL v3 (Free for individuals) + Commercial License (for brokerages)
+**License:** AGPL v3 + optional commercial license
 <!-- METADATA_END -->
 
 ---
 
 ## 📜 License
 
-**Free for Individual Brokers** | **Commercial License for Brokerages**
+**AGPL v3 for compliant users** | **Commercial License for proprietary or negotiated use**
 
-This project is **open source** under the AGPL v3 license:
+This project is available under the **AGPL v3** for users who comply with that license, with an optional **commercial license** for proprietary or separately contracted use.
 
-- ✅ **FREE** for individual brokers, developers, students, and personal use
-- 💼 **Commercial License** required for brokerages with multiple agents
-- 💰 **Donations welcome** to support ongoing development
+**Individuals and organizations:** Read [docs/security/licensing.md](docs/security/licensing.md) for the practical summary.
 
-**Individual brokers:** Use it free forever! If it helps your business, consider [buying us a coffee](SPONSORS.md).
-
-**Brokerages:** Commercial licenses starting at $499/year. [View Pricing](docs/security/licensing.md)
+**Commercial use:** Pricing starts at $499/year for small teams. [View Pricing](docs/security/licensing.md)
 
 📄 [View Full License](LICENSE) | 🏆 [Become a Sponsor](SPONSORS.md)
 
 ---
 
+## 🚀 Quick Start
+
+If you just want the app running locally:
+
+1. Install dependencies and toolchain helpers:
+   ```bash
+   ./scripts/setup.sh
+   ```
+2. Start the full dev stack:
+   ```bash
+   npm run dev
+   ```
+3. Open the app:
+   ```text
+   http://localhost:3000
+   ```
+
+What each step does:
+- `./scripts/setup.sh` resolves the local dependencies for the frontend, backend, and helper tooling.
+- `npm run dev` runs the ReScript watcher, service worker sync, Rust backend, and frontend dev server together.
+- If you only need one piece, use `npm run dev:frontend`, `npm run dev:backend`, `npm run res:watch`, or `npm run sw:watch`.
+
+---
+
 ## 👋 About This Project
 
-**Open source virtual tour platform** built with ReScript + Rust. Free for individual brokers and developers.
+**Open source virtual tour platform** built with ReScript + Rust. Available under AGPL v3, with a separate commercial option for proprietary or negotiated use.
 
 🎯 **Creator is open to opportunities in agentic coding!** This project demonstrates production-grade functional architecture, FSM-based state management, and community-driven development.
 
@@ -180,41 +200,38 @@ This platform transforms panoramic images into fully interactive virtual tours w
 ## 🚀 Installation & Setup
 
 ### Prerequisites
-- **Node.js**: v18+ (for frontend tooling)
-- **Rust**: Edition 2024 (for backend processing)
-- **FFmpeg**: Required for video encoding features
+- **Node.js**: v18+ for frontend tooling
+- **Rust**: Edition 2024 for backend processing
+- **FFmpeg**: Required for teaser/video export features
 - **Git**: For version control
 
-### Quick Start
+### First-Time Setup
 
-1. **Clone the repository**:
+1. Clone the repository:
    ```bash
    git clone https://github.com/tobleron/robust-virtual-tour-builder.git
    cd robust-virtual-tour-builder
    ```
 
-2. **Initial setup** (installs dependencies):
+2. Install dependencies and local tooling:
    ```bash
    ./scripts/setup.sh
    ```
 
-3. **Start development environment** (runs all services concurrently):
+3. Start the development environment:
    ```bash
    npm run dev
    ```
 
-   This command starts:
-   - **ReScript compiler** (watch mode)
-   - **Service Worker sync** (watch mode)
-   - **Rust backend** (cargo watch)
-   - **Frontend dev server** (Rsbuild with HMR)
-
-4. **Open your browser**:
-   ```
-   http://localhost:3000
-   ```
+   `npm run dev` is the normal daily workflow. It starts:
+   - the ReScript compiler in watch mode
+   - the Service Worker sync watcher
+   - the Rust backend
+   - the frontend dev server with HMR
 
 ### Manual Setup (Alternative)
+
+If you prefer to run the pieces separately, use the commands below after `./scripts/setup.sh` has completed successfully.
 
 **Terminal 1 - Backend**:
 ```bash
