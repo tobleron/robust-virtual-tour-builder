@@ -1,9 +1,8 @@
 // @efficiency-role: service-orchestrator
 use std::fs;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use actix_files::NamedFile;
 use chrono::{DateTime, Utc};
 use image::{DynamicImage, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
@@ -15,15 +14,15 @@ use crate::models::{AppError, User};
 use crate::services::portal_audit::{log_audit, log_audit_event};
 use crate::services::portal_support::{
     admin_access_link_summary, assignment_effective_expiry, assignment_is_active,
-    boost_portal_launch_branding, customer_access_link_summary, customer_tour_assignment_view,
-    dedupe_ids, inject_base_href, make_short_code, portal_launch_entry_candidates, sha256_hex,
-    tour_recipient_assignment_view,
+    customer_access_link_summary, customer_tour_assignment_view, dedupe_ids, make_short_code,
+    sha256_hex, tour_recipient_assignment_view,
 };
 use crate::services::portal_paths::{
-    detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,
+    detect_portal_package_root, should_keep_portal_relative_path,
 };
 
 pub use crate::services::portal_paths::{portal_library_tour_dir, validate_slug};
+pub use crate::services::portal_assets::{load_portal_launch_document, resolve_portal_asset};
 pub use crate::services::portal_support::{customer_public, init_storage, normalize_recipient_type, parse_expiry};
 
 const PORTAL_REQUIRED_ENTRY_SUFFIXES: [&str; 3] =
@@ -531,7 +530,7 @@ pub fn is_portal_admin(user: &User) -> bool {
         .any(|value| value.eq_ignore_ascii_case(&user.email))
 }
 
-async fn load_authorized_portal_tour(
+pub(crate) async fn load_authorized_portal_tour(
     pool: &SqlitePool,
     customer_slug: &str,
     tour_slug: &str,
@@ -2721,63 +2720,6 @@ pub async fn gallery_view_for_customer(
         can_open_tours: session.can_open_tours,
         tours: cards,
     })
-}
-
-pub async fn load_portal_launch_document(
-    pool: &SqlitePool,
-    customer_slug: &str,
-    tour_slug: &str,
-    access_kind: &str,
-    access_ref: &str,
-    user_agent: Option<&str>,
-) -> Result<String, AppError> {
-    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_kind, access_ref)
-        .await?;
-    let storage_root = PathBuf::from(&tour.storage_path);
-
-    for candidate in portal_launch_entry_candidates(user_agent) {
-        let resolved = storage_root.join(candidate);
-        if !resolved.exists() {
-            continue;
-        }
-
-        crate::api::utils::validate_path_safe(&storage_root, &resolved)?;
-        let document = fs::read_to_string(&resolved).map_err(AppError::IoError)?;
-        let base_href = match candidate.rsplit_once('/') {
-            Some((dir, _)) => format!("/portal-assets/{}/{}/{}/", customer_slug, tour_slug, dir),
-            None => format!("/portal-assets/{}/{}/", customer_slug, tour_slug),
-        };
-        return Ok(boost_portal_launch_branding(inject_base_href(
-            document, &base_href,
-        )));
-    }
-
-    Err(AppError::ValidationError(
-        "Portal launch document not found.".into(),
-    ))
-}
-
-pub async fn resolve_portal_asset(
-    pool: &SqlitePool,
-    customer_slug: &str,
-    tour_slug: &str,
-    relative_path: &str,
-    access_kind: &str,
-    access_ref: &str,
-) -> Result<NamedFile, AppError> {
-    let tour = load_authorized_portal_tour(pool, customer_slug, tour_slug, access_kind, access_ref)
-        .await?;
-    let storage_root = PathBuf::from(&tour.storage_path);
-    let safe_relative = sanitize_relative_path(relative_path)?;
-    let resolved = storage_root.join(&safe_relative);
-    if !resolved.exists() {
-        return Err(AppError::ValidationError("Portal asset not found.".into()));
-    }
-
-    crate::api::utils::validate_path_safe(&storage_root, &resolved)?;
-    NamedFile::open_async(resolved)
-        .await
-        .map_err(AppError::IoError)
 }
 
 struct ExtractedPackage {
