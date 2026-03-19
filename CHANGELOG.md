@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrate portal modules into DATA_FLOW
 - Checkpoint before D001 portal helper classification
 - Classify portal helper Rust files
+- Checkpoint before portal_audit flow cleanup
 
 ## [5.3.6] - 2026-03-18
 
