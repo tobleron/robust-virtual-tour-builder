@@ -2,6 +2,15 @@
 
 This document provides a consolidated, extremely concise history of all completed work and reports in the `tasks/completed` directory.
 
+## 🗄️ 2026-03-19 Maintenance Consolidation (1800-1871, D012)
+- **1800-1809: CI, Health, and Error-Path Hardening** — Tightened build automation, health observability, contract coverage, error boundaries, logger usage, request deduplication, and the Postgres migration path.
+- **1811-1819: Test Alignment & Developer Workflow** — Kept unit-test coverage aligned with stabilized behavior, captured product/monetization planning, reopened shell-project history, tuned the dev-system generator, and removed stale export-logo exclusions.
+- **1822-1839: Export, Snapshot, and Traversal Refinement** — Cleaned snapshot/history flows, selection hangs, duplicate hotspot traversal, teaser calibration, auto-tour sequencing, and manual-vs-auto parity.
+- **1840-1850: Export Semantics & Portrait Delivery** — Sharpened shortcut navigation semantics, dashboard readiness, recovery supervision, hotspot stacking, and portrait/mobile control behavior.
+- **1851-1860: Portrait & Portal Stabilization** — Fixed portrait selector/orb visibility, CI/deploy regressions, upload-quota instability, grayscale recovery scope, profile caps, portal launch/routing, upload/contrast, and access-link rewrite behavior.
+- **1861-1877: Portal Cutover & Hardening** — Landed the enterprise portal split, builder login recovery, admin UX cleanup, portal access simplification, VPS workflow updates, and HTTPS/hardening cleanup.
+- **1879-1884, D012: Final Export/Frontend Maintenance Wave** — Tuned portrait HFOV tests, validated export profile selection, closed export-formula cleanup, and captured the latest exporter frontend refactor.
+
 ## 🗄️ 2026-03-06 Maintenance Consolidation (1555-1797, T1532-T1796)
 - **1555-1576: ReScript Hardening & UX Polish** — Standardized ReScript safe options (`getExn` removal), consolidated ETA logic, added mapping floor shortcuts, and implemented reducer memoization for performance.
 - **1577-1595: Enterprise Resilience & Performance** — Landed major infrastructure upgrades: Web Worker image processing, LRU scene caching, typed EventBus channels, incremental persistence, request queue priority, and backend circuit breaker/backpressure hardening.
