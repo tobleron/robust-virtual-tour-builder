@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix dev-system merge guard false positives
 - Checkpoint before dev-task D001
 - Checkpoint before dev-task D001 src components
+- Checkpoint before dev-task backend services
 
 ## [5.3.6] - 2026-03-18
 
