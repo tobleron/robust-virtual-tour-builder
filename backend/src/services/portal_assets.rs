@@ -12,8 +12,8 @@ use zip::ZipArchive;
 use crate::api::utils::validate_path_safe;
 use crate::models::AppError;
 use crate::services::portal::{
-    assignment_by_customer_and_tour, assignment_by_id, assignment_from_lookup_row,
-    current_customer_and_access_link_by_slug, PortalLibraryTour,
+    PortalLibraryTour, assignment_by_customer_and_tour, assignment_by_id,
+    assignment_from_lookup_row, current_customer_and_access_link_by_slug,
 };
 use crate::services::portal_paths::{
     detect_portal_package_root, sanitize_relative_path, should_keep_portal_relative_path,

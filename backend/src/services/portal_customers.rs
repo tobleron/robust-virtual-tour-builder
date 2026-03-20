@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use crate::models::{AppError, User};
 use crate::services::portal::{
-    PortalAccessLinkRecord, PortalCustomer, PortalCustomerCreateResult, PortalCustomerOverview,
-    PortalGeneratedAccessLink, CreatePortalCustomerInput, UpdatePortalCustomerInput,
+    CreatePortalCustomerInput, PortalAccessLinkRecord, PortalCustomer, PortalCustomerCreateResult,
+    PortalCustomerOverview, PortalGeneratedAccessLink, UpdatePortalCustomerInput,
 };
 use crate::services::portal_audit::{log_audit, log_audit_event};
 use crate::services::portal_codes::generate_unique_short_code;

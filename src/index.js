@@ -16,6 +16,7 @@ import {
   renderPageFramework,
   resolveAppSurface,
 } from './site/PageFramework.js';
+import { getAuthSession, getLocalSetupStatus } from './site/PageFrameworkAuth.js';
 
 const appRoot = document.getElementById('app');
 const routeTarget = resolveAppSurface(window.location.pathname, window.location.hostname);
@@ -24,7 +25,6 @@ const DEV_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 function authHeaderValue() {
   const token = window.localStorage ? window.localStorage.getItem('auth_token') : null;
   if (token && token.trim() !== '') return `Bearer ${token}`;
-  if (DEV_HOSTS.has((window.location.hostname || '').toLowerCase())) return 'Bearer dev-token';
   return null;
 }
 
@@ -64,9 +64,20 @@ async function preloadDashboardProjectIfRequested() {
 }
 
 if (routeTarget === 'builder') {
-  renderBuilderFramework(appRoot);
-  preloadDashboardProjectIfRequested().finally(() => {
-    import('./Main.bs.js');
+  Promise.all([getAuthSession(), getLocalSetupStatus()]).then(([session, setupStatus]) => {
+    if (setupStatus?.setupRequired) {
+      window.location.assign('/setup');
+      return;
+    }
+    if (!session?.authenticated) {
+      window.location.assign('/signin');
+      return;
+    }
+
+    renderBuilderFramework(appRoot);
+    preloadDashboardProjectIfRequested().finally(() => {
+      import('./Main.bs.js');
+    });
   });
 } else {
   renderPageFramework(appRoot, routeTarget);

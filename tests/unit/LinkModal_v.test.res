@@ -35,22 +35,6 @@ describe("LinkModal", () => {
     t->expect(withoutNumber)->Expect.toBe("Zoom Out View")
   })
 
-  test("sequence option labels show sequence to scene pairing", t => {
-    let label = LinkModal.formatSequenceOptionLabel(
-      ~sequence=52,
-      ~targetSceneNumber=Some(1),
-      ~targetLabel="Zoom Out View",
-    )
-    let fallbackLabel = LinkModal.formatSequenceOptionLabel(
-      ~sequence=7,
-      ~targetSceneNumber=None,
-      ~targetLabel="Kitchen",
-    )
-
-    t->expect(label)->Expect.toBe("52 -> #1 Zoom Out View")
-    t->expect(fallbackLabel)->Expect.toBe("7 -> Kitchen")
-  })
-
   test("showLinkModal should dispatch ShowModal with correct content", t => {
     // Setup State
     let scene1 = createScene("Scene1")
@@ -181,7 +165,7 @@ describe("LinkModal", () => {
   })
 
   test(
-    "Retarget modal save should dispatch sequence reorder updates when sequence is changed",
+    "Retarget modal save should not dispatch manual sequence reorder updates",
     t => {
       let h1: hotspot = {
         linkId: "A01",
@@ -272,10 +256,6 @@ describe("LinkModal", () => {
       document.body.appendChild(select);
       select.value = "id_Scene2";
 
-      const seqInput = document.createElement("input");
-      seqInput.id = "link-sequence-order";
-      seqInput.value = "2";
-      document.body.appendChild(seqInput);
     })()`)
 
       switch receivedConfig.contents {
@@ -300,7 +280,7 @@ describe("LinkModal", () => {
                 },
             )
 
-            t->expect(hasReorderBatch)->Expect.toBe(true)
+            t->expect(hasReorderBatch)->Expect.toBe(false)
           } else {
             t->expect(false)->Expect.toBe(true)
           }

@@ -13,8 +13,10 @@ import {
 import {
   bindAuthForms,
   getAuthSession,
+  getLocalSetupStatus,
   redirectIfProtectedPageRequiresAuth,
   signOutAndRedirect,
+  syncSetupFormPresentation,
   updateAuthSurfaces,
 } from './PageFrameworkAuth.js';
 import {
@@ -146,7 +148,22 @@ export function renderPageFramework(rootElement, page) {
   `;
 
   bindAuthForms(page);
-  getAuthSession().then(session => {
+  Promise.all([getAuthSession(), getLocalSetupStatus()]).then(([session, setupStatus]) => {
+    window.__VTB_LOCAL_SETUP_STATUS__ = setupStatus;
+    if (setupStatus.setupRequired && page !== 'setup' && !(setupStatus.resetAvailable && page === 'local-reset')) {
+      window.location.assign('/setup');
+      return;
+    }
+    if (!setupStatus.setupRequired && page === 'setup') {
+      window.location.assign('/signin');
+      return;
+    }
+    if ((page === 'local-reset' && !setupStatus.resetAvailable) || (!setupStatus.localOnly && page === 'local-reset')) {
+      window.location.assign('/signin');
+      return;
+    }
+    syncSetupFormPresentation(setupStatus);
+
     window.__VTB_AUTH_SESSION__ = session;
     updateAuthSurfaces(session);
     if (!redirectIfProtectedPageRequiresAuth(page, session)) return;

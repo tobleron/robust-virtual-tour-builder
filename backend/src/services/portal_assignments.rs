@@ -7,10 +7,10 @@ use crate::services::portal::{
     BulkAssignPortalToursInput, PortalBulkAssignmentResult, PortalCustomer, PortalCustomerOverview,
     PortalCustomerTourAssignmentView,
 };
-use crate::services::portal_audit::log_audit;
 use crate::services::portal_assignment_queries::{
     load_assignment_record_for_customer_tour, upsert_assignment_link,
 };
+use crate::services::portal_audit::log_audit;
 use crate::services::portal_codes::{
     generate_unique_short_code, validate_existing_customer_ids, validate_existing_tour_ids,
 };
@@ -45,7 +45,8 @@ pub async fn create_or_activate_assignment_link(
             AppError::InternalError(format!("Portal assignment expiry update failed: {}", error))
         })?;
     }
-    crate::services::portal_views::assignment_view_by_id(pool, &assignment.id, public_base_url).await
+    crate::services::portal_views::assignment_view_by_id(pool, &assignment.id, public_base_url)
+        .await
 }
 
 pub async fn revoke_assignment_link(

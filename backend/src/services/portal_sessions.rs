@@ -4,17 +4,17 @@ use sqlx::SqlitePool;
 
 use crate::models::AppError;
 use crate::services::portal::{
-    assignment_by_short_code, assignment_from_lookup_row, ensure_assignment_short_code,
     PortalAccessLinkRecord, PortalAccessRedirect, PortalCustomer, PortalCustomerPublicView,
     PortalCustomerSessionView, PortalCustomerTourAssignmentRecord, PortalGalleryView,
-    PortalTourCard, customer_public, validate_slug,
+    PortalTourCard, assignment_by_short_code, assignment_from_lookup_row, customer_public,
+    ensure_assignment_short_code, validate_slug,
 };
-use crate::services::portal_assets::ensure_portal_cover_path;
 use crate::services::portal_admin::load_settings;
-use crate::services::portal_views::customer_assignment_rows;
+use crate::services::portal_assets::ensure_portal_cover_path;
 use crate::services::portal_support::{
     assignment_effective_expiry, assignment_is_active, customer_access_link_summary, sha256_hex,
 };
+use crate::services::portal_views::customer_assignment_rows;
 
 pub(crate) async fn current_access_link_for_customer(
     pool: &SqlitePool,

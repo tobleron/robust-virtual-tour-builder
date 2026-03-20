@@ -1,0 +1,10 @@
+[app]
+surface = "builder"
+profile = "local"
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[public]
+base_url = "http://127.0.0.1:8080"

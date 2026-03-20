@@ -6,37 +6,37 @@ use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use crate::models::{AppError, User};
-use crate::services::portal_audit::{log_audit, log_audit_event};
 use crate::services::portal_assets::extract_portal_package;
+use crate::services::portal_audit::{log_audit, log_audit_event};
 
-pub use crate::services::portal_paths::{portal_library_tour_dir, validate_slug};
-pub use crate::services::portal_types::*;
 pub use crate::services::portal_assets::{load_portal_launch_document, resolve_portal_asset};
 pub(crate) use crate::services::portal_assignment_queries::{
     assignment_by_customer_and_tour, assignment_by_id, assignment_by_short_code,
     assignment_from_lookup_row, ensure_assignment_short_code,
 };
-pub(crate) use crate::services::portal_sessions::{
-    current_access_link_for_customer, current_customer_and_access_link_by_slug,
-};
 pub(crate) use crate::services::portal_assignments::{
-    assign_tour_to_customer, bulk_assign_tours_to_customers,
-    create_or_activate_assignment_link, reactivate_assignment_link, revoke_assignment_link,
-    unassign_tour_from_customer, update_assignment_expiry,
+    assign_tour_to_customer, bulk_assign_tours_to_customers, create_or_activate_assignment_link,
+    reactivate_assignment_link, revoke_assignment_link, unassign_tour_from_customer,
+    update_assignment_expiry,
 };
+pub use crate::services::portal_customers::{
+    create_customer, delete_access_links, delete_customer, regenerate_access_link,
+    revoke_access_links, update_customer,
+};
+pub use crate::services::portal_paths::{portal_library_tour_dir, validate_slug};
 pub use crate::services::portal_sessions::{
     access_session_for_token, authenticate_access_token, gallery_view_for_customer,
     load_customer_session, public_customer_view,
 };
+pub(crate) use crate::services::portal_sessions::{
+    current_access_link_for_customer, current_customer_and_access_link_by_slug,
+};
+pub use crate::services::portal_support::{customer_public, init_storage};
+pub use crate::services::portal_types::*;
 pub use crate::services::portal_views::assignment_view_by_id;
+pub use crate::services::portal_views::list_library_tours;
 pub use crate::services::portal_views::{
     list_customer_assignments_view, list_customers, list_tour_assignments_view,
-};
-pub use crate::services::portal_views::list_library_tours;
-pub use crate::services::portal_support::{customer_public, init_storage};
-pub use crate::services::portal_customers::{
-    create_customer, delete_access_links, delete_customer, regenerate_access_link,
-    revoke_access_links, update_customer,
 };
 
 async fn next_available_library_tour_slug(

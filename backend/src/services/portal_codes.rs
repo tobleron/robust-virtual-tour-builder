@@ -25,7 +25,10 @@ async fn short_code_exists(pool: &SqlitePool, short_code: &str) -> Result<bool, 
     .fetch_one(pool)
     .await
     .map_err(|error| {
-        AppError::InternalError(format!("Portal assignment short-code lookup failed: {}", error))
+        AppError::InternalError(format!(
+            "Portal assignment short-code lookup failed: {}",
+            error
+        ))
     })?;
 
     Ok(assignment_exists > 0)

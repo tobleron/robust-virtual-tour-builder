@@ -30,7 +30,90 @@ This project is available under the **AGPL v3** for users who comply with that l
 
 ## 🚀 Quick Start
 
-If you just want the app running locally:
+### Stable Builder Setup
+
+Use this path if you want the GitHub repo to behave like the stable builder product.
+
+1. Clone the repository and stay on `main`
+2. Run the first-time setup script for your OS:
+
+   macOS / Linux:
+   ```bash
+   ./scripts/setup-local-builder.sh
+   ```
+
+   Windows PowerShell:
+   ```powershell
+   ./scripts/setup-local-builder.ps1
+   ```
+
+3. Open the builder:
+   ```text
+   http://127.0.0.1:8080
+   ```
+
+What the stable setup does:
+- installs missing local prerequisites when the supported package manager is available
+- creates `config/builder.runtime.toml` with ready-to-run defaults
+- creates `backend/.env.local-builder` with generated secrets if needed
+- builds the frontend and backend for production
+- starts the builder as a single server on one host/port
+
+### Stable Daily Start
+
+After first setup:
+
+```bash
+npm run start
+```
+
+The stable launcher:
+- expects the repo to run from `main`
+- switches to `main` automatically only when your worktree is clean
+- stops with guidance if branch switching would affect uncommitted work
+- preserves incremental backend release builds
+- serves the UI and API from the same port
+
+### Runtime Config
+
+Stable runtime settings live in:
+
+- `config/builder.runtime.toml`
+- `backend/.env.local-builder`
+
+The generated TOML defaults are:
+
+```toml
+[app]
+surface = "builder"
+profile = "local"
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[public]
+base_url = "http://127.0.0.1:8080"
+```
+
+For a VPS-oriented builder host, edit that TOML file and change:
+- `profile = "vps"`
+- `host`
+- `port`
+- `base_url`
+
+When `profile = "vps"` and no owner exists yet, the launcher prints a one-time setup URL for the first admin account.
+
+Local recovery:
+- visit `/local-reset` on the same machine to restart local setup
+- auth-only reset keeps local projects by default
+- full reset is opt-in and wipes projects too
+
+More detail: [docs/operations/local-builder-setup.md](docs/operations/local-builder-setup.md)
+
+### Development Workflow
+
+If you are working on the app itself instead of using the stable builder:
 
 1. Install dependencies and toolchain helpers:
    ```bash

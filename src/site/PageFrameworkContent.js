@@ -56,7 +56,22 @@ function pricingPage() {
   `;
 }
 
-function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, includeConfirm, includeUsername) {
+function isLocalDevHost() {
+  if (typeof window === 'undefined' || !window.location) return false;
+  const host = (window.location.hostname || '').toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+}
+
+function authCard(
+  title,
+  subtitle,
+  primaryLabel,
+  secondaryHref,
+  secondaryLabel,
+  includeConfirm,
+  includeUsername,
+  extraFooterMarkup = ''
+) {
   return `
     <section class="site-auth-wrap">
       <article class="site-auth-card">
@@ -71,6 +86,46 @@ function authCard(title, subtitle, primaryLabel, secondaryHref, secondaryLabel, 
           <button class="site-btn site-btn-primary" type="submit">${primaryLabel}</button>
         </form>
         <a class="site-link-muted" href="${secondaryHref}">${secondaryLabel}</a>
+        ${extraFooterMarkup}
+      </article>
+    </section>
+  `;
+}
+
+function localSetupPage() {
+  return `
+    <section class="site-auth-wrap">
+      <article class="site-auth-card">
+        <h1 data-setup-heading>Set up this local builder</h1>
+        <p class="site-muted" data-setup-copy>Create the local owner account for this PC. This only runs when the local install has not been configured yet.</p>
+        <form class="site-form" onsubmit="return false;" data-auth-form="setup">
+          <label>Username<input type="text" name="username" placeholder="your-name" /></label>
+          <label>Email<input type="email" name="email" placeholder="you@example.com" /></label>
+          <label>Password<input type="password" name="password" placeholder="********" /></label>
+          <label>Confirm Password<input type="password" name="confirmPassword" placeholder="********" /></label>
+          <p class="site-muted" data-auth-message="" data-setup-hint>This account becomes the owner of the local builder install.</p>
+          <button class="site-btn site-btn-primary" type="submit" data-setup-submit>Create Local Owner</button>
+        </form>
+      </article>
+    </section>
+  `;
+}
+
+function localResetPage() {
+  return `
+    <section class="site-auth-wrap">
+      <article class="site-auth-card">
+        <h1>Restart local setup</h1>
+        <p class="site-muted">Use this only on your own PC. By default it resets access only and keeps your local projects. You can optionally wipe projects too.</p>
+        <form class="site-form" onsubmit="return false;" data-auth-form="local-reset">
+          <label class="site-checkbox-row">
+            <input type="checkbox" name="resetProjects" />
+            <span>Also delete local projects, snapshots, and assets</span>
+          </label>
+          <p class="site-muted" data-auth-message="">Auth-only reset keeps local projects and sends the app back to first-time setup.</p>
+          <button class="site-btn site-btn-primary" type="submit">Restart Local Setup</button>
+        </form>
+        <a class="site-link-muted" href="/signin">Return to sign in</a>
       </article>
     </section>
   `;
@@ -208,8 +263,13 @@ export function contentFor(page) {
         '/forgot-password',
         'Forgot password?',
         false,
-        false
+        false,
+        isLocalDevHost()
+          ? '<a class="site-link-muted" href="/local-reset">Restart local setup on this PC</a>'
+          : ''
       );
+    case 'setup':
+      return localSetupPage();
     case 'signup':
       return authCard(
         'Create account',
@@ -220,6 +280,8 @@ export function contentFor(page) {
         true,
         true
       );
+    case 'local-reset':
+      return localResetPage();
     case 'forgot-password':
       return forgotPasswordPage();
     case 'check-email':

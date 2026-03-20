@@ -69,3 +69,5 @@ backend/logs/
 .agent/current_file_structure.md
 _dev-system/tmp/
 tmp/
+config/builder.runtime.toml
+backend/.env.local-builder

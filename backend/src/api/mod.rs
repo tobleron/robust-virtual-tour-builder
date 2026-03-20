@@ -1,7 +1,7 @@
 #[path = "config_routes.rs"]
 mod config_routes;
-mod config_routes_project;
 mod config_routes_portal;
+mod config_routes_project;
 mod portal_support;
 
 use crate::middleware::rate_limiter::RateLimiters;

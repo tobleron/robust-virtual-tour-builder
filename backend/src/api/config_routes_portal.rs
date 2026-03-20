@@ -18,13 +18,6 @@ pub(super) fn configure_portal_api(cfg: &mut web::ServiceConfig, limiters: &Rate
                             .wrap(Governor::new(&limiters.write)),
                     )
                     .route(
-                        "/dev-login",
-                        web::post()
-                            .to(auth::dev_signin)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
                         "/signout",
                         web::post()
                             .to(auth::signout)

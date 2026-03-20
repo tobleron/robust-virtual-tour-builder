@@ -298,12 +298,11 @@ async fn main() -> io::Result<()> {
             })
             .wrap(TracingLogger::default())
             .wrap(startup::security_headers())
-            .wrap(SessionMiddleware::builder(
-                CookieSessionStore::default(),
-                session_key.clone(),
+            .wrap(
+                SessionMiddleware::builder(CookieSessionStore::default(), session_key.clone())
+                    .cookie_same_site(actix_web::cookie::SameSite::None)
+                    .build(),
             )
-            .cookie_same_site(actix_web::cookie::SameSite::None)
-            .build())
             .wrap(startup::cors())
             .wrap(prometheus.clone())
             .route(
@@ -390,12 +389,22 @@ async fn main() -> io::Result<()> {
         "Configured backend HTTP worker count before binding"
     );
 
-    let server = server.bind(("0.0.0.0", 8080)).map_err(|err| {
-        tracing::error!(%err, "Failed to bind backend HTTP server to 0.0.0.0:8080");
-        err
-    })?;
+    let server_host = startup::server_bind_host();
+    let server_port = startup::server_bind_port();
 
-    tracing::info!("Backend HTTP server bound to 0.0.0.0:8080");
+    let server = server
+        .bind((server_host.clone(), server_port))
+        .map_err(|err| {
+            tracing::error!(
+                %err,
+                host = %server_host,
+                port = server_port,
+                "Failed to bind backend HTTP server"
+            );
+            err
+        })?;
+
+    tracing::info!(host = %server_host, port = server_port, "Backend HTTP server bound");
 
     let server = server.run();
 

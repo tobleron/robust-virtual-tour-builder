@@ -26,10 +26,6 @@ let deriveSceneContext = (~state: state, ~targetIndex: int): sceneContext => {
   }
 }
 
-let buildSequenceDrafts = (
-  orderedHotspots: array<HotspotSequence.orderedHotspot>,
-): Belt.Map.String.t<string> => LabelMenuRuntimeSequence.buildSequenceDrafts(orderedHotspots)
-
 let recoverBaseName = (~currentScene: option<scene>): string =>
   LabelMenuRuntimeLabels.recoverBaseName(~currentScene)
 
@@ -82,24 +78,6 @@ let handleClear = (
 
 let handleSetCategory = (~currentCategory: string, ~targetIndex: int, ~dispatch, cat: string, e) =>
   LabelMenuRuntimeLabels.handleSetCategory(~currentCategory, ~targetIndex, ~dispatch, cat, e)
-
-let applySequenceReorder = (~dispatch, ~linkId: string, ~desiredOrder: int) =>
-  LabelMenuRuntimeSequence.applySequenceReorder(~dispatch, ~linkId, ~desiredOrder)
-
-let commitSequenceDraft = (
-  ~sequenceDrafts: Belt.Map.String.t<string>,
-  ~setSequenceDrafts: (Belt.Map.String.t<string> => Belt.Map.String.t<string>) => unit,
-  ~dispatch,
-  ~linkId: string,
-  ~currentSequence: int,
-) =>
-  LabelMenuRuntimeSequence.commitSequenceDraft(
-    ~sequenceDrafts,
-    ~setSequenceDrafts,
-    ~dispatch,
-    ~linkId,
-    ~currentSequence,
-  )
 
 let executeRemoveAllUntagged = (~dispatch: action => unit, ~onClose: unit => unit) =>
   LabelMenuRuntimeUntagged.executeRemoveAllUntagged(~dispatch, ~onClose)

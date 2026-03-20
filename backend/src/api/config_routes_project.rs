@@ -198,5 +198,4 @@ pub(super) fn configure_project_api(cfg: &mut web::ServiceConfig, limiters: &Rat
 }
 
 #[cfg(not(feature = "builder-runtime"))]
-pub(super) fn configure_project_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {
-}
+pub(super) fn configure_project_api(_cfg: &mut web::ServiceConfig, _limiters: &RateLimiters) {}

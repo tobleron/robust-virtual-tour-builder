@@ -61,6 +61,23 @@ pub struct ChangePasswordPayload {
     pub new_password: String,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalSetupBootstrapPayload {
+    pub email: String,
+    pub username: String,
+    pub password: String,
+    pub display_name: Option<String>,
+    pub setup_token: Option<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalResetPayload {
+    #[serde(default)]
+    pub reset_projects: bool,
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthPublicUser {
@@ -95,6 +112,25 @@ pub struct AuthChallengeResponse {
 pub struct MeResponse {
     pub authenticated: bool,
     pub user: Option<AuthPublicUser>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalSetupStatusResponse {
+    pub setup_required: bool,
+    pub local_only: bool,
+    pub has_users: bool,
+    pub reset_available: bool,
+    pub bootstrap_mode: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalResetResponse {
+    pub ok: bool,
+    pub message: String,
+    pub setup_required: bool,
+    pub projects_cleared: bool,
 }
 
 #[derive(Debug, Clone)]

@@ -91,6 +91,27 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
             .service(
                 web::scope("/auth")
                     .route(
+                        "/setup/status",
+                        web::get()
+                            .to(auth::local_setup_status)
+                            .wrap(RateLimitResponseTransformer::new("read"))
+                            .wrap(Governor::new(&limiters.read)),
+                    )
+                    .route(
+                        "/setup/bootstrap",
+                        web::post()
+                            .to(auth::bootstrap_local_setup)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
+                        "/local-reset",
+                        web::post()
+                            .to(auth::reset_local_setup)
+                            .wrap(RateLimitResponseTransformer::new("write"))
+                            .wrap(Governor::new(&limiters.write)),
+                    )
+                    .route(
                         "/signup",
                         web::post()
                             .to(auth::signup)
@@ -115,13 +136,6 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
                         "/signin",
                         web::post()
                             .to(auth::signin)
-                            .wrap(RateLimitResponseTransformer::new("write"))
-                            .wrap(Governor::new(&limiters.write)),
-                    )
-                    .route(
-                        "/dev-login",
-                        web::post()
-                            .to(auth::dev_signin)
                             .wrap(RateLimitResponseTransformer::new("write"))
                             .wrap(Governor::new(&limiters.write)),
                     )
@@ -305,7 +319,9 @@ pub(super) fn configure_api(cfg: &mut web::ServiceConfig, limiters: &RateLimiter
             .service(
                 web::scope("/project")
                     .wrap(auth_middleware::AuthMiddleware)
-                    .configure(|cfg| super::config_routes_project::configure_project_api(cfg, limiters)),
+                    .configure(|cfg| {
+                        super::config_routes_project::configure_project_api(cfg, limiters)
+                    }),
             )
             .route(
                 "/quota/stats",

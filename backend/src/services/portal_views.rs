@@ -5,11 +5,11 @@ use sqlx::SqlitePool;
 
 use crate::models::AppError;
 use crate::services::portal::{
-    assignment_by_id, assignment_from_lookup_row, current_access_link_for_customer,
-    customer_public, ensure_assignment_short_code, AssignmentLinkLookupRow, PortalCustomer,
-    PortalCustomerOverview, PortalCustomerTourAssignmentRecord,
-    PortalCustomerTourAssignmentView, PortalCustomerTourAssignmentsView, PortalLibraryTour,
-    PortalLibraryTourOverview, PortalTourRecipientsView,
+    AssignmentLinkLookupRow, PortalCustomer, PortalCustomerOverview,
+    PortalCustomerTourAssignmentRecord, PortalCustomerTourAssignmentView,
+    PortalCustomerTourAssignmentsView, PortalLibraryTour, PortalLibraryTourOverview,
+    PortalTourRecipientsView, assignment_by_id, assignment_from_lookup_row,
+    current_access_link_for_customer, customer_public, ensure_assignment_short_code,
 };
 use crate::services::portal_support::{
     admin_access_link_summary, customer_tour_assignment_view, tour_recipient_assignment_view,
@@ -240,7 +240,9 @@ async fn tour_assignment_rows(
     .bind(tour_id)
     .fetch_all(pool)
     .await
-    .map_err(|error| AppError::InternalError(format!("Portal tour assignment list failed: {}", error)))
+    .map_err(|error| {
+        AppError::InternalError(format!("Portal tour assignment list failed: {}", error))
+    })
 }
 
 async fn customer_assignment_view(
@@ -248,11 +250,14 @@ async fn customer_assignment_view(
     customer_id: &str,
     public_base_url: &str,
 ) -> Result<PortalCustomerTourAssignmentsView, AppError> {
-    let customer = sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE id = ?")
-        .bind(customer_id)
-        .fetch_one(pool)
-        .await
-        .map_err(|error| AppError::InternalError(format!("Portal customer reload failed: {}", error)))?;
+    let customer =
+        sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE id = ?")
+            .bind(customer_id)
+            .fetch_one(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal customer reload failed: {}", error))
+            })?;
     let access_link = current_access_link_for_customer(pool, customer_id)
         .await?
         .map(|value| admin_access_link_summary(&value, public_base_url, &customer.slug));
@@ -293,11 +298,14 @@ async fn tour_recipient_view(
     tour_id: &str,
     public_base_url: &str,
 ) -> Result<PortalTourRecipientsView, AppError> {
-    let tour = sqlx::query_as::<_, PortalLibraryTour>("SELECT * FROM portal_library_tours WHERE id = ?")
-        .bind(tour_id)
-        .fetch_one(pool)
-        .await
-        .map_err(|error| AppError::InternalError(format!("Portal tour reload failed: {}", error)))?;
+    let tour =
+        sqlx::query_as::<_, PortalLibraryTour>("SELECT * FROM portal_library_tours WHERE id = ?")
+            .bind(tour_id)
+            .fetch_one(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!("Portal tour reload failed: {}", error))
+            })?;
     let mut recipients = Vec::new();
 
     for row in tour_assignment_rows(pool, tour_id).await? {

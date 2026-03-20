@@ -41,7 +41,10 @@ pub fn current_portal_session(session: &Session) -> Result<(String, String, Stri
     Ok((access_kind, access_ref, customer_slug))
 }
 
-pub fn ensure_slug_matches_session(session: &Session, slug: &str) -> Result<(String, String), AppError> {
+pub fn ensure_slug_matches_session(
+    session: &Session,
+    slug: &str,
+) -> Result<(String, String), AppError> {
     let (access_kind, access_ref, session_slug) = current_portal_session(session)?;
     if session_slug != validate_slug(slug)? {
         return Err(AppError::Unauthorized(

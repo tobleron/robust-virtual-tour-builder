@@ -6,6 +6,7 @@ use futures_util::TryStreamExt;
 use serde::Deserialize;
 use sqlx::SqlitePool;
 
+use crate::api::portal_support::{portal_public_base_url, require_portal_admin};
 use crate::models::AppError;
 use crate::services::portal::{
     self, AssignPortalTourInput, BulkAssignPortalToursInput, CreatePortalCustomerInput,
@@ -13,7 +14,6 @@ use crate::services::portal::{
     UpdateLinkExpiryInput, UpdatePortalCustomerInput, UpdatePortalSettingsInput,
 };
 use crate::services::portal_admin::{load_settings, update_settings};
-use crate::api::portal_support::{portal_public_base_url, require_portal_admin};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

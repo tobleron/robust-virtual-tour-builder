@@ -12,7 +12,9 @@ pub fn portal_storage_root() -> PathBuf {
 }
 
 pub fn portal_library_tour_dir(tour_slug: &str) -> Result<PathBuf, AppError> {
-    Ok(portal_storage_root().join("tours").join(validate_slug(tour_slug)?))
+    Ok(portal_storage_root()
+        .join("tours")
+        .join(validate_slug(tour_slug)?))
 }
 
 pub fn validate_slug(raw: &str) -> Result<String, AppError> {

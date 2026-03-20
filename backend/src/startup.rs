@@ -237,6 +237,23 @@ pub fn server_worker_count() -> usize {
         .unwrap_or(default_workers)
 }
 
+pub fn server_bind_host() -> String {
+    std::env::var("BACKEND_HOST")
+        .or_else(|_| std::env::var("HOST"))
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+        .unwrap_or_else(|| "0.0.0.0".to_string())
+}
+
+pub fn server_bind_port() -> u16 {
+    std::env::var("PORT")
+        .ok()
+        .and_then(|value| value.parse::<u16>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(8080)
+}
+
 pub fn session_key() -> io::Result<Key> {
     let min_len = 64;
     match std::env::var("SESSION_KEY") {
@@ -298,7 +315,6 @@ pub fn validate_auth_config() -> io::Result<()> {
                 "JWT_SECRET must be set in production",
             ));
         }
-
     }
     Ok(())
 }

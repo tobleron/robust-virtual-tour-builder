@@ -2,18 +2,6 @@
 
 type forwardRef = CanonicalTraversalTypes.forwardRef
 
-let clampOrder = (value: int, maxValue: int): int => {
-  if maxValue <= 0 {
-    Constants.Scene.Sequence.startSceneNumber
-  } else if value < Constants.Scene.Sequence.startSceneNumber {
-    Constants.Scene.Sequence.startSceneNumber
-  } else if value > maxValue {
-    maxValue
-  } else {
-    value
-  }
-}
-
 let sortDefaultForwardRefs = (refs: array<forwardRef>): array<forwardRef> =>
   refs->Belt.SortArray.stableSortBy((a, b) => {
     if a.baseOrder != b.baseOrder {
@@ -29,40 +17,7 @@ let sortDefaultForwardRefs = (refs: array<forwardRef>): array<forwardRef> =>
     }
   })
 
-let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> => {
-  let manual =
-    baseOrdered
-    ->Belt.Array.keep(item =>
-      switch item.sequenceOrder {
-      | Some(order) => order > 0
-      | None => false
-      }
-    )
-    ->Belt.SortArray.stableSortBy((a, b) => {
-      let seqA = a.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      let seqB = b.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      if seqA == seqB {
-        b.fallbackOrder - a.fallbackOrder
-      } else {
-        seqA - seqB
-      }
-    })
-
-  let ordered = ref(baseOrdered)
-  manual->Belt.Array.forEach(item => {
-    switch ordered.contents->Belt.Array.getIndexBy(existing => existing.linkId == item.linkId) {
-    | Some(currentIndex) =>
-      let withoutCurrent =
-        ordered.contents->Belt.Array.keepWithIndex((_, idx) => idx != currentIndex)
-      let desiredOrder = item.sequenceOrder->Option.getOr(Constants.Scene.Sequence.startSceneNumber)
-      let desiredIndex = clampOrder(desiredOrder, withoutCurrent->Belt.Array.length + 1) - 1
-      ordered := UiHelpers.insertAt(withoutCurrent, desiredIndex, item)
-    | None => ()
-    }
-  })
-
-  ordered.contents
-}
+let applyManualOverrides = (baseOrdered: array<forwardRef>): array<forwardRef> => baseOrdered
 
 let isValidForwardOrder = (~ordered: array<forwardRef>): bool => {
   if ordered->Belt.Array.length == 0 {

@@ -1,3 +1,122 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/components/ReactHotspotLayer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.09, Coupling: 0.08] | Drag: 4.71 | LOC: 404/400  ⚠️ Trigger: Drag above target (2.40) with file already at 404 LOC.  🎯 Target: Function: `scheduleDrawerClose` (High Local Complexity (3.2). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 5.108910891089109,
+        "recommended_splits": 1,
+        "verification": {
+          "headline": "Pre-split snapshot for `src/components/ReactHotspotLayer.res`",
+          "snapshots": [
+            {
+              "path": "src/components/ReactHotspotLayer.res",
+              "functions": [
+                {
+                  "name": "cleanSceneTag",
+                  "signature": "cleanSceneTag = raw => ReactHotspotLayerSupport.cleanSceneTag(raw)",
+                  "line": 9
+                },
+                {
+                  "name": "sceneDisplayLabel",
+                  "signature": "sceneDisplayLabel = scene => ReactHotspotLayerSupport.sceneDisplayLabel(scene)",
+                  "line": 10
+                },
+                {
+                  "name": "sceneIdFromMeta",
+                  "signature": "sceneIdFromMeta = meta => ReactHotspotLayerSupport.sceneIdFromMeta(meta)",
+                  "line": 11
+                },
+                {
+                  "name": "duplicateTargetStackSpacingPx",
+                  "signature": "duplicateTargetStackSpacingPx = ReactHotspotLayerSupport.duplicateTargetStackSpacingPx",
+                  "line": 12
+                },
+                {
+                  "name": "duplicateStackRestoreDelayMs",
+                  "signature": "duplicateStackRestoreDelayMs = ReactHotspotLayerSupport.duplicateStackRestoreDelayMs",
+                  "line": 13
+                },
+                {
+                  "name": "deriveDuplicateStackPlacements",
+                  "signature": "deriveDuplicateStackPlacements = seeds =>",
+                  "line": 14
+                },
+                {
+                  "name": "resolveStackedCoords",
+                  "signature": "resolveStackedCoords = (hotspotData, placementByLinkId, hotspotByLinkId) =>",
+                  "line": 16
+                },
+                {
+                  "name": "shouldShowHotspotLabel",
+                  "signature": "shouldShowHotspotLabel = (hotspotData, placementByLinkId, showHotspotLabels) =>",
+                  "line": 18
+                },
+                {
+                  "name": "resolveDuplicateGroupAnchorLinkId",
+                  "signature": "resolveDuplicateGroupAnchorLinkId = (linkId, placementByLinkId) =>",
+                  "line": 24
+                },
+                {
+                  "name": "clearHoveredStackRestoreTimer",
+                  "signature": "clearHoveredStackRestoreTimer = timerRef =>",
+                  "line": 26
+                },
+                {
+                  "name": "clearHoveredHotspotRestoreTimer",
+                  "signature": "clearHoveredHotspotRestoreTimer = (timerRef: React.ref<option<int>>) => {",
+                  "line": 28
+                },
+                {
+                  "name": "resolveMovingHotspotPitchYaw",
+                  "signature": "resolveMovingHotspotPitchYaw = (~state, ~hotspot, ~hotspotIndex) =>",
+                  "line": 35
+                },
+                {
+                  "name": "isMovingThisHotspot",
+                  "signature": "isMovingThisHotspot = (~state, ~hotspotIndex) =>",
+                  "line": 41
+                },
+                {
+                  "name": "projectHotspot",
+                  "signature": "projectHotspot = (",
+                  "line": 43
+                },
+                {
+                  "name": "isHiddenByHoveredSibling",
+                  "signature": "isHiddenByHoveredSibling = (",
+                  "line": 63
+                },
+                {
+                  "name": "renderHotspotCard",
+                  "signature": "renderHotspotCard = (",
+                  "line": 78
+                },
+                {
+                  "name": "renderHotspotOverlay",
+                  "signature": "renderHotspotOverlay = (",
+                  "line": 216
+                },
+                {
+                  "name": "useHotspotFrameState",
+                  "signature": "useHotspotFrameState = (",
+                  "line": 292
+                },
+                {
+                  "name": "make",
+                  "signature": "make = React.memo(() => {",
+                  "line": 361
+                }
+              ],
+              "fingerprint": "fe4608a5d8f0d44ac2c4b10c9ea3e28948dd7643f4a3bfeef1b19820df9181fb"
+            }
+          ]
+        }
+      }
+    }
+  ],
   "system": []
 }

@@ -5,8 +5,7 @@ use uuid::Uuid;
 
 use crate::models::{AppError, User};
 use crate::services::portal::{
-    AssignmentLinkLookupRow, PortalCustomer, PortalCustomerTourAssignmentRecord,
-    PortalLibraryTour,
+    AssignmentLinkLookupRow, PortalCustomer, PortalCustomerTourAssignmentRecord, PortalLibraryTour,
 };
 use crate::services::portal_codes::generate_unique_short_code;
 
@@ -60,7 +59,10 @@ pub(crate) async fn assignment_by_short_code(
     .fetch_optional(pool)
     .await
     .map_err(|error| {
-        AppError::InternalError(format!("Portal assignment short-code lookup failed: {}", error))
+        AppError::InternalError(format!(
+            "Portal assignment short-code lookup failed: {}",
+            error
+        ))
     })
 }
 
@@ -117,9 +119,7 @@ pub(crate) async fn assignment_by_customer_and_tour(
     .bind(&normalized_tour_slug)
     .fetch_optional(pool)
     .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal assignment lookup failed: {}", error))
-    })
+    .map_err(|error| AppError::InternalError(format!("Portal assignment lookup failed: {}", error)))
 }
 
 pub(crate) async fn assignment_by_id(
@@ -171,9 +171,7 @@ pub(crate) async fn assignment_by_id(
     .bind(assignment_id)
     .fetch_optional(pool)
     .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal assignment lookup failed: {}", error))
-    })
+    .map_err(|error| AppError::InternalError(format!("Portal assignment lookup failed: {}", error)))
 }
 
 pub(crate) fn assignment_from_lookup_row(
@@ -272,7 +270,10 @@ pub(crate) async fn ensure_assignment_short_code(
     .fetch_optional(pool)
     .await
     .map_err(|error| {
-        AppError::InternalError(format!("Portal assignment short-code load failed: {}", error))
+        AppError::InternalError(format!(
+            "Portal assignment short-code load failed: {}",
+            error
+        ))
     })?
     .flatten()
     {
@@ -304,7 +305,10 @@ pub(crate) async fn ensure_assignment_short_code(
         .fetch_optional(pool)
         .await
         .map_err(|error| {
-            AppError::InternalError(format!("Portal assignment short-code reload failed: {}", error))
+            AppError::InternalError(format!(
+                "Portal assignment short-code reload failed: {}",
+                error
+            ))
         })?
         .flatten()
         {

@@ -4,8 +4,8 @@ mod auth_context;
 mod auth_events;
 #[path = "auth_flows.rs"]
 mod auth_flows;
-#[path = "auth_flows_session_dev.rs"]
-mod auth_flows_session_dev;
+#[path = "auth_flows_local_setup.rs"]
+mod auth_flows_local_setup;
 #[path = "auth_mail.rs"]
 mod auth_mail;
 #[path = "auth_risk.rs"]
@@ -25,7 +25,8 @@ use sqlx::SqlitePool;
 
 pub use auth_types::{
     AuthChallengeResponse, AuthPublicUser, AuthSuccessResponse, ChangePasswordPayload,
-    ForgotPasswordPayload, MeResponse, ResendOtpPayload, ResendVerificationPayload,
+    ForgotPasswordPayload, LocalResetPayload, LocalResetResponse, LocalSetupBootstrapPayload,
+    LocalSetupStatusResponse, MeResponse, ResendOtpPayload, ResendVerificationPayload,
     ResetPasswordPayload, SignInPayload, SignUpPayload, VerifyEmailPayload, VerifyOtpPayload,
 };
 use auth_types::{IpReputation, LoginContext, RiskDecision, TrustedDeviceRecord};
@@ -79,26 +80,6 @@ fn clear_auth_cookie() -> Cookie<'static> { auth_utils::clear_auth_cookie() }
 fn create_device_cookie(token: &str) -> Cookie<'static> { auth_utils::create_device_cookie(token) }
 #[rustfmt::skip]
 fn public_user(user: &User) -> AuthPublicUser { auth_utils::public_user(user) }
-#[rustfmt::skip]
-fn dev_auth_bootstrap_enabled() -> bool {
-    !is_production() && config_bool("ALLOW_DEV_AUTH_BOOTSTRAP", false)
-}
-#[rustfmt::skip]
-fn dev_auth_email() -> String {
-    std::env::var("DEV_AUTH_EMAIL").unwrap_or_else(|_| "dev@example.local".to_string())
-}
-#[rustfmt::skip]
-fn dev_auth_username() -> String {
-    std::env::var("DEV_AUTH_USERNAME").unwrap_or_else(|_| "dev-user".to_string())
-}
-#[rustfmt::skip]
-fn dev_auth_name() -> String {
-    std::env::var("DEV_AUTH_NAME").unwrap_or_else(|_| "Development User".to_string())
-}
-#[rustfmt::skip]
-fn dev_auth_password() -> String {
-    std::env::var("DEV_AUTH_PASSWORD").unwrap_or_else(|_| "dev-password-123".to_string())
-}
 #[rustfmt::skip]
 fn is_local_dev_request(req: &HttpRequest) -> bool {
     let host = req.connection_info().host().to_string();
@@ -325,13 +306,6 @@ pub async fn signin(
     auth_flows::signin(req, pool, payload).await
 }
 
-pub async fn dev_signin(
-    req: HttpRequest,
-    pool: web::Data<SqlitePool>,
-) -> Result<HttpResponse, AppError> {
-    auth_flows_session_dev::dev_signin(req, pool).await
-}
-
 pub async fn signout() -> Result<HttpResponse, AppError> {
     auth_flows::signout()
 }
@@ -345,6 +319,29 @@ pub async fn forgot_password(
     payload: web::Json<ForgotPasswordPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows::forgot_password(pool, payload).await
+}
+
+pub async fn local_setup_status(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_local_setup::setup_status(req, pool).await
+}
+
+pub async fn bootstrap_local_setup(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<LocalSetupBootstrapPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_local_setup::bootstrap_local_owner(req, pool, payload).await
+}
+
+pub async fn reset_local_setup(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+    payload: web::Json<LocalResetPayload>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_local_setup::reset_local_owner(req, pool, payload).await
 }
 
 pub async fn reset_password(

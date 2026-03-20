@@ -69,6 +69,16 @@ let makeGraphState = (~manual=false, ()) => {
   TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
 }
 
+let makeDirectChainState = () => {
+  let hAC = makeHotspot(~linkId="hAC", ~targetSceneId="C", ())
+
+  let sceneA = makeScene(~id="A", ~hotspots=[hAC], ())
+  let sceneB = makeScene(~id="B", ~hotspots=[], ())
+  let sceneC = makeScene(~id="C", ~hotspots=[], ())
+
+  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
+}
+
 let makeDisconnectedState = () => {
   let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
   let hCD = makeHotspot(~linkId="hCD", ~targetSceneId="D", ())
@@ -161,33 +171,6 @@ let makeThreeManualForwardState = () => {
   TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC, sceneD], ~activeIndex=0, ())
 }
 
-let makeAdmissibleOrderState = () => {
-  let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
-  let hAD = makeHotspot(~linkId="hAD", ~targetSceneId="D", ())
-  let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ())
-
-  let sceneA = makeScene(~id="A", ~hotspots=[hAB, hAD], ())
-  let sceneB = makeScene(~id="B", ~hotspots=[hBC], ())
-  let sceneC = makeScene(~id="C", ~hotspots=[], ())
-  let sceneD = makeScene(~id="D", ~hotspots=[], ())
-
-  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC, sceneD], ~activeIndex=0, ())
-}
-
-let makeAutoForwardOrderingState = () => {
-  let hAB = {
-    ...makeHotspot(~linkId="hAB", ~targetSceneId="B", ()),
-    isAutoForward: Some(true),
-  }
-  let hAC = makeHotspot(~linkId="hAC", ~targetSceneId="C", ())
-
-  let sceneA = makeScene(~id="A", ~hotspots=[hAB, hAC], ())
-  let sceneB = makeScene(~id="B", ~hotspots=[], ())
-  let sceneC = makeScene(~id="C", ~hotspots=[], ())
-
-  TestUtils.createMockState(~scenes=[sceneA, sceneB, sceneC], ~activeIndex=0, ())
-}
-
 let makeWrapBackSceneNumberState = () => {
   let hAB = makeHotspot(~linkId="hAB", ~targetSceneId="B", ())
   let hBC = makeHotspot(~linkId="hBC", ~targetSceneId="C", ())
@@ -221,12 +204,12 @@ describe("HotspotSequence", () => {
     t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
   })
 
-  test("manual sequence order is honored when valid", t => {
+  test("manual sequence order is ignored in graph-driven numbering", t => {
     let state = makeGraphState(~manual=true, ())
     let badges = HotspotSequence.deriveBadgeByLinkId(~state)
 
-    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(2))
-    t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hBC"))->Expect.toEqual(Some(2))
     t->expect(isReturn(badges, "hCB"))->Expect.toBe(true)
     t->expect(isReturn(badges, "hBA"))->Expect.toBe(true)
   })
@@ -259,13 +242,6 @@ describe("HotspotSequence", () => {
     t->expect(sceneNumbers->Belt.Map.String.get("A"))->Expect.toEqual(Some(1))
     t->expect(sceneNumbers->Belt.Map.String.get("B"))->Expect.toEqual(Some(2))
     t->expect(sceneNumbers->Belt.Map.String.get("C"))->Expect.toEqual(Some(3))
-  })
-
-  test("buildReorderUpdates ignores return links", t => {
-    let state = makeGraphState()
-    let updates = HotspotSequence.buildReorderUpdates(~state, ~linkId="hBA", ~desiredOrder=1)
-
-    t->expect(updates->Belt.Array.length)->Expect.toBe(0)
   })
 
   test("numbers forward hotspots even when traversal does not reach their scenes", t => {
@@ -315,52 +291,28 @@ describe("HotspotSequence", () => {
     t->expect(readSeq(badges, "hMB"))->Expect.toEqual(Some(2))
   })
 
-  test("keeps all-manual sequence ordering stable for 3+ hotspots", t => {
+  test("ignores manual sequence metadata for 3+ hotspots", t => {
     let state = makeThreeManualForwardState()
     let badges = HotspotSequence.deriveBadgeByLinkId(~state)
 
-    t->expect(readSeq(badges, "hAC"))->Expect.toEqual(Some(1))
+    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
     t->expect(readSeq(badges, "hAD"))->Expect.toEqual(Some(2))
-    t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(3))
+    t->expect(readSeq(badges, "hAC"))->Expect.toEqual(Some(3))
   })
 
-  test("buildReorderUpdates keeps selected link at requested order in all-manual mode", t => {
-    let state = makeThreeManualForwardState()
-    let updates = HotspotSequence.buildReorderUpdates(~state, ~linkId="hAB", ~desiredOrder=1)
+  test("inserting a missed middle scene shifts downstream numbering", t => {
+    let state = makeGraphState()
+    let ordered = HotspotSequence.deriveOrderedHotspots(~state)
 
-    let selected = updates->Belt.Array.getBy(update => update.linkId == "hAB")
-    let ordered =
-      updates
-      ->Belt.Array.map(update => update.sequenceOrder)
-      ->Belt.SortArray.stableSortBy((a, b) => a - b)
-
-    t->expect(selected->Option.map(x => x.sequenceOrder))->Expect.toEqual(Some(1))
-    t->expect(ordered)->Expect.toEqual([1, 2, 3])
+    t->expect(ordered->Belt.Array.map(item => item.linkId))->Expect.toEqual(["hAB", "hBC"])
+    t->expect(ordered->Belt.Array.map(item => item.sequence))->Expect.toEqual([1, 2])
   })
 
-  test("deriveAdmissibleOrders allows moving links earlier and later", t => {
-    let state = makeAdmissibleOrderState()
-    let admissibleForHBC = HotspotSequence.deriveAdmissibleOrders(~state, ~linkId="hBC")
+  test("removing a middle scene compacts numbering automatically", t => {
+    let state = makeDirectChainState()
+    let ordered = HotspotSequence.deriveOrderedHotspots(~state)
 
-    t->expect(admissibleForHBC->Belt.Array.some(order => order == 1))->Expect.toBe(true)
-    t->expect(admissibleForHBC->Belt.Array.some(order => order >= 2))->Expect.toBe(true)
-  })
-
-  test("deriveAdmissibleOrders always includes the current sequence position", t => {
-    let state = makeAdmissibleOrderState()
-    let display = HotspotSequence.deriveDisplayOrder(~state)
-    let current = display->Belt.Map.String.get("hAB")->Option.getOr(0)
-    let admissible = HotspotSequence.deriveAdmissibleOrders(~state, ~linkId="hAB")
-
-    t->expect(current > 0)->Expect.toBe(true)
-    t->expect(admissible->Belt.Array.some(order => order == current))->Expect.toBe(true)
-  })
-
-  test("deriveAdmissibleOrders blocks auto-forward from preceding non-auto in same scene", t => {
-    let state = makeAutoForwardOrderingState()
-    let admissibleAuto = HotspotSequence.deriveAdmissibleOrders(~state, ~linkId="hAB")
-
-    t->expect(admissibleAuto->Belt.Array.some(order => order == 1))->Expect.toBe(false)
-    t->expect(admissibleAuto->Belt.Array.some(order => order == 2))->Expect.toBe(true)
+    t->expect(ordered->Belt.Array.map(item => item.linkId))->Expect.toEqual(["hAC"])
+    t->expect(ordered->Belt.Array.map(item => item.sequence))->Expect.toEqual([1])
   })
 })

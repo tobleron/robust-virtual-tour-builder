@@ -4,12 +4,12 @@ use actix_web::{HttpRequest, HttpResponse, http::header, web};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 
-use crate::models::AppError;
-use crate::services::portal::{self, PortalAccessRedirect};
 use crate::api::portal_support::{
     ensure_gallery_session, ensure_slug_matches_session, normalized_requested_slug,
     portal_public_base_url, safe_next_path, safe_tour_path, store_portal_session,
 };
+use crate::models::AppError;
+use crate::services::portal::{self, PortalAccessRedirect};
 
 #[derive(Debug, Deserialize)]
 pub struct CustomerSlugPath {
@@ -259,9 +259,10 @@ pub async fn access_tour_redirect(
             customer_slug: Some(customer_slug),
             allowed: true,
         } => {
-            let (_, access_kind, access_ref) = portal::access_session_for_token(pool.get_ref(), &path.token)
-                .await
-                .map(|(slug, kind, ref_id)| (slug, kind, ref_id))?;
+            let (_, access_kind, access_ref) =
+                portal::access_session_for_token(pool.get_ref(), &path.token)
+                    .await
+                    .map(|(slug, kind, ref_id)| (slug, kind, ref_id))?;
             store_portal_session(&session, &access_kind, access_ref, &customer_slug)?;
             Ok(HttpResponse::Found()
                 .append_header((
