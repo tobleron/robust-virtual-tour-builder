@@ -25,18 +25,6 @@ let resolveDuplicateGroupAnchorLinkId = (linkId, placementByLinkId) =>
   ReactHotspotLayerSupport.resolveDuplicateGroupAnchorLinkId(linkId, placementByLinkId)
 let clearHoveredStackRestoreTimer = timerRef =>
   ReactHotspotLayerSupport.clearHoveredStackRestoreTimer(timerRef)
-let resolveViewerSceneId = viewer => {
-  let metaSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
-  if metaSceneId != "" {
-    metaSceneId
-  } else {
-    try {
-      ViewerSystem.Adapter.getScene(viewer)
-    } catch {
-    | _ => ""
-    }
-  }
-}
 let clearHoveredHotspotRestoreTimer = (timerRef: React.ref<option<int>>) => {
   switch timerRef.current {
   | Some(id) => ReBindings.Window.clearTimeout(id)
@@ -328,7 +316,8 @@ let useHotspotFrameState = (
           setContainerRect(_ => None)
           setViewerSceneId(_ => "")
         } else {
-          let currentViewerSceneId = resolveViewerSceneId(viewer)
+          let currentViewerSceneId =
+            ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
           let rect = Dom.getBoundingClientRect(svg)
           if rect.width > 0.0 && currentViewerSceneId != "" {
             let yaw = Viewer.getYaw(viewer)
