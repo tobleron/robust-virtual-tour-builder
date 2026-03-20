@@ -65,6 +65,7 @@ Temporary public demo link:
 
 Note:
 - this demo link is public for evaluation only and may stop working after a limited time
+- direct contact for demo questions: `+201005684094`
 
 ## Stable Setup
 
