@@ -8,11 +8,22 @@ let fingerprintFiles = (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ) => {
   let fingerprintPromises = Belt.Array.map(validFiles, f => {
-    WorkerPool.fingerprintWithWorker(f, ~signal?)
+    WorkerPool.fingerprintWithWorker(
+      f,
+      ~timeoutMs=Constants.Media.uploadFingerprintWorkerTimeoutMs,
+      ~signal?,
+    )
     ->Promise.then(workerResult =>
       switch workerResult {
       | Some(id) => Promise.resolve(id)
-      | None => Resizer.getChecksum(f)
+      | None =>
+        Logger.warn(
+          ~module_="Upload",
+          ~message="FINGERPRINT_WORKER_FALLBACK",
+          ~data=Some({"filename": File.name(f)}),
+          (),
+        )
+        Resizer.getChecksum(f)
       }
     )
     ->Promise.then(id =>

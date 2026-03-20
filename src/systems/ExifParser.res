@@ -195,7 +195,10 @@ let extractExifTagsPreferred = async (file: Types.file): result<
       "blob-image",
       {"type": BrowserBindings.Blob.type_(b)},
     )
-    switch await WorkerPool.extractExifWithWorker(workerFile) {
+    switch await WorkerPool.extractExifWithWorker(
+      workerFile,
+      ~timeoutMs=Constants.Media.exifWorkerTimeoutMs,
+    ) {
     | Some((width, height)) => Ok(exifFromWorkerDimensions(width, height))
     | None => await extractExifTags(file)
     }
@@ -208,7 +211,10 @@ let extractExifTagsPreferred = async (file: Types.file): result<
         "url-image",
         {"type": BrowserBindings.Blob.type_(blob)},
       )
-      switch await WorkerPool.extractExifWithWorker(workerFile) {
+      switch await WorkerPool.extractExifWithWorker(
+        workerFile,
+        ~timeoutMs=Constants.Media.exifWorkerTimeoutMs,
+      ) {
       | Some((width, height)) => Ok(exifFromWorkerDimensions(width, height))
       | None => await extractExifTags(file)
       }

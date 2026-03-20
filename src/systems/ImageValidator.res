@@ -46,10 +46,20 @@ let validateFilesAsync = (
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<array<File.t>> => {
   let tasks = files->Belt.Array.map(file =>
-    WorkerPool.validateImageWithWorker(file, ~signal?)->Promise.then(workerDecision =>
+    WorkerPool.validateImageWithWorker(
+      file,
+      ~timeoutMs=Constants.Media.uploadValidateWorkerTimeoutMs,
+      ~signal?,
+    )->Promise.then(workerDecision =>
       switch workerDecision {
       | Some(isImage) => Promise.resolve((file, isImage))
       | None =>
+        Logger.warn(
+          ~module_="ImageValidator",
+          ~message="VALIDATE_IMAGE_WORKER_FALLBACK",
+          ~data=Some({"filename": File.name(file)}),
+          (),
+        )
         // Fallback to existing local validation when worker is unavailable/fails.
         let name = File.name(file)
         let ext = getExtension(name)

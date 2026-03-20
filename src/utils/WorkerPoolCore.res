@@ -122,6 +122,36 @@ let resolveOptionalWaiter = (
   }
 }
 
+let resolveAllWaiters = (waitersRef: ref<array<waiter<'a>>>, value: 'a) => {
+  let waiters = waitersRef.contents
+  waitersRef := []
+  waiters->Belt.Array.forEach(waiter => waiter.resolve(value))
+}
+
+let invalidatePool = (pool: state, ~reason: string) => {
+  if pool.readyRef.contents {
+    pool.readyRef := false
+    Logger.warn(
+      ~module_="WorkerPool",
+      ~message="WORKER_POOL_INVALIDATED",
+      ~data=Some({"reason": reason}),
+      (),
+    )
+    resolveAllWaiters(pool.fingerprintWaitersRef, None)
+    resolveAllWaiters(pool.validateWaitersRef, None)
+    resolveAllWaiters(pool.tinyWaitersRef, None)
+    resolveAllWaiters(pool.exifWaitersRef, None)
+    resolveAllWaiters(pool.fullWaitersRef, Error(reason))
+    pool.workers->Belt.Array.forEach(worker => {
+      try {
+        terminate(worker, ())
+      } catch {
+      | _ => ()
+      }
+    })
+  }
+}
+
 let bindWorkerHandlers = (pool: state, worker: worker) => {
   setOnMessage(worker, evt => {
     let payload: {"id": string, "type": option<string>} = getEventData(evt)
@@ -178,5 +208,5 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
     | _ => ()
     }
   })
-  setOnError(worker, _err => ())
+  setOnError(worker, _err => invalidatePool(pool, ~reason="Worker pool crashed"))
 }

@@ -119,6 +119,7 @@ let processFullWithWorker = (
 
 let fingerprintWithWorker = (
   file: BrowserBindings.File.t,
+  ~timeoutMs: option<int>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<option<string>> => {
   switch ensurePool() {
@@ -130,6 +131,8 @@ let fingerprintWithWorker = (
       ~waitersRef=pool.fingerprintWaitersRef,
       ~removeWaiter=removeFingerprintWaiter,
       ~abortValue=None,
+      ~timeoutMs?,
+      ~timeoutValue=?timeoutMs->Option.map(_ => None),
       ~send=(worker, id) =>
         WorkerPoolCore.postMessage(worker, {"id": id, "type": "fingerprint", "file": file}),
     )
@@ -138,6 +141,7 @@ let fingerprintWithWorker = (
 
 let validateImageWithWorker = (
   file: BrowserBindings.File.t,
+  ~timeoutMs: option<int>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<option<bool>> => {
   switch ensurePool() {
@@ -149,6 +153,8 @@ let validateImageWithWorker = (
       ~waitersRef=pool.validateWaitersRef,
       ~removeWaiter=removeValidateWaiter,
       ~abortValue=None,
+      ~timeoutMs?,
+      ~timeoutValue=?timeoutMs->Option.map(_ => None),
       ~send=(worker, id) =>
         WorkerPoolCore.postMessage(worker, {"id": id, "type": "validateImage", "file": file}),
     )
@@ -159,6 +165,7 @@ let generateTinyWithWorker = (
   blob: BrowserBindings.Blob.t,
   ~width: int=256,
   ~height: int=144,
+  ~timeoutMs: option<int>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<option<BrowserBindings.Blob.t>> => {
   switch ensurePool() {
@@ -170,6 +177,8 @@ let generateTinyWithWorker = (
       ~waitersRef=pool.tinyWaitersRef,
       ~removeWaiter=removeTinyWaiter,
       ~abortValue=None,
+      ~timeoutMs?,
+      ~timeoutValue=?timeoutMs->Option.map(_ => None),
       ~send=(worker, id) =>
         WorkerPoolCore.postMessage(
           worker,
@@ -190,6 +199,7 @@ let shutdown = () => {
 
 let extractExifWithWorker = (
   file: BrowserBindings.File.t,
+  ~timeoutMs: option<int>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<option<(int, int)>> => {
   switch ensurePool() {
@@ -201,6 +211,8 @@ let extractExifWithWorker = (
       ~waitersRef=pool.exifWaitersRef,
       ~removeWaiter=removeExifWaiter,
       ~abortValue=None,
+      ~timeoutMs?,
+      ~timeoutValue=?timeoutMs->Option.map(_ => None),
       ~send=(worker, id) =>
         WorkerPoolCore.postMessage(worker, {"id": id, "type": "extractExif", "file": file}),
     )
