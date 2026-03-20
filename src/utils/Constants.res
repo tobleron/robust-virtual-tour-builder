@@ -349,6 +349,7 @@ module Media = {
   let logoMaxWidth = 1024.0
   let logoMaxHeight = 1024.0
   let logoOutputFilename = "logo.webp"
+  let logoWorkerTimeoutMs = 4000
 }
 let sceneLoadTimeout = 30000
 

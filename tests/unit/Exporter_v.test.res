@@ -345,6 +345,10 @@ describe("Exporter", () => {
       ~allowDefaultLogoFallback=false,
       ~authToken=None,
       ~signal=None,
+      ~reportProgress=((~fraction, ~message) => {
+        ignore(fraction)
+        ignore(message)
+      }),
     )
 
     switch result {

@@ -38,6 +38,7 @@ let appendLogo = async (
   ~allowDefaultLogoFallback: bool=true,
   ~authToken: option<string>,
   ~signal: option<BrowserBindings.AbortSignal.t>,
+  ~reportProgress: (~fraction: float, ~message: string) => unit,
 ): option<string> =>
   await ExporterPackagingAssets.appendLogo(
     ~formData,
@@ -45,6 +46,7 @@ let appendLogo = async (
     ~allowDefaultLogoFallback,
     ~authToken,
     ~signal,
+    ~reportProgress,
   )
 
 let appendTemplates = (

@@ -82,17 +82,24 @@ let processFullWithWorker = (
   ~quality: float=0.92,
   ~format: string="image/webp",
   ~preserveAlpha: bool=false,
+  ~timeoutMs: option<int>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ): Promise.t<result<(BrowserBindings.Blob.t, int, int), string>> => {
   switch ensurePool() {
   | None => Promise.resolve(Error("Worker pool not available"))
   | Some(pool) =>
+    let timeoutValue =
+      timeoutMs->Option.map(ms =>
+        Error("Worker full processing timed out after " ++ Belt.Int.toString(ms) ++ "ms")
+      )
     WorkerPoolRequests.runRequest(
       pool,
       ~signal?,
       ~waitersRef=pool.fullWaitersRef,
       ~removeWaiter=removeFullWaiter,
       ~abortValue=Error("Processing cancelled by user"),
+      ~timeoutMs?,
+      ~timeoutValue?,
       ~send=(worker, id) =>
         WorkerPoolCore.postMessage(
           worker,

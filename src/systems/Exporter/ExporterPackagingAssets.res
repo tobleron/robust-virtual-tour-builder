@@ -53,6 +53,7 @@ let appendLogo = async (
   ~allowDefaultLogoFallback: bool=true,
   ~authToken: option<string>,
   ~signal: option<BrowserBindings.AbortSignal.t>,
+  ~reportProgress: (~fraction: float, ~message: string) => unit,
 ): option<string> => {
   let logoFilename = ref(None)
   let appendOptimizedLogoBlob = async (~blob: Blob.t, ~filenameHint: string): bool => {
@@ -63,6 +64,7 @@ let appendLogo = async (
     if isAborted {
       false
     } else {
+      reportProgress(~fraction=0.55, ~message="Optimizing logo...")
       switch await optimizeBlobAsWebp(
         ~blob,
         ~filenameHint,
@@ -71,6 +73,7 @@ let appendLogo = async (
         ~maxHeight=Constants.Media.logoMaxHeight,
       ) {
       | Ok({blob: webpBlob}) =>
+        reportProgress(~fraction=0.88, ~message="Attaching logo...")
         FormData.appendWithFilename(
           formData,
           Constants.Media.logoOutputFilename,
@@ -78,6 +81,7 @@ let appendLogo = async (
           Constants.Media.logoOutputFilename,
         )
         logoFilename := Some(Constants.Media.logoOutputFilename)
+        reportProgress(~fraction=1.0, ~message="Logo ready")
         true
       | Error(msg) =>
         Logger.warn(
@@ -93,13 +97,16 @@ let appendLogo = async (
 
   switch logo {
   | Some(File(f)) =>
+    reportProgress(~fraction=0.18, ~message="Preparing custom logo...")
     ignore(
       await appendOptimizedLogoBlob(
         ~blob=UiHelpers.fileToBlob(File(f)),
         ~filenameHint=File.name(f),
       ),
     )
-  | Some(Blob(b)) => ignore(await appendOptimizedLogoBlob(~blob=b, ~filenameHint="logo-upload"))
+  | Some(Blob(b)) =>
+    reportProgress(~fraction=0.18, ~message="Preparing custom logo...")
+    ignore(await appendOptimizedLogoBlob(~blob=b, ~filenameHint="logo-upload"))
   | Some(Url(url)) =>
     let isInternalApiUrl = String.includes(url, "/api/project/") && String.includes(url, "/file/")
     if url == "" || (!ExporterUtils.isLikelyImageUrl(url) && !isInternalApiUrl) {
@@ -110,6 +117,7 @@ let appendLogo = async (
         (),
       )
     } else {
+      reportProgress(~fraction=0.2, ~message="Downloading custom logo...")
       switch await ExporterUtils.fetchSceneUrlBlob(~url, ~authToken, ~signal?) {
       | Ok(logoBlob) =>
         if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(url)) {
@@ -140,6 +148,7 @@ let appendLogo = async (
 
   if allowDefaultLogoFallback && logoFilename.contents == None {
     try {
+      reportProgress(~fraction=0.2, ~message="Locating default logo...")
       let extensions = ["webp", "png", "jpg", "jpeg"]
       let rec findLogo = async exts => {
         let isAborted = switch signal {
@@ -153,18 +162,19 @@ let appendLogo = async (
           | list{} => ()
           | list{ext, ...rest} => {
               let filename = "logo." ++ ext
-              let path = if ext == "webp" {
-                "/" ++ Constants.defaultLogoPath
-              } else {
-                "/images/" ++ filename
-              }
-              let res = await Fetch.fetchSimple(path)
-              if Fetch.ok(res) {
-                let logoBlob = await Fetch.blob(res)
-                if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
-                  let applied = await appendOptimizedLogoBlob(
-                    ~blob=logoBlob,
-                    ~filenameHint=filename,
+            let path = if ext == "webp" {
+              "/" ++ Constants.defaultLogoPath
+            } else {
+              "/images/" ++ filename
+            }
+            let res = await Fetch.fetchSimple(path)
+            if Fetch.ok(res) {
+              reportProgress(~fraction=0.35, ~message="Loading default logo...")
+              let logoBlob = await Fetch.blob(res)
+              if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
+                let applied = await appendOptimizedLogoBlob(
+                  ~blob=logoBlob,
+                  ~filenameHint=filename,
                   )
                   if !applied {
                     await findLogo(rest)

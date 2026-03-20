@@ -20,9 +20,26 @@ let exportTour = async (
   let opId = ExporterRuntime.resolveOpId(~opId, ~sceneCount=Belt.Array.length(scenes), ~tourName)
 
   let currentPhase = ref("INITIAL")
+  let logoPhaseStart = 3.0
+  let logoPhaseEnd = 7.0
 
   let progress = (p, t, m) => {
     ExporterRuntime.reportProgress(~opId, ~currentPhase, ~onProgress, p, t, m)
+  }
+
+  let reportLogoPhaseProgress = (~fraction: float, ~message: string) => {
+    let clampedFraction = if fraction < 0.0 {
+      0.0
+    } else if fraction > 1.0 {
+      1.0
+    } else {
+      fraction
+    }
+    progress(
+      logoPhaseStart +. (logoPhaseEnd -. logoPhaseStart) *. clampedFraction,
+      100.0,
+      message,
+    )
   }
 
   let tourName = if tourName == "" {
@@ -100,7 +117,7 @@ let exportTour = async (
 
     /* 1. Set Logo (prioritize custom uploaded logo) */
     currentPhase := "LOGO"
-    progress(3.0, 100.0, "Packaging logo...")
+    reportLogoPhaseProgress(~fraction=0.0, ~message="Packaging logo...")
     Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
 
     let logoFilename = await ExporterPackaging.appendLogo(
@@ -109,11 +126,12 @@ let exportTour = async (
       ~allowDefaultLogoFallback=includeLogo,
       ~authToken=finalToken,
       ~signal=Some(signal),
+      ~reportProgress=reportLogoPhaseProgress,
     )
 
     /* 2. Generate HTML Templates */
     currentPhase := "TEMPLATES"
-    progress(7.0, 100.0, "Generating tour pages...")
+    progress(logoPhaseEnd, 100.0, "Generating tour pages...")
     Logger.debug(~module_="Exporter", ~message="PHASE_TEMPLATES", ())
     ExporterPackaging.appendTemplates(
       ~formData,

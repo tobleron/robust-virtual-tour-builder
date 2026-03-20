@@ -103,6 +103,7 @@ let compressToWebPConstrainedInternal = (
   ~maxWidth: float,
   ~maxHeight: float,
   ~preserveAlpha: bool,
+  ~workerTimeoutMs: option<int>=?,
 ): Promise.t<result<Blob.t, string>> => {
   Logger.startOperation(~module_=moduleName, ~operation="COMPRESS_IMAGE_WORKER", ())
   let startTime = Date.now()
@@ -120,6 +121,7 @@ let compressToWebPConstrainedInternal = (
       ~quality,
       ~format=Constants.Media.uploadFormat,
       ~preserveAlpha,
+      ~timeoutMs=?workerTimeoutMs,
     )->Promise.then(res => {
       let duration = Date.now() -. startTime
       switch res {
@@ -143,11 +145,15 @@ let compressToWebPConstrainedInternal = (
         )
         Promise.resolve(Ok(blob))
       | Error(msg) =>
-        if String.includes(msg, "unsupported") || String.includes(msg, "not available") {
+        if
+          String.includes(msg, "unsupported") ||
+            String.includes(msg, "not available") ||
+            String.includes(msg, "timed out")
+        {
           Logger.warn(
             ~module_=moduleName,
-            ~message="WORKER_UNSUPPORTED_FALLBACK",
-            ~data=Some({"reason": msg}),
+            ~message="WORKER_COMPRESSION_FALLBACK",
+            ~data=Some({"reason": msg, "preserveAlpha": preserveAlpha}),
             (),
           )
           compressMainThread(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha)
@@ -188,4 +194,11 @@ let compressLogoToWebPConstrained = (
   ~maxWidth: float,
   ~maxHeight: float,
 ): Promise.t<result<Blob.t, string>> =>
-  compressToWebPConstrainedInternal(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha=true)
+  compressToWebPConstrainedInternal(
+    file,
+    ~quality,
+    ~maxWidth,
+    ~maxHeight,
+    ~preserveAlpha=true,
+    ~workerTimeoutMs=Constants.Media.logoWorkerTimeoutMs,
+  )

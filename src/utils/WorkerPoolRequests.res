@@ -26,14 +26,18 @@ let runRequest = (
   ~waitersRef: ref<array<WorkerPoolCore.waiter<'a>>>,
   ~removeWaiter: (WorkerPoolCore.state, string) => option<WorkerPoolCore.waiter<'a>>,
   ~abortValue: 'a,
+  ~timeoutMs: option<int>=?,
+  ~timeoutValue: option<'a>=?,
   ~send: (WorkerPoolCore.worker, string) => unit,
 ): Promise.t<'a> =>
   Promise.make((resolve, _reject) => {
     let id = createRequestId()
     let settled = ref(false)
+    let timeoutId = ref(None)
     let finish = value => {
       if !settled.contents {
         settled := true
+        timeoutId.contents->Option.forEach(id => ReBindings.Window.clearTimeout(id))
         resolve(value)
       }
     }
@@ -41,6 +45,14 @@ let runRequest = (
       let _ = removeWaiter(pool, id)
       finish(abortValue)
     })
+    switch (timeoutMs, timeoutValue) {
+    | (Some(ms), Some(value)) =>
+      timeoutId := Some(ReBindings.Window.setTimeout(() => {
+        let _ = removeWaiter(pool, id)
+        finish(value)
+      }, ms))
+    | _ => ()
+    }
     waitersRef := Belt.Array.concat(waitersRef.contents, [{id, resolve}])
     waitersRef :=
       waitersRef.contents->Belt.Array.map(waiter =>
