@@ -58,7 +58,7 @@ The practical use case is:
 
 Demo tour preview:
 
-[![Demo tour screenshot](docs/assets/readme/demo-tour.png)](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+[![Demo tour screenshot](public/images/DemoTour.png)](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
 
 Temporary public demo link:
 - [https://www.robust-vtb.com/u/ak84/tour/demotourtripz](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
