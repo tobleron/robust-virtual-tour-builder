@@ -162,7 +162,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--toggle absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-x-0
-                         group-hover:opacity-100 group-hover:translate-x-[105%]
+                         group-hover:opacity-100 group-hover:translate-x-[108%]
                          ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
@@ -185,7 +185,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--move absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[105%] ${isMovingThis ? "is-moving" : ""}`}
+                         group-hover:opacity-100 group-hover:translate-y-[108%] ${isMovingThis ? "is-moving" : ""}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}
@@ -200,7 +200,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--retarget absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[210%]`}
+                         group-hover:opacity-100 group-hover:translate-y-[216%]`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e => PreviewArrowSupport.handleRetargetClick(e, ~sceneIndex, ~hotspotIndex)}
               title="Change Target Scene"
@@ -214,7 +214,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--delete absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer
                          transition-all duration-300 ease-out 
                          opacity-0 translate-x-0
-                         group-hover:opacity-100 group-hover:translate-x-[-105%]
+                         group-hover:opacity-100 group-hover:translate-x-[-108%]
                          ${flickerRed ? "animate-flicker-red" : ""}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>

@@ -7,6 +7,18 @@ open Actions
 
 external unknownToString: unknown => string = "%identity"
 let sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr("")
+let resolveViewerSceneId = viewer => {
+  let metaSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
+  if metaSceneId != "" {
+    metaSceneId
+  } else {
+    try {
+      ViewerSystem.Adapter.getScene(viewer)
+    } catch {
+    | _ => ""
+    }
+  }
+}
 
 let handleMainSceneLoad = (
   ~activeScenes: array<scene>,
@@ -63,8 +75,7 @@ let handleMainSceneLoad = (
     if NavigationSupervisor.isIdle() {
       switch ViewerSystem.getActiveViewer()->Nullable.toOption {
       | Some(activeViewer) =>
-        let activeViewerSceneId =
-          ViewerSystem.Adapter.getMetaData(activeViewer, "sceneId")->sceneIdFromMeta
+        let activeViewerSceneId = resolveViewerSceneId(activeViewer)
         if activeViewerSceneId == "" {
           // Synchronize lastSceneId immediately to prevent infinite dispatch loops in Idle case
           ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(scene.id)}

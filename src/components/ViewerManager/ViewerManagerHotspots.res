@@ -3,8 +3,21 @@
 open ReBindings
 open Types
 open Actions
+external unknownToString: unknown => string = "%identity"
 
-external idToUnknown: string => unknown = "%identity"
+let sceneIdFromMeta = meta => meta->Option.map(unknownToString)->Option.getOr("")
+let resolveViewerSceneId = viewer => {
+  let metaSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
+  if metaSceneId != "" {
+    metaSceneId
+  } else {
+    try {
+      ViewerSystem.Adapter.getScene(viewer)
+    } catch {
+    | _ => ""
+    }
+  }
+}
 
 // Hook 5: Hotspot Sync
 let useHotspotSync = (
@@ -36,11 +49,10 @@ let useHotspotSync = (
           switch Belt.Array.get(scenes, activeIndex) {
           | Some(scene) =>
             // Robustness: Only sync if the viewer actually belongs to this scene
-            let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
-            let targetId = idToUnknown(scene.id)
+            let viewerSceneId = resolveViewerSceneId(viewer)
             let currentState = getState()
 
-            if viewerSceneId == Some(targetId) {
+            if viewerSceneId == scene.id {
               Logger.debug(
                 ~module_="ViewerManagerHotspots",
                 ~message="SYNC_HOTSPOTS",

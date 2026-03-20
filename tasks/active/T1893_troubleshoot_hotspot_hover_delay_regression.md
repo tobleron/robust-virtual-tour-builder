@@ -26,6 +26,12 @@ Restore the delayed closing behavior for hotspot hover action buttons so the sec
 - [x] Restore the opening animation by letting `group-hover` drive the initial reveal and using the React open-state only for post-leave persistence.
 - [x] Loosen the drawer spacing slightly from the temporary too-tight layout.
 - [x] Restore smooth drawer sliding by adding `translate` to the shared hotspot control transition list.
+- [x] Add a slight post-checkpoint gap between hotspot drawer buttons so adjacent controls do not visually touch.
+- [x] Remove diffuse hotspot shadows and keep the hotspot typography on the hard-stroke shadow style only.
+- [x] Restore hotspot visibility on bright backgrounds with a crisp hard-edge stroke after the diffuse halo removal proved too aggressive.
+- [x] Replace the hotspot button shadow separation with an explicit border stroke so visibility no longer depends on any shadow treatment.
+- [x] Harden hotspot rendering for older imported projects by falling back to the viewer's live scene id when custom scene metadata is missing.
+- [x] Restore the hotspot visual from full border stroke to the intended angled hard-shadow treatment.
 
 ## Code Change Ledger
 - [x] `css/components/viewer-ui-controls.css` - restored shared hover enter/exit delay rules for hotspot secondary controls.
@@ -52,6 +58,15 @@ Restore the delayed closing behavior for hotspot hover action buttons so the sec
 - [x] `src/components/PreviewArrow.res` - removed root-level forced drawer activation on enter and adjusted hover offsets to a slightly looser spacing.
 - [x] `css/components/viewer-ui-controls.css` - matched persisted-open drawer spacing to the new looser offsets.
 - [x] `css/components/viewer-ui-controls.css` - added `translate` to the hotspot control transition definition so drawer position changes animate smoothly again.
+- [x] `src/components/PreviewArrow.res` - increased the drawer hover offsets slightly to create a visible gap between neighboring controls.
+- [x] `css/components/viewer-ui-controls.css` - matched the persisted-open drawer offsets to the slightly larger button spacing.
+- [x] `css/components/viewer-ui-controls.css` - removed the hotspot control box shadow and converted hotspot text shadows from soft blur to hard-stroke only.
+- [x] `css/components/viewer-ui-controls.css` - restored a small hard-edge hotspot button shadow so controls stay visible without returning to the diffuse blur.
+- [x] `css/components/viewer-ui-controls.css` - replaced the hotspot button shadow with a crisp dark border and removed shadow dependency from hotspot visibility.
+- [x] `src/components/ReactHotspotLayer.res` - added a viewer scene-id fallback from adapter metadata to the live viewer scene so the React hotspot overlay still renders on older project loads.
+- [x] `src/components/ViewerManager/ViewerManagerHotspots.res` - changed hotspot sync to compare against a resolved viewer scene id instead of metadata only.
+- [x] `src/components/ViewerManager/ViewerManagerSceneLoad.res` - changed active scene reconciliation to use the resolved viewer scene id fallback too.
+- [x] `css/components/viewer-ui-controls.css` - removed the full border stroke and restored the angled hard-shadow hotspot treatment.
 
 ## Rollback Check
 - [x] Confirmed CLEAN or REVERTED non-working changes.

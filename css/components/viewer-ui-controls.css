@@ -202,7 +202,7 @@
     letter-spacing: 0.04em;
     line-height: 1;
     color: #ffffff;
-    text-shadow: 1.5px 1.5px 0px rgba(0, 0, 0, 0.95), 0px 0px 4px rgba(0, 0, 0, 0.25);
+    text-shadow: 1.5px 1.5px 0px rgba(0, 0, 0, 0.95);
     pointer-events: none;
     white-space: nowrap;
     transform: translateX(-50%);
@@ -224,16 +224,17 @@
     line-height: 1;
     user-select: none;
     pointer-events: none;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.92);
 }
 
 .hs-hotspot-face-text.is-return {
     color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.88);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.94);
 }
 
 .hs-hotspot-control {
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+    border: none;
+    box-shadow: 1.5px 1.5px 0 rgba(0, 0, 0, 0.92);
     transition:
         translate 0.3s cubic-bezier(0.22, 1, 0.36, 1),
         transform 0.2s ease,
@@ -244,7 +245,6 @@
 }
 
 .hs-hotspot-control--secondary {
-    box-shadow: none;
     pointer-events: none;
 }
 
@@ -261,19 +261,19 @@
 }
 
 .hs-hotspot-drawer-open .hs-hotspot-control--toggle {
-    translate: 105% 0;
+    translate: 108% 0;
 }
 
 .hs-hotspot-drawer-open .hs-hotspot-control--move {
-    translate: 0 105%;
+    translate: 0 108%;
 }
 
 .hs-hotspot-drawer-open .hs-hotspot-control--retarget {
-    translate: 0 210%;
+    translate: 0 216%;
 }
 
 .hs-hotspot-drawer-open .hs-hotspot-control--delete {
-    translate: -105% 0;
+    translate: -108% 0;
 }
 
 .hs-hotspot-control--center.is-manual {
