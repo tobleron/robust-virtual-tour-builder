@@ -13,11 +13,33 @@
 
 Robust Virtual Tour Builder is an open source virtual-tour authoring platform built with ReScript and Rust.
 
-It now ships in two practical shapes:
-- a **local-first builder** for creating and editing tours on your own machine
-- a **portal/customer delivery surface** for published tours and broker-facing sharing workflows
+It is designed for a practical local-first workflow:
+- run the **builder locally** to author and manage tours
+- publish to a **portal/customer delivery surface** for sharing and access workflows
 
-The `main` branch is the stable adopter path.
+The stable adopter path is the `main` branch.
+
+## At A Glance
+
+| Surface | Purpose | Typical Host |
+|---|---|---|
+| **Builder** | Author scenes, hotspots, floors, labels, exports, and project state | Local machine by default |
+| **Portal** | Deliver published tours, customer access, and broker-facing sharing workflows | VPS / hosted environment |
+
+Quick links:
+- [Stable setup](#stable-setup)
+- [Runtime config](#runtime-config)
+- [Documentation map](#documentation-map)
+- [Development workflow](#development-workflow)
+- [License](#license)
+
+## Why This Project
+
+- **Local-first editing:** keep working project state on your machine by default
+- **Single-server stable runtime:** the stable builder path now serves UI and API from one origin
+- **Structured authoring model:** scenes, floors, hotspots, traversal, and publishing are all part of one workflow
+- **Portal-ready delivery:** published tours can feed a hosted customer-facing delivery surface
+- **Typed architecture:** ReScript frontend and Rust backend reduce whole classes of runtime mistakes
 
 ## Stable Setup
 
@@ -108,21 +130,21 @@ Full setup details: [docs/operations/local-builder-setup.md](docs/operations/loc
 ## What The App Does
 
 ### Builder
-- imports panoramic scenes and project packages
-- manages scenes, floors, labels, hotspots, traversal, and tagging
-- exports self-contained tours
-- supports teaser/video workflows and publish-ready packaging
+- import panoramic scenes and project packages
+- manage scenes, floors, labels, hotspots, traversal, and tagging
+- export self-contained tours
+- support teaser/video workflows and publish-ready packaging
 
 ### Portal
-- hosts published tours for customer-facing delivery
-- includes portal admin workflows for tour management and recipient/customer assignment
-- includes portal customer/gallery surfaces for delivered tours
+- host published tours for customer-facing delivery
+- manage portal admin workflows for tours, recipients, and assignments
+- serve customer/gallery surfaces for delivered tours
 
-### Reliability
-- operation lifecycle tracking for long-running workflows
-- debounced persistence and recovery-oriented local state handling
-- navigation supervision with structured cancellation and retry semantics
-- recovery flows for interrupted operations and local auth reset
+### Reliability Layer
+- track long-running operations through a unified lifecycle
+- preserve local state with recovery-oriented persistence
+- supervise navigation with structured cancellation and retry semantics
+- support first-run setup and local auth reset flows
 
 ## Current Feature Areas
 
@@ -152,6 +174,16 @@ Key references:
 - [DATA_FLOW.md](DATA_FLOW.md)
 - [docs/architecture/overview.md](docs/architecture/overview.md)
 - [docs/project/mechanics.md](docs/project/mechanics.md)
+
+## Recommended Product Shape
+
+For most adopters, the practical setup is:
+- run the **builder locally**
+- host the **portal remotely**
+- keep editable project state local
+- use publishing/export to move finished tours into hosted delivery
+
+The repo also supports VPS-oriented builder hosting through runtime config, but the local-first builder remains the default recommendation.
 
 ## Documentation Map
 
