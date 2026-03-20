@@ -106,6 +106,7 @@ function localSetupPage() {
           <p class="site-muted" data-auth-message="" data-setup-hint>This account becomes the owner of the local builder install.</p>
           <button class="site-btn site-btn-primary" type="submit" data-setup-submit>Create Local Owner</button>
         </form>
+        <a class="site-link-muted" href="/signin">Go to sign in</a>
       </article>
     </section>
   `;
@@ -213,12 +214,32 @@ function dashboardPage() {
       </div>
     </section>
     <section class="site-card">
+      <div class="site-dashboard-toolbar">
+        <div class="site-dashboard-toolbar-copy" id="site-dashboard-summary">Loading saved tours...</div>
+        <div class="site-dashboard-toolbar-actions">
+          <button class="site-btn site-btn-ghost" type="button" id="site-dashboard-bulk-delete" data-dashboard-bulk-open="1" disabled>
+            Bulk Delete
+          </button>
+        </div>
+      </div>
       <table class="site-table">
-        <thead><tr><th>Project</th><th>Scenes</th><th>Updated</th><th>Status</th><th>Action</th></tr></thead>
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" aria-label="Select all tours on this page" id="site-dashboard-select-all" data-dashboard-select-all="1" />
+            </th>
+            <th>Project</th>
+            <th>Scenes</th>
+            <th>Updated</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
         <tbody id="site-dashboard-projects">
-          <tr><td colspan="5">Loading saved tours...</td></tr>
+          <tr><td colspan="6">Loading saved tours...</td></tr>
         </tbody>
       </table>
+      <div class="site-dashboard-pagination" id="site-dashboard-pagination"></div>
     </section>
   `;
 }

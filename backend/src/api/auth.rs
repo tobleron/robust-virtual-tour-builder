@@ -26,8 +26,9 @@ use sqlx::SqlitePool;
 pub use auth_types::{
     AuthChallengeResponse, AuthPublicUser, AuthSuccessResponse, ChangePasswordPayload,
     ForgotPasswordPayload, LocalResetPayload, LocalResetResponse, LocalSetupBootstrapPayload,
-    LocalSetupStatusResponse, MeResponse, ResendOtpPayload, ResendVerificationPayload,
-    ResetPasswordPayload, SignInPayload, SignUpPayload, VerifyEmailPayload, VerifyOtpPayload,
+    LocalSetupBootstrapResponse, LocalSetupStatusResponse, MeResponse, ResendOtpPayload,
+    ResendVerificationPayload, ResetPasswordPayload, SignInPayload, SignUpPayload,
+    VerifyEmailPayload, VerifyOtpPayload,
 };
 use auth_types::{IpReputation, LoginContext, RiskDecision, TrustedDeviceRecord};
 
@@ -108,6 +109,8 @@ fn is_local_dev_request(req: &HttpRequest) -> bool {
 }
 #[rustfmt::skip]
 async fn send_email_or_log(to_email: &str, subject: &str, html_body: &str) -> Result<(), AppError> { auth_mail::send_email_or_log(to_email, subject, html_body).await }
+#[rustfmt::skip]
+fn email_provider_configured() -> bool { auth_mail::email_provider_configured() }
 #[rustfmt::skip]
 fn app_base_url() -> String { auth_mail::app_base_url() }
 #[rustfmt::skip]

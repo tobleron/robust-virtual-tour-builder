@@ -99,6 +99,14 @@ pub struct AuthSuccessResponse {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct LocalSetupBootstrapResponse {
+    pub ok: bool,
+    pub message: String,
+    pub email: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AuthChallengeResponse {
     pub challenge_required: bool,
     pub challenge_id: String,

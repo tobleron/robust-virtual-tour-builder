@@ -1,6 +1,6 @@
 use actix_multipart::Multipart;
-use actix_web::{HttpMessage, HttpRequest, HttpResponse};
-use serde::Serialize;
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
@@ -17,6 +17,29 @@ use super::{SNAPSHOT_FILENAME, project_snapshot};
 pub struct SnapshotAssetSyncResponse {
     pub session_id: String,
     pub stored_files: usize,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteDashboardProjectsPayload {
+    pub session_ids: Vec<String>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteDashboardProjectsFailure {
+    pub session_id: String,
+    pub error: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteDashboardProjectsResponse {
+    pub ok: bool,
+    pub requested_count: usize,
+    pub deleted_count: usize,
+    pub deleted_session_ids: Vec<String>,
+    pub failures: Vec<BulkDeleteDashboardProjectsFailure>,
 }
 
 pub(super) fn persist_project_asset(
@@ -190,17 +213,69 @@ pub(super) async fn delete_dashboard_project(
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
     let session_id = path.into_inner();
-    let project_dir =
-        StorageManager::get_user_project_path(&user.id, &session_id).map_err(AppError::IoError)?;
-
-    if project_dir.exists() {
-        std::fs::remove_dir_all(project_dir).map_err(AppError::IoError)?;
-    }
+    delete_dashboard_project_dir(&user.id, &session_id)?;
 
     Ok(HttpResponse::Ok().json(json!({
         "ok": true,
         "sessionId": session_id
     })))
+}
+
+fn delete_dashboard_project_dir(user_id: &str, session_id: &str) -> Result<(), AppError> {
+    let project_dir =
+        StorageManager::get_user_project_path(user_id, session_id).map_err(AppError::IoError)?;
+
+    if project_dir.exists() {
+        std::fs::remove_dir_all(project_dir).map_err(AppError::IoError)?;
+    }
+
+    Ok(())
+}
+
+pub(super) async fn bulk_delete_dashboard_projects(
+    req: HttpRequest,
+    payload: web::Json<BulkDeleteDashboardProjectsPayload>,
+) -> Result<HttpResponse, AppError> {
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    let mut deleted_session_ids = Vec::new();
+    let mut failures = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+
+    for raw_session_id in payload.into_inner().session_ids {
+        let session_id = raw_session_id.trim().to_string();
+        if session_id.is_empty() || !seen.insert(session_id.clone()) {
+            continue;
+        }
+
+        match delete_dashboard_project_dir(&user.id, &session_id) {
+            Ok(()) => deleted_session_ids.push(session_id),
+            Err(error) => failures.push(BulkDeleteDashboardProjectsFailure {
+                session_id,
+                error: match error {
+                    AppError::ValidationError(message)
+                    | AppError::Unauthorized(message)
+                    | AppError::InternalError(message) => message,
+                    AppError::IoError(io_error) => io_error.to_string(),
+                    other => other.to_string(),
+                },
+            }),
+        }
+    }
+
+    let requested_count = deleted_session_ids.len() + failures.len();
+
+    Ok(HttpResponse::Ok().json(BulkDeleteDashboardProjectsResponse {
+        ok: failures.is_empty(),
+        requested_count,
+        deleted_count: deleted_session_ids.len(),
+        deleted_session_ids,
+        failures,
+    }))
 }
 
 pub(super) async fn cleanup_backend_cache(req: HttpRequest) -> Result<HttpResponse, AppError> {

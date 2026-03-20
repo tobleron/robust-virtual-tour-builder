@@ -6,6 +6,13 @@ use crate::models::AppError;
 
 use super::VERIFICATION_TOKEN_TTL_HOURS;
 
+pub(super) fn email_provider_configured() -> bool {
+    std::env::var("RESEND_API_KEY")
+        .ok()
+        .map(|value| !value.trim().is_empty())
+        .unwrap_or(false)
+}
+
 pub(super) async fn send_email_or_log(
     to_email: &str,
     subject: &str,

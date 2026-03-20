@@ -127,7 +127,9 @@ pub(super) async fn signin(
     )
     .await?;
 
-    let should_challenge = risk.hard_trigger || risk.score >= 50;
+    let local_signin_without_email = super::super::super::is_local_dev_request(&req)
+        && !super::super::super::email_provider_configured();
+    let should_challenge = !local_signin_without_email && (risk.hard_trigger || risk.score >= 50);
     if should_challenge {
         super::super::super::enforce_otp_issue_rate_limit(pool.get_ref(), &user.id, &context)
             .await?;

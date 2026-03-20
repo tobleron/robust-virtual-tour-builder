@@ -356,3 +356,44 @@ body.site-framework-mode #app {
   padding: 0;
   cursor: pointer;
 }
+
+.site-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 20, 44, 0.52);
+}
+
+.site-dialog {
+  width: min(440px, 100%);
+  max-height: calc(100vh - 40px);
+  background: #fff;
+  border: 1px solid rgba(10, 35, 77, 0.12);
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(11, 35, 77, 0.16);
+}
+
+.site-dialog h2 {
+  margin: 0 0 10px;
+  color: var(--site-navy-900);
+}
+
+.site-dialog p {
+  margin: 0;
+  color: var(--site-text);
+  line-height: 1.6;
+}
+
+.site-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}

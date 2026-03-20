@@ -127,11 +127,14 @@ async function applySavedProjectToBuilder(sessionId, projectData, label) {
   window.history.replaceState({}, '', `/builder?projectId=${encodeURIComponent(sessionId)}`);
 }
 
-export async function fetchDashboardProjects() {
+export async function fetchDashboardProjects(page = 1, pageSize = 20) {
   const auth = getAuthHeaderValue();
   const headers = {};
   if (auth) headers.Authorization = auth;
-  const response = await fetch('/api/project/dashboard/projects', {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('pageSize', String(pageSize));
+  const response = await fetch(`/api/project/dashboard/projects?${params.toString()}`, {
     method: 'GET',
     headers,
     credentials: 'include',
@@ -184,6 +187,10 @@ async function fetchSnapshotProject(sessionId, snapshotId) {
 
 export async function deleteDashboardProject(sessionId) {
   return authJson(`/api/project/dashboard/projects/${encodeURIComponent(sessionId)}`, null, 'DELETE');
+}
+
+export async function bulkDeleteDashboardProjects(sessionIds) {
+  return authJson('/api/project/dashboard/projects/bulk-delete', { sessionIds }, 'POST');
 }
 
 export async function duplicateDashboardProject(sessionId) {

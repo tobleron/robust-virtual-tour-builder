@@ -20,11 +20,15 @@ import {
   updateAuthSurfaces,
 } from './PageFrameworkAuth.js';
 import {
+  changeDashboardPage,
   handleDashboardProjectDelete,
   handleDashboardProjectDuplicate,
   handleDashboardSnapshotOpen,
   loadDashboardProjects,
+  openDashboardBulkDeleteDialog,
+  toggleDashboardProjectSelection,
   toggleDashboardProjectHistory,
+  toggleDashboardSelectAll,
 } from './PageFrameworkDashboard.js';
 import {
   contentFor,
@@ -127,6 +131,40 @@ function bindGlobalChromeHandlers() {
         duplicateButton.getAttribute('data-dashboard-duplicate') || '',
         duplicateButton.getAttribute('data-project-name') || 'saved tour'
       );
+      return;
+    }
+
+    const bulkDeleteButton = target.closest('[data-dashboard-bulk-open]');
+    if (bulkDeleteButton) {
+      event.preventDefault();
+      openDashboardBulkDeleteDialog();
+      return;
+    }
+
+    const pageButton = target.closest('[data-dashboard-page]');
+    if (pageButton) {
+      event.preventDefault();
+      changeDashboardPage(pageButton.getAttribute('data-dashboard-page') || '1');
+    }
+  });
+
+  document.addEventListener('change', event => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const rowSelect = target.closest('[data-dashboard-select]');
+    if (rowSelect instanceof HTMLInputElement) {
+      toggleDashboardProjectSelection(
+        rowSelect.getAttribute('data-dashboard-select') || '',
+        rowSelect.getAttribute('data-project-name') || 'Untitled Tour',
+        rowSelect.checked
+      );
+      return;
+    }
+
+    const selectAll = target.closest('[data-dashboard-select-all]');
+    if (selectAll instanceof HTMLInputElement) {
+      toggleDashboardSelectAll(selectAll.checked);
     }
   });
 }

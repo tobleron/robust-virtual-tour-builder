@@ -101,6 +101,65 @@ function setAuthMessage(form, message, isError = false) {
   node.style.color = isError ? '#ffb4b4' : '#c7d4ed';
 }
 
+function setSubmitState(form, isSubmitting, busyLabel = 'Working...') {
+  const submit = form.querySelector('button[type="submit"]');
+  if (!(submit instanceof HTMLButtonElement)) return;
+  if (!submit.dataset.defaultLabel) {
+    submit.dataset.defaultLabel = submit.textContent || '';
+  }
+  submit.disabled = isSubmitting;
+  submit.textContent = isSubmitting ? busyLabel : submit.dataset.defaultLabel;
+}
+
+function removeSetupSuccessDialog() {
+  const existing = document.querySelector('[data-setup-success-dialog="1"]');
+  if (existing) existing.remove();
+}
+
+function showSetupSuccessDialog({ email, message }) {
+  removeSetupSuccessDialog();
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'site-dialog-backdrop';
+  backdrop.setAttribute('data-setup-success-dialog', '1');
+
+  const dialog = document.createElement('div');
+  dialog.className = 'site-dialog';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'site-setup-success-title');
+
+  const title = document.createElement('h2');
+  title.id = 'site-setup-success-title';
+  title.textContent = 'Account created';
+
+  const body = document.createElement('p');
+  body.textContent =
+    message || 'Your local owner account was created successfully. Click OK to continue to sign in.';
+
+  const actions = document.createElement('div');
+  actions.className = 'site-dialog-actions';
+
+  const okButton = document.createElement('button');
+  okButton.type = 'button';
+  okButton.className = 'site-btn site-btn-primary';
+  okButton.textContent = 'OK';
+  okButton.addEventListener('click', () => {
+    removeSetupSuccessDialog();
+    const nextEmail = email && email.trim() !== '' ? email.trim() : '';
+    const nextQuery = nextEmail ? `?setup=complete&email=${encodeURIComponent(nextEmail)}` : '?setup=complete';
+    window.location.assign(`/signin${nextQuery}`);
+  });
+
+  actions.appendChild(okButton);
+  dialog.appendChild(title);
+  dialog.appendChild(body);
+  dialog.appendChild(actions);
+  backdrop.appendChild(dialog);
+  document.body.appendChild(backdrop);
+  okButton.focus();
+}
+
 function ensureStepUpFields(form) {
   let wrap = form.querySelector('[data-step-up-wrap]');
   if (wrap) return wrap;
@@ -127,6 +186,30 @@ function getEmailFromQuery() {
   const params = new URLSearchParams(window.location.search || '');
   const raw = params.get('email');
   return raw && raw.trim() !== '' ? raw.trim() : '';
+}
+
+function hasSetupCompleteFlag() {
+  const params = new URLSearchParams(window.location.search || '');
+  return params.get('setup') === 'complete';
+}
+
+function validateRequired(value, message) {
+  if (!value || value.trim() === '') {
+    throw new Error(message);
+  }
+}
+
+function validateEmail(value, message = 'Enter a valid email address.') {
+  validateRequired(value, 'Enter your email address.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+    throw new Error(message);
+  }
+}
+
+function validatePassword(value, message = 'Enter your password.') {
+  if (!value || value.trim() === '') {
+    throw new Error(message);
+  }
 }
 
 export function redirectIfProtectedPageRequiresAuth(currentPage, session) {
@@ -167,11 +250,18 @@ export async function signOutAndRedirect() {
 }
 
 export function bindAuthForms(page) {
-  if (page === 'check-email') {
+  if (page === 'check-email' || page === 'signin') {
     const emailInput = document.querySelector('input[name="email"]');
     if (emailInput) {
       const initial = getEmailFromQuery();
       if (initial) emailInput.value = initial;
+    }
+  }
+
+  if (page === 'signin' && hasSetupCompleteFlag()) {
+    const form = document.querySelector('form[data-auth-form="signin"]');
+    if (form) {
+      setAuthMessage(form, 'Account created. Sign in to continue.', false);
     }
   }
 
@@ -190,7 +280,12 @@ export function bindAuthForms(page) {
       const resetProjects = Boolean(form.querySelector('input[name="resetProjects"]')?.checked);
 
       try {
+        setSubmitState(form, true, mode === 'setup' ? 'Creating account...' : 'Working...');
         if (mode === 'setup') {
+          validateRequired(username, 'Enter an owner username.');
+          validateEmail(email);
+          validatePassword(password, 'Enter a password for the owner account.');
+          validateRequired(confirmPassword, 'Confirm the password.');
           if (password !== confirmPassword) throw new Error('Passwords do not match.');
           const setupStatus = window.__VTB_LOCAL_SETUP_STATUS__ || {};
           if (setupStatus?.bootstrapMode === 'token' && !tokenFromUrl) {
@@ -203,14 +298,20 @@ export function bindAuthForms(page) {
             displayName: username,
             setupToken: tokenFromUrl,
           });
-          if (window.localStorage && result?.token) {
-            window.localStorage.setItem('auth_token', result.token);
-          }
-          window.location.assign('/dashboard');
+          await clearLocalBuilderState({ clearPersistence: false });
+          setAuthMessage(form, '', false);
+          showSetupSuccessDialog({
+            email: result?.email || email,
+            message: result?.message || 'Your local owner account was created successfully. Click OK to continue to sign in.',
+          });
           return;
         }
 
         if (mode === 'signup') {
+          validateRequired(username, 'Enter a username.');
+          validateEmail(email);
+          validatePassword(password, 'Enter a password.');
+          validateRequired(confirmPassword, 'Confirm the password.');
           if (password !== confirmPassword) throw new Error('Passwords do not match.');
           await authJson('/api/auth/signup', {
             email,
@@ -239,6 +340,8 @@ export function bindAuthForms(page) {
             return;
           }
 
+          validateEmail(email);
+          validatePassword(password);
           const result = await authJson('/api/auth/signin', { email, password });
           if (result?.challengeRequired) {
             form.setAttribute('data-challenge-id', result.challengeId);
@@ -269,13 +372,14 @@ export function bindAuthForms(page) {
         }
 
         if (mode === 'check-email') {
-          if (!email) throw new Error('Enter your account email.');
+          validateEmail(email);
           await authJson('/api/auth/resend-verification', { email });
           setAuthMessage(form, 'If this account exists and is not verified, a new email was sent.', false);
           return;
         }
 
         if (mode === 'forgot-password') {
+          validateEmail(email);
           await authJson('/api/auth/forgot-password', { email });
           setAuthMessage(form, 'If your email exists, reset instructions were sent.', false);
           return;
@@ -299,6 +403,8 @@ export function bindAuthForms(page) {
 
         if (mode === 'reset-password') {
           if (!tokenFromUrl) throw new Error('Missing reset token in URL.');
+          validatePassword(newPassword, 'Enter a new password.');
+          validateRequired(confirmNewPassword, 'Confirm the new password.');
           if (newPassword !== confirmNewPassword) throw new Error('Passwords do not match.');
           await authJson('/api/auth/reset-password', { token: tokenFromUrl, newPassword });
           setAuthMessage(form, 'Password updated. Redirecting to sign in...', false);
@@ -311,6 +417,8 @@ export function bindAuthForms(page) {
           return;
         }
         setAuthMessage(form, msg, true);
+      } finally {
+        setSubmitState(form, false);
       }
     });
   });

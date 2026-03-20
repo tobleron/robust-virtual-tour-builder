@@ -22,9 +22,12 @@ use crate::models::AppError;
 use crate::pathfinder::PathRequest;
 
 #[allow(unused_imports)]
-pub use project_assets::SnapshotAssetSyncResponse;
+pub use project_assets::{
+    BulkDeleteDashboardProjectsFailure, BulkDeleteDashboardProjectsPayload,
+    BulkDeleteDashboardProjectsResponse, SnapshotAssetSyncResponse,
+};
 #[allow(unused_imports)]
-pub use project_dashboard::DashboardProjectSummary;
+pub use project_dashboard::{DashboardProjectSummary, DashboardProjectsPage, DashboardProjectsQuery};
 use project_snapshot::SnapshotHistoryEnvelope;
 #[allow(unused_imports)]
 pub use project_snapshot::{
@@ -168,8 +171,11 @@ pub async fn sync_snapshot(
     project_snapshot::sync_snapshot(req, payload).await
 }
 
-pub async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResponse, AppError> {
-    project_dashboard::list_dashboard_projects(req).await
+pub async fn list_dashboard_projects(
+    req: HttpRequest,
+    query: web::Query<DashboardProjectsQuery>,
+) -> Result<HttpResponse, AppError> {
+    project_dashboard::list_dashboard_projects(req, query).await
 }
 
 pub async fn load_dashboard_project(
@@ -219,6 +225,13 @@ pub async fn delete_dashboard_project(
     path: web::Path<String>,
 ) -> Result<HttpResponse, AppError> {
     project_assets::delete_dashboard_project(req, path).await
+}
+
+pub async fn bulk_delete_dashboard_projects(
+    req: HttpRequest,
+    payload: web::Json<BulkDeleteDashboardProjectsPayload>,
+) -> Result<HttpResponse, AppError> {
+    project_assets::bulk_delete_dashboard_projects(req, payload).await
 }
 
 pub async fn cleanup_backend_cache(req: HttpRequest) -> Result<HttpResponse, AppError> {

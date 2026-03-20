@@ -49,6 +49,13 @@ pub(super) fn configure_project_api(cfg: &mut web::ServiceConfig, limiters: &Rat
             .wrap(Governor::new(&limiters.read)),
     )
     .route(
+        "/dashboard/projects/bulk-delete",
+        web::post()
+            .to(project::bulk_delete_dashboard_projects)
+            .wrap(RateLimitResponseTransformer::new("write"))
+            .wrap(Governor::new(&limiters.write)),
+    )
+    .route(
         "/dashboard/projects/{session_id}",
         web::get()
             .to(project::load_dashboard_project)

@@ -1,5 +1,5 @@
-use actix_web::{HttpMessage, HttpRequest, HttpResponse};
-use serde::Serialize;
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -9,7 +9,7 @@ use crate::services::media::StorageManager;
 
 use super::{project_assets, project_snapshot};
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DashboardProjectSummary {
     pub session_id: String,
@@ -19,7 +19,26 @@ pub struct DashboardProjectSummary {
     pub hotspot_count: usize,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardProjectsQuery {
+    pub page: Option<usize>,
+    pub page_size: Option<usize>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardProjectsPage {
+    pub items: Vec<DashboardProjectSummary>,
+    pub page: usize,
+    pub page_size: usize,
+    pub total_items: usize,
+    pub total_pages: usize,
+}
+
 const SUMMARY_FILENAME: &str = "summary.txt";
+const DASHBOARD_PAGE_SIZE_DEFAULT: usize = 20;
+const DASHBOARD_PAGE_SIZE_MAX: usize = 20;
 
 fn parse_summary_count(line: &str, prefix: &str) -> Option<usize> {
     line.strip_prefix(prefix)
@@ -64,16 +83,35 @@ fn parse_project_summary_file(project_dir: &std::path::Path) -> Option<(String, 
     ))
 }
 
-pub(super) async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResponse, AppError> {
+fn normalize_dashboard_page(query: &DashboardProjectsQuery) -> (usize, usize) {
+    let page = query.page.unwrap_or(1).max(1);
+    let page_size = query
+        .page_size
+        .unwrap_or(DASHBOARD_PAGE_SIZE_DEFAULT)
+        .clamp(1, DASHBOARD_PAGE_SIZE_MAX);
+    (page, page_size)
+}
+
+pub(super) async fn list_dashboard_projects(
+    req: HttpRequest,
+    query: web::Query<DashboardProjectsQuery>,
+) -> Result<HttpResponse, AppError> {
     let user = req
         .extensions()
         .get::<User>()
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let (requested_page, page_size) = normalize_dashboard_page(&query);
 
     let user_path = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
     if !user_path.exists() {
-        return Ok(HttpResponse::Ok().json(Vec::<DashboardProjectSummary>::new()));
+        return Ok(HttpResponse::Ok().json(DashboardProjectsPage {
+            items: Vec::new(),
+            page: 1,
+            page_size,
+            total_items: 0,
+            total_pages: 1,
+        }));
     }
 
     let mut projects: Vec<DashboardProjectSummary> = Vec::new();
@@ -125,7 +163,25 @@ pub(super) async fn list_dashboard_projects(req: HttpRequest) -> Result<HttpResp
     }
 
     projects.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
-    Ok(HttpResponse::Ok().json(projects))
+
+    let total_items = projects.len();
+    let total_pages = usize::max(1, total_items.div_ceil(page_size));
+    let page = requested_page.min(total_pages);
+    let start = (page - 1) * page_size;
+    let end = usize::min(start + page_size, total_items);
+    let items = if start < total_items {
+        projects[start..end].to_vec()
+    } else {
+        Vec::new()
+    };
+
+    Ok(HttpResponse::Ok().json(DashboardProjectsPage {
+        items,
+        page,
+        page_size,
+        total_items,
+        total_pages,
+    }))
 }
 
 pub(super) async fn load_dashboard_project(
