@@ -4,9 +4,28 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+ensure_standard_paths() {
+  local candidate
+  for candidate in \
+    "/home/linuxbrew/.linuxbrew/bin" \
+    "/opt/homebrew/bin" \
+    "$HOME/.cargo/bin" \
+    "$HOME/.local/bin"
+  do
+    if [ -d "$candidate" ] && [[ ":$PATH:" != *":$candidate:"* ]]; then
+      export PATH="$candidate:$PATH"
+    fi
+  done
+}
+
 detect_package_manager() {
+  ensure_standard_paths
   if command -v brew >/dev/null 2>&1; then
     echo "brew"
+    return
+  fi
+  if command -v pacman >/dev/null 2>&1; then
+    echo "pacman"
     return
   fi
   if command -v apt-get >/dev/null 2>&1; then
@@ -37,13 +56,18 @@ install_if_missing() {
     return
   fi
 
+  if [ "$manager" = "pacman" ]; then
+    sudo pacman -Sy --noconfirm "$package_name"
+    return
+  fi
+
   sudo apt-get update
   sudo apt-get install -y "$package_name"
 }
 
 PACKAGE_MANAGER="$(detect_package_manager)"
 if [ -z "$PACKAGE_MANAGER" ]; then
-  echo "❌ Supported first-install package managers are Homebrew and apt."
+  echo "❌ Supported first-install package managers are Homebrew, pacman, and apt."
   echo "   Install Node.js, Git, Rustup, and FFmpeg manually, then run node scripts/setup-local-builder.mjs"
   exit 1
 fi
@@ -51,11 +75,15 @@ fi
 install_if_missing git "$PACKAGE_MANAGER" git
 if [ "$PACKAGE_MANAGER" = "brew" ]; then
   install_if_missing node "$PACKAGE_MANAGER" node
+elif [ "$PACKAGE_MANAGER" = "pacman" ]; then
+  install_if_missing node "$PACKAGE_MANAGER" nodejs
+  install_if_missing npm "$PACKAGE_MANAGER" npm
 else
   install_if_missing node "$PACKAGE_MANAGER" nodejs
   install_if_missing npm "$PACKAGE_MANAGER" npm
 fi
 install_if_missing ffmpeg "$PACKAGE_MANAGER" ffmpeg
+install_if_missing curl "$PACKAGE_MANAGER" curl
 
 if ! command -v cargo >/dev/null 2>&1; then
   echo "📦 Installing rustup..."
@@ -63,4 +91,5 @@ if ! command -v cargo >/dev/null 2>&1; then
   export PATH="$HOME/.cargo/bin:$PATH"
 fi
 
+ensure_standard_paths
 node scripts/setup-local-builder.mjs "$@"

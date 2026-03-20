@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
@@ -252,6 +253,37 @@ export function ensureMainBranch() {
   if (currentBranch === 'main') return;
 
   const dirty = runCapture('git', ['status', '--porcelain']);
+  const hasLocalMain = spawnSync('git', ['show-ref', '--verify', '--quiet', 'refs/heads/main'], {
+    cwd: ROOT_DIR,
+    env: process.env,
+  }).status === 0;
+  const hasOriginMain = spawnSync('git', ['show-ref', '--verify', '--quiet', 'refs/remotes/origin/main'], {
+    cwd: ROOT_DIR,
+    env: process.env,
+  }).status === 0;
+
+  if (currentBranch === '') {
+    if (dirty !== '') {
+      fail(
+        'Stable local start requires a clean checkout of main. Repository is in detached HEAD state with uncommitted changes.'
+      );
+    }
+
+    if (hasLocalMain) {
+      console.log('🔀 Detached HEAD detected. Switching to local main branch.');
+      runCommand('git', ['checkout', 'main']);
+      return;
+    }
+
+    if (hasOriginMain) {
+      console.log('🔀 Detached HEAD detected. Creating local main branch from origin/main.');
+      runCommand('git', ['checkout', '-B', 'main', '--track', 'origin/main']);
+      return;
+    }
+
+    fail('Stable local start requires a main branch, but this checkout has no local or remote main ref.');
+  }
+
   if (dirty !== '') {
     fail(
       `Stable local start requires main. Current branch is "${currentBranch}" with uncommitted changes. Commit or stash first, then rerun.`
@@ -294,6 +326,68 @@ function healthHost(config) {
   return config.server.host === '0.0.0.0' ? '127.0.0.1' : config.server.host;
 }
 
+function withPort(baseUrl, port) {
+  const next = new URL(baseUrl);
+  next.port = String(port);
+  return next.toString();
+}
+
+async function isPortAvailable(host, port) {
+  return new Promise(resolve => {
+    const server = net.createServer();
+
+    server.once('error', error => {
+      if (error && (error.code === 'EADDRINUSE' || error.code === 'EACCES')) {
+        resolve(false);
+        return;
+      }
+      resolve(false);
+    });
+
+    server.once('listening', () => {
+      server.close(() => resolve(true));
+    });
+
+    server.listen(port, host);
+  });
+}
+
+async function ensureStartupPort(config) {
+  const portIsFree = await isPortAvailable(config.server.host, config.server.port);
+  if (portIsFree) return config;
+
+  if (config.app.profile !== 'local') {
+    fail(
+      `Port ${config.server.port} is already in use on ${config.server.host}. Update config/builder.runtime.toml or stop the conflicting service, then rerun.`
+    );
+  }
+
+  for (let candidate = config.server.port + 1; candidate <= config.server.port + 20; candidate += 1) {
+    const candidateIsFree = await isPortAvailable(config.server.host, candidate);
+    if (!candidateIsFree) continue;
+
+    const nextConfig = {
+      ...config,
+      server: {
+        ...config.server,
+        port: candidate,
+      },
+      public: {
+        ...config.public,
+        base_url: withPort(config.public.base_url, candidate),
+      },
+    };
+
+    fs.writeFileSync(RUNTIME_CONFIG_PATH, serializeToml(nextConfig), 'utf8');
+    console.log(`⚠️ Port ${config.server.port} is busy. Switching local builder to ${nextConfig.public.base_url}.`);
+    return nextConfig;
+  }
+
+  fail(
+    `Port ${config.server.port} is busy and no free local fallback port was found in the next 20 ports.`
+  );
+}
+
 async function waitForHealth(config, child) {
   const host = healthHost(config);
   const deadline = Date.now() + 90_000;
@@ -331,11 +425,12 @@ async function waitForHealth(config, child) {
 }
 
 export async function startStableRuntime(config) {
-  const env = buildBackendEnv(config);
+  const resolvedConfig = await ensureStartupPort(config);
+  const env = buildBackendEnv(resolvedConfig);
   const setupUrl = env.__setupUrl || '';
   delete env.__setupUrl;
 
-  console.log(`🚀 Starting builder on ${config.public.base_url}`);
+  console.log(`🚀 Starting builder on ${resolvedConfig.public.base_url}`);
   if (setupUrl) {
     console.log(`🔐 First-time remote setup URL: ${setupUrl}`);
   }
@@ -355,8 +450,8 @@ export async function startStableRuntime(config) {
   process.on('SIGINT', () => shutdown('SIGINT'));
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-  await waitForHealth(config, child);
-  console.log(`✅ Builder ready at ${config.public.base_url}`);
+  await waitForHealth(resolvedConfig, child);
+  console.log(`✅ Builder ready at ${resolvedConfig.public.base_url}`);
 
   await new Promise((resolve, reject) => {
     child.on('exit', code => {
