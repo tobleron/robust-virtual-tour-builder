@@ -54,6 +54,18 @@ The practical use case is:
 - export a tour package for portal delivery
 - generate promotional **WebM** teaser/video content from the same material
 
+## Live Demo
+
+Demo tour preview:
+
+[![Demo tour screenshot](docs/assets/readme/demo-tour.png)](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+
+Temporary public demo link:
+- [https://www.robust-vtb.com/u/ak84/tour/demotourtripz](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+
+Note:
+- this demo link is public for evaluation only and may stop working after a limited time
+
 ## Stable Setup
 
 Use this if you want the repo to behave like the product, not like a dev sandbox.

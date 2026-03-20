@@ -223,6 +223,4 @@ pub async fn delete_library_tour(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-}
+mod tests {}
