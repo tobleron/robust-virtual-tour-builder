@@ -142,12 +142,13 @@ let handleRightClick = (
         let _ = setTimeout(() => {
           setFlickerYellow(_ => false)
           setIsSwapping(_ => true)
-          setLocalIsAF(_ => newVal)
-
           let _ = setTimeout(() => {
-            setIsSwapping(_ => false)
-            toggleInFlightRef.current = false
-          }, 400)
+            setLocalIsAF(_ => newVal)
+            let _ = setTimeout(() => {
+              setIsSwapping(_ => false)
+              toggleInFlightRef.current = false
+            }, 40)
+          }, 920)
         }, 800)
       }
     }
@@ -160,6 +161,8 @@ let handleDeleteClick = (
   ~hotspotIndex: int,
   ~dispatch: Actions.action => unit,
   ~setFlickerRed: (bool => bool) => unit,
+  ~setIsDeleteCollapsing: (bool => bool) => unit,
+  ~setIsDeleting: (bool => bool) => unit,
 ): unit => {
   e->JsxEvent.Mouse.stopPropagation
   if !canProceed(~capability=CanMutateProject, ~context="preview_arrow") {
@@ -174,18 +177,26 @@ let handleDeleteClick = (
       setFlickerRed(_ => true)
       let _ = setTimeout(() => {
         setFlickerRed(_ => false)
-        dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-        NotificationManager.dispatch({
-          id: "",
-          importance: Info,
-          context: Operation("preview_arrow"),
-          message: "Hotspot Removed",
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
+        let _ = setTimeout(() => {
+          setIsDeleteCollapsing(_ => true)
+          let _ = setTimeout(() => {
+            setIsDeleting(_ => true)
+            let _ = setTimeout(() => {
+              dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
+              NotificationManager.dispatch({
+                id: "",
+                importance: Info,
+                context: Operation("preview_arrow"),
+                message: "Hotspot Removed",
+                details: None,
+                action: None,
+                duration: NotificationTypes.defaultTimeoutMs(Info),
+                dismissible: true,
+                createdAt: Date.now(),
+              })
+            }, 320)
+          }, 320)
+        }, 40)
       }, 800)
     }
   }

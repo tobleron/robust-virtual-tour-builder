@@ -238,7 +238,7 @@
 }
 
 .animate-swap-icon {
-    animation: swap-icon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: swap-icon 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .line-rod-yellow {

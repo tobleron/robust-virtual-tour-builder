@@ -81,6 +81,7 @@ let manualAssets = [
   "/",
   "/index.html",
   "/early-boot.js",
+  "/images/DemoTour.png",
   "/images/logo.webp",
   "/images/logo_.png",
   "/images/robust_logo_new.png",

@@ -25,12 +25,29 @@ let make = (
   let (flickerYellow, setFlickerYellow) = React.useState(_ => false)
   let (isSwapping, setIsSwapping) = React.useState(_ => false)
   let (flickerMove, setFlickerMove) = React.useState(_ => false)
+  let (isDeleteCollapsing, setIsDeleteCollapsing) = React.useState(_ => false)
+  let (isDeleting, setIsDeleting) = React.useState(_ => false)
   let toggleInFlightRef = React.useRef(false)
 
   let isMovingThis = switch state.movingHotspot {
   | Some(mh) => mh.sceneIndex == sceneIndex && mh.hotspotIndex == hotspotIndex
   | None => false
   }
+  let showToggleAnimationState = flickerYellow || isSwapping
+  let showDeleteAnimationState = flickerRed
+  let suppressDrawerOpen = isDeleteCollapsing || isDeleting
+  let effectiveDrawerOpen =
+    if suppressDrawerOpen {
+      false
+    } else {
+      isDrawerOpen || showToggleAnimationState || showDeleteAnimationState
+    }
+  let secondaryCollapseClass =
+    if isDeleteCollapsing || isDeleting {
+      "!opacity-0 !translate-x-0 !translate-y-0 pointer-events-none"
+    } else {
+      ""
+    }
 
   // Detect completion of move to trigger blink
   let prevIsMovingThis = React.useRef(false)
@@ -50,6 +67,12 @@ let make = (
     <LucideIcons.Move.make className="text-white" size=20 strokeWidth={3.0} />
   } else if isReturnNode {
     <span className="hs-hotspot-face-text is-return"> {React.string("R")} </span>
+  } else if showToggleAnimationState {
+    if localIsAF {
+      <LucideIcons.ChevronsRight.make className="text-white" size=20 strokeWidth={3.0} />
+    } else {
+      <LucideIcons.ChevronUp.make className="text-white" size=20 strokeWidth={3.0} />
+    }
   } else {
     switch sequenceLabel {
     | Some(sequenceNo) =>
@@ -110,7 +133,8 @@ let make = (
     "is-manual-target"
   }
 
-  let swapClass = isSwapping ? "animate-swap-icon" : ""
+  let centerSwapClass = if isSwapping { "hs-hotspot-swap-center-out" } else { "" }
+  let toggleSwapClass = if isSwapping { "hs-hotspot-swap-toggle-in" } else { "" }
   let keepDrawerOpen = () =>
     switch onDrawerEnter {
     | Some(fn) => fn()
@@ -121,9 +145,11 @@ let make = (
     id=elementId
     className={`absolute top-0 left-0 z-[6000] ${isMovingThis
         ? "pointer-events-none"
-        : "group pointer-events-auto"} ${isDrawerOpen
+        : "group pointer-events-auto"} ${effectiveDrawerOpen
         ? "hs-hotspot-drawer-open"
-        : ""} origin-center transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2`}
+        : ""} ${isDeleting
+        ? "opacity-0 scale-[0.72]"
+        : "opacity-100 scale-100"} origin-center transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] -translate-x-1/2 -translate-y-1/2`}
     style={makeStyle({
       "--sweep-duration": localIsAF ? "1.5s" : "4s",
     })}
@@ -135,9 +161,11 @@ let make = (
     >
       // CENTER BUTTON
       <div
-        className={`hs-hotspot-control hs-hotspot-control--center absolute inset-0 rounded-md flex items-center justify-center z-20 overflow-hidden ${centerStateClass} ${swapClass} ${flickerMove
+        className={`hs-hotspot-control hs-hotspot-control--center absolute inset-0 rounded-md flex items-center justify-center z-20 overflow-hidden ${centerStateClass} ${centerSwapClass} ${flickerMove
             ? "animate-flicker-yellow-flat"
-            : ""} ${isMovingThis ? "pointer-events-none" : "cursor-pointer"}`}
+            : ""} ${isDeleteCollapsing || isDeleting || isMovingThis
+            ? "pointer-events-none"
+            : "cursor-pointer"}`}
         onClick={e =>
           PreviewArrowSupport.handleMainClick(
             e,
@@ -163,7 +191,7 @@ let make = (
                          transition-all duration-300 ease-out 
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[108%]
-                         ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
+                         ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${toggleSwapClass} ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleRightClick(
@@ -185,7 +213,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--move absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[108%] ${isMovingThis ? "is-moving" : ""}`}
+                         group-hover:opacity-100 group-hover:translate-y-[108%] ${isMovingThis ? "is-moving" : ""} ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}
@@ -200,7 +228,7 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--retarget absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[216%]`}
+                         group-hover:opacity-100 group-hover:translate-y-[216%] ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e => PreviewArrowSupport.handleRetargetClick(e, ~sceneIndex, ~hotspotIndex)}
               title="Change Target Scene"
@@ -215,7 +243,7 @@ let make = (
                          transition-all duration-300 ease-out 
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[-108%]
-                         ${flickerRed ? "animate-flicker-red" : ""}`}
+                         ${flickerRed ? "animate-flicker-red" : ""} ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleDeleteClick(
@@ -224,6 +252,8 @@ let make = (
                   ~hotspotIndex,
                   ~dispatch,
                   ~setFlickerRed,
+                  ~setIsDeleteCollapsing,
+                  ~setIsDeleting,
                 )}
               title="Delete Hotspot"
             >
