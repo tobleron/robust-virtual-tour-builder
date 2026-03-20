@@ -3,6 +3,17 @@ open Types
 open Actions
 open ReBindings
 
+module BootWindow = {
+  type t
+  @val external window: t = "window"
+  @get external getSetBuilderBootState: t => option<(bool, string) => unit> =
+    "__VTB_SET_BUILDER_BOOT_STATE__"
+}
+
+let clearBuilderBootState = () => {
+  BootWindow.getSetBuilderBootState(BootWindow.window)->Option.forEach(fn => fn(false, ""))
+}
+
 let useSystemLockLogging = (~isSystemLocked: bool) => {
   React.useEffect1(() => {
     Logger.debug(
@@ -56,7 +67,14 @@ let useBootProject = (
         ~projectData,
         ~label=bootProjectLabel->Option.getOr("saved tour"),
       )
-      ->Promise.catch(_ => Promise.resolve())
+      ->Promise.then(_ => {
+        clearBuilderBootState()
+        Promise.resolve()
+      })
+      ->Promise.catch(_ => {
+        clearBuilderBootState()
+        Promise.resolve()
+      })
       ->ignore
     | _ => ()
     }

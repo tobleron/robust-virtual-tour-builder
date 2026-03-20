@@ -143,9 +143,9 @@
 .processing-theme-projectload .sidebar-progress-fill {
     background: linear-gradient(90deg,
             #0e2d52 0%,
-            #1d4ed8 35%,
-            #06b6d4 70%,
-            #22d3ee 100%);
+            #1d4ed8 38%,
+            #f26a21 72%,
+            #ff9a57 100%);
     background-size: 220% 100%;
     animation: progress-shimmer 1.4s linear infinite;
 }

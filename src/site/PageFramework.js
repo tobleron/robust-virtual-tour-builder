@@ -2,12 +2,14 @@
 import {
   buildProjectAssetUrl,
   closeBuilderProjectPicker,
+  ensureBuilderBootOverlay,
   handleBuilderLatestOpen,
   handleBuilderSnapshotOpen,
   installBuilderTourPickerBridge,
   normalizeLogoForBuilder,
   normalizeProjectDataForBuilder,
   openBuilderProjectPicker,
+  setBuilderBootState,
   toggleBuilderProjectHistory,
 } from './PageFrameworkBuilder.js';
 import {
@@ -238,6 +240,8 @@ export function renderBuilderFramework(rootElement) {
     document.body.appendChild(modal);
   }
 
+  ensureBuilderBootOverlay();
+
   installBuilderTourPickerBridge();
 
   getAuthSession().then(session => {
@@ -251,4 +255,5 @@ export {
   normalizeLogoForBuilder,
   normalizeProjectDataForBuilder,
   resolveAppSurface,
+  setBuilderBootState,
 };

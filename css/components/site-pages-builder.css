@@ -84,6 +84,17 @@ body.builder-overlay-mode {
   z-index: 80;
 }
 
+.builder-boot-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 340px;
+  z-index: 85;
+  background: rgba(7, 18, 36, 0.08);
+  pointer-events: auto;
+}
+
 .builder-modal-backdrop {
   position: absolute;
   inset: 0;
@@ -231,6 +242,10 @@ body.builder-overlay-mode {
   .builder-overlay-bar {
     left: calc(340px + 12px);
     right: 12px;
+  }
+
+  .builder-boot-overlay {
+    left: 340px;
   }
 
   .builder-modal-card {

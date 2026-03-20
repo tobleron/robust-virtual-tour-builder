@@ -16,6 +16,40 @@ function builderModalRoot() {
   return document.getElementById('builder-project-modal');
 }
 
+function builderBootRoot() {
+  return document.getElementById('builder-boot-overlay');
+}
+
+function syncBuilderBootOverlay() {
+  const overlay = builderBootRoot();
+  if (!overlay) return;
+  const active = Boolean(window.__VTB_BOOT_PROJECT_PENDING__);
+  overlay.hidden = !active;
+  document.body.classList.toggle('project-load-mode', active);
+}
+
+export function setBuilderBootState(active, message = '') {
+  window.__VTB_BOOT_PROJECT_PENDING__ = Boolean(active);
+  window.__VTB_BOOT_PROJECT_MESSAGE__ = message || '';
+  syncBuilderBootOverlay();
+}
+
+window.__VTB_SET_BUILDER_BOOT_STATE__ = (active, message) => {
+  setBuilderBootState(active, typeof message === 'string' ? message : '');
+};
+
+export function ensureBuilderBootOverlay() {
+  let overlay = builderBootRoot();
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'builder-boot-overlay';
+    overlay.className = 'builder-boot-overlay';
+    overlay.hidden = true;
+    document.body.appendChild(overlay);
+  }
+  syncBuilderBootOverlay();
+}
+
 function builderStateSummary() {
   const state = window.__RE_STATE__;
   if (!state || typeof state !== 'object') return { hasContent: false, tourName: '' };

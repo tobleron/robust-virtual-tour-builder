@@ -58,6 +58,7 @@ let handleSavedProjectLoad = async (
     ~scope=Blocking,
     ~phase="Project Load",
     ~meta=Logger.castToJson({"label": label, "source": "saved_project"}),
+    ~visibleAfterMs=0,
     (),
   )
   let onCancel = () =>

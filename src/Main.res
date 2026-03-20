@@ -67,6 +67,7 @@ module ViewerClickEvent = {
 }
 
 @val @scope(("window", "location")) external getHref: unit => string = "toString"
+@val external bootProjectPending: option<bool> = "window.__VTB_BOOT_PROJECT_PENDING__"
 
 external docToEl: {..} => Dom.element = "%identity"
 
@@ -144,7 +145,10 @@ let init = async () => {
       switch Dom.getElementById("app")->Nullable.toOption {
       | Some(appRoot) =>
         let root = ReactDOMClient.createRoot(appRoot)
-        ReactDOMClient.Root.render(root, <App />)
+        switch bootProjectPending->Option.getOr(false) {
+        | true => ReactDOMClient.Root.render(root, <App initialState=State.initialState />)
+        | false => ReactDOMClient.Root.render(root, <App />)
+        }
         Logger.info(~module_="Main", ~message="App Mounted", ())
       | None => Logger.error(~module_="Main", ~message="Root element #app not found", ())
       }
