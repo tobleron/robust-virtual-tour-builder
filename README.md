@@ -41,6 +41,19 @@ Quick links:
 - **Portal-ready delivery:** published tours can feed a hosted customer-facing delivery surface
 - **Typed architecture:** ReScript frontend and Rust backend reduce whole classes of runtime mistakes
 
+## Who This Is For
+
+This project is especially suited for:
+- **freelance real estate brokers** who want to create web-based virtual tours for their customers
+- solo operators who prefer to keep authoring local, instead of relying on a heavy hosted editor
+- brokers who also want to generate promotional motion content from the same tour project
+
+The practical use case is:
+- shoot 360 photos, for example with an **Insta360** workflow
+- build and direct the tour locally
+- export a tour package for portal delivery
+- generate promotional **WebM** teaser/video content from the same material
+
 ## Stable Setup
 
 Use this if you want the repo to behave like the product, not like a dev sandbox.
@@ -145,6 +158,34 @@ Full setup details: [docs/operations/local-builder-setup.md](docs/operations/loc
 - preserve local state with recovery-oriented persistence
 - supervise navigation with structured cancellation and retry semantics
 - support first-run setup and local auth reset flows
+
+## Minimal Workflow
+
+```text
+Shoot 360 photos (e.g. Insta360)
+        ↓
+Upload scenes into the local builder
+        ↓
+Organize floors / scenes / labels
+        ↓
+Direct the virtual tour with hotspots and traversal
+        ↓
+Export tour ZIP package
+        ↓
+Upload published tour later to the portal
+        ↓
+Deliver web-based tour to customers
+```
+
+Optional parallel output:
+
+```text
+Same tour project
+        ↓
+Run teaser / video workflow
+        ↓
+Generate promotional WebM content
+```
 
 ## Current Feature Areas
 
