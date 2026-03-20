@@ -65,7 +65,6 @@ Temporary public demo link:
 
 Note:
 - this demo link is public for evaluation only and may stop working after a limited time
-- direct contact for demo questions: `+201005684094`
 
 ## Stable Setup
 
@@ -298,6 +297,7 @@ Start here:
 Maintained by **Arto Kalishian**, the original developer of Robust Virtual Tour Builder.
 
 - Email: `arto.eg@gmail.com`
+- Phone / WhatsApp: `+201005684094`
 - Website: `https://www.robust-vtb.com`
 - GitHub Issues: use the repo issue tracker for bugs and setup problems
 - Commercial / implementation inquiries: contact directly by email
