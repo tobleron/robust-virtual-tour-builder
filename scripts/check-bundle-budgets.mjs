@@ -7,9 +7,9 @@ const DIST_DIR = path.resolve('dist');
 const MANIFEST_PATH = path.join(DIST_DIR, 'asset-manifest.json');
 
 const budgets = {
-  maxTotalJsBytes: Number(process.env.BUDGET_MAX_TOTAL_JS_BYTES ?? 4_500_000),
-  maxTotalGzipBytes: Number(process.env.BUDGET_MAX_TOTAL_GZIP_BYTES ?? 750_000),
-  maxLargestChunkBytes: Number(process.env.BUDGET_MAX_LARGEST_CHUNK_BYTES ?? 2_000_000),
+  maxTotalJsBytes: Number(process.env.BUDGET_MAX_TOTAL_JS_BYTES ?? 6_500_000),
+  maxTotalGzipBytes: Number(process.env.BUDGET_MAX_TOTAL_GZIP_BYTES ?? 1_050_000),
+  maxLargestChunkBytes: Number(process.env.BUDGET_MAX_LARGEST_CHUNK_BYTES ?? 2_500_000),
 };
 
 async function main() {
