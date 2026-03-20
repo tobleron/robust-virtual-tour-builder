@@ -8,12 +8,20 @@ export const BUNDLE_BUDGETS = {
 };
 
 const devAutoReloadEnabled = process.env.RSBUILD_AUTO_RELOAD !== '0';
+const buildCommand = process.argv.includes('build') ? 'build' : 'dev';
+const isProductionBuild = buildCommand === 'build';
+const appMode = isProductionBuild ? 'production' : 'development';
 
 export default defineConfig({
   plugins: [pluginReact()],
   source: {
     entry: {
       index: './src/index.js',
+    },
+    define: {
+      __APP_MODE__: JSON.stringify(appMode),
+      __APP_DEV__: JSON.stringify(!isProductionBuild),
+      __APP_PROD__: JSON.stringify(isProductionBuild),
     },
     include: [
       /[\\/]node_modules[\\/]@rescript[\\/]react[\\/]/,

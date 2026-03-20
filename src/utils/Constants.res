@@ -255,13 +255,25 @@ let roomLabelPresets = Dict.fromArray([
 
 // Helper to safely get environment variables across Vite and Node
 let getEnv = (name: string, fallback: string): string => {
-  ignore(name)
+  let explicitOverride: option<string> = switch name {
+  | "MODE" =>
+    Some(%raw(`typeof __APP_MODE__ !== 'undefined' ? __APP_MODE__ : fallback`))
+  | "DEV" =>
+    Some(%raw(`typeof __APP_DEV__ !== 'undefined' ? String(__APP_DEV__) : fallback`))
+  | "PROD" =>
+    Some(%raw(`typeof __APP_PROD__ !== 'undefined' ? String(__APP_PROD__) : fallback`))
+  | _ => None
+  }
+  switch explicitOverride {
+  | Some(value) => value
+  | None =>
   let value = try {
     %raw(`(typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env[name] : (typeof process !== 'undefined' && process.env ? process.env[name] : null))`)
   } catch {
   | _ => Nullable.null
   }
   value->Nullable.toOption->Option.getOr(fallback)
+  }
 }
 
 let backendUrl = getEnv(

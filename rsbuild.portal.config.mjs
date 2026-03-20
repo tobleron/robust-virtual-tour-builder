@@ -1,11 +1,20 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
+const buildCommand = process.argv.includes('build') ? 'build' : 'dev';
+const isProductionBuild = buildCommand === 'build';
+const appMode = isProductionBuild ? 'production' : 'development';
+
 export default defineConfig({
   plugins: [pluginReact()],
   source: {
     entry: {
       index: './src/portal-index.js',
+    },
+    define: {
+      __APP_MODE__: JSON.stringify(appMode),
+      __APP_DEV__: JSON.stringify(!isProductionBuild),
+      __APP_PROD__: JSON.stringify(isProductionBuild),
     },
   },
   resolve: {

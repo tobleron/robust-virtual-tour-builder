@@ -3,6 +3,7 @@ open Vitest
 
 %%raw(`
   vi.mock('../../src/systems/Resizer.bs.js', () => ({
+    canUseStrongChecksum: () => false,
     getChecksum: (file) => Promise.resolve("hash_" + file.name)
   }));
 `)
