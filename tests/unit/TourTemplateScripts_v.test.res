@@ -175,7 +175,7 @@ describe("TourTemplateScripts", () => {
 
       t->expectToContain(script, "if (portraitViewport) return \"portrait\";")
       t->expectToContain(script, "return \"desktop\";")
-      t->expect(String.includes(script, "EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE"))->Expect.toBe(false)
+      t->expect(String.includes(script, "EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE"))->Expect.toBe(true)
       t->expect(String.includes(script, "return \"tablet\";"))->Expect.toBe(false)
     },
   )

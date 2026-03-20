@@ -77,12 +77,12 @@ describe("Teaser Hardening Regression", () => {
       let label = Dom.getElementById("v-scene-persistent-label")
       t->expect(Nullable.toOption(label))->Expect.toBe(None)
 
-      // 3. Check UtilityBar is hidden
+      // 3. Check UtilityBar is hidden via teaser state class
       let utilBar = Dom.getElementById("viewer-utility-bar")
       switch Nullable.toOption(utilBar) {
       | Some(el) =>
         let cl = Dom.classList(el)
-        t->expect(Dom.ClassList.contains(cl, "hidden"))->Expect.toBe(true)
+        t->expect(Dom.ClassList.contains(cl, "is-hidden"))->Expect.toBe(true)
       | None => t->expect(true)->Expect.toBe(true) // Hidden either by CSS or not rendered
       }
 

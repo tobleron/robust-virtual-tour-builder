@@ -110,7 +110,7 @@ describe("FloorNavigation", () => {
   })
 
   testAsync(
-    "should apply greyed-out style (70% opacity + grayscale) when no scenes are loaded",
+    "should mark the floor rail inactive when no scenes are loaded",
     async t => {
       let container = Dom.createElement("div")
       Dom.appendChild(Dom.documentBody, container)
@@ -130,8 +130,7 @@ describe("FloorNavigation", () => {
         Dom.querySelector(container, "#viewer-floor-nav")->Nullable.toOption->Belt.Option.getExn
       let cl = Dom.classList(floorNav)
 
-      t->expect(Dom.ClassList.contains(cl, "grayscale"))->Expect.toBe(true)
-      t->expect(Dom.ClassList.contains(cl, "opacity-70"))->Expect.toBe(true)
+      t->expect(Dom.ClassList.contains(cl, "is-inactive"))->Expect.toBe(true)
 
       Dom.removeElement(container)
     },

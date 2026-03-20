@@ -72,10 +72,18 @@ let makeSelfHotspot = (sceneId: string): Types.hotspot => {
 }
 
 describe("VisualPipeline", () => {
+  let unmountRoot: 'root => unit = %raw(`root => root.unmount()`)
+
   let wait = ms =>
     Promise.make((resolve, _) => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
+
+  let cleanupRoot = async (~root, ~container) => {
+    unmountRoot(root)
+    await wait(0)
+    Dom.removeElement(container)
+  }
 
   beforeEach(() => {
     switch NavigationSupervisor.getCurrentTask() {
@@ -162,7 +170,7 @@ describe("VisualPipeline", () => {
     let nodes = Dom.querySelectorAll(container, ".pipeline-node")
     t->expect(Dom.nodeListLength(nodes) > 0)->Expect.toBe(true)
 
-    Dom.removeElement(container)
+    await cleanupRoot(~root, ~container)
   })
 
   testAsync("should not show hover preview when system is locked", async t => {
@@ -219,7 +227,7 @@ describe("VisualPipeline", () => {
     let tooltip = Dom.querySelector(container, ".pipeline-global-tooltip")
     t->expect(Nullable.toOption(tooltip))->Expect.toBe(None)
 
-    Dom.removeElement(container)
+    await cleanupRoot(~root, ~container)
   })
 
   testAsync("clicking a pipeline node should switch to target scene", async t => {
@@ -320,7 +328,7 @@ describe("VisualPipeline", () => {
     await wait(40)
 
     t->expect(getSupervisorTarget())->Expect.toEqual(Some("s2"))
-    Dom.removeElement(container)
+    await cleanupRoot(~root, ~container)
   })
 
   testAsync(
@@ -423,7 +431,7 @@ describe("VisualPipeline", () => {
       await wait(40)
 
       t->expect(getSupervisorTarget())->Expect.toEqual(Some("s1"))
-      Dom.removeElement(container)
+      await cleanupRoot(~root, ~container)
     },
   )
 
@@ -512,7 +520,7 @@ describe("VisualPipeline", () => {
     await wait(40)
 
     t->expect(getSupervisorTarget())->Expect.toEqual(None)
-    Dom.removeElement(container)
+    await cleanupRoot(~root, ~container)
   })
 
   testAsync("renders traversal connectors without numeric hub badges", async t => {
@@ -654,6 +662,6 @@ describe("VisualPipeline", () => {
     t->expect(Dom.nodeListLength(edgeLines) > 0)->Expect.toBe(true)
     t->expect(Dom.nodeListLength(hubBadges))->Expect.toBe(0)
 
-    Dom.removeElement(container)
+    await cleanupRoot(~root, ~container)
   })
 })

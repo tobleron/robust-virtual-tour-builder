@@ -14,6 +14,7 @@ type expectation
   const __viewer = {
     getYaw: () => 0.0,
     getPitch: () => 0.0,
+    getHfov: () => 90.0,
     setYaw: vi.fn(),
     setPitch: vi.fn(),
   };
@@ -26,7 +27,7 @@ type expectation
   vi.mock('../../src/systems/ViewerSystem.bs.js', () => ({
     getActiveViewer: vi.fn(() => __viewer),
     Pool: { pool: { contents: [] }, reset: vi.fn() },
-    Adapter: { destroy: vi.fn() },
+    Adapter: { destroy: vi.fn(), setPitchBounds: vi.fn() },
     resetState: vi.fn(),
   }));
 

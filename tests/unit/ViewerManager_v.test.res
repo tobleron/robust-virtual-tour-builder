@@ -140,8 +140,10 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
       Adapter: {
         resize: vi.fn(),
         setHfov: vi.fn(),
+        setPitchBounds: vi.fn(),
         getMetaData: vi.fn(),
         getYaw: vi.fn(() => 0.0),
+        getHfov: vi.fn(() => 90.0),
         destroy: vi.fn()
       },
       Follow: {
@@ -438,11 +440,11 @@ describe("ViewerManager", () => {
     await wait(50)
 
     let stage = Dom.getElementById("viewer-stage")->Nullable.getUnsafe
-    let clickEvent = %raw(`new MouseEvent('click', { clientX: 500, clientY: 500 })`)
-    let _ = %raw(`(stage, ev) => stage.dispatchEvent(ev)`)(stage, clickEvent)
+    let pointerEvent = %raw(`new MouseEvent('pointerdown', { clientX: 500, clientY: 500, bubbles: true, cancelable: true })`)
+    let _ = %raw(`(stage, ev) => stage.dispatchEvent(ev)`)(stage, pointerEvent)
 
-    // VERIFY: LinkEditorLogic.handleStageClick was called
-    expectCall(mockHandleStageClick)->toHaveBeenCalled()
+    // VERIFY: pointer interaction hooks are wired on the stage
+    expectCall(mockHandleStagePointerDown)->toHaveBeenCalled()
 
     Dom.removeElement(container)
   })

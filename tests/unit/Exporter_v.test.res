@@ -525,9 +525,8 @@ describe("Exporter", () => {
       })
     `)
 
-    // Create abort controller for signal
-    let _controller = %raw("new AbortController()")
-    let signal = %raw("_controller.signal")
+    let controller = AbortController.make()
+    let signal = AbortController.signal(controller)
 
     let result = await exportTour(
       [scene1],
@@ -538,26 +537,23 @@ describe("Exporter", () => {
       defaultPublishProfiles,
     )
 
-    // Verify fetch was called with dev-token
+    // Verify the export still succeeds without a stored auth token in the test environment
     let authHeader = %raw(
       "(function(m){ 
         const calls = m.mock.calls;
         for (let i = 0; i < calls.length; i++) {
           if (calls[i][0] && calls[i][0].includes('/api/')) {
-            return calls[i][1]?.headers?.Authorization || 'Bearer dev-token';
+            return calls[i][1]?.headers?.Authorization;
           }
         }
-        return 'Bearer dev-token';
+        return undefined;
       })(fetchMock)"
     )
-    t->expect(authHeader)->Expect.toBe("Bearer dev-token")
-
-    // Restore environment
-    let _ = %raw(`process.env.NODE_ENV = originalEnv`)
+    t->expect(authHeader)->Expect.toBe(undefined)
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(true)
-    | Error(_) => t->expect(true)->Expect.toBe(false)
+      | Error(_) => t->expect(true)->Expect.toBe(false)
     }
   })
 })

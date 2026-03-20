@@ -276,20 +276,44 @@ describe("Portal Access Links", () => {
           ok: true,
           status: 200,
           json: () => Promise.resolve({
+            customer: {
+              slug: "test-customer",
+              displayName: "Test Customer",
+              isActive: true
+            },
+            settings: {
+              renewalHeading: "Access expired",
+              renewalMessage: "Contact to renew",
+              contactEmail: null,
+              contactPhone: null,
+              whatsappNumber: null
+            },
+            accessLink: {
+              id: "test-link",
+              active: true,
+              expiresAt: "2026-12-31T23:59:59Z",
+              revokedAt: null,
+              lastOpenedAt: null,
+              accessUrl: null
+            },
+            expired: false,
+            canOpenTours: true,
             tours: [
               {
-                assignmentId: "assign-1",
-                tour: {id: "tour-1", slug: "tour-1", title: "Tour 1"},
-                shortCode: "abc1234",
+                id: "tour-1",
+                slug: "tour-1",
+                title: "Tour 1",
                 status: "revoked",
-                effectiveExpiry: "2026-12-31T23:59:59Z"
+                coverUrl: null,
+                canOpen: false
               },
               {
-                assignmentId: "assign-2",
-                tour: {id: "tour-2", slug: "tour-2", title: "Tour 2"},
-                shortCode: "xyz5678",
+                id: "tour-2",
+                slug: "tour-2",
+                title: "Tour 2",
                 status: "active",
-                effectiveExpiry: "2026-12-31T23:59:59Z"
+                coverUrl: null,
+                canOpen: true
               }
             ]
           })

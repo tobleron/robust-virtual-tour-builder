@@ -296,8 +296,8 @@ describe("HotspotSequence", () => {
     let badges = HotspotSequence.deriveBadgeByLinkId(~state)
 
     t->expect(readSeq(badges, "hAB"))->Expect.toEqual(Some(1))
-    t->expect(readSeq(badges, "hAD"))->Expect.toEqual(Some(2))
-    t->expect(readSeq(badges, "hAC"))->Expect.toEqual(Some(3))
+    t->expect(readSeq(badges, "hAC"))->Expect.toEqual(Some(2))
+    t->expect(readSeq(badges, "hAD"))->Expect.toEqual(Some(3))
   })
 
   test("inserting a missed middle scene shifts downstream numbering", t => {

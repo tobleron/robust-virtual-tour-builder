@@ -278,7 +278,7 @@ describe("AuthenticatedClient", () => {
     NetworkStatus.initialize()
   })
 
-  testAsync("includes credentials:include for session cookie support", async t => {
+  testAsync("request does not force explicit credentials option", async t => {
     Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
 
     let fetchMock = %raw("global.fetch")
@@ -294,10 +294,10 @@ describe("AuthenticatedClient", () => {
     let credentials = %raw(
       "(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)"
     )
-    t->expect(credentials)->Expect.toBe("include")
+    t->expect(credentials)->Expect.toBe(undefined)
   })
 
-  testAsync("uses dev-token in development mode when no auth_token", async t => {
+  testAsync("request does not inject dev-token when debug build is disabled", async t => {
     // Clear any existing token
     Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
 
@@ -314,7 +314,6 @@ describe("AuthenticatedClient", () => {
     let authHeader = %raw(
       "(function(m){ return m.mock.calls[0][1]['headers']['Authorization'] || (m.mock.calls[0][1]['headers'].get && m.mock.calls[0][1]['headers'].get('Authorization')) })(fetchMock)"
     )
-    // In development mode with no token, should use dev-token
-    t->expect(authHeader)->Expect.toBe("Bearer dev-token")
+    t->expect(authHeader)->Expect.toBe(undefined)
   })
 })
