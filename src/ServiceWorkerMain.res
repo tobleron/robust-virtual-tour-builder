@@ -206,8 +206,6 @@ addEventListener("fetch", (event: FetchEvent.t) => {
       event->FetchEvent.respondWith(performFetch())
     } else {
       let isImmutable = hasHashedAssetName(pathname)
-      let isStaleWhileRevalidate =
-        isNavigation || pathname == "/index.html" || pathname == "/manifest.json"
 
       let fetchAndCache =
         performFetch()
@@ -242,11 +240,10 @@ addEventListener("fetch", (event: FetchEvent.t) => {
           | Some(res) =>
             if isImmutable {
               Promise.resolve(res)
-            } else if isStaleWhileRevalidate {
-              event->FetchEvent.waitUntil(fetchAndCache)
-              Promise.resolve(res)
             } else {
-              Promise.resolve(res)
+              fetchAndCache->Promise.catch(
+                _err => Promise.resolve(res),
+              )
             }
           | None =>
             // Cache miss: try network

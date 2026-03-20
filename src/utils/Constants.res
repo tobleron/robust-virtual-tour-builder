@@ -350,6 +350,7 @@ module Media = {
   let logoMaxHeight = 1024.0
   let logoOutputFilename = "logo.webp"
   let logoWorkerTimeoutMs = 4000
+  let uploadCompressionWorkerTimeoutMs = 12000
   let uploadValidateWorkerTimeoutMs = 4000
   let uploadFingerprintWorkerTimeoutMs = 6000
   let exifWorkerTimeoutMs = 4000

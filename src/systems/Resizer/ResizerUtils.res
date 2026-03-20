@@ -2,6 +2,37 @@
 
 open ReBindings
 
+let weakFingerprintFallbackLogged = ref(false)
+
+let isCryptoSubtleAvailableInCurrentContext = (): bool =>
+  %raw(`
+    (function() {
+      try {
+        return typeof crypto !== 'undefined' &&
+          !!crypto &&
+          !!crypto.subtle &&
+          (typeof window === 'undefined' || window.isSecureContext === true);
+      } catch (_err) {
+        return false;
+      }
+    })()
+  `)
+
+let logWeakChecksumFallbackOnce = () => {
+  if !weakFingerprintFallbackLogged.contents {
+    weakFingerprintFallbackLogged := true
+    Logger.warn(
+      ~module_="ResizerUtils",
+      ~message="STRONG_FINGERPRINT_UNAVAILABLE_USING_WEAK_FINGERPRINT_FALLBACK",
+      ~data=Some({
+        "reason": "crypto.subtle unavailable in current browser context",
+        "hint": "Use HTTPS or localhost to restore SHA-256 fingerprinting",
+      }),
+      (),
+    )
+  }
+}
+
 let formatBytesToMB = (v: float): string => {
   Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
 }
@@ -30,12 +61,6 @@ let getMemoryUsage = () => {
 }
 
 let getChecksum = (file: File.t): Promise.t<string> => {
-  let logWeakChecksumFallback = () =>
-    Logger.warn(
-      ~module_="ResizerUtils",
-      ~message="CRYPTO_SUBTLE_UNAVAILABLE_USING_WEAK_FINGERPRINT_FALLBACK",
-      (),
-    )
   let internalGetChecksum: (File.t, unit => unit) => Promise.t<string> = %raw(`
      async function(file, logWeakChecksumFallback) {
         const SMALL_FILE_THRESHOLD = 10 * 1024 * 1024;
@@ -74,7 +99,7 @@ let getChecksum = (file: File.t): Promise.t<string> => {
         return hash + "_" + file.size;
      }
    `)
-  internalGetChecksum(file, logWeakChecksumFallback)
+  internalGetChecksum(file, logWeakChecksumFallbackOnce)
 }
 
 let checkBackendHealth = () => {

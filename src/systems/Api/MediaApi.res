@@ -106,9 +106,35 @@ let processImageFull = (
   ~isOptimized: bool=false,
   ~metadata: option<exifMetadata>=?,
 ): Promise.t<apiResult<Blob.t>> => {
+  Logger.info(
+    ~module_="MediaApi",
+    ~message="PROCESS_FULL_SCHEDULED",
+    ~data=Some({
+      "file": File.name(file),
+      "size": File.size(file),
+      "isOptimized": isOptimized,
+      "hasMetadata": metadata->Option.isSome,
+    }),
+    (),
+  )
   RequestQueue.schedule(() => {
+    Logger.info(
+      ~module_="MediaApi",
+      ~message="PROCESS_FULL_QUEUE_SLOT_ACQUIRED",
+      ~data=Some({"file": File.name(file)}),
+      (),
+    )
     reserveProcessFullSlot()->Promise.then(() => {
       let requestStartedAtMs = Date.now()
+      Logger.info(
+        ~module_="MediaApi",
+        ~message="PROCESS_FULL_BACKOFF_SLOT_ACQUIRED",
+        ~data=Some({
+          "file": File.name(file),
+          "spacingMs": processFullDynamicSpacingMs.contents,
+        }),
+        (),
+      )
       let formData = FormData.newFormData()
       FormData.append(formData, "file", file)
       if isOptimized {
@@ -124,6 +150,12 @@ let processImageFull = (
       | None => ()
       }
 
+      Logger.info(
+        ~module_="MediaApi",
+        ~message="PROCESS_FULL_REQUEST_START",
+        ~data=Some({"file": File.name(file), "size": File.size(file)}),
+        (),
+      )
       AuthenticatedClient.requestWithRetry(
         Constants.backendUrl ++ "/api/media/process-full",
         ~method="POST",
@@ -143,6 +175,16 @@ let processImageFull = (
           switch resultResponse {
           | Retry.Success(response, attempts) =>
             noteProcessFullSuccess(~durationMs=Date.now() -. requestStartedAtMs, ~attempts)
+            Logger.info(
+              ~module_="MediaApi",
+              ~message="PROCESS_FULL_REQUEST_SUCCESS",
+              ~data=Some({
+                "file": File.name(file),
+                "attempts": attempts,
+                "durationMs": Date.now() -. requestStartedAtMs,
+              }),
+              (),
+            )
             response.blob()
             ->Promise.then(blob => Promise.resolve(Ok(blob)))
             ->Promise.catch(
@@ -155,13 +197,28 @@ let processImageFull = (
                 ),
             )
           | Retry.Exhausted(msg) =>
+            Logger.warn(
+              ~module_="MediaApi",
+              ~message="PROCESS_FULL_REQUEST_EXHAUSTED",
+              ~data=Some({"file": File.name(file), "error": msg}),
+              (),
+            )
             msg->parseRateLimitedSeconds->Option.forEach(applyProcessFullBackoff)
             Promise.resolve(Error(msg))
           }
         },
       )
       ->Promise.catch(
-        e => handleError(~module_="MediaApi", e, "Image processing failed", "PROCESSING_ERROR"),
+        e => {
+          let (msg, _) = Logger.getErrorDetails(e)
+          Logger.warn(
+            ~module_="MediaApi",
+            ~message="PROCESS_FULL_REQUEST_THROWN",
+            ~data=Some({"file": File.name(file), "error": msg}),
+            (),
+          )
+          handleError(~module_="MediaApi", e, "Image processing failed", "PROCESSING_ERROR")
+        },
       )
     })
   })

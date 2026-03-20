@@ -30,11 +30,27 @@ let processImageWithTimeout = (
   ~onStatus: string => unit,
   ~timeoutMs: int=300000,
 ) => {
+  Logger.info(
+    ~module_="UploadLogic",
+    ~message="PROCESS_ITEM_TIMEOUT_GUARD_START",
+    ~data=Some({
+      "filename": File.name(file),
+      "timeoutMs": timeoutMs,
+      "size": File.size(file),
+    }),
+    (),
+  )
   Promise.make((resolve, _reject) => {
     let settled = ref(false)
     let timeoutId = ReBindings.Window.setTimeout(() => {
       if !settled.contents {
         settled := true
+        Logger.warn(
+          ~module_="UploadLogic",
+          ~message="PROCESS_ITEM_TIMEOUT_GUARD_TRIGGERED",
+          ~data=Some({"filename": File.name(file), "timeoutMs": timeoutMs}),
+          (),
+        )
         resolve(Error("Processing timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms"))
       }
     }, timeoutMs)
@@ -44,6 +60,22 @@ let processImageWithTimeout = (
       if !settled.contents {
         settled := true
         ReBindings.Window.clearTimeout(timeoutId)
+        switch result {
+        | Ok(_) =>
+          Logger.info(
+            ~module_="UploadLogic",
+            ~message="PROCESS_ITEM_TIMEOUT_GUARD_RESOLVED",
+            ~data=Some({"filename": File.name(file), "outcome": "ok"}),
+            (),
+          )
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="UploadLogic",
+            ~message="PROCESS_ITEM_TIMEOUT_GUARD_RESOLVED",
+            ~data=Some({"filename": File.name(file), "outcome": "error", "error": msg}),
+            (),
+          )
+        }
         resolve(result)
       }
       Promise.resolve()
@@ -53,6 +85,12 @@ let processImageWithTimeout = (
         settled := true
         ReBindings.Window.clearTimeout(timeoutId)
         let (msg, _) = Logger.getErrorDetails(err)
+        Logger.warn(
+          ~module_="UploadLogic",
+          ~message="PROCESS_ITEM_TIMEOUT_GUARD_THROWN",
+          ~data=Some({"filename": File.name(file), "error": msg}),
+          (),
+        )
         resolve(Error(msg))
       }
       Promise.resolve()

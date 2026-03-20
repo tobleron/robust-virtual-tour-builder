@@ -2,13 +2,25 @@
 
 type worker
 type workerMessageEvent
+type workerErrorEvent
+type workerMessageErrorEvent
 
 @new external makeWorker: string => worker = "Worker"
 @send external postMessage: (worker, 'a) => unit = "postMessage"
 @send external terminate: (worker, unit) => unit = "terminate"
 @set external setOnMessage: (worker, workerMessageEvent => unit) => unit = "onmessage"
-@set external setOnError: (worker, 'a => unit) => unit = "onerror"
+@set external setOnError: (worker, workerErrorEvent => unit) => unit = "onerror"
+@set external setOnMessageError: (worker, workerMessageErrorEvent => unit) => unit = "onmessageerror"
 @get external getEventData: workerMessageEvent => 'a = "data"
+@get external getErrorMessage: workerErrorEvent => string = "message"
+@get external getErrorFilename: workerErrorEvent => string = "filename"
+@get external getErrorLineno: workerErrorEvent => int = "lineno"
+@get external getErrorColno: workerErrorEvent => int = "colno"
+
+@send external preventDefaultError: workerErrorEvent => unit = "preventDefault"
+@send external preventDefaultMessageError: workerMessageErrorEvent => unit = "preventDefault"
+@send external stopPropagationError: workerErrorEvent => unit = "stopPropagation"
+@send external stopPropagationMessageError: workerMessageErrorEvent => unit = "stopPropagation"
 
 type fingerprintResponse = {id: string, ok: bool, checksum: option<string>}
 type validateImageResponse = {id: string, ok: bool, isImage: option<bool>}
@@ -152,6 +164,33 @@ let invalidatePool = (pool: state, ~reason: string) => {
   }
 }
 
+let describeWorkerError = (evt: workerErrorEvent): string => {
+  let message = getErrorMessage(evt)
+  let filename = getErrorFilename(evt)
+  let lineno = getErrorLineno(evt)
+  let colno = getErrorColno(evt)
+  let parts = []
+  if message != "" {
+    ignore(Array.push(parts, "message=" ++ message))
+  }
+  if filename != "" {
+    ignore(Array.push(parts, "file=" ++ filename))
+  }
+  if lineno > 0 {
+    ignore(Array.push(parts, "line=" ++ Belt.Int.toString(lineno)))
+  }
+  if colno > 0 {
+    ignore(Array.push(parts, "col=" ++ Belt.Int.toString(colno)))
+  }
+  if Belt.Array.length(parts) == 0 {
+    "unknown"
+  } else {
+    let first = Belt.Array.getExn(parts, 0)
+    Belt.Array.slice(parts, ~offset=1, ~len=Belt.Array.length(parts) - 1)
+    ->Belt.Array.reduce(first, (acc, part) => acc ++ ", " ++ part)
+  }
+}
+
 let bindWorkerHandlers = (pool: state, worker: worker) => {
   setOnMessage(worker, evt => {
     let payload: {"id": string, "type": option<string>} = getEventData(evt)
@@ -208,5 +247,14 @@ let bindWorkerHandlers = (pool: state, worker: worker) => {
     | _ => ()
     }
   })
-  setOnError(worker, _err => invalidatePool(pool, ~reason="Worker pool crashed"))
+  setOnError(worker, err => {
+    preventDefaultError(err)
+    stopPropagationError(err)
+    invalidatePool(pool, ~reason="Worker error: " ++ describeWorkerError(err))
+  })
+  setOnMessageError(worker, err => {
+    preventDefaultMessageError(err)
+    stopPropagationMessageError(err)
+    invalidatePool(pool, ~reason="Worker message deserialization failed")
+  })
 }

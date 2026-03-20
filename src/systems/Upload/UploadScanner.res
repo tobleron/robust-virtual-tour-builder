@@ -17,14 +17,19 @@ let pickUploadConcurrency = (files: array<UploadTypes.file>): int => {
   let totalMb = bytesToMb(totalBytes)
   let largestMb = bytesToMb(largestBytes)
 
-  let selected = if (
-    totalMb >= Constants.Media.uploadHeavyFolderThresholdMb ||
-      largestMb >= Constants.Media.uploadVeryLargeFileThresholdMb
-  ) {
-    6
+  let selected = if largestMb >= Constants.Media.uploadVeryLargeFileThresholdMb {
+    if Belt.Array.length(files) >= 4 || totalMb >= 120.0 {
+      1
+    } else {
+      2
+    }
+  } else if totalMb >= Constants.Media.uploadHeavyFolderThresholdMb {
+    2
   } else if totalMb >= 600.0 {
-    3
+    2
   } else if totalMb >= 350.0 {
+    3
+  } else if totalMb >= 120.0 {
     4
   } else {
     Constants.Media.uploadMaxConcurrencyDefault

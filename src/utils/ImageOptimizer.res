@@ -33,9 +33,25 @@ let compressMainThread = (
     } else {
       let onLoad = () => {
         URL.revokeObjectURL(url)
-        let srcW = Float.fromInt(Dom.getWidth(img))
-        let srcH = Float.fromInt(Dom.getHeight(img))
+        let naturalW = Dom.naturalWidth(img)
+        let naturalH = Dom.naturalHeight(img)
+        let fallbackW = Dom.getWidth(img)
+        let fallbackH = Dom.getHeight(img)
+        let srcW = Float.fromInt(if naturalW > 0 { naturalW } else { fallbackW })
+        let srcH = Float.fromInt(if naturalH > 0 { naturalH } else { fallbackH })
         if srcW <= 0.0 || srcH <= 0.0 {
+          Logger.warn(
+            ~module_=moduleName,
+            ~message="COMPRESS_IMAGE_FALLBACK_INVALID_DIMS",
+            ~data=Some({
+              "filename": File.name(file),
+              "naturalWidth": naturalW,
+              "naturalHeight": naturalH,
+              "layoutWidth": fallbackW,
+              "layoutHeight": fallbackH,
+            }),
+            (),
+          )
           resolve(Error("Invalid source dimensions in fallback"))
         } else {
           let scale = Math.min(1.0, maxWidth /. srcW)
@@ -145,15 +161,21 @@ let compressToWebPConstrainedInternal = (
         )
         Promise.resolve(Ok(blob))
       | Error(msg) =>
-        if
+        let shouldFallback =
+          !preserveAlpha ||
           String.includes(msg, "unsupported") ||
             String.includes(msg, "not available") ||
-            String.includes(msg, "timed out")
-        {
+            String.includes(msg, "timed out") ||
+            String.includes(msg, "crashed")
+        if shouldFallback {
           Logger.warn(
             ~module_=moduleName,
             ~message="WORKER_COMPRESSION_FALLBACK",
-            ~data=Some({"reason": msg, "preserveAlpha": preserveAlpha}),
+            ~data=Some({
+              "reason": msg,
+              "preserveAlpha": preserveAlpha,
+              "fallbackPolicy": if preserveAlpha { "conditional" } else { "always-for-upload" },
+            }),
             (),
           )
           compressMainThread(file, ~quality, ~maxWidth, ~maxHeight, ~preserveAlpha)
@@ -178,6 +200,7 @@ let compressToWebP = (file: File.t, quality: float): Promise.t<result<Blob.t, st
     ~maxWidth=Float.fromInt(Constants.processedImageWidth),
     ~maxHeight=Float.fromInt(Constants.processedImageWidth),
     ~preserveAlpha=false,
+    ~workerTimeoutMs=Constants.Media.uploadCompressionWorkerTimeoutMs,
   )
 
 let compressToWebPConstrained = (

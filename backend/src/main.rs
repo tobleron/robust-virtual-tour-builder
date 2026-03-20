@@ -335,6 +335,7 @@ async fn main() -> io::Result<()> {
                 AppSurface::Builder => {
                     cfg.service(fs::Files::new("/sounds", "../public/sounds"));
                     cfg.service(fs::Files::new("/libs", "../public/libs"));
+                    cfg.service(fs::Files::new("/workers", "../public/workers"));
                     cfg.route(
                         "/service-worker.js",
                         web::get()

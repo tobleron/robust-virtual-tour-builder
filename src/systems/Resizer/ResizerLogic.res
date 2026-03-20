@@ -187,13 +187,49 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
     switch compressionResult {
     | Ok(webpBlob) =>
       let webpFile = File.newFile([webpBlob], File.name(file), {"type": "image/webp"})
+      Logger.info(
+        ~module_="Resizer",
+        ~message="BACKEND_PROCESS_FULL_UPLOAD_START",
+        ~data=Some({
+          "file": File.name(file),
+          "originalSize": File.size(file),
+          "optimizedSize": Blob.size(webpBlob),
+          "hasExif": exifDataOpt->Option.isSome,
+        }),
+        (),
+      )
       reportStatus("Uploading")
       BackendApi.processImageFull(
         webpFile,
         ~isOptimized=true,
         ~metadata=?exifDataOpt,
-      )->Promise.then(result => Promise.resolve((result, exifDataOpt)))
-    | Error(msg) => Promise.resolve((Error(msg), exifDataOpt))
+      )->Promise.then(result => {
+        switch result {
+        | Ok(_) =>
+          Logger.info(
+            ~module_="Resizer",
+            ~message="BACKEND_PROCESS_FULL_UPLOAD_ACCEPTED",
+            ~data=Some({"file": File.name(file)}),
+            (),
+          )
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="Resizer",
+            ~message="BACKEND_PROCESS_FULL_UPLOAD_FAILED",
+            ~data=Some({"file": File.name(file), "error": msg}),
+            (),
+          )
+        }
+        Promise.resolve((result, exifDataOpt))
+      })
+    | Error(msg) =>
+      Logger.warn(
+        ~module_="Resizer",
+        ~message="UPLOAD_COMPRESSION_FAILED",
+        ~data=Some({"file": File.name(file), "error": msg}),
+        (),
+      )
+      Promise.resolve((Error(msg), exifDataOpt))
     }
   })
   ->Promise.then(((processResult, exifDataOpt)) => {
