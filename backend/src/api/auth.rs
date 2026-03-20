@@ -4,6 +4,8 @@ mod auth_context;
 mod auth_events;
 #[path = "auth_flows.rs"]
 mod auth_flows;
+#[path = "auth_flows_session_dev.rs"]
+mod auth_flows_session_dev;
 #[path = "auth_mail.rs"]
 mod auth_mail;
 #[path = "auth_risk.rs"]
@@ -48,6 +50,8 @@ fn is_production() -> bool { auth_utils::is_production() }
 #[rustfmt::skip]
 fn config_i64(var_name: &str, default_value: i64) -> i64 { auth_utils::config_i64(var_name, default_value) }
 #[rustfmt::skip]
+fn config_bool(var_name: &str, default_value: bool) -> bool { auth_utils::config_bool(var_name, default_value) }
+#[rustfmt::skip]
 fn normalize_email(input: &str) -> String { auth_utils::normalize_email(input) }
 #[rustfmt::skip]
 fn normalize_username(input: &str) -> String { auth_utils::normalize_username(input) }
@@ -75,6 +79,52 @@ fn clear_auth_cookie() -> Cookie<'static> { auth_utils::clear_auth_cookie() }
 fn create_device_cookie(token: &str) -> Cookie<'static> { auth_utils::create_device_cookie(token) }
 #[rustfmt::skip]
 fn public_user(user: &User) -> AuthPublicUser { auth_utils::public_user(user) }
+#[rustfmt::skip]
+fn dev_auth_bootstrap_enabled() -> bool {
+    !is_production() && config_bool("ALLOW_DEV_AUTH_BOOTSTRAP", false)
+}
+#[rustfmt::skip]
+fn dev_auth_email() -> String {
+    std::env::var("DEV_AUTH_EMAIL").unwrap_or_else(|_| "dev@example.local".to_string())
+}
+#[rustfmt::skip]
+fn dev_auth_username() -> String {
+    std::env::var("DEV_AUTH_USERNAME").unwrap_or_else(|_| "dev-user".to_string())
+}
+#[rustfmt::skip]
+fn dev_auth_name() -> String {
+    std::env::var("DEV_AUTH_NAME").unwrap_or_else(|_| "Development User".to_string())
+}
+#[rustfmt::skip]
+fn dev_auth_password() -> String {
+    std::env::var("DEV_AUTH_PASSWORD").unwrap_or_else(|_| "dev-password-123".to_string())
+}
+#[rustfmt::skip]
+fn is_local_dev_request(req: &HttpRequest) -> bool {
+    let host = req.connection_info().host().to_string();
+    let normalized_host = host.split(':').next().unwrap_or(host.as_str()).to_lowercase();
+    let origin = req
+        .headers()
+        .get("Origin")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.to_lowercase());
+    let referer = req
+        .headers()
+        .get("Referer")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.to_lowercase());
+
+    let is_local_value = |value: &str| {
+        value.contains("localhost")
+            || value.contains("127.0.0.1")
+            || value.contains("[::1]")
+            || value.contains("::1")
+    };
+
+    is_local_value(&normalized_host)
+        || origin.as_deref().map(is_local_value).unwrap_or(false)
+        || referer.as_deref().map(is_local_value).unwrap_or(false)
+}
 #[rustfmt::skip]
 async fn send_email_or_log(to_email: &str, subject: &str, html_body: &str) -> Result<(), AppError> { auth_mail::send_email_or_log(to_email, subject, html_body).await }
 #[rustfmt::skip]
@@ -273,6 +323,13 @@ pub async fn signin(
     payload: web::Json<SignInPayload>,
 ) -> Result<HttpResponse, AppError> {
     auth_flows::signin(req, pool, payload).await
+}
+
+pub async fn dev_signin(
+    req: HttpRequest,
+    pool: web::Data<SqlitePool>,
+) -> Result<HttpResponse, AppError> {
+    auth_flows_session_dev::dev_signin(req, pool).await
 }
 
 pub async fn signout() -> Result<HttpResponse, AppError> {

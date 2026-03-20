@@ -235,11 +235,45 @@
 .hs-hotspot-control {
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
     transition:
+        translate 0.3s cubic-bezier(0.22, 1, 0.36, 1),
         transform 0.2s ease,
         background-color 0.2s ease,
         border-color 0.2s ease,
-        opacity 0.2s ease,
+        opacity 0.24s ease,
         box-shadow 0.2s ease;
+}
+
+.hs-hotspot-control--secondary {
+    box-shadow: none;
+    pointer-events: none;
+}
+
+.group:hover .hs-hotspot-control--secondary,
+.hs-hotspot-drawer-open .hs-hotspot-control--secondary {
+    pointer-events: auto;
+}
+
+.hs-hotspot-drawer-open .hs-hotspot-control--toggle,
+.hs-hotspot-drawer-open .hs-hotspot-control--move,
+.hs-hotspot-drawer-open .hs-hotspot-control--retarget,
+.hs-hotspot-drawer-open .hs-hotspot-control--delete {
+    opacity: 1;
+}
+
+.hs-hotspot-drawer-open .hs-hotspot-control--toggle {
+    translate: 105% 0;
+}
+
+.hs-hotspot-drawer-open .hs-hotspot-control--move {
+    translate: 0 105%;
+}
+
+.hs-hotspot-drawer-open .hs-hotspot-control--retarget {
+    translate: 0 210%;
+}
+
+.hs-hotspot-drawer-open .hs-hotspot-control--delete {
+    translate: -105% 0;
 }
 
 .hs-hotspot-control--center.is-manual {

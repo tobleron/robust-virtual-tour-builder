@@ -15,6 +15,8 @@ let make = (
   ~isReturnNode: bool,
   ~scenes as _scenes: array<Types.scene>,
   ~state as _stateProp: Types.state,
+  ~isDrawerOpen=false,
+  ~onDrawerEnter=?,
 ) => {
   let state = AppContext.useAppState()
   // 1. Local state for instant feedback & animations
@@ -109,15 +111,20 @@ let make = (
   }
 
   let swapClass = isSwapping ? "animate-swap-icon" : ""
+  let keepDrawerOpen = () =>
+    switch onDrawerEnter {
+    | Some(fn) => fn()
+    | None => ()
+    }
 
   <div
     id=elementId
     className={`absolute top-0 left-0 z-[6000] ${isMovingThis
         ? "pointer-events-none"
-        : "group pointer-events-auto"} origin-center transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2`}
+        : "group pointer-events-auto"} ${isDrawerOpen
+        ? "hs-hotspot-drawer-open"
+        : ""} origin-center transition-opacity duration-300 -translate-x-1/2 -translate-y-1/2`}
     style={makeStyle({
-      "--open-delay": `${Constants.hotspotMenuOpenDelay->Int.toString}ms`,
-      "--exit-delay": `${Constants.hotspotMenuExitDelay->Int.toString}ms`,
       "--sweep-duration": localIsAF ? "1.5s" : "4s",
     })}
   >
@@ -154,10 +161,10 @@ let make = (
             <div
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--toggle absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
-                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-x-0
-                         group-hover:opacity-100 group-hover:translate-x-[110%]
+                         group-hover:opacity-100 group-hover:translate-x-[105%]
                          ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${swapClass}`}
+              onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleRightClick(
                   e,
@@ -177,9 +184,9 @@ let make = (
             <div
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--move absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
-                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[110%] ${isMovingThis ? "is-moving" : ""}`}
+                         group-hover:opacity-100 group-hover:translate-y-[105%] ${isMovingThis ? "is-moving" : ""}`}
+              onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}
               title={isMovingThis ? "Cancel Move" : "Move Hotspot"}
@@ -190,11 +197,11 @@ let make = (
             </div>
             // RETARGET BUTTON (#)
             <div
-              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--retarget absolute inset-0 rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer 
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--retarget absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
-                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[220%]`}
+                         group-hover:opacity-100 group-hover:translate-y-[210%]`}
+              onMouseEnter={_ => keepDrawerOpen()}
               onClick={e => PreviewArrowSupport.handleRetargetClick(e, ~sceneIndex, ~hotspotIndex)}
               title="Change Target Scene"
             >
@@ -204,12 +211,12 @@ let make = (
             </div>
             // LEFT BUTTON (Delete)
             <div
-              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--delete absolute inset-0 rounded-md shadow-lg flex items-center justify-center z-10 cursor-pointer
+              className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--delete absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer
                          transition-all duration-300 ease-out 
-                         delay-[var(--exit-delay)] group-hover:delay-[var(--open-delay)]
                          opacity-0 translate-x-0
-                         group-hover:opacity-100 group-hover:translate-x-[-110%]
+                         group-hover:opacity-100 group-hover:translate-x-[-105%]
                          ${flickerRed ? "animate-flicker-red" : ""}`}
+              onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleDeleteClick(
                   e,

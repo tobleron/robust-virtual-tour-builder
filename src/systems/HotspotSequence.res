@@ -120,6 +120,41 @@ let deriveOrderedHotspots = (~state: state): array<orderedHotspot> => {
   })
 }
 
+let deriveContextualOrderedHotspots = (~state: state, ~linkId: string): array<orderedHotspot> => {
+  let orderedHotspots = deriveOrderedHotspots(~state)
+  switch orderedHotspots->Belt.Array.getIndexBy(item => item.linkId == linkId) {
+  | None => []
+  | Some(currentIndex) =>
+    let currentRows = switch orderedHotspots->Belt.Array.get(currentIndex) {
+    | Some(current) => [current]
+    | None => []
+    }
+
+    let previousRows = if currentIndex > 0 {
+      switch orderedHotspots->Belt.Array.get(currentIndex - 1) {
+      | Some(previous) => [previous]
+      | None => []
+      }
+    } else {
+      []
+    }
+
+    let nextRows = if currentIndex + 1 < orderedHotspots->Belt.Array.length {
+      switch orderedHotspots->Belt.Array.get(currentIndex + 1) {
+      | Some(next) => [next]
+      | None => []
+      }
+    } else {
+      []
+    }
+
+    previousRows->Belt.Array.concat(currentRows)->Belt.Array.concat(nextRows)
+  }
+}
+
+let deriveContextualSequenceOrders = (~state: state, ~linkId: string): array<int> =>
+  deriveContextualOrderedHotspots(~state, ~linkId)->Belt.Array.map(item => item.sequence)
+
 let moveToOrder = (
   ~ordered: array<CanonicalTraversal.forwardRef>,
   ~currentIndex: int,

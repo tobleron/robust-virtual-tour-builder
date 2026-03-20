@@ -25,6 +25,13 @@ let resolveDuplicateGroupAnchorLinkId = (linkId, placementByLinkId) =>
   ReactHotspotLayerSupport.resolveDuplicateGroupAnchorLinkId(linkId, placementByLinkId)
 let clearHoveredStackRestoreTimer = timerRef =>
   ReactHotspotLayerSupport.clearHoveredStackRestoreTimer(timerRef)
+let clearHoveredHotspotRestoreTimer = (timerRef: React.ref<option<int>>) => {
+  switch timerRef.current {
+  | Some(id) => ReBindings.Window.clearTimeout(id)
+  | None => ()
+  }
+  timerRef.current = None
+}
 let resolveMovingHotspotPitchYaw = (~state, ~hotspot, ~hotspotIndex) =>
   ReactHotspotLayerSupport.resolveMovingHotspotPitchYaw(
     ~state,
@@ -78,7 +85,10 @@ let renderHotspotCard = (
   ~projectedHotspotByLinkId: Belt.Map.String.t<projectedHotspot>,
   ~hoveredStackHotspotLinkId,
   ~setHoveredStackHotspotLinkId,
+  ~hoveredHotspotLinkId,
+  ~setHoveredHotspotLinkId,
   ~hoveredStackRestoreTimerRef,
+  ~hoveredHotspotRestoreTimerRef,
 ) => {
   let hotspotGroupAnchorLinkId = resolveDuplicateGroupAnchorLinkId(
     projectedHotspot.hotspot.linkId,
@@ -103,6 +113,7 @@ let renderHotspotCard = (
       let h = projectedHotspot.hotspot
       let elementId = "hs-react-" ++ h.linkId
       let isAutoForward = h.isAutoForward->Option.getOr(false)
+      let isDrawerOpen = hoveredHotspotLinkId == Some(h.linkId)
       let showLabelForHotspot = shouldShowHotspotLabel(
         projectedHotspot,
         duplicateStackPlacements,
@@ -112,6 +123,28 @@ let renderHotspotCard = (
       | Some(HotspotSequence.Sequence(_)) => (projectedHotspot.targetSceneNumber, false)
       | Some(HotspotSequence.Return) => (None, true)
       | None => (projectedHotspot.targetSceneNumber, false)
+      }
+      let pinDrawerOpen = () => {
+        clearHoveredHotspotRestoreTimer(hoveredHotspotRestoreTimerRef)
+        setHoveredHotspotLinkId(_ => Some(h.linkId))
+      }
+      let scheduleDrawerClose = () => {
+        clearHoveredHotspotRestoreTimer(hoveredHotspotRestoreTimerRef)
+        hoveredHotspotRestoreTimerRef.current = Some(
+          ReBindings.Window.setTimeout(
+            () => {
+              setHoveredHotspotLinkId(
+                current =>
+                  switch current {
+                  | Some(currentLinkId) if currentLinkId == h.linkId => None
+                  | _ => current
+                  },
+              )
+              hoveredHotspotRestoreTimerRef.current = None
+            },
+            Constants.hotspotMenuExitDelay,
+          ),
+        )
       }
 
       <div
@@ -126,6 +159,8 @@ let renderHotspotCard = (
         onMouseEnter={_ => {
           clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
           setHoveredStackHotspotLinkId(_ => Some(h.linkId))
+          clearHoveredHotspotRestoreTimer(hoveredHotspotRestoreTimerRef)
+          setHoveredHotspotLinkId(_ => None)
         }}
         onMouseLeave={_ => {
           clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
@@ -144,6 +179,8 @@ let renderHotspotCard = (
               duplicateStackRestoreDelayMs,
             ),
           )
+          pinDrawerOpen()
+          scheduleDrawerClose()
         }}
       >
         {if showLabelForHotspot {
@@ -167,6 +204,8 @@ let renderHotspotCard = (
           isReturnNode
           scenes={activeScenes}
           state={state}
+          isDrawerOpen
+          onDrawerEnter={pinDrawerOpen}
         />
       </div>
     }
@@ -185,7 +224,10 @@ let renderHotspotOverlay = (
   ~sceneNumberBySceneId,
   ~hoveredStackHotspotLinkId,
   ~setHoveredStackHotspotLinkId,
+  ~hoveredHotspotLinkId,
+  ~setHoveredHotspotLinkId,
   ~hoveredStackRestoreTimerRef,
+  ~hoveredHotspotRestoreTimerRef,
 ) => {
   let activeScenes = SceneInventory.getActiveScenes(state.inventory, state.sceneOrder)
   let currentScene = Belt.Array.get(activeScenes, state.activeIndex)
@@ -234,7 +276,10 @@ let renderHotspotOverlay = (
             ~projectedHotspotByLinkId,
             ~hoveredStackHotspotLinkId,
             ~setHoveredStackHotspotLinkId,
+            ~hoveredHotspotLinkId,
+            ~setHoveredHotspotLinkId,
             ~hoveredStackRestoreTimerRef,
+            ~hoveredHotspotRestoreTimerRef,
           ),
         )
         ->React.array
@@ -249,6 +294,7 @@ let useHotspotFrameState = (
   ~setContainerRect,
   ~setViewerSceneId,
   ~hoveredStackRestoreTimerRef,
+  ~hoveredHotspotRestoreTimerRef,
 ) => {
   React.useEffect0(() => {
     let animationFrameId = ref(None)
@@ -305,6 +351,7 @@ let useHotspotFrameState = (
         | None => ()
         }
         clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
+        clearHoveredHotspotRestoreTimer(hoveredHotspotRestoreTimerRef)
       },
     )
   })
@@ -344,11 +391,14 @@ let make = React.memo(() => {
   let (viewerSceneId, setViewerSceneId) = React.useState(_ => "")
   let (hoveredStackHotspotLinkId, setHoveredStackHotspotLinkId) = React.useState(_ => None)
   let hoveredStackRestoreTimerRef: React.ref<option<int>> = React.useRef(None)
+  let (hoveredHotspotLinkId, setHoveredHotspotLinkId) = React.useState(_ => None)
+  let hoveredHotspotRestoreTimerRef: React.ref<option<int>> = React.useRef(None)
   useHotspotFrameState(
     ~setCam,
     ~setContainerRect,
     ~setViewerSceneId,
     ~hoveredStackRestoreTimerRef,
+    ~hoveredHotspotRestoreTimerRef,
   )
 
   if isTeasing {
@@ -365,7 +415,10 @@ let make = React.memo(() => {
       ~sceneNumberBySceneId,
       ~hoveredStackHotspotLinkId,
       ~setHoveredStackHotspotLinkId,
+      ~hoveredHotspotLinkId,
+      ~setHoveredHotspotLinkId,
       ~hoveredStackRestoreTimerRef,
+      ~hoveredHotspotRestoreTimerRef,
     )
   }
 })

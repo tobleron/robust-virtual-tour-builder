@@ -21,7 +21,7 @@ let returnLinkDefaultPitch = 0.0
 let returnLinkDisplayOffset = -15.0
 let linkingRodHeight = 80.0
 let hotspotMenuOpenDelay = 900
-let hotspotMenuExitDelay = 600
+let hotspotMenuExitDelay = 1400
 
 // ============================================
 // VIEWER CONFIGURATION

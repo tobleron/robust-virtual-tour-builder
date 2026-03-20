@@ -43,6 +43,35 @@ let formatSequenceOptionLabel = (
   " -> " ++
   formatSceneNumberLabel(~sceneNumber=targetSceneNumber, ~label=targetLabel)
 
+type sequenceChoice = {
+  sequence: int,
+  title: string,
+  detail: string,
+}
+
+let formatSequenceChoiceTitle = (~sequence: int, ~currentSequence: int): string =>
+  if sequence == currentSequence {
+    "Keep current stop"
+  } else if sequence < currentSequence {
+    "Place before current stop"
+  } else {
+    "Place after current stop"
+  }
+
+let buildSequenceChoice = (
+  ~row: HotspotSequence.orderedHotspot,
+  ~currentSequence: int,
+): sequenceChoice => {
+  let title = formatSequenceChoiceTitle(~sequence=row.sequence, ~currentSequence)
+  let detail =
+    formatSequenceOptionLabel(
+      ~sequence=row.sequence,
+      ~targetSceneNumber=row.targetSceneNumber,
+      ~targetLabel=row.targetLabel,
+    )
+  {sequence: row.sequence, title, detail}
+}
+
 let showLinkModal = (
   ~pitch: float,
   ~yaw: float,
@@ -124,22 +153,21 @@ let showLinkModal = (
     Belt.Map.String.empty
   }
   let sceneNumberBySceneId = HotspotSequence.deriveSceneNumberBySceneId(~state)
-  let orderedHotspots = if isRetargeting {
-    HotspotSequence.deriveOrderedHotspots(~state)
+  let contextualHotspots = if isRetargeting {
+    switch retargetLinkId {
+    | Some(linkId) => HotspotSequence.deriveContextualOrderedHotspots(~state, ~linkId)
+    | None => []
+    }
   } else {
     []
   }
-  let orderedHotspotBySequence =
-    orderedHotspots->Belt.Array.reduce(Belt.Map.Int.empty, (acc, row) =>
-      acc->Belt.Map.Int.set(row.sequence, row)
-    )
 
   let retargetSequence =
     retargetLinkId->Option.flatMap(linkId => sequenceByLinkId->Belt.Map.String.get(linkId))
 
   let admissibleSequenceOrders = if isRetargeting {
     switch retargetLinkId {
-    | Some(linkId) => HotspotSequence.deriveAdmissibleOrders(~state, ~linkId)
+    | Some(linkId) => HotspotSequence.deriveContextualSequenceOrders(~state, ~linkId)
     | None => []
     }
   } else {
@@ -155,6 +183,10 @@ let showLinkModal = (
     }
   | None => admissibleSequenceOrders->Belt.Array.get(0)->Option.getOr(1)
   }
+
+  let sequenceChoices = contextualHotspots->Belt.Array.map(row =>
+    buildSequenceChoice(~row, ~currentSequence=sequenceDefaultValue)
+  )
 
   let content =
     <div className="link-modal-form">
@@ -197,39 +229,49 @@ let showLinkModal = (
       </div>
       {if isRetargeting {
         <div className="link-modal-field">
-          <label htmlFor="link-sequence-order" className="link-modal-field-label">
+          <div className="link-modal-field-label">
             {React.string("Sequence")}
-          </label>
+          </div>
           {switch retargetSequence {
           | Some(_) =>
             if admissibleSequenceOrders->Belt.Array.length > 0 {
-              <select
-                id="link-sequence-order"
-                defaultValue={Belt.Int.toString(sequenceDefaultValue)}
-                className="link-modal-select link-modal-select-sequence"
-                ariaLabel="Select hotspot sequence order"
-              >
-                {admissibleSequenceOrders
-                ->Belt.Array.map(order => {
-                  let optionLabel = switch orderedHotspotBySequence->Belt.Map.Int.get(order) {
-                  | Some(row) =>
-                    formatSequenceOptionLabel(
-                      ~sequence=order,
-                      ~targetSceneNumber=row.targetSceneNumber,
-                      ~targetLabel=row.targetLabel,
-                    )
-                  | None => Belt.Int.toString(order)
-                  }
-                  <option
-                    key={order->Belt.Int.toString}
-                    value={order->Belt.Int.toString}
-                    className="bg-slate-800"
-                  >
-                    {React.string(optionLabel)}
-                  </option>
-                })
-                ->React.array}
-              </select>
+              <>
+                <div className="link-modal-sequence-hint">
+                  {React.string(
+                    "Use this when you are placing a hotspot into the route. Pick whether it should sit before, at, or after the current stop; every hotspot after that point will shift automatically.",
+                  )}
+                </div>
+                <div
+                  id="link-sequence-order-group"
+                  className="link-modal-sequence-grid"
+                  role="radiogroup"
+                  ariaLabel="Choose hotspot sequence position"
+                >
+                  {sequenceChoices
+                  ->Belt.Array.map(choice => {
+                    let inputId = "link-sequence-order-" ++ Belt.Int.toString(choice.sequence)
+                    <label key=inputId htmlFor=inputId className="link-modal-sequence-choice">
+                      <input
+                        id=inputId
+                        name="link-sequence-order"
+                        type_="radio"
+                        className="link-modal-sequence-choice-input"
+                        value={Belt.Int.toString(choice.sequence)}
+                        defaultChecked={choice.sequence == sequenceDefaultValue}
+                      />
+                      <span className="link-modal-sequence-choice-copy">
+                        <span className="link-modal-sequence-choice-title">
+                          {React.string(choice.title)}
+                        </span>
+                        <span className="link-modal-sequence-choice-detail">
+                          {React.string(choice.detail)}
+                        </span>
+                      </span>
+                    </label>
+                  })
+                  ->React.array}
+                </div>
+              </>
             } else {
               <div className="link-modal-return-note">
                 {React.string("No valid sequence positions available for this link.")}
@@ -248,7 +290,7 @@ let showLinkModal = (
 
   let onSave = () => {
     let parsedSequenceInput: option<option<int>> = if isRetargeting {
-      switch Nullable.toOption(Dom.getElementById("link-sequence-order")) {
+      switch Nullable.toOption(Dom.querySelector(Dom.documentBody, "#link-sequence-order-group input:checked")) {
       | Some(el) =>
         let raw = Dom.getValue(el)->String.trim
         if raw == "" {
@@ -271,7 +313,7 @@ let showLinkModal = (
         id: "",
         importance: Warning,
         context: Operation("link_modal"),
-        message: "Sequence must be a positive number",
+        message: "Please choose a sequence position",
         details: None,
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Warning),
@@ -302,7 +344,7 @@ let showLinkModal = (
           let retarget = draftOpt->Option.flatMap(d => d.retargetHotspot)->Option.getOrThrow
           let hasInvalidSequenceRequest = switch (retargetLinkId, desiredSequenceOrder) {
           | (Some(activeLinkId), Some(desiredOrder)) =>
-            let allowedOrders = HotspotSequence.deriveAdmissibleOrders(
+            let allowedOrders = HotspotSequence.deriveContextualSequenceOrders(
               ~state=getState(),
               ~linkId=activeLinkId,
             )
