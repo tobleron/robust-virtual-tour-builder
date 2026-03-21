@@ -121,41 +121,42 @@
 .settings-modal-layout {
     display: grid;
     grid-template-columns: minmax(150px, 176px) minmax(0, 1fr);
-    gap: 9px;
+    gap: 12px;
     width: 100%;
-    height: 100%;
+    height: auto;
     min-height: 0;
+    align-items: start;
 }
 
 .settings-modal-tabs {
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 6px;
+    border-radius: 16px;
+    padding: 8px;
     background: rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .settings-modal-content {
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 9px 10px 10px;
+    border-radius: 16px;
+    padding: 12px 12px 10px;
     background: rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     min-height: 0;
 }
 
 .settings-tab-panel {
-    flex: 1;
+    flex: 0 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     overflow-y: auto;
-    padding-right: 2px;
+    padding-right: 4px;
 }
 
 .settings-tab-panel-marketing,
@@ -194,7 +195,6 @@
 }
 
 .settings-preview-wrap {
-    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -228,10 +228,10 @@
 }
 
 .settings-actions {
-    margin-top: 3px;
+    margin-top: 2px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
 }
 
 .settings-check-label {

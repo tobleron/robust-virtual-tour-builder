@@ -143,17 +143,22 @@ module TeaserOptionsContent = {
           {TeaserStyleCatalog.options
           ->Belt.Array.map(opt => {
             let isSelected = selectedStyleId == opt.id
-            let cardClasses = if opt.available {
-              if isSelected {
-                "teaser-settings-option--selected"
-              } else {
-                ""
-              }
-            } else {
-              "teaser-settings-option--unavailable"
-            }
+            let isCrossfadeOption = opt.id == TeaserStyleCatalog.toString(SimpleCrossfade)
+            let cardClasses = [
+              Some("teaser-settings-option"),
+              opt.available
+                ? if isSelected {
+                    Some("teaser-settings-option--selected")
+                  } else {
+                    None
+                  }
+                : Some("teaser-settings-option--unavailable"),
+              isCrossfadeOption ? Some("teaser-settings-option--wide") : None,
+            ]
+            ->Belt.Array.keepMap(x => x)
+            ->Array.joinUnsafe(" ")
 
-            <label key={opt.id} className={"teaser-settings-option " ++ cardClasses}>
+            <label key={opt.id} className={cardClasses}>
               <input
                 type_="radio"
                 name="teaser-style"
@@ -230,7 +235,7 @@ module TeaserOptionsContent = {
           </div>
         </React.fragment>
       } else {
-        <div className="teaser-settings-note">
+        <div className="teaser-settings-note teaser-settings-note--compact">
           {React.string(
             "Pan speed calibration is available for Cinematic only. Fast Shots and Simple Crossfade keep their fixed pacing.",
           )}

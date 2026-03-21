@@ -4,10 +4,10 @@
  * It contains both version data and utility functions.
  */
 
-let version = "5.3.6"
-let buildNumber = 68
-let generatedBuildInfo = "[Development Build]"
-let buildInfo = "[Development Build 68]"
+let version = "5.3.7"
+let buildNumber = 0
+let generatedBuildInfo = "[Stable Release]"
+let buildInfo = "[Stable Release 0]"
 
 /**
  * Returns the current application version.
