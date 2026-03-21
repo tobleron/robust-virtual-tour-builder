@@ -1,6 +1,6 @@
 # Robust Virtual Tour Builder
 
-![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg?branch=main)
 ![License](https://img.shields.io/badge/License-AGPL_v3-blue.svg)
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
