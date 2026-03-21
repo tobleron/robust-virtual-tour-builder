@@ -72,9 +72,6 @@ let useManagedDispatch = dispatchRaw => {
         rafIdRef.current = Some(ReBindings.Window.requestAnimationFrame(() => flushQueuedActions()))
       }
     } else {
-      let currentState = AppStateBridge.getState()
-      let nextState = Reducer.reducer(currentState, nextAction)
-      AppStateBridge.updateState(nextState)
       dispatchRaw(nextAction)
     }
   }
