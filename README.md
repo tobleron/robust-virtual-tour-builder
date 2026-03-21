@@ -5,8 +5,8 @@
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.3.7 (Build 0)  
-**Release Date:** March 20, 2026  
+**Version:** 5.3.8 (Build 0)  
+**Release Date:** March 21, 2026  
 **Status:** Stable `main` ships the local-first builder runtime  
 **License:** AGPL v3 + optional commercial license
 <!-- METADATA_END -->
@@ -62,6 +62,9 @@ Demo tour preview:
 
 Temporary public demo link:
 - [https://www.robust-vtb.com/u/ak84/tour/demotourtripz](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+
+Tutorial video:
+- [YouTube walkthrough](https://www.youtube.com/watch?v=vs6D9xw4wZA)
 
 Note:
 - this demo link is public for evaluation only and may stop working after a limited time
