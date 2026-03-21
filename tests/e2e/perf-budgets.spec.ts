@@ -3,7 +3,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'node:fs/promises';
 import { setupAIObservability } from './ai-helper';
-import { loadProjectZipAndWait } from './e2e-helpers';
+import {
+  loadProjectZipAndWait,
+  resetClientState,
+  waitForBuilderShellReady,
+} from './e2e-helpers';
 import { getBudgetConfig } from '../../scripts/runtime-budget-config.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -45,6 +49,13 @@ async function getHeapUsage(page) {
 test.describe.serial('@budget Runtime Budgets', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
+    await page.route('**/images/image.jpg', async (route) => {
+      await route.fulfill({
+        status: 200,
+        path: path.join(FIXTURES_DIR, 'image.jpg'),
+        contentType: 'image/jpeg',
+      });
+    });
     await page.route('**/api/project/import', async (route) => {
       const scenes = [];
       for (let i = 0; i < 120; i++) {
@@ -81,16 +92,18 @@ test.describe.serial('@budget Runtime Budgets', () => {
       });
     });
 
-    await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      const dbs = await window.indexedDB.databases();
-      dbs.forEach((db) => {
-        if (db.name) window.indexedDB.deleteDatabase(db.name);
-      });
+    await resetClientState(page);
+    await page.addInitScript(() => {
+      window.localStorage.setItem('auth_token', 'dev-token');
+      document.cookie = 'auth_token=dev-token; path=/; SameSite=Strict';
     });
-    await page.reload();
+    await page.goto('/builder');
+    await waitForBuilderShellReady(page);
+    await page.waitForFunction(
+      () => typeof (window as any).store?.loadProject === 'function',
+      undefined,
+      { timeout: 30000 },
+    );
     await installLongTaskProbe(page);
   });
 
@@ -162,7 +175,12 @@ test.describe.serial('@budget Runtime Budgets', () => {
 
   test('bulk upload latency budget', async ({ page }) => {
     test.setTimeout(180000);
-    const importPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
+    const artifactPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
+    const fixturePath = path.join(FIXTURES_DIR, 'tour.vt.zip');
+    const importPath = await fs
+      .access(artifactPath)
+      .then(() => artifactPath)
+      .catch(() => fixturePath);
 
     const startedAt = Date.now();
     await loadProjectZipAndWait(page, importPath, 60000);

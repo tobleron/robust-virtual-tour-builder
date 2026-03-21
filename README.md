@@ -5,7 +5,7 @@
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.3.6 (Build 68)  
+**Version:** 5.3.7 (Build 0)  
 **Release Date:** March 20, 2026  
 **Status:** Stable `main` ships the local-first builder runtime  
 **License:** AGPL v3 + optional commercial license
@@ -30,7 +30,7 @@ Quick links:
 - [Stable setup](#stable-setup)
 - [Runtime config](#runtime-config)
 - [Documentation map](#documentation-map)
-- [Development workflow](#development-workflow)
+- [Developer guide](#development--contribution-guide)
 - [License](#license)
 
 ## Why This Project
@@ -113,6 +113,7 @@ Stable launcher behavior:
 - stops with guidance if branch switching would affect uncommitted work
 - preserves incremental backend release builds
 - serves both the UI and API from the same origin
+- automatically moves to the next free local port if the configured port is already occupied
 
 ### Runtime Config
 
@@ -247,39 +248,11 @@ Start here depending on intent:
 - **Security / auth / licensing:** [docs/security/INDEX.md](docs/security/INDEX.md)
 - **API reference:** [docs/api/INDEX.md](docs/api/INDEX.md)
 - **Docs root:** [docs/INDEX.md](docs/INDEX.md)
+- **Development & contributions:** [DEVELOPERS_README.md](DEVELOPERS_README.md)
 
-## Development Workflow
+## Development & Contribution Guide
 
-Use this only if you are actively developing the app itself.
-
-Setup:
-
-```bash
-./scripts/setup.sh
-```
-
-Start the full dev stack:
-
-```bash
-npm run dev
-```
-
-Open:
-
-```text
-http://localhost:3000
-```
-
-Useful commands:
-
-```bash
-npm run dev:frontend
-npm run dev:backend
-npm run res:watch
-npm run sw:watch
-npm run build
-npm test
-```
+Development setup, tooling, and `_dev-system` guidance now live in [DEVELOPERS_README.md](DEVELOPERS_README.md).
 
 ## License
 
@@ -291,6 +264,21 @@ Start here:
 - [docs/security/licensing.md](docs/security/licensing.md)
 - [LICENSE](LICENSE)
 - [LICENSE_COMMERCIAL](LICENSE_COMMERCIAL)
+
+## Donations & Maintenance
+
+Robust Virtual Tour Builder is completely free for individual brokers (personal and commercial use). I maintain this project solo, so donations keep the work going and cover hosting, tooling, and support costs for paid brokerage partners.
+
+Preferred channels:
+
+- **PayPal:** `arto.eg@gmail.com`
+- **Bitcoin (BTC):** `bc1q5z7lajjcj2p729w2znekr8yqfds8vys8rn6cun`
+- **Litecoin (LTC):** `ltc1qv94sxtpjtylu2fc5qu3rx9245has83p2a4zjdq`
+- **Monero (XMR):** `89HKiL5Gb9KWvpJxtwEciKYBBzSkpT6MxEi4hirE5ZRV9hCqeoUk4BDY11pjuE4wpvNZCANJmk13WHmpKZckTiJj5W3yQm8`
+- **Ethereum (ETH):** `0xEb046A1434Fe8AB3c5AAf10AA68Cc4DAB7038acc`
+- **Solana (SOL):** `Cu4CxpSwGG9pw2fNMuboGouC3A3USBJ6mfaUX6W9uPtD`
+
+Every donation helps me keep the builder open source and responsive to freelance broker workflows.
 
 ## Contact
 

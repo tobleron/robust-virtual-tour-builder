@@ -136,15 +136,15 @@ export default defineConfig({
   projects: filteredProjects,
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: isBudgetMode
-      ? 'npm run dev:frontend'
-      : 'npm run res:build && concurrently --kill-others -n "BACK,FRONT" -c "blue,green" "npm run dev:backend" "npm run dev:frontend"',
+    command:
+      'npm run res:build && concurrently --kill-others -n "BACK,FRONT" -c "blue,green" "npm run dev:backend" "npm run dev:frontend"',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,  // Use existing dev server
+    reuseExistingServer: isBudgetMode ? false : true,
     timeout: 120 * 1000,
     env: {
       ...process.env,
       DISABLE_TELEMETRY: 'true',
+      BYPASS_AUTH: isBudgetMode ? 'true' : process.env.BYPASS_AUTH,
       VITE_BACKEND_URL: 'http://localhost:3000',
     },
   },
