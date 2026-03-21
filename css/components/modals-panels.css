@@ -194,6 +194,57 @@
     resize: vertical;
 }
 
+.settings-logo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-logo-preview {
+    width: 136px;
+    height: 72px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(5, 15, 40, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.settings-logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.settings-logo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    min-width: 0;
+    flex: 1;
+}
+
+.settings-logo-button {
+    width: 100%;
+    min-height: 40px;
+}
+
+.settings-logo-button-muted {
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .settings-preview-wrap {
     display: flex;
     flex-direction: column;
@@ -545,6 +596,16 @@
 
     .settings-choice-layout {
         grid-template-columns: 1fr;
+    }
+
+    .settings-logo-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .settings-logo-preview {
+        width: 100%;
+        height: 88px;
     }
 }
 

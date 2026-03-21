@@ -8,70 +8,10 @@ let make = React.memo(() => {
   let uiSlice = AppContext.useUiSlice()
   let simSlice = AppContext.useSimSlice()
   let state = AppContext.useAppState()
-  let canUpload = Capability.useCapability(CanUpload)
-
-  let dispatch = AppContext.useAppDispatch()
-  let fileInputRef = React.useRef(Nullable.null)
 
   let logoSrc = switch uiSlice.logo {
   | Some(f) => Types.fileToUrl(f)
   | None => Constants.defaultLogoPath
-  }
-
-  let handleLogoClick = _ => {
-    if canUpload {
-      switch fileInputRef.current->Nullable.toOption {
-      | Some(input) => ReBindings.Dom.click(input)
-      | None => ()
-      }
-    } else {
-      Logger.debug(~module_="ViewerHUD", ~message="LOGO_UPLOAD_REJECTED_LOCK_HELD", ())
-    }
-  }
-
-  let handleFileChange = e => {
-    let files = ReactEvent.Form.target(e)["files"]
-    if Belt.Array.length(files) > 0 {
-      let file = files[0]->unsafeCastToFile
-      ImageOptimizer.compressLogoToWebPConstrained(
-        file,
-        ~quality=Constants.Media.logoWebpQuality,
-        ~maxWidth=Constants.Media.logoMaxWidth,
-        ~maxHeight=Constants.Media.logoMaxHeight,
-      )
-      ->Promise.then(result => {
-        switch result {
-        | Ok(blob) =>
-          let optimized = BrowserBindings.File.newFile(
-            [blob],
-            Constants.Media.logoOutputFilename,
-            {"type": "image/webp"},
-          )
-          dispatch(SetLogo(Some(Types.File(optimized))))
-        | Error(msg) =>
-          Logger.warn(
-            ~module_="ViewerHUD",
-            ~message="LOGO_OPTIMIZATION_FAILED_FALLBACK_ORIGINAL",
-            ~data=Some({"error": msg}),
-            (),
-          )
-          dispatch(SetLogo(Some(Types.File(file))))
-        }
-        Promise.resolve()
-      })
-      ->Promise.catch(exn => {
-        let (msg, _) = Logger.getErrorDetails(exn)
-        Logger.warn(
-          ~module_="ViewerHUD",
-          ~message="LOGO_OPTIMIZATION_THROW_FALLBACK_ORIGINAL",
-          ~data=Some({"error": msg}),
-          (),
-        )
-        dispatch(SetLogo(Some(Types.File(file))))
-        Promise.resolve()
-      })
-      ->ignore
-    }
   }
 
   let simActive = simSlice.simulation.status == Running
@@ -179,37 +119,16 @@ let make = React.memo(() => {
         /* Permanent Branding with Perfect Masking & Editable Support */
         <div
           id="viewer-logo"
-          className={"absolute bottom-5 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden transition-all p-[6px] " ++ if (
-            canUpload
-          ) {
-            "cursor-pointer active:scale-95 group pointer-events-auto"
-          } else {
-            "opacity-70 cursor-not-allowed pointer-events-none"
-          }}
-          onClick=handleLogoClick
-          title="Click to change logo"
+          className="absolute bottom-5 right-6 z-[5002] w-[126px] h-[66px] viewer-logo-masked rounded-lg shadow-xl overflow-hidden transition-all p-[6px] pointer-events-none"
         >
-          <div className="w-full h-full relative group">
+          <div className="w-full h-full relative pointer-events-none">
             <img
               src=logoSrc
               alt="Logo"
-              className="w-full h-full object-contain block"
+              className="w-full h-full object-contain block pointer-events-none"
               onError={_ => ()}
             />
-            <div
-              className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <LucideIcons.Upload size=20 className="text-white" />
-            </div>
           </div>
-          <input
-            type_="file"
-            ref={fileInputRef->ReactDOM.Ref.domRef}
-            onChange=handleFileChange
-            className="hidden"
-            id="viewer-logo-upload"
-            accept="image/*"
-          />
         </div>
       </>
     } else if !uiSlice.isLinking {

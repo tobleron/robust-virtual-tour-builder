@@ -5,10 +5,13 @@ type tab =
   | About
   | SystemHealth
 
+external unsafeCastToFile: 'a => ReBindings.File.t = "%identity"
+
 @react.component
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
+  let canUpload = Capability.useCapability(CanUpload)
   let (activeTab, setActiveTab) = React.useState(_ => Marketing)
   let initialPrefs = PersistencePreferences.get()
   let (comment, setComment) = React.useState(_ => state.marketingComment)
@@ -16,14 +19,20 @@ let make = () => {
   let (phone2, setPhone2) = React.useState(_ => state.marketingPhone2)
   let (forRent, setForRent) = React.useState(_ => state.marketingForRent)
   let (forSale, setForSale) = React.useState(_ => state.marketingForSale)
+  let (logoFile, setLogoFile) = React.useState(_ => state.logo)
   let (tripodDeadZoneEnabled, setTripodDeadZoneEnabled) =
     React.useState(_ => state.tripodDeadZoneEnabled)
   let (autosaveMode, setAutosaveMode) = React.useState(_ => initialPrefs.autosaveMode)
   let (snapshotCadence, setSnapshotCadence) = React.useState(_ => initialPrefs.snapshotCadence)
+  let fileInputRef = React.useRef(Nullable.null)
 
   let preview = MarketingText.compose(~comment, ~phone1, ~phone2, ~forRent, ~forSale)
   let charCount = preview.full->String.length
   let overLimit = charCount > MarketingText.maxLen
+  let logoSrc = switch logoFile {
+  | Some(file) => Types.fileToUrl(file)
+  | None => Constants.defaultLogoPath
+  }
   let panelClass = switch activeTab {
   | Marketing => "settings-tab-panel settings-tab-panel-marketing"
   | Persistence => "settings-tab-panel settings-tab-panel-persistence"
@@ -39,13 +48,65 @@ let make = () => {
       "bg-white/20 text-white border border-white/20"
     } else {
       "bg-white/5 text-white/70 border border-transparent hover:bg-white/10 hover:text-white"
-    }
+  }
 
   let onCancel = () => EventBus.dispatch(CloseModal)
+  let openLogoPicker = () =>
+    switch fileInputRef.current->Nullable.toOption {
+    | Some(input) => ReBindings.Dom.click(input)
+    | None => ()
+    }
+
+  let handleLogoFileChange = e => {
+    let files = ReactEvent.Form.target(e)["files"]
+    if Belt.Array.length(files) > 0 {
+      let file = files[0]->unsafeCastToFile
+      ImageOptimizer.compressLogoToWebPConstrained(
+        file,
+        ~quality=Constants.Media.logoWebpQuality,
+        ~maxWidth=Constants.Media.logoMaxWidth,
+        ~maxHeight=Constants.Media.logoMaxHeight,
+      )
+      ->Promise.then(result => {
+        switch result {
+        | Ok(blob) =>
+          let optimized = BrowserBindings.File.newFile(
+            [blob],
+            Constants.Media.logoOutputFilename,
+            {"type": "image/webp"},
+          )
+          setLogoFile(_ => Some(Types.File(optimized)))
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="SidebarSettings",
+            ~message="LOGO_OPTIMIZATION_FAILED_FALLBACK_ORIGINAL",
+            ~data=Some({"error": msg}),
+            (),
+          )
+          setLogoFile(_ => Some(Types.File(file)))
+        }
+        Promise.resolve()
+      })
+      ->Promise.catch(exn => {
+        let (msg, _) = Logger.getErrorDetails(exn)
+        Logger.warn(
+          ~module_="SidebarSettings",
+          ~message="LOGO_OPTIMIZATION_THROW_FALLBACK_ORIGINAL",
+          ~data=Some({"error": msg}),
+          (),
+        )
+        setLogoFile(_ => Some(Types.File(file)))
+        Promise.resolve()
+      })
+      ->ignore
+    }
+  }
+
   let onSave = () => {
     switch activeTab {
     | Marketing if !overLimit =>
       dispatch(Actions.SetMarketingSettings(comment, phone1, phone2, forRent, forSale))
+      dispatch(Actions.SetLogo(logoFile))
       EventBus.dispatch(CloseModal)
     | Persistence =>
       PersistencePreferences.setAutosave(~autosaveMode, ~snapshotCadence)->ignore
@@ -88,6 +149,40 @@ let make = () => {
         {switch activeTab {
       | Marketing =>
         <div className="w-full h-full flex flex-col gap-3">
+          <div className="settings-logo-section">
+            <div className="settings-preview-header">
+              <span className="settings-field-label"> {React.string("Logo")} </span>
+              <span className="settings-field-label"> {React.string("Viewer branding")} </span>
+            </div>
+            <div className="settings-logo-row">
+              <div className="settings-logo-preview">
+                <img src=logoSrc alt="Current logo" className="settings-logo-image" />
+              </div>
+              <div className="settings-logo-actions">
+                <button
+                  className="modal-btn-premium settings-logo-button"
+                  disabled={!canUpload}
+                  onClick={_ => openLogoPicker()}
+                >
+                  <span> {React.string("Choose Logo")} </span>
+                </button>
+                <button
+                  className="modal-btn-premium settings-logo-button settings-logo-button-muted"
+                  onClick={_ => setLogoFile(_ => None)}
+                >
+                  <span> {React.string("Use Default")} </span>
+                </button>
+              </div>
+            </div>
+            <input
+              type_="file"
+              ref={fileInputRef->ReactDOM.Ref.domRef}
+              onChange=handleLogoFileChange
+              className="hidden"
+              accept="image/*"
+            />
+          </div>
+
           <label className="settings-field-label"> {React.string("Comment")} </label>
           <textarea
             className="settings-field-input settings-field-textarea"
