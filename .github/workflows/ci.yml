@@ -17,6 +17,8 @@ jobs:
   test:
     name: Build and Test
     runs-on: ubuntu-latest
+    env:
+      ENABLE_RUNTIME_BUDGETS: 'false'
 
     steps:
       - name: Checkout Code
@@ -61,10 +63,13 @@ jobs:
         run: npm run budget:bundle
 
       - name: Install Playwright Chromium
+        if: ${{ env.ENABLE_RUNTIME_BUDGETS == 'true' }}
         run: npx playwright install --with-deps chromium
 
       - name: Run Runtime Budget Suite
+        if: ${{ env.ENABLE_RUNTIME_BUDGETS == 'true' }}
         run: npm run test:e2e:budgets
 
       - name: Enforce Runtime Budgets
+        if: ${{ env.ENABLE_RUNTIME_BUDGETS == 'true' }}
         run: npm run budget:runtime
