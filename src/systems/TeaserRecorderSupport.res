@@ -9,6 +9,13 @@ external drawImageScaled: (Canvas.context2d, Dom.element, float, float, float, f
 external asDynamic: 'a => {..} = "%identity"
 
 type logoResult = TeaserRecorderTypes.logoResult
+let sampleCanvasRef: ref<option<Dom.element>> = ref(None)
+let sampleCtxRef: ref<option<Canvas.context2d>> = ref(None)
+let sampleSize = 8
+let sampleSentinelR = 255
+let sampleSentinelG = 0
+let sampleSentinelB = 255
+let sampleSentinelA = 255
 
 let overlayStyle = (opacity: float) =>
   "position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;background:black;opacity:" ++
@@ -59,14 +66,111 @@ let copySnapshot = (~snapshotCanvas: Dom.element, ~sourceCanvas: Dom.element) =>
   drawImagePos(ctx, sourceCanvas, 0.0, 0.0)
 }
 
+let getOrCreateSampleCanvas = (): option<(Dom.element, Canvas.context2d)> => {
+  switch (sampleCanvasRef.contents, sampleCtxRef.contents) {
+  | (Some(canvas), Some(ctx)) => Some((canvas, ctx))
+  | _ =>
+    let canvas = Dom.createElement("canvas")
+    Dom.setWidth(canvas, sampleSize)
+    Dom.setHeight(canvas, sampleSize)
+    let ctx = Canvas.getContext2d(canvas, "2d", {"alpha": false, "willReadFrequently": true})
+    sampleCanvasRef := Some(canvas)
+    sampleCtxRef := Some(ctx)
+    Some((canvas, ctx))
+  }
+}
+
+let resolveCanvasInContainer = (containerId: string): option<Dom.element> =>
+  switch Dom.getElementById(containerId)->Nullable.toOption {
+  | Some(container) =>
+    switch Dom.querySelector(container, ".pnlm-render-container canvas")->Nullable.toOption {
+    | Some(canvas) => Some(canvas)
+    | None => Dom.querySelector(container, "canvas")->Nullable.toOption
+    }
+  | None => None
+  }
+
 let resolveSourceCanvas = (): option<Dom.element> => {
-  switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
+  switch resolveCanvasInContainer(ViewerSystem.getActiveContainerId()) {
   | Some(canvas) => Some(canvas)
   | None =>
-    switch Dom.querySelector(Dom.documentBody, ".panorama-layer canvas")->Nullable.toOption {
+    switch resolveCanvasInContainer(ViewerSystem.getInactiveContainerId()) {
     | Some(canvas) => Some(canvas)
     | None =>
-      Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption
+      switch
+        Dom.querySelector(Dom.documentBody, ".panorama-layer.active .pnlm-render-container canvas")->Nullable.toOption {
+      | Some(canvas) => Some(canvas)
+      | None =>
+        switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
+        | Some(canvas) => Some(canvas)
+        | None =>
+          switch Dom.querySelector(Dom.documentBody, ".panorama-layer .pnlm-render-container canvas")->Nullable.toOption {
+          | Some(canvas) => Some(canvas)
+          | None =>
+            switch Dom.querySelector(Dom.documentBody, ".panorama-layer canvas")->Nullable.toOption {
+            | Some(canvas) => Some(canvas)
+            | None =>
+              Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+let canvasHasPaintedPixels = (sourceCanvas: Dom.element): bool => {
+  let sw = Dom.getWidth(sourceCanvas)
+  let sh = Dom.getHeight(sourceCanvas)
+  if sw <= 0 || sh <= 0 {
+    false
+  } else {
+    switch getOrCreateSampleCanvas() {
+    | Some((_sampleCanvas, sampleCtx)) =>
+      try {
+        Canvas.setFillStyle(sampleCtx, "#ff00ff")
+        Canvas.fillRect(sampleCtx, 0.0, 0.0, Belt.Int.toFloat(sampleSize), Belt.Int.toFloat(sampleSize))
+        drawImageScaled(
+          sampleCtx,
+          sourceCanvas,
+          0.0,
+          0.0,
+          Belt.Int.toFloat(sampleSize),
+          Belt.Int.toFloat(sampleSize),
+        )
+        let imageData = Canvas.getImageData(
+          sampleCtx,
+          0.0,
+          0.0,
+          Belt.Int.toFloat(sampleSize),
+          Belt.Int.toFloat(sampleSize),
+        )
+        let pixels = Canvas.imageDataData(imageData)
+        let pixelCount = Canvas.uint8ClampedLength(pixels)
+        let rec hasSignal = idx =>
+          if idx + 3 >= pixelCount {
+            false
+          } else {
+            let r = Canvas.uint8ClampedGet(pixels, idx)
+            let g = Canvas.uint8ClampedGet(pixels, idx + 1)
+            let b = Canvas.uint8ClampedGet(pixels, idx + 2)
+            let a = Canvas.uint8ClampedGet(pixels, idx + 3)
+            let differsFromSentinel =
+              r != sampleSentinelR ||
+              g != sampleSentinelG ||
+              b != sampleSentinelB ||
+              a != sampleSentinelA
+            if differsFromSentinel {
+              true
+            } else {
+              hasSignal(idx + 4)
+            }
+          }
+        hasSignal(0)
+      } catch {
+      | _ => false
+      }
+    | None => false
     }
   }
 }

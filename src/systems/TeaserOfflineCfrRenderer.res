@@ -20,12 +20,61 @@ let signalIsAborted = signal =>
   | None => false
   }
 
+let waitForAnimationFrame = (): Promise.t<unit> =>
+  Promise.make((resolve, _reject) => {
+    ignore(ReBindings.Window.requestAnimationFrame(() => resolve()))
+  })
+
 let throwIfCancelled = (~signal: option<BrowserBindings.AbortSignal.t>=?) =>
   signal->Option.forEach(sig => {
     if BrowserBindings.AbortSignal.aborted(sig) {
       JsError.throwWithMessage("AbortError")
     }
   })
+
+let hasRenderableSourceCanvas = (): bool =>
+  switch Recorder.resolveSourceCanvas() {
+  | Some(canvas) =>
+    Dom.getWidth(canvas) > 0 &&
+      Dom.getHeight(canvas) > 0 &&
+      TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
+  | None => false
+  }
+
+let waitForRenderableCanvasStabilityOrAbort = async (
+  ~sceneId: string,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
+  let start = Date.now()
+  let requiredStableFrames = 6
+  let rec check = (stableFrames: int): Promise.t<bool> =>
+    if signalIsAborted(signal) {
+      Promise.resolve(false)
+    } else if Date.now() -. start > 30000.0 {
+      Logger.error(
+        ~module_="TeaserLogic",
+        ~message="WAIT_FOR_RENDERABLE_CANVAS_TIMEOUT",
+        ~data=Some({"targetSceneId": sceneId, "stableFrames": stableFrames}),
+        (),
+      )
+      Promise.resolve(false)
+    } else {
+      let nextStableFrames = if hasRenderableSourceCanvas() {
+        stableFrames + 1
+      } else {
+        0
+      }
+
+      if nextStableFrames >= requiredStableFrames {
+        Playback.wait(100)
+        ->Promise.then(_ => Promise.resolve(true))
+      } else {
+        waitForAnimationFrame()->Promise.then(_ => check(nextStableFrames))
+      }
+    }
+
+  await check(0)
+}
 
 let waitForViewerReadyOrAbort = async (
   sceneId: string,
@@ -47,8 +96,7 @@ let waitForViewerReadyOrAbort = async (
       | Some(v) if Viewer.isLoaded(v) =>
         let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
         if currentId == Some(identity(sceneId)) {
-          await Playback.wait(200)
-          true
+          await waitForRenderableCanvasStabilityOrAbort(~sceneId, ~signal?)
         } else {
           await Playback.wait(100)
           await check()

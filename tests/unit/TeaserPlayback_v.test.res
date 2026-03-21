@@ -50,6 +50,8 @@ external setCurrentViewerSceneId: string => unit = "__setCurrentSceneId"
 external mockViewerSetPitch: mockFn = "__mockSetPitch"
 
 @module("../../src/utils/Logger.bs.js") external mockDebug: mockFn = "debug"
+@module("../../src/systems/TeaserRecorderSupport.bs.js")
+external mockCanvasHasPaintedPixels: mockFn = "canvasHasPaintedPixels"
 
 %%raw(`
   import { vi } from 'vitest';
@@ -65,14 +67,16 @@ external mockViewerSetPitch: mockFn = "__mockSetPitch"
     const setFadeOpacity = vi.fn();
     const loadLogo = vi.fn();
     const startAnimationLoop = vi.fn();
+    const renderableCanvas = { tagName: 'CANVAS', width: 1920, height: 1080 };
+    const resolveSourceCanvas = vi.fn(() => renderableCanvas);
     return {
       internalState, // Exported top-level ref
       startRecording, stopRecording, pauseRecording, resumeRecording,
-      getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
+      getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop, resolveSourceCanvas,
       Recorder: {
         internalState, // Exposed on Recorder module too
         startRecording, stopRecording, pause: pauseRecording, resume: resumeRecording,
-        getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
+        getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop, resolveSourceCanvas,
       }
     };
   });
@@ -120,6 +124,10 @@ external mockViewerSetPitch: mockFn = "__mockSetPitch"
     castToJson: (obj) => obj
   }));
 
+  vi.mock('../../src/systems/TeaserRecorderSupport.bs.js', () => ({
+    canvasHasPaintedPixels: vi.fn(() => true),
+  }));
+
   // Mock Viewer on window
   global.window = global; // JSDOM does this
   global.window.pannellumViewer = {
@@ -148,6 +156,7 @@ describe("TeaserPlayback", () => {
     // Setup Viewer
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene1"`)
     setCurrentViewerSceneId("scene1")
+    mockCanvasHasPaintedPixels->mockReturnValue(true)
   })
 
   afterEach(() => {

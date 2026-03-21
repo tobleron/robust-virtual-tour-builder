@@ -13,6 +13,49 @@ let wait = (ms: int) =>
     let _ = setTimeout(() => resolve(), ms)
   })
 
+let waitForAnimationFrame = (): Promise.t<unit> =>
+  Promise.make((resolve, _reject) => {
+    ignore(ReBindings.Window.requestAnimationFrame(() => resolve()))
+  })
+
+let hasRenderableSourceCanvas = (): bool =>
+  switch TeaserRecorder.Recorder.resolveSourceCanvas() {
+  | Some(canvas) =>
+    Dom.getWidth(canvas) > 0 &&
+      Dom.getHeight(canvas) > 0 &&
+      TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
+  | None => false
+  }
+
+let waitForRenderableCanvasStability = async (sceneId: string) => {
+  let start = Date.now()
+  let requiredStableFrames = 6
+  let rec check = (stableFrames: int): Promise.t<bool> =>
+    if Date.now() -. start > 30000.0 {
+      Logger.error(
+        ~module_="TeaserLogic",
+        ~message="WAIT_FOR_RENDERABLE_CANVAS_TIMEOUT",
+        ~data=Some({"targetSceneId": sceneId, "stableFrames": stableFrames}),
+        (),
+      )
+      Promise.resolve(false)
+    } else {
+      let nextStableFrames = if hasRenderableSourceCanvas() {
+        stableFrames + 1
+      } else {
+        0
+      }
+
+      if nextStableFrames >= requiredStableFrames {
+        wait(100)->Promise.then(_ => Promise.resolve(true))
+      } else {
+        waitForAnimationFrame()->Promise.then(_ => check(nextStableFrames))
+      }
+    }
+
+  await check(0)
+}
+
 let waitForViewerReady = async (sceneId: string) => {
   let start = Date.now()
   let rec check = async () => {
@@ -29,8 +72,7 @@ let waitForViewerReady = async (sceneId: string) => {
       | Some(v) if Viewer.isLoaded(v) =>
         let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
         if currentId == Some(identity(sceneId)) {
-          await wait(200)
-          true
+          await waitForRenderableCanvasStability(sceneId)
         } else {
           await wait(100)
           await check()

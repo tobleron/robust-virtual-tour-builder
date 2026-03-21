@@ -40,6 +40,9 @@ module Canvas = {
   @send external createImageData: (context2d, int, int) => imageData = "createImageData"
   @send external getImageData: (context2d, float, float, float, float) => imageData = "getImageData"
   @send external putImageData: (context2d, imageData, float, float) => unit = "putImageData"
+  @get external imageDataData: imageData => Js.Typed_array.Uint8ClampedArray.t = "data"
+  @get external uint8ClampedLength: Js.Typed_array.Uint8ClampedArray.t => int = "length"
+  @get_index external uint8ClampedGet: (Js.Typed_array.Uint8ClampedArray.t, int) => int = ""
 
   @send external beginPath: context2d => unit = "beginPath"
   @send external closePath: context2d => unit = "closePath"
