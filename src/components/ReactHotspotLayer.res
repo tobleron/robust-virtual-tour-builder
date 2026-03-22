@@ -16,11 +16,7 @@ let deriveDuplicateStackPlacements = seeds =>
 let resolveStackedCoords = (hotspotData, placementByLinkId, hotspotByLinkId) =>
   ReactHotspotLayerSupport.resolveStackedCoords(hotspotData, placementByLinkId, hotspotByLinkId)
 let shouldShowHotspotLabel = (hotspotData, placementByLinkId, showHotspotLabels) =>
-  ReactHotspotLayerSupport.shouldShowHotspotLabel(
-    hotspotData,
-    placementByLinkId,
-    showHotspotLabels,
-  )
+  ReactHotspotLayerSupport.shouldShowHotspotLabel(hotspotData, placementByLinkId, showHotspotLabels)
 let resolveDuplicateGroupAnchorLinkId = (linkId, placementByLinkId) =>
   ReactHotspotLayerSupport.resolveDuplicateGroupAnchorLinkId(linkId, placementByLinkId)
 let clearHoveredStackRestoreTimer = timerRef =>
@@ -33,11 +29,7 @@ let clearHoveredHotspotRestoreTimer = (timerRef: React.ref<option<int>>) => {
   timerRef.current = None
 }
 let resolveMovingHotspotPitchYaw = (~state, ~hotspot, ~hotspotIndex) =>
-  ReactHotspotLayerSupport.resolveMovingHotspotPitchYaw(
-    ~state,
-    ~hotspot,
-    ~hotspotIndex,
-  )
+  ReactHotspotLayerSupport.resolveMovingHotspotPitchYaw(~state, ~hotspot, ~hotspotIndex)
 let isMovingThisHotspot = (~state, ~hotspotIndex) =>
   ReactHotspotLayerSupport.isMovingThisHotspot(~state, ~hotspotIndex)
 let projectHotspot = (
@@ -102,11 +94,13 @@ let renderHotspotCard = (
 
   switch renderCoords {
   | Some(c) =>
-    if isHiddenByHoveredSibling(
-      ~hoveredStackHotspotLinkId,
-      ~hotspotGroupAnchorLinkId,
-      ~duplicateStackPlacements,
-      ~hotspotLinkId=projectedHotspot.hotspot.linkId,
+    if (
+      isHiddenByHoveredSibling(
+        ~hoveredStackHotspotLinkId,
+        ~hotspotGroupAnchorLinkId,
+        ~duplicateStackPlacements,
+        ~hotspotLinkId=projectedHotspot.hotspot.linkId,
+      )
     ) {
       React.null
     } else {
@@ -130,21 +124,15 @@ let renderHotspotCard = (
       }
       let scheduleDrawerClose = () => {
         clearHoveredHotspotRestoreTimer(hoveredHotspotRestoreTimerRef)
-        hoveredHotspotRestoreTimerRef.current = Some(
-          ReBindings.Window.setTimeout(
-            () => {
-              setHoveredHotspotLinkId(
-                current =>
-                  switch current {
-                  | Some(currentLinkId) if currentLinkId == h.linkId => None
-                  | _ => current
-                  },
-              )
-              hoveredHotspotRestoreTimerRef.current = None
-            },
-            Constants.hotspotMenuExitDelay,
-          ),
-        )
+        hoveredHotspotRestoreTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
+            setHoveredHotspotLinkId(current =>
+              switch current {
+              | Some(currentLinkId) if currentLinkId == h.linkId => None
+              | _ => current
+              }
+            )
+            hoveredHotspotRestoreTimerRef.current = None
+          }, Constants.hotspotMenuExitDelay))
       }
 
       <div
@@ -164,21 +152,15 @@ let renderHotspotCard = (
         }}
         onMouseLeave={_ => {
           clearHoveredStackRestoreTimer(hoveredStackRestoreTimerRef)
-          hoveredStackRestoreTimerRef.current = Some(
-            ReBindings.Window.setTimeout(
-              () => {
-                setHoveredStackHotspotLinkId(
-                  current =>
-                    switch current {
-                    | Some(currentLinkId) if currentLinkId == h.linkId => None
-                    | _ => current
-                    },
-                )
-                hoveredStackRestoreTimerRef.current = None
-              },
-              duplicateStackRestoreDelayMs,
-            ),
-          )
+          hoveredStackRestoreTimerRef.current = Some(ReBindings.Window.setTimeout(() => {
+              setHoveredStackHotspotLinkId(current =>
+                switch current {
+                | Some(currentLinkId) if currentLinkId == h.linkId => None
+                | _ => current
+                }
+              )
+              hoveredStackRestoreTimerRef.current = None
+            }, duplicateStackRestoreDelayMs))
           pinDrawerOpen()
           scheduleDrawerClose()
         }}
@@ -186,9 +168,7 @@ let renderHotspotCard = (
         {if showLabelForHotspot {
           switch projectedHotspot.labelText {
           | Some(label) if label != "" =>
-            <div className="hs-hotspot-label pointer-events-none">
-              {React.string(label)}
-            </div>
+            <div className="hs-hotspot-label pointer-events-none"> {React.string(label)} </div>
           | _ => React.null
           }
         } else {
@@ -241,18 +221,19 @@ let renderHotspotOverlay = (
       if viewerSceneId != scene.id {
         React.null
       } else {
-        let projectedHotspots = scene.hotspots->Belt.Array.mapWithIndex((i, h) =>
-          projectHotspot(
-            ~state,
-            ~activeScenes,
-            ~camState,
-            ~rect,
-            ~hotspotBadgeByLinkId,
-            ~sceneNumberBySceneId,
-            ~hotspot=h,
-            ~hotspotIndex=i,
-          ),
-        )
+        let projectedHotspots =
+          scene.hotspots->Belt.Array.mapWithIndex((i, h) =>
+            projectHotspot(
+              ~state,
+              ~activeScenes,
+              ~camState,
+              ~rect,
+              ~hotspotBadgeByLinkId,
+              ~sceneNumberBySceneId,
+              ~hotspot=h,
+              ~hotspotIndex=i,
+            )
+          )
         let duplicateStackPlacements = deriveDuplicateStackPlacements(
           projectedHotspots->Belt.Array.map(hotspotData => {
             linkId: hotspotData.hotspot.linkId,
@@ -280,7 +261,7 @@ let renderHotspotOverlay = (
             ~setHoveredHotspotLinkId,
             ~hoveredStackRestoreTimerRef,
             ~hoveredHotspotRestoreTimerRef,
-          ),
+          )
         )
         ->React.array
       }

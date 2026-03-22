@@ -29,10 +29,8 @@ let resolveSafetyMargin = (~aspectRatio: float): float => {
 
 let safePitchForHfov = (~hfov: float, ~aspectRatio: float): float => {
   let safeAspectRatio = resolveAspectRatio(~aspectRatio)
-  let vfov =
-    2.0 *.
-    toDegrees(Math.atan(Math.tan(toRadians(hfov) /. 2.0) /. safeAspectRatio))
-  referenceSafePitch -. (vfov /. 2.0) +. resolveSafetyMargin(~aspectRatio=safeAspectRatio)
+  let vfov = 2.0 *. toDegrees(Math.atan(Math.tan(toRadians(hfov) /. 2.0) /. safeAspectRatio))
+  referenceSafePitch -. vfov /. 2.0 +. resolveSafetyMargin(~aspectRatio=safeAspectRatio)
 }
 
 let safePitchBoundsForHfov = (~hfov: float, ~aspectRatio: float): (float, float) => {
@@ -40,16 +38,15 @@ let safePitchBoundsForHfov = (~hfov: float, ~aspectRatio: float): (float, float)
 }
 
 let safePitchBoundsForViewport = (~hfov: float): (float, float) => {
-  let aspectRatio =
-    switch Dom.getElementById("viewer-stage")->Nullable.toOption {
-    | Some(stage) =>
-      let rect = Dom.getBoundingClientRect(stage)
-      if rect.width > 0.0 && rect.height > 0.0 {
-        rect.width /. rect.height
-      } else {
-        defaultAspectRatio
-      }
-    | None => defaultAspectRatio
+  let aspectRatio = switch Dom.getElementById("viewer-stage")->Nullable.toOption {
+  | Some(stage) =>
+    let rect = Dom.getBoundingClientRect(stage)
+    if rect.width > 0.0 && rect.height > 0.0 {
+      rect.width /. rect.height
+    } else {
+      defaultAspectRatio
+    }
+  | None => defaultAspectRatio
   }
   safePitchBoundsForHfov(~hfov, ~aspectRatio)
 }

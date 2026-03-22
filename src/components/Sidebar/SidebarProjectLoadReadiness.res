@@ -10,8 +10,8 @@ let isProjectViewerReady = (~getState: unit => Types.state): bool => {
   | Some(sceneId) =>
     let fsmIdle = switch state.navigationState.navigationFsm {
     | IdleFsm => true
-      | _ => false
-      }
+    | _ => false
+    }
     let supervisorIdle = NavigationSupervisor.isIdle()
     let viewerReady = ViewerSystem.getActiveViewerReadyForScene(sceneId)->Option.isSome
     fsmIdle && supervisorIdle && viewerReady
@@ -72,8 +72,7 @@ let waitForStableInteractivity = (
               "Viewer stabilization timed out after " ++
               Belt.Int.toString(maxWaitMs / 1000) ++
               "s (" ++
-              lastBlockReasonRef.contents ++
-              ").",
+              lastBlockReasonRef.contents ++ ").",
             ),
           )
         } else {
@@ -123,12 +122,12 @@ let waitForStableInteractivity = (
             stableStartedAtRef := None
             stableFrameCountRef := 0
             lastBlockReasonRef := if !viewerReady {
-              "viewer_not_ready"
-            } else if !quietSinceLongTask {
-              "recent_long_task"
-            } else {
-              "slow_frame_gap"
-            }
+                "viewer_not_ready"
+              } else if !quietSinceLongTask {
+                "recent_long_task"
+              } else {
+                "slow_frame_gap"
+              }
 
             if OperationLifecycle.isActive(opId) {
               OperationLifecycle.progress(

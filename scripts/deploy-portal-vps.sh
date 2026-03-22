@@ -170,7 +170,6 @@ rsync -avz \
   --exclude '.vscode' \
   --exclude 'artifacts' \
   --exclude 'docs' \
-  --exclude 'cypress' \
   --exclude 'cache' \
   --exclude 'data' \
   --exclude 'lib/bs' \
@@ -184,7 +183,6 @@ rsync -avz \
   --exclude 'backend/temp' \
   --exclude 'playwright-report' \
   --exclude 'test-results' \
-  --exclude 'tests/cypress/videos' \
   --exclude '*.mp4' \
   --exclude '*.webm' \
   --exclude '.tmp' \

@@ -1,9 +1,13 @@
 open Types
 
-let resolveAutoForwardHotspotIndex = (rawHotspots: array<TourData.hotspotData>, hasSceneId: string => bool) => {
-  let autoForwardHotspotIndex = rawHotspots->Belt.Array.getIndexBy(h =>
-    h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
-  )
+let resolveAutoForwardHotspotIndex = (
+  rawHotspots: array<TourData.hotspotData>,
+  hasSceneId: string => bool,
+) => {
+  let autoForwardHotspotIndex =
+    rawHotspots->Belt.Array.getIndexBy(h =>
+      h["targetIsAutoForward"] == true && hasSceneId(h["targetSceneId"])
+    )
   let autoForwardTargetSceneId = switch autoForwardHotspotIndex {
   | Some(idx) =>
     rawHotspots
@@ -15,7 +19,12 @@ let resolveAutoForwardHotspotIndex = (rawHotspots: array<TourData.hotspotData>, 
   (autoForwardHotspotIndex->Option.getOr(-1), autoForwardTargetSceneId)
 }
 
-let resolveTargetSceneId = (~targetSceneId: option<string>, ~target: string, ~scenes: array<scene>, ~hasSceneId: string => bool) =>
+let resolveTargetSceneId = (
+  ~targetSceneId: option<string>,
+  ~target: string,
+  ~scenes: array<scene>,
+  ~hasSceneId: string => bool,
+) =>
   switch targetSceneId {
   | Some(sceneId) =>
     if hasSceneId(sceneId) {

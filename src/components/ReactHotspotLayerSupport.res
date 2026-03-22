@@ -213,16 +213,15 @@ let projectHotspot = (
   let (pitch, yaw) = resolveMovingHotspotPitchYaw(~state, ~hotspot, ~hotspotIndex)
   let resolvedTargetSceneId = HotspotTarget.resolveSceneId(activeScenes, hotspot)
   let coords = ProjectionMath.getScreenCoords(camState, pitch, yaw, rect)
-  let labelText = resolvedTargetSceneId->Option.flatMap(
-    targetSceneId =>
-      activeScenes
-      ->Belt.Array.getBy(scene => scene.id == targetSceneId)
-      ->Option.map(sceneDisplayLabel),
+  let labelText = resolvedTargetSceneId->Option.flatMap(targetSceneId =>
+    activeScenes
+    ->Belt.Array.getBy(scene => scene.id == targetSceneId)
+    ->Option.map(sceneDisplayLabel)
   )
   let badge = hotspotBadgeByLinkId->Belt.Map.String.get(hotspot.linkId)
   let targetSceneNumber =
-    resolvedTargetSceneId->Option.flatMap(
-      targetSceneId => sceneNumberBySceneId->Belt.Map.String.get(targetSceneId),
+    resolvedTargetSceneId->Option.flatMap(targetSceneId =>
+      sceneNumberBySceneId->Belt.Map.String.get(targetSceneId)
     )
 
   {
@@ -245,8 +244,10 @@ let isHiddenByHoveredSibling = (
 ): bool => {
   switch hoveredStackHotspotLinkId {
   | Some(hoveredLinkId) =>
-    let hoveredGroupAnchorLinkId =
-      resolveDuplicateGroupAnchorLinkId(hoveredLinkId, duplicateStackPlacements)
+    let hoveredGroupAnchorLinkId = resolveDuplicateGroupAnchorLinkId(
+      hoveredLinkId,
+      duplicateStackPlacements,
+    )
     hoveredLinkId != hotspotLinkId && hoveredGroupAnchorLinkId == hotspotGroupAnchorLinkId
   | None => false
   }

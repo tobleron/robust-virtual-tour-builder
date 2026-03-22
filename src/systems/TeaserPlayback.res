@@ -22,8 +22,8 @@ let hasRenderableSourceCanvas = (): bool =>
   switch TeaserRecorder.Recorder.resolveSourceCanvas() {
   | Some(canvas) =>
     Dom.getWidth(canvas) > 0 &&
-      Dom.getHeight(canvas) > 0 &&
-      TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
+    Dom.getHeight(canvas) > 0 &&
+    TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
   | None => false
   }
 

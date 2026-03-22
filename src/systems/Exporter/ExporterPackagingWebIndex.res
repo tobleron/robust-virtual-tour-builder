@@ -91,7 +91,7 @@ let generateWebIndex = (config: webIndexConfig): string => {
   } else {
     "tour_hd/index.html"
   }
-  
+
   `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${tourName}</title></head><body style="margin:0;font-family:Outfit,Arial,sans-serif;background:#0b1931;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="width:min(92vw,760px);padding:24px;text-align:center;"><h1 style="margin:0 0 16px 0;font-size:32px;">${tourName->String.replaceRegExp(
       /_/g,
       " ",

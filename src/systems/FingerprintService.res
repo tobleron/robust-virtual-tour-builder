@@ -9,27 +9,27 @@ let fingerprintFiles = (
 ) => {
   let canUseStrongFingerprint = Resizer.canUseStrongChecksum()
   let fingerprintPromises = Belt.Array.map(validFiles, f => {
-    (if canUseStrongFingerprint {
-       WorkerPool.fingerprintWithWorker(
-         f,
-         ~timeoutMs=Constants.Media.uploadFingerprintWorkerTimeoutMs,
-         ~signal?,
-       )->Promise.then(workerResult =>
-         switch workerResult {
-         | Some(id) => Promise.resolve(id)
-         | None =>
-           Logger.warn(
-             ~module_="Upload",
-             ~message="FINGERPRINT_WORKER_FALLBACK",
-             ~data=Some({"filename": File.name(f)}),
-             (),
-           )
-           Resizer.getChecksum(f)
-         }
-       )
-     } else {
-       Resizer.getChecksum(f)
-     })
+    if canUseStrongFingerprint {
+      WorkerPool.fingerprintWithWorker(
+        f,
+        ~timeoutMs=Constants.Media.uploadFingerprintWorkerTimeoutMs,
+        ~signal?,
+      )->Promise.then(workerResult =>
+        switch workerResult {
+        | Some(id) => Promise.resolve(id)
+        | None =>
+          Logger.warn(
+            ~module_="Upload",
+            ~message="FINGERPRINT_WORKER_FALLBACK",
+            ~data=Some({"filename": File.name(f)}),
+            (),
+          )
+          Resizer.getChecksum(f)
+        }
+      )
+    } else {
+      Resizer.getChecksum(f)
+    }
     ->Promise.then(id =>
       Promise.resolve(
         (

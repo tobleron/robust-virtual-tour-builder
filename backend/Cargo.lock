@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "backend"
-version = "0.1.0"
+version = "5.3.8"
 dependencies = [
  "actix-cors",
  "actix-files",

@@ -80,10 +80,7 @@ async fn consolidate_other_users(pool: &SqlitePool, owner_user_id: &str) -> Resu
     .fetch_all(pool)
     .await
     .map_err(|error| {
-        AppError::InternalError(format!(
-            "Local setup other-user lookup failed: {}",
-            error
-        ))
+        AppError::InternalError(format!("Local setup other-user lookup failed: {}", error))
     })?;
 
     for other_user_id in other_user_ids {
@@ -106,10 +103,7 @@ async fn consolidate_other_users(pool: &SqlitePool, owner_user_id: &str) -> Resu
             .execute(pool)
             .await
             .map_err(|error| {
-                AppError::InternalError(format!(
-                    "Local setup extra-user cleanup failed: {}",
-                    error
-                ))
+                AppError::InternalError(format!("Local setup extra-user cleanup failed: {}", error))
             })?;
     }
 
@@ -395,8 +389,7 @@ pub(super) async fn bootstrap_local_owner(
         .cookie(DEVICE_COOKIE_NAME)
         .map(|cookie| cookie.value().to_string())
         .unwrap_or_else(super::make_device_token);
-    super::upsert_trusted_device(pool.get_ref(), &user.id, &current_device_token, &context)
-        .await?;
+    super::upsert_trusted_device(pool.get_ref(), &user.id, &current_device_token, &context).await?;
     let auth_cookie = super::clear_auth_cookie();
     let device_cookie = super::create_device_cookie(&current_device_token);
     let prior_device_hash = req
@@ -493,10 +486,9 @@ pub(super) async fn reset_local_owner(
         ));
     }
 
-    let canonical_user = users
-        .first()
-        .cloned()
-        .ok_or_else(|| AppError::InternalError("Local reset canonical user selection failed".into()))?;
+    let canonical_user = users.first().cloned().ok_or_else(|| {
+        AppError::InternalError("Local reset canonical user selection failed".into())
+    })?;
 
     for user in users.iter().skip(1) {
         sqlx::query("UPDATE projects SET user_id = ? WHERE user_id = ?")
@@ -505,7 +497,10 @@ pub(super) async fn reset_local_owner(
             .execute(pool.get_ref())
             .await
             .map_err(|error| {
-                AppError::InternalError(format!("Local reset project reassignment failed: {}", error))
+                AppError::InternalError(format!(
+                    "Local reset project reassignment failed: {}",
+                    error
+                ))
             })?;
 
         move_user_storage(&user.id, &canonical_user.id)?;

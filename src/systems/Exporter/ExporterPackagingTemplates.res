@@ -33,7 +33,10 @@ let appendTemplates = (
       }
     )
 
-  let generateWebIndex = (~bundleLabel="Adaptive web package", ~bundleNote="4K loads by default, with a 2K fallback only on constrained devices when image detail remains acceptable.") => {
+  let generateWebIndex = (
+    ~bundleLabel="Adaptive web package",
+    ~bundleNote="4K loads by default, with a 2K fallback only on constrained devices when image detail remains acceptable.",
+  ) => {
     let logoBlock = switch logoFilename {
     | Some(filename) =>
       `<div style="position:fixed;right:16px;bottom:16px;background:rgba(255,255,255,0.1);padding:5px;border-radius:10px;"><img src="../assets/logo/${filename}" style="height:64px;width:auto;display:block;" /></div>`

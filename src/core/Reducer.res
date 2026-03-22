@@ -100,6 +100,9 @@ let applyFullPipeline = (state: state, action: Actions.action): state => {
 
 let applyRoutedPipeline = (state: state, action: Actions.action): state => {
   switch action {
+  // DispatchAppFsmEvent is handled by NavigationProjectReducer.Navigation,
+  // which owns the canonical AppFSM.transition call and bidirectional
+  // navigation-state sync. AppFsm.reduce is intentionally a no-op.
   | Actions.DispatchAppFsmEvent(_) => applyNavigationOnly(state, action)
 
   | Actions.AddScenes(_)

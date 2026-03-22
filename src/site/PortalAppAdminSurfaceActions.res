@@ -152,7 +152,11 @@ let make = (~props: props) => {
   }
 
   let onChangePassword = async () => {
-    switch passwordChangeError(props.currentPassword, props.nextPassword, props.confirmNextPassword) {
+    switch passwordChangeError(
+      props.currentPassword,
+      props.nextPassword,
+      props.confirmNextPassword,
+    ) {
     | Some(message) => reportPasswordChangeError(message)
     | None => await submitPasswordChange()
     }
@@ -222,7 +226,7 @@ let make = (~props: props) => {
   }
 
   let onDeleteAccessLinks = async customerId => {
-    if (Window.confirm("Delete all saved access links for this recipient? This cannot be undone.")) {
+    if Window.confirm("Delete all saved access links for this recipient? This cannot be undone.") {
       switch await PortalApi.deleteAccessLinks(~customerId) {
       | Ok(_) =>
         removeGeneratedLink(customerId)
@@ -263,14 +267,24 @@ let make = (~props: props) => {
       props.setFlash(_ => {error: None, success: Some("Starting upload...")})
       switch await PortalApi.uploadTour(~title=props.uploadTitle->String.trim, ~file) {
       | Ok(_) =>
-        Logger.info(~module_="PortalApp", ~message="Tour upload successful", ~data=Some({"title": props.uploadTitle}), ())
+        Logger.info(
+          ~module_="PortalApp",
+          ~message="Tour upload successful",
+          ~data=Some({"title": props.uploadTitle}),
+          (),
+        )
         props.setUploadTitle(_ => "")
         props.setSelectedUploadFile(_ => None)
         props.setActiveDrawer(_ => NoDrawer)
         props.setFlash(_ => {error: None, success: Some("Tour uploaded to the library.")})
         props.loadAdmin(~preserveReadyState=true)
       | Error(message) =>
-        Logger.error(~module_="PortalApp", ~message="Tour upload failed", ~data=Some({"error": message}), ())
+        Logger.error(
+          ~module_="PortalApp",
+          ~message="Tour upload failed",
+          ~data=Some({"error": message}),
+          (),
+        )
         props.setFlash(_ => {error: Some(message), success: None})
       }
     | None => props.setFlash(_ => {error: Some("Choose a ZIP file first."), success: None})
@@ -287,7 +301,13 @@ let make = (~props: props) => {
     | Ok(_) =>
       props.setFlash(_ => {
         error: None,
-        success: Some(if assigned { "Tour unassigned." } else { "Tour assigned." }),
+        success: Some(
+          if assigned {
+            "Tour unassigned."
+          } else {
+            "Tour assigned."
+          },
+        ),
       })
       props.loadAdmin(~preserveReadyState=true)
     | Error(message) => props.setFlash(_ => {error: Some(message), success: None})
@@ -324,9 +344,12 @@ let make = (~props: props) => {
   }
 
   let onDeleteTour = async (~tourId, ~title) => {
-    if (Window.confirm(
-      "Force delete \"" ++ title ++ "\" from the library and remove all assignments? This cannot be undone.",
-    )) {
+    if (
+      Window.confirm(
+        "Force delete \"" ++
+        title ++ "\" from the library and remove all assignments? This cannot be undone.",
+      )
+    ) {
       switch await PortalApi.deleteTour(~tourId) {
       | Ok(_) =>
         props.setFlash(_ => {error: None, success: Some("Tour deleted from library.")})

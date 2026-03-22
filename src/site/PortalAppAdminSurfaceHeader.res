@@ -85,7 +85,9 @@ let make = (~props: props) =>
             </label>
           </div>
           <div className="portal-form-actions">
-            <button className="site-btn site-btn-primary" onClick={_ => ignore(props.onChangePassword())}>
+            <button
+              className="site-btn site-btn-primary" onClick={_ => ignore(props.onChangePassword())}
+            >
               {React.string("Update Password")}
             </button>
           </div>
@@ -101,20 +103,34 @@ let make = (~props: props) =>
       <article className="portal-stat-card">
         <span className="portal-stat-label"> {React.string("Active")} </span>
         <strong className="portal-stat-value">
-          {React.string(Belt.Int.toString(props.data.customers->Belt.Array.keep(customer => customer.customer.isActive)->Belt.Array.length))}
+          {React.string(
+            Belt.Int.toString(
+              props.data.customers
+              ->Belt.Array.keep(customer => customer.customer.isActive)
+              ->Belt.Array.length,
+            ),
+          )}
         </strong>
       </article>
       <article className="portal-stat-card">
         <span className="portal-stat-label"> {React.string("Published tours")} </span>
         <strong className="portal-stat-value">
-          {React.string(Belt.Int.toString(props.data.tours->Belt.Array.keep(tour => tour.tour.status == "published")->Belt.Array.length))}
+          {React.string(
+            Belt.Int.toString(
+              props.data.tours
+              ->Belt.Array.keep(tour => tour.tour.status == "published")
+              ->Belt.Array.length,
+            ),
+          )}
         </strong>
       </article>
       <article className="portal-stat-card">
         <span className="portal-stat-label"> {React.string("Assignments")} </span>
         <strong className="portal-stat-value">
           {React.string(
-            Belt.Int.toString(props.data.tours->Belt.Array.reduce(0, (count, tour) => count + tour.assignmentCount)),
+            Belt.Int.toString(
+              props.data.tours->Belt.Array.reduce(0, (count, tour) => count + tour.assignmentCount),
+            ),
           )}
         </strong>
       </article>

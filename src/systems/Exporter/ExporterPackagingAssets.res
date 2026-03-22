@@ -162,19 +162,19 @@ let appendLogo = async (
           | list{} => ()
           | list{ext, ...rest} => {
               let filename = "logo." ++ ext
-            let path = if ext == "webp" {
-              "/" ++ Constants.defaultLogoPath
-            } else {
-              "/images/" ++ filename
-            }
-            let res = await Fetch.fetchSimple(path)
-            if Fetch.ok(res) {
-              reportProgress(~fraction=0.35, ~message="Loading default logo...")
-              let logoBlob = await Fetch.blob(res)
-              if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
-                let applied = await appendOptimizedLogoBlob(
-                  ~blob=logoBlob,
-                  ~filenameHint=filename,
+              let path = if ext == "webp" {
+                "/" ++ Constants.defaultLogoPath
+              } else {
+                "/images/" ++ filename
+              }
+              let res = await Fetch.fetchSimple(path)
+              if Fetch.ok(res) {
+                reportProgress(~fraction=0.35, ~message="Loading default logo...")
+                let logoBlob = await Fetch.blob(res)
+                if ExporterUtils.isLikelyImageBlob(~blob=logoBlob, ~urlHint=Some(path)) {
+                  let applied = await appendOptimizedLogoBlob(
+                    ~blob=logoBlob,
+                    ~filenameHint=filename,
                   )
                   if !applied {
                     await findLogo(rest)

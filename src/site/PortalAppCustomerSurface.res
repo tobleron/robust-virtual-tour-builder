@@ -6,9 +6,9 @@ let make = (~slug, ~tourSlug: option<string>) => {
   let (publicState, setPublicState) = React.useState((): remoteData<PortalTypes.publicView> =>
     Loading
   )
-  let (sessionState, setSessionState) = React.useState((): remoteData<PortalTypes.customerSession> =>
-    Idle
-  )
+  let (sessionState, setSessionState) = React.useState((): remoteData<
+    PortalTypes.customerSession,
+  > => Idle)
   let (galleryState, setGalleryState) = React.useState((): remoteData<PortalTypes.galleryView> =>
     Idle
   )
@@ -99,14 +99,18 @@ let make = (~slug, ~tourSlug: option<string>) => {
         }
       | None =>
         switch galleryState {
-        | Loading => PortalAppCustomerSurfaceViews.makeGalleryLoading(~customerName=session.customer.displayName)
+        | Loading =>
+          PortalAppCustomerSurfaceViews.makeGalleryLoading(
+            ~customerName=session.customer.displayName,
+          )
         | Failed(message) =>
           PortalAppCustomerSurfaceViews.makeGalleryError(
             ~customerName=session.customer.displayName,
             ~message,
           )
         | Idle => PortalAppCustomerSurfaceViews.makeGate(~publicView, ~accessMessage)
-        | Ready(gallery) => PortalAppCustomerSurfaceViews.makeGallery(~slug, ~gallery, ~onSignOut=signOut)
+        | Ready(gallery) =>
+          PortalAppCustomerSurfaceViews.makeGallery(~slug, ~gallery, ~onSignOut=signOut)
         }
       }
     }

@@ -122,8 +122,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
   }
 
   let utilBarClass =
-    "viewer-rail viewer-rail--utility" ++
-    if isTeasing {
+    "viewer-rail viewer-rail--utility" ++ if isTeasing {
       " is-hidden"
     } else if !scenesLoaded || isSystemLocked || isMovingHotspot {
       " is-inactive"
@@ -144,19 +143,16 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
       <Shadcn.Button
         size="icon"
         variant="ghost"
-        className={
-          "viewer-control viewer-control--orb viewer-control--utility viewer-control--link " ++
-          if isLinking {
-            "viewer-control--accent"
-          } else {
-            "viewer-control--danger"
-          } ++
-          if (simActive || isTeasing) && !isLinking {
-            " viewer-control--dimmed"
-          } else {
-            ""
-          }
-        }
+        className={"viewer-control viewer-control--orb viewer-control--utility viewer-control--link " ++
+        if isLinking {
+          "viewer-control--accent"
+        } else {
+          "viewer-control--danger"
+        } ++ if (simActive || isTeasing) && !isLinking {
+          " viewer-control--dimmed"
+        } else {
+          ""
+        }}
         onClick={handleFabClick}
         disabled={!scenesLoaded || isSystemLocked || (!isLinking && !canEditHotspots)}
         ariaLabel={if isLinking {
@@ -192,14 +188,13 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId,
             <Shadcn.Button
               size="icon"
               variant="ghost"
-              className={
-                "viewer-control viewer-control--orb viewer-control--utility viewer-control--preview viewer-control--danger" ++
-                if isTeasing {
-                  " viewer-control--dimmed"
-                } else {
-                  ""
-                }
-              }
+              className={"viewer-control viewer-control--orb viewer-control--utility viewer-control--preview viewer-control--danger" ++ if (
+                isTeasing
+              ) {
+                " viewer-control--dimmed"
+              } else {
+                ""
+              }}
               onClick={handleSimClick}
               disabled={!scenesLoaded ||
               isSystemLocked ||

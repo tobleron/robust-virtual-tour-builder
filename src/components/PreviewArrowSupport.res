@@ -144,10 +144,13 @@ let handleRightClick = (
           setIsSwapping(_ => true)
           let _ = setTimeout(() => {
             setLocalIsAF(_ => newVal)
-            let _ = setTimeout(() => {
-              setIsSwapping(_ => false)
-              toggleInFlightRef.current = false
-            }, 40)
+            let _ = setTimeout(
+              () => {
+                setIsSwapping(_ => false)
+                toggleInFlightRef.current = false
+              },
+              40,
+            )
           }, 920)
         }, 800)
       }
@@ -179,23 +182,29 @@ let handleDeleteClick = (
         setFlickerRed(_ => false)
         let _ = setTimeout(() => {
           setIsDeleteCollapsing(_ => true)
-          let _ = setTimeout(() => {
-            setIsDeleting(_ => true)
-            let _ = setTimeout(() => {
-              dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-              NotificationManager.dispatch({
-                id: "",
-                importance: Info,
-                context: Operation("preview_arrow"),
-                message: "Hotspot Removed",
-                details: None,
-                action: None,
-                duration: NotificationTypes.defaultTimeoutMs(Info),
-                dismissible: true,
-                createdAt: Date.now(),
-              })
-            }, 320)
-          }, 320)
+          let _ = setTimeout(
+            () => {
+              setIsDeleting(_ => true)
+              let _ = setTimeout(
+                () => {
+                  dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Info,
+                    context: Operation("preview_arrow"),
+                    message: "Hotspot Removed",
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Info),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
+                },
+                320,
+              )
+            },
+            320,
+          )
         }, 40)
       }, 800)
     }

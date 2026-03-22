@@ -60,7 +60,6 @@ let probeInFlight = ref(false)
 let initialized = ref(false)
 let skipProbe = ref(false)
 
-
 let getSnapshot = (): statusSnapshot => {
   let phase = currentPhase.contents
   {

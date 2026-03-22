@@ -81,9 +81,7 @@ let make = (~props: props) =>
           {switch selectedBulkTours->Belt.Array.length {
           | 0 =>
             <div className="portal-empty-inline">
-              {React.string(
-                "Pick one or more tours from the library to build the assignment set.",
-              )}
+              {React.string("Pick one or more tours from the library to build the assignment set.")}
             </div>
           | _ =>
             <div className="portal-selection-chip-list">
@@ -117,8 +115,9 @@ let make = (~props: props) =>
           </strong>
           <span className="portal-row-muted">
             {React.string(
-              Belt.Int.toString(bulkRequestedAssignments) ++
-              " assignments will be created or skipped if they already exist.",
+              Belt.Int.toString(
+                bulkRequestedAssignments,
+              ) ++ " assignments will be created or skipped if they already exist.",
             )}
           </span>
         </div>

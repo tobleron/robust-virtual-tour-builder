@@ -6,7 +6,8 @@ open ReBindings
 module BootWindow = {
   type t
   @val external window: t = "window"
-  @get external getSetBuilderBootState: t => option<(bool, string) => unit> =
+  @get
+  external getSetBuilderBootState: t => option<(bool, string) => unit> =
     "__VTB_SET_BUILDER_BOOT_STATE__"
 }
 

@@ -97,20 +97,34 @@ let resolveSourceCanvas = (): option<Dom.element> => {
     switch resolveCanvasInContainer(ViewerSystem.getInactiveContainerId()) {
     | Some(canvas) => Some(canvas)
     | None =>
-      switch
-        Dom.querySelector(Dom.documentBody, ".panorama-layer.active .pnlm-render-container canvas")->Nullable.toOption {
+      switch Dom.querySelector(
+        Dom.documentBody,
+        ".panorama-layer.active .pnlm-render-container canvas",
+      )->Nullable.toOption {
       | Some(canvas) => Some(canvas)
       | None =>
-        switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
+        switch Dom.querySelector(
+          Dom.documentBody,
+          ".panorama-layer.active canvas",
+        )->Nullable.toOption {
         | Some(canvas) => Some(canvas)
         | None =>
-          switch Dom.querySelector(Dom.documentBody, ".panorama-layer .pnlm-render-container canvas")->Nullable.toOption {
+          switch Dom.querySelector(
+            Dom.documentBody,
+            ".panorama-layer .pnlm-render-container canvas",
+          )->Nullable.toOption {
           | Some(canvas) => Some(canvas)
           | None =>
-            switch Dom.querySelector(Dom.documentBody, ".panorama-layer canvas")->Nullable.toOption {
+            switch Dom.querySelector(
+              Dom.documentBody,
+              ".panorama-layer canvas",
+            )->Nullable.toOption {
             | Some(canvas) => Some(canvas)
             | None =>
-              Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption
+              Dom.querySelector(
+                Dom.documentBody,
+                ".pnlm-render-container canvas",
+              )->Nullable.toOption
             }
           }
         }
@@ -129,7 +143,13 @@ let canvasHasPaintedPixels = (sourceCanvas: Dom.element): bool => {
     | Some((_sampleCanvas, sampleCtx)) =>
       try {
         Canvas.setFillStyle(sampleCtx, "#ff00ff")
-        Canvas.fillRect(sampleCtx, 0.0, 0.0, Belt.Int.toFloat(sampleSize), Belt.Int.toFloat(sampleSize))
+        Canvas.fillRect(
+          sampleCtx,
+          0.0,
+          0.0,
+          Belt.Int.toFloat(sampleSize),
+          Belt.Int.toFloat(sampleSize),
+        )
         drawImageScaled(
           sampleCtx,
           sourceCanvas,

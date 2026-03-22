@@ -27,7 +27,9 @@ pub use project_assets::{
     BulkDeleteDashboardProjectsResponse, SnapshotAssetSyncResponse,
 };
 #[allow(unused_imports)]
-pub use project_dashboard::{DashboardProjectSummary, DashboardProjectsPage, DashboardProjectsQuery};
+pub use project_dashboard::{
+    DashboardProjectSummary, DashboardProjectsPage, DashboardProjectsQuery,
+};
 use project_snapshot::SnapshotHistoryEnvelope;
 #[allow(unused_imports)]
 pub use project_snapshot::{

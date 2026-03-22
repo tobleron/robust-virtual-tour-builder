@@ -341,6 +341,9 @@ Test runner
   → [backend/src/services/database.rs] connection pool
   → [backend/src/services/upload_quota.rs] and [backend/src/services/upload_quota_tests.rs] enforce limits
   → [backend/src/api/health.rs] provides service diagnostics
+  → [backend/src/services/shutdown.rs] graceful exit orchestration
+  → [backend/src/metrics.rs] processes performance metrics
+```
 
 ### CI Budget Governance
 **Trigger:** Pull request / CI execution
@@ -361,9 +364,6 @@ CI job
   → [scripts/check-runtime-budgets.mjs] enforces runtime thresholds
   → [docs/_pending_integration/enterprise_reliability_performance_runbook.md] records threshold contract and before/after SLO evidence
   → CI fails on budget regression
-```
-  → [backend/src/services/shutdown.rs] graceful exit orchestration
-  → [backend/src/metrics.rs] processes performance metrics
 ```
 
 ---

@@ -16,8 +16,9 @@ let generateTourHTML = (
   ~marketingPhone2: string="",
   ~tripodDeadZoneEnabled: bool=true,
 ) => {
-  let (normalizedExportType, allowFileProtocol, forcedExportInteractionShell) =
-    normalizeExportType(exportType)
+  let (normalizedExportType, allowFileProtocol, forcedExportInteractionShell) = normalizeExportType(
+    exportType,
+  )
 
   let firstSceneName = scenes[0]->Option.map(s => s.name)->Option.getOr("unknown")
   let firstSceneId = scenes[0]->Option.map(s => s.id)->Option.getOr(firstSceneName)
@@ -77,8 +78,12 @@ let generateTourHTML = (
     let rawHotspotEntries: array<TourTemplateHtmlSupportData.exportHotspotEntry> =
       s.hotspots
       ->Belt.Array.mapWithIndex((hotspotIndex, h) => {
-        let resolvedTargetId =
-          resolveTargetSceneId(~targetSceneId=h.targetSceneId, ~target=h.target, ~scenes, ~hasSceneId)
+        let resolvedTargetId = resolveTargetSceneId(
+          ~targetSceneId=h.targetSceneId,
+          ~target=h.target,
+          ~scenes,
+          ~hasSceneId,
+        )
         let hasValidTarget = hasSceneId(resolvedTargetId)
         let targetSceneNumber = sceneNumberBySceneId->Belt.Map.String.get(resolvedTargetId)
         let (isReturnLink, sequenceNumber) = resolveExportBadge(~linkId=h.linkId, ~hasValidTarget)
@@ -146,8 +151,10 @@ let generateTourHTML = (
       | _ => None
       }
     )
-    let (autoForwardHotspotIndex, autoForwardTargetSceneId) =
-      resolveAutoForwardHotspotIndex(rawHotspots, hasSceneId)
+    let (autoForwardHotspotIndex, autoForwardTargetSceneId) = resolveAutoForwardHotspotIndex(
+      rawHotspots,
+      hasSceneId,
+    )
     Dict.set(
       rawScenesData,
       s.id,

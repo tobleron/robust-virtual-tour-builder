@@ -19,6 +19,7 @@ type config = {
 }
 
 type t = {
+  // JUSTIFIED: imperative singleton
   mutable internalState: internalState,
   config: config,
 }

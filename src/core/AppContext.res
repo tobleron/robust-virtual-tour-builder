@@ -106,14 +106,13 @@ module Provider = {
     })
 
     let reducerWithBridge = React.useCallback((state, action) => {
-      let nextState = Reducer.reducer(state, action)
-      AppStateBridge.updateState(nextState)
-      nextState
+      Reducer.reducer(state, action)
     }, ())
 
     let (state, dispatchRaw) = React.useReducer(reducerWithBridge, loadedState)
 
     // Synchronous Bridge Update: Eliminate bridge lag by updating before child hooks run.
+    // This is the sole authoritative write, avoiding redundant side-effects inside the reducer.
     AppStateBridge.updateState(state)
 
     let dispatch = AppContextProviderHooks.useManagedDispatch(dispatchRaw)

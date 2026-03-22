@@ -21,9 +21,11 @@ describe("Portal Access Links", () => {
   })
 
   describe("Access Precedence Logic", () => {
-    testAsync("denies access when customer is inactive", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "denies access when customer is inactive",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: false,
         status: 401,
         json: () => Promise.resolve({
@@ -32,20 +34,21 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      // Simulate accessing with inactive customer
-      let result = await PortalApi.loadCustomerSession("inactive-customer")
+        // Simulate accessing with inactive customer
+        let result = await PortalApi.loadCustomerSession("inactive-customer")
 
-      switch result {
-      | Error(msg) =>
-        t->expect(String.includes(msg, "inactive"))->Expect.toBe(true)
-      | Ok(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Error(msg) => t->expect(String.includes(msg, "inactive"))->Expect.toBe(true)
+        | Ok(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
 
-    testAsync("denies access when customer is expired", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "denies access when customer is expired",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: false,
         status: 401,
         json: () => Promise.resolve({
@@ -54,19 +57,20 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("expired-customer")
+        let result = await PortalApi.loadCustomerSession("expired-customer")
 
-      switch result {
-      | Error(msg) =>
-        t->expect(String.includes(msg, "expired"))->Expect.toBe(true)
-      | Ok(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Error(msg) => t->expect(String.includes(msg, "expired"))->Expect.toBe(true)
+        | Ok(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
 
-    testAsync("denies access when link is revoked", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "denies access when link is revoked",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: false,
         status: 401,
         json: () => Promise.resolve({
@@ -75,19 +79,20 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("revoked-link")
+        let result = await PortalApi.loadCustomerSession("revoked-link")
 
-      switch result {
-      | Error(msg) =>
-        t->expect(String.includes(msg, "revoked"))->Expect.toBe(true)
-      | Ok(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Error(msg) => t->expect(String.includes(msg, "revoked"))->Expect.toBe(true)
+        | Ok(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
 
-    testAsync("denies access when link is expired", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "denies access when link is expired",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: false,
         status: 401,
         json: () => Promise.resolve({
@@ -96,19 +101,20 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("expired-link")
+        let result = await PortalApi.loadCustomerSession("expired-link")
 
-      switch result {
-      | Error(msg) =>
-        t->expect(String.includes(msg, "expired"))->Expect.toBe(true)
-      | Ok(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Error(msg) => t->expect(String.includes(msg, "expired"))->Expect.toBe(true)
+        | Ok(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
 
-    testAsync("allows access when all conditions are met", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "allows access when all conditions are met",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: true,
         status: 200,
         json: () => Promise.resolve({
@@ -140,23 +146,25 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("active-customer")
+        let result = await PortalApi.loadCustomerSession("active-customer")
 
-      switch result {
-      | Ok(payload) =>
-        t->expect(payload.session.canOpenTours)->Expect.toBe(true)
-        t->expect(payload.session.expired)->Expect.toBe(false)
-        t->expect(payload.session.accessLink.active)->Expect.toBe(true)
-      | Error(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Ok(payload) =>
+          t->expect(payload.session.canOpenTours)->Expect.toBe(true)
+          t->expect(payload.session.expired)->Expect.toBe(false)
+          t->expect(payload.session.accessLink.active)->Expect.toBe(true)
+        | Error(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
   })
 
   describe("Per-Link Expiry Override", () => {
-    testAsync("link inherits customer expiry when override is null", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "link inherits customer expiry when override is null",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: true,
         status: 200,
         json: () => Promise.resolve({
@@ -188,21 +196,23 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("test-customer")
+        let result = await PortalApi.loadCustomerSession("test-customer")
 
-      switch result {
-      | Ok(payload) =>
-        // Customer expiry is 2026-12-31, link should inherit
-        t->expect(payload.session.expired)->Expect.toBe(false)
-        t->expect(payload.session.accessLink.expiresAt)->Expect.toBe("2026-12-31T23:59:59Z")
-      | Error(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Ok(payload) =>
+          // Customer expiry is 2026-12-31, link should inherit
+          t->expect(payload.session.expired)->Expect.toBe(false)
+          t->expect(payload.session.accessLink.expiresAt)->Expect.toBe("2026-12-31T23:59:59Z")
+        | Error(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
 
-    testAsync("link uses override expiry when provided", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "link uses override expiry when provided",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: true,
         status: 200,
         json: () => Promise.resolve({
@@ -234,44 +244,55 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerSession("test-customer")
+        let result = await PortalApi.loadCustomerSession("test-customer")
 
-      switch result {
-      | Ok(payload) =>
-        // Link has custom expiry 2026-06-30 (earlier than customer)
-        t->expect(payload.session.expired)->Expect.toBe(false)
-        t->expect(payload.session.accessLink.expiresAt)->Expect.toBe("2026-06-30T23:59:59Z")
-      | Error(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Ok(payload) =>
+          // Link has custom expiry 2026-06-30 (earlier than customer)
+          t->expect(payload.session.expired)->Expect.toBe(false)
+          t->expect(payload.session.accessLink.expiresAt)->Expect.toBe("2026-06-30T23:59:59Z")
+        | Error(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
   })
 
   describe("Short Code Generation", () => {
-    test("short codes are 7 characters long", t => {
-      // Mock short code generation
-      let shortCode = "abc1234"
-      t->expect(shortCode->String.length)->Expect.toBe(7)
-    })
+    test(
+      "short codes are 7 characters long",
+      t => {
+        // Mock short code generation
+        let shortCode = "abc1234"
+        t->expect(shortCode->String.length)->Expect.toBe(7)
+      },
+    )
 
-    test("short codes are alphanumeric", t => {
-      let shortCode = "abc1234"
-      let isAlphanumeric = %raw(`(code) => /^[a-zA-Z0-9]+$/.test(code)`)(shortCode)
-      t->expect(isAlphanumeric)->Expect.toBe(true)
-    })
+    test(
+      "short codes are alphanumeric",
+      t => {
+        let shortCode = "abc1234"
+        let isAlphanumeric = %raw(`(code) => /^[a-zA-Z0-9]+$/.test(code)`)(shortCode)
+        t->expect(isAlphanumeric)->Expect.toBe(true)
+      },
+    )
 
-    test("short codes are unique per assignment", t => {
-      let codes = ["abc1234", "xyz5678", "def9012"]
-      let uniqueCodes = codes->Belt.Set.String.fromArray->Belt.Set.String.toArray
-      t->expect(Belt.Array.length(uniqueCodes))->Expect.toBe(Belt.Array.length(codes))
-    })
+    test(
+      "short codes are unique per assignment",
+      t => {
+        let codes = ["abc1234", "xyz5678", "def9012"]
+        let uniqueCodes = codes->Belt.Set.String.fromArray->Belt.Set.String.toArray
+        t->expect(Belt.Array.length(uniqueCodes))->Expect.toBe(Belt.Array.length(codes))
+      },
+    )
   })
 
   describe("Per-Link Revocation", () => {
-    testAsync("revoking one link does not affect other links", async t => {
-      // Mock: Customer has 2 tours, one revoked
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){
+    testAsync(
+      "revoking one link does not affect other links",
+      async t => {
+        // Mock: Customer has 2 tours, one revoked
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){
         m.mockResolvedValueOnce({
           ok: true,
           status: 200,
@@ -320,29 +341,33 @@ describe("Portal Access Links", () => {
         })
       }`)(fetchMock)
 
-      let result = await PortalApi.loadCustomerTours("test-customer")
+        let result = await PortalApi.loadCustomerTours("test-customer")
 
-      switch result {
-      | Ok(gallery) =>
-        // One tour should be revoked, one active
-        let revokedCount = gallery.tours
-          ->Belt.Array.keep(tour => tour.status == "revoked")
-          ->Belt.Array.length
-        let activeCount = gallery.tours
-          ->Belt.Array.keep(tour => tour.status == "active")
-          ->Belt.Array.length
-        t->expect(revokedCount)->Expect.toBe(1)
-        t->expect(activeCount)->Expect.toBe(1)
-      | Error(_) =>
-        t->expect(true)->Expect.toBe(false)
-      }
-    })
+        switch result {
+        | Ok(gallery) =>
+          // One tour should be revoked, one active
+          let revokedCount =
+            gallery.tours
+            ->Belt.Array.keep(tour => tour.status == "revoked")
+            ->Belt.Array.length
+          let activeCount =
+            gallery.tours
+            ->Belt.Array.keep(tour => tour.status == "active")
+            ->Belt.Array.length
+          t->expect(revokedCount)->Expect.toBe(1)
+          t->expect(activeCount)->Expect.toBe(1)
+        | Error(_) => t->expect(true)->Expect.toBe(false)
+        }
+      },
+    )
   })
 
   describe("Session Cookie Handling", () => {
-    testAsync("customer API requests include credentials for session cookies", async t => {
-      let fetchMock = %raw("global.fetch")
-      let _ = %raw(`function(m){m.mockResolvedValue({
+    testAsync(
+      "customer API requests include credentials for session cookies",
+      async t => {
+        let fetchMock = %raw("global.fetch")
+        let _ = %raw(`function(m){m.mockResolvedValue({
         ok: true,
         status: 200,
         json: () => Promise.resolve({
@@ -374,12 +399,13 @@ describe("Portal Access Links", () => {
         })
       })}`)(fetchMock)
 
-      let _ = await PortalApi.loadCustomerSession("test-customer")
+        let _ = await PortalApi.loadCustomerSession("test-customer")
 
-      let credentials = %raw(
-        "(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)"
-      )
-      t->expect(credentials)->Expect.toBe("include")
-    })
+        let credentials = %raw(
+          "(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)"
+        )
+        t->expect(credentials)->Expect.toBe("include")
+      },
+    )
   })
 })

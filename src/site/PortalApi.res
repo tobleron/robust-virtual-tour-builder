@@ -107,15 +107,26 @@ let request = async (
     authHeaderValue()->Option.forEach(value => Dict.set(headers, "Authorization", value))
   }
 
-  let credentials = if includeCredentials { "include" } else { "same-origin" }
+  let credentials = if includeCredentials {
+    "include"
+  } else {
+    "same-origin"
+  }
 
   let response = switch (jsonBody, formData) {
   | (Some(body), _) =>
     await Fetch.fetch(
       url,
-      Fetch.requestInit(~method, ~body=JsonCombinators.Json.stringify(body), ~headers, ~credentials, ()),
+      Fetch.requestInit(
+        ~method,
+        ~body=JsonCombinators.Json.stringify(body),
+        ~headers,
+        ~credentials,
+        (),
+      ),
     )
-  | (None, Some(fd)) => await Fetch.fetch(url, Fetch.requestInit(~method, ~body=fd, ~headers, ~credentials, ()))
+  | (None, Some(fd)) =>
+    await Fetch.fetch(url, Fetch.requestInit(~method, ~body=fd, ~headers, ~credentials, ()))
   | (None, None) => await Fetch.fetch(url, Fetch.requestInit(~method, ~headers, ~credentials, ()))
   }
 

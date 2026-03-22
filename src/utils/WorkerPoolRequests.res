@@ -46,11 +46,10 @@ let runRequest = (
       finish(abortValue)
     })
     switch (timeoutMs, timeoutValue) {
-    | (Some(ms), Some(value)) =>
-      timeoutId := Some(ReBindings.Window.setTimeout(() => {
-        let _ = removeWaiter(pool, id)
-        finish(value)
-      }, ms))
+    | (Some(ms), Some(value)) => timeoutId := Some(ReBindings.Window.setTimeout(() => {
+            let _ = removeWaiter(pool, id)
+            finish(value)
+          }, ms))
     | _ => ()
     }
     waitersRef := Belt.Array.concat(waitersRef.contents, [{id, resolve}])

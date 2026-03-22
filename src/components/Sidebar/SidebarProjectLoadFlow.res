@@ -194,7 +194,8 @@ let handleLoadProject = async (
 
           if !loadSettled.contents {
             switch projectDataResult {
-            | Ok((sessionId, projectData)) => await finalizeLoadedProject(
+            | Ok((sessionId, projectData)) =>
+              await finalizeLoadedProject(
                 ~sessionId,
                 ~projectData,
                 ~getState,

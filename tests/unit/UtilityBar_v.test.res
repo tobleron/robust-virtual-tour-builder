@@ -224,30 +224,27 @@ describe("UtilityBar", () => {
     Dom.removeElement(container)
   })
 
-  testAsync(
-    "should mark the utility rail inactive when no scenes are loaded",
-    async t => {
-      let container = Dom.createElement("div")
-      Dom.appendChild(Dom.documentBody, container)
+  testAsync("should mark the utility rail inactive when no scenes are loaded", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
 
-      let mockDispatch = _action => ()
-      let root = ReactDOMClient.createRoot(container)
-      ReactDOMClient.Root.render(
-        root,
-        <WrappedUtilityBar
-          scenesLoaded=false isLinking=false simActive=false currentJourneyId=0 mockDispatch
-        />,
-      )
+    let mockDispatch = _action => ()
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedUtilityBar
+        scenesLoaded=false isLinking=false simActive=false currentJourneyId=0 mockDispatch
+      />,
+    )
 
-      await wait(50)
+    await wait(50)
 
-      let utilBar =
-        Dom.querySelector(container, "#viewer-utility-bar")->Nullable.toOption->Belt.Option.getExn
-      let cl = Dom.classList(utilBar)
+    let utilBar =
+      Dom.querySelector(container, "#viewer-utility-bar")->Nullable.toOption->Belt.Option.getExn
+    let cl = Dom.classList(utilBar)
 
-      t->expect(Dom.ClassList.contains(cl, "is-inactive"))->Expect.toBe(true)
+    t->expect(Dom.ClassList.contains(cl, "is-inactive"))->Expect.toBe(true)
 
-      Dom.removeElement(container)
-    },
-  )
+    Dom.removeElement(container)
+  })
 })

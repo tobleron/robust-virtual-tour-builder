@@ -3,6 +3,7 @@
 type t = {
   maxCalls: int,
   windowMs: int,
+  // JUSTIFIED: imperative singleton
   mutable timestamps: array<float>,
 }
 

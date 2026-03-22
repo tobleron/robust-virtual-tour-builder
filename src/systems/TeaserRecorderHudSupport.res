@@ -126,7 +126,7 @@ let renderMarketingBanner = (
       1.0
     }
 
-    let segmentItems: array<bannerSegment> = Belt.Array.concatMany([
+    let initialSegments: array<bannerSegment> = Belt.Array.concatMany([
       if data.showRent {
         [({kind: TeaserRecorderHudTypes.Rent, text: "RENT", width: 0.0}: bannerSegment)]
       } else {
@@ -152,12 +152,13 @@ let renderMarketingBanner = (
     Canvas.setTextBaseline(ctx, "middle")
     Canvas.setTextAlign(ctx, "left")
 
-    segmentItems->Belt.Array.forEach(segment => {
+    let measuredSegments = initialSegments->Belt.Array.map(segment => {
       let pad = switch segment.kind {
       | TeaserRecorderHudTypes.Body => bodyPadX
       | _ => chipPadX
       }
-      segment.width = Canvas.measureText(ctx, segment.text)->Canvas.textMetricsWidth +. pad *. 2.0
+      let width = Canvas.measureText(ctx, segment.text)->Canvas.textMetricsWidth +. pad *. 2.0
+      {...segment, width}
     })
 
     let maxTotalWidth = {
@@ -169,37 +170,42 @@ let renderMarketingBanner = (
         byHdAbsolute
       }
     }
-    let totalWidth = segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
-    if totalWidth > maxTotalWidth {
-      let fixedWidth = segmentItems->Belt.Array.reduce(0.0, (acc, segment) =>
+    let totalWidth =
+      measuredSegments->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
+
+    let finalSegments = if totalWidth > maxTotalWidth {
+      let fixedWidth = measuredSegments->Belt.Array.reduce(0.0, (acc, segment) =>
         switch segment.kind {
         | TeaserRecorderHudTypes.Body => acc
         | _ => acc +. segment.width
         }
       )
       let maxBodyWidth = maxTotalWidth -. fixedWidth
-      segmentItems->Belt.Array.forEach(segment =>
+      measuredSegments->Belt.Array.map(segment =>
         switch segment.kind {
         | TeaserRecorderHudTypes.Body =>
-          segment.width = if maxBodyWidth > 40.0 *. scale.sx {
+          let newWidth = if maxBodyWidth > 40.0 *. scale.sx {
             maxBodyWidth
           } else {
             40.0 *. scale.sx
           }
-        | _ => ()
+          {...segment, width: newWidth}
+        | _ => segment
         }
       )
+    } else {
+      measuredSegments
     }
 
     let adjustedTotalWidth =
-      segmentItems->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
+      finalSegments->Belt.Array.reduce(0.0, (acc, segment) => acc +. segment.width)
     let startX = (Belt.Int.toFloat(canvasWidth) -. adjustedTotalWidth) /. 2.0
     let startY = Belt.Int.toFloat(canvasHeight) -. segmentHeight -. lineWidth *. 0.5
     let cursorX = ref(startX)
-    let count = segmentItems->Belt.Array.length
+    let count = finalSegments->Belt.Array.length
 
     for i in 0 to count - 1 {
-      switch segmentItems->Belt.Array.get(i) {
+      switch finalSegments->Belt.Array.get(i) {
       | Some(segment) =>
         let x = cursorX.contents
         let w = segment.width

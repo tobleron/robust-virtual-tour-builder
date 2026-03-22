@@ -36,18 +36,16 @@ let make = (
   let showToggleAnimationState = flickerYellow || isSwapping
   let showDeleteAnimationState = flickerRed
   let suppressDrawerOpen = isDeleteCollapsing || isDeleting
-  let effectiveDrawerOpen =
-    if suppressDrawerOpen {
-      false
-    } else {
-      isDrawerOpen || showToggleAnimationState || showDeleteAnimationState
-    }
-  let secondaryCollapseClass =
-    if isDeleteCollapsing || isDeleting {
-      "!opacity-0 !translate-x-0 !translate-y-0 pointer-events-none"
-    } else {
-      ""
-    }
+  let effectiveDrawerOpen = if suppressDrawerOpen {
+    false
+  } else {
+    isDrawerOpen || showToggleAnimationState || showDeleteAnimationState
+  }
+  let secondaryCollapseClass = if isDeleteCollapsing || isDeleting {
+    "!opacity-0 !translate-x-0 !translate-y-0 pointer-events-none"
+  } else {
+    ""
+  }
 
   // Detect completion of move to trigger blink
   let prevIsMovingThis = React.useRef(false)
@@ -133,8 +131,16 @@ let make = (
     "is-manual-target"
   }
 
-  let centerSwapClass = if isSwapping { "hs-hotspot-swap-center-out" } else { "" }
-  let toggleSwapClass = if isSwapping { "hs-hotspot-swap-toggle-in" } else { "" }
+  let centerSwapClass = if isSwapping {
+    "hs-hotspot-swap-center-out"
+  } else {
+    ""
+  }
+  let toggleSwapClass = if isSwapping {
+    "hs-hotspot-swap-toggle-in"
+  } else {
+    ""
+  }
   let keepDrawerOpen = () =>
     switch onDrawerEnter {
     | Some(fn) => fn()
@@ -191,7 +197,9 @@ let make = (
                          transition-all duration-300 ease-out 
                          opacity-0 translate-x-0
                          group-hover:opacity-100 group-hover:translate-x-[108%]
-                         ${rightStateClass} ${flickerYellow ? "animate-flicker-yellow" : ""} ${toggleSwapClass} ${secondaryCollapseClass}`}
+                         ${rightStateClass} ${flickerYellow
+                  ? "animate-flicker-yellow"
+                  : ""} ${toggleSwapClass} ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleRightClick(
@@ -213,7 +221,9 @@ let make = (
               className={`hs-hotspot-control hs-hotspot-control--secondary hs-hotspot-control--move absolute inset-0 rounded-md flex items-center justify-center z-10 cursor-pointer 
                          transition-all duration-300 ease-out 
                          opacity-0 translate-y-0
-                         group-hover:opacity-100 group-hover:translate-y-[108%] ${isMovingThis ? "is-moving" : ""} ${secondaryCollapseClass}`}
+                         group-hover:opacity-100 group-hover:translate-y-[108%] ${isMovingThis
+                  ? "is-moving"
+                  : ""} ${secondaryCollapseClass}`}
               onMouseEnter={_ => keepDrawerOpen()}
               onClick={e =>
                 PreviewArrowSupport.handleMoveClick(e, ~sceneIndex, ~hotspotIndex, ~dispatch)}

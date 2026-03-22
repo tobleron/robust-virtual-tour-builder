@@ -20,8 +20,9 @@ let make = () => {
   let (forRent, setForRent) = React.useState(_ => state.marketingForRent)
   let (forSale, setForSale) = React.useState(_ => state.marketingForSale)
   let (logoFile, setLogoFile) = React.useState(_ => state.logo)
-  let (tripodDeadZoneEnabled, setTripodDeadZoneEnabled) =
-    React.useState(_ => state.tripodDeadZoneEnabled)
+  let (tripodDeadZoneEnabled, setTripodDeadZoneEnabled) = React.useState(_ =>
+    state.tripodDeadZoneEnabled
+  )
   let (autosaveMode, setAutosaveMode) = React.useState(_ => initialPrefs.autosaveMode)
   let (snapshotCadence, setSnapshotCadence) = React.useState(_ => initialPrefs.snapshotCadence)
   let fileInputRef = React.useRef(Nullable.null)
@@ -48,7 +49,7 @@ let make = () => {
       "bg-white/20 text-white border border-white/20"
     } else {
       "bg-white/5 text-white/70 border border-transparent hover:bg-white/10 hover:text-white"
-  }
+    }
 
   let onCancel = () => EventBus.dispatch(CloseModal)
   let openLogoPicker = () =>
@@ -147,286 +148,298 @@ let make = () => {
     <div className="settings-modal-content">
       <div className={panelClass}>
         {switch activeTab {
-      | Marketing =>
-        <div className="w-full h-full flex flex-col gap-3">
-          <div className="settings-logo-section">
-            <div className="settings-preview-header">
-              <span className="settings-field-label"> {React.string("Logo")} </span>
-              <span className="settings-field-label"> {React.string("Viewer branding")} </span>
-            </div>
-            <div className="settings-logo-row">
-              <div className="settings-logo-preview">
-                <img src=logoSrc alt="Current logo" className="settings-logo-image" />
+        | Marketing =>
+          <div className="w-full h-full flex flex-col gap-3">
+            <div className="settings-logo-section">
+              <div className="settings-preview-header">
+                <span className="settings-field-label"> {React.string("Logo")} </span>
+                <span className="settings-field-label"> {React.string("Viewer branding")} </span>
               </div>
-              <div className="settings-logo-actions">
-                <button
-                  className="modal-btn-premium settings-logo-button"
-                  disabled={!canUpload}
-                  onClick={_ => openLogoPicker()}
-                >
-                  <span> {React.string("Choose Logo")} </span>
-                </button>
-                <button
-                  className="modal-btn-premium settings-logo-button settings-logo-button-muted"
-                  onClick={_ => setLogoFile(_ => None)}
-                >
-                  <span> {React.string("Use Default")} </span>
-                </button>
-              </div>
-            </div>
-            <input
-              type_="file"
-              ref={fileInputRef->ReactDOM.Ref.domRef}
-              onChange=handleLogoFileChange
-              className="hidden"
-              accept="image/*"
-            />
-          </div>
-
-          <label className="settings-field-label"> {React.string("Comment")} </label>
-          <textarea
-            className="settings-field-input settings-field-textarea"
-            value={comment}
-            placeholder="Enter marketing comment..."
-            onChange={e => setComment(_ => ReactEvent.Form.target(e)["value"])}
-          />
-
-          <label className="settings-field-label"> {React.string("Phone Number 1")} </label>
-          <input
-            className="settings-field-input"
-            value={phone1}
-            placeholder="+1 ..."
-            onChange={e => setPhone1(_ => ReactEvent.Form.target(e)["value"])}
-          />
-
-          <label className="settings-field-label"> {React.string("Phone Number 2")} </label>
-          <input
-            className="settings-field-input"
-            value={phone2}
-            placeholder="+1 ..."
-            onChange={e => setPhone2(_ => ReactEvent.Form.target(e)["value"])}
-          />
-
-          <div className="flex items-center gap-5 mt-1">
-            <label className="settings-check-label">
-              <input type_="checkbox" checked={forRent} onChange={_ => setForRent(prev => !prev)} />
-              <span> {React.string("For Rent")} </span>
-            </label>
-            <label className="settings-check-label">
-              <input type_="checkbox" checked={forSale} onChange={_ => setForSale(prev => !prev)} />
-              <span> {React.string("For Sale")} </span>
-            </label>
-          </div>
-
-          <div className="settings-preview-wrap">
-            <div className="settings-preview-header">
-              <span className="settings-field-label">
-                {React.string("Bottom Banner Preview")}
-              </span>
-              <span
-                className={`text-[11px] font-semibold ${overLimit
-                    ? "text-red-300"
-                    : "text-white/75"}`}
-              >
-                {React.string(
-                  Belt.Int.toString(charCount) ++ "/" ++ Belt.Int.toString(MarketingText.maxLen),
-                )}
-              </span>
-            </div>
-            <div className="settings-preview-banner">
-              <span className="settings-preview-text">
-                {React.string(preview.full == "" ? "No marketing text saved." : preview.full)}
-              </span>
-            </div>
-          </div>
-        </div>
-      | Persistence =>
-        <div className="w-full h-full flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="settings-field-label"> {React.string("Autosave Mode")} </label>
-            <div className="settings-choice-layout">
-              <div className="settings-choice-box">
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="autosave-mode"
-                    checked={autosaveMode == PersistencePreferences.Off}
-                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.Off)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Off")} </span>
-                </label>
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="autosave-mode"
-                    checked={autosaveMode == PersistencePreferences.LocalOnly}
-                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.LocalOnly)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Local Only")} </span>
-                </label>
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="autosave-mode"
-                    checked={autosaveMode == PersistencePreferences.Hybrid}
-                    onChange={_ => setAutosaveMode(_ => PersistencePreferences.Hybrid)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Hybrid")} </span>
-                </label>
-              </div>
-
-              <div className="settings-description-box">
-                <div
-                  className={`settings-description-item ${autosaveMode == PersistencePreferences.Off
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Off")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Disable autosave and keep saving manual.")}
-                  </div>
+              <div className="settings-logo-row">
+                <div className="settings-logo-preview">
+                  <img src=logoSrc alt="Current logo" className="settings-logo-image" />
                 </div>
-                <div
-                  className={`settings-description-item ${autosaveMode == PersistencePreferences.LocalOnly
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Local Only")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Autosave stays in this browser for recovery.")}
-                  </div>
-                </div>
-                <div
-                  className={`settings-description-item ${autosaveMode == PersistencePreferences.Hybrid
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Hybrid")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Autosave writes locally and snapshots to server when online.")}
-                  </div>
+                <div className="settings-logo-actions">
+                  <button
+                    className="modal-btn-premium settings-logo-button"
+                    disabled={!canUpload}
+                    onClick={_ => openLogoPicker()}
+                  >
+                    <span> {React.string("Choose Logo")} </span>
+                  </button>
+                  <button
+                    className="modal-btn-premium settings-logo-button settings-logo-button-muted"
+                    onClick={_ => setLogoFile(_ => None)}
+                  >
+                    <span> {React.string("Use Default")} </span>
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="settings-field-label"> {React.string("Snapshot Cadence")} </label>
-            <div className="settings-choice-layout">
-              <div className="settings-choice-box">
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="snapshot-cadence"
-                    checked={snapshotCadence == PersistencePreferences.Conservative}
-                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Conservative)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Conservative")} </span>
-                </label>
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="snapshot-cadence"
-                    checked={snapshotCadence == PersistencePreferences.Balanced}
-                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Balanced)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Balanced")} </span>
-                </label>
-                <label className="settings-radio-option settings-radio-option-compact">
-                  <input
-                    type_="radio"
-                    name="snapshot-cadence"
-                    checked={snapshotCadence == PersistencePreferences.Frequent}
-                    onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Frequent)}
-                  />
-                  <span className="settings-radio-title"> {React.string("Frequent")} </span>
-                </label>
-              </div>
-
-              <div className="settings-description-box">
-                <div
-                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Conservative
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Conservative")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Fewer snapshots and less disk activity.")}
-                  </div>
-                </div>
-                <div
-                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Balanced
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Balanced")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Keeps a steady recovery cadence with moderate churn.")}
-                  </div>
-                </div>
-                <div
-                  className={`settings-description-item ${snapshotCadence == PersistencePreferences.Frequent
-                      ? "settings-description-item--active"
-                      : ""}`}
-                >
-                  <div className="settings-description-title"> {React.string("Frequent")} </div>
-                  <div className="settings-description-text">
-                    {React.string("Snapshot often for the strongest recovery coverage.")}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="settings-preview-wrap">
-            <div className="settings-preview-header">
-              <span className="settings-field-label"> {React.string("Behavior")} </span>
-            </div>
-            <div className="settings-preview-banner">
-              <span className="settings-preview-text">
-                {React.string(
-                  switch autosaveMode {
-                  | PersistencePreferences.Off => "Autosave disabled. Use the Save menu to persist your work."
-                  | PersistencePreferences.LocalOnly => "Autosave writes only to this browser for recovery. Server history is manual."
-                  | PersistencePreferences.Hybrid => "Autosave writes locally and creates server snapshots when online and signed in."
-                  },
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-      | Viewer =>
-        <div className="w-full h-full flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="settings-field-label"> {React.string("Tripod Dead-Zone")} </label>
-            <label className="settings-check-label">
               <input
-                type_="checkbox"
-                checked={tripodDeadZoneEnabled}
-                onChange={_ => setTripodDeadZoneEnabled(prev => !prev)}
+                type_="file"
+                ref={fileInputRef->ReactDOM.Ref.domRef}
+                onChange=handleLogoFileChange
+                className="hidden"
+                accept="image/*"
               />
-              <span> {React.string("Enable for builder and exported tours")} </span>
-            </label>
-          </div>
+            </div>
 
-          <div className="settings-preview-wrap">
-            <div className="settings-preview-header">
-              <span className="settings-field-label"> {React.string("Behavior")} </span>
+            <label className="settings-field-label"> {React.string("Comment")} </label>
+            <textarea
+              className="settings-field-input settings-field-textarea"
+              value={comment}
+              placeholder="Enter marketing comment..."
+              onChange={e => setComment(_ => ReactEvent.Form.target(e)["value"])}
+            />
+
+            <label className="settings-field-label"> {React.string("Phone Number 1")} </label>
+            <input
+              className="settings-field-input"
+              value={phone1}
+              placeholder="+1 ..."
+              onChange={e => setPhone1(_ => ReactEvent.Form.target(e)["value"])}
+            />
+
+            <label className="settings-field-label"> {React.string("Phone Number 2")} </label>
+            <input
+              className="settings-field-input"
+              value={phone2}
+              placeholder="+1 ..."
+              onChange={e => setPhone2(_ => ReactEvent.Form.target(e)["value"])}
+            />
+
+            <div className="flex items-center gap-5 mt-1">
+              <label className="settings-check-label">
+                <input
+                  type_="checkbox" checked={forRent} onChange={_ => setForRent(prev => !prev)}
+                />
+                <span> {React.string("For Rent")} </span>
+              </label>
+              <label className="settings-check-label">
+                <input
+                  type_="checkbox" checked={forSale} onChange={_ => setForSale(prev => !prev)}
+                />
+                <span> {React.string("For Sale")} </span>
+              </label>
             </div>
-            <div className="settings-preview-banner">
-              <span className="settings-preview-text">
-                {React.string(
-                  tripodDeadZoneEnabled
-                    ? "Builder and exported tours will clamp the camera to a tripod-safe floor."
-                    : "Builder and exported tours will allow the full pitch range.",
-                )}
-              </span>
+
+            <div className="settings-preview-wrap">
+              <div className="settings-preview-header">
+                <span className="settings-field-label">
+                  {React.string("Bottom Banner Preview")}
+                </span>
+                <span
+                  className={`text-[11px] font-semibold ${overLimit
+                      ? "text-red-300"
+                      : "text-white/75"}`}
+                >
+                  {React.string(
+                    Belt.Int.toString(charCount) ++ "/" ++ Belt.Int.toString(MarketingText.maxLen),
+                  )}
+                </span>
+              </div>
+              <div className="settings-preview-banner">
+                <span className="settings-preview-text">
+                  {React.string(preview.full == "" ? "No marketing text saved." : preview.full)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      | About => <SidebarAbout />
-      | SystemHealth => <SidebarSystemHealth />
-      }}
+        | Persistence =>
+          <div className="w-full h-full flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="settings-field-label"> {React.string("Autosave Mode")} </label>
+              <div className="settings-choice-layout">
+                <div className="settings-choice-box">
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="autosave-mode"
+                      checked={autosaveMode == PersistencePreferences.Off}
+                      onChange={_ => setAutosaveMode(_ => PersistencePreferences.Off)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Off")} </span>
+                  </label>
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="autosave-mode"
+                      checked={autosaveMode == PersistencePreferences.LocalOnly}
+                      onChange={_ => setAutosaveMode(_ => PersistencePreferences.LocalOnly)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Local Only")} </span>
+                  </label>
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="autosave-mode"
+                      checked={autosaveMode == PersistencePreferences.Hybrid}
+                      onChange={_ => setAutosaveMode(_ => PersistencePreferences.Hybrid)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Hybrid")} </span>
+                  </label>
+                </div>
+
+                <div className="settings-description-box">
+                  <div
+                    className={`settings-description-item ${autosaveMode ==
+                        PersistencePreferences.Off
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title"> {React.string("Off")} </div>
+                    <div className="settings-description-text">
+                      {React.string("Disable autosave and keep saving manual.")}
+                    </div>
+                  </div>
+                  <div
+                    className={`settings-description-item ${autosaveMode ==
+                        PersistencePreferences.LocalOnly
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title"> {React.string("Local Only")} </div>
+                    <div className="settings-description-text">
+                      {React.string("Autosave stays in this browser for recovery.")}
+                    </div>
+                  </div>
+                  <div
+                    className={`settings-description-item ${autosaveMode ==
+                        PersistencePreferences.Hybrid
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title"> {React.string("Hybrid")} </div>
+                    <div className="settings-description-text">
+                      {React.string("Autosave writes locally and snapshots to server when online.")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="settings-field-label"> {React.string("Snapshot Cadence")} </label>
+              <div className="settings-choice-layout">
+                <div className="settings-choice-box">
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="snapshot-cadence"
+                      checked={snapshotCadence == PersistencePreferences.Conservative}
+                      onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Conservative)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Conservative")} </span>
+                  </label>
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="snapshot-cadence"
+                      checked={snapshotCadence == PersistencePreferences.Balanced}
+                      onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Balanced)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Balanced")} </span>
+                  </label>
+                  <label className="settings-radio-option settings-radio-option-compact">
+                    <input
+                      type_="radio"
+                      name="snapshot-cadence"
+                      checked={snapshotCadence == PersistencePreferences.Frequent}
+                      onChange={_ => setSnapshotCadence(_ => PersistencePreferences.Frequent)}
+                    />
+                    <span className="settings-radio-title"> {React.string("Frequent")} </span>
+                  </label>
+                </div>
+
+                <div className="settings-description-box">
+                  <div
+                    className={`settings-description-item ${snapshotCadence ==
+                        PersistencePreferences.Conservative
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title">
+                      {React.string("Conservative")}
+                    </div>
+                    <div className="settings-description-text">
+                      {React.string("Fewer snapshots and less disk activity.")}
+                    </div>
+                  </div>
+                  <div
+                    className={`settings-description-item ${snapshotCadence ==
+                        PersistencePreferences.Balanced
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title"> {React.string("Balanced")} </div>
+                    <div className="settings-description-text">
+                      {React.string("Keeps a steady recovery cadence with moderate churn.")}
+                    </div>
+                  </div>
+                  <div
+                    className={`settings-description-item ${snapshotCadence ==
+                        PersistencePreferences.Frequent
+                        ? "settings-description-item--active"
+                        : ""}`}
+                  >
+                    <div className="settings-description-title"> {React.string("Frequent")} </div>
+                    <div className="settings-description-text">
+                      {React.string("Snapshot often for the strongest recovery coverage.")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-preview-wrap">
+              <div className="settings-preview-header">
+                <span className="settings-field-label"> {React.string("Behavior")} </span>
+              </div>
+              <div className="settings-preview-banner">
+                <span className="settings-preview-text">
+                  {React.string(
+                    switch autosaveMode {
+                    | PersistencePreferences.Off => "Autosave disabled. Use the Save menu to persist your work."
+                    | PersistencePreferences.LocalOnly => "Autosave writes only to this browser for recovery. Server history is manual."
+                    | PersistencePreferences.Hybrid => "Autosave writes locally and creates server snapshots when online and signed in."
+                    },
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        | Viewer =>
+          <div className="w-full h-full flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="settings-field-label"> {React.string("Tripod Dead-Zone")} </label>
+              <label className="settings-check-label">
+                <input
+                  type_="checkbox"
+                  checked={tripodDeadZoneEnabled}
+                  onChange={_ => setTripodDeadZoneEnabled(prev => !prev)}
+                />
+                <span> {React.string("Enable for builder and exported tours")} </span>
+              </label>
+            </div>
+
+            <div className="settings-preview-wrap">
+              <div className="settings-preview-header">
+                <span className="settings-field-label"> {React.string("Behavior")} </span>
+              </div>
+              <div className="settings-preview-banner">
+                <span className="settings-preview-text">
+                  {React.string(
+                    tripodDeadZoneEnabled
+                      ? "Builder and exported tours will clamp the camera to a tripod-safe floor."
+                      : "Builder and exported tours will allow the full pitch range.",
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        | About => <SidebarAbout />
+        | SystemHealth => <SidebarSystemHealth />
+        }}
       </div>
 
       <div className="settings-actions">

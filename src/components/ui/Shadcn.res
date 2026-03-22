@@ -189,37 +189,3 @@ module ContextMenu = {
     external make: unit => React.element = "ContextMenuSeparator"
   }
 }
-
-module Sonner = {
-  @module("./sonner.jsx") @react.component
-  external make: (
-    ~position: string=?,
-    ~closeButton: bool=?,
-    ~richColors: bool=?,
-    ~expand: bool=?,
-    ~duration: int=?,
-    ~visibleToasts: int=?,
-    ~container: Dom.element=?,
-    ~dir: string=?,
-  ) => React.element = "Toaster"
-
-  type toastOptions = {
-    duration: int,
-    description: option<string>,
-  }
-
-  @module("sonner")
-  external toast: (string, toastOptions) => unit = "toast"
-
-  @module("sonner") @scope("toast")
-  external success: (string, toastOptions) => unit = "success"
-
-  @module("sonner") @scope("toast")
-  external error: (string, toastOptions) => unit = "error"
-
-  @module("sonner") @scope("toast")
-  external warning: (string, toastOptions) => unit = "warning"
-
-  @module("sonner") @scope("toast")
-  external info: (string, toastOptions) => unit = "info"
-}

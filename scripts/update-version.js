@@ -103,6 +103,17 @@ try {
     writeFileSync(versionResPath, versionResContent);
     console.log(`✅ Updated src/utils/Version.res (Branch: ${currentBranch} -> ${decoratedBuildInfo})`);
 
+    // 3. Update backend/Cargo.toml
+    const cargoPath = join(process.cwd(), 'backend', 'Cargo.toml');
+    try {
+        let cargoContent = readFileSync(cargoPath, 'utf8');
+        cargoContent = cargoContent.replace(/^version\s*=\s*"[^"]+"/m, `version = "${version}"`);
+        writeFileSync(cargoPath, cargoContent);
+        console.log(`✅ Updated backend/Cargo.toml (version = "${version}")`);
+    } catch (e) {
+        console.warn('⚠️ Could not update backend/Cargo.toml:', e.message);
+    }
+
     console.log(`Successfully updated version to ${version}`);
 } catch (error) {
     console.error('❌ Error updating version:', error.message);

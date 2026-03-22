@@ -25,6 +25,7 @@ Windows PowerShell:
 
 The script:
 - validates tools (`node`, `npm`, `rustup/cargo`, `ffmpeg`, `git`)
+- copies `.env.example` to `.env` if `.env` does not exist
 - generates `config/builder.runtime.toml` and `backend/.env.local-builder` with safe defaults
 - builds frontend/backend for release and preserves `backend/target`
 - starts the server that hosts both UI and API on one origin

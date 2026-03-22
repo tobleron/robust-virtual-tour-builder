@@ -229,11 +229,10 @@ let useMainSceneLoading = (
     }
     None
   }, (
-    Belt.Int.toString(activeIndex)
-    ++ "_"
-    ++ Belt.Int.toString(Belt.Array.length(scenes))
-    ++ "_"
-    ++ (tripodDeadZoneEnabled ? "on" : "off"),
+    Belt.Int.toString(activeIndex) ++
+    "_" ++
+    Belt.Int.toString(Belt.Array.length(scenes)) ++
+    "_" ++ (tripodDeadZoneEnabled ? "on" : "off"),
     Float.toString(activeYaw) ++ "_" ++ Float.toString(activePitch),
   ))
 }

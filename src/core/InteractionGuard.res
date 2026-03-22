@@ -4,6 +4,7 @@ open ReBindings
 exception Debounced
 
 type state = {
+  // JUSTIFIED: imperative singleton
   mutable lastExecution: float,
   mutable timerId: option<int>,
   mutable pendingReject: option<exn => unit>,

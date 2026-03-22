@@ -5,19 +5,16 @@ open PortalAppCore
 let make = () => {
   let route = parseRoute()
 
-  React.useEffect1(
-    () => {
-      switch route {
-      | Landing => setDocumentTitle(documentRef, "Robust Virtual Tour Builder | Portal")
-      | AdminSignin => setDocumentTitle(documentRef, "Robust Portal | Admin Sign In")
-      | AdminDashboard => setDocumentTitle(documentRef, "Robust Portal | Admin")
-      | CustomerPortal(slug) | CustomerTour(slug, _) =>
-        setDocumentTitle(documentRef, "Robust Portal | " ++ slug)
-      }
-      None
-    },
-    [route],
-  )
+  React.useEffect1(() => {
+    switch route {
+    | Landing => setDocumentTitle(documentRef, "Robust Virtual Tour Builder | Portal")
+    | AdminSignin => setDocumentTitle(documentRef, "Robust Portal | Admin Sign In")
+    | AdminDashboard => setDocumentTitle(documentRef, "Robust Portal | Admin")
+    | CustomerPortal(slug) | CustomerTour(slug, _) =>
+      setDocumentTitle(documentRef, "Robust Portal | " ++ slug)
+    }
+    None
+  }, [route])
 
   switch route {
   | Landing =>

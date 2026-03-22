@@ -89,9 +89,9 @@ let processFullWithWorker = (
   | None => Promise.resolve(Error("Worker pool not available"))
   | Some(pool) =>
     let timeoutValue =
-      timeoutMs->Option.map(ms =>
-        Error("Worker full processing timed out after " ++ Belt.Int.toString(ms) ++ "ms")
-      )
+      timeoutMs->Option.map(ms => Error(
+        "Worker full processing timed out after " ++ Belt.Int.toString(ms) ++ "ms",
+      ))
     WorkerPoolRequests.runRequest(
       pool,
       ~signal?,

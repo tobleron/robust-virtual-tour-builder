@@ -291,9 +291,7 @@ describe("AuthenticatedClient", () => {
 
     let _ = await AuthenticatedClient.request("/test-credentials", ())
 
-    let credentials = %raw(
-      "(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)"
-    )
+    let credentials = %raw("(function(m){ return m.mock.calls[0][1]['credentials'] })(fetchMock)")
     t->expect(credentials)->Expect.toBe(undefined)
   })
 

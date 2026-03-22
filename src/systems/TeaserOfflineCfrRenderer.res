@@ -36,8 +36,8 @@ let hasRenderableSourceCanvas = (): bool =>
   switch Recorder.resolveSourceCanvas() {
   | Some(canvas) =>
     Dom.getWidth(canvas) > 0 &&
-      Dom.getHeight(canvas) > 0 &&
-      TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
+    Dom.getHeight(canvas) > 0 &&
+    TeaserRecorderSupport.canvasHasPaintedPixels(canvas)
   | None => false
   }
 
@@ -66,8 +66,7 @@ let waitForRenderableCanvasStabilityOrAbort = async (
       }
 
       if nextStableFrames >= requiredStableFrames {
-        Playback.wait(100)
-        ->Promise.then(_ => Promise.resolve(true))
+        Playback.wait(100)->Promise.then(_ => Promise.resolve(true))
       } else {
         waitForAnimationFrame()->Promise.then(_ => check(nextStableFrames))
       }

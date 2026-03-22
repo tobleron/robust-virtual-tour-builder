@@ -1,4 +1,4 @@
-@module("./FeatureLoaders.js")
+@module("./FeatureLoadersRuntime.js")
 external exportTourLazy: (
   array<Types.scene>,
   string,
@@ -11,7 +11,7 @@ external exportTourLazy: (
   array<string>,
 ) => Promise.t<result<unit, string>> = "exportTourLazy"
 
-@module("./FeatureLoaders.js")
+@module("./FeatureLoadersRuntime.js")
 external startTeaserLazy: (
   string,
   option<string>,
@@ -33,14 +33,14 @@ type exifSceneDataItem = {
   qualityJson: option<JSON.t>,
 }
 
-@module("./FeatureLoaders.js")
+@module("./FeatureLoadersRuntime.js")
 external generateExifReportLazy: array<exifSceneDataItem> => Promise.t<exifReportResult> =
   "generateExifReportLazy"
 
-@module("./FeatureLoaders.js")
+@module("./FeatureLoadersRuntime.js")
 external downloadExifReportLazy: string => Promise.t<unit> = "downloadExifReportLazy"
 
-@module("./FeatureLoaders.js")
+@module("./FeatureLoadersRuntime.js")
 external extractExifFromFileLazy: ReBindings.File.t => Promise.t<
   result<SharedTypes.exifMetadata, string>,
 > = "extractExifFromFileLazy"

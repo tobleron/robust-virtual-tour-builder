@@ -1,6 +1,6 @@
 [package]
 name = "backend"
-version = "0.1.0"
+version = "5.3.9"
 edition = "2024"
 default-run = "backend"
 build = "build.rs"

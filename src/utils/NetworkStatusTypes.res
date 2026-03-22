@@ -48,8 +48,7 @@ let backendRateLimitedSignature = (retryAfter: option<int>): string =>
 let backendUnavailableSignature = (status: int, statusText: string): string =>
   "backend-unavailable:" ++ Belt.Int.toString(status) ++ ":" ++ statusText
 
-let transportFailureSignature = (message: string): string =>
-  "transport-failure:" ++ message
+let transportFailureSignature = (message: string): string => "transport-failure:" ++ message
 
 let reasonSignature = (reason: statusReason): string =>
   switch reason {

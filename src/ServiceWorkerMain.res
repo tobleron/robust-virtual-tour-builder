@@ -76,7 +76,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v5.3.8"
+let cacheName = "vtb-cache-v5.3.9"
 let manualAssets = [
   "/",
   "/index.html",
@@ -92,7 +92,7 @@ let manualAssets = [
   "/manifest.json",
   "/robots.txt",
   "/sounds/click.wav",
-  "/workers/image-worker.js"
+  "/workers/image-worker.js",
 ]
 
 let runtimeStaleMaxAgeMs = 7.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
@@ -241,9 +241,7 @@ addEventListener("fetch", (event: FetchEvent.t) => {
             if isImmutable {
               Promise.resolve(res)
             } else {
-              fetchAndCache->Promise.catch(
-                _err => Promise.resolve(res),
-              )
+              fetchAndCache->Promise.catch(_err => Promise.resolve(res))
             }
           | None =>
             // Cache miss: try network

@@ -55,9 +55,7 @@ let renderRecipientRow = (~props: props, ~customerOverview: PortalTypes.customer
         ? "is-selected"
         : ""
     )}
-    ariaLabel={(
-      props.assignmentMode == BulkAssignMode ? "Select recipient " : "Open recipient "
-    ) ++
+    ariaLabel={(props.assignmentMode == BulkAssignMode ? "Select recipient " : "Open recipient ") ++
     customerOverview.customer.displayName}
     onClick={_ =>
       props.assignmentMode == BulkAssignMode
@@ -131,9 +129,7 @@ let renderTourRow = (~props: props, ~tourOverview: PortalTypes.libraryTourOvervi
           <strong> {React.string(tourOverview.tour.title)} </strong>
         </span>
         <small>
-          {React.string(
-            "ID: " ++ tourOverview.tour.id ++ " · " ++ tourOverview.tour.slug,
-          )}
+          {React.string("ID: " ++ tourOverview.tour.id ++ " · " ++ tourOverview.tour.slug)}
         </small>
       </span>
     </span>
@@ -198,12 +194,13 @@ let renderTourRow = (~props: props, ~tourOverview: PortalTypes.libraryTourOvervi
               className="site-btn site-btn-ghost portal-compact-btn is-destructive"
               ariaLabel={"Delete tour " ++ tourOverview.tour.title}
               onClick={_ =>
-                ignore(props.onDeleteTour(~tourId=tourOverview.tour.id, ~title=tourOverview.tour.title))}
+                ignore(
+                  props.onDeleteTour(~tourId=tourOverview.tour.id, ~title=tourOverview.tour.title),
+                )}
             >
               {actionLabel(~icon=DeleteIcon, ~label="Delete")}
             </button>
-          </div>
-      }
+          </div>}
     </span>
   </div>
 }
@@ -221,9 +218,13 @@ let make = (props: props) => {
   )
   let filteredTours =
     props.data.tours->Belt.Array.keep(tourOverview =>
-      matchesTourSearch(tourOverview, props.tourSearch) && matchesTourFilter(tourOverview, props.tourFilter)
+      matchesTourSearch(tourOverview, props.tourSearch) &&
+      matchesTourFilter(tourOverview, props.tourFilter)
     )
-  let (visibleTours, tourTotal, tourHasPrev, tourHasNext) = paginateArray(filteredTours, props.tourPage)
+  let (visibleTours, tourTotal, tourHasPrev, tourHasNext) = paginateArray(
+    filteredTours,
+    props.tourPage,
+  )
   let recipientPageCount = totalPages(recipientTotal)
   let tourPageCount = totalPages(tourTotal)
 
@@ -247,11 +248,13 @@ let make = (props: props) => {
               Belt.Int.toString(recipientTotal),
             )}
           </span>
-          {props.assignmentMode == BulkAssignMode && props.selectedBulkCustomerIds->Belt.Set.String.size > 0
+          {props.assignmentMode == BulkAssignMode &&
+            props.selectedBulkCustomerIds->Belt.Set.String.size > 0
             ? <span className="portal-chip is-active">
                 {React.string(
-                  Belt.Int.toString(props.selectedBulkCustomerIds->Belt.Set.String.size) ++
-                  " selected",
+                  Belt.Int.toString(
+                    props.selectedBulkCustomerIds->Belt.Set.String.size,
+                  ) ++ " selected",
                 )}
               </span>
             : React.null}
@@ -265,7 +268,9 @@ let make = (props: props) => {
             <span> {React.string("Access")} </span>
             <span> {React.string("Expiry")} </span>
             <span> {React.string("Last opened")} </span>
-            <span>{React.string(props.assignmentMode == BulkAssignMode ? "Select" : "Open")}</span>
+            <span>
+              {React.string(props.assignmentMode == BulkAssignMode ? "Select" : "Open")}
+            </span>
           </div>
           {switch recipientTotal {
           | 0 =>
@@ -332,7 +337,9 @@ let make = (props: props) => {
             <span> {React.string("Tour")} </span>
             <span> {React.string("Status")} </span>
             <span> {React.string("Assignments")} </span>
-            <span>{React.string(props.assignmentMode == BulkAssignMode ? "Select" : "Actions")}</span>
+            <span>
+              {React.string(props.assignmentMode == BulkAssignMode ? "Select" : "Actions")}
+            </span>
           </div>
           {visibleTours
           ->Belt.Array.map(tourOverview => renderTourRow(~props, ~tourOverview))

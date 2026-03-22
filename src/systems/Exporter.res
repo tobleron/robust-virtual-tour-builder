@@ -35,11 +35,7 @@ let exportTour = async (
     } else {
       fraction
     }
-    progress(
-      logoPhaseStart +. (logoPhaseEnd -. logoPhaseStart) *. clampedFraction,
-      100.0,
-      message,
-    )
+    progress(logoPhaseStart +. (logoPhaseEnd -. logoPhaseStart) *. clampedFraction, 100.0, message)
   }
 
   let tourName = if tourName == "" {

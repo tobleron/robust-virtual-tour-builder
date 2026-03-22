@@ -28,7 +28,7 @@ import {
   extractExifFromFileLazy,
   generateExifReportLazy,
   startTeaserLazy,
-} from '../../src/systems/FeatureLoaders.js';
+} from '../../src/systems/FeatureLoadersRuntime.js';
 
 describe('FeatureLoaders', () => {
   beforeEach(() => {

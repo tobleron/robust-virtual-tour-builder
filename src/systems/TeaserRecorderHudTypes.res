@@ -17,5 +17,5 @@ type bannerSegmentKind = Rent | Sale | Body
 type bannerSegment = {
   kind: bannerSegmentKind,
   text: string,
-  mutable width: float,
+  width: float,
 }

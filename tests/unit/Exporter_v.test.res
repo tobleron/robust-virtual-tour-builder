@@ -345,10 +345,10 @@ describe("Exporter", () => {
       ~allowDefaultLogoFallback=false,
       ~authToken=None,
       ~signal=None,
-      ~reportProgress=((~fraction, ~message) => {
+      ~reportProgress=(~fraction, ~message) => {
         ignore(fraction)
         ignore(message)
-      }),
+      },
     )
 
     switch result {
@@ -542,8 +542,7 @@ describe("Exporter", () => {
     )
 
     // Verify the export still succeeds without a stored auth token in the test environment
-    let authHeader = %raw(
-      "(function(m){ 
+    let authHeader = %raw("(function(m){ 
         const calls = m.mock.calls;
         for (let i = 0; i < calls.length; i++) {
           if (calls[i][0] && calls[i][0].includes('/api/')) {
@@ -551,13 +550,12 @@ describe("Exporter", () => {
           }
         }
         return undefined;
-      })(fetchMock)"
-    )
+      })(fetchMock)")
     t->expect(authHeader)->Expect.toBe(undefined)
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(true)
-      | Error(_) => t->expect(true)->Expect.toBe(false)
+    | Error(_) => t->expect(true)->Expect.toBe(false)
     }
   })
 })

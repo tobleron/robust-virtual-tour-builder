@@ -134,9 +134,7 @@ let showLinkModal = (
       </div>
       {if isRetargeting {
         <div className="link-modal-field">
-          <div className="link-modal-field-label">
-            {React.string("Sequence")}
-          </div>
+          <div className="link-modal-field-label"> {React.string("Sequence")} </div>
           <div className="link-modal-sequence-hint">
             {React.string(
               "Sequence numbers update automatically from the current route. Change the destination link and the numbering will shift or compact as needed.",
@@ -187,7 +185,8 @@ let showLinkModal = (
         | None =>
           // Fallback to index-based lookup for the linkId if ID missing in draft
           let sourceScene = Belt.Array.get(scenes, retarget.sceneIndex)->Option.getOrThrow
-          let hotspot = Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.getOrThrow
+          let hotspot =
+            Belt.Array.get(sourceScene.hotspots, retarget.hotspotIndex)->Option.getOrThrow
           hotspot.linkId
         }
 

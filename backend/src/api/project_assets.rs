@@ -269,13 +269,15 @@ pub(super) async fn bulk_delete_dashboard_projects(
 
     let requested_count = deleted_session_ids.len() + failures.len();
 
-    Ok(HttpResponse::Ok().json(BulkDeleteDashboardProjectsResponse {
-        ok: failures.is_empty(),
-        requested_count,
-        deleted_count: deleted_session_ids.len(),
-        deleted_session_ids,
-        failures,
-    }))
+    Ok(
+        HttpResponse::Ok().json(BulkDeleteDashboardProjectsResponse {
+            ok: failures.is_empty(),
+            requested_count,
+            deleted_count: deleted_session_ids.len(),
+            deleted_session_ids,
+            failures,
+        }),
+    )
 }
 
 pub(super) async fn cleanup_backend_cache(req: HttpRequest) -> Result<HttpResponse, AppError> {

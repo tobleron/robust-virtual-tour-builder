@@ -37,8 +37,20 @@ let compressMainThread = (
         let naturalH = Dom.naturalHeight(img)
         let fallbackW = Dom.getWidth(img)
         let fallbackH = Dom.getHeight(img)
-        let srcW = Float.fromInt(if naturalW > 0 { naturalW } else { fallbackW })
-        let srcH = Float.fromInt(if naturalH > 0 { naturalH } else { fallbackH })
+        let srcW = Float.fromInt(
+          if naturalW > 0 {
+            naturalW
+          } else {
+            fallbackW
+          },
+        )
+        let srcH = Float.fromInt(
+          if naturalH > 0 {
+            naturalH
+          } else {
+            fallbackH
+          },
+        )
         if srcW <= 0.0 || srcH <= 0.0 {
           Logger.warn(
             ~module_=moduleName,
@@ -164,9 +176,9 @@ let compressToWebPConstrainedInternal = (
         let shouldFallback =
           !preserveAlpha ||
           String.includes(msg, "unsupported") ||
-            String.includes(msg, "not available") ||
-            String.includes(msg, "timed out") ||
-            String.includes(msg, "crashed")
+          String.includes(msg, "not available") ||
+          String.includes(msg, "timed out") ||
+          String.includes(msg, "crashed")
         if shouldFallback {
           Logger.warn(
             ~module_=moduleName,
@@ -174,7 +186,11 @@ let compressToWebPConstrainedInternal = (
             ~data=Some({
               "reason": msg,
               "preserveAlpha": preserveAlpha,
-              "fallbackPolicy": if preserveAlpha { "conditional" } else { "always-for-upload" },
+              "fallbackPolicy": if preserveAlpha {
+                "conditional"
+              } else {
+                "always-for-upload"
+              },
             }),
             (),
           )

@@ -198,7 +198,6 @@ let recipientTypeFromValue = value =>
   | _ => PortalTypes.PropertyOwner
   }
 
-
 let summarizedLink = value =>
   if String.length(value) <= 68 {
     value

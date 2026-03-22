@@ -37,8 +37,7 @@ let useHotspotSync = (
           switch Belt.Array.get(scenes, activeIndex) {
           | Some(scene) =>
             // Robustness: Only sync if the viewer actually belongs to this scene
-            let viewerSceneId =
-              ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
+            let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")->sceneIdFromMeta
             let currentState = getState()
 
             if viewerSceneId == scene.id {

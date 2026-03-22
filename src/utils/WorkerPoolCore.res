@@ -10,7 +10,8 @@ type workerMessageErrorEvent
 @send external terminate: (worker, unit) => unit = "terminate"
 @set external setOnMessage: (worker, workerMessageEvent => unit) => unit = "onmessage"
 @set external setOnError: (worker, workerErrorEvent => unit) => unit = "onerror"
-@set external setOnMessageError: (worker, workerMessageErrorEvent => unit) => unit = "onmessageerror"
+@set
+external setOnMessageError: (worker, workerMessageErrorEvent => unit) => unit = "onmessageerror"
 @get external getEventData: workerMessageEvent => 'a = "data"
 @get external getErrorMessage: workerErrorEvent => string = "message"
 @get external getErrorFilename: workerErrorEvent => string = "filename"
@@ -186,8 +187,10 @@ let describeWorkerError = (evt: workerErrorEvent): string => {
     "unknown"
   } else {
     let first = Belt.Array.getExn(parts, 0)
-    Belt.Array.slice(parts, ~offset=1, ~len=Belt.Array.length(parts) - 1)
-    ->Belt.Array.reduce(first, (acc, part) => acc ++ ", " ++ part)
+    Belt.Array.slice(parts, ~offset=1, ~len=Belt.Array.length(parts) - 1)->Belt.Array.reduce(
+      first,
+      (acc, part) => acc ++ ", " ++ part,
+    )
   }
 }
 

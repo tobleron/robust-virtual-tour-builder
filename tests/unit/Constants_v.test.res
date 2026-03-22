@@ -29,10 +29,10 @@ describe("CORS Configuration", () => {
     ]
 
     // Verify localhost origins are included
-    let hasLocalhost = allowedOrigins
-      ->Belt.Array.some(origin => String.includes(origin, "localhost"))
-    let hasProduction = allowedOrigins
-      ->Belt.Array.some(origin => String.includes(origin, "robust-vtb.com"))
+    let hasLocalhost =
+      allowedOrigins->Belt.Array.some(origin => String.includes(origin, "localhost"))
+    let hasProduction =
+      allowedOrigins->Belt.Array.some(origin => String.includes(origin, "robust-vtb.com"))
 
     t->expect(hasLocalhost)->Expect.toBe(true)
     t->expect(hasProduction)->Expect.toBe(true)

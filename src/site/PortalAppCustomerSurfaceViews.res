@@ -13,8 +13,7 @@ let renewalLines = (settings: PortalTypes.settings) =>
     | None => React.null
     }}
     {switch settings.whatsappNumber {
-    | Some(value) =>
-      <span className="portal-chip"> {React.string("WhatsApp: " ++ value)} </span>
+    | Some(value) => <span className="portal-chip"> {React.string("WhatsApp: " ++ value)} </span>
     | None => React.null
     }}
   </div>
@@ -48,8 +47,7 @@ let makeGate = (~publicView: PortalTypes.publicView, ~accessMessage: option<stri
         <h1 className="portal-title"> {React.string(publicView.customer.displayName)} </h1>
         <p className="portal-subtitle"> {React.string("Private customer gallery.")} </p>
         {switch accessMessage {
-        | Some(message) =>
-          <div className="portal-message is-error"> {React.string(message)} </div>
+        | Some(message) => <div className="portal-message is-error"> {React.string(message)} </div>
         | None =>
           <div className="portal-message">
             {React.string("Open this portal through your private access link.")}
@@ -164,12 +162,14 @@ let makeGallery = (~slug: string, ~gallery: PortalTypes.galleryView, ~onSignOut:
           </div>
         </div>
         <div className="portal-customer-meta">
-          <span
-            className={"portal-chip " ++ (
-              gallery.canOpenTours ? "is-active" : "is-expired"
+          <span className={"portal-chip " ++ (gallery.canOpenTours ? "is-active" : "is-expired")}>
+            {React.string(
+              if gallery.canOpenTours {
+                "Access active"
+              } else {
+                "Access expired"
+              },
             )}
-          >
-            {React.string(if gallery.canOpenTours { "Access active" } else { "Access expired" })}
           </span>
           <span className="portal-customer-meta-item">
             {React.string(Belt.Int.toString(totalTours) ++ " tours assigned")}
@@ -215,9 +215,7 @@ let makeGallery = (~slug: string, ~gallery: PortalTypes.galleryView, ~onSignOut:
                   {switch tour.coverUrl {
                   | Some(url) => <img src={url} alt={tour.title ++ " cover"} />
                   | None =>
-                    <div className="portal-tour-cover-fallback">
-                      {React.string(tour.title)}
-                    </div>
+                    <div className="portal-tour-cover-fallback"> {React.string(tour.title)} </div>
                   }}
                 </div>
                 <div className="portal-tour-copy">

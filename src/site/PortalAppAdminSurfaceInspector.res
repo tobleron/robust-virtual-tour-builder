@@ -34,11 +34,13 @@ let make = (~props: props) =>
   | Some(customerOverview) =>
     let customerId = customerOverview.customer.id
     let customerDraft =
-      props.customerDrafts->Belt.Map.String.get(customerId)->Option.getOr(
-        customerDraftFromOverview(customerOverview),
-      )
+      props.customerDrafts
+      ->Belt.Map.String.get(customerId)
+      ->Option.getOr(customerDraftFromOverview(customerOverview))
     let expiryDraft =
-      props.expiryDrafts->Belt.Map.String.get(customerId)->Option.getOr(
+      props.expiryDrafts
+      ->Belt.Map.String.get(customerId)
+      ->Option.getOr(
         customerOverview.accessLink
         ->Option.map(link => isoToLocalDateTime(link.expiresAt))
         ->Option.getOr(nowPlusDaysIsoLocal(30)),
@@ -58,10 +60,14 @@ let make = (~props: props) =>
           <p className="portal-card-muted"> {React.string("Recipient ID: " ++ customerId)} </p>
         </div>
         <div className="portal-chip-row">
-          <span
-            className={"portal-chip " ++ (customerDraft.isActive ? "is-active" : "is-expired")}
-          >
-            {React.string(if customerDraft.isActive { "Active" } else { "Inactive" })}
+          <span className={"portal-chip " ++ (customerDraft.isActive ? "is-active" : "is-expired")}>
+            {React.string(
+              if customerDraft.isActive {
+                "Active"
+              } else {
+                "Inactive"
+              },
+            )}
           </span>
           <span className="portal-chip portal-chip-subtle">
             {React.string(customerDraft.recipientType->recipientTypeLabel)}
@@ -219,7 +225,10 @@ let make = (~props: props) =>
                 title="Copy gallery link"
                 onCopyError={message => props.setFlash(_ => {error: Some(message), success: None})}
               />
-              <button className="site-btn site-btn-ghost portal-compact-btn" onClick={_ => Window.openWindow(url, "_blank")}>
+              <button
+                className="site-btn site-btn-ghost portal-compact-btn"
+                onClick={_ => Window.openWindow(url, "_blank")}
+              >
                 {actionLabel(~icon=OpenIcon, ~label="Open")}
               </button>
             </div>
@@ -250,7 +259,8 @@ let make = (~props: props) =>
           </div>
           {props.data.tours
           ->Belt.Array.map(tourOverview => {
-            let assigned = customerOverview.assignedTourIds->Belt.Array.some(id => id == tourOverview.tour.id)
+            let assigned =
+              customerOverview.assignedTourIds->Belt.Array.some(id => id == tourOverview.tour.id)
             <div key={tourOverview.tour.id} className="portal-assignment-row">
               <span className="portal-table-cell portal-table-cell-primary">
                 {mobileLabel("Tour")}
@@ -273,7 +283,10 @@ let make = (~props: props) =>
                 {mobileLabel("Direct link")}
                 {switch activeAccessUrl {
                 | Some(accessUrl) if assigned => {
-                    let directUrl = directTourAccessUrl(~accessUrl, ~tourSlug=tourOverview.tour.slug)
+                    let directUrl = directTourAccessUrl(
+                      ~accessUrl,
+                      ~tourSlug=tourOverview.tour.slug,
+                    )
                     <div className="portal-link-summary">
                       <a
                         className="portal-link-anchor is-inline"
@@ -310,7 +323,13 @@ let make = (~props: props) =>
                   }
                 | _ =>
                   <span className="portal-row-muted">
-                    {React.string(if assigned { "Generate link first" } else { "Assign to enable" })}
+                    {React.string(
+                      if assigned {
+                        "Generate link first"
+                      } else {
+                        "Assign to enable"
+                      },
+                    )}
                   </span>
                 }}
               </span>
@@ -322,9 +341,14 @@ let make = (~props: props) =>
                       assigned ? "is-active-state" : ""
                     )}
                     onClick={_ =>
-                      ignore(props.onAssignToggle(~customerId, ~tourId=tourOverview.tour.id, ~assigned))}
+                      ignore(
+                        props.onAssignToggle(~customerId, ~tourId=tourOverview.tour.id, ~assigned),
+                      )}
                   >
-                    {actionLabel(~icon=assigned ? RevokeIcon : AddIcon, ~label=assigned ? "Remove" : "Assign")}
+                    {actionLabel(
+                      ~icon=assigned ? RevokeIcon : AddIcon,
+                      ~label=assigned ? "Remove" : "Assign",
+                    )}
                   </button>
                 </div>
               </span>

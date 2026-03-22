@@ -109,30 +109,27 @@ describe("FloorNavigation", () => {
     Dom.removeElement(container)
   })
 
-  testAsync(
-    "should mark the floor rail inactive when no scenes are loaded",
-    async t => {
-      let container = Dom.createElement("div")
-      Dom.appendChild(Dom.documentBody, container)
+  testAsync("should mark the floor rail inactive when no scenes are loaded", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
 
-      let mockDispatch = _action => ()
-      let root = ReactDOMClient.createRoot(container)
-      ReactDOMClient.Root.render(
-        root,
-        <WrappedFloorNavigation
-          scenesLoaded=false activeIndex={-1} isLinking=false scenes=[] mockDispatch
-        />,
-      )
+    let mockDispatch = _action => ()
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedFloorNavigation
+        scenesLoaded=false activeIndex={-1} isLinking=false scenes=[] mockDispatch
+      />,
+    )
 
-      await wait(50)
+    await wait(50)
 
-      let floorNav =
-        Dom.querySelector(container, "#viewer-floor-nav")->Nullable.toOption->Belt.Option.getExn
-      let cl = Dom.classList(floorNav)
+    let floorNav =
+      Dom.querySelector(container, "#viewer-floor-nav")->Nullable.toOption->Belt.Option.getExn
+    let cl = Dom.classList(floorNav)
 
-      t->expect(Dom.ClassList.contains(cl, "is-inactive"))->Expect.toBe(true)
+    t->expect(Dom.ClassList.contains(cl, "is-inactive"))->Expect.toBe(true)
 
-      Dom.removeElement(container)
-    },
-  )
+    Dom.removeElement(container)
+  })
 })

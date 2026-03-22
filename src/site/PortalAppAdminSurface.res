@@ -19,9 +19,10 @@ let make = () => {
   let (tourSearch, setTourSearch) = React.useState(() => "")
   let (tourFilter, setTourFilter) = React.useState(() => TourAll)
   let (tourPage, setTourPage) = React.useState(() => 0)
-  let (selectedBulkCustomerIds, setSelectedBulkCustomerIds) = React.useState((): Belt.Set.String.t =>
-    Belt.Set.String.empty
-  )
+  let (
+    selectedBulkCustomerIds,
+    setSelectedBulkCustomerIds,
+  ) = React.useState((): Belt.Set.String.t => Belt.Set.String.empty)
   let (selectedBulkTourIds, setSelectedBulkTourIds) = React.useState((): Belt.Set.String.t =>
     Belt.Set.String.empty
   )
@@ -40,50 +41,54 @@ let make = () => {
   let (expiryDrafts, setExpiryDrafts) = React.useState((): Belt.Map.String.t<string> =>
     Belt.Map.String.empty
   )
-  let (lastGeneratedLinks, setLastGeneratedLinks) = React.useState((): Belt.Map.String.t<
-    string,
-  > => Belt.Map.String.empty)
+  let (lastGeneratedLinks, setLastGeneratedLinks) = React.useState((): Belt.Map.String.t<string> =>
+    Belt.Map.String.empty
+  )
   let (showPasswordPanel, setShowPasswordPanel) = React.useState(() => false)
   let (currentPassword, setCurrentPassword) = React.useState(() => "")
   let (nextPassword, setNextPassword) = React.useState(() => "")
   let (confirmNextPassword, setConfirmNextPassword) = React.useState(() => "")
 
-  let loadAdmin = PortalAppAdminSurfaceRefresh.make(~props={
-    setState,
-    setIsRefreshing,
-    setSelectedCustomerId,
-    setSelectedBulkCustomerIds,
-    setSelectedBulkTourIds,
-    setSettingsEdit,
-  })
+  let loadAdmin = PortalAppAdminSurfaceRefresh.make(
+    ~props={
+      setState,
+      setIsRefreshing,
+      setSelectedCustomerId,
+      setSelectedBulkCustomerIds,
+      setSelectedBulkTourIds,
+      setSettingsEdit,
+    },
+  )
 
-  let actions = PortalAppAdminSurfaceActions.make(~props={
-    setFlash,
-    setActiveDrawer,
-    setShowPasswordPanel,
-    setCurrentPassword,
-    setNextPassword,
-    setConfirmNextPassword,
-    setSelectedBulkCustomerIds,
-    setSelectedBulkTourIds,
-    setSettingsEdit,
-    setCreateDraft,
-    setUploadTitle,
-    setSelectedUploadFile,
-    setCustomerDrafts,
-    setExpiryDrafts,
-    setLastGeneratedLinks,
-    loadAdmin: (~preserveReadyState: bool) => loadAdmin(~preserveReadyState),
-    currentPassword,
-    nextPassword,
-    confirmNextPassword,
-    createDraft,
-    settingsEdit,
-    uploadTitle,
-    selectedUploadFile,
-    selectedBulkCustomerIds,
-    selectedBulkTourIds,
-  })
+  let actions = PortalAppAdminSurfaceActions.make(
+    ~props={
+      setFlash,
+      setActiveDrawer,
+      setShowPasswordPanel,
+      setCurrentPassword,
+      setNextPassword,
+      setConfirmNextPassword,
+      setSelectedBulkCustomerIds,
+      setSelectedBulkTourIds,
+      setSettingsEdit,
+      setCreateDraft,
+      setUploadTitle,
+      setSelectedUploadFile,
+      setCustomerDrafts,
+      setExpiryDrafts,
+      setLastGeneratedLinks,
+      loadAdmin: (~preserveReadyState: bool) => loadAdmin(~preserveReadyState),
+      currentPassword,
+      nextPassword,
+      confirmNextPassword,
+      createDraft,
+      settingsEdit,
+      uploadTitle,
+      selectedUploadFile,
+      selectedBulkCustomerIds,
+      selectedBulkTourIds,
+    },
+  )
 
   React.useEffect0(() => {
     loadAdmin(~preserveReadyState=false)
@@ -143,49 +148,54 @@ let make = () => {
     </div>
   | Failed("AUTH") => <PortalAppAdminSurfaceAuth.make flash onSignIn={actions.onAdminSignIn} />
   | Failed(message) =>
-    <PortalAppAdminSurfaceAuth.make flash={...flash, error: Some(message)} onSignIn={actions.onAdminSignIn} />
+    <PortalAppAdminSurfaceAuth.make
+      flash={...flash, error: Some(message)} onSignIn={actions.onAdminSignIn}
+    />
   | Idle => React.null
   | Ready(data) =>
     let settingsDraft = settingsEdit->Option.getOr(draftFromSettings(data.settings))
     let selectedOverview =
-      selectedCustomerId->Option.flatMap(customerId => findCustomerOverview(data.customers, customerId))
-    let drawerNode =
-      PortalAppAdminSurfaceDrawer.make({
-        activeDrawer,
-        setActiveDrawer,
-        createDraft,
-        setCreateDraft,
-        uploadTitle,
-        setUploadTitle,
-        setSelectedUploadFile,
-        settingsDraft,
-        setSettingsEdit,
-        onCreateCustomer: actions.onCreateCustomer,
-        onUploadTour: actions.onUploadTour,
-        onSaveSettings: actions.onSaveSettings,
-      })
+      selectedCustomerId->Option.flatMap(customerId =>
+        findCustomerOverview(data.customers, customerId)
+      )
+    let drawerNode = PortalAppAdminSurfaceDrawer.make({
+      activeDrawer,
+      setActiveDrawer,
+      createDraft,
+      setCreateDraft,
+      uploadTitle,
+      setUploadTitle,
+      setSelectedUploadFile,
+      settingsDraft,
+      setSettingsEdit,
+      onCreateCustomer: actions.onCreateCustomer,
+      onUploadTour: actions.onUploadTour,
+      onSaveSettings: actions.onSaveSettings,
+    })
     <div className="portal-shell">
       {drawerNode}
       <main className="portal-main">
-        {PortalAppAdminSurfaceHeader.make(~props={
-          data,
-          flash,
-          isRefreshing,
-          showPasswordPanel,
-          currentPassword,
-          nextPassword,
-          confirmNextPassword,
-          setShowPasswordPanel,
-          setCurrentPassword,
-          setNextPassword,
-          setConfirmNextPassword,
-          onChangePassword: actions.onChangePassword,
-          onSignOut: actions.onSignOut,
-          assignmentMode,
-          setAssignmentMode,
-          setActiveDrawer,
-          exitBulkMode,
-        })}
+        {PortalAppAdminSurfaceHeader.make(
+          ~props={
+            data,
+            flash,
+            isRefreshing,
+            showPasswordPanel,
+            currentPassword,
+            nextPassword,
+            confirmNextPassword,
+            setShowPasswordPanel,
+            setCurrentPassword,
+            setNextPassword,
+            setConfirmNextPassword,
+            onChangePassword: actions.onChangePassword,
+            onSignOut: actions.onSignOut,
+            assignmentMode,
+            setAssignmentMode,
+            setActiveDrawer,
+            exitBulkMode,
+          },
+        )}
         <div className="portal-admin-main">
           {PortalAppAdminSurfaceLists.make({
             data,
@@ -214,33 +224,37 @@ let make = () => {
             onDeleteTour: actions.onDeleteTour,
           })}
 
-          {PortalAppAdminSurfaceBulk.make(~props={
-            assignmentMode,
-            data,
-            selectedBulkCustomerIds,
-            selectedBulkTourIds,
-            setSelectedBulkCustomerIds,
-            setSelectedBulkTourIds,
-            clearBulkSelections,
-            onBulkAssign: actions.onBulkAssign,
-          })}
+          {PortalAppAdminSurfaceBulk.make(
+            ~props={
+              assignmentMode,
+              data,
+              selectedBulkCustomerIds,
+              selectedBulkTourIds,
+              setSelectedBulkCustomerIds,
+              setSelectedBulkTourIds,
+              clearBulkSelections,
+              onBulkAssign: actions.onBulkAssign,
+            },
+          )}
 
-          {PortalAppAdminSurfaceInspector.make(~props={
-            data,
-            selectedOverview,
-            customerDrafts,
-            expiryDrafts,
-            lastGeneratedLinks,
-            updateCustomerDraft,
-            updateExpiryDraft,
-            onUpdateCustomer: actions.onUpdateCustomer,
-            onGenerateLink: actions.onGenerateLink,
-            onRevokeLink: actions.onRevokeLink,
-            onDeleteAccessLinks: actions.onDeleteAccessLinks,
-            onDeleteCustomer: actions.onDeleteCustomer,
-            onAssignToggle: actions.onAssignToggle,
-            setFlash,
-          })}
+          {PortalAppAdminSurfaceInspector.make(
+            ~props={
+              data,
+              selectedOverview,
+              customerDrafts,
+              expiryDrafts,
+              lastGeneratedLinks,
+              updateCustomerDraft,
+              updateExpiryDraft,
+              onUpdateCustomer: actions.onUpdateCustomer,
+              onGenerateLink: actions.onGenerateLink,
+              onRevokeLink: actions.onRevokeLink,
+              onDeleteAccessLinks: actions.onDeleteAccessLinks,
+              onDeleteCustomer: actions.onDeleteCustomer,
+              onAssignToggle: actions.onAssignToggle,
+              setFlash,
+            },
+          )}
         </div>
       </main>
     </div>

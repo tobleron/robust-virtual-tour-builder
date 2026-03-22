@@ -5,10 +5,10 @@
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.3.8 (Build 0)  
-**Release Date:** March 21, 2026  
-**Status:** Stable `main` ships the local-first builder runtime  
-**License:** AGPL v3 + optional commercial license
+**Version:** 5.3.9 (Build 0)  
+**Directing Developer:** Arto Kalishian  
+**Release Date:** March 22, 2026  
+**Status:** Commercial Ready
 <!-- METADATA_END -->
 
 Robust Virtual Tour Builder is an open source local-first web app for creating, exporting, and delivering interactive 360 virtual tours.

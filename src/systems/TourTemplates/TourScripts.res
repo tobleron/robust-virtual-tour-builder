@@ -61,8 +61,5 @@ let generateRenderScript = (
     /__EXPORT_ALLOW_TABLET_LANDSCAPE_STAGE__/g,
     allowTabletLandscapeStage ? "true" : "false",
   )
-  ->String.replaceRegExp(
-    /__TRIPOD_DEAD_ZONE_ENABLED__/g,
-    tripodDeadZoneEnabled ? "true" : "false",
-  )
+  ->String.replaceRegExp(/__TRIPOD_DEAD_ZONE_ENABLED__/g, tripodDeadZoneEnabled ? "true" : "false")
   ->String.replaceRegExp(/__EXPORT_TRAVERSAL_MODE__/g, exportTraversalMode)

@@ -31,8 +31,7 @@ let make = (props: props) =>
             </p>
           </div>
           <button
-            className="site-btn site-btn-ghost"
-            onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
+            className="site-btn site-btn-ghost" onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
           >
             {React.string("Close")}
           </button>
@@ -88,7 +87,9 @@ let make = (props: props) =>
           </label>
         </div>
         <div className="portal-form-actions">
-          <button className="site-btn site-btn-primary" onClick={_ => ignore(props.onCreateCustomer())}>
+          <button
+            className="site-btn site-btn-primary" onClick={_ => ignore(props.onCreateCustomer())}
+          >
             {React.string("Create Recipient")}
           </button>
         </div>
@@ -105,8 +106,7 @@ let make = (props: props) =>
             </p>
           </div>
           <button
-            className="site-btn site-btn-ghost"
-            onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
+            className="site-btn site-btn-ghost" onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
           >
             {React.string("Close")}
           </button>
@@ -152,8 +152,7 @@ let make = (props: props) =>
             </p>
           </div>
           <button
-            className="site-btn site-btn-ghost"
-            onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
+            className="site-btn site-btn-ghost" onClick={_ => props.setActiveDrawer(_ => NoDrawer)}
           >
             {React.string("Close")}
           </button>
@@ -216,7 +215,9 @@ let make = (props: props) =>
           />
         </label>
         <div className="portal-form-actions">
-          <button className="site-btn site-btn-primary" onClick={_ => ignore(props.onSaveSettings())}>
+          <button
+            className="site-btn site-btn-primary" onClick={_ => ignore(props.onSaveSettings())}
+          >
             {React.string("Save Renewal Settings")}
           </button>
         </div>
