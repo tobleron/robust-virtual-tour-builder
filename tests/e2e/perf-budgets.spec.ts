@@ -7,6 +7,7 @@ import {
   loadProjectZipAndWait,
   resetClientState,
   waitForBuilderShellReady,
+  setupAuthentication,
 } from './e2e-helpers';
 import { getBudgetConfig } from '../../scripts/runtime-budget-config.mjs';
 
@@ -65,10 +66,10 @@ test.describe.serial('@budget Runtime Budgets', () => {
           id: `import-${i}`,
           name,
           file: 'images/image.jpg',
-          hotspots: [{ 
-            linkId: `l-${i}`, 
-            yaw: 0, 
-            pitch: 0, 
+          hotspots: [{
+            linkId: `l-${i}`,
+            yaw: 0,
+            pitch: 0,
             target: next,
             isAutoForward: false, // Link-level auto-forward (new architecture)
           }],
@@ -92,11 +93,9 @@ test.describe.serial('@budget Runtime Budgets', () => {
       });
     });
 
-    await resetClientState(page);
-    await page.addInitScript(() => {
-      window.localStorage.setItem('auth_token', 'dev-token');
-      document.cookie = 'auth_token=dev-token; path=/; SameSite=Strict';
-    });
+    // Set up authentication and reset client state
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
     await page.goto('/builder');
     await waitForBuilderShellReady(page);
     await page.waitForFunction(

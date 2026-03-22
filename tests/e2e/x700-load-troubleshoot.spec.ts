@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
+import { setupAuthentication } from './ai-helper';
 
 const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 async function hardReset(page: any) {
-  await page.goto('/');
+  await setupAuthentication(page, 'dev-token');
+  await page.goto('/builder');
   await page.evaluate(async () => {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();

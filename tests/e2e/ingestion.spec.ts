@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { loadProjectZipAndWait, resetClientState, uploadImageAndWaitForSceneCount } from './e2e-helpers';
+import { loadProjectZipAndWait, resetClientState, uploadImageAndWaitForSceneCount, setupAuthentication } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +14,8 @@ const IMAGE_PATH = path.join(FIXTURES_DIR, 'image.jpg');
 test.describe('Ingestion Pipeline', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
   });
 
   test('should upload layan_complete_tour.zip and load the project', async ({ page }) => {

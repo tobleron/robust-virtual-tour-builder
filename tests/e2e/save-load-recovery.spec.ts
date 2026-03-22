@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { clickStartBuildingIfVisible, waitForSidebarInteractive } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,8 +27,9 @@ async function handleUpload(page, imagePath, expectedSceneIndex) {
 
 test.describe('Project Persistence: Save -> Load Recovery', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAuthentication(page, 'dev-token');
     await setupAIObservability(page);
-    await page.goto('/');
+    await page.goto('/builder');
     await page.evaluate(async () => {
       localStorage.clear();
       sessionStorage.clear();

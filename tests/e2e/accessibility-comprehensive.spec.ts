@@ -1,13 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { setupAIObservability } from './ai-helper';
-import { loadStandardProject, resetClientState, waitForBuilderShellReady, waitForNavigationStabilization } from './e2e-helpers';
+import { loadStandardProject, resetClientState, waitForBuilderShellReady, waitForNavigationStabilization, setupAuthentication } from './e2e-helpers';
 
 test.describe('Accessibility Comprehensive', () => {
   test.describe.configure({ timeout: 180000 });
 
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    
+    // Set up authentication and reset client state
+    // This mocks /api/auth/me and sets localStorage token
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);

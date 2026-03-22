@@ -9,6 +9,7 @@ import {
   waitForSidebarInteractive,
   waitForBuilderShellReady,
   loadProjectZipAndWait,
+  setupAuthentication,
 } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,7 +21,8 @@ const SIM_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.
 test.describe('Import/Export Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);

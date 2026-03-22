@@ -7,6 +7,7 @@ import {
   uploadImageAndWaitForSceneCount,
   waitForBuilderShellReady,
   waitForNavigationStabilization,
+  setupAuthentication,
 } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,7 +36,8 @@ async function openSceneActions(page: Page, sceneIndex: number) {
 test.describe('Scene Delete Undo', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
     await waitForBuilderShellReady(page);
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
     await waitForNavigationStabilization(page);

@@ -1,12 +1,13 @@
 import { test, expect, Page } from '@playwright/test';
 import path from 'path';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 
 const fixturePath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
 async function resetAndOpen(page: Page) {
   await setupAIObservability(page);
-  await page.goto('/');
+  await setupAuthentication(page, 'dev-token');
+  await page.goto('/builder');
   await page.evaluate(async () => {
     localStorage.clear();
     sessionStorage.clear();

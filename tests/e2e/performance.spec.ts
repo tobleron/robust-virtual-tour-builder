@@ -1,15 +1,16 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 test.describe('Performance & Load Testing', () => {
     test.beforeEach(async ({ page }) => {
+        await setupAuthentication(page, 'dev-token');
         await setupAIObservability(page);
-        await page.goto('/');
+        await page.goto('/builder');
 
         await page.evaluate(async () => {
             localStorage.clear();

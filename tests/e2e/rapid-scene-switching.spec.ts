@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { uploadImageAndWaitForSceneCount } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,13 +16,14 @@ async function uploadThreeScenes(page) {
   await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1, 120000);
   await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_2, 2, 90000);
   await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_3, 3, 90000);
-  await expect(page.locator('.interaction-lock-overlay')).not.toBeVisible({ timeout: 60000 });
+  await expect(page.locator('.interaction-lock-overlay')).not.toBeVisible({ timeout: 20000 });
 }
 
 test.describe('FSM Interaction Logic', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await page.goto('/');
+    await setupAuthentication(page, 'dev-token');
+    await page.goto('/builder');
     await page.evaluate(async () => {
       localStorage.clear();
       sessionStorage.clear();

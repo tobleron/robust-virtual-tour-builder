@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { resetClientState, uploadImageAndWaitForSceneCount, waitForBuilderShellReady, waitForNavigationStabilization } from './e2e-helpers';
+import { resetClientState, uploadImageAndWaitForSceneCount, waitForBuilderShellReady, waitForNavigationStabilization, setupAuthentication } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +33,8 @@ async function firstHotspot(page: Page) {
 test.describe('Hotspot Move', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
     await waitForBuilderShellReady(page);
     await uploadImageAndWaitForSceneCount(page, IMAGE_PATH_1, 1);
     await waitForNavigationStabilization(page);

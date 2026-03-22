@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
-import { clickStartBuildingIfVisible, resetClientState, waitForNavigationStabilization } from './e2e-helpers';
+import { clickStartBuildingIfVisible, resetClientState, waitForNavigationStabilization, setupAuthentication } from './e2e-helpers';
 
 const TEST_ZIP = path.resolve(process.cwd(), 'artifacts/test.zip');
 
@@ -71,7 +71,8 @@ test.describe('edge case: first scene waypoint cursor unlock (test.zip)', () => 
       throw new Error(`Required fixture missing: ${TEST_ZIP}`);
     }
 
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
     await page.goto('/');
 
     await page.locator('#sidebar-project-upload').setInputFiles([TEST_ZIP]);

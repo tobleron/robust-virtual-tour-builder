@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import os from 'os';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 
 test('comprehensive import and interaction with layan_complete_tour.zip', async ({ page }) => {
   await setupAIObservability(page);
-  await page.goto('/');
+  await setupAuthentication(page, 'dev-token');
+  await page.goto('/builder');
   await page.evaluate(async () => {
     localStorage.clear();
     sessionStorage.clear();

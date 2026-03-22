@@ -7,6 +7,7 @@ import {
   uploadImageAndWaitForSceneCount,
   waitForBuilderShellReady,
   waitForNavigationStabilization,
+  setupAuthentication,
 } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +19,8 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 test.describe('Teaser Advanced Features', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);

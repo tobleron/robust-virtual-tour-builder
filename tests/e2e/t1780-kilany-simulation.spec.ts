@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { setupAuthentication } from './ai-helper';
 import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -9,7 +10,8 @@ const KILANY_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/kilany.zip');
 
 test.describe('T1780: Kilany Project Simulation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await setupAuthentication(page, 'dev-token');
+    await page.goto('/builder');
 
     // Clear state
     await page.evaluate(async () => {

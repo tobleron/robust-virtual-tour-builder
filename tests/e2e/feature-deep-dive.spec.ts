@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { uploadImageAndWaitForSceneCount } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,7 +38,8 @@ async function setupThreeScenes(page) {
 test.describe('Feature Deep Dive & Comprehensive Tests', () => {
     test.beforeEach(async ({ page }) => {
         await setupAIObservability(page);
-        await page.goto('/');
+        await setupAuthentication(page, 'dev-token');
+        await page.goto('/builder');
         await page.evaluate(async () => {
             localStorage.clear();
             sessionStorage.clear();

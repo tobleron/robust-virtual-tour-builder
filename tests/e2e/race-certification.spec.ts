@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { loadProjectZipAndWait } from './e2e-helpers';
 
 test.describe('Race Reliability Certification (Task 1504)', () => {
     const fixturePath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
     test.beforeEach(async ({ page }) => {
+        await setupAuthentication(page, 'dev-token');
         // 1. Mock Backend with Latency (Chunked Import Flow)
         await page.route('**/api/project/import/init', async route => {
             await route.fulfill({

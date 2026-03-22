@@ -10,6 +10,7 @@ import {
   selectFirstLinkTarget,
   uploadImageAndWaitForSceneCount,
   waitForNavigationStabilization,
+  setupAuthentication,
 } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +24,8 @@ const IMAGE_PATH_3 = path.join(FIXTURES_DIR, 'image3.jpg');
 test.describe('Full Workflow: Upload -> Link -> Export', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
   });
 
   test('should complete full tour creation workflow', async ({ page }) => {

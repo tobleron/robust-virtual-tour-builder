@@ -6,6 +6,7 @@ import {
   clickStartBuildingIfVisible,
   resetClientState,
   waitForNavigationStabilization,
+  setupAuthentication,
 } from './e2e-helpers';
 
 const ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
@@ -32,7 +33,8 @@ test.describe('T1533 hotspot overlap reproduction (layan_complete_tour.zip)', ()
     }
 
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     const loadInput = page.locator('input[type="file"][accept*=".zip"]');
     await expect(loadInput.first()).toBeAttached({ timeout: 30000 });

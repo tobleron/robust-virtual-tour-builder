@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { clickStartBuildingIfVisible, waitForSidebarInteractive } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,9 +13,8 @@ const IMAGE_PATH = path.join(FIXTURES_DIR, 'image.jpg');
 test.describe('Error Recovery Scenarios', () => {
     test.beforeEach(async ({ page }) => {
         await setupAIObservability(page);
-        await page.goto('/');
-
-
+        await setupAuthentication(page, 'dev-token');
+        await page.goto('/builder');
         await page.evaluate(async () => {
             localStorage.clear();
             sessionStorage.clear();

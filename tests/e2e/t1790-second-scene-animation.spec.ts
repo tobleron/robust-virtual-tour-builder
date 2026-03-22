@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { setupAuthentication } from './ai-helper';
 import { loadProjectZipAndWait } from './e2e-helpers';
 
 // Force headed mode for WebGL support
@@ -12,12 +13,13 @@ const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const EDGE_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/edge.zip');
 
 test.describe('T1790: Second Scene Waypoint Animation Edge Case', () => {
-  
+
   // Capture console logs
   const consoleLogs: Array<{ type: string; text: string; time: number }> = [];
   const networkErrors: Array<{ url: string; error: string }> = [];
-  
+
   test.beforeEach(async ({ page }) => {
+    await setupAuthentication(page, 'dev-token');
     consoleLogs.length = 0;
     networkErrors.length = 0;
 

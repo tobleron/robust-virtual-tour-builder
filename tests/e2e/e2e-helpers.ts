@@ -8,9 +8,63 @@ const STANDARD_PROJECT_ZIP =
   process.env.E2E_STANDARD_PROJECT_ZIP ??
   path.resolve(process.cwd(), 'tests/e2e/fixtures/tour.vt.zip');
 
-export async function resetClientState(page: Page) {
-  await page.goto('/builder');
-  await page.evaluate(async () => {
+/**
+ * Sets up authentication for E2E tests.
+ * This mocks the auth session endpoint and sets localStorage token.
+ */
+export async function setupAuthentication(page: Page, token = 'dev-token') {
+  // Mock the auth session endpoint to return authenticated status
+  await page.route('**/api/auth/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        user: {
+          id: 'e2e-test-user',
+          email: 'test@e2e.local',
+          name: 'E2E Test User',
+        },
+      }),
+    });
+  });
+
+  // Set auth token in localStorage and cookie before navigation
+  await page.addInitScript((authToken) => {
+    window.localStorage.setItem('auth_token', authToken);
+    document.cookie = `auth_token=${authToken}; path=/; SameSite=Strict`;
+  }, token);
+}
+
+/**
+ * Resets client state (storage, caches, service workers).
+ * Options:
+ * - preserveAuthToken: Keep existing auth token across reset (default: false)
+ * - authToken: Set a new auth token before navigation (will be preserved)
+ * - gotoUrl: Navigate to this URL instead of /builder (default: '/builder')
+ */
+export async function resetClientState(
+  page: Page,
+  options?: {
+    preserveAuthToken?: boolean;
+    authToken?: string;
+    gotoUrl?: string;
+  },
+) {
+  const preserveAuthToken = options?.preserveAuthToken ?? false;
+  const authToken = options?.authToken;
+  const gotoUrl = options?.gotoUrl ?? '/builder';
+
+  // Set auth token if provided
+  if (authToken) {
+    await page.addInitScript((token) => {
+      window.localStorage.setItem('auth_token', token);
+      document.cookie = `auth_token=${token}; path=/; SameSite=Strict`;
+    }, authToken);
+  }
+
+  await page.goto(gotoUrl);
+  await page.evaluate(async (preserveAuth) => {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((reg) => reg.unregister()));
@@ -20,8 +74,16 @@ export async function resetClientState(page: Page) {
       await Promise.all(keys.map((key) => caches.delete(key)));
     }
 
+    // Preserve auth token if requested
+    const authToken = preserveAuth ? localStorage.getItem('auth_token') : null;
+
     localStorage.clear();
     sessionStorage.clear();
+
+    if (preserveAuth && authToken) {
+      localStorage.setItem('auth_token', authToken);
+    }
+
     const dbs = await window.indexedDB.databases();
     await Promise.all(
       dbs
@@ -36,14 +98,69 @@ export async function resetClientState(page: Page) {
             }),
         ),
     );
-  });
+  }, preserveAuthToken);
   await page.reload();
 }
 
 export async function waitForBuilderShellReady(page: Page, timeoutMs = 30000) {
+  const startTime = Date.now();
+  const halfTimeout = timeoutMs / 2;
+
+  // Wait for backend to be ready first
   await waitForBackendReady(page, timeoutMs);
-  await expect(page.locator('#sidebar-project-upload')).toHaveCount(1, { timeout: timeoutMs });
-  await expect(page.locator('#sidebar-image-upload')).toHaveCount(1, { timeout: timeoutMs });
+
+  // Check if we're on the correct route
+  const currentUrl = page.url();
+  if (!currentUrl.includes('/builder')) {
+    console.log(`[E2E] Warning: Not on /builder route, current URL: ${currentUrl}`);
+  }
+
+  // Wait for sidebar element first (parent container)
+  try {
+    await expect(page.locator('#sidebar')).toBeVisible({ timeout: timeoutMs });
+  } catch (error) {
+    const currentUrl = page.url();
+    const pageTitle = await page.title().catch(() => 'unknown');
+    throw new Error(
+      `Sidebar not found within ${timeoutMs}ms. ` +
+        `Current URL: ${currentUrl}, Page title: ${pageTitle}. ` +
+        `This may indicate authentication redirect or initialization failure.`,
+    );
+  }
+
+  // Wait for upload elements with intermediate debugging
+  try {
+    await expect(page.locator('#sidebar-project-upload')).toHaveCount(1, { timeout: halfTimeout });
+  } catch (firstError) {
+    const elapsed = Date.now() - startTime;
+    const sidebarContent = await page.locator('#sidebar').innerHTML().catch(() => 'not accessible');
+    console.log(
+      `[E2E] #sidebar-project-upload not found after ${elapsed}ms. Sidebar content length: ${sidebarContent.length}`,
+    );
+
+    // Check if we might be on a different route (like /signin)
+    const currentUrl = page.url();
+    if (currentUrl.includes('/signin')) {
+      throw new Error(
+        `Redirected to signin page. Authentication not properly set up. Current URL: ${currentUrl}`,
+      );
+    }
+
+    // Retry with remaining timeout
+    const remainingTimeout = timeoutMs - elapsed;
+    if (remainingTimeout > 5000) {
+      await expect(page.locator('#sidebar-project-upload')).toHaveCount(1, {
+        timeout: remainingTimeout,
+      });
+    } else {
+      throw firstError;
+    }
+  }
+
+  await expect(page.locator('#sidebar-image-upload')).toHaveCount(1, { timeout: timeoutMs / 2 });
+
+  const totalTime = Date.now() - startTime;
+  console.log(`[E2E] Builder shell ready in ${totalTime}ms`);
 }
 
 export function sceneItems(page: Page): Locator {

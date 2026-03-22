@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,8 +12,9 @@ const SIM_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.
 
 test.describe('Simulation & Teaser', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAuthentication(page, 'dev-token');
     await setupAIObservability(page);
-    await page.goto('/');
+    await page.goto('/builder');
 
     // Clear state
     await page.evaluate(async () => {

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { resetClientState, uploadImageAndWaitForSceneCount, waitForBuilderShellReady, waitForNavigationStabilization } from './e2e-helpers';
+import { resetClientState, uploadImageAndWaitForSceneCount, waitForBuilderShellReady, waitForNavigationStabilization, setupAuthentication } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +19,8 @@ async function selectFirstLinkTarget(page: any) {
 test.describe('Hotspot Advanced Features', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 import { loadProjectZipAndWait } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +12,7 @@ const TOUR_ZIP_PATH = path.join(FIXTURES_DIR, 'tour_linked.vt.zip');
 
 test.describe('Visual Regression: Aesthetic Integrity', () => {
     test.beforeEach(async ({ page }) => {
+        await setupAuthentication(page, 'dev-token');
         await setupAIObservability(page);
         
         const scenes = [

@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { loadProjectZipAndWait, resetClientState } from './e2e-helpers';
+import { loadProjectZipAndWait, resetClientState, setupAuthentication } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +12,8 @@ const LINKED_TOUR_ZIP_PATH = path.join(FIXTURES_DIR, 'tour_linked.vt.zip');
 test.describe('Hotspot labels and sidebar spinner guardrails', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
   });
 
   async function loadLinkedTour(page: Page) {

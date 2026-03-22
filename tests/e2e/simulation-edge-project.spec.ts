@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { loadProjectZipAndWait, resetClientState } from './e2e-helpers';
+import { loadProjectZipAndWait, resetClientState, setupAuthentication } from './e2e-helpers';
 
 const EDGE_ZIP_PATH = path.resolve(process.cwd(), 'artifacts/edge.zip');
 
 test.describe('Simulation Play Button: Edge Project', () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(120000);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
     await page.goto('/');
     
     // Load edge project

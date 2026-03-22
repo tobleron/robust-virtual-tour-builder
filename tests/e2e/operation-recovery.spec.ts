@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 
 test.describe('Operation Recovery', () => {
   const desktopPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
   test.beforeEach(async ({ page }) => {
+    await setupAuthentication(page, 'dev-token');
     await setupAIObservability(page);
-    await page.goto('/');
+    await page.goto('/builder');
     await page.evaluate(async () => {
       localStorage.clear();
       sessionStorage.clear();

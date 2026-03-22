@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupAIObservability } from './ai-helper';
-import { loadProjectZipAndWait, resetClientState, waitForBuilderShellReady } from './e2e-helpers';
+import { loadProjectZipAndWait, resetClientState, waitForBuilderShellReady, setupAuthentication } from './e2e-helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +37,8 @@ test.describe('Export Templates', () => {
 
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
-    await resetClientState(page);
+    await setupAuthentication(page, 'dev-token');
+    await resetClientState(page, { authToken: 'dev-token' });
 
     await waitForBuilderShellReady(page);
     await page.waitForTimeout(500);

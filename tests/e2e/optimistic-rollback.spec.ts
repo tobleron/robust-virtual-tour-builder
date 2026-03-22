@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { setupAIObservability } from './ai-helper';
+import { setupAIObservability, setupAuthentication } from './ai-helper';
 
 test.describe('Optimistic Update Rollback', () => {
   const desktopPath = path.resolve(process.cwd(), 'artifacts/layan_complete_tour.zip');
 
   test.beforeEach(async ({ page }) => {
+    await setupAuthentication(page, 'dev-token');
     await setupAIObservability(page);
-    
+
     // Mock project import
     await page.route('**/api/project/import', async (route) => {
       const scenes = [
