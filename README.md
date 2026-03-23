@@ -5,9 +5,9 @@
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.3.9 (Build 0)  
+**Version:** 5.3.10 (Build 0)  
 **Directing Developer:** Arto Kalishian  
-**Release Date:** March 22, 2026  
+**Release Date:** March 23, 2026  
 **Status:** Commercial Ready
 <!-- METADATA_END -->
 

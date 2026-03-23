@@ -2,6 +2,7 @@ use crate::middleware::rate_limiter::{RateLimitResponseTransformer, RateLimiters
 use actix_governor::Governor;
 use actix_web::web;
 
+#[cfg(feature = "builder-runtime")]
 use super::{media, project, project_export, project_import};
 
 #[cfg(feature = "builder-runtime")]

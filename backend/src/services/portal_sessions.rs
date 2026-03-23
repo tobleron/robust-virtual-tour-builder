@@ -6,8 +6,8 @@ use crate::models::AppError;
 use crate::services::portal::{
     PortalAccessLinkRecord, PortalAccessRedirect, PortalCustomer, PortalCustomerPublicView,
     PortalCustomerSessionView, PortalCustomerTourAssignmentRecord, PortalGalleryView,
-    PortalTourCard, assignment_by_short_code, assignment_from_lookup_row, customer_public,
-    ensure_assignment_short_code, validate_slug,
+    PortalTourCard, assignment_by_customer_and_tour, assignment_by_short_code,
+    assignment_from_lookup_row, customer_public, ensure_assignment_short_code, validate_slug,
 };
 use crate::services::portal_admin::load_settings;
 use crate::services::portal_assets::ensure_portal_cover_path;
@@ -59,6 +59,64 @@ pub(crate) async fn current_customer_and_access_link_by_slug(
         .ok_or_else(|| AppError::Unauthorized("Portal access link is required.".into()))?;
 
     Ok((customer, access_link))
+}
+
+pub async fn resolve_public_tour_access(
+    pool: &SqlitePool,
+    customer_slug: &str,
+    tour_slug: &str,
+) -> Result<(String, String), AppError> {
+    let normalized_slug = crate::services::portal::validate_slug(customer_slug)?;
+    let normalized_tour_slug = crate::services::portal::validate_slug(tour_slug)?;
+
+    let (customer, access_link) =
+        current_customer_and_access_link_by_slug(pool, &normalized_slug).await?;
+    if customer.is_active != 1 {
+        return Err(AppError::Unauthorized("Customer is inactive.".into()));
+    }
+
+    if access_link.revoked_at.is_some() || access_link.expires_at <= chrono::Utc::now() {
+        return Err(AppError::Unauthorized(
+            "Access link is expired or revoked.".into(),
+        ));
+    }
+
+    let assignment_row =
+        assignment_by_customer_and_tour(pool, &normalized_slug, &normalized_tour_slug)
+            .await?
+            .ok_or_else(|| AppError::Unauthorized("Assignment not found.".into()))?;
+
+    let (_, assignment, tour) = assignment_from_lookup_row(assignment_row);
+
+    if assignment.status != "active" || assignment.revoked_at.is_some() {
+        return Err(AppError::Unauthorized(
+            "Assignment is inactive or revoked.".into(),
+        ));
+    }
+
+    if assignment_effective_expiry(&assignment, access_link.expires_at) <= chrono::Utc::now() {
+        return Err(AppError::Unauthorized("Assignment is expired.".into()));
+    }
+
+    if tour.status != "published" {
+        return Err(AppError::Unauthorized("Tour is not published.".into()));
+    }
+
+    let pool_for_update = pool.clone();
+    let assignment_id = assignment.id.clone();
+    tokio::spawn(async move {
+        let now = chrono::Utc::now();
+        let _ = sqlx::query(
+            "UPDATE portal_customer_tour_assignments SET open_count = open_count + 1, last_opened_at = ?, updated_at = ? WHERE id = ?",
+        )
+        .bind(now)
+        .bind(now)
+        .bind(&assignment_id)
+        .execute(&pool_for_update)
+        .await;
+    });
+
+    Ok(("assignment".to_string(), assignment.id))
 }
 
 #[derive(Debug)]
@@ -294,7 +352,8 @@ pub async fn public_customer_view(
 pub async fn load_customer_session(
     pool: &SqlitePool,
     slug: &str,
-    access_link_id: &str,
+    access_kind: &str,
+    access_ref: &str,
     public_base_url: &str,
 ) -> Result<PortalCustomerSessionView, AppError> {
     let normalized_slug = validate_slug(slug)?;
@@ -310,19 +369,58 @@ pub async fn load_customer_session(
                 AppError::Unauthorized("Portal session is invalid for this customer.".into())
             })?;
 
-    let access_link = sqlx::query_as::<_, crate::services::portal::PortalAccessLinkRecord>(
-        "SELECT * FROM portal_access_links WHERE id = ? AND customer_id = ?",
-    )
-    .bind(access_link_id)
-    .bind(&customer.id)
-    .fetch_optional(pool)
-    .await
-    .map_err(|error| {
-        AppError::InternalError(format!("Portal session link lookup failed: {}", error))
-    })?
-    .ok_or_else(|| AppError::Unauthorized("Portal session is invalid for this customer.".into()))?;
+    let summary = if access_kind == "gallery" {
+        let access_link = sqlx::query_as::<_, crate::services::portal::PortalAccessLinkRecord>(
+            "SELECT * FROM portal_access_links WHERE id = ? AND customer_id = ?",
+        )
+        .bind(access_ref)
+        .bind(&customer.id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|error| {
+            AppError::InternalError(format!("Portal session link lookup failed: {}", error))
+        })?
+        .ok_or_else(|| {
+            AppError::Unauthorized("Portal session is invalid for this customer.".into())
+        })?;
 
-    let summary = customer_access_link_summary(&access_link, public_base_url, &customer.slug);
+        customer_access_link_summary(&access_link, public_base_url, &customer.slug)
+    } else if access_kind == "assignment" {
+        let assignment =
+            sqlx::query_as::<_, crate::services::portal::PortalCustomerTourAssignmentRecord>(
+                "SELECT * FROM portal_customer_tour_assignments WHERE id = ? AND customer_id = ?",
+            )
+            .bind(access_ref)
+            .bind(&customer.id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|error| {
+                AppError::InternalError(format!(
+                    "Portal session assignment lookup failed: {}",
+                    error
+                ))
+            })?
+            .ok_or_else(|| {
+                AppError::Unauthorized("Portal session is invalid for this customer.".into())
+            })?;
+
+        let active = assignment.status == "active" && assignment.revoked_at.is_some() == false;
+
+        // Synthesize a summary for the assignment session
+        crate::services::portal_types::PortalAccessLinkSummary {
+            id: assignment.id.clone(),
+            expires_at: assignment
+                .expires_at_override
+                .map(|t| t.to_rfc3339())
+                .unwrap_or_else(|| "".to_string()),
+            revoked_at: assignment.revoked_at.map(|t| t.to_rfc3339()),
+            last_opened_at: assignment.last_opened_at.map(|t| t.to_rfc3339()),
+            active,
+            access_url: None,
+        }
+    } else {
+        return Err(AppError::Unauthorized("Invalid session type.".into()));
+    };
     let can_open_tours = customer.is_active == 1 && summary.active;
 
     Ok(PortalCustomerSessionView {
@@ -337,10 +435,12 @@ pub async fn load_customer_session(
 pub async fn gallery_view_for_customer(
     pool: &SqlitePool,
     slug: &str,
-    access_link_id: &str,
+    access_kind: &str,
+    access_ref: &str,
     public_base_url: &str,
 ) -> Result<PortalGalleryView, AppError> {
-    let session = load_customer_session(pool, slug, access_link_id, public_base_url).await?;
+    let session =
+        load_customer_session(pool, slug, access_kind, access_ref, public_base_url).await?;
     let customer =
         sqlx::query_as::<_, PortalCustomer>("SELECT * FROM portal_customers WHERE slug = ?")
             .bind(&session.customer.slug)

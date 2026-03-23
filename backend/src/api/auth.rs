@@ -4,6 +4,7 @@ mod auth_context;
 mod auth_events;
 #[path = "auth_flows.rs"]
 mod auth_flows;
+#[cfg(feature = "builder-runtime")]
 #[path = "auth_flows_local_setup.rs"]
 mod auth_flows_local_setup;
 #[path = "auth_mail.rs"]
@@ -324,6 +325,7 @@ pub async fn forgot_password(
     auth_flows::forgot_password(pool, payload).await
 }
 
+#[cfg(feature = "builder-runtime")]
 pub async fn local_setup_status(
     req: HttpRequest,
     pool: web::Data<SqlitePool>,
@@ -331,6 +333,7 @@ pub async fn local_setup_status(
     auth_flows_local_setup::setup_status(req, pool).await
 }
 
+#[cfg(feature = "builder-runtime")]
 pub async fn bootstrap_local_setup(
     req: HttpRequest,
     pool: web::Data<SqlitePool>,
@@ -339,6 +342,7 @@ pub async fn bootstrap_local_setup(
     auth_flows_local_setup::bootstrap_local_owner(req, pool, payload).await
 }
 
+#[cfg(feature = "builder-runtime")]
 pub async fn reset_local_setup(
     req: HttpRequest,
     pool: web::Data<SqlitePool>,

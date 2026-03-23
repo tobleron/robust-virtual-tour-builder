@@ -54,16 +54,6 @@ pub fn ensure_slug_matches_session(
     Ok((access_kind, access_ref))
 }
 
-pub fn ensure_gallery_session(session: &Session, slug: &str) -> Result<String, AppError> {
-    let (access_kind, access_ref) = ensure_slug_matches_session(session, slug)?;
-    if access_kind != "gallery" {
-        return Err(AppError::Unauthorized(
-            "Portal session is not valid for this customer.".into(),
-        ));
-    }
-    Ok(access_ref)
-}
-
 pub fn portal_public_base_url(req: &HttpRequest) -> String {
     match std::env::var("PORTAL_PUBLIC_BASE_URL") {
         Ok(value) if !value.trim().is_empty() => value.trim().trim_end_matches('/').to_string(),
@@ -91,14 +81,6 @@ pub fn safe_next_path(customer_slug: &str, next: Option<&str>) -> String {
             }
         }
         _ => fallback,
-    }
-}
-
-pub fn safe_tour_path(customer_slug: &str, tour_slug: &str) -> String {
-    let fallback = format!("/u/{}", customer_slug);
-    match validate_slug(tour_slug) {
-        Ok(normalized_tour_slug) => format!("{}/tour/{}", fallback, normalized_tour_slug),
-        Err(_) => fallback,
     }
 }
 

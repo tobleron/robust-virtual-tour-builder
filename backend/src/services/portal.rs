@@ -26,7 +26,7 @@ pub use crate::services::portal_customers::{
 pub use crate::services::portal_paths::{portal_library_tour_dir, validate_slug};
 pub use crate::services::portal_sessions::{
     access_session_for_token, authenticate_access_token, gallery_view_for_customer,
-    load_customer_session, public_customer_view,
+    load_customer_session, public_customer_view, resolve_public_tour_access,
 };
 pub(crate) use crate::services::portal_sessions::{
     current_access_link_for_customer, current_customer_and_access_link_by_slug,

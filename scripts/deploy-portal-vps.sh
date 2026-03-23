@@ -154,6 +154,7 @@ echo "[portal-deploy] Syncing source to $REMOTE..."
 
 RSYNC_RSH="${SSH_CMD[*]}"
 rsync -avz \
+  --delete \
   --times \
   --perms \
   --owner \
