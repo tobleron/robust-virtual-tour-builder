@@ -5,9 +5,9 @@
 ![GitHub Stars](https://img.shields.io/github/stars/tobleron/robust-virtual-tour-builder)
 
 <!-- METADATA_START -->
-**Version:** 5.3.10 (Build 0)  
+**Version:** 5.3.11 (Build 0)  
 **Directing Developer:** Arto Kalishian  
-**Release Date:** March 23, 2026  
+**Release Date:** April 16, 2026  
 **Status:** Commercial Ready
 <!-- METADATA_END -->
 
@@ -70,10 +70,10 @@ If the project helps you, the most useful support is:
 
 Demo tour preview:
 
-[![Demo tour screenshot](public/images/DemoTour.png)](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+[![Demo tour screenshot](public/images/DemoTour.png)](http://www.robust-vtb.com/u/ak84/RbLpvEX/tour/demotourtripz)
 
 Live demo:
-- [https://www.robust-vtb.com/u/ak84/tour/demotourtripz](https://www.robust-vtb.com/u/ak84/tour/demotourtripz)
+- [http://www.robust-vtb.com/u/ak84/RbLpvEX/tour/demotourtripz](http://www.robust-vtb.com/u/ak84/RbLpvEX/tour/demotourtripz)
 
 Tutorial video:
 - [YouTube walkthrough](https://www.youtube.com/watch?v=vs6D9xw4wZA)
